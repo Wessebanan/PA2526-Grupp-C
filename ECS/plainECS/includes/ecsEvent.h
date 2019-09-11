@@ -3,7 +3,6 @@
 #include <map>
 #include "ecsBaseEvent.h"
 #include "ecsGlobals.h"
-#include <string>
 
 namespace ecs
 {
