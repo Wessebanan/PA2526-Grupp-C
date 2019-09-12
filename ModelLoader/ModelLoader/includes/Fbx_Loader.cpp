@@ -4,7 +4,7 @@
 namespace {
 	static FbxManager* gpFbxSdkManager = nullptr;
 	static FbxLoader::Skeleton skeleton;
-	void LoadUV(fbxsdk::Mesh* pMesh, std::vector<DirectX::XMFLOAT2>* pOutUVVector)
+	void LoadUV(fbxsdk::FbxMesh* pMesh, std::vector<DirectX::XMFLOAT2>* pOutUVVector)
 	{
 		fbxsdk::FbxStringList uv_set_name_list;
 		pMesh->GetUVSetNames(uv_set_name_list);
@@ -103,48 +103,6 @@ namespace {
 	}
 }
 
-/*
-void FbxLoader::DisplayHierarchy(FbxNode* node, int depth, int currIndex, int parentIndex)
-{
-	FbxString jointName = node->GetName();
-	//Display the hierarchy
-	FbxString nodeNameBuf("");
-	for (int i = 0; i != depth; ++i) {
-		nodeNameBuf += "   ";
-	}
-	nodeNameBuf += jointName;
-	nodeNameBuf += "\n";
-	char buffer[100];
-	sprintf_s(buffer, nodeNameBuf.Buffer());
-	OutputDebugStringA(buffer);
-
-	//if the type of current node is Skeleton, then it's a joint
-	if (node->GetNodeAttribute() && node->GetNodeAttribute()->GetAttributeType() &&
-		node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton) {
-		Joint jointTmp;
-		jointTmp.jointName = jointName;
-		jointTmp.parentIndex = parentIndex;		//parent index
-		jointTmp.currentIndex = currIndex;
-		skeleton.joints.push_back(jointTmp);
-	}
-
-	//Display the hierarchy recursively
-	for (int i = 0; i != node->GetChildCount(); ++i) {
-		DisplayHierarchy(node->GetChild(i), depth + 1, skeleton.joints.size(), currIndex);
-	}
-}
-
-void FbxLoader::DisplayHierarchy(FbxScene* pScene)
-{
-	OutputDebugStringA("\n\n---------------------------Hierarchy-------------------------------\n\n");
-	FbxNode* rootNode = pScene->GetRootNode();
-	int childCount = rootNode->GetChildCount();
-	for (int i = 0; i != childCount; ++i) {
-		DisplayHierarchy(rootNode->GetChild(i), 0, 0, -1);
-	}
-}
-*/
-
 HRESULT FbxLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMFLOAT3>* pOutVertexPosVector, std::vector<int>* pOutIndexVector,
 	std::vector<DirectX::XMFLOAT3>* pOutNormalVector, std::vector<DirectX::XMFLOAT2>* pOutUVVector)
 {
@@ -198,12 +156,7 @@ HRESULT FbxLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMF
 	// Importer is no longer needed, remove from memory
 	p_importer->Destroy();
 
-
 	FbxNode* p_fbx_root_node = p_fbx_scene->GetRootNode();
-
-
-	//// Useful for skeleton/bone structure
-	//DisplayHierarchy(p_fbx_scene);
 
 	if (p_fbx_root_node)
 	{
@@ -221,87 +174,10 @@ HRESULT FbxLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMF
 
 			std::unordered_map<int, ControlPointInfo> controlPointsInfo;
 
-			// ---------- SKELETON RELATED CODE -----------------
-			// Handle Skeleton
-			// Skeletons in the FBX are stored with a null type root node
-			// Go one step deeper to reach the skeleton
-			/*
-			if (attribute_type == FbxNodeAttribute::eNull)
-			{
-				pFbxChildNode = pFbxChildNode->GetChild(0);
-				attribute_type = pFbxChildNode->GetNodeAttribute()->GetAttributeType();
-				FbxSkeleton* pSkeleton = (FbxSkeleton*)pFbxChildNode->GetNodeAttribute();
-				int num_children = pFbxChildNode->GetChildCount();
-			}
-			*/
 			// Handle Mesh attribute item
 			if (attribute_type == FbxNodeAttribute::eMesh)
 			{
-				Mesh* p_mesh = (Mesh*)pFbxChildNode->GetNodeAttribute();
-
-				// ---------- SKELETON RELATED CODE -----------------
-				// ---------- SKELETON RELATED CODE -----------------
-				// ---------- SKELETON RELATED CODE -----------------
-				/*
-				// Deformer is basically a skeleton, so there will most likely only be one deformer per mesh
-				unsigned int numOfDeformers = p_mesh->GetDeformerCount();
-				for (unsigned int deformerIndex = 0; deformerIndex != numOfDeformers; ++deformerIndex)
-				{
-					FbxSkin* currSkin = reinterpret_cast<FbxSkin*>(p_mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
-					// If skin not found
-
-					if (!currSkin)
-					{
-						continue;
-					}
-
-					// Cluster == bone
-					unsigned int numOfClusters = currSkin->GetClusterCount();
-					for (unsigned int clusterIndex = 0; clusterIndex != numOfClusters; ++clusterIndex)
-					{
-						FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
-						FbxString currJointName = currCluster->GetLink()->GetName();
-
-						// Find joint index by name
-						int currJointIndex = -1;
-						for (int index = 0; index != skeleton.joints.size(); ++index) {
-							if (skeleton.joints[index].jointName == currJointName)
-							{
-								currJointIndex = index;
-								continue;
-							}
-						}
-						if (currJointIndex == -1) {
-							char buffer[100];
-							sprintf_s(buffer, "Joint not found: %s\n\n", currJointName);
-							OutputDebugStringA(buffer);
-							continue;
-						}
-
-						FbxAMatrix localMatrix = currCluster->GetLink()->EvaluateLocalTransform();
-
-						skeleton.joints[currJointIndex].node = currCluster->GetLink(); // Get current joint
-						skeleton.joints[currJointIndex].localMatrix = localMatrix;
-
-						// Parse vertex joint weights
-
-						unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
-						double* controlPointWeights = currCluster->GetControlPointWeights();
-						int* controlPointIndices = currCluster->GetControlPointIndices();
-
-						for (unsigned int i = 0; i != numOfIndices; ++i)
-						{
-							IndexWeightPair pair;
-							pair.index = currJointIndex;
-							pair.weight = controlPointWeights[i];
-
-							controlPointsInfo[controlPointIndices[i]].weightPairs.push_back(pair);
-							// SAVE TO CONTROL POINTS INFO STRUCT
-						}
-
-					}
-				}
-				*/
+				FbxMesh* p_mesh = (FbxMesh*)pFbxChildNode->GetNodeAttribute();
 
 				// Make sure the mesh is triangulated
 				assert(p_mesh->IsTriangleMesh() && "Mesh contains non-triangles, please triangulate the mesh.");

@@ -26,9 +26,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\Test.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\Fbx_Loader.h">
       <Filter>Header Files</Filter>
     </ClInclude>

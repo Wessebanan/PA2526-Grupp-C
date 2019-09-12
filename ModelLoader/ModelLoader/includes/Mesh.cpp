@@ -2,7 +2,10 @@
 // Running this constructor implies you want an empty mesh object
 Mesh::Mesh()
 {
-
+	mpVertexPosVector = nullptr;
+	mpUVVector = nullptr;
+	mpNormalVector = nullptr;
+	mpIndexVector = nullptr;
 }
 
 Mesh::~Mesh()
@@ -15,6 +18,7 @@ Mesh::~Mesh()
 
 HRESULT Mesh::LoadFBX(const std::string& filePath)
 {
+	// Create vectors if they dont already exist
 	if (!this->mpIndexVector || !this->mpVertexPosVector || !this->mpNormalVector || !this->mpUVVector)
 	{
 		this->mpIndexVector = new std::vector<int>;
@@ -22,14 +26,29 @@ HRESULT Mesh::LoadFBX(const std::string& filePath)
 		this->mpNormalVector = new std::vector<DirectX::XMFLOAT3>;
 		this->mpUVVector = new std::vector<DirectX::XMFLOAT2>;
 	}
-	//FbxLoader::LoadFBX(filePath, this->mpVertexVector, this->mpIndexVector, &this->skeleton);
-	return FbxLoader::LoadFBX(filePath, this->mpVertexPosVector, this->mpIndexVector, this->mpNormalVector, this->mpUVVector);
+	HRESULT hr = FbxLoader::LoadFBX(filePath, this->mpVertexPosVector, this->mpIndexVector, this->mpNormalVector, this->mpUVVector);
+	// Load failed, clean memory
+	if (FAILED(hr))
+	{
+		delete mpVertexPosVector;
+		delete mpIndexVector;
+		delete mpNormalVector;
+		delete mpUVVector;
+		mpVertexPosVector = nullptr;
+		mpUVVector = nullptr;
+		mpNormalVector = nullptr;
+		mpIndexVector = nullptr;
+	}
+	return hr;
 
 }
 
 std::vector<DirectX::XMFLOAT3>* Mesh::GetVertexPositionVector()
 {
-	return this->mpVertexPosVector;
+	if (this->mpVertexPosVector)
+		return this->mpVertexPosVector;
+	else
+		return nullptr;
 }
 
 std::vector<int>* Mesh::GetIndexVector()

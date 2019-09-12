@@ -8,14 +8,11 @@ private:
 	std::vector<DirectX::XMFLOAT3>* mpNormalVector = nullptr;
 	std::vector<DirectX::XMFLOAT2>* mpUVVector = nullptr;
 
-	// Used for skinning / skeletal animation
-	/*Skeleton skeleton;
-	std::unordered_map<int, ControlPointInfo> controlPointsInfo;*/
 
 public:
 	Mesh();
 	~Mesh();
-	// Populates the vectors with data from provided .fbx filepath
+	// Populates the objects vectors with data from provided .fbx filepath
 	HRESULT LoadFBX(const std::string& filePath);
 
 	std::vector<DirectX::XMFLOAT3>* GetVertexPositionVector();

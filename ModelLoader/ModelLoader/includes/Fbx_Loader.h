@@ -9,6 +9,9 @@
 #include <DirectXMath.h>
 #include <memory>
 
+#pragma comment (lib, "libfbxsdk.lib")
+#pragma comment (lib, "d3d11.lib")
+#pragma comment (lib, "dxguid.lib")
 
 namespace FbxLoader
 {
@@ -71,7 +74,7 @@ namespace FbxLoader
 
 	// Used for loading the very basics of an FBX
 	// Input: std::string file name of FBX file, pointers to std::vectors to append the data to
-	// Output: Appends XMFLOAT3 vertex positions and int indices to provided vectors
+	// Output: Appends data to the provided vectors, returns HRESULT
 	HRESULT LoadFBX(const std::string& fileName, std::vector<DirectX::XMFLOAT3>* pOutVertexPosVector, std::vector<int>* pOutIndexVector,
 		std::vector<DirectX::XMFLOAT3>* pOutNormalVector, std::vector<DirectX::XMFLOAT2>* pOutUVVector);
 
