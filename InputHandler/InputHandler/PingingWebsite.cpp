@@ -6,20 +6,36 @@
 #include <chrono>
 #include <thread>
 
-#include "InputSystems.h"
+#include "HandleInputSystem.h"
 
 #define TESTWEB false
-#define TESTSYS true
+#define TESTSYS false
+#define TESTECS true
 #define PRINTKEYBOARD false
 #define PRINTMOUSE false
 #define PRINTWEB TRUE
 
 
-
+void initInputECS(ecs::EntityComponentSystem& rECS);
 
 int main()
 {
 	InputSystem inputSys;
+
+
+	ecs::EntityComponentSystem myECS;
+
+	initInputECS(myECS);
+
+	while (TESTECS)
+	{
+		myECS.update(0.9f);
+	}
+	
+
+
+
+
 
 	if (TESTSYS)
 	{
@@ -30,7 +46,7 @@ int main()
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-		if (inputSys.update())
+		if (inputSys.updateKeyboard())
 		{
 			if (PRINTKEYBOARD)
 			{
@@ -107,6 +123,26 @@ int main()
 	}
 }
 
+
+void initInputECS(ecs::EntityComponentSystem& rECS)
+{
+	// SYSTEMS
+	rECS.createSystem<ecs::systems::HandleInputSystem>(1);// parameter är layer
+
+	rECS.createSystem<ecs::systems::HandleKeyboardSystem>(2);
+	rECS.createSystem<ecs::systems::HandleMouseSystem>(2);
+	rECS.createSystem<ecs::systems::HandleWebSystem>(2);
+
+	// COMPONENTS
+
+	ecs::components::InputBackendComp *tempBackend = new ecs::components::InputBackendComp();
+	tempBackend->backend = new InputSystem();
+
+	//rECS.createComponent(ecs::components::InputBackendComp::typeID, );
+
+	// ENTITIES
+	rECS.createEntity(*tempBackend);
+}
 
 
 

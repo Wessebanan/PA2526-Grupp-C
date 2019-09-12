@@ -140,15 +140,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HandleInputSystem.cpp" />
     <ClCompile Include="InputSystems.cpp" />
     <ClCompile Include="jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="PingingWebsite.cpp" />
     <ClCompile Include="webConnection.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="HandleInputSystem.h" />
     <ClInclude Include="includes\InputSystems.h" />
     <ClInclude Include="includes\Test.hpp" />
     <ClInclude Include="includes\webConnection.h" />
+    <ClInclude Include="InputComponents.h" />
     <ClInclude Include="jsoncpp\json\json-forwards.h" />
     <ClInclude Include="jsoncpp\json\json.h" />
   </ItemGroup>

@@ -27,6 +27,9 @@
     <ClCompile Include="jsoncpp\jsoncpp.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="HandleInputSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\Test.hpp">
@@ -43,6 +46,12 @@
     </ClInclude>
     <ClInclude Include="jsoncpp\json\json-forwards.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HandleInputSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputComponents.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

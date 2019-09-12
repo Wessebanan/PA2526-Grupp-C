@@ -45,7 +45,7 @@ InputSystem::~InputSystem()
 	}
 }
 
-bool InputSystem::update()
+bool InputSystem::updateKeyboard()
 {
 	bool retVal = false;
 

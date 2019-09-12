@@ -10,6 +10,7 @@
 
 
 #include "webConnection.h"
+#include "ecs.h"
 
 struct key
 {
@@ -80,7 +81,7 @@ public:
 	~InputSystem();
 
 	// returns true if there was a change to any of the allocated keys
-	bool update();
+	bool updateKeyboard();
 	// returns if there was a change to hte mousemovement
 	bool updateMouse();
 	// returns true, checks the input from the web
@@ -127,5 +128,8 @@ private:
 	// Reads and updates the buttons
 	void updateButtons();
 };
+
+
+
 
 #endif // !INPUTSYSTEMS_H
