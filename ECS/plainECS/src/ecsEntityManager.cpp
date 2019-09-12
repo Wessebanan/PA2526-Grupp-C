@@ -52,6 +52,11 @@ void ECSEntityManager::removeAllFlagged()
 	}
 }
 
+size_t ECSEntityManager::getEntityCount()
+{
+	return entities.size();
+}
+
 Entity* ECSEntityManager::createEntityInternal()
 {
 	ID newID = idGenerator.generateID();

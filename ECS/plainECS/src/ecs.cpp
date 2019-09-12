@@ -40,7 +40,7 @@ bool ecs::EntityComponentSystem::initialize(ECSDesc& _desc)
 	return true;
 }
 
-ID EntityComponentSystem::createEntity(BaseComponent& _comp)
+Entity* EntityComponentSystem::createEntity(BaseComponent& _comp)
 {
 	/*
 	*	Creates a component list and forwards creation to internal function.
@@ -53,10 +53,10 @@ ID EntityComponentSystem::createEntity(BaseComponent& _comp)
 	list.initialInfo = components;
 	list.componentCount = 1;
 
-	return createEntityInternal(list)->getID();
+	return createEntityInternal(list);
 }
 
-ID EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _compB)
+Entity* EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _compB)
 {
 	/*
 	*	Creates a component list and forwards creation to internal function.
@@ -69,10 +69,10 @@ ID EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _co
 	list.initialInfo = components;
 	list.componentCount = 2;
 
-	return createEntityInternal(list)->getID();
+	return createEntityInternal(list);
 }
 
-ID EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC)
+Entity* EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC)
 {
 	/*
 	*	Creates a component list and forwards creation to internal function.
@@ -85,10 +85,10 @@ ID EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _co
 	list.initialInfo = components;
 	list.componentCount = 3;
 
-	return createEntityInternal(list)->getID();
+	return createEntityInternal(list);
 }
 
-ID EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD)
+Entity* EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD)
 {
 	/*
 	*	Creates a component list and forwards creation to internal function.
@@ -101,10 +101,10 @@ ID EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _co
 	list.initialInfo = components;
 	list.componentCount = 4;
 
-	return createEntityInternal(list)->getID();
+	return createEntityInternal(list);
 }
 
-ID EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD, BaseComponent& _compE)
+Entity* EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD, BaseComponent& _compE)
 {
 	/*
 	*	Creates a component list and forwards creation to internal function.
@@ -117,25 +117,19 @@ ID EntityComponentSystem::createEntity(BaseComponent& _compA, BaseComponent& _co
 	list.initialInfo = components;
 	list.componentCount = 5;
 
-	return createEntityInternal(list)->getID();
+	return createEntityInternal(list);
 }
 
-ID EntityComponentSystem::createEntity(ComponentList _components)
+Entity* EntityComponentSystem::createEntity(ComponentList _components)
 {
 	// Forwards to internal function.
-	return createEntityInternal(_components)->getID();
+	return createEntityInternal(_components);
 }
 
 void EntityComponentSystem::removeEntity(ID _entityID)
 {
 	// Forwards to internal function.
 	removeEntityInternal(_entityID);
-}
-
-ID EntityComponentSystem::createComponent(ID _entityID, BaseComponent& _component)
-{
-	// Forwards to internal function.
-	return createComponentInternal(_entityID, _component);
 }
 
 void EntityComponentSystem::removeComponent(ID _entityID, TypeID _componentTypeID)
@@ -244,6 +238,86 @@ void EntityComponentSystem::update(float _delta)
 	eventMgr.clearAllEvents();
 }
 
+/*
+*	Getters
+*/
+
+Entity* EntityComponentSystem::getEntity(ID _id)
+{
+	return entityMgr.getEntity(_id);
+}
+
+BaseComponent* EntityComponentSystem::getComponent(TypeID _typeID, ID _id)
+{
+	return componentMgr.getComponent(_typeID, _id);
+}
+
+BaseComponent* EntityComponentSystem::getComponentFromEntity(TypeID _typeID, ID _entityID)
+{
+	Entity* entity = entityMgr.getEntity(_entityID);
+
+	// Sanity check
+	if (!entity->hasComponentOfType(_typeID))
+	{
+		return nullptr;
+	}
+
+	return componentMgr.getComponent(_typeID, entity->getComponentID(_typeID));
+}
+
+size_t EntityComponentSystem::getSystemLayers()
+{
+	return layerCount;
+}
+
+size_t EntityComponentSystem::getTotalSystemCount()
+{
+	return typeIDLayerMap.size();
+}
+
+size_t EntityComponentSystem::getTotalEntityCount()
+{
+	return entityMgr.getEntityCount();
+}
+
+size_t EntityComponentSystem::getTotalComponentCount()
+{
+	return componentMgr.getTotalComponentCount();
+}
+
+size_t EntityComponentSystem::getComponentTypeCount()
+{
+	return componentMgr.getComponentTypeCount();
+}
+
+size_t EntityComponentSystem::getComponentCountOfType(TypeID _typeID)
+{
+	return componentMgr.getComponentCountOfType(_typeID);
+}
+
+EntityIterator EntityComponentSystem::getFilteredEntityIterator(TypeFilter _componentFilter)
+{
+	EntityIterator iterator;
+	fillEntityIteratorInternal(_componentFilter, iterator);
+	return iterator;
+}
+
+ComponentIterator EntityComponentSystem::getAllComponentsOfType(TypeID _typeID)
+{
+	return componentMgr.getComponentIterator(_typeID);
+}
+
+TypeFilter EntityComponentSystem::getInitializedComponentTypes()
+{
+	return componentMgr.getInitializedComponentTypes();
+}
+
+
+
+/*
+*	Internal functionality
+*/
+
 Entity* EntityComponentSystem::onGetEntity(ID _entityID)
 {
 	return entityMgr.getEntity(_entityID);
@@ -254,12 +328,12 @@ BaseComponent* EntityComponentSystem::onGetComponent(TypeID _typeID, ID _id)
 	return componentMgr.getComponent(_typeID, _id);
 }
 
-ID EntityComponentSystem::onCreateEntity(ComponentList _components)
+Entity* EntityComponentSystem::onCreateEntity(ComponentList _components)
 {
-	return createEntityInternal(_components)->getID();
+	return createEntityInternal(_components);
 }
 
-ID EntityComponentSystem::onCreateComponent(ID _entityID, BaseComponent& _componentInfo)
+BaseComponent* EntityComponentSystem::onCreateComponent(ID _entityID, BaseComponent& _componentInfo)
 {
 	return createComponentInternal(_entityID, _componentInfo);
 }
@@ -311,7 +385,7 @@ Entity* EntityComponentSystem::createEntityInternal(ComponentList _components)
 	return entity;
 }
 
-ID EntityComponentSystem::createComponentInternal(ID _entityID, BaseComponent & _componentInfo)
+BaseComponent* EntityComponentSystem::createComponentInternal(ID _entityID, BaseComponent& _componentInfo)
 {
 	Entity* entity = entityMgr.getEntity(_entityID);
 
@@ -332,7 +406,7 @@ ID EntityComponentSystem::createComponentInternal(ID _entityID, BaseComponent & 
 	BaseEvent* pEvent = eventMgr.createEvent(e);
 	notifyEventListeners(events::CreateComponentEvent::typeID, pEvent);
 
-	return component->getID();
+	return component;
 }
 
 void EntityComponentSystem::createEventInternal(BaseEvent& _event)
@@ -417,7 +491,7 @@ void EntityComponentSystem::fillEntityIteratorInternal(TypeFilter& _componentFil
 	size_t minSize = 0;
 	for (TypeID typeID : _componentFilter.requirements)
 	{
-		size_t size = componentMgr.getPoolSize(typeID);
+		size_t size = componentMgr.getComponentCountOfType(typeID);
 		if (size < minSize || minTypeID == 0)
 		{
 			minTypeID = typeID;
