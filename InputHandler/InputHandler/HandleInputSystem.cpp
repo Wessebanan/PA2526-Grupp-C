@@ -120,30 +120,3 @@ void ecs::systems::HandleInputSystem::updateEntity(FilteredEntity& _entityInfo, 
 	backendComp->backend->updateWeb();
 
 }
-
-ecs::systems::testSystem::testSystem()
-{
-	updateType = ecs::EntityUpdate;
-	componentFilter.addRequirement(ecs::components::KeyboardComponent::typeID);
-	componentFilter.addRequirement(ecs::components::MouseComponent::typeID);
-	componentFilter.addRequirement(ecs::components::UserButtonComponent::typeID);
-}
-
-ecs::systems::testSystem::~testSystem()
-{
-}
-
-void ecs::systems::testSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
-{
-	KeyboardComponent* kb = _entityInfo.getComponent<components::KeyboardComponent>();
-	MouseComponent* mouse = _entityInfo.getComponent<components::MouseComponent>();
-	UserButtonComponent* buttons = _entityInfo.getComponent<components::UserButtonComponent>();
-
-
-	std::cout 
-		<< "W key: " << kb->W << std::endl
-		<< "	| Mouse diffLength: " << mouse->diffLength << std::endl
-		<< "	| Player3 has pressed '1': " << buttons->buttons[2][1] << std::endl
-		<< "----- NEXT TICK -----" << std::endl;
-
-}

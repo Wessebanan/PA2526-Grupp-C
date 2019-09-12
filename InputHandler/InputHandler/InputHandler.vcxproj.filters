@@ -32,9 +32,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\Test.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\InputSystems.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -47,10 +44,10 @@
     <ClInclude Include="jsoncpp\json\json-forwards.h">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="HandleInputSystem.h">
+    <ClInclude Include="includes\HandleInputSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InputComponents.h">
+    <ClInclude Include="includes\InputComponents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -60,6 +57,9 @@
     </None>
     <None Include="json\webState.json">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="includes\InitInputHandler.h">
+      <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
 </Project>

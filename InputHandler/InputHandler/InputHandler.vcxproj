@@ -58,6 +58,7 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="incLibs.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -147,15 +148,15 @@
     <ClCompile Include="webConnection.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HandleInputSystem.h" />
+    <ClInclude Include="includes\HandleInputSystem.h" />
+    <ClInclude Include="includes\InputComponents.h" />
     <ClInclude Include="includes\InputSystems.h" />
-    <ClInclude Include="includes\Test.hpp" />
     <ClInclude Include="includes\webConnection.h" />
-    <ClInclude Include="InputComponents.h" />
     <ClInclude Include="jsoncpp\json\json-forwards.h" />
     <ClInclude Include="jsoncpp\json\json.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="includes\InitInputHandler.h" />
     <None Include="json\playerMode.json" />
     <None Include="json\webState.json" />
   </ItemGroup>
