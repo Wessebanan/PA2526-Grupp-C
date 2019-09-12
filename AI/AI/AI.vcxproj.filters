@@ -13,9 +13,26 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\ECS_Files">
+      <UniqueIdentifier>{49069a2f-c8c3-403e-a887-b3dfba84800e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClInclude Include="includes\AIComponents.h">
+      <Filter>Header Files\ECS_Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\AISystems.h">
+      <Filter>Header Files\ECS_Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\AIEvents.h">
+      <Filter>Header Files\ECS_Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\GridFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="includes\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
