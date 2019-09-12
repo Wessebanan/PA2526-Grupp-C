@@ -47,22 +47,21 @@ namespace ecs
 		};
 
 
-		struct WebComponent : public ecs::ECSComponent<KeyboardComponent>
+		struct UserButtonComponent : public ecs::ECSComponent<UserButtonComponent>
 		{
-			// Movement
-			bool W = false;
-			bool S = false;
-			bool A = false;
-			bool D = false;
-
-			// Reset
-			bool R = false;
-			// Exit or Menu
-			bool ECS = false;
-
-			// Extra for debug
-			bool Q = false;
-			bool E = false;
+			// [player][button]
+			bool buttons[4][4];
+		};
+		struct UserTileComponent : public ecs::ECSComponent<UserTileComponent>
+		{
+			// The selected tile cord
+			int tile[4][2];
+			//int ;
+		};
+		struct UserNameComponent : public ecs::ECSComponent<UserNameComponent>
+		{
+			// Name
+			std::string names[4];
 		};
 	}
 }

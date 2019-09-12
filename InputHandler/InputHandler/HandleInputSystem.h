@@ -47,6 +47,20 @@ namespace ecs
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 		private:
 		};
+
+
+		// For debugging and testing 
+
+		class testSystem : public ecs::ECSSystem<testSystem>
+		{
+		public:
+			testSystem();
+			~testSystem();
+
+
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		private:
+		};
 	}
 }
 

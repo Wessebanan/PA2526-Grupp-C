@@ -37,6 +37,9 @@ void ecs::systems::HandleKeyboardSystem::updateEntity(FilteredEntity& _entityInf
 
 ecs::systems::HandleMouseSystem::HandleMouseSystem()
 {
+	updateType = ecs::EntityUpdate;
+	componentFilter.addRequirement(ecs::components::MouseComponent::typeID);
+	componentFilter.addRequirement(ecs::components::InputBackendComp::typeID);
 }
 
 ecs::systems::HandleMouseSystem::~HandleMouseSystem()
@@ -54,12 +57,15 @@ void ecs::systems::HandleMouseSystem::updateEntity(FilteredEntity& _entityInfo, 
 	mouse->pos = backendComp->backend->mouse->newPos;
 	mouse->diffFloat2 = backendComp->backend->mouse->diffFloat2;
 	mouse->diffLength = backendComp->backend->mouse->diffLength;
+
 }
 
 /// WEB
 
 ecs::systems::HandleWebSystem::HandleWebSystem()
 {
+	updateType = ecs::EntityUpdate;
+	componentFilter.addRequirement(ecs::components::InputBackendComp::typeID);
 }
 
 ecs::systems::HandleWebSystem::~HandleWebSystem()
@@ -68,6 +74,21 @@ ecs::systems::HandleWebSystem::~HandleWebSystem()
 
 void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
+	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
+
+	UserButtonComponent* button = _entityInfo.getComponent<components::UserButtonComponent>();
+	UserTileComponent* tile = _entityInfo.getComponent<components::UserTileComponent>();
+
+	for (int i = 0; i < 4; i++)
+	{
+		button->buttons[i][0] = backendComp->backend->playerControll[i]->keyU.pressed;
+		button->buttons[i][1] = backendComp->backend->playerControll[i]->keyD.pressed;
+		button->buttons[i][2] = backendComp->backend->playerControll[i]->keyL.pressed;
+		button->buttons[i][3] = backendComp->backend->playerControll[i]->keyR.pressed;
+
+		tile->tile[i][0] = backendComp->backend->players[i]->currButton0;
+		tile->tile[i][1] = backendComp->backend->players[i]->currButton1;
+	}
 }
 
 /// HEADER INPUT 
@@ -90,6 +111,27 @@ void ecs::systems::HandleInputSystem::updateEntity(FilteredEntity& _entityInfo, 
 
 	backendComp->backend->updateKeyboard();
 	backendComp->backend->updateMouse();
-	//backendComp->backend->updateWeb();
+	backendComp->backend->updateWeb();
+
+}
+
+ecs::systems::testSystem::testSystem()
+{
+	updateType = ecs::EntityUpdate;
+	componentFilter.addRequirement(ecs::components::KeyboardComponent::typeID);
+	componentFilter.addRequirement(ecs::components::MouseComponent::typeID);
+}
+
+ecs::systems::testSystem::~testSystem()
+{
+}
+
+void ecs::systems::testSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	KeyboardComponent* kb = _entityInfo.getComponent<components::KeyboardComponent>();
+	MouseComponent* mouse = _entityInfo.getComponent<components::MouseComponent>();
+
+
+	std::cout << "W key: " << kb->W << " | Mouse diffLength: " << mouse->diffLength << std::endl;
 
 }
