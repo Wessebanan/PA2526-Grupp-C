@@ -23,29 +23,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Dll_d|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="src\ecsCore\ecs.cpp" />
-    <ClCompile Include="src\ecsCore\ecsBaseComponent.cpp" />
-    <ClCompile Include="src\ecsCore\ecsBaseEvent.cpp" />
-    <ClCompile Include="src\ecsCore\ecsBaseSystem.cpp" />
-    <ClCompile Include="src\ecsCore\ecsComponentManager.cpp" />
-    <ClCompile Include="src\ecsCore\ecsComponentPool.cpp" />
-    <ClCompile Include="src\ecsCore\ecsEntity.cpp" />
-    <ClCompile Include="src\ecsCore\ecsEntityManager.cpp" />
-    <ClCompile Include="src\ecsCore\ecsEventListener.cpp" />
-    <ClCompile Include="src\ecsCore\ecsEventManager.cpp" />
-    <ClCompile Include="src\ecsCore\ecsEventPool.cpp" />
-    <ClCompile Include="src\ecsCore\ecsTypeFilter.cpp" />
-    <ClCompile Include="src\ecsCore\ecsUser.cpp" />
-    <ClCompile Include="src\ecsCore\poolAllocator.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="includes\ecs.h" />
     <ClInclude Include="includes\ecsBaseComponent.h" />
     <ClInclude Include="includes\ecsBaseEvent.h" />
@@ -77,7 +54,28 @@
     <ClInclude Include="includes\ecsSystemIncludes.h" />
     <ClInclude Include="includes\ecsTypeFilter.h" />
     <ClInclude Include="includes\ecsUser.h" />
+    <ClInclude Include="includes\nameOf.h" />
     <ClInclude Include="includes\poolAllocator.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\ecs.cpp" />
+    <ClCompile Include="src\ecsBaseComponent.cpp" />
+    <ClCompile Include="src\ecsBaseEvent.cpp" />
+    <ClCompile Include="src\ecsBaseSystem.cpp" />
+    <ClCompile Include="src\ecsComponentManager.cpp" />
+    <ClCompile Include="src\ecsComponentPool.cpp" />
+    <ClCompile Include="src\ecsEntity.cpp" />
+    <ClCompile Include="src\ecsEntityManager.cpp" />
+    <ClCompile Include="src\ecsEventListener.cpp" />
+    <ClCompile Include="src\ecsEventManager.cpp" />
+    <ClCompile Include="src\ecsEventPool.cpp" />
+    <ClCompile Include="src\ecsTypeFilter.cpp" />
+    <ClCompile Include="src\ecsUser.cpp" />
+    <ClCompile Include="src\poolAllocator.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
