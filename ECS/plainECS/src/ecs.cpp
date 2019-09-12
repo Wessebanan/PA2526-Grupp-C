@@ -338,6 +338,18 @@ BaseComponent* EntityComponentSystem::onCreateComponent(ID _entityID, BaseCompon
 	return createComponentInternal(_entityID, _componentInfo);
 }
 
+EntityIterator EntityComponentSystem::getEntitiesByFilter(TypeFilter _componentFilter)
+{
+	EntityIterator iterator;
+	fillEntityIteratorInternal(_componentFilter, iterator);
+	return iterator;
+}
+
+ComponentIterator EntityComponentSystem::getComponentsOfType(TypeID _typeID)
+{
+	return componentMgr.getComponentIterator(_typeID);
+}
+
 void EntityComponentSystem::onCreateEvent(BaseEvent& _event)
 {
 	createEventInternal(_event);

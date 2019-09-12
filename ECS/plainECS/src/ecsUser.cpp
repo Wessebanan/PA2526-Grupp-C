@@ -7,6 +7,23 @@ Entity* ECSUser::getEntity(ID _entityID)
 	return ecsUserHandler->onGetEntity(_entityID);
 }
 
+EntityIterator ECSUser::getEntitiesByFilter(TypeFilter _filter)
+{
+	return ecsUserHandler->getEntitiesByFilter(_filter);
+}
+
+EntityIterator ECSUser::getEntitiesWithComponent(TypeID _typeID)
+{
+	TypeFilter filter;
+	filter.addRequirement(_typeID);
+	return ecsUserHandler->getEntitiesByFilter(filter);
+}
+
+ComponentIterator ECSUser::getComponentsOfType(TypeID _typeID)
+{
+	return ecsUserHandler->getComponentsOfType(_typeID);
+}
+
 BaseComponent* ECSUser::GetComponent(TypeID _typeID, ID _id)
 {
 	return ecsUserHandler->onGetComponent(_typeID, _id);

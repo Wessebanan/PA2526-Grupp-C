@@ -102,6 +102,8 @@ namespace ecs
 		BaseComponent* onGetComponent(TypeID _typeID, ID _id) override;
 		Entity* onCreateEntity(ComponentList _components) override;
 		BaseComponent* onCreateComponent(ID _entityID, BaseComponent& _componentInfo) override;
+		EntityIterator getEntitiesByFilter(TypeFilter _componentFilter) override;
+		ComponentIterator getComponentsOfType(TypeID _typeID) override;
 		void onCreateEvent(BaseEvent& _event) override;
 		void onRemoveEntity(ID _entityID) override;
 		void onRemoveComponent(ID _entityID, TypeID _componentTypeID) override;

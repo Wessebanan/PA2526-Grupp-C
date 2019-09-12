@@ -32,6 +32,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="includes\ecsComponentIncludes.h" />
+    <ClInclude Include="includes\ecsComponentIterator.h" />
     <ClInclude Include="includes\ecsComponentManager.h" />
     <ClInclude Include="includes\ecsComponentPool.h" />
     <ClInclude Include="includes\ecsEntity.h" />
