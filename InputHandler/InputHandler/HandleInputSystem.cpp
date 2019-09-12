@@ -51,10 +51,15 @@ void ecs::systems::HandleMouseSystem::updateEntity(FilteredEntity& _entityInfo, 
 	MouseComponent* mouse = _entityInfo.getComponent<components::MouseComponent>();
 	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
 
+	
+
 	mouse->LMB = backendComp->backend->mouseLKey->key.pressed;
 	mouse->RMB = backendComp->backend->mouseRKey->key.pressed;
 
 	mouse->pos = backendComp->backend->mouse->newPos;
+
+	//if (mouse->diffLength == backendComp->backend->mouse->diffLength && mouse->diffFloat2.x == backendComp->backend->mouse->diffFloat2)
+	
 	mouse->diffFloat2 = backendComp->backend->mouse->diffFloat2;
 	mouse->diffLength = backendComp->backend->mouse->diffLength;
 
@@ -66,6 +71,8 @@ ecs::systems::HandleWebSystem::HandleWebSystem()
 {
 	updateType = ecs::EntityUpdate;
 	componentFilter.addRequirement(ecs::components::InputBackendComp::typeID);
+	componentFilter.addRequirement(ecs::components::UserButtonComponent::typeID);
+	componentFilter.addRequirement(ecs::components::UserTileComponent::typeID);
 }
 
 ecs::systems::HandleWebSystem::~HandleWebSystem()
@@ -75,7 +82,6 @@ ecs::systems::HandleWebSystem::~HandleWebSystem()
 void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
-
 	UserButtonComponent* button = _entityInfo.getComponent<components::UserButtonComponent>();
 	UserTileComponent* tile = _entityInfo.getComponent<components::UserTileComponent>();
 
@@ -120,6 +126,7 @@ ecs::systems::testSystem::testSystem()
 	updateType = ecs::EntityUpdate;
 	componentFilter.addRequirement(ecs::components::KeyboardComponent::typeID);
 	componentFilter.addRequirement(ecs::components::MouseComponent::typeID);
+	componentFilter.addRequirement(ecs::components::UserButtonComponent::typeID);
 }
 
 ecs::systems::testSystem::~testSystem()
@@ -130,8 +137,13 @@ void ecs::systems::testSystem::updateEntity(FilteredEntity& _entityInfo, float _
 {
 	KeyboardComponent* kb = _entityInfo.getComponent<components::KeyboardComponent>();
 	MouseComponent* mouse = _entityInfo.getComponent<components::MouseComponent>();
+	UserButtonComponent* buttons = _entityInfo.getComponent<components::UserButtonComponent>();
 
 
-	std::cout << "W key: " << kb->W << " | Mouse diffLength: " << mouse->diffLength << std::endl;
+	std::cout 
+		<< "W key: " << kb->W << std::endl
+		<< "	| Mouse diffLength: " << mouse->diffLength << std::endl
+		<< "	| Player3 has pressed '1': " << buttons->buttons[2][1] << std::endl
+		<< "----- NEXT TICK -----" << std::endl;
 
 }

@@ -147,6 +147,12 @@ bool InputSystem::updateMouse()
 
 		this->modyfiByMouse();
 	}
+	else
+	{
+		this->mouse->diffFloat2.x = 0.0f;
+		this->mouse->diffFloat2.y = 0.0f;
+		this->mouse->diffLength = 0.0f;
+	}
 	return retVal;
 }
 

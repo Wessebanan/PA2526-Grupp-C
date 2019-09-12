@@ -44,7 +44,7 @@ private:
 	// %%%%		 JSON		%%%%
 
 	// Path to the file where tha players input is located
-	const char* playerFilePath = "C:/gitFolder/InputHandler/InputHandler/jn son/playerMode.json";
+	const char* playerFilePath = "C:/gitFolder/InputHandler/InputHandler/json/playerMode.json";
 	// Path to the file where the client writes so the users can read the gamestate
 	const char* webStateFilePath = "C:/gitFolder/InputHandler/InputHandler/json/webState.json";
 

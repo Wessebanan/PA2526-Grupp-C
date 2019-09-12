@@ -52,11 +52,13 @@ int WebConnection::getPlayerTile(int player, int axis)
 	int retVal = -1;
 	if (axis == 0)
 	{
-		retVal = std::stoi(jsonValuePlayers[player]["MapTileX"].asString());
+		std::string str = jsonValuePlayers[player]["MapTileX"].asString();
+		retVal = std::stoi(str);
 	}
 	else
 	{
-		retVal = std::stoi(jsonValuePlayers[player]["MapTileY"].asString());
+		std::string str = jsonValuePlayers[player]["MapTileY"].asString();
+		retVal = std::stoi(str);
 	}
 
 	return retVal;

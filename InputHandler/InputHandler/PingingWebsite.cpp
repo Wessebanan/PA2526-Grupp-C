@@ -134,12 +134,12 @@ void initInputECS(ecs::EntityComponentSystem& rECS)
 	//// SYSTEMS
 	rECS.createSystem<ecs::systems::HandleInputSystem>(0);// parameter är layer
 
-	rECS.createSystem<ecs::systems::HandleKeyboardSystem>(0);
-	rECS.createSystem<ecs::systems::HandleMouseSystem>(0);
-	rECS.createSystem<ecs::systems::HandleWebSystem>(0);
+	rECS.createSystem<ecs::systems::HandleKeyboardSystem>(1);
+	rECS.createSystem<ecs::systems::HandleMouseSystem>(1);
+	rECS.createSystem<ecs::systems::HandleWebSystem>(1);
 
 	// for testing and debugging
-	rECS.createSystem<ecs::systems::testSystem>(0);
+	rECS.createSystem<ecs::systems::testSystem>(2);
 
 	//// COMPONENTS
 
