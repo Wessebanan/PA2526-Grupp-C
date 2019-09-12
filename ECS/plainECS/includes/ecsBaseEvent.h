@@ -18,6 +18,7 @@ namespace ecs
 	struct BaseEvent
 	{
 		virtual TypeID getTypeID() { return 0; }
+		//virtual std::string getName() { return ""; }
 		virtual EventCreateFunction getCreateFunction() { return nullptr; }
 		virtual EventFreeFunction getFreeFunction() { return nullptr; }
 
@@ -30,10 +31,12 @@ namespace ecs
 	struct ECSEvent : public BaseEvent
 	{
 		static const TypeID typeID;
+		static const std::string name;
 		static const EventCreateFunction createFunction;
 		static const EventFreeFunction freeFunction;
 
 		virtual TypeID getTypeID() { return T::typeID; }
+		//virtual std::string getName() { return ECSEvent<T>::name; }
 		virtual EventCreateFunction getCreateFunction() { return T::createFunction; }
 		virtual EventFreeFunction getFreeFunction() { return T::freeFunction; }
 	};
@@ -66,6 +69,9 @@ namespace ecs
 	template <typename T>
 	const TypeID ECSEvent<T>::typeID(BaseEvent::typeIDCounter++);
 	//const TypeID ECSEvent<T>::typeID(BaseEvent::typeIDGenerator.generateID());
+
+	//template <typename T>
+	//const std::string ECSEvent<T>::name(__nameof<T>());
 
 	template <typename T>
 	const EventCreateFunction ECSEvent<T>::createFunction(eventCreate<T>);

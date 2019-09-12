@@ -29,6 +29,7 @@ namespace ecs
 		virtual ~BaseSystem() {}
 
 		virtual TypeID getTypeID() { return 0; }
+		virtual std::string getName() { return ""; }
 		virtual SystemFreeFunction getFreeFunction() { return nullptr; }
 
 		virtual void updateEntity(FilteredEntity &_entityInfo, float _delta) {}
@@ -60,9 +61,11 @@ namespace ecs
 	{
 	public:
 		static const TypeID typeID;
+		static const std::string name;
 		static const SystemFreeFunction freeFunction;
 
 		virtual TypeID getTypeID() { return T::typeID; }
+		virtual std::string getName() { return T::name; }
 		virtual SystemFreeFunction getFreeFunction() { return T::freeFunction; }
 
 		ECSSystem() {}
@@ -90,6 +93,9 @@ namespace ecs
 
 	template <typename T>
 	const TypeID ECSSystem<T>::typeID(BaseSystem::typeIDCounter++);
+
+	template <typename T>
+	const std::string ECSSystem<T>::name(__nameof<T>());
 
 	template <typename T>
 	const SystemFreeFunction ECSSystem<T>::freeFunction(systemFree<T>);

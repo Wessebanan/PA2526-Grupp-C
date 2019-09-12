@@ -14,7 +14,8 @@
 #include "ecsTypeFilter.h"
 #include "ecsEvent.h"
 
-#define LAYER_COUNT 3
+#define DEFAULT_LAYER_COUNT 3
+#define DEFAULT_SYSTEMS_PER_LAYER 5
 
 namespace ecs
 {
@@ -30,6 +31,7 @@ namespace ecs
 		CompTypeMemDesc* compTypeMemDescs;
 		size_t compTypeCount;
 		size_t systemLayerCount;
+		//size_t systemsPerLayerCount;
 	};
 
 	class EntityComponentSystem : public ECSUserListener, public ECSEventListenerListener
@@ -65,7 +67,9 @@ namespace ecs
 		ECSComponentManager componentMgr;
 
 		size_t layerCount;
+		//size_t systemsPerLayer;
 		using SystemList = std::vector<BaseSystem*>;
+		//using SystemList = BaseSystem**;
 		SystemList *systemLayers;
 		std::map<TypeID, unsigned int> typeIDLayerMap;
 
@@ -104,6 +108,7 @@ namespace ecs
 		// Check if systemLayers been initialized
 		if (!systemLayers)
 		{
+			layerCount = 10;
 			systemLayers = new SystemList[10];
 		}
 
