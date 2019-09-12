@@ -30,6 +30,9 @@ int main()
 	while (TESTECS)
 	{
 		myECS.update(0.9f);
+
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
 	
 
@@ -126,22 +129,33 @@ int main()
 
 void initInputECS(ecs::EntityComponentSystem& rECS)
 {
-	// SYSTEMS
+	//// SYSTEMS
 	rECS.createSystem<ecs::systems::HandleInputSystem>(1);// parameter är layer
 
 	rECS.createSystem<ecs::systems::HandleKeyboardSystem>(2);
 	rECS.createSystem<ecs::systems::HandleMouseSystem>(2);
 	rECS.createSystem<ecs::systems::HandleWebSystem>(2);
 
-	// COMPONENTS
+	//// COMPONENTS
 
+	// Backend Components
 	ecs::components::InputBackendComp *tempBackend = new ecs::components::InputBackendComp();
 	tempBackend->backend = new InputSystem();
 
-	//rECS.createComponent(ecs::components::InputBackendComp::typeID, );
+	// Keyboard Components
+	ecs::components::KeyboardComponent* kbComp = new ecs::components::KeyboardComponent();
 
-	// ENTITIES
+	// Mouse Components
+	ecs::components::MouseComponent* mouseComp = new ecs::components::MouseComponent();
+
+	// Web Components
+	//ecs::components::KeyboardComponent* kbComp = new ecs::components::KeyboardComponent();
+
+
+	//// ENTITIES
 	rECS.createEntity(*tempBackend);
+	rECS.createEntity(*kbComp);
+	rECS.createEntity(*mouseComp);
 }
 
 

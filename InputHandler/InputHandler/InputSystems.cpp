@@ -79,7 +79,6 @@ bool InputSystem::updateKeyboard()
 		if (this->checkKeyAll(&this->mouseLKey->key))
 		{
 			retVal = true;
-			exit(0);
 		}
 	}					  
 	else				  
@@ -104,8 +103,6 @@ bool InputSystem::updateKeyboard()
 			retVal = true;
 	}
 
-	if (this->exitKey->key.pressed)
-		exit(0);
 
 	return retVal; 
 }
