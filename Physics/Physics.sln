@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29215.179
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Physics", "Physics\Physics.vcxproj", "{BB424D46-D6A7-4308-A844-92581F46FF54}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Physics_test", "Physics_test\Physics_test.vcxproj", "{DE904084-6FEF-43D4-A982-95A229D05C7E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Lib_d|x64 = Lib_d|x64
+		Lib_d|x86 = Lib_d|x86
+		Lib|x64 = Lib|x64
+		Lib|x86 = Lib|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Debug|x64.ActiveCfg = Debug|x64
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Debug|x64.Build.0 = Debug|x64
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Debug|x86.ActiveCfg = Debug|x64
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Lib_d|x64.ActiveCfg = Lib_d|x64
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Lib_d|x64.Build.0 = Lib_d|x64
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Lib_d|x86.ActiveCfg = Lib_d|x64
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Lib|x64.ActiveCfg = Lib|x64
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Lib|x64.Build.0 = Lib|x64
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Lib|x86.ActiveCfg = Lib|x64
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Release|x64.ActiveCfg = Release|x64
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Release|x64.Build.0 = Release|x64
+		{BB424D46-D6A7-4308-A844-92581F46FF54}.Release|x86.ActiveCfg = Release|x64
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Debug|x64.ActiveCfg = Debug|x64
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Debug|x64.Build.0 = Debug|x64
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Debug|x86.ActiveCfg = Debug|Win32
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Debug|x86.Build.0 = Debug|Win32
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Lib_d|x64.ActiveCfg = Lib_d|x64
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Lib_d|x86.ActiveCfg = Lib_d|Win32
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Lib_d|x86.Build.0 = Lib_d|Win32
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Lib|x64.ActiveCfg = Lib|x64
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Lib|x86.ActiveCfg = Lib|Win32
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Lib|x86.Build.0 = Lib|Win32
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Release|x64.ActiveCfg = Release|x64
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Release|x64.Build.0 = Release|x64
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Release|x86.ActiveCfg = Release|Win32
+		{DE904084-6FEF-43D4-A982-95A229D05C7E}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F0B1187D-F36E-4B9D-B947-1E8FA8A14BF5}
+	EndGlobalSection
+EndGlobal
