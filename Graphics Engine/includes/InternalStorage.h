@@ -26,7 +26,8 @@ namespace graphics
 	{
 		UINT
 			DataCount,
-			DataLocation;
+			DataLocation,
+			ID;
 
 		BUFFER_TYPE Type;
 	};
@@ -62,6 +63,7 @@ namespace graphics
 		char m_cpuData[ALLOCATED_BUFFER_SIZE];
 		UINT m_currentSpent;
 		UINT m_size;
+		UINT m_currentCreated;
 	};
 
 	class InternalStorage

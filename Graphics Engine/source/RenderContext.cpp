@@ -136,8 +136,8 @@ namespace graphics
 		m_viewport.TopLeftX = (FLOAT)x;
 		m_viewport.TopLeftY = (FLOAT)y;
 
-		m_viewport.Width = (FLOAT)width;
-		m_viewport.Height = (FLOAT)height;
+		m_viewport.Width	= (FLOAT)width;
+		m_viewport.Height	= (FLOAT)height;
 
 		m_pContext4->RSSetViewports(1, &m_viewport);
 	}
@@ -148,8 +148,8 @@ namespace graphics
 	{
 		ID3D11Buffer* pBuffer = m_pStorage->GetBufferHeapGPU(region.Type);
 
-		UINT firstConstant = region.DataLocation / 16;
-		UINT numConstants = region.DataCount / 16;
+		UINT firstConstant	= region.DataLocation / 16;
+		UINT numConstants	= region.DataCount / 16;
 
 		m_pContext4->VSSetConstantBuffers1(
 			slot,
@@ -160,12 +160,12 @@ namespace graphics
 	}
 
 	void RenderContext::DrawInstanced(
-		const UINT instanceStart,
 		const UINT instanceCount,
+		const UINT instanceStart,
 		const BufferRegion& meshRegion)
 	{
 		UINT vertexCountPerInstance = meshRegion.DataCount / (sizeof(float) * 3);
-		UINT startVertexLocation = meshRegion.DataLocation / (sizeof(float) * 3);
+		UINT startVertexLocation	= meshRegion.DataLocation / (sizeof(float) * 3);
 
 		m_pContext4->DrawInstanced(
 			vertexCountPerInstance,
@@ -175,15 +175,15 @@ namespace graphics
 	}
 
 	void RenderContext::DrawIndexedInstance(
-		const UINT instanceStart,
 		const UINT instanceCount,
+		const UINT instanceStart,
 		const BufferRegion& indexRegion,
 		const BufferRegion& meshRegion)
 	{
-		UINT indexCountPerInstance = indexRegion.DataCount / sizeof(int);
+		UINT indexCountPerInstance	= indexRegion.DataCount / sizeof(int);
 
-		UINT startIndexLocation = indexRegion.DataLocation / sizeof(int);
-		UINT startVertexLocation = meshRegion.DataLocation / (sizeof(float) * 3);
+		UINT startIndexLocation		= indexRegion.DataLocation / sizeof(int);
+		UINT startVertexLocation	= meshRegion.DataLocation / (sizeof(float) * 3);
 
 		m_pContext4->DrawIndexedInstanced(
 			indexCountPerInstance,

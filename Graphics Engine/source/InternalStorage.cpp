@@ -7,11 +7,12 @@ namespace graphics
 
 	BufferHeap::BufferHeap()
 	{
-		m_currentSpent = 0;
-		m_size = 0;
-		m_pBuffer = NULL;
-		m_type = BUFFER_CONSTANT_DYNAMIC;
-		m_bindType = D3D11_BIND_CONSTANT_BUFFER;
+		m_currentSpent		= 0;
+		m_size				= 0;
+		m_pBuffer			= NULL;
+		m_type				= BUFFER_CONSTANT_DYNAMIC;
+		m_bindType			= D3D11_BIND_CONSTANT_BUFFER;
+		m_currentCreated	= 0;
 
 		ZeroMemory(m_cpuData, ARRAYSIZE(m_cpuData));
 	}
@@ -34,7 +35,7 @@ namespace graphics
 		case BUFFER_CONSTANT_DYNAMIC:
 			desc.BindFlags = m_bindType = D3D11_BIND_CONSTANT_BUFFER;
 			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
-			desc.Usage = D3D11_USAGE_DYNAMIC;
+			desc.Usage		= D3D11_USAGE_DYNAMIC;
 			desc.MiscFlags = 0;
 			break;
 
@@ -138,11 +139,13 @@ namespace graphics
 
 		if (allocatedSize + m_currentSpent > m_size) return false;
 
-		pRegion->DataLocation = m_currentSpent;
-		pRegion->Type = m_type;
+		pRegion->DataLocation	= m_currentSpent;
+		pRegion->Type			= m_type;
+		pRegion->DataCount		= allocatedSize;
+		pRegion->ID				= m_currentCreated;
 
-		pRegion->DataCount = allocatedSize;
-		m_currentSpent += allocatedSize;
+		m_currentSpent		+= allocatedSize;
+		m_currentCreated	+= 1;
 
 		return true;
 	}

@@ -117,13 +117,13 @@ namespace graphics
 		void SetRenderTarget(Texture2DView* pView);
 
 		void DrawInstanced(
-			const UINT instanceStart,
 			const UINT instanceCount,
+			const UINT instanceStart,
 			const BufferRegion& meshRegion);
 
 		void DrawIndexedInstance(
-			const UINT instanceStart,
 			const UINT instanceCount,
+			const UINT instanceStart,
 			const BufferRegion& indexRegion,
 			const BufferRegion& meshRegion);
 

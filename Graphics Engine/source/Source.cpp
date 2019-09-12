@@ -14,7 +14,11 @@
 #include "../..//ECS/plainECS/includes/ecs.h"
 
 #include <string>
+#include <vector>
 #include <DirectXMath.h>
+
+#include "../includes/GraphicsSystems.h"
+#include "../includes/GraphicsComponents.h"
 
 const std::string gVertexShader = R"(
 
@@ -71,10 +75,27 @@ float4 main(PSIN input) : SV_TARGET
 
 )";
 
+void AddTransformation(
+	std::vector<DirectX::XMFLOAT4X4>& transformations,
+	const float x, 
+	const float y, 
+	const float z)
+{
+	DirectX::XMFLOAT4X4 temp;
+	XMStoreFloat4x4(&temp, DirectX::XMMatrixTranslation(x, y, z));
+	transformations.push_back(temp);
+}
+
 int main()
 {
 	using namespace DirectX;
 	using namespace graphics;
+	using namespace ecs;
+
+	systems::MeshRenderSystemData data;
+	EntityComponentSystem myECS;
+	systems::MeshRenderSystem* sys = myECS.createSystem<systems::MeshRenderSystem>();
+	sys->m_pData = &data;
 
 	UINT clientWidth = 1280, clientHeight = 720;
 
@@ -83,8 +104,8 @@ int main()
 	PresentWindow* pWindow		= NULL;
 
 	CreateDeviceInterface(&pDevice);
-	RenderContext* pContext = pDevice->QueryRenderContext();
-	Texture2DView* pBackBuffer = pDevice->QueryBackBuffer();
+	RenderContext* pContext		= pDevice->QueryRenderContext();
+	Texture2DView* pBackBuffer	= pDevice->QueryBackBuffer();
 
 	pDevice->CreatePresentWindow(clientWidth, clientHeight, "D3D11", &pWindow);
 
@@ -121,30 +142,27 @@ int main()
 		 1.0f,  1.0f, 0.0f,
 	};
 
-	BufferRegion triangle;
-	BufferRegion quad;
+	BufferRegion meshes[2];	// mesh
 
-	pDevice->CreateMeshRegion(3, t, NULL, uv, &triangle);
-	pDevice->CreateMeshRegion(6, q, NULL, NULL, &quad);
+	pDevice->CreateMeshRegion(3, t, NULL, uv, &meshes[0]);
+	pDevice->CreateMeshRegion(6, q, NULL, NULL, &meshes[1]);
 
 	pContext->UploadMeshesToGPU();
 
 	// Create Matrices
 
-	XMFLOAT4X4 transformation0[10];
-	XMStoreFloat4x4(&transformation0[0], XMMatrixTranslation(-1.0f, 0.0f, 0.0f));
-	XMStoreFloat4x4(&transformation0[1], XMMatrixTranslation(0.0f, 2.0f, 0.0f));
-	XMStoreFloat4x4(&transformation0[2], XMMatrixTranslation(1.0f, 0.0f, 0.0f));
+	std::vector<XMFLOAT4X4> transformation;
+	AddTransformation(transformation, -1.0f, 0.0f, 0.0f);
+	AddTransformation(transformation,  0.0f, 2.0f, 0.0f);
+	AddTransformation(transformation,  1.0f, 0.0f, 0.0f);
+	AddTransformation(transformation, -5.0f, 7.0f, 0.0f);
+	AddTransformation(transformation,  0.0f, 7.0f, 0.0f);
+	AddTransformation(transformation,  5.0f, 7.0f, 0.0f);
+	AddTransformation(transformation, 10.0f, 7.0f, 0.0f);
+	AddTransformation(transformation, -5.0f, 5.0f, 0.0f);
+	AddTransformation(transformation,  0.0f, 5.0f, 0.0f);
+	AddTransformation(transformation,  5.0f, 5.0f, 0.0f);
 
-	XMStoreFloat4x4(&transformation0[3], XMMatrixTranslation(-5.0f, 5.0f, 0.0f));
-	XMStoreFloat4x4(&transformation0[4], XMMatrixTranslation(0.0f, 5.0f, 0.0f));
-	XMStoreFloat4x4(&transformation0[5], XMMatrixTranslation(5.0f, 5.0f, 0.0f));
-
-	XMStoreFloat4x4(&transformation0[6], XMMatrixTranslation(-5.0f, 7.0f, 0.0f));
-	XMStoreFloat4x4(&transformation0[7], XMMatrixTranslation(0.0f, 7.0f, 0.0f));
-	XMStoreFloat4x4(&transformation0[8], XMMatrixTranslation(5.0f, 7.0f, 0.0f));
-
-	XMStoreFloat4x4(&transformation0[9], XMMatrixTranslation(10.0f, 7.0f, 0.0f));
 
 	XMFLOAT4X4 view;
 	XMStoreFloat4x4(&view,
@@ -171,7 +189,7 @@ int main()
 
 	pDevice->CreateBufferRegion(
 		BUFFER_CONSTANT_DYNAMIC,
-		sizeof(transformation0),
+		sizeof(XMFLOAT4X4) * transformation.size(),
 		&buffer0);
 
 	pDevice->CreateBufferRegion(
@@ -206,17 +224,16 @@ int main()
 
 			// Copy Data to CPU Buffer (World Matrices)
 			pContext->CopyDataToRegion(
-				transformation0, 
-				sizeof(transformation0),
+				transformation.data(), 
+				transformation.size() * sizeof(XMFLOAT4X4),
 				buffer0);
 
 			// Upload All Data to GPU
 			pContext->UploadToGPU(BUFFER_CONSTANT_DYNAMIC);
 
 			// Draw
-			pContext->DrawInstanced(0, 3, triangle);
-			pContext->DrawInstanced(3, 3, quad);
-			pContext->DrawInstanced(6, 4, triangle);
+			pContext->DrawInstanced(7, 0, meshes[0]);
+			pContext->DrawInstanced(4, 7, meshes[1]);
 
 			// Presenet
 			pWindow->Present();
