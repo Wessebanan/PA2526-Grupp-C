@@ -1,239 +1,220 @@
 #pragma once
 
 #include "InternalStorage.h"
+#include "PresentWindow.h"
 
-enum CONSTANT_BUFFER_UPDATE_INTERVAL
+namespace graphics
 {
-	CONSTANT_BUFFER_UPDATE_PER_MESH		= 0,
-	CONSTANT_BUFFER_UPDATE_PER_DRAW		= 1,
-};
-
-enum SHADER_RESOURCE_SLOT
-{
-	SHADER_RESOURCE_SHADOW_MAP = 16,
-};
-
-template <class T, UINT S>
-class StaticQueue
-{
-public:
-	StaticQueue();
-	~StaticQueue();
-
-	T* QueryNextItem(UINT& index);
-	void ReleaseItem(const UINT index);
-
-private:
-	T m_data[S];
-	UINT m_at;
-
-	UINT m_available[S];
-	UINT m_occupied[S];
-};
-
-template <class T, UINT S>
-StaticQueue<T, S>::StaticQueue()
-{
-	m_at = 0;
-
-	for (UINT i = 0; i < S; i++)
+	enum CONSTANT_BUFFER_UPDATE_INTERVAL
 	{
-		m_available[i] = i;
-		m_occupied[i] = -1;
-	}
-}
+		CONSTANT_BUFFER_UPDATE_PER_MESH = 0,
+		CONSTANT_BUFFER_UPDATE_PER_DRAW = 1,
+	};
 
-template <class T, UINT S>
-StaticQueue<T, S>::~StaticQueue()
-{
-}
-
-template <class T, UINT S>
-inline T* StaticQueue<T, S>::QueryNextItem(UINT& index)
-{
-	if (m_at >= S)
+	enum SHADER_RESOURCE_SLOT
 	{
-		return nullptr;
-	}
-	else
+		SHADER_RESOURCE_SHADOW_MAP = 16,
+	};
+
+	template <class T, UINT S>
+	class StaticQueue
 	{
-		index = m_occupied[m_at] = m_available[m_at];
-		m_available[m_at++] = -1;
+	public:
+		StaticQueue();
+		~StaticQueue();
 
-		return &m_data[index];
+		T* QueryNextItem(UINT& index);
+		void ReleaseItem(const UINT index);
+
+	private:
+		T m_data[S];
+		UINT m_at;
+
+		UINT m_available[S];
+		UINT m_occupied[S];
+	};
+
+	template <class T, UINT S>
+	StaticQueue<T, S>::StaticQueue()
+	{
+		m_at = 0;
+
+		for (UINT i = 0; i < S; i++)
+		{
+			m_available[i] = i;
+			m_occupied[i] = -1;
+		}
 	}
-}
 
-template<class T, UINT S>
-inline void StaticQueue<T, S>::ReleaseItem(const UINT index)
-{
-	m_available[--m_at] = m_occupied[index];
-	m_occupied[index] = -1;
-}
+	template <class T, UINT S>
+	StaticQueue<T, S>::~StaticQueue()
+	{
+	}
 
-struct float3 
-{
-	float x, y, z;
-};
+	template <class T, UINT S>
+	inline T* StaticQueue<T, S>::QueryNextItem(UINT& index)
+	{
+		if (m_at >= S)
+		{
+			return nullptr;
+		}
+		else
+		{
+			index = m_occupied[m_at] = m_available[m_at];
+			m_available[m_at++] = -1;
 
-struct float2
-{
-	float x, y;
-};
+			return &m_data[index];
+		}
+	}
 
-// --- PRESENT WINDOW ---
+	template<class T, UINT S>
+	inline void StaticQueue<T, S>::ReleaseItem(const UINT index)
+	{
+		m_available[--m_at] = m_occupied[index];
+		m_occupied[index] = -1;
+	}
 
-class PresentWindow : public Window
-{
-	friend class RenderContext;
-	friend class DeviceInterface;
+	struct float3
+	{
+		float x, y, z;
+	};
 
-public:
-	PresentWindow();
-	~PresentWindow();
+	struct float2
+	{
+		float x, y;
+	};
 
-	void Present();
 
-private:
+	// --- RENDER CONTEXT ---
 
-	void Initialize(
-		ID3D11Device4* pDevice4,
-		IDXGIFactory6* pFactory6,
-		const UINT width,
-		const UINT height,
-		const char* pTitle);
+	class RenderContext
+	{
+		static constexpr UINT CONSTANT_BUFFER_MAX_BIND_BYTE = 65536;
+		friend class DeviceInterface;
 
-	IDXGISwapChain4* m_pSwapChain4;
-};
+	public:
+		RenderContext();
+		~RenderContext();
 
-// --- RENDER CONTEXT ---
+		void ClearRenderTarget(
+			Texture2DView* pView,
+			const float red,
+			const float green,
+			const float blue);
 
-class RenderContext
-{
-	static constexpr UINT CONSTANT_BUFFER_MAX_BIND_BYTE = 65536;
-	friend class DeviceInterface;
+		void SetGraphicsPipeline(GraphicsPipeline* pPipeline);
 
-public:
-	RenderContext();
-	~RenderContext();
+		void SetViewport(
+			const UINT x,
+			const UINT y,
+			const UINT width,
+			const UINT height);
 
-	void ClearRenderTarget(
-		Texture2DView* pView,
-		const float red,
-		const float green,
-		const float blue);
+		void VSSetConstantBuffer(
+			const UINT slot,
+			const BufferRegion& region);
 
-	void SetGraphicsPipeline(GraphicsPipeline* pPipeline);
+		void SetRenderTarget(Texture2DView* pView);
 
-	void SetViewport(
-		const UINT x, 
-		const UINT y, 
-		const UINT width, 
-		const UINT height);
+		void DrawInstanced(
+			const UINT instanceStart,
+			const UINT instanceCount,
+			const BufferRegion& meshRegion);
 
-	void VSSetConstantBuffer(
-		const UINT slot,
-		const BufferRegion& region);
+		void DrawIndexedInstance(
+			const UINT instanceStart,
+			const UINT instanceCount,
+			const BufferRegion& indexRegion,
+			const BufferRegion& meshRegion);
 
-	void SetRenderTarget(Texture2DView* pView);
+		void CopyDataToRegion(
+			const void* pData,
+			const UINT byteWidth,
+			const BufferRegion& region);
 
-	void DrawInstanced(
-		const UINT instanceStart,
-		const UINT instanceCount,
-		const BufferRegion& meshRegion);
+		void UploadToGPU(const BUFFER_TYPE type);
+		void UploadMeshesToGPU();
 
-	void DrawIndexedInstance(
-		const UINT instanceStart,
-		const UINT instanceCount,
-		const BufferRegion& indexRegion,
-		const BufferRegion& meshRegion);
+	private:
 
-	void CopyDataToRegion(
-		const void* pData,
-		const UINT byteWidth,
-		const BufferRegion& region);
+		void Initialize(ID3D11Device4* pDevice4, InternalStorage* pStorage);
+		void Release();
 
-	void UploadToGPU(const BUFFER_TYPE type);
-	void UploadMeshesToGPU();
+		ID3D11DeviceContext4* m_pContext4;
+		D3D11_VIEWPORT m_viewport;
 
-private:
+		GraphicsPipeline* m_currentPipeline;
 
-	void Initialize(ID3D11Device4* pDevice4, InternalStorage* pStorage);
-	void Release();
+		float m_clearColor[4];
 
-	ID3D11DeviceContext4* m_pContext4;
-	D3D11_VIEWPORT m_viewport;
+		InternalStorage* m_pStorage;
+	};
 
-	GraphicsPipeline* m_currentPipeline;
 
-	float m_clearColor[4];
+	// --- DEVICE INTERFACE ---
 
-	InternalStorage* m_pStorage;
-};
+	class DeviceInterface
+	{
 
-// --- DEVICE INTERFACE ---
+	public:
+		DeviceInterface();
+		~DeviceInterface();
 
-class DeviceInterface
-{
+		void CreatePresentWindow(
+			const UINT width,
+			const UINT height,
+			const char* pTitle,
+			PresentWindow** ppWindow);
 
-public:
-	DeviceInterface();
-	~DeviceInterface();
+		RenderContext* QueryRenderContext();
+		Texture2DView* QueryBackBuffer();
 
-	void CreatePresentWindow(
-		const UINT width,
-		const UINT height,
-		const char* pTitle,
-		PresentWindow** ppWindow);
+		void CreatePipeline(
+			const std::string& vertexShader,
+			const std::string& pixelShader,
+			GraphicsPipeline** ppPipeline);
 
-	RenderContext* QueryRenderContext();
-	Texture2DView* QueryBackBuffer();
+		void CreateBufferRegion(
+			const BUFFER_TYPE type,
+			const UINT size,
+			BufferRegion* pRegion);
 
-	void CreatePipeline(
-		const std::string& vertexShader,
-		const std::string& pixelShader,
-		GraphicsPipeline** ppPipeline);
+		bool CreateMeshRegion(
+			const UINT vertexCount,
+			const void* pVertices,
+			const void* pNormals,
+			const void* pUVs,
+			BufferRegion* pRegion);
 
-	void CreateBufferRegion(
-		const BUFFER_TYPE type,
-		const UINT size, 
-		BufferRegion* pRegion);
+		void DeletePipeline(GraphicsPipeline* pPipeline);
 
-	bool CreateMeshRegion(
-		const UINT vertexCount,
-		const void* pVertices,
-		const void* pNormals,
-		const void* pUVs,
-		BufferRegion* pRegion);
+		UINT64 QueryVideoMemoryUsage();
 
-	void DeletePipeline(GraphicsPipeline* pPipeline);
+		void Release();
 
-	UINT64 QueryVideoMemoryUsage();
+	private:
+		void Initialize();
+		friend void CreateDeviceInterface(DeviceInterface** ppDevice);
 
-	void Release();
+		ID3D11Device4* m_pDevice4;
+		IDXGIFactory6* m_pFactory6;
+		IDXGIAdapter4* m_pAdapter4;
 
-private:
-	void Initialize();
-	friend void CreateDeviceInterface(DeviceInterface** ppDevice);
+		Texture2DView m_backBuffer;
 
-	ID3D11Device4* m_pDevice4;
-	IDXGIFactory6* m_pFactory6;
-	IDXGIAdapter4* m_pAdapter4;
+		PresentWindow m_window;
+		RenderContext m_context;
 
-	Texture2DView m_backBuffer;
+		GraphicsPipeline m_pipeline;
 
-	PresentWindow m_window;													   
-	RenderContext m_context;
+		InternalStorage m_storage;
+	};
 
-	GraphicsPipeline m_pipeline;
+	inline void CreateDeviceInterface(DeviceInterface** ppDevice)
+	{
+		DeviceInterface* pObj = new DeviceInterface();
+		pObj->Initialize();
 
-	InternalStorage m_storage;
-};
-
-inline void CreateDeviceInterface(DeviceInterface** ppDevice)
-{
-	DeviceInterface* pObj = new DeviceInterface();
-	pObj->Initialize();
-
-	(*ppDevice) = pObj;
+		(*ppDevice) = pObj;
+	}
 }

@@ -24,9 +24,6 @@
     <ClCompile Include="..\source\InternalStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\PresentWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -59,13 +56,13 @@
     <ClInclude Include="..\includes\InternalStorage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\includes\Texture2DView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\PresentWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

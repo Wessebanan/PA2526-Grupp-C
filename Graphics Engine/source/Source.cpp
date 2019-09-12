@@ -11,6 +11,8 @@
 */
 
 #include "../includes/DeviceInterface.h"
+#include "../..//ECS/plainECS/includes/ecs.h"
+
 #include <string>
 #include <DirectXMath.h>
 
@@ -72,12 +74,12 @@ float4 main(PSIN input) : SV_TARGET
 int main()
 {
 	using namespace DirectX;
+	using namespace graphics;
 
 	UINT clientWidth = 1280, clientHeight = 720;
 
 	DeviceInterface* pDevice	= NULL;
 	GraphicsPipeline* pPipeline = NULL;
-	MeshHeap* pMesh				= NULL;
 	PresentWindow* pWindow		= NULL;
 
 	CreateDeviceInterface(&pDevice);

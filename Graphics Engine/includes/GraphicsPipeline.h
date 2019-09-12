@@ -2,24 +2,27 @@
 
 #include "D3D11Header.h"
 
-class GraphicsPipeline : public GraphicsInterface
+namespace graphics
 {
-	friend class RenderContext;
-	friend class DeviceInterface;
+	class GraphicsPipeline
+	{
+		friend class RenderContext;
+		friend class DeviceInterface;
 
-public:
-	GraphicsPipeline();
-	~GraphicsPipeline();
+	public:
+		GraphicsPipeline();
+		~GraphicsPipeline();
 
-private:
-	void Initialize(
-		ID3D11Device4* pDevice4,
-		const std::string& vertexShader,
-		const std::string& pixelShader);
+	private:
+		void Initialize(
+			ID3D11Device4* pDevice4,
+			const std::string& vertexShader,
+			const std::string& pixelShader);
 
-	void Release();
+		void Release();
 
-	ID3D11InputLayout* m_pLayout;
-	ID3D11VertexShader* m_pVertexShader;
-	ID3D11PixelShader* m_pPixelShader;
-};
+		ID3D11InputLayout* m_pLayout;
+		ID3D11VertexShader* m_pVertexShader;
+		ID3D11PixelShader* m_pPixelShader;
+	};
+}

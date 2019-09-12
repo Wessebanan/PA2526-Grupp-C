@@ -97,10 +97,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\ECS\plainECS\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\Lib_d;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>plainECS.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">
@@ -135,6 +138,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>plainECS.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">
@@ -162,7 +167,6 @@
     <ClCompile Include="..\source\DeviceInterface.cpp" />
     <ClCompile Include="..\source\GraphicsPipeline.cpp" />
     <ClCompile Include="..\source\InternalStorage.cpp" />
-    <ClCompile Include="..\source\Mesh.cpp" />
     <ClCompile Include="..\source\PresentWindow.cpp" />
     <ClCompile Include="..\source\RenderContext.cpp" />
     <ClCompile Include="..\source\Source.cpp">
@@ -180,7 +184,7 @@
     <ClInclude Include="..\includes\GraphicsPipeline.h" />
     <ClInclude Include="..\includes\Info.h" />
     <ClInclude Include="..\includes\InternalStorage.h" />
-    <ClInclude Include="..\includes\Mesh.h" />
+    <ClInclude Include="..\includes\PresentWindow.h" />
     <ClInclude Include="..\includes\Texture2DView.h" />
     <ClInclude Include="..\includes\Window.h" />
   </ItemGroup>
