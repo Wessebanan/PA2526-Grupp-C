@@ -57,12 +57,6 @@ ComponentIterator ecs::ECSComponentManager::getComponentIterator(TypeID _typeID)
 	return componentPools[_typeID].getIterator();
 }
 
-size_t ECSComponentManager::getPoolSize(TypeID _typeID)
-{
-	// If no pool of type exists, return 0.
-	return componentPools.count(_typeID) ? componentPools[_typeID].getAllocations() : 0;
-}
-
 void ECSComponentManager::flagRemoval(TypeID _typeID, ID _componentID)
 {
 	componentPools[_typeID].flagRemoval(_componentID);
@@ -76,4 +70,37 @@ void ECSComponentManager::removeAllFlagged()
 	{
 		it->second.removeAllFlagged();
 	}
+}
+
+size_t ECSComponentManager::getComponentCountOfType(TypeID _typeID)
+{
+	// If no pool of type exists, return 0.
+	return componentPools.count(_typeID) ? componentPools[_typeID].getAllocations() : 0;
+}
+
+size_t ECSComponentManager::getTotalComponentCount()
+{
+	size_t sum = 0;
+
+	for (PoolPair poolPair : componentPools)
+	{
+		sum += poolPair.second.getAllocations();
+	}
+
+	return sum;
+}
+
+size_t ECSComponentManager::getComponentTypeCount()
+{
+	return componentPools.size();
+}
+
+TypeFilter ecs::ECSComponentManager::getInitializedComponentTypes()
+{
+	TypeFilter filter;
+	for (PoolPair poolPair : componentPools)
+	{
+		filter.addRequirement(poolPair.first);
+	}
+	return filter;
 }

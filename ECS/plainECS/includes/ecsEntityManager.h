@@ -21,6 +21,8 @@ namespace ecs
 		void flagRemoval(ID _entityID);
 		void removeAllFlagged();
 
+		size_t getEntityCount();
+
 	private:
 		IDGenerator<ID> idGenerator;
 		std::map<ID, Entity*> entities;

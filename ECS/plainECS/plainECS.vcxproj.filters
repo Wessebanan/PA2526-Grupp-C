@@ -90,6 +90,9 @@
     <ClInclude Include="includes\ecsEvent.h">
       <Filter>Header Files\custom</Filter>
     </ClInclude>
+    <ClInclude Include="includes\ecsComponentIterator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ecs.cpp">
