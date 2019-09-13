@@ -1,6 +1,8 @@
 #include "pch.h"
+#include "ecs.h"
 
 TEST(TestCaseName, TestName) {
+	ecs::EntityComponentSystem e;
   EXPECT_EQ(1, 1);
   EXPECT_TRUE(true);
 }
