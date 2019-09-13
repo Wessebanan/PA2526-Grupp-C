@@ -4,9 +4,6 @@
 #include "CameraSystems.h"
 #include "CameraEvents.h"
 
-using namespace ecs;
-using namespace ecs::components;
-
 namespace CameraFunctions
 {
 	void InitDevCamera(ecs::EntityComponentSystem& rEcs);

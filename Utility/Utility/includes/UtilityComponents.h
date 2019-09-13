@@ -1,6 +1,6 @@
 #pragma once
-
 #include "ecsComponentIncludes.h"
+#include <DirectXMath.h>
 
 namespace ecs
 {
@@ -8,9 +8,9 @@ namespace ecs
 	{
 		struct TransformComponent : public ECSComponent<TransformComponent>
 		{
-			float positionX = 0.0f, positionY = 0.0f, positionZ = 0.0f;
-			float rotationX = 0.0f, rotationY = 0.0f, rotationZ = 0.0f;
-			float scaleX = 0.0f, scaleY = 0.0f, scaleZ = 0.0f;
+			DirectX::XMFLOAT3 position = { 0.0f , 0.0f , 0.0f };
+			DirectX::XMFLOAT3 rotation = { 0.0f , 0.0f , 0.0f };
+			DirectX::XMFLOAT3 scale = { 0.0f , 0.0f , 0.0f };		
 		};
 	}
 }

@@ -42,12 +42,6 @@
     <ClInclude Include="includes\UtilitySystems.h">
       <Filter>Utility ECS Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\test.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\dank.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\CameraFunctions.h">
       <Filter>Camera ECS Files</Filter>
     </ClInclude>

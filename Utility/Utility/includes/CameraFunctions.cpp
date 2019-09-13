@@ -1,4 +1,7 @@
 #include "CameraFunctions.h"
+using namespace DirectX;
+using namespace ecs;
+using namespace ecs::components;
 
 namespace CameraFunctions
 {
@@ -6,9 +9,9 @@ namespace CameraFunctions
 	{
 		//Initialize components
 		TransformComponent transform;
-		transform.positionY = 10.0f;
+		transform.position.y = 10.0f;
 		CameraComponent camera;
-		XMVECTOR cam_pos = XMVectorSet(transform.positionX, transform.positionY, transform.positionZ, 0.0f);
+		XMVECTOR cam_pos = XMVectorSet(transform.position.x, transform.position.y, transform.position.z, 0.0f);
 
 		//Set the view and projection matrix in the CameraComponent.
 		camera.viewMatrix = XMMatrixLookAtLH(cam_pos, camera.target, camera.up);

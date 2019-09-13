@@ -144,8 +144,6 @@
     <ClInclude Include="includes\CameraEvents.h" />
     <ClInclude Include="includes\CameraFunctions.h" />
     <ClInclude Include="includes\CameraSystems.h" />
-    <ClInclude Include="includes\dank.h" />
-    <ClInclude Include="includes\test.h" />
     <ClInclude Include="includes\UtilityComponents.h" />
     <ClInclude Include="includes\UtilityEvents.h" />
     <ClInclude Include="includes\UtilityFunctions.h" />

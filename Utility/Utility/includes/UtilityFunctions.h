@@ -4,9 +4,7 @@
 #include <UtilityEvents.h>
 #include <UtilitySystems.h>
 
-using namespace DirectX;
-
 namespace UtilityFunctions
 {
-	XMMATRIX GetWorldMatrix(ecs::components::TransformComponent tc);
+	DirectX::XMMATRIX GetWorldMatrix(ecs::components::TransformComponent tc);
 }
