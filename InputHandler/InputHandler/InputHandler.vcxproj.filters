@@ -18,9 +18,6 @@
     <ClCompile Include="InputSystems.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PingingWebsite.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="webConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -28,6 +25,9 @@
       <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="HandleInputSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PingingWebsite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

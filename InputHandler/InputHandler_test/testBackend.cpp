@@ -1,6 +1,18 @@
 #include "pch.h"
 #include "InputSystems.h"
 
+// Checks if any connection failed
+TEST(BackEnd, TestConnection)
+{
+	WebConnection* tempWebConn = new WebConnection();
+
+	tempWebConn->update();
+
+	EXPECT_TRUE(tempWebConn->isConnected());
+
+	delete tempWebConn;
+}
+
 // The backend can get each player's button
 TEST(BackEnd, TestWebButtons)
 {
@@ -12,7 +24,7 @@ TEST(BackEnd, TestWebButtons)
 	{
 		EXPECT_TRUE((tempWebConn->getPlayerButton(i) > -1));
 	}
-	
+
 
 	delete tempWebConn;
 }

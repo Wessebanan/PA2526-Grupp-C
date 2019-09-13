@@ -1,10 +1,13 @@
 #pragma once
 
+#ifndef INITINPUTHANDLER_H
+#define INITINPUTHANDLER_H
+
+
 #include "HandleInputSystem.h"
 
+// Initiates the systems and entitys for the InputHandling
 void initInputECS(ecs::EntityComponentSystem& rECS);
-
-
 
 void initInputECS(ecs::EntityComponentSystem& rECS)
 {
@@ -43,3 +46,5 @@ void initInputECS(ecs::EntityComponentSystem& rECS)
 		backend);
 }
 
+
+#endif // !INITINPUTHANDLER_H

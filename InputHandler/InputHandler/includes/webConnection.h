@@ -10,19 +10,23 @@ User is the website in browser/phone
 
 #include <iostream>
 #include <fstream>
-//#include "jsoncpp/json/json.h"
 #include "../jsoncpp/json/json.h"
 
 
+// For future implementation
 #define RUNSOCKET false
 
+// Handles getting info from the website
 class WebConnection
 {
 public:
 	WebConnection();
 	~WebConnection();
 
+	// takes the newest values from the web
 	void update();
+
+	bool isConnected() { return this->connectionOK; };
 
 	// Returns the button index the player has selected
 	int getPlayerButton(int player);
@@ -38,6 +42,7 @@ public:
 
 
 private:
+	bool connectionOK = true;
 	// %%%%		SOCKETS		%%%%
 
 	// To be implemented....
@@ -45,15 +50,23 @@ private:
 	// %%%%		 JSON		%%%%
 
 	// Path to the file where tha players input is located
-	const char* playerFilePath = "C:/gitFolder/InputHandler/InputHandler/json/playerMode.json";
+	//const char* playerFilePath = "../InputHandler/InputHandler/json/playerMode.json";
+	const char* playerFilePath = JSONFILEPLAYER;
+	//const char* playerFilePathLib = "../InputHandler/InputHandler/json/playerMode.json";
 	// Path to the file where the client writes so the users can read the gamestate
-	const char* webStateFilePath = "C:/gitFolder/InputHandler/InputHandler/json/webState.json";
-
+	//const char* webStateFilePath = "C:/gitFolder/InputHandler/InputHandler/json/webState.json";
+	const char* webStateFilePath = JSONFILEWEBSTATE;
+	//const char* webStateFilePathLib = "../InputHandler/InputHandler/json/webState.json";
 
 	//reads the file from the path
 	Json::Value readJson(const char* filePath);
 	//returns the playerFile
 	Json::Value readJson();
+
+	// tries the libFP if it fails
+	Json::Value readJsonPlay();
+	// tries the libFP if it fails
+	Json::Value readJsonState();
 
 	// writes the json::Value to the filepath
 	bool writeJson(const char* filePath, Json::Value outputValue);

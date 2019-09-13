@@ -10,7 +10,8 @@ WebConnection::WebConnection()
 	else
 	{
 		// Save the gamestate file to a Json::Value
-		this->jsonValueWebState = this->readJson(this->webStateFilePath);
+		this->jsonValuePlayers = this->readJson(this->webStateFilePath);
+		//this->jsonValueWebState = this->readJsonState();
 	}
 }
 
@@ -28,6 +29,7 @@ void WebConnection::update()
 	{
 		// Read the file with the buttons, bad to open and read a file each frame
 		this->jsonValuePlayers = this->readJson(this->playerFilePath);
+		//this->jsonValuePlayers = this->readJsonPlay();
 	}
 
 }
@@ -81,6 +83,7 @@ Json::Value WebConnection::readJson(const char* filePath)
 	if (!reader.parse(players_file, retVal))
 	{
 		std::cout << reader.getFormattedErrorMessages();
+		this->connectionOK = false;
 	}
 	players_file.close();
 
