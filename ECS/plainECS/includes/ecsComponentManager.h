@@ -4,6 +4,7 @@
 #include "ecsGlobals.h"
 #include "ecsComponent.h"
 #include "ecsComponentPool.h"
+#include "ecsTypeFilter.h"
 
 namespace ecs
 {
@@ -21,12 +22,18 @@ namespace ecs
 		BaseComponent* getComponent(TypeID _typeID, ID _id);
 		ComponentIterator getComponentIterator(TypeID _typeID);
 
-		size_t getPoolSize(TypeID _typeID);
 
 		void flagRemoval(TypeID _typeID, ID _componentID);
 		void removeAllFlagged();
 
+		size_t getComponentCountOfType(TypeID _typeID);
+		size_t getTotalComponentCount();
+		size_t getComponentTypeCount();
+
+		TypeFilter getInitializedComponentTypes();
+
 	private:
+		using PoolPair = std::pair<TypeID, ECSComponentPool>;
 		std::map<TypeID, ECSComponentPool> componentPools;
 		std::map<TypeID, std::vector<ID>> toRemove;
 	};

@@ -36,3 +36,8 @@ void TypeFilter::removeRequirement(TypeID _typeID)
 		}
 	}
 }
+
+std::vector<TypeID> ecs::TypeFilter::getRequirements()
+{
+	return requirements;
+}

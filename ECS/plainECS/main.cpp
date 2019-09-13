@@ -31,7 +31,7 @@ int main()
 	for (size_t i = 0; i < ENTITY_COUNT; i++)
 	{
 		health.health = (float)i + 1;
-		entities[i] = myECS.createEntity(health);
+		entities[i] = myECS.createEntity(health)->getID();
 	}
 
 	myECS.update(0.12345f);
@@ -46,7 +46,7 @@ int main()
 	//system("pause");
 
 	myECS.update(0.12345f);
-	//system("pause");
+	system("pause");
 
 	return 0;
 }
