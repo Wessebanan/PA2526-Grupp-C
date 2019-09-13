@@ -14,8 +14,11 @@ namespace ecs
 		void addRequirement(TypeID _typeID);
 		void removeRequirement(TypeID _typeID);
 
+		std::vector<TypeID> getRequirements();
+
 	private:
 		std::vector<TypeID> requirements;
 		friend class EntityComponentSystem;
+		friend class ECSEventListener;
 	};
 }
