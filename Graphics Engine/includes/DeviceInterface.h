@@ -174,8 +174,11 @@ namespace graphics
 			const std::string& pixelShader,
 			GraphicsPipeline** ppPipeline);
 
-		void CreateBufferRegion(
-			const BUFFER_TYPE type,
+		void CreateDynamicBufferRegion(
+			const UINT size,
+			BufferRegion* pRegion);
+
+		void CreateStaticBufferRegion(
 			const UINT size,
 			BufferRegion* pRegion);
 
@@ -194,6 +197,11 @@ namespace graphics
 
 	private:
 		void Initialize();
+		void CreateBufferRegion(
+			const BUFFER_TYPE type,
+			const UINT size,
+			BufferRegion* pRegion);
+
 		friend void CreateDeviceInterface(DeviceInterface** ppDevice);
 
 		ID3D11Device4* m_pDevice4;

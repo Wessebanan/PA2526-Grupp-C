@@ -92,10 +92,10 @@ int main()
 	using namespace graphics;
 	using namespace ecs;
 
-	systems::MeshRenderSystemData data;
-	EntityComponentSystem myECS;
-	systems::MeshRenderSystem* sys = myECS.createSystem<systems::MeshRenderSystem>();
-	sys->m_pData = &data;
+	//systems::MeshRenderSystemData data;
+	//EntityComponentSystem myECS;
+	//systems::MeshRenderSystem* sys = myECS.createSystem<systems::MeshRenderSystem>();
+	//sys->m_pData = &data;
 
 	UINT clientWidth = 1280, clientHeight = 720;
 
@@ -152,23 +152,22 @@ int main()
 	// Create Matrices
 
 	std::vector<XMFLOAT4X4> transformation;
-	AddTransformation(transformation, -1.0f, 0.0f, 0.0f);
-	AddTransformation(transformation,  0.0f, 2.0f, 0.0f);
-	AddTransformation(transformation,  1.0f, 0.0f, 0.0f);
-	AddTransformation(transformation, -5.0f, 7.0f, 0.0f);
-	AddTransformation(transformation,  0.0f, 7.0f, 0.0f);
-	AddTransformation(transformation,  5.0f, 7.0f, 0.0f);
-	AddTransformation(transformation, 10.0f, 7.0f, 0.0f);
-	AddTransformation(transformation, -5.0f, 5.0f, 0.0f);
-	AddTransformation(transformation,  0.0f, 5.0f, 0.0f);
-	AddTransformation(transformation,  5.0f, 5.0f, 0.0f);
-
+	for (UINT x = 0; x < 50; x++)
+	{
+		for (UINT y = 0; y < 50; y++)
+		{
+			AddTransformation(transformation, 
+				x * 2.0f, 
+				y * 2.0f, 
+				0);
+		}
+	}
 
 	XMFLOAT4X4 view;
 	XMStoreFloat4x4(&view,
 		XMMatrixLookToLH(
-			{ 5.5f, 5.0f, -10.0f },
-			{ -0.5f, 0.0f, 1.0f },
+			{ 5.5f, 5.0f, -20.0f },
+			{ 1.0f, 1.0f, 1.0f },
 			{ 0.0f, 1.0f, 0.0f }));
 
 	XMFLOAT4X4 projection;
@@ -182,18 +181,15 @@ int main()
 	BufferRegion buffer0;
 
 	// Per Frame Heap
-	pDevice->CreateBufferRegion(
-		BUFFER_CONSTANT_DYNAMIC,
+	pDevice->CreateDynamicBufferRegion(
 		sizeof(view), 
 		&viewRegion);
 
-	pDevice->CreateBufferRegion(
-		BUFFER_CONSTANT_DYNAMIC,
-		sizeof(XMFLOAT4X4) * transformation.size(),
+	pDevice->CreateDynamicBufferRegion(
+		sizeof(XMFLOAT4X4) * 1024,
 		&buffer0);
 
-	pDevice->CreateBufferRegion(
-		BUFFER_CONSTANT_STATIC,
+	pDevice->CreateStaticBufferRegion(
 		sizeof(projection),
 		&projRegion);
 
@@ -222,18 +218,35 @@ int main()
 				sizeof(view),
 				viewRegion);
 
-			// Copy Data to CPU Buffer (World Matrices)
-			pContext->CopyDataToRegion(
-				transformation.data(), 
-				transformation.size() * sizeof(XMFLOAT4X4),
-				buffer0);
 
-			// Upload All Data to GPU
-			pContext->UploadToGPU(BUFFER_CONSTANT_DYNAMIC);
+			UINT length = 1024;
+			UINT start = 0;
+			UINT end = transformation.size();
+			while (start < end)
+			{
+				char* pDataBegin = (char*)transformation.data();
+				pDataBegin += start;
 
-			// Draw
-			pContext->DrawInstanced(7, 0, meshes[0]);
-			pContext->DrawInstanced(4, 7, meshes[1]);
+				if (end - start < 1024)
+				{
+					start = end - start;
+				}
+
+				// Copy Data to CPU Buffer (World Matrices)
+				pContext->CopyDataToRegion(
+					pDataBegin,
+					length * sizeof(XMFLOAT4X4),
+					buffer0);
+
+				// Upload All Data to GPU
+				pContext->UploadToGPU(BUFFER_CONSTANT_DYNAMIC);
+
+				// Draw
+				pContext->DrawInstanced(length, 0, meshes[0]);
+
+				start += length;
+			}
+
 
 			// Presenet
 			pWindow->Present();

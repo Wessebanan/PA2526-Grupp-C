@@ -53,6 +53,15 @@ namespace graphics
 		m_context.Initialize(m_pDevice4, &m_storage);
 	}
 
+	void DeviceInterface::CreateBufferRegion(
+		const BUFFER_TYPE type, 
+		const UINT size, 
+		BufferRegion* pRegion)
+	{
+		BufferHeap* pHeap = m_storage.GetBufferHeapCPU(type);
+		pHeap->AllocateRegion(size, pRegion);
+	}
+
 	void DeviceInterface::Release()
 	{
 		m_pAdapter4->Release();
@@ -131,13 +140,24 @@ namespace graphics
 		(*ppPipeline) = &m_pipeline;
 	}
 
-	void DeviceInterface::CreateBufferRegion(
-		const BUFFER_TYPE type,
+	void DeviceInterface::CreateDynamicBufferRegion(
 		const UINT size,
 		BufferRegion* pRegion)
 	{
-		BufferHeap* pHeap = m_storage.GetBufferHeapCPU(type);
-		pHeap->AllocateRegion(size, pRegion);
+		CreateBufferRegion(
+			BUFFER_CONSTANT_DYNAMIC,
+			size,
+			pRegion);
+	}
+
+	void DeviceInterface::CreateStaticBufferRegion(
+		const UINT size, 
+		BufferRegion* pRegion)
+	{
+		CreateBufferRegion(
+			BUFFER_CONSTANT_STATIC,
+			size,
+			pRegion);
 	}
 
 	bool DeviceInterface::CreateMeshRegion(

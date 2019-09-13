@@ -33,7 +33,7 @@ namespace graphics
 	};
 
 #define ALLOCATED_BUFFERS (BUFFER_TYPE_LENGTH)
-#define ALLOCATED_BUFFER_SIZE (65536)
+#define ALLOCATED_BUFFER_SIZE (65536 + 65536)
 
 	class BufferHeap
 	{

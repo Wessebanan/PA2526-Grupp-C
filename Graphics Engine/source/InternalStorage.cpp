@@ -155,7 +155,7 @@ namespace graphics
 		switch (region.Type)
 		{
 		case BUFFER_VERTEX_ARRAY_INDEX:
-			// DON'T UPLOAD ANYTHING
+			// DON'T COPY ANYTHING
 			// HAS ALL THE DATA IT NEEDS
 			break;
 
@@ -172,7 +172,6 @@ namespace graphics
 		ID3D11DeviceContext4* pContext4,
 		const BUFFER_TYPE type)
 	{
-
 		switch (type)
 		{
 		case BUFFER_CONSTANT_DYNAMIC:
