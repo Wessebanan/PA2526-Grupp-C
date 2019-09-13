@@ -148,18 +148,21 @@ void EntityComponentSystem::update(float _delta)
 	*	the lowest priority system updates. This function loops through the layers,
 	*	updating all system within that layer and then continues to the next layer.
 	*
-	*	System updates are devided into categories:
 	*
-	*		- EntityUpdate:			Recieves one entity to update. Loop until this system has
-	*								updated all the entities that contains the required component
-	*								types for that system.
-	*		- MultiEntityUpdate:	Recieves a list of entities to update. These are updated with
-	*								the same procedure as EntityUpdate systems, where the entity
-	*								iteration happends in the system update function instead of
-	*								this function.
-	*		- EventReader:			Recieves one event to act upon. Loop through all events of
-	*								the system's event type interest(s) and let the system read
-	*								each of them, one at a time.
+	*	SystemUpdateType description:
+	*		- Undefined				Unset update type
+	*		- EntityUpdate			Updates ONE entity per update call, ECS will loop all filtered
+	*								entities until the system have updated all of them.
+	*		- MultiEntityUpdate		Updates ALL entities of interest per update call. The system
+	*								will recieve an EntityIterator and will have full responsibility
+	*								of iterating through the given iterator of filtered entities.
+	*		- EventReader			System will reviece ONE event and the event TypeID per update.
+	*								The system have responsibility of casting the given BaseEvent*
+	*								to the wanted event type.
+	*		- EventListenerOnly		The system will ONLY get updated when an event is created, recieving
+	*								a BaseEvent* and the event TypeID. The system have responsibility of
+	*								casting the event pointer to wanted event type and act upon it.
+	*		- Actor					The system will be updated without any entity or event input.
 	*/
 
 	cout << "\n[EntityComponentSystem]\t Updating " << typeIDLayerMap.size() << " systems." << endl;
@@ -219,6 +222,9 @@ void EntityComponentSystem::update(float _delta)
 						s->readEvent(*e, _delta);
 					}
 				}
+				break;
+			case Actor:
+				s->act(_delta);
 				break;
 			}
 		}
@@ -392,7 +398,6 @@ Entity* EntityComponentSystem::createEntityInternal(ComponentList _components)
 	events::CreateEntityEvent e;
 	e.entityID = entity->getID();
 	BaseEvent* pEvent = eventMgr.createEvent(e);
-	notifyEventListeners(events::CreateEntityEvent::typeID, pEvent);
 
 	return entity;
 }
@@ -416,26 +421,13 @@ BaseComponent* EntityComponentSystem::createComponentInternal(ID _entityID, Base
 	e.componentID = component->getID();
 	e.componentTypeID = component->getTypeID();
 	BaseEvent* pEvent = eventMgr.createEvent(e);
-	notifyEventListeners(events::CreateComponentEvent::typeID, pEvent);
 
 	return component;
 }
 
 void EntityComponentSystem::createEventInternal(BaseEvent& _event)
 {
-	BaseEvent* e = eventMgr.createEvent(_event);
-
-	TypeID typeID = e->getTypeID();
-
-	if (!eventListeners.count(typeID))
-	{
-		return;
-	}
-
-	for (BaseSystem* s : eventListeners[typeID])
-	{
-		s->onEvent(typeID, e);
-	}
+	eventMgr.createEvent(_event);
 }
 
 void EntityComponentSystem::removeEntityInternal(ID _entityID)
@@ -449,14 +441,14 @@ void EntityComponentSystem::removeEntityInternal(ID _entityID)
 		rve.entityID = _entityID;
 		rve.componentID = c.second;
 		rve.componentTypeID = c.first;
-		notifyEventListeners(events::RemoveComponentEvent::typeID, eventMgr.createEvent(rve));
+		eventMgr.createEvent(rve);
 		componentMgr.flagRemoval(c.first, c.second);
 	}
 	entity->componentIDs.clear();
 
 	events::RemoveEntityEvent ree;
 	ree.entityID = _entityID;
-	notifyEventListeners(events::RemoveEntityEvent::typeID, eventMgr.createEvent(ree));
+	eventMgr.createEvent(ree);
 	entityMgr.flagRemoval(_entityID);
 }
 
@@ -479,7 +471,7 @@ void EntityComponentSystem::removeComponentInternal(ID _entityID, TypeID _compon
 	rve.entityID = _entityID;
 	rve.componentID = componentID;
 	rve.componentTypeID = _componentTypeID;
-	notifyEventListeners(events::RemoveComponentEvent::typeID, eventMgr.createEvent(rve));
+	eventMgr.createEvent(rve);
 
 
 	entity->componentIDs.erase(_componentTypeID);
@@ -564,14 +556,5 @@ void EntityComponentSystem::fillEventIteratorInternal(TypeFilter& _eventFilter, 
 	for (TypeID typeID : _eventFilter.requirements)
 	{
 		_iterator.eventTypes[typeID] = eventMgr.getEventIterator(typeID);
-	}
-}
-
-void EntityComponentSystem::notifyEventListeners(TypeID _eventType, BaseEvent* _pEvent)
-{
-	std::vector<BaseSystem*> list = eventListeners[_eventType];
-	for (BaseSystem* s : list)
-	{
-		s->onEvent(_eventType, _pEvent);
 	}
 }

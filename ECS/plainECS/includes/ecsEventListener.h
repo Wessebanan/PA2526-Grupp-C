@@ -23,6 +23,9 @@ namespace ecs
 		TypeFilter eventTypes;
 
 	private:
+		void notifyHandler();
+		TypeFilter newSubscriptions;
+		TypeFilter newUnsubscriptions;
 		ECSEventListenerListener* eventListenerHandler = nullptr;
 		friend class EntityComponentSystem;
 	};

@@ -95,8 +95,6 @@ namespace ecs
 		SystemList *systemLayers;
 		std::map<TypeID, unsigned int> typeIDLayerMap;
 
-		std::map<TypeID, std::vector<BaseSystem*>> eventListeners;
-
 		// ECSUserListener virtual functions
 		Entity* onGetEntity(ID _entityID) override;
 		BaseComponent* onGetComponent(TypeID _typeID, ID _id) override;
@@ -119,7 +117,6 @@ namespace ecs
 		void removeComponentInternal(ID _entityID, TypeID _componentTypeID);
 		void fillEntityIteratorInternal(TypeFilter& _componentFilter, EntityIterator& _iterator);
 		void fillEventIteratorInternal(TypeFilter& _eventFilter, EventTypeIterator& _iterator);
-		void notifyEventListeners(TypeID _eventType, BaseEvent *_pEvent);
 	};
 
 	/*
@@ -143,28 +140,38 @@ namespace ecs
 			systemLayers = new SystemList[10];
 		}
 
+		// Check if system is already added,
+		// should only exist one system at most per type
 		if (typeIDLayerMap.count(T::typeID) != 0)
 		{
 			return nullptr;
 		}
+
+		/*
+		*	Create system, which calls its constructor.
+		*	The system's constructor will set
+		*		- UpdateType
+		*		- EventSubscriptions (added to list, read later when ECS calls for it
+		*		- Component/Event filter
+		*/
 		T* newSystem = new T;
+
+		// Make ECS listen on ECSUser functionality. This makes ECS responsible for
+		// handling entity creations, component removals etc.
 		(dynamic_cast<ECSUser*>(newSystem))->ecsUserHandler = this;
 
+		// Set ECS to handle all subscriptions and unsubscriptions on event creations.
+		ECSEventListener* listenerCast = static_cast<ECSEventListener*>(newSystem);
 
-		//(dynamic_cast<ECSEventListener*>(newSystem))->eventListenerHandler = this;
-		//UpdateSystemHandle* pUpdateSys = dynamic_cast<UpdateSystemHandle*>(newSystem);
-		TypeFilter eventSubscriptions = newSystem->eventListeningFilter;
-		if (!eventSubscriptions.requirements.empty())
-		{
-			for (TypeID typeID : eventSubscriptions.requirements)
-			{
-				eventListeners[typeID].push_back(newSystem);
-			}
-		}
+		// Fetch all subscriptions. This must be done AFTER eventListenerHandler been set,
+		// as it will call eventListerHandler's onAddSubscription-overrided function.
+		listenerCast->eventListenerHandler = this;
+		listenerCast->notifyHandler();
 
-		ECSEventListener* test = dynamic_cast<ECSEventListener*>(newSystem);
-
+		// Set system in hashed list for easy access
 		typeIDLayerMap[T::typeID] = layer;
+
+		// Push back system in wanted layer for later update
 		systemLayers[layer].push_back(newSystem);
 		return newSystem;
 	}
