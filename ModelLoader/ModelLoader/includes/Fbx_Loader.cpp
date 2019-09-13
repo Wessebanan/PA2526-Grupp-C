@@ -3,7 +3,6 @@
 // Anonymous namespace for Fbx_Loader
 namespace {
 	static FbxManager* gpFbxSdkManager = nullptr;
-	static ModelLoader::Skeleton skeleton;
 	void LoadUV(fbxsdk::FbxMesh* pMesh, std::vector<DirectX::XMFLOAT2>* pOutUVVector)
 	{
 		fbxsdk::FbxStringList uv_set_name_list;
@@ -175,8 +174,6 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 
 			std::string node_name = pFbxChildNode->GetName();
 			FbxNodeAttribute::EType attribute_type = pFbxChildNode->GetNodeAttribute()->GetAttributeType();
-
-			std::unordered_map<int, ControlPointInfo> controlPointsInfo;
 
 			// Handle Mesh attribute item
 			if (attribute_type == FbxNodeAttribute::eMesh)
