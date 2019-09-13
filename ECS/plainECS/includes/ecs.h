@@ -14,8 +14,7 @@
 #include "ecsTypeFilter.h"
 #include "ecsEvent.h"
 
-#define DEFAULT_LAYER_COUNT 3
-#define DEFAULT_SYSTEMS_PER_LAYER 5
+#define DEFAULT_LAYER_COUNT 10
 
 namespace ecs
 {
@@ -31,7 +30,6 @@ namespace ecs
 		CompTypeMemDesc* compTypeMemDescs;
 		size_t compTypeCount;
 		size_t systemLayerCount;
-		//size_t systemsPerLayerCount;
 	};
 
 	class EntityComponentSystem : public ECSUserListener, public ECSEventListenerListener
@@ -42,15 +40,16 @@ namespace ecs
 
 		bool initialize(ECSDesc &_desc);
 
-		ID createEntity(BaseComponent& _comp);
-		ID createEntity(BaseComponent& _compA, BaseComponent& _compB);
-		ID createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC);
-		ID createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD);
-		ID createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD, BaseComponent& _compE);
-		ID createEntity(ComponentList _components);
+		Entity* createEntity(BaseComponent& _comp);
+		Entity* createEntity(BaseComponent& _compA, BaseComponent& _compB);
+		Entity* createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC);
+		Entity* createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD);
+		Entity* createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD, BaseComponent& _compE);
+		Entity* createEntity(ComponentList _components);
 		void removeEntity(ID _entityID);
 
-		ID createComponent(ID _entityID, BaseComponent& _component);
+		template <typename T>
+		T* createComponent(ID _entityID, T& _component);
 		void removeComponent(ID _entityID, TypeID _componentTypeID);
 
 		template <typename T>
@@ -60,6 +59,29 @@ namespace ecs
 		void removeSystem();
 
 		void update(float _delta);
+
+		/*
+		*	Getters
+		*/
+
+		Entity* getEntity(ID _id);
+		BaseComponent* getComponent(TypeID _typeID, ID _id);
+		BaseComponent* getComponentFromEntity(TypeID _typeID, ID _entityID);
+		
+		template <typename T> T* getComponent(ID _id);
+		template <typename T> T* getComponentFromEntity(ID _entityID);
+
+		size_t getSystemLayers();
+		size_t getTotalSystemCount();
+		size_t getTotalEntityCount();
+		size_t getTotalComponentCount();
+		size_t getComponentTypeCount();
+		size_t getComponentCountOfType(TypeID _typeID);
+		
+		EntityIterator getFilteredEntityIterator(TypeFilter _componentFilter);
+		ComponentIterator getAllComponentsOfType(TypeID _typeID);
+
+		TypeFilter getInitializedComponentTypes();
 
 	private:
 		ECSEventManager eventMgr;
@@ -73,13 +95,13 @@ namespace ecs
 		SystemList *systemLayers;
 		std::map<TypeID, unsigned int> typeIDLayerMap;
 
-		std::map<TypeID, std::vector<BaseSystem*>> eventListeners;
-
 		// ECSUserListener virtual functions
 		Entity* onGetEntity(ID _entityID) override;
 		BaseComponent* onGetComponent(TypeID _typeID, ID _id) override;
-		ID onCreateEntity(ComponentList _components) override;
-		ID onCreateComponent(ID _entityID, BaseComponent& _componentInfo) override;
+		Entity* onCreateEntity(ComponentList _components) override;
+		BaseComponent* onCreateComponent(ID _entityID, BaseComponent& _componentInfo) override;
+		EntityIterator getEntitiesByFilter(TypeFilter _componentFilter) override;
+		ComponentIterator getComponentsOfType(TypeID _typeID) override;
 		void onCreateEvent(BaseEvent& _event) override;
 		void onRemoveEntity(ID _entityID) override;
 		void onRemoveComponent(ID _entityID, TypeID _componentTypeID) override;
@@ -89,18 +111,24 @@ namespace ecs
 		virtual void onRemoveSubscription(TypeID _eventTypeID, ECSEventListener* _listener);
 
 		Entity* createEntityInternal(ComponentList _components);
-		ID createComponentInternal(ID _entityID, BaseComponent& _componentInfo);
+		BaseComponent* createComponentInternal(ID _entityID, BaseComponent& _componentInfo);
 		void createEventInternal(BaseEvent& _event);
 		void removeEntityInternal(ID _entityID);
 		void removeComponentInternal(ID _entityID, TypeID _componentTypeID);
 		void fillEntityIteratorInternal(TypeFilter& _componentFilter, EntityIterator& _iterator);
 		void fillEventIteratorInternal(TypeFilter& _eventFilter, EventTypeIterator& _iterator);
-		void notifyEventListeners(TypeID _eventType, BaseEvent *_pEvent);
 	};
 
 	/*
 	*	Templated functions (has to be in header)
 	*/
+
+	template<typename T>
+	T* EntityComponentSystem::createComponent(ID _entityID, T& _component)
+	{
+		// Forwards to internal function.
+		return (T*)createComponentInternal(_entityID, _component);
+	}
 
 	template<typename T>
 	inline T* EntityComponentSystem::createSystem(unsigned int layer)
@@ -112,28 +140,38 @@ namespace ecs
 			systemLayers = new SystemList[10];
 		}
 
+		// Check if system is already added,
+		// should only exist one system at most per type
 		if (typeIDLayerMap.count(T::typeID) != 0)
 		{
 			return nullptr;
 		}
+
+		/*
+		*	Create system, which calls its constructor.
+		*	The system's constructor will set
+		*		- UpdateType
+		*		- EventSubscriptions (added to list, read later when ECS calls for it
+		*		- Component/Event filter
+		*/
 		T* newSystem = new T;
+
+		// Make ECS listen on ECSUser functionality. This makes ECS responsible for
+		// handling entity creations, component removals etc.
 		(dynamic_cast<ECSUser*>(newSystem))->ecsUserHandler = this;
 
+		// Set ECS to handle all subscriptions and unsubscriptions on event creations.
+		ECSEventListener* listenerCast = static_cast<ECSEventListener*>(newSystem);
 
-		//(dynamic_cast<ECSEventListener*>(newSystem))->eventListenerHandler = this;
-		//UpdateSystemHandle* pUpdateSys = dynamic_cast<UpdateSystemHandle*>(newSystem);
-		TypeFilter eventSubscriptions = newSystem->eventListeningFilter;
-		if (!eventSubscriptions.requirements.empty())
-		{
-			for (TypeID typeID : eventSubscriptions.requirements)
-			{
-				eventListeners[typeID].push_back(newSystem);
-			}
-		}
+		// Fetch all subscriptions. This must be done AFTER eventListenerHandler been set,
+		// as it will call eventListerHandler's onAddSubscription-overrided function.
+		listenerCast->eventListenerHandler = this;
+		listenerCast->notifyHandler();
 
-		ECSEventListener* test = dynamic_cast<ECSEventListener*>(newSystem);
-
+		// Set system in hashed list for easy access
 		typeIDLayerMap[T::typeID] = layer;
+
+		// Push back system in wanted layer for later update
 		systemLayers[layer].push_back(newSystem);
 		return newSystem;
 	}
@@ -157,5 +195,15 @@ namespace ecs
 		}
 
 		typeIDLayerMap.erase(T::typeID);
+	}
+
+	template <typename T> T* EntityComponentSystem::getComponent(ID _id)
+	{
+		return (T*)getComponent(T::typeID, _id);
+	}
+
+	template <typename T> T* EntityComponentSystem::getComponentFromEntity(ID _entityID)
+	{
+		return (T*)getComponentFromEntity(_entityID);
 	}
 }
