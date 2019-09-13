@@ -10,16 +10,23 @@ int main(int argc, char** argv)
 
 TEST(UtilityFunctions, GetWorldMatrix) {
 	ecs::components::TransformComponent tc;
-	tc.position.x = 10.0f;
-	tc.position.y = 10.0f;
-	tc.position.z = 10.0f;
-	tc.scale.x = 10.0f;
-	tc.scale.y = 20.0f;
-	tc.scale.z = 30.0f;
+	tc.position.x = 0.0f;
+	tc.position.y = 100.0f;
+	tc.position.z = 0.0f;
+	tc.scale.x = 0.0f;
+	tc.scale.y = 10.0f;
+	tc.scale.z = 0.0f;
+	tc.rotation.x = 0.0f;
+	tc.rotation.y = 0.0f;
+	tc.rotation.z = DirectX::XM_PI / 2.0f;
 	
+	//Create the world matrix given the TransformComponent
 	DirectX::XMMATRIX world = UtilityFunctions::GetWorldMatrix(tc);
-	DirectX::XMVECTOR position = DirectX::XMVectorSet(1.0f, 2.0f, 3.0f, 1.0f);
+	//Generate a test position which we will use with the world matrix
+	DirectX::XMVECTOR position = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f);
+	//Multiply the test position with our world matrix
 	position = DirectX::XMVector3Transform(position, world);
+	//Store the results in a XMFLOAT3 to get access to the data
 	DirectX::XMFLOAT3 posResults;
 	XMStoreFloat3(&posResults, position);
 
@@ -30,7 +37,7 @@ TEST(UtilityFunctions, GetWorldMatrix) {
 
 TEST(CameraFunctions, InitDevCamera) {
 	ecs::EntityComponentSystem mEcs;
-	CameraFunctions::InitDevCamera(mEcs);
+	CameraFunctions::CreateDevCamera(mEcs);
 		
 	int numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
 	int numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
@@ -40,9 +47,9 @@ TEST(CameraFunctions, InitDevCamera) {
 	EXPECT_EQ(numberOfTc, 1);
 }
 
-TEST(CameraFunctions, InitCameraSystems) {
+TEST(CameraFunctions, CreateCameraSystems) {
 	ecs::EntityComponentSystem mEcs;
-	CameraFunctions::InitCameraSystems(mEcs);
+	CameraFunctions::CreateCameraSystems(mEcs);
 
 	int nrOfSystems = mEcs.getTotalSystemCount();
 	EXPECT_EQ(nrOfSystems, 1);

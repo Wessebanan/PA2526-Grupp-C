@@ -3,8 +3,8 @@
 int main()
 {
 	ecs::EntityComponentSystem mEcs;
-	CameraFunctions::InitDevCamera(mEcs);
-	CameraFunctions::InitCameraSystems(mEcs);
+	CameraFunctions::CreateDevCamera(mEcs);
+	CameraFunctions::CreateCameraSystems(mEcs);
 
 	return 0;
 }

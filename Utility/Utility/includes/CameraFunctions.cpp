@@ -5,7 +5,7 @@ using namespace ecs::components;
 
 namespace CameraFunctions
 {
-	void InitDevCamera(ecs::EntityComponentSystem& rEcs)
+	void CreateDevCamera(ecs::EntityComponentSystem& rEcs)
 	{
 		//Initialize components
 		TransformComponent transform;
@@ -25,7 +25,7 @@ namespace CameraFunctions
 		rEcs.createEntity(transform, camera);
 	}
 
-	void InitCameraSystems(ecs::EntityComponentSystem& rEcs)
+	void CreateCameraSystems(ecs::EntityComponentSystem& rEcs)
 	{
 		rEcs.createSystem<systems::UpdateCameraSystem>();
 	}

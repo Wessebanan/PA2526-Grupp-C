@@ -17,7 +17,6 @@ namespace ecs
 				componentFilter.addRequirement(components::TransformComponent::typeID);
 			}
 			virtual ~UpdateCameraSystem() {}
-			// PICK ONE
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
 				/* Implement in the "Controll camera with input"-task */
@@ -27,8 +26,10 @@ namespace ecs
 		
 	}
 }
-
+		///////////////////////////////////////////////////////////////////////////////////
 		//System Template
+		//Use this template when creating a new system for the camera.
+		//////////////////////////////////////////////////////////////////////////////////
 		//class testSystem : public ECSSystem<testSystem>
 		//{
 		//public:
