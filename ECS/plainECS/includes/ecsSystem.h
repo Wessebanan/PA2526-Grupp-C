@@ -89,10 +89,10 @@ namespace ecs
 			EventPrintingSystem()
 			{
 				updateType = EventListenerOnly;
-				eventListeningFilter.addRequirement(events::CreateEntityEvent::typeID);
-				eventListeningFilter.addRequirement(events::RemoveEntityEvent::typeID);
-				eventListeningFilter.addRequirement(events::CreateComponentEvent::typeID);
-				eventListeningFilter.addRequirement(events::RemoveComponentEvent::typeID);
+				subscribeEventCreation(events::CreateEntityEvent::typeID);
+				subscribeEventCreation(events::RemoveEntityEvent::typeID);
+				subscribeEventCreation(events::CreateComponentEvent::typeID);
+				subscribeEventCreation(events::RemoveComponentEvent::typeID);
 			}
 			~EventPrintingSystem() {}
 
