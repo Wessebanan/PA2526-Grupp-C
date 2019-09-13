@@ -182,6 +182,10 @@ namespace graphics
 			const UINT size,
 			BufferRegion* pRegion);
 
+		void CreateIndexBufferRegion(
+			const UINT size,
+			BufferRegion* pRegion);
+
 		bool CreateMeshRegion(
 			const UINT vertexCount,
 			const void* pVertices,

@@ -103,7 +103,6 @@ int main()
 	using namespace graphics;
 	using namespace ecs;
 
-
 	systems::MeshRenderSystemData mrData = { 0 };
 	EntityComponentSystem myECS;
 	{
@@ -289,11 +288,10 @@ int main()
 			{
 				r.DataLocation = at;							// Set active region
 				pContext->VSSetConstantBuffer(0, r);			// Apply active Region
-				pContext->DrawInstanced(512, 0, meshes[1]);		// Draw
-				pContext->DrawInstanced(512, 512, meshes[0]);	// Draw
+				pContext->DrawInstanced(512, 0, meshes[1]);		// Draw with first half
+				pContext->DrawInstanced(512, 512, meshes[0]);	// Draw with second half
 				at += 65536;									// Increment active region
 			}
-
 
 			// Presenet
 			pWindow->Present();

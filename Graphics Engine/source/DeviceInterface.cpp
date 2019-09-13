@@ -160,6 +160,16 @@ namespace graphics
 			pRegion);
 	}
 
+	void DeviceInterface::CreateIndexBufferRegion(
+		const UINT size, 
+		BufferRegion* pRegion)
+	{
+		CreateBufferRegion(
+			BUFFER_INDEX,
+			size,
+			pRegion);
+	}
+
 	bool DeviceInterface::CreateMeshRegion(
 		const UINT vertexCount,
 		const void* pVertices,
