@@ -1,6 +1,6 @@
 #include "Mesh.h"
 // Running this constructor implies you want an empty mesh object
-Mesh::Mesh()
+ModelLoader::Mesh::Mesh()
 {
 	mpVertexPosVector = nullptr;
 	mpUVVector = nullptr;
@@ -8,7 +8,9 @@ Mesh::Mesh()
 	mpIndexVector = nullptr;
 }
 
-Mesh::~Mesh()
+
+
+ModelLoader::Mesh::~Mesh()
 {
 	delete mpVertexPosVector;
 	delete mpIndexVector;
@@ -16,7 +18,7 @@ Mesh::~Mesh()
 	delete mpUVVector;
 }
 
-HRESULT Mesh::LoadFBX(const std::string& filePath)
+HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 {
 	// Create vectors if they dont already exist
 	if (!this->mpIndexVector || !this->mpVertexPosVector || !this->mpNormalVector || !this->mpUVVector)
@@ -26,7 +28,7 @@ HRESULT Mesh::LoadFBX(const std::string& filePath)
 		this->mpNormalVector = new std::vector<DirectX::XMFLOAT3>;
 		this->mpUVVector = new std::vector<DirectX::XMFLOAT2>;
 	}
-	HRESULT hr = FbxLoader::LoadFBX(filePath, this->mpVertexPosVector, this->mpIndexVector, this->mpNormalVector, this->mpUVVector);
+	HRESULT hr = ModelLoader::LoadFBX(filePath, this->mpVertexPosVector, this->mpIndexVector, this->mpNormalVector, this->mpUVVector);
 	// Load failed, clean memory
 	if (FAILED(hr))
 	{
@@ -39,11 +41,29 @@ HRESULT Mesh::LoadFBX(const std::string& filePath)
 		mpNormalVector = nullptr;
 		mpIndexVector = nullptr;
 	}
+	else
+	{
+		// Assume UVs and normals exist
+		this->mHasUvs = true;
+		this->mHasNormals = true;
+		if (this->mpNormalVector->size() <= 0)
+		{
+			delete mpNormalVector;
+			mpNormalVector = nullptr;
+			this->mHasNormals = false;
+		}
+		if (this->mpUVVector->size() <= 0)
+		{
+			delete mpUVVector;
+			mpUVVector = nullptr;
+			this->mHasUvs = false;
+		}
+	}
 	return hr;
 
 }
 
-std::vector<DirectX::XMFLOAT3>* Mesh::GetVertexPositionVector()
+std::vector<DirectX::XMFLOAT3>* ModelLoader::Mesh::GetVertexPositionVector()
 {
 	if (this->mpVertexPosVector)
 		return this->mpVertexPosVector;
@@ -51,17 +71,27 @@ std::vector<DirectX::XMFLOAT3>* Mesh::GetVertexPositionVector()
 		return nullptr;
 }
 
-std::vector<int>* Mesh::GetIndexVector()
+std::vector<int>* ModelLoader::Mesh::GetIndexVector()
 {
 	return this->mpIndexVector;
 }
 
-std::vector<DirectX::XMFLOAT3>* Mesh::GetNormalVector()
+std::vector<DirectX::XMFLOAT3>* ModelLoader::Mesh::GetNormalVector()
 {
 	return this->mpNormalVector;
 }
 
-std::vector<DirectX::XMFLOAT2>* Mesh::GetUVVector()
+std::vector<DirectX::XMFLOAT2>* ModelLoader::Mesh::GetUVVector()
 {
 	return this->mpUVVector;
+}
+
+bool ModelLoader::Mesh::HasUVs()
+{
+	return mHasUvs;
+}
+
+bool ModelLoader::Mesh::HasNormals()
+{
+	return this->mHasNormals;
 }

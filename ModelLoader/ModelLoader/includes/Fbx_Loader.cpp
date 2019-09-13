@@ -3,7 +3,7 @@
 // Anonymous namespace for Fbx_Loader
 namespace {
 	static FbxManager* gpFbxSdkManager = nullptr;
-	static FbxLoader::Skeleton skeleton;
+	static ModelLoader::Skeleton skeleton;
 	void LoadUV(fbxsdk::FbxMesh* pMesh, std::vector<DirectX::XMFLOAT2>* pOutUVVector)
 	{
 		fbxsdk::FbxStringList uv_set_name_list;
@@ -106,7 +106,7 @@ namespace {
 	}
 }
 
-HRESULT FbxLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMFLOAT3>* pOutVertexPosVector, std::vector<int>* pOutIndexVector,
+HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMFLOAT3>* pOutVertexPosVector, std::vector<int>* pOutIndexVector,
 	std::vector<DirectX::XMFLOAT3>* pOutNormalVector, std::vector<DirectX::XMFLOAT2>* pOutUVVector)
 {
 	// Create the FbxManager if it does not already exist
