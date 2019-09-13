@@ -1,5 +1,7 @@
 #pragma once
 
+#include "nameOf.h"
+
 typedef unsigned int ID;
 typedef unsigned int TypeID;
 

@@ -28,6 +28,7 @@ namespace ecs
 
 		virtual size_t getSize() { return 0; }
 		virtual TypeID getTypeID() { return 0; }
+		virtual std::string getName() { return ""; }
 		virtual ComponentCreateFunction getCreateFunction() { return nullptr; }
 
 	protected:
@@ -53,10 +54,12 @@ namespace ecs
 	{
 		static const size_t size;
 		static const TypeID typeID;
+		static const std::string name;
 		static const ComponentCreateFunction createFunction;
 
-		virtual size_t getSize() { return ECSComponent<T>::size; }
-		virtual TypeID getTypeID() { return ECSComponent<T>::typeID; }
+		virtual size_t getSize() { return T::size; }
+		virtual TypeID getTypeID() { return T::typeID; }
+		virtual std::string getName() { return T::name; }
 		virtual ComponentCreateFunction getCreateFunction() { return ECSComponent<T>::createFunction; }
 	};
 
@@ -85,10 +88,14 @@ namespace ecs
 	//IDGenerator<ID> BaseComponent::uniqueIDGenerator(1);
 
 	template <typename T>
+	const size_t ECSComponent<T>::size(sizeof(T));
+
+	template <typename T>
 	const TypeID ECSComponent<T>::typeID(BaseComponent::typeIDCounter++);
 
 	template <typename T>
-	const size_t ECSComponent<T>::size(sizeof(T));
+	const std::string ECSComponent<T>::name(__nameof<T>());
+
 
 	template <typename T>
 	const ComponentCreateFunction ECSComponent<T>::createFunction(componentCreate<T>);

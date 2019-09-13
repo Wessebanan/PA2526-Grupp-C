@@ -4,7 +4,7 @@
 using namespace std;
 using namespace ecs;
 
-#define ENTITY_COUNT 10
+#define ENTITY_COUNT 1
 
 int main()
 {
@@ -31,11 +31,11 @@ int main()
 	for (size_t i = 0; i < ENTITY_COUNT; i++)
 	{
 		health.health = (float)i + 1;
-		entities[i] = myECS.createEntity(health);
+		entities[i] = myECS.createEntity(health)->getID();
 	}
 
 	myECS.update(0.12345f);
-	system("pause");
+	//system("pause");
 	cout << endl;
 
 	PoisonComponent poison; poison.tickDamage = 1.f;
@@ -43,13 +43,10 @@ int main()
 	{
 		myECS.createComponent(entities[i], poison);
 	}
-	system("pause");
+	//system("pause");
 
-	while (true)
-	{
-		myECS.update(0.12345f);
-		system("pause");
-	}
+	myECS.update(0.12345f);
+	system("pause");
 
 	return 0;
 }
