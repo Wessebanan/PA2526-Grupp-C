@@ -152,7 +152,8 @@
     <ClInclude Include="includes\GridFunctions.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="includes\main.cpp" />
+    <ClCompile Include="GridFunctions.cpp" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
