@@ -38,9 +38,10 @@ namespace {
 
 			for (int i = 0; i < pMesh->GetControlPointsCount(); ++i)
 				processed_cp.insert_or_assign(i, false);
-
+			// Access control points by polygon
 			for (int polygon = 0; polygon < pMesh->GetPolygonCount(); ++polygon)
 			{
+				// Access control points by polygon vertex
 				for (int polygon_vertex = 0; polygon_vertex < pMesh->GetPolygonSize(polygon); ++polygon_vertex)
 				{
 					int control_point = pMesh->GetPolygonVertex(polygon, polygon_vertex);
@@ -50,6 +51,7 @@ namespace {
 						FbxVector2 uv = uv_element->GetDirectArray().GetAt(control_point);
 						new_uvs.Add(uv);
 						new_index_to_direct.Add(control_point);
+						// Add point to list of processed points
 						processed_cp.insert_or_assign(control_point, true);
 					}
 				}
@@ -81,6 +83,7 @@ namespace {
 
 			for (int i = 0; i < pMesh->GetControlPointsCount(); ++i)
 			{
+				// Different type of indexing in vector based on reference mode
 				switch (uv_element->GetReferenceMode())
 				{
 				case FbxGeometryElement::eDirect:
@@ -124,6 +127,7 @@ HRESULT FbxLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMF
 	// Import model
 	bool b_success = p_importer->Initialize(fileName.c_str(), -1, gpFbxSdkManager->GetIOSettings());
 	// Handle failed import
+	// Returns information if the FBX is in the incorrect file format version
 	if (!b_success) {
 		FbxString error = p_importer->GetStatus().GetErrorString();
 		OutputDebugStringA("error: Call to FbxImporter::Initialize() failed.\n");
@@ -194,6 +198,7 @@ HRESULT FbxLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMF
 
 				for (int j = 0; j < p_mesh->GetControlPointsCount(); ++j)
 				{
+					// Process vertex positions
 					DirectX::XMFLOAT3 vertex_pos;
 					vertex_pos.x = (float)p_vertices[j].mData[0];
 					vertex_pos.y = (float)p_vertices[j].mData[1];
@@ -207,9 +212,10 @@ HRESULT FbxLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMF
 					{
 						p_mesh->GenerateNormals(true, true, true);
 					}
-					// Only allowing one normal per element currently
+					// Only allowing one normal per element currently, fetching the first available
 					fbxsdk::FbxGeometryElementNormal* le_normal = p_mesh->GetElementNormal(0);
 
+					// Different type of indexing in vector based on reference mode
 					switch (le_normal->GetReferenceMode())
 					{
 					case FbxGeometryElement::eDirect:
@@ -225,6 +231,7 @@ HRESULT FbxLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMF
 						throw std::exception("Invalid Fbx Normal Reference");
 					}
 					DirectX::XMFLOAT3 vertex_normal;
+					// Double checking that the normal is normalized
 					normal.Normalize();
 					vertex_normal.x = (float)normal.mData[0];
 					vertex_normal.y = (float)normal.mData[1];
