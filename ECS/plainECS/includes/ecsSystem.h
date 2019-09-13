@@ -113,12 +113,14 @@ namespace ecs
 				else if (_eventType == events::CreateComponentEvent::typeID)
 				{
 					events::CreateComponentEvent* e = static_cast<events::CreateComponentEvent*>(_event);
-					cout << "Entity " << e->entityID << " got component " << e->componentID << " of type ID " << e->componentTypeID << endl;
+					BaseComponent* c = getComponent(e->componentTypeID, e->componentID);
+					cout << "Entity " << e->entityID << " got component " << c->getName() << endl;
 				}
 				else if (_eventType == events::RemoveComponentEvent::typeID)
 				{
 					events::RemoveComponentEvent* e = static_cast<events::RemoveComponentEvent*>(_event);
-					cout << "Entity " << e->entityID << " lost component " << e->componentID << " of type ID " << e->componentTypeID << endl;
+					BaseComponent* c = getComponent(e->componentTypeID, e->componentID);
+					cout << "Entity " << e->entityID << " lost component " << c->getName() << endl;
 				}
 			}
 		};
