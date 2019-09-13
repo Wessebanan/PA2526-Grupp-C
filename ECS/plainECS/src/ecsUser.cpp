@@ -24,7 +24,7 @@ ComponentIterator ECSUser::getComponentsOfType(TypeID _typeID)
 	return ecsUserHandler->getComponentsOfType(_typeID);
 }
 
-BaseComponent* ECSUser::GetComponent(TypeID _typeID, ID _id)
+BaseComponent* ECSUser::getComponent(TypeID _typeID, ID _id)
 {
 	return ecsUserHandler->onGetComponent(_typeID, _id);
 }
