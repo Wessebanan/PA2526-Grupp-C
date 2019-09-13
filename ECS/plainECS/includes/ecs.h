@@ -272,7 +272,7 @@ namespace ecs
 				SystemFreeFunction ff = sys->getFreeFunction(); /* Fetch free function, in case user hasn't
 																   written its destructor as virtual */
 				ff(sys);										// Call free function
-				typeIDToLayerMap.erase(T::typeID);
+				typeIDToLayerMap.erase(T::typeID);				// Erase from hash map
 				return;
 			}
 		}
@@ -280,11 +280,13 @@ namespace ecs
 
 	template <typename T> T* EntityComponentSystem::getComponent(ID _id)
 	{
+		// Forwards to internal function and cast returning BaseComponent pointer
 		return (T*)getComponent(T::typeID, _id);
 	}
 
 	template <typename T> T* EntityComponentSystem::getComponentFromEntity(ID _entityID)
 	{
+		// Forwards to internal function and cast returning BaseComponent pointer
 		return (T*)getComponentFromEntity(_entityID);
 	}
 }
