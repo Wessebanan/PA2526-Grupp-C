@@ -7,12 +7,29 @@ Entity* ECSUser::getEntity(ID _entityID)
 	return ecsUserHandler->onGetEntity(_entityID);
 }
 
+EntityIterator ECSUser::getEntitiesByFilter(TypeFilter _filter)
+{
+	return ecsUserHandler->getEntitiesByFilter(_filter);
+}
+
+EntityIterator ECSUser::getEntitiesWithComponent(TypeID _typeID)
+{
+	TypeFilter filter;
+	filter.addRequirement(_typeID);
+	return ecsUserHandler->getEntitiesByFilter(filter);
+}
+
+ComponentIterator ECSUser::getComponentsOfType(TypeID _typeID)
+{
+	return ecsUserHandler->getComponentsOfType(_typeID);
+}
+
 BaseComponent* ECSUser::GetComponent(TypeID _typeID, ID _id)
 {
 	return ecsUserHandler->onGetComponent(_typeID, _id);
 }
 
-ID ECSUser::createEntity(BaseComponent& _comp)
+Entity* ECSUser::createEntity(BaseComponent& _comp)
 {
 	BaseComponent* components[] = { &_comp };
 
@@ -23,7 +40,7 @@ ID ECSUser::createEntity(BaseComponent& _comp)
 	return ecsUserHandler->onCreateEntity(list);
 }
 
-ID ECSUser::createEntity(BaseComponent & _compA, BaseComponent & _compB)
+Entity* ECSUser::createEntity(BaseComponent & _compA, BaseComponent & _compB)
 {
 	BaseComponent* components[] = { &_compA, &_compB };
 
@@ -34,7 +51,7 @@ ID ECSUser::createEntity(BaseComponent & _compA, BaseComponent & _compB)
 	return ecsUserHandler->onCreateEntity(list);
 }
 
-ID ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC)
+Entity* ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC)
 {
 	BaseComponent* components[] = { &_compA, &_compB, &_compC };
 
@@ -45,7 +62,7 @@ ID ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseCompo
 	return ecsUserHandler->onCreateEntity(list);
 }
 
-ID ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD)
+Entity* ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD)
 {
 	BaseComponent* components[] = { &_compA, &_compB, &_compC, &_compD };
 
@@ -56,7 +73,7 @@ ID ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseCompo
 	return ecsUserHandler->onCreateEntity(list);
 }
 
-ID ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD, BaseComponent& _compE)
+Entity* ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD, BaseComponent& _compE)
 {
 	BaseComponent* components[] = { &_compA, &_compB, &_compC, &_compD, &_compE };
 
@@ -67,14 +84,9 @@ ID ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseCompo
 	return ecsUserHandler->onCreateEntity(list);
 }
 
-ID ECSUser::createEntity(ComponentList _components)
+Entity* ECSUser::createEntity(ComponentList _components)
 {
 	return ecsUserHandler->onCreateEntity(_components);
-}
-
-ID ECSUser::createComponent(ID _entityID, BaseComponent& _componentInfo)
-{
-	return ecsUserHandler->onCreateComponent(_entityID, _componentInfo);
 }
 
 void ECSUser::createEvent(BaseEvent& _event)
