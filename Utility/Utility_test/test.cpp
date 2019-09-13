@@ -31,9 +31,19 @@ TEST(UtilityFunctions, GetWorldMatrix) {
 TEST(CameraFunctions, InitDevCamera) {
 	ecs::EntityComponentSystem mEcs;
 	CameraFunctions::InitDevCamera(mEcs);
+		
+	int numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
+	int numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
+
+	EXPECT_EQ(numberOfCc + numberOfTc, 2);
+	EXPECT_EQ(numberOfCc, 1);
+	EXPECT_EQ(numberOfTc, 1);
 }
 
 TEST(CameraFunctions, InitCameraSystems) {
 	ecs::EntityComponentSystem mEcs;
 	CameraFunctions::InitCameraSystems(mEcs);
+
+	int nrOfSystems = mEcs.getTotalSystemCount();
+	EXPECT_EQ(nrOfSystems, 1);
 }
