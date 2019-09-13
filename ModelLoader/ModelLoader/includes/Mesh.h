@@ -14,6 +14,7 @@ namespace ModelLoader {
 
 	public:
 		Mesh();
+		Mesh(const std::string& filePath);
 		~Mesh();
 		// Populates the objects vectors with data from provided .fbx filepath
 		HRESULT LoadFBX(const std::string& filePath);

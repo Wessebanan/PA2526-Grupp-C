@@ -2,12 +2,13 @@
 // Running this constructor implies you want an empty mesh object
 ModelLoader::Mesh::Mesh()
 {
-	mpVertexPosVector = nullptr;
-	mpUVVector = nullptr;
-	mpNormalVector = nullptr;
-	mpIndexVector = nullptr;
+
 }
 
+ModelLoader::Mesh::Mesh(const std::string& filePath)
+{
+	this->LoadFBX(filePath);
+}
 
 
 ModelLoader::Mesh::~Mesh()
