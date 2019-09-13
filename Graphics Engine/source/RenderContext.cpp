@@ -9,6 +9,9 @@ namespace graphics
 	{
 		m_viewport = { 0 };
 		m_viewport.MaxDepth = 1.0f;
+	
+		m_currentPipeline = NULL;
+		ZeroMemory(m_clearColor, sizeof(m_clearColor));
 	}
 
 	RenderContext::~RenderContext()

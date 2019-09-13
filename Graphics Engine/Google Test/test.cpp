@@ -3,11 +3,13 @@
 
 namespace GraphicsEngine
 {
-	TEST(TestingDeviceInterface, CreatingDeviceInterface) {
-		DeviceInterface* pDevice;
-		CreateDeviceInterface(&pDevice);
+	TEST(TestingDeviceInterface, CreatingDeviceInterface)
+	{
+		graphics::DeviceInterface* pDevice;
+		graphics::CreateDeviceInterface(&pDevice);
 		EXPECT_TRUE(pDevice);
 		pDevice->Release();
+		int x = 0;
 	}
 }
 

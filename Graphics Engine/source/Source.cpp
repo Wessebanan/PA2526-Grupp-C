@@ -92,10 +92,10 @@ int main()
 	using namespace graphics;
 	using namespace ecs;
 
-	//systems::MeshRenderSystemData data;
-	//EntityComponentSystem myECS;
-	//systems::MeshRenderSystem* sys = myECS.createSystem<systems::MeshRenderSystem>();
-	//sys->m_pData = &data;
+	systems::MeshRenderSystemData data;
+	EntityComponentSystem myECS;
+	systems::MeshRenderSystem* sys = myECS.createSystem<systems::MeshRenderSystem>();
+	sys->m_pData = &data;
 
 	UINT clientWidth = 1280, clientHeight = 720;
 
@@ -152,11 +152,12 @@ int main()
 	// Create Matrices
 
 	std::vector<XMFLOAT4X4> transformation;
-	for (UINT x = 0; x < 50; x++)
+	for (UINT x = 0; x < 100; x++)
 	{
-		for (UINT y = 0; y < 50; y++)
+		for (UINT y = 0; y < 40; y++)
 		{
-			AddTransformation(transformation, 
+			AddTransformation(
+				transformation, 
 				x * 2.0f, 
 				y * 2.0f, 
 				0);
@@ -173,7 +174,7 @@ int main()
 	XMFLOAT4X4 projection;
 	XMStoreFloat4x4(&projection,
 		XMMatrixPerspectiveFovLH(
-			3.14f / 2.0f, clientWidth / (float)clientHeight, 0.1f, 100.0f));
+			3.14f / 2.0f, clientWidth / (float)clientHeight, 0.1f, 800.0f));
 
 
 	BufferRegion projRegion;
@@ -186,7 +187,7 @@ int main()
 		&viewRegion);
 
 	pDevice->CreateDynamicBufferRegion(
-		sizeof(XMFLOAT4X4) * 1024,
+		sizeof(XMFLOAT4X4) * transformation.size(),
 		&buffer0);
 
 	pDevice->CreateStaticBufferRegion(
@@ -218,33 +219,28 @@ int main()
 				sizeof(view),
 				viewRegion);
 
+			// Copy Data to CPU Buffer (World Matrices)
+			pContext->CopyDataToRegion(
+				transformation.data(),
+				transformation.size() * sizeof(XMFLOAT4X4),
+				buffer0);
 
-			UINT length = 1024;
-			UINT start = 0;
-			UINT end = transformation.size();
-			while (start < end)
+			// Upload All Data to GPU
+			pContext->UploadToGPU(BUFFER_CONSTANT_DYNAMIC);
+
+			UINT at				= buffer0.DataLocation;
+			UINT end			= buffer0.DataLocation + buffer0.DataCount;
+
+			BufferRegion r	= buffer0;
+			r.DataCount		= 65536;
+
+			while (at < end)
 			{
-				char* pDataBegin = (char*)transformation.data();
-				pDataBegin += start;
-
-				if (end - start < 1024)
-				{
-					start = end - start;
-				}
-
-				// Copy Data to CPU Buffer (World Matrices)
-				pContext->CopyDataToRegion(
-					pDataBegin,
-					length * sizeof(XMFLOAT4X4),
-					buffer0);
-
-				// Upload All Data to GPU
-				pContext->UploadToGPU(BUFFER_CONSTANT_DYNAMIC);
-
-				// Draw
-				pContext->DrawInstanced(length, 0, meshes[0]);
-
-				start += length;
+				r.DataLocation = at;							// Set active region
+				pContext->VSSetConstantBuffer(0, r);			// Apply active Region
+				pContext->DrawInstanced(512, 0, meshes[1]);		// Draw
+				pContext->DrawInstanced(512, 512, meshes[0]);		// Draw
+				at += 65536;									// Increment active region
 			}
 
 

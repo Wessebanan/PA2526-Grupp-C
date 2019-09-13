@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ecsComponentIncludes.h"
+#include "../../ECS/plainECS/includes/ecsComponentIncludes.h"
 
 #include "DeviceInterface.h"
 

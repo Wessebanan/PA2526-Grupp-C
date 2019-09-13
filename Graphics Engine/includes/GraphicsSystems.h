@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ecsSystemIncludes.h"
+#include "../../ECS/plainECS/includes/ecsSystemIncludes.h"
 #include "GraphicsComponents.h"
 
 #include "DeviceInterface.h"
@@ -103,8 +103,8 @@ namespace ecs
 							m_pData->m_meshCount[mc->MeshLocation.ID]--;
 						}
 
-						m_pData->m_maximumMeshes--;/*
-						m_pData->m_matrices.reserve(m_pData->m_maximumMeshes);*/
+						m_pData->m_maximumMeshes--;
+						/*m_pData->m_matrices.reserve(m_pData->m_maximumMeshes);*/
 					}
 				}
 			}
