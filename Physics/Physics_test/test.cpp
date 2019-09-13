@@ -1,6 +1,10 @@
 #include "pch.h"
+#include "MovementSystem.h"
+
 TEST(TestCaseName, TestName) {
 	ecs::EntityComponentSystem e;
+	e.createSystem<StaticMovementSystem>();
+
   EXPECT_EQ(1, 1);
   EXPECT_TRUE(true);
 }

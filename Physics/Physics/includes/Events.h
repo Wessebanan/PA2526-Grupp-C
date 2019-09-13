@@ -5,10 +5,7 @@
 
 enum MovementKeys
 {
-	W,
-	A,
-	S,
-	D
+	W, A, S, D
 };
 
 EVENT(MovementInputEvent)

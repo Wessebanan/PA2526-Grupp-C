@@ -6,20 +6,22 @@
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
 //SYSTEM(StaticMovementSystem)
-struct StaticMovementSystem : public ecs::ECSSystem<StaticMovementSystem>
+SYSTEM(StaticMovementSystem)
 {
 	// TODO: Handle input from input handler.
 	StaticMovementSystem()
 	{
 		updateType = ecs::EntityUpdate;
 		componentFilter.addRequirement(MovementComponent::typeID);
+		// componentFilter.addRequirement(PositionComponent::typeID);
+
 		subscribeEventCreation(MovementInputEvent::typeID);
 	}
 	virtual ~StaticMovementSystem()
 	{
 	}
-	/*void updateEntity() override
+	void updateEntity(ecs::FilteredEntity& _entityInfo, float _delta) override
 	{
 
-	}*/
+	}
 };
