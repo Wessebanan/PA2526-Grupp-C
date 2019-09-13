@@ -19,6 +19,11 @@
 
 int main()
 {
+	ecs::EntityComponentSystem myECS;
+
+	initInputECS(myECS);
+
+
 	return 0;
 }
 //

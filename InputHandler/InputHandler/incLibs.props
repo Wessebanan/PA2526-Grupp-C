@@ -9,6 +9,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>plainECS.lib;InputHandler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
