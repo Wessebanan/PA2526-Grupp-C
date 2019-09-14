@@ -266,7 +266,7 @@ BaseComponent* EntityComponentSystem::getComponentFromEntity(TypeID _typeID, ID 
 {
 	Entity* entity = entityMgr.getEntity(_entityID);
 
-	// Sanity check
+	// Sanity check entity creation
 	if (!entity->hasComponentOfType(_typeID))
 	{
 		return nullptr;
@@ -460,6 +460,12 @@ void EntityComponentSystem::removeEntityInternal(ID _entityID)
 {
 	Entity* entity = entityMgr.getEntity(_entityID);
 
+	// Sanity check entity exist
+	if (!entity)
+	{
+		return;
+	}
+
 	std::map<TypeID, ID>::iterator it;
 	for (std::pair<TypeID, ID> c : entity->componentIDs)
 	{
@@ -499,7 +505,8 @@ void EntityComponentSystem::removeComponentInternal(ID _entityID, TypeID _compon
 	rve.componentTypeID = _componentTypeID;
 	eventMgr.createEvent(rve);
 
-
+	// Erasing component ID from entity must happen after event is created,
+	// in case some systems need to act to event.
 	entity->componentIDs.erase(_componentTypeID);
 	componentMgr.flagRemoval(_componentTypeID, componentID);
 
@@ -531,10 +538,9 @@ void EntityComponentSystem::fillEntityIteratorInternal(TypeFilter& _componentFil
 
 	// Get iterator from pool
 	ComponentIterator firstReqTypeIterator = componentMgr.getComponentIterator(minTypeID);
-	
-	BaseComponent* pComponent;
 
 	// If single component type requirement
+	BaseComponent* pComponent;
 	if (_componentFilter.requirements.size() == 1)
 	{
 		while (pComponent = firstReqTypeIterator.next())

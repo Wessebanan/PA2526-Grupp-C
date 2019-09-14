@@ -17,11 +17,15 @@ ECSComponentPool::ECSComponentPool(size_t _startCap, size_t _componentSize)
 
 ECSComponentPool::~ECSComponentPool()
 {
-	free(memory);
+	if (!memory)
+	{
+		free(memory);
+	}
 }
 
-BaseComponent* ECSComponentPool::add(BaseComponent& _component)
+BaseComponent* ECSComponentPool::create(BaseComponent& _component)
 {
+	this->componentName = _component.getName(); // TODO: remove this
 	void* p = allocator.allocate();
 
 	if (p == nullptr)
@@ -81,6 +85,10 @@ void ECSComponentPool::initialize(size_t _startCap, size_t _componentSize)
 	componentSize = _componentSize;
 	memorySize = componentCap * componentSize;
 	memory = (void*)malloc(memorySize);
+	if (!memory)
+	{
+		return;
+	}
 	std::memset(memory, 0, memorySize);
 	allocator.initialize(memory, memorySize, componentSize);
 	initialized = true;
@@ -105,6 +113,12 @@ void ecs::ECSComponentPool::removeAllFlagged()
 			toRemove.pop_back();
 		}
 	}
+}
+
+ecs::ComponentIterator::ComponentIterator()
+{
+	first = current = nullptr;
+	totalSize = objectSize = iterationSize = 0;
 }
 
 ComponentIterator::ComponentIterator(size_t _objectSize, size_t _totalSize, void* _memory)
