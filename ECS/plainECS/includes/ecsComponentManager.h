@@ -10,6 +10,10 @@
 
 namespace ecs
 {
+	/*
+		ECSComponentManager handles component pools, making it an abstraction
+		of handling components.
+	*/
 	class ECSComponentManager
 	{
 	public:
@@ -60,8 +64,5 @@ namespace ecs
 
 		// All existing component pools
 		std::map<TypeID, ECSComponentPool*> componentPools;
-
-		// All flagged 
-		std::map<TypeID, std::vector<ID>> toRemove;
 	};
 }

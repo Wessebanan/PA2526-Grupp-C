@@ -19,6 +19,6 @@ namespace ecs
 	private:
 		std::vector<TypeID> requirements;
 		friend class EntityComponentSystem;
-		friend class ECSEventListener;
+		friend struct ECSEventListener;
 	};
 }
