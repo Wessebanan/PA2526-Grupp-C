@@ -11,8 +11,9 @@
 namespace ecs
 {
 	/*
-		ECSComponentManager handles component pools, making it an abstraction
-		of handling components.
+		ECSComponentManager is an abstraction of working with components.
+		It's a factory for all types of components, and is responsible
+		for creating and removing them using a PoolAllocator.
 	*/
 	class ECSComponentManager
 	{

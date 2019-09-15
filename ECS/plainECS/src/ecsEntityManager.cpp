@@ -17,16 +17,6 @@ Entity* ECSEntityManager::createEntity()
 	return createEntityInternal();
 }
 
-void ecs::ECSEntityManager::removeEntity(ID _entityID)
-{
-	if (entities.count(_entityID) == 0)
-	{
-		return;
-	}
-	delete entities[_entityID];
-	entities.erase(_entityID);
-}
-
 Entity* ECSEntityManager::getEntity(ID _entityID)
 {
 	// Check if entity exist
@@ -59,6 +49,9 @@ size_t ECSEntityManager::getEntityCount()
 
 Entity* ECSEntityManager::createEntityInternal()
 {
+
+	// idGenerator is working like a counter, making sure that
+	// all IDs it generate is unique.
 	ID newID = idGenerator.generateID();
 	Entity* entity = new Entity;
 	entity->id = newID;
