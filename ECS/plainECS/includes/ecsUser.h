@@ -34,7 +34,7 @@ namespace ecs
 		EntityIterator getEntitiesByFilter(TypeFilter _componentFilter);
 		EntityIterator getEntitiesWithComponent(TypeID _typeID);
 		ComponentIterator getComponentsOfType(TypeID _typeID);
-		BaseComponent* GetComponent(TypeID _typeID, ID _id);
+		BaseComponent* getComponent(TypeID _typeID, ID _id);
 		Entity* createEntity(BaseComponent& _comp);
 		Entity* createEntity(BaseComponent& _compA, BaseComponent& _compB);
 		Entity* createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC);
