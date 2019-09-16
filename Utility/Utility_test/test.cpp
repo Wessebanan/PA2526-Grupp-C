@@ -1,6 +1,7 @@
 #include "pch.h"
 #include <CameraFunctions.h>
 #include <UtilityFunctions.h>
+#include "DebugInfoTestHeader.h"
 
 int main(int argc, char** argv)
 {
@@ -55,4 +56,47 @@ TEST(CameraFunctions, CreateCameraSystems) {
 
 	int nrOfSystems = mEcs.getTotalSystemCount();
 	EXPECT_EQ(nrOfSystems, 1);
+}
+
+// Test if an int is initialized properly and that set/get and ToString
+// functionality works as expected.
+TEST(TestDebugInfo, AddInt) {
+	// Is Fps equal to default 0?
+	EXPECT_EQ(DInfo::Graphics::Fps, 0);
+	// Check if strings works
+	EXPECT_STREQ(DInfo::Graphics::Fps.ToString().c_str(), "0");
+	// Set Fps to 60
+	DInfo::Graphics::Fps = 60;
+	// Check if it changed
+	EXPECT_EQ(DInfo::Graphics::Fps, 60);
+	EXPECT_STREQ(DInfo::Graphics::Fps.ToString().c_str(), "60");
+}
+
+// Test if an string is initialized properly and that set/get and ToString
+// functionality works as expected.
+TEST(TestDebugInfo, AddString) {
+	// Is Title an empty string?
+	EXPECT_STREQ(DInfo::Graphics::Title.ToString().c_str(), "");
+	std::string title = DInfo::Graphics::Title;
+	EXPECT_STREQ(title.c_str(), "");
+	// Set Title to "Couch Commanders"
+	DInfo::Graphics::Title = "Couch Commanders";
+	// Check if it got changed
+	EXPECT_STREQ(DInfo::Graphics::Title.ToString().c_str(), "Couch Commanders");
+	title = DInfo::Graphics::Title;
+	EXPECT_STREQ(title.c_str(), "Couch Commanders");
+}
+
+// Test if the macro DINFO_SET only sets variables in debug configuration
+TEST(TestDebugInfo, DInfo_SetOnlyInDebug) {
+	// Set Title to "Oh boy, cheese!" using DINFO_SET
+	DINFO_SET(DInfo::Graphics::Title, "Oh boy, cheese!");
+#ifdef _DEBUG
+	// This only runs if _DEBUG is defined. Check if the string is correct
+	EXPECT_STREQ(DInfo::Graphics::Title.ToString().c_str(), "Oh boy, cheese!");
+#else
+	// This only runs if _DEBUG is not defined. Check if the string is incorrect
+	EXPECT_STRNE(DInfo::Graphics::Title.ToString().c_str(), "Oh boy, cheese!");
+#endif // _DEBUG
+
 }

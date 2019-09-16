@@ -45,6 +45,9 @@
     <ClInclude Include="includes\CameraFunctions.h">
       <Filter>Camera ECS Files</Filter>
     </ClInclude>
+    <ClInclude Include="includes\DebugInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
