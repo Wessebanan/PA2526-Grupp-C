@@ -1,6 +1,10 @@
 #include<ecs.h>
 #include<Direct2D.h>
 #include <Windows.h>
+#pragma warning(disable:4996)
+#include "UISystems.h"
+#include "UIComponents.h"
+#include "UIEvents.h"
 
 const char g_szClassName[] = "myWindowClass";
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -18,14 +22,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 }
+int compStr(char* s1, char* s2, size_t sz) {
+	while (sz != 0) {
+		// At end of both strings, equal.
+		if ((*s1 == '\0') && (*s2 == '\0')) break;
+
+		// Treat spaces at end and end-string the same.
+		if ((*s1 == '\0') && (*s2 == ' ')) { s2++; sz--; continue; }
+		if ((*s1 == ' ') && (*s2 == '\0')) { s1++; sz--; continue; }
+
+		// Detect difference otherwise.
+		if (*s1 != *s2) return 0;
+
+		s1++; s2++; sz--;
+	}
+	return 1;
+}
 //int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 //	LPSTR lpCmdLine, int nCmdShow)
 int main()
 {
-	using namespace ecs;
-	EntityComponentSystem myECS;
 
-	// ----------------------------------
 
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 	Direct2D test2d;
@@ -72,20 +89,58 @@ int main()
 			MB_ICONEXCLAMATION | MB_OK);
 		return 0;
 	}
+	//char testy[10];
+	//std::strcpy(testy, "pepe");
 	test2d.CreateHwndRenderTarget(hwnd, &rect);
-	test2d.LoadImageToBitmap("PepeLaugh.jfif",D2D1::RectF(0,0,800,600));
-	test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(100, 100, 700, 500));
-	test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(200, 200, 600, 400));
-	test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(250, 250, 550, 350));
-	test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(300, 275, 500, 325));
-	test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(350, 290, 440, 310));
+	//test2d.LoadImageToBitmap("PepeLaugh.jfif",testy,D2D1::RectF(0,0,800,600));
+	//test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(100, 100, 700, 500));
+	//test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(200, 200, 600, 400));
+	//test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(250, 250, 550, 350));
+	//test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(300, 275, 500, 325));
+	//test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(350, 290, 440, 310));
 	ShowWindow(hwnd, 1);
 	UpdateWindow(hwnd);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	static int i = 0, k = 0, l = 1;
-	static std::string kek;
+	//static int i = 0, k = 0, l = 1;
+	//static std::string kek;
+	//ID idTest = 333;
+	//idTest = test2d.GetBitmapIDFromName(testy);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Step 3: The Message Loop
+
+
+
+
+
+	using namespace ecs;
+	EntityComponentSystem myECS;
+	systems::UIPreRenderSystem *UIpreSys = myECS.createSystem<systems::UIPreRenderSystem>();
+	systems::UIBitmapSystem *UIBitmapSys = myECS.createSystem<systems::UIBitmapSystem>();
+	systems::UITextSystem* UITextSys = myECS.createSystem<systems::UITextSystem>();
+	systems::UIPostRenderSystem *UIpostSys = myECS.createSystem<systems::UIPostRenderSystem>();
+
+	UIpreSys->D2D = UITextSys->D2D = UIpostSys->D2D = UIBitmapSys->D2D = &test2d;
+	components::UITextComponent UIText;
+	components::UIDrawColor UIColor;
+	components::UIDrawPos UIPos;
+	components::UIDrawPos UIPos2;
+	components::UIBitmap UIBitmap;
+	UIColor.color = brushColors::Green;
+	UIPos.drawArea = D2D1::RectF(600, 0, 800, 200);
+	UIPos2.drawArea = D2D1::RectF(0, 0, 800, 600);
+	UIText.strText = "test";
+	char hehe[10] = "pepe";
+	test2d.LoadImageToBitmap("PepeLaugh.jfif", hehe);
+	UIBitmap.bitmap = test2d.GetBitmap(test2d.GetBitmapIDFromName(hehe));
+
+	Entity* e1 = myECS.createEntity(UIBitmap, UIPos2);
+	Entity* e2 = myECS.createEntity(UIColor, UIText, UIPos);
+
+
+
+
+
+
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{
 		TranslateMessage(&Msg);
@@ -93,20 +148,21 @@ int main()
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//i++;
 		//kek = std::to_string(i);
-		test2d.getHwndRenderTarget()->BeginDraw();
-		test2d.getHwndRenderTarget()->Clear();
-			D2D1::ColorF(D2D1::ColorF(
-				0.3f,
-				0.41f,
-				0.5f,
-				1.0f));
-		test2d.DrawBitmap();
-		test2d.PrintText(kek, 600, 0, 800, 200);
-		test2d.PrintText("456		ÒwÓ", 600, 200, 800, 400);
-		test2d.drawRect(RECT{ 600,0,800,200, }, 2);
-		test2d.drawRect(RECT{ 600,200,800,400, }, 2);
-		test2d.solidRect(RECT{ i,150,100 + i,250, }); // i
-		test2d.getHwndRenderTarget()->EndDraw();		
+		//test2d.getHwndRenderTarget()->BeginDraw();
+		//test2d.getHwndRenderTarget()->Clear();
+		myECS.update(0);
+		//	D2D1::ColorF(D2D1::ColorF(
+		//		0.3f,
+		//		0.41f,
+		//		0.5f,
+		//		1.0f));
+		//test2d.DrawBitmap();
+		//test2d.PrintText(kek, 600, 0, 800, 200);
+		//test2d.PrintText("456		ÒwÓ", 600, 200, 800, 400);
+		//test2d.drawRect(RECT{ 600,0,800,200, }, 2);
+		//test2d.drawRect(RECT{ 600,200,800,400, }, 2);
+		//test2d.solidRect(RECT{ i,150,100 + i,250, }); // i
+		//test2d.getHwndRenderTarget()->EndDraw();		
 
 	}
 	return Msg.wParam;
