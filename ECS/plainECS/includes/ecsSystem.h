@@ -5,7 +5,6 @@
 #include "ecsComponent.h"
 #include "ecsEvent.h"
 #include "ecsTypeFilter.h"
-//#include "ecsSystemUpdateTypes.h"
 
 using namespace std;
 using namespace ecs::components;

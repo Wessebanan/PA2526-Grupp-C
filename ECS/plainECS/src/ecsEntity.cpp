@@ -9,20 +9,14 @@ ID Entity::getID()
 
 ID Entity::getComponentID(TypeID _typeID)
 {
-	// Check if component of type exists
-	if (componentIDs.count(_typeID) == 0)
-	{
-		return 0;
-	}
-
-	return componentIDs[_typeID];
+	// If entity has component of given type, return the component's
+		// id. Else return 0.
+	return (componentIDs.count(_typeID)) ? componentIDs[_typeID] : 0;
 }
 
 bool Entity::hasComponentOfType(TypeID _typeID)
 {
-	if (componentIDs.count(_typeID) == 0)
-	{
-		return false;
-	}
-	return true;
+	// If component exist, when .count return a value > 0 (==true)
+	// If not exists, when .count return 0 (==false)
+	return componentIDs.count(_typeID);
 }

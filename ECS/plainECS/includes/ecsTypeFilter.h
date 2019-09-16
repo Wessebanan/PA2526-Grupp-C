@@ -5,6 +5,10 @@
 
 namespace ecs
 {
+	/*
+		TypeFilter is a list of types, used for filtering either
+		components or events.
+	*/
 	class TypeFilter
 	{
 	public:

@@ -14,7 +14,10 @@ ecs::ECSEventPool::~ECSEventPool()
 
 BaseEvent* ECSEventPool::create(BaseEvent& _event)
 {
-	// Retrieve the event's create function
+	// Retrieve the event's create function.
+	// This function is calling the correct constructor, whithout this
+	// we don't know what constructor to call when we get a BaseEvent
+	// reference.
 	EventCreateFunction cf = _event.getCreateFunction();
 
 	BaseEvent* newEvent = cf(&_event);
@@ -37,18 +40,3 @@ void ECSEventPool::clear()
 	}
 	events.clear();
 }
-//
-//ecs::EventIterator::EventIterator()
-//{
-//	events = nullptr;
-//}
-//
-//EventIterator::~EventIterator()
-//{
-//	//
-//}
-//
-//EventIterator::EventIterator(std::vector<BaseEvent*>* _rEventList) : events(_rEventList)
-//{
-//	currentIndex = 0;
-//}
