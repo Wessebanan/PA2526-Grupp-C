@@ -102,6 +102,7 @@ void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, fl
 systems::HandleInputSystem::HandleInputSystem()
 {
 	updateType = ecs::EntityUpdate;
+	//componentFilter.addRequirement(0);
 	componentFilter.addRequirement(ecs::components::InputBackendComp::typeID);
 
 

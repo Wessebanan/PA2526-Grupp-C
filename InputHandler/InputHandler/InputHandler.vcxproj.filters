@@ -24,10 +24,10 @@
     <ClCompile Include="jsoncpp\jsoncpp.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="HandleInputSystem.cpp">
+    <ClCompile Include="PingingWebsite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PingingWebsite.cpp">
+    <ClCompile Include="HandleInputSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
