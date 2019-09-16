@@ -10,7 +10,7 @@ namespace ecs
 		struct InputBackendComp : public ecs::ECSComponent<InputBackendComp>
 		{
 			// The input system that holds all input to be set into components
-			InputSystem* backend;
+			InputSystem* backend = nullptr;
 		};
 
 		struct KeyboardComponent : public ecs::ECSComponent<KeyboardComponent>

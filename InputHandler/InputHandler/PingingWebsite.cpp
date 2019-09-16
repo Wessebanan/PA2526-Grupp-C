@@ -21,16 +21,16 @@ int main()
 {
 
 	
-	ecs::EntityComponentSystem myECS;
-	
-	initInputECS(myECS);
-	
-	while (TESTECS)
-	{
-		myECS.update(0.9f);
-	
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	}
+	//ecs::EntityComponentSystem myECS;
+	//
+	//initInputECS(myECS);
+	//
+	//while (TESTECS)
+	//{
+	//	myECS.update(0.9f);
+	//
+	//	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	//}
 		
 	return 0;
 }

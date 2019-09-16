@@ -1,13 +1,10 @@
 #include "pch.h"
-#include "InitInputHandler.h"
+#include "..//InputHandler/includes/InitInputHandler.h"
 
-TEST(ECS, testInitECS)
-{
-	ecs::EntityComponentSystem myECS;
+TEST(TestCaseName, TestName) {
+	ecs::EntityComponentSystem rECS;
+	initInputECS(rECS);
 
-	initInputECS(myECS);
-
-	myECS.update(0.2f);
-
-	EXPECT_TRUE(true);
+  EXPECT_EQ(1, 1);
+  EXPECT_TRUE(true);
 }
