@@ -39,6 +39,7 @@
     <OutDir>$(SolutionDir)..\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemGroup>
+    <ClInclude Include="DebugInfoTestHeader.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
