@@ -16,8 +16,8 @@ namespace ecs
 	struct BaseComponent
 	{
 	private:
-		ID id;
-		ID entityID;
+		ID id = 0;
+		ID entityID = 0;
 
 	public:
 		bool alive = true;
