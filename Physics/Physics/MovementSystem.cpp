@@ -3,8 +3,8 @@
 ecs::systems::StaticMovementSystem::StaticMovementSystem()
 {
 	updateType = ecs::EntityUpdate;
-	componentFilter.addRequirement(MovementComponent::typeID);
-	componentFilter.addRequirement(TransformComponent::typeID);
+	typeFilter.addRequirement(MovementComponent::typeID);
+	typeFilter.addRequirement(TransformComponent::typeID);
 }
 
 ecs::systems::StaticMovementSystem::~StaticMovementSystem()
