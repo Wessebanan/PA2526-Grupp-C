@@ -3,6 +3,9 @@
 #include <string>
 #include <typeinfo>
 
+/*
+	Returns a name string of given datatype.
+*/
 template <typename T>
 static std::string __nameof()
 {

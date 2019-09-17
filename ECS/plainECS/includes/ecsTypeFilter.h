@@ -5,6 +5,10 @@
 
 namespace ecs
 {
+	/*
+		TypeFilter is a list of types, used for filtering either
+		components or events.
+	*/
 	class TypeFilter
 	{
 	public:
@@ -19,6 +23,6 @@ namespace ecs
 	private:
 		std::vector<TypeID> requirements;
 		friend class EntityComponentSystem;
-		friend class ECSEventListener;
+		friend struct ECSEventListener;
 	};
 }

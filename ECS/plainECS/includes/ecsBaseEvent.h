@@ -10,19 +10,17 @@ namespace ecs
 	typedef void(*EventFreeFunction)(BaseEvent* _eventPtr);
 
 	/*
-	*	BaseSystem is a top level class in the system inheritance.
-	*	This class handles all non-type specific information about the
-	*	system, like the list of required component type IDs.
+		BaseSystem is a top level class in the system inheritance.
+		This class handles all non-type specific information about the
+		system, like the list of required component type IDs.
 	*/
-
 	struct BaseEvent
 	{
 		virtual TypeID getTypeID() { return 0; }
-		//virtual std::string getName() { return ""; }
+		virtual std::string getName() { return ""; }
 		virtual EventCreateFunction getCreateFunction() { return nullptr; }
 		virtual EventFreeFunction getFreeFunction() { return nullptr; }
 
-		//static IDGenerator<TypeID> typeIDGenerator;
 	protected:
 		static TypeID typeIDCounter;
 	};
@@ -36,18 +34,17 @@ namespace ecs
 		static const EventFreeFunction freeFunction;
 
 		virtual TypeID getTypeID() { return T::typeID; }
-		//virtual std::string getName() { return ECSEvent<T>::name; }
+		virtual std::string getName() { return T::name; }
 		virtual EventCreateFunction getCreateFunction() { return T::createFunction; }
 		virtual EventFreeFunction getFreeFunction() { return T::freeFunction; }
 	};
 
 	/*
-	*	Define a dynamic create and free function. This function will use the proper 
-	*	constructor and delete operator of the actual event type pointer. This could be done
-	*	through class and virtual destructors, but then the user might forget
-	*	to make the destructor virtual in the user written event.
+		Define a dynamic create and free function. This function will use the proper 
+		constructor and delete operator of the actual event type pointer. This could be done
+		through class and virtual destructors, but then the user might forget
+		to make the destructor virtual in the user written event.
 	*/
-
 	template <typename T>
 	BaseEvent* eventCreate(BaseEvent* _initialData)
 	{
@@ -68,10 +65,9 @@ namespace ecs
 
 	template <typename T>
 	const TypeID ECSEvent<T>::typeID(BaseEvent::typeIDCounter++);
-	//const TypeID ECSEvent<T>::typeID(BaseEvent::typeIDGenerator.generateID());
 
-	//template <typename T>
-	//const std::string ECSEvent<T>::name(__nameof<T>());
+	template <typename T>
+	const std::string ECSEvent<T>::name(__nameof<T>());
 
 	template <typename T>
 	const EventCreateFunction ECSEvent<T>::createFunction(eventCreate<T>);
