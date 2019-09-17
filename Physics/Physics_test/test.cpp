@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "MovementSystem.h"
+#include "Fbx_Loader.h"
+#include "CameraSystems.h"
+#include "DebugInfo.h"
 
 TEST(TestCaseName, TestName) {
 	ecs::EntityComponentSystem e;

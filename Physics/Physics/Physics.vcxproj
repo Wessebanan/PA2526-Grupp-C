@@ -62,6 +62,8 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\props\ECS_Debug.props" />
+    <Import Project="..\props\ModelLoader_Debug.props" />
+    <Import Project="..\props\Utility_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -69,6 +71,8 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\props\ECS_Release.props" />
+    <Import Project="..\props\ModelLoader_Release.props" />
+    <Import Project="..\props\Utility_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">
@@ -97,7 +101,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\ECS\plainECS\includes;$(ProjectDir)includes;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\ECS\plainECS\includes;$(ProjectDir)includes;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,7 +135,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\ECS\plainECS\includes;$(ProjectDir)includes;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\ECS\plainECS\includes;$(ProjectDir)includes;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

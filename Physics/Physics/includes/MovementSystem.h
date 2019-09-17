@@ -2,6 +2,9 @@
 //#include "ecs.h"
 #include "Components.h"
 #include "Events.h"
+#include "Fbx_Loader.h"
+#include "CameraSystems.h"
+#include "DebugInfo.h"
 
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
