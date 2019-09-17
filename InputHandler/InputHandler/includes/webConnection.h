@@ -49,24 +49,23 @@ private:
 
 	// %%%%		 JSON		%%%%
 
+
+	// ----! IF ERROR LOOK BELOW
 	// Path to the file where tha players input is located
-	//const char* playerFilePath = "../InputHandler/InputHandler/json/playerMode.json";
 	const char* playerFilePath = JSONFILEPLAYER;
-	//const char* playerFilePathLib = "../InputHandler/InputHandler/json/playerMode.json";
 	// Path to the file where the client writes so the users can read the gamestate
-	//const char* webStateFilePath = "C:/gitFolder/InputHandler/InputHandler/json/webState.json";
 	const char* webStateFilePath = JSONFILEWEBSTATE;
-	//const char* webStateFilePathLib = "../InputHandler/InputHandler/json/webState.json";
+	// ----! IF ERROR LOOK BELOW
+
+	/*	IF ERROR: 
+	1. Go to your property mangeger 
+	2. Add the sheet in /InputHandler/InputHandler to your current project
+	
+	This should add a dynamic filepath to the JSON form the current solution
+	*/
 
 	//reads the file from the path
 	Json::Value readJson(const char* filePath);
-	//returns the playerFile
-	Json::Value readJson();
-
-	// tries the libFP if it fails
-	Json::Value readJsonPlay();
-	// tries the libFP if it fails
-	Json::Value readJsonState();
 
 	// writes the json::Value to the filepath
 	bool writeJson(const char* filePath, Json::Value outputValue);

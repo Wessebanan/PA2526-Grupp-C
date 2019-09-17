@@ -62,8 +62,6 @@ struct MouseBehavior
 	DirectX::XMFLOAT2 oldPos;
 	DirectX::XMFLOAT2 diffFloat2;
 	float diffLength = 0.0f;
-	bool moved = false;
-	bool executed = false;
 };
 
 struct WebAction

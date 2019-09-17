@@ -89,10 +89,6 @@ Json::Value WebConnection::readJson(const char* filePath)
 
 	return retVal;
 }
-Json::Value WebConnection::readJson()
-{
-	return readJson(this->playerFilePath);
-}
 
 bool WebConnection::writeJson(const char* filePath, Json::Value outputValue)
 {

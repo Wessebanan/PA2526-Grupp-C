@@ -126,8 +126,6 @@ void InputSystem::modyfiByMouse()
 	this->mouse->diffFloat2 = diff;
 
 	this->mouse->oldPos = this->mouse->newPos;
-	this->mouse->moved = false;
-	this->mouse->executed = true;
 }
 
 bool InputSystem::updateMouse()
@@ -139,8 +137,6 @@ bool InputSystem::updateMouse()
 
 	if (this->mouse->oldPos.x != temp.x || this->mouse->oldPos.y != temp.y)
 	{
-		this->mouse->moved = true;
-		this->mouse->executed = false;
 		retVal = true;
 		this->mouse->newPos.x = temp.x;
 		this->mouse->newPos.y = temp.y;
