@@ -37,8 +37,11 @@ namespace ecs
 
 		void clearAllEvents();
 
+		unsigned int getTotalEventCount();
+
 	private:
-		std::map<TypeID, ECSEventPool> eventPools;
+		using PoolPair = std::pair<TypeID, ECSEventPool*>;
+		std::map<TypeID, ECSEventPool*> eventPools;
 		std::map<TypeID, std::vector<ECSEventListener*>> instantListeners;
 
 		void notifyInstantListenersInternal(BaseEvent* _event);

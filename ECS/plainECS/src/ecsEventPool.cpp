@@ -40,3 +40,8 @@ void ECSEventPool::clear()
 	}
 	events.clear();
 }
+
+unsigned int ecs::ECSEventPool::getEventCount()
+{
+	return (unsigned int)events.size();
+}

@@ -17,9 +17,10 @@ ECSComponentPool::ECSComponentPool(size_t _startCap, size_t _componentSize)
 
 ECSComponentPool::~ECSComponentPool()
 {
-	if (!memory)
+	if (memory)
 	{
 		free(memory);
+		memory = nullptr;
 	}
 }
 

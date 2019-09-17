@@ -25,6 +25,12 @@ namespace ecs
 		// Frees all events and clears event queue.
 		void clear();
 
+		/*
+			Getters
+		*/
+
+		unsigned int getEventCount();
+
 	private:
 
 		std::vector<BaseEvent*> events;

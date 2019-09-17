@@ -1,13 +1,23 @@
 #include <iostream>
 #include "ecs.h"
 
+#ifdef _DEBUG
+	#define _crtdbg_map_alloc
+	#include <stdlib.h>
+	#include <crtdbg.h>
+#endif
+
 using namespace std;
 using namespace ecs;
 
-#define ENTITY_COUNT 1
+#define ENTITY_COUNT 7
 
 int main()
 {
+#ifdef _DEBUG
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
 	CompTypeMemDesc compDesc[] =
 	{
 		{HealthComponent::typeID, HealthComponent::size, 10},
@@ -35,7 +45,6 @@ int main()
 	}
 
 	myECS.update(0.12345f);
-	//system("pause");
 	cout << endl;
 
 	PoisonComponent poison; poison.tickDamage = 1.f;

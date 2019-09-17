@@ -16,6 +16,10 @@
 
 #define DEFAULT_LAYER_COUNT 10
 
+#ifdef _DEBUG
+#define DEBUG_ENTITY_PRINT_MAX_COUNT 20
+#endif
+
 // TODO: Move event creations for new entity and component out of internal functions.
 
 namespace ecs
@@ -110,6 +114,10 @@ namespace ecs
 
 		// Finds system of given type and removes in from memory, using its destructor.
 		template <typename T> void removeSystem();
+
+		// Creates an event in the ECS.
+		// This will notify all event listeners that has subscribed to that event type.
+		void createEvent(BaseEvent& _event);
 
 		// Initiate an ECS update, iterating through all layers and updates all system based
 		// on their SystemUpdateType.
@@ -257,7 +265,7 @@ namespace ecs
 
 		// Make ECS listen on ECSUser functionality. This makes ECS responsible for
 		// handling entity creations, component removals etc.
-		(dynamic_cast<ECSUser*>(newSystem))->ecsUserHandler = this;
+		(static_cast<ECSUser*>(newSystem))->ecsUserHandler = this;
 
 		// Set ECS to handle all subscriptions and unsubscriptions on event creations.
 		ECSEventListener* listenerCast = static_cast<ECSEventListener*>(newSystem);
@@ -295,22 +303,28 @@ namespace ecs
 			{
 				BaseSystem* sys = layer[i];						// Store system pointer
 				layer.erase(layer.begin() + i);					// Remove system from layer
-				SystemFreeFunction ff = sys->getFreeFunction(); /* Fetch free function, in case user hasn't
-																   written its destructor as virtual */
-				ff(sys);										// Call free function
+				//SystemFreeFunction ff = sys->getFreeFunction(); /* Fetch free function, in case user hasn't
+				//												   written its destructor as virtual */
+				//ff(sys);										// Call free function
+				delete sys;
 				typeIDToLayerMap.erase(T::typeID);				// Erase from hash map
 				return;
 			}
 		}
 	}
 
-	template <typename T> T* EntityComponentSystem::getComponent(ID _id)
+	inline void EntityComponentSystem::createEvent(BaseEvent& _event)
+	{
+		return createEventInternal(_event);
+	}
+
+	template <typename T> inline T* EntityComponentSystem::getComponent(ID _id)
 	{
 		// Forwards to internal function and cast returning BaseComponent pointer
 		return (T*)getComponent(T::typeID, _id);
 	}
 
-	template <typename T> T* EntityComponentSystem::getComponentFromEntity(ID _entityID)
+	template <typename T> inline T* EntityComponentSystem::getComponentFromEntity(ID _entityID)
 	{
 		// Forwards to internal function and cast returning BaseComponent pointer
 		return (T*)getComponentFromEntity(_entityID);
