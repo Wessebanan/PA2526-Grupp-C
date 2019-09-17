@@ -5,7 +5,6 @@ ecs::systems::StaticMovementSystem::StaticMovementSystem()
 	updateType = ecs::EntityUpdate;
 	componentFilter.addRequirement(MovementComponent::typeID);
 	componentFilter.addRequirement(TransformComponent::typeID);
-
 }
 
 ecs::systems::StaticMovementSystem::~StaticMovementSystem()
@@ -37,8 +36,8 @@ void ecs::systems::StaticMovementSystem::updateEntity(ecs::FilteredEntity& _enti
 
 ecs::systems::StaticMovementUpdateSystem::StaticMovementUpdateSystem()
 {
-	updateType = ecs::EventListenerOnly;
-	subscribeEventCreation(MovementInputEvent::typeID);
+	updateType = ecs::EventReader;
+	eventTypes.addRequirement(MovementInputEvent::typeID);
 }
 
 ecs::systems::StaticMovementUpdateSystem::~StaticMovementUpdateSystem()

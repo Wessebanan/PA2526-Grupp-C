@@ -1,5 +1,5 @@
 #pragma once
-//#include "ecs.h"
+#include "ecs.h"
 #include "Components.h"
 #include "Events.h"
 #include "UtilityComponents.h"
@@ -38,5 +38,11 @@ namespace ecs
 			void readEvent(ecs::BaseEvent & _event, float _delta) override;
 		
 		};
-	}
-}
+
+		SYSTEM(DynamicMovementSystem)
+		{
+			// This one is going to be fucking crazy.
+		};
+
+	} // systems
+} // ecs

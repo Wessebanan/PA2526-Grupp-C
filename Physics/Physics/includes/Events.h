@@ -29,5 +29,6 @@ namespace ecs
 			ID mEntityID;
 			
 		};
-	}
-}
+
+	} // events
+} // ecs

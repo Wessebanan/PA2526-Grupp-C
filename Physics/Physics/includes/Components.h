@@ -40,7 +40,8 @@ namespace ecs
 		{
 			DirectX::XMFLOAT3 mMassCenter;
 			float mWeight;
-		};				
-	}
-}
+		};	
+
+	} // components
+} // ecs
 

@@ -148,9 +148,11 @@
   <ItemGroup>
     <ClInclude Include="includes\Components.h" />
     <ClInclude Include="includes\Events.h" />
+    <ClInclude Include="includes\InputTest.h" />
     <ClInclude Include="includes\MovementSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="InputTest.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">true</ExcludedFromBuild>
