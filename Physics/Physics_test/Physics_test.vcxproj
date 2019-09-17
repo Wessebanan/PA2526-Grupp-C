@@ -45,6 +45,7 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="MovementLogic.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
