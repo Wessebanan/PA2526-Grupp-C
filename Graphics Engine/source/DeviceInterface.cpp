@@ -190,7 +190,7 @@ namespace graphics
 				&Vertices);
 
 			CreateBufferRegion(
-				BUFFER_VERTEX_POSITION,
+				BUFFER_VERTEX_NORMAL,
 				sizeof(float3) * vertexCount,
 				&Normals);
 

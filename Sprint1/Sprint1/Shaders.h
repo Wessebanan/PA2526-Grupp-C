@@ -19,6 +19,7 @@ struct VSOUT
 	float4 pos	: SV_POSITION;
 	float3 nor  : NORMAL;
 	float2 uv	: UV0;
+	float4 worldPos : POSITION;
 };
 VSOUT main(
 	float3 pos : POSITION0, 
@@ -30,7 +31,7 @@ VSOUT main(
 	output.pos	= mul(wvp, float4(pos, 1.0f));
 	output.uv	= uv;
 	output.nor	= normal;
-	
+	output.worldPos  = mul(gWorld[0], float4(pos, 1.0f));
 	return output;
 }	
 )";
@@ -41,9 +42,10 @@ struct PSIN
 	float4 pos	: SV_POSITION;
 	float3 nor  : NORMAL;
 	float2 uv	: UV0;
+	float4 worldPos : POSITION;
 };
 float4 main(PSIN input) : SV_TARGET
 { 
-	return float4(input.nor.x, input.nor.y, input.nor.z, 1.0f);
+	return float4(input.worldPos.x, input.worldPos.y, input.worldPos.z, 1.0f);
 }	
 )";
