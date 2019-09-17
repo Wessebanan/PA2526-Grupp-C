@@ -5,8 +5,8 @@ TEST(TestCaseName, TestName) {
 	ecs::EntityComponentSystem e;
 	e.createSystem<StaticMovementSystem>();
 
-  EXPECT_EQ(1, 1);
-  EXPECT_TRUE(true);
+	EXPECT_EQ(1, 1);
+	EXPECT_TRUE(true);
 }
 
 int main(int argc, char** argv) {

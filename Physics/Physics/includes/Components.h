@@ -10,8 +10,8 @@
 */
 COMP(MovementComponent)
 {
-	float mVelocity;
-	DirectX::XMFLOAT3 mDirection;
+	float mVelocity = 0.0f;
+	DirectX::XMFLOAT3 mDirection = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);	
 };
 
 /*
