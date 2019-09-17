@@ -29,7 +29,7 @@ namespace ecs
 
 	struct FilteredEntity
 	{
-		Entity* entity;
+		Entity* entity = nullptr;
 		std::map<TypeID, BaseComponent*> components;
 
 		template <typename T>

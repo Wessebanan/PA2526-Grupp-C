@@ -10,26 +10,26 @@ namespace ecs
 	{
 		struct CreateEntityEvent : public ECSEvent<CreateEntityEvent>
 		{
-			ID entityID;
+			ID entityID = 0;
 		};
 
 		struct RemoveEntityEvent : public ECSEvent<RemoveEntityEvent>
 		{
-			ID entityID;
+			ID entityID = 0;
 		};
 
 		struct CreateComponentEvent : public ECSEvent<CreateComponentEvent>
 		{
-			ID entityID;
-			ID componentID;
-			TypeID componentTypeID;
+			ID entityID = 0;
+			ID componentID = 0;
+			TypeID componentTypeID = 0;
 		};
 
 		struct RemoveComponentEvent : public ECSEvent<RemoveComponentEvent>
 		{
-			ID entityID;
-			ID componentID;
-			TypeID componentTypeID;
+			ID entityID = 0;
+			ID componentID = 0;
+			TypeID componentTypeID = 0;
 		};
 
 
@@ -37,7 +37,7 @@ namespace ecs
 
 		struct MessageStringEvent : public ECSEvent<MessageStringEvent>
 		{
-			std::string messageString;
+			std::string messageString = "";
 		};
 	}
 }

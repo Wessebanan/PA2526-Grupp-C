@@ -165,7 +165,7 @@ void EntityComponentSystem::update(float _delta)
 	*		- Actor					The system will be updated without any entity or event input.
 	*/
 
-	cout << "\n[EntityComponentSystem]\t Updating " << typeIDLayerMap.size() << " systems." << endl;
+	cout << "\n[EntityComponentSystem]\t Updating " << typeIDToLayerMap.size() << " systems." << endl;
 
 	/*
 	*	Iterate all layers
@@ -271,14 +271,14 @@ BaseComponent* EntityComponentSystem::getComponentFromEntity(TypeID _typeID, ID 
 	return componentMgr.getComponent(_typeID, entity->getComponentID(_typeID));
 }
 
-size_t EntityComponentSystem::getSystemLayers()
+size_t EntityComponentSystem::getSystemLayerCount()
 {
 	return layerCount;
 }
 
 size_t EntityComponentSystem::getTotalSystemCount()
 {
-	return typeIDLayerMap.size();
+	return typeIDToLayerMap.size();
 }
 
 size_t EntityComponentSystem::getTotalEntityCount()
@@ -388,9 +388,21 @@ Entity* EntityComponentSystem::createEntityInternal(ComponentList _components)
 	BaseComponent* component;
 	for (size_t i = 0; i < _components.componentCount; i++)
 	{
-		component = _components.initialInfo[i];
-		component->entityID = entity->getID();
-		component = componentMgr.createComponent(*component);
+		//component = _components.initialInfo[i];
+		//component->entityID = entity->getID();
+		//component = componentMgr.createComponent(*component);
+	
+		component = createComponentInternal(entity->getID(), *_components.initialInfo[i]);
+
+		// Sanity check component creation
+		if (!component)
+		{
+			// Remove entity if not all components can be created
+			removeEntityInternal(entity->getID());
+			return nullptr;
+		}
+
+		// Make entity know of component
 		entity->componentIDs[component->getTypeID()] = component->getID();
 	}
 
