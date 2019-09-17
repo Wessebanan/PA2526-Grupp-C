@@ -75,6 +75,11 @@ ComponentIterator ecs::ECSComponentManager::getComponentIterator(TypeID _typeID)
 
 void ECSComponentManager::flagRemoval(TypeID _typeID, ID _componentID)
 {
+	if (!componentPools.count(_typeID))
+	{
+		return;
+	}
+
 	componentPools[_typeID]->flagRemoval(_componentID);
 }
 
@@ -117,4 +122,15 @@ TypeFilter ecs::ECSComponentManager::getInitializedComponentTypes()
 		filter.addRequirement(poolPair.first);
 	}
 	return filter;
+}
+
+unsigned int ECSComponentManager::getCurrentRemoveFlagCount()
+{
+	unsigned int sum = 0;
+	for (PoolPair pair : componentPools)
+	{
+		sum += pair.second->getCurrentRemoveFlagCount();
+	}
+
+	return sum;
 }

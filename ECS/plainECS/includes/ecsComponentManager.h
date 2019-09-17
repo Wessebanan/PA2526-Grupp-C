@@ -57,6 +57,7 @@ namespace ecs
 		size_t getComponentTypeCount();
 
 		TypeFilter getInitializedComponentTypes();
+		unsigned int getCurrentRemoveFlagCount();
 
 	private:
 		

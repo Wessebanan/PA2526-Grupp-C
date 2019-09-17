@@ -50,6 +50,11 @@ namespace ecs
 
 		bool initialized = false;
 
+		inline unsigned int getCurrentRemoveFlagCount()
+		{
+			return (unsigned int)toRemove.size();
+		}
+
 	private:
 		PoolAllocator allocator;
 		std::map<ID, BaseComponent*> lookUpList;

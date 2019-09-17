@@ -40,6 +40,7 @@ namespace ecs
 	*/
 	struct ECSEventListener
 	{
+		virtual ~ECSEventListener() {}
 		// A call-back function that is called when a certain type of event is created.
 		// onEvent must be overrided if the listener as a type subscription.
 		virtual void onEvent(TypeID _eventType, BaseEvent* _event) {};

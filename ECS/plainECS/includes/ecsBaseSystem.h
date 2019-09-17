@@ -43,7 +43,7 @@ namespace ecs
 	{
 	public:
 		BaseSystem() {}
-		virtual ~BaseSystem() {}
+		virtual ~BaseSystem() { updateType = Undefined; }
 
 		virtual TypeID getTypeID() { return 0; }
 		virtual std::string getName() { return ""; }
@@ -57,11 +57,9 @@ namespace ecs
 	protected:
 
 		SystemUpdateType updateType = Undefined;
-		union
-		{
-			TypeFilter componentFilter;
-			TypeFilter eventFilter;
-		};
+		//TypeFilter componentFilter;
+		//TypeFilter eventFilter;
+		TypeFilter typeFilter;
 
 		//static IDGenerator<TypeID> typeIDGenerator;
 		static TypeID typeIDCounter;

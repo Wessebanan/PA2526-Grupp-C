@@ -30,6 +30,7 @@ namespace ecs
 		void removeAllFlagged();
 
 		size_t getEntityCount();
+		unsigned int getCurrentRemoveFlagCount();
 
 	private:
 
@@ -38,6 +39,7 @@ namespace ecs
 
 		// List of all existing entitites
 		std::map<ID, Entity*> entities;
+		using EntityPair = std::pair<ID, Entity*>;
 
 		// Entities flagged for removal.
 		std::vector<ID> toRemove;
@@ -47,5 +49,9 @@ namespace ecs
 		 */
 
 		Entity* createEntityInternal();
+
+#ifdef _DEBUG
+		friend class EntityComponentSystem;
+#endif
 	};
 }

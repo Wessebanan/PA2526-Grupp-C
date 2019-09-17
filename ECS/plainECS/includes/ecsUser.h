@@ -37,6 +37,7 @@ namespace ecs
 	*/
 	struct ECSUser
 	{
+		virtual ~ECSUser() {}
 		// TODO: Move ECSUser functionality to BaseSystem.
 	protected:
 

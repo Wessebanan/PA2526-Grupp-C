@@ -9,13 +9,25 @@ ECSEventManager::ECSEventManager()
 
 ECSEventManager::~ECSEventManager()
 {
-	//
+	for (PoolPair pool : eventPools)
+	{
+		pool.second->clear();
+		delete pool.second;
+	}
+	eventPools.clear();
 }
 
 BaseEvent* ECSEventManager::createEvent(BaseEvent& _event)
 {
 	TypeID typeID = _event.getTypeID();
-	BaseEvent* pNewEvent = eventPools[typeID].create(_event);
+
+	// Sanity check memory pool exist
+	if (!eventPools.count(typeID))
+	{
+		eventPools[typeID] = new ECSEventPool;
+	}
+
+	BaseEvent* pNewEvent = eventPools[typeID]->create(_event);
 
 	notifyInstantListenersInternal(pNewEvent);
 	return pNewEvent;
@@ -58,17 +70,32 @@ void ECSEventManager::removeEventSubscriber(TypeID _eventTypeID, ECSEventListene
 
 std::vector<BaseEvent*> ECSEventManager::getEventIterator(TypeID _eventTypeID)
 {
-	return eventPools[_eventTypeID].getIterator();
+	// Sanity check event pool exist
+	if (!eventPools.count(_eventTypeID))
+	{
+		return std::vector<BaseEvent*>();
+	}
+
+	return eventPools[_eventTypeID]->getIterator();
 }
 
 void ECSEventManager::clearAllEvents()
 {
 	// Iterate over all event pools and clear them
-	std::map<TypeID, ECSEventPool>::iterator it;
-	for (it = eventPools.begin(); it != eventPools.end(); it++)
+	for (PoolPair pair : eventPools)
 	{
-		it->second.clear();
+		pair.second->clear();
 	}
+}
+
+unsigned int ecs::ECSEventManager::getTotalEventCount()
+{
+	unsigned int sum = 0;
+	for (PoolPair pair : eventPools)
+	{
+		sum += pair.second->getEventCount();
+	}
+	return sum;
 }
 
 void ECSEventManager::notifyInstantListenersInternal(BaseEvent* _event)
