@@ -5,7 +5,8 @@
 #define ALLKEYS false
 
 #include <DirectXMath.h>
-#include <Windows.h>
+#include <winsock2.h>
+#include <windows.h>
 #include <WinUser.h>
 
 

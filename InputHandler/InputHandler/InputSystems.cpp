@@ -154,7 +154,7 @@ bool InputSystem::updateMouse()
 
 bool InputSystem::updateWeb()
 {
-	this->webConn->update(); 
+	//this->webConn->update(); 
 
 	this->updateTiles();
 	this->updateButtons();

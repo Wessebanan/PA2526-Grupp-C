@@ -1,21 +1,64 @@
-/*
-Documentation syntax: 
-Client is the c++ application
-User is the website in browser/phone
-*/
-
 #pragma once
 #ifndef WEBCONNECTION_H
 #define WEBCONNECTION_H
 
-#include <iostream>
-#include <fstream>
-#include "../jsoncpp/json/json.h"
+// Socket includes
+#define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
+#include <windows.h>
+#include <ws2tcpip.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include "sha1.h"
+
+#include <string>
+
+#pragma comment (lib, "Ws2_32.lib")
+
+#define DEFAULT_BUFLEN  512
+#define DEFAULT_PORT    "80"
+#define WEBSOCKET_KEY   "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
+
+// thread includes
+
+
+#include <tchar.h>
+#include <strsafe.h>
 
 
 // For future implementation
-#define RUNSOCKET false
+#define RUNSOCKET true
 
+#pragma pack (push, 1)
+struct _websocket_header
+{
+	unsigned char opcode : 4;
+
+	unsigned char rsv3 : 1;
+	unsigned char rsv2 : 1;
+	unsigned char rsv1 : 1;
+	unsigned char fin : 1;
+
+	unsigned char len : 7;
+	unsigned char mask : 1;
+};
+
+struct _extended_16
+{
+	unsigned char value[2];
+};
+
+struct _extended_64
+{
+	unsigned char value[8];
+};
+
+struct _mask_key
+{
+	unsigned char value[4];
+};
+
+using namespace std;
 // Handles getting info from the website
 class WebConnection
 {
@@ -23,8 +66,6 @@ public:
 	WebConnection();
 	~WebConnection();
 
-	// takes the newest values from the web
-	void update();
 
 	bool isConnected() { return this->connectionOK; };
 
@@ -42,39 +83,47 @@ public:
 
 
 private:
+	void initThread(void);
+	static DWORD WINAPI staticThreadStart(LPVOID lpParam);
+
+	HANDLE t_update;
+	DWORD id_t_update;
+
+
+	// takes the newest values from the web
+	void playersJoin();
+	void gameLoop();
+
+
 	bool connectionOK = true;
 	// %%%%		SOCKETS		%%%%
 
-	// To be implemented....
+	SOCKET ListenSocket;
+	int nrOfPlayers;
+	SOCKET playerSockets[30];
+	fd_set master; 
 
-	// %%%%		 JSON		%%%%
+
+	WSADATA wsaData;
+	int iResult;
+
+	struct addrinfo* result = NULL;
+	struct addrinfo hints;
+
+	int iSendResult;
+	char recvbuf[DEFAULT_BUFLEN];
+	int recvbuflen = DEFAULT_BUFLEN;
 
 
-	// ----! IF ERROR LOOK BELOW
-	// Path to the file where tha players input is located
-	const char* playerFilePath = JSONFILEPLAYER;
-	// Path to the file where the client writes so the users can read the gamestate
-	const char* webStateFilePath = JSONFILEWEBSTATE;
-	// ----! IF ERROR LOOK BELOW
+	char* msgToUsers;
+	char* msgToClient;
 
-	/*	IF ERROR: 
-	1. Go to your property mangeger 
-	2. Add the sheet in /InputHandler/InputHandler to your current project
-	
-	This should add a dynamic filepath to the JSON form the current solution
-	*/
 
-	//reads the file from the path
-	Json::Value readJson(const char* filePath);
 
-	// writes the json::Value to the filepath
-	bool writeJson(const char* filePath, Json::Value outputValue);
-	// writes to the gamestate json
-	bool writeJson(Json::Value outputValue);
 
-	// Holds the parsed json for the different files
-	Json::Value jsonValueWebState;
-	Json::Value jsonValuePlayers;
+	bool checkForKey(SOCKET sock, char* recBuff, int& Res);
+	char* reciveMsg(SOCKET sock, char* recvbuf, int& Res);
+	void sendMsg(SOCKET sock, char* client_msg, int& Res);
 };
 
 

@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <title>TEST</title>
+
+    <script>
+    var socket = new WebSocket("ws://192.168.1.45:80");
+
+    socket.onopen = function (event) 
+    {
+        socket.send("The connection was established"); 
+    };
+
+    socket.onmessage = function(e)
+    {
+        var msg = e.data;
+
+        if (msg == "name")
+        {
+            socket.send("My name is Ludvig");
+        }
+        else if(msg == "start")
+        {
+            console.log("We are wating for the client to start");
+        }
+        else
+            console.log(msg);
+    }
+        
+    function ping()
+    {
+        socket.send("ping");
+    }
+    function pong()
+    {
+        socket.send("8");
+    }
+
+    </script>
+</head>
+<body>
+    <button onclick="ping()">ping</button>
+    <button onclick="pong()">START pong()</button>
+
+</body>
+</html> 

@@ -150,8 +150,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="HandleInputSystem.cpp" />
+    <ClCompile Include="includes\sha1.cpp" />
     <ClCompile Include="InputSystems.cpp" />
-    <ClCompile Include="jsoncpp\jsoncpp.cpp" />
     <ClCompile Include="PingingWebsite.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">true</ExcludedFromBuild>
@@ -162,14 +162,11 @@
     <ClInclude Include="includes\HandleInputSystem.h" />
     <ClInclude Include="includes\InputComponents.h" />
     <ClInclude Include="includes\InputSystems.h" />
+    <ClInclude Include="includes\sha1.h" />
     <ClInclude Include="includes\webConnection.h" />
-    <ClInclude Include="jsoncpp\json\json-forwards.h" />
-    <ClInclude Include="jsoncpp\json\json.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="includes\InitInputHandler.h" />
-    <None Include="json\playerMode.json" />
-    <None Include="json\webState.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
