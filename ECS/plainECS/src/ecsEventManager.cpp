@@ -44,12 +44,14 @@ void ECSEventManager::removeEventSubscriber(TypeID _eventTypeID, ECSEventListene
 		return;
 	}
 
+	// Iterate over all listeners, and erasing the listener when found
 	std::vector<ECSEventListener*>& list = instantListeners[_eventTypeID];
 	for (size_t i = 0; i < list.size(); i++)
 	{
 		if (list[i] == _listener)
 		{
 			list.erase(list.begin() + i);
+			return;
 		}
 	}
 }

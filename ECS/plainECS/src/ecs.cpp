@@ -10,10 +10,15 @@ EntityComponentSystem::EntityComponentSystem()
 
 EntityComponentSystem::~EntityComponentSystem()
 {
+	// Loop through all layers
 	for (size_t i = 0; i < layerCount; i++)
 	{
+		// Loop through all systems in layer
 		for (BaseSystem* s : systemLayers[i])
 		{
+			// Fetch free function. This function uses the real destructor of the system.
+			// This is the same as if the system has a virtual destructor, but just in case
+			// the user hasn't set the system's destructor as virtual.
 			SystemFreeFunction ff = s->getFreeFunction();
 			ff(s);
 		}
@@ -27,7 +32,6 @@ bool ecs::EntityComponentSystem::initialize(ECSDesc& _desc)
 	// Init system layers
 	layerCount = _desc.systemLayerCount;
 	systemLayers = new SystemList[layerCount];
-	//systemsPerLayer = _desc.systemsPerLayerCount;
 
 	// Init component memories
 	CompTypeMemDesc desc;
@@ -262,7 +266,7 @@ BaseComponent* EntityComponentSystem::getComponentFromEntity(TypeID _typeID, ID 
 {
 	Entity* entity = entityMgr.getEntity(_entityID);
 
-	// Sanity check
+	// Sanity check entity creation
 	if (!entity->hasComponentOfType(_typeID))
 	{
 		return nullptr;
@@ -385,13 +389,13 @@ Entity* EntityComponentSystem::createEntityInternal(ComponentList _components)
 {
 	Entity* entity = entityMgr.createEntity();
 
+	/*
+	*	Create all components and add them to the entity
+	*/
+
 	BaseComponent* component;
 	for (size_t i = 0; i < _components.componentCount; i++)
 	{
-		//component = _components.initialInfo[i];
-		//component->entityID = entity->getID();
-		//component = componentMgr.createComponent(*component);
-	
 		component = createComponentInternal(entity->getID(), *_components.initialInfo[i]);
 
 		// Sanity check component creation
@@ -416,15 +420,25 @@ Entity* EntityComponentSystem::createEntityInternal(ComponentList _components)
 
 BaseComponent* EntityComponentSystem::createComponentInternal(ID _entityID, BaseComponent& _componentInfo)
 {
+	// Fetch entity
 	Entity* entity = entityMgr.getEntity(_entityID);
 
+	// Sanity check that entity exist
 	if (!entity)
 	{
-		return 0;
+		return nullptr;
 	}
 
+	// Create component
 	_componentInfo.entityID = _entityID;
 	BaseComponent* component = componentMgr.createComponent(_componentInfo);
+
+	// Sanity check component creation
+	if (!component)
+	{
+		return nullptr;
+	}
+
 	entity->componentIDs[component->getTypeID()] = component->getID();
 
 	// Create event
@@ -445,6 +459,12 @@ void EntityComponentSystem::createEventInternal(BaseEvent& _event)
 void EntityComponentSystem::removeEntityInternal(ID _entityID)
 {
 	Entity* entity = entityMgr.getEntity(_entityID);
+
+	// Sanity check entity exist
+	if (!entity)
+	{
+		return;
+	}
 
 	std::map<TypeID, ID>::iterator it;
 	for (std::pair<TypeID, ID> c : entity->componentIDs)
@@ -485,7 +505,8 @@ void EntityComponentSystem::removeComponentInternal(ID _entityID, TypeID _compon
 	rve.componentTypeID = _componentTypeID;
 	eventMgr.createEvent(rve);
 
-
+	// Erasing component ID from entity must happen after event is created,
+	// in case some systems need to act to event.
 	entity->componentIDs.erase(_componentTypeID);
 	componentMgr.flagRemoval(_componentTypeID, componentID);
 
@@ -517,10 +538,9 @@ void EntityComponentSystem::fillEntityIteratorInternal(TypeFilter& _componentFil
 
 	// Get iterator from pool
 	ComponentIterator firstReqTypeIterator = componentMgr.getComponentIterator(minTypeID);
-	
-	BaseComponent* pComponent;
 
 	// If single component type requirement
+	BaseComponent* pComponent;
 	if (_componentFilter.requirements.size() == 1)
 	{
 		while (pComponent = firstReqTypeIterator.next())

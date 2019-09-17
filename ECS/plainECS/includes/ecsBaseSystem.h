@@ -15,30 +15,30 @@ namespace ecs
 	typedef void(*SystemFreeFunction)(BaseSystem* _systemPtr);
 
 	/*
-	*	SystemUpdateType description
-	*		- Undefined				Unset update type
-	*		- EntityUpdate			Updates ONE entity per update call, ECS will loop all filtered
-	*								entities until the system have updated all of them.
-	*		- MultiEntityUpdate		Updates ALL entities of interest per update call. The system
-	*								will recieve an EntityIterator and will have full responsibility
-	*								of iterating through the given iterator of filtered entities.
-	*		- EventReader			System will reviece ONE event and the event TypeID per update.
-	*								The system have responsibility of casting the given BaseEvent*
-	*								to the wanted event type.
-	*		- EventListenerOnly		The system will ONLY get updated when an event is created, recieving
-	*								a BaseEvent* and the event TypeID. The system have responsibility of
-	*								casting the event pointer to wanted event type and act upon it.
-	*		- Actor					The system will be updated without any entity or event input.
+		SystemUpdateType description
+			- Undefined				Unset update type
+			- EntityUpdate			Updates ONE entity per update call, ECS will loop all filtered
+									entities until the system have updated all of them.
+			- MultiEntityUpdate		Updates ALL entities of interest per update call. The system
+									will recieve an EntityIterator and will have full responsibility
+									of iterating through the given iterator of filtered entities.
+			- EventReader			System will reviece ONE event and the event TypeID per update.
+									The system have responsibility of casting the given BaseEvent*
+									to the wanted event type.
+			- EventListenerOnly		The system will ONLY get updated when an event is created, recieving
+									a BaseEvent* and the event TypeID. The system have responsibility of
+									casting the event pointer to wanted event type and act upon it.
+			- Actor					The system will be updated without any entity or event input.
 	*/
 
+	// Defines the wanted updated behaviour of a custom system.
 	enum SystemUpdateType { Undefined, EntityUpdate, MultiEntityUpdate, EventReader, EventListenerOnly, Actor };
 
 	/*
-	*	BaseSystem is a top level class in the system inheritance.
-	*	This class handles all non-type specific information about the
-	*	system, like the list of required component type IDs.
+		BaseSystem is a top level class in the system inheritance.
+		This class handles all non-type specific information about the
+		system, like the list of required component type IDs.
 	*/
-
 	class BaseSystem : public ECSUser, public ECSEventListener
 	{
 	public:
@@ -69,10 +69,9 @@ namespace ecs
 	};
 
 	/*
-	*	ECSSystem is the class all user systems will inherit from.
-	*	This class handles all type specific information, like type ID.
+		ECSSystem is the class all user systems will inherit from.
+		This class handles all type specific information, like type ID.
 	*/
-
 	template <typename T>
 	class ECSSystem : public BaseSystem
 	{
@@ -90,12 +89,11 @@ namespace ecs
 	};
 
 	/*
-	*	Define a dynamic free function. This function will use the proper
-	*	delete operator of the actual system type pointer. This could be done
-	*	through virtual destructors, but then the user might forget
-	*	to make the destructor virtual in the user written systems.
+		Define a dynamic free function. This function will use the proper
+		delete operator of the actual system type pointer. This could be done
+		through virtual destructors, but then the user might forget
+		to make the destructor virtual in the user written systems.
 	*/
-
 	template <typename T>
 	void systemFree(BaseSystem* _systemPtr)
 	{
