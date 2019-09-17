@@ -3,13 +3,31 @@
 
 #define EVENT(name) struct name : public ecs::ECSEvent<name>
 
-enum MovementKeys
-{
-	W, A, S, D
-};
 
-EVENT(MovementInputEvent)
+namespace ecs
 {
-	// TODO: Hook into input handler.
-	MovementKeys key;
-};
+	namespace events
+	{
+		// MovementInputs are used to move entities in various directions.
+		enum MovementInputs
+		{
+			FORWARD		= 0, 
+			RIGHT		= 90, 
+			LEFT		= -90, 
+			BACKWARD	= 180
+		};
+		
+		// This event should be created
+		// whenever a movement action is performed
+		// in order to alert the movement systems.
+		EVENT(MovementInputEvent)
+		{
+			MovementInputs mInput;
+		
+			// The entity that the user wants to move.
+			// Entity needs to support static movement.
+			ID mEntityID;
+			
+		};
+	}
+}

@@ -6,7 +6,7 @@
 
 TEST(TestCaseName, TestName) {
 	ecs::EntityComponentSystem e;
-	e.createSystem<StaticMovementSystem>();
+	e.createSystem<ecs::systems::StaticMovementSystem>();
 
 	EXPECT_EQ(1, 1);
 	EXPECT_TRUE(true);
