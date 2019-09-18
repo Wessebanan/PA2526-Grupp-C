@@ -63,6 +63,12 @@ namespace graphics
 	void RenderContext::Release()
 	{
 		m_pContext4->Release();
+		
+		if (m_pDepthBuffer)
+		{
+			m_pDepthBuffer->Release();
+			m_pDepthBuffer = NULL;
+		}
 	}
 
 	void RenderContext::ClearRenderTarget(
@@ -75,7 +81,15 @@ namespace graphics
 		m_clearColor[1] = green;
 		m_clearColor[2] = blue;
 
-		m_pContext4->ClearRenderTargetView(pView->m_pRenderTarget, m_clearColor);
+		m_pContext4->ClearRenderTargetView(
+			pView->m_pRenderTarget, 
+			m_clearColor);
+
+		m_pContext4->ClearDepthStencilView(
+			m_pDepthBuffer,
+			D3D11_CLEAR_DEPTH,
+			1.0f,
+			0);
 	}
 
 	void RenderContext::CopyDataToRegion(
@@ -102,11 +116,18 @@ namespace graphics
 
 	void RenderContext::SetRenderTarget(Texture2DView* pView)
 	{
+		ID3D11DepthStencilView* pTemp = NULL;
+
+		if (m_pDepthBuffer)
+		{
+			pTemp = m_pDepthBuffer;
+		}
+
 		// --- SET RENDER TARGETS ---
 		m_pContext4->OMSetRenderTargets(
 			1,
 			&pView->m_pRenderTarget,
-			NULL);
+			pTemp);
 	}
 
 	void RenderContext::SetGraphicsPipeline(GraphicsPipeline* pPipeline)

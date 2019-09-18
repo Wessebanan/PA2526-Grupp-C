@@ -115,6 +115,42 @@ namespace graphics
 		}
 
 		(*ppWindow) = &m_window;
+
+		// Creating temporary depth buffer (quick fix for sprint goal)
+		{
+
+			ID3D11Texture2D* pDepthTexture = NULL;
+			{
+				D3D11_TEXTURE2D_DESC desc = { 0 };
+				desc.Width = width;
+				desc.Height = height;
+				desc.MipLevels = 0;
+				desc.ArraySize = 1;
+				desc.Format = DXGI_FORMAT_R32_TYPELESS;
+				desc.SampleDesc = { 1, 0 };
+				desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+				desc.CPUAccessFlags = 0;
+				desc.MiscFlags = 0;
+
+				m_pDevice4->CreateTexture2D(
+					&desc, 
+					NULL, 
+					&pDepthTexture);
+			}
+
+			if(pDepthTexture)
+			{
+				D3D11_DEPTH_STENCIL_VIEW_DESC desc = {};
+				desc.Format = DXGI_FORMAT_D32_FLOAT;
+				desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+				desc.Texture2D.MipSlice = 0;
+
+				m_pDevice4->CreateDepthStencilView(
+					pDepthTexture, 
+					&desc,
+					&m_context.m_pDepthBuffer);
+			}
+		}
 	}
 
 	RenderContext* DeviceInterface::QueryRenderContext()

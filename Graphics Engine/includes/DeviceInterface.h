@@ -146,6 +146,9 @@ namespace graphics
 		ID3D11DeviceContext4* m_pContext4;
 		GraphicsPipeline* m_pCurrentPipeline;
 
+		//Temporary fix for sprint goal
+		ID3D11DepthStencilView* m_pDepthBuffer; 
+
 		D3D11_VIEWPORT m_viewport;
 	};
 
