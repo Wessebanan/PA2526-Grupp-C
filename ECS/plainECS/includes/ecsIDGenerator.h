@@ -1,5 +1,8 @@
 #pragma once
 
+/*
+	IDGenerator generates unique IDs, using an internal counter.
+*/
 template <typename T>
 class IDGenerator
 {
