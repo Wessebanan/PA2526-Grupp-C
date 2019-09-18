@@ -60,7 +60,7 @@ namespace graphics
 			desc.MiscFlags = 0;
 			break;
 
-		case BUFFER_INDEX:
+		case BUFFER_VERTEX_INDEX:
 			desc.BindFlags = m_bindType = D3D11_BIND_INDEX_BUFFER;
 			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
 			desc.Usage = D3D11_USAGE_DEFAULT;

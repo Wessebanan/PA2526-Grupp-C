@@ -55,7 +55,7 @@ namespace graphics
 			offsets);
 
 		m_pContext4->IASetIndexBuffer(
-			m_pStorage->GetBufferHeapGPU(BUFFER_INDEX),
+			m_pStorage->GetBufferHeapGPU(BUFFER_VERTEX_INDEX),
 			DXGI_FORMAT_R32_UINT,
 			0);
 	}

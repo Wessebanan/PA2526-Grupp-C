@@ -209,7 +209,7 @@ namespace graphics
 		BufferRegion* pRegion)
 	{
 		CreateBufferRegion(
-			BUFFER_INDEX,
+			BUFFER_VERTEX_INDEX,
 			size,
 			pRegion);
 	}

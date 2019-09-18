@@ -9,6 +9,7 @@ namespace graphics
 	{
 		friend class RenderContext;
 		friend class DeviceInterface;
+		friend class Direct2D;
 
 	public:
 		PresentWindow();
