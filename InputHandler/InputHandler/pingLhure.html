@@ -8,9 +8,9 @@
     <script>
     var socket = new WebSocket("ws://192.168.1.45:80");
 
-    socket.onopen = function (event) 
+    socket.onopen = function (event)
     {
-        socket.send("The connection was established"); 
+        socket.send("The connection was established");
     };
 
     socket.onmessage = function(e)
@@ -25,10 +25,22 @@
         {
             console.log("We are wating for the client to start");
         }
+        else if(msg[0] == 1)
+        {
+            document.getElementById("clientMsg1").innerHTML = msg;
+        }
+        else if(msg[0] == 2)
+        {
+            document.getElementById("clientMsg2").innerHTML = msg;
+        }
+        else if(msg[0] == 3)
+        {
+            document.getElementById("clientMsg3").innerHTML = msg;
+        }
         else
-            console.log(msg);
+            document.getElementById("clientMsg0").innerHTML = msg;
     }
-        
+
     function ping()
     {
         socket.send("ping");
@@ -37,12 +49,39 @@
     {
         socket.send("8");
     }
+    function setName()
+    {
+        socket.send("0000Hasse");
+    }
+    function setTile(x,y)
+    {
+        var player = "0";
+        var action = "001";
+        x += 100;
+        y += 100;
+        var tileX = x.toString();
+        var tileY = y.toString();
+
+
+        var msg = player.concat(action.concat(tileX.concat(tileY)));
+
+        console.log(msg);
+        socket.send(msg);
+    }
 
     </script>
 </head>
 <body>
     <button onclick="ping()">ping</button>
     <button onclick="pong()">START pong()</button>
+    <button onclick="setName()">My name is Hasse()</button>
+    <button onclick="setTile(087,456)">My tile is (87,456)</button>
+    <button onclick="setTile(020,031)">My tile is (20,31)</button>
+
+        <p id='clientMsg0'>0. No msg yet</p>
+        <p id='clientMsg1'>1. No msg yet</p>
+        <p id='clientMsg2'>2. No msg yet</p>
+        <p id='clientMsg3'>3. No msg yet</p>
 
 </body>
-</html> 
+</html>

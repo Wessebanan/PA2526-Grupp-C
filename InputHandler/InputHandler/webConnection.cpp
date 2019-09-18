@@ -77,6 +77,92 @@ WebConnection::~WebConnection()
 {
 }
 
+webMsgData WebConnection::parseMsg(char* userMsg)
+{
+	webMsgData retVal;
+
+	string str = userMsg;
+
+	retVal.player = (str[0] - 48);
+
+	int hun = ((int)str[1] - 48) * 100;
+	int ten = ((int)str[2] - 48) * 10;
+	int one = (int)str[3] - 48;
+
+	retVal.action = hun + ten + one;
+
+	retVal.data = str.substr(4, str.size());
+
+	return retVal;
+}
+
+bool WebConnection::executeUserAction(webMsgData wmd)
+{
+
+	switch (wmd.action)
+	{
+	case ActionType::NAME:
+		this->setName(wmd);
+		break;
+	case ActionType::TILE:
+		this->setTile(wmd);
+		break;
+	case ActionType::BUTTON:
+		this->setButton(wmd);
+		break;
+	case 3:
+		cout << "" << endl;
+		break;
+	default:
+		return false;
+		break;
+	}
+
+
+}
+
+void WebConnection::setName(webMsgData wmd)
+{
+	this->players[wmd.player].name = wmd.data;
+
+	int res = 0;
+	this->sendMsg(this->playerSockets[wmd.player],
+		(char*)string(
+			"2. Your name is now " + 
+			wmd.data
+		).c_str()
+		, res);
+}
+
+void WebConnection::setTile(webMsgData wmd)
+{
+
+	int hun = ((int)wmd.data[0] - 48) * 100;
+	hun -= 100;
+	int ten = ((int)wmd.data[1] - 48) * 10;
+	int one = (int)wmd.data[2] - 48;
+	this->players[wmd.player].tile[0] = hun + ten + one;
+
+	hun = ((int)wmd.data[3] - 48) * 100;
+	hun -= 100;
+	ten = ((int)wmd.data[4] - 48) * 10;
+	one = (int)wmd.data[5] - 48;
+	this->players[wmd.player].tile[1] = hun + ten + one;
+
+	int res = 0;
+	this->sendMsg(this->playerSockets[wmd.player], 
+		(char*)string("3. Your tile is now " + 
+			to_string(this->players[wmd.player].tile[0]) + 
+			"," +
+			to_string(this->players[wmd.player].tile[1])
+		).c_str()
+		, res);
+}
+
+void WebConnection::setButton(webMsgData wmd)
+{
+}
+
 void WebConnection::playersJoin()
 {
 	if (RUNSOCKET)
@@ -173,9 +259,6 @@ void WebConnection::playersJoin()
 
 						if (!str1.compare(string("8")))
 						{
-							cout << "--------------------------------" << endl;
-							cout << "---------STARTING GAME----------" << endl;
-							cout << "--------------------------------" << endl;
 							this->gameLoop();
 						}
 
@@ -199,37 +282,123 @@ void WebConnection::playersJoin()
 void WebConnection::gameLoop()
 {
 	int startCount = master.fd_count;
+
+	cout << "--------------------------------" << endl;
+	cout << "---------STARTING GAME----------" << endl;
+	cout << "--------------------------------" << endl;
+
+	int nrMsg = 0;
 	while (true)
 	{
 		fd_set copy = master;
 
-
 		int socketCount = select(0, &copy, 0, 0, 0);
-		cout << socketCount << endl;
+		cout << master.fd_count << endl;
+		broadcastMsg("The server got a request, Nr: " + to_string(nrMsg));
 
 		for (size_t i = 0; i < socketCount; i++)
 		{
-			//	cout << "-i " << i << endl;
 			SOCKET sock = copy.fd_array[i];
 
 			// if the socket is the listener in the array
-			if (!(sock == ListenSocket))
+			if (sock == ListenSocket)
 			{
-				int p = 0;
-				while (p < 4 && p < this->nrOfPlayers)
-				{
-					if (sock == this->playerSockets[p])
-					{
-						this->sendMsg(sock, (char*)"You are player ", iSendResult);
-						this->sendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
-					}
+				// If the listener gets set in this we have a new player mid-game
+				cout << "-LISTENER got a player mid game" << i << endl;
 
-					p++;
-				}
-				
+				// Add the connection to one of the new clients
+				this->playerSockets[this->nrOfPlayers] = accept(ListenSocket, nullptr, nullptr);
+
+				// Adds to the master
+				FD_SET(this->playerSockets[this->nrOfPlayers], &master);
+
+				this->nrOfPlayers++;
+
+				// set it to one of the players
+
 			}
-		}
+			else // its the cliet socket
+			{
+				iResult = recv(sock, recvbuf, recvbuflen, 0);
 
+				if (iResult == 0)
+				{
+					printf("Connection closing...\n");
+					// Drop the client
+					shutDownSocket(sock);
+
+				}
+				else if (iResult < 0)
+				{
+					printf("recv failed with error: %d\n", WSAGetLastError());
+
+					cout << "---------------------" << endl;
+					cout << "___The user reload___" << endl;
+					cout << "---------------------" << endl;
+
+					shutDownSocket(sock);
+
+
+					//WSACleanup();
+				}
+				else if (iResult == 8)
+				{
+					printf("recv failed with error: %d\n", WSAGetLastError());
+					shutDownSocket(sock);
+
+					cout << "---------------------" << endl;
+					cout << "___The user closed___" << endl;
+					cout << "---------------------" << endl;
+				}
+
+				recvbuf[iResult] = 0;
+
+				char sendbuf[1024];
+				size_t sendbuf_size = 0;
+
+				// Connect if it hasnt
+				if (this->checkForKey(sock, recvbuf, iSendResult))
+				{
+					cout << "-A key was sent midgame" << endl;
+				}
+				// if the socket is the listener in the array
+				else
+				{
+					char* userMsg = reciveMsg(sock, recvbuf, iSendResult);
+
+					webMsgData wmd = parseMsg(userMsg);
+					if (wmd.player == -1)
+					{
+						cout << "-Couldnt parse msg form user" << endl;
+					}
+					else
+					{
+						wmd.player = idPlayerSocket(sock);
+
+						executeUserAction(wmd);
+					}
+				}
+			}
+			
+			// 
+		}
+	}
+}
+
+void WebConnection::broadcastMsg(string msg)
+{
+	int p = 0;
+	while (p < 4 && p < this->nrOfPlayers)
+	{
+		string ss;
+
+		ss += "1. " + msg;
+
+		this->sendMsg(this->playerSockets[p], (char*)ss.c_str(), iSendResult);
+		//this->sendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
+		
+
+		p++;
 	}
 }
 
@@ -297,6 +466,19 @@ DWORD WINAPI WebConnection::staticThreadStart(LPVOID lpParam)
 	return 0;
 }
 
+int WebConnection::idPlayerSocket(SOCKET sock)
+{
+	int player = -1;
+	for (size_t p = 0; p < this->nrOfPlayers; p++)
+	{
+		if (sock == this->playerSockets[p])
+		{
+			player = p;
+		}
+	}
+	return player;
+}
+
 bool WebConnection::checkForKey(SOCKET sock, char* recBuff, int& Res)
 {
 	char sendbuf[1024];
@@ -349,86 +531,47 @@ bool WebConnection::checkForKey(SOCKET sock, char* recBuff, int& Res)
 
 char* WebConnection::reciveMsg(SOCKET sock, char* recvbuf, int& Res)
 {
-	iResult = recv(sock, recvbuf, recvbuflen, 0);
+	
+	// else read, print the response, and echo it back to the server
+	_websocket_header* h = (_websocket_header*)recvbuf;
 
-	if (iResult == 0)
+	_mask_key* mask_key;
+
+	unsigned long long length;
+
+	if (h->len < 126)
 	{
-		printf("Connection closing...\n");
-		// Drop the client
-		closesocket(sock);
-		FD_CLR(sock, &master);
-
+		length = h->len;
+		mask_key = (_mask_key*)(recvbuf + sizeof(_websocket_header));
 	}
-	else if (iResult < 0)
+	else if (h->len == 126)
 	{
-		printf("recv failed with error: %d\n", WSAGetLastError());
-		closesocket(sock);
-		WSACleanup();
-	}
-	else if (iResult == 8)
-	{
-		printf("recv failed with error: %d\n", WSAGetLastError());
-		closesocket(sock);
-		FD_CLR(sock, &master);
+		_extended_16* extended = (_extended_16*)(recvbuf + sizeof(_websocket_header));
 
-		cout << "---------------------" << endl;
-		cout << "__The client closed__" << endl;
-		cout << "---------------------" << endl;
-		//break;
-	}
-
-	recvbuf[iResult] = 0;
-
-	char sendbuf[1024];
-	size_t sendbuf_size = 0;
-
-	// Connect if it hasnt
-	if (this->checkForKey(sock, recvbuf, iSendResult))
-	{
-
+		length = (extended->value[0] << 8) | extended->value[1];
+		mask_key = (_mask_key*)(recvbuf + sizeof(_websocket_header) + sizeof(_extended_16));
 	}
 	else
 	{
-		// else read, print the response, and echo it back to the server
-		_websocket_header* h = (_websocket_header*)recvbuf;
+		_extended_64* extended = (_extended_64*)(recvbuf + sizeof(_websocket_header));
 
-		_mask_key* mask_key;
+		length = (((unsigned long long) extended->value[0]) << 56) | (((unsigned long long) extended->value[1]) << 48) | (((unsigned long long) extended->value[2]) << 40) |
+			(((unsigned long long) extended->value[3]) << 32) | (((unsigned long long) extended->value[4]) << 24) | (((unsigned long long) extended->value[5]) << 16) |
+			(((unsigned long long) extended->value[6]) << 8) | (((unsigned long long) extended->value[7]) << 0);
 
-		unsigned long long length;
-
-		if (h->len < 126)
-		{
-			length = h->len;
-			mask_key = (_mask_key*)(recvbuf + sizeof(_websocket_header));
-		}
-		else if (h->len == 126)
-		{
-			_extended_16* extended = (_extended_16*)(recvbuf + sizeof(_websocket_header));
-
-			length = (extended->value[0] << 8) | extended->value[1];
-			mask_key = (_mask_key*)(recvbuf + sizeof(_websocket_header) + sizeof(_extended_16));
-		}
-		else
-		{
-			_extended_64* extended = (_extended_64*)(recvbuf + sizeof(_websocket_header));
-
-			length = (((unsigned long long) extended->value[0]) << 56) | (((unsigned long long) extended->value[1]) << 48) | (((unsigned long long) extended->value[2]) << 40) |
-				(((unsigned long long) extended->value[3]) << 32) | (((unsigned long long) extended->value[4]) << 24) | (((unsigned long long) extended->value[5]) << 16) |
-				(((unsigned long long) extended->value[6]) << 8) | (((unsigned long long) extended->value[7]) << 0);
-
-			mask_key = (_mask_key*)(recvbuf + sizeof(_websocket_header) + sizeof(_extended_64));
-		}
-
-		char* client_msg = ((char*)mask_key) + sizeof(_mask_key);
-
-		if (h->mask)
-		{
-			for (int i = 0; i < length; i++)
-				client_msg[i] = client_msg[i] ^ mask_key->value[i % 4];
-		}
-		return client_msg;
-
+		mask_key = (_mask_key*)(recvbuf + sizeof(_websocket_header) + sizeof(_extended_64));
 	}
+
+	char* client_msg = ((char*)mask_key) + sizeof(_mask_key);
+
+	if (h->mask)
+	{
+		for (int i = 0; i < length; i++)
+			client_msg[i] = client_msg[i] ^ mask_key->value[i % 4];
+	}
+	return client_msg;
+
+	
 	
 	//printf("We recived: %s\r\n", client_msg);
 
@@ -493,4 +636,17 @@ void WebConnection::sendMsg(SOCKET sock, char* client_msg, int& Res)
 
 	Res = send(sock, sendbuf, (int)sendbuf_size, 0);
 	//cout << sendbuf << endl;
+}
+
+void WebConnection::shutDownSocket(SOCKET sock)
+{
+	cout << "Closing dow a socket" << endl;
+	closesocket(sock);
+	FD_CLR(sock, &master);
+	this->nrOfPlayers--;
+}
+
+void WebConnection::shutDownThread()
+{
+	CloseHandle(this->t_update);
 }

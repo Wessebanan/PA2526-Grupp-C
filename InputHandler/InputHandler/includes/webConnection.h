@@ -20,10 +20,16 @@
 #define WEBSOCKET_KEY   "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
 // thread includes
-
-
 #include <tchar.h>
 #include <strsafe.h>
+
+
+enum ActionType
+{
+	NAME,
+	TILE,
+	BUTTON
+};
 
 
 // For future implementation
@@ -59,6 +65,24 @@ struct _mask_key
 };
 
 using namespace std;
+
+
+struct webMsgData
+{
+	int player = -1;
+	int action = -1;
+	string data = "";
+};
+
+struct playerInfo
+{
+	int playerIndex = -1;
+	string name = "";
+	int tile[2] = { -1,-1 };
+	int button = -1;
+};
+
+
 // Handles getting info from the website
 class WebConnection
 {
@@ -91,8 +115,16 @@ private:
 
 
 	// takes the newest values from the web
+	webMsgData parseMsg(char* userMsg);
+	bool executeUserAction(webMsgData wmd);
+	void setName(webMsgData wmd);
+	void setTile(webMsgData wmd);
+	void setButton(webMsgData wmd);
+	playerInfo players[4];
+
 	void playersJoin();
 	void gameLoop();
+	void broadcastMsg(string msg);
 
 
 	bool connectionOK = true;
@@ -102,7 +134,6 @@ private:
 	int nrOfPlayers;
 	SOCKET playerSockets[30];
 	fd_set master; 
-
 
 	WSADATA wsaData;
 	int iResult;
@@ -120,10 +151,14 @@ private:
 
 
 
+	int idPlayerSocket(SOCKET sock);
 
 	bool checkForKey(SOCKET sock, char* recBuff, int& Res);
 	char* reciveMsg(SOCKET sock, char* recvbuf, int& Res);
 	void sendMsg(SOCKET sock, char* client_msg, int& Res);
+
+	void shutDownSocket(SOCKET sock);
+	void shutDownThread();
 };
 
 
