@@ -174,7 +174,11 @@ namespace TestPoolAllocator
 namespace TestComponentPool
 {
 	// Component used for testing
-	struct TestComponent : public ecs::ECSComponent<TestComponent> { int data = -1; };
+	struct TestComponent : public ecs::ECSComponent<TestComponent>
+	{
+		TestComponent(int initData = -1) : data(initData) {};
+		int data;
+	};
 
 	// Memory information
 	const unsigned int component_size = sizeof(TestComponent);
@@ -184,10 +188,14 @@ namespace TestComponentPool
 	TEST(TestComponentPool, Init)
 	{
 		// Create component information
-		ecs::ECSComponentPool pool(component_count, component_size);
-
+		ecs::ECSComponentPool pool;
+		
+		ASSERT_FALSE(pool.isInitialized());
+		pool.initialize(component_count, component_size);
+		ASSERT_TRUE(pool.isInitialized());
 		ASSERT_EQ(pool.getAllocations(), 0);
 		ASSERT_EQ(pool.getCurrentRemoveFlagCount(), 0);
+		
 	}
 	TEST(TestComponentPool, Create)
 	{
@@ -199,27 +207,51 @@ namespace TestComponentPool
 		// Try creating components
 		// Set component data to i, and expect created component's data to be the same
 		TestComponent* pComp;
+		unsigned int allocation_count = 0;
 		for (int i = 0; i < component_count; i++)
 		{
-			init_data.data = i;
-			pComp = static_cast<TestComponent*>(pool.create(init_data));
-
-			ASSERT_EQ(pComp->data, i);
+			pComp = static_cast<TestComponent*>(pool.create(TestComponent(i)));
+			EXPECT_EQ(pComp->data, i);
+			
+			allocation_count++;
 		}
+
+		// Check if allocation count is correct
+		EXPECT_EQ(pool.getAllocations(), allocation_count);
+	}
+	TEST(TestComponentPool, Get)
+	{
+		ecs::ECSComponentPool pool(component_count, component_size);
+
+		// Create components, store id and data for one of them
+		ID tester_ID;
+		int tester_data;
+		for (int i = 0; i < component_count; i++)
+		{
+			ID id = pool.create(TestComponent(i))->getID();
+
+			if (i == (component_count / 2))
+			{
+				tester_ID = id;
+				tester_data = i;
+			}
+		}
+
+		ecs::BaseComponent *pBase = pool.getComponent(tester_ID);
+		ASSERT_NE(pBase, nullptr);
+
+		TestComponent *pComp = static_cast<TestComponent*>(pBase);
+		EXPECT_EQ(pComp->data, tester_data);
 	}
 	TEST(TestComponentPool, GetIterator)
 	{
 		ecs::ECSComponentPool pool(component_count, component_size);
 
-		// Make a component in order to create components
-		TestComponent init_data;
-
 		// Create 10 components,
 		// first comp. data is 0, last is 9 (used in validation later)
 		for (int i = 0; i < component_count; i++)
 		{
-			init_data.data = i;
-			pool.create(init_data);
+			pool.create(TestComponent(i));
 		}
 
 		ecs::ComponentIterator it = pool.getIterator();
@@ -240,8 +272,108 @@ namespace TestComponentPool
 		// Check how many components the iterator iterated, should be all
 		ASSERT_EQ(comp_counter, component_count);
 	}
-	//TEST(TestComponentPool, IteratorAfterRemoval)
-	//{
+	TEST(TestComponentPool, Removal)
+	{
+		ecs::ECSComponentPool pool(component_count, component_size);
 
-	//}
+		// Create 10 components with data in range [0,9] 
+		// Store IDs
+		ID idList[component_count];
+		for (int i = 0; i < component_count; i++)
+		{
+			idList[i] = (pool.create(TestComponent(i)))->getID();
+		}
+
+		// Remove half of the components, starting from index 1
+		// No component with an odd number in data should exist.
+		// Store how many components there are left, used later.
+		int current_count = component_count;
+		for (int i = 1; i < component_count; i += 2)
+		{
+			pool.remove(idList[i]);
+			current_count--;
+		}
+
+		// Check if count in pool is correct
+		EXPECT_EQ(current_count, pool.getAllocations());
+
+		ecs::ComponentIterator it = pool.getIterator();
+
+		TestComponent *pComp;
+		ecs::BaseComponent *pBase;
+		while (pBase = it.next())
+		{
+			pComp = static_cast<TestComponent*>(pBase);
+
+			// Expect even number
+			EXPECT_EQ(pComp->data % 2, 0);
+
+			// Decrease components to check.
+			current_count--;
+		}
+		
+		// current_count should be zero after iteration,
+		// since it iterated all existing components
+		EXPECT_EQ(current_count, 0);
+	}
+	TEST(TestComponentPool, CreateAfterRemoval)
+	{
+		ecs::ECSComponentPool pool(component_count, component_size);
+
+		// Create 10 components with data in range [0,9] 
+		// Store IDs
+		ID idList[component_count];
+		for (int i = 0; i < component_count; i++)
+		{
+			idList[i] = (pool.create(TestComponent(i)))->getID();
+		}
+
+		// Remove all
+		for (int i = component_count-1; i >= 0; i--)
+		{
+			pool.remove(idList[i]);
+		}
+
+		// Create 10 new components
+		for (int i = 0; i < component_count; i++)
+		{
+			EXPECT_NE(pool.create(TestComponent(i)), nullptr);
+		}
+	}
+	TEST(TestComponentPool, CurrentFlagCount)
+	{
+		ecs::ECSComponentPool pool(component_count, component_size);
+
+		// Create 10 components with data in range [0,9] 
+		// Store IDs
+		ID idList[component_count];
+		for (int i = 0; i < component_count; i++)
+		{
+			idList[i] = (pool.create(TestComponent(i)))->getID();
+		}
+
+		// Flag half, keep count of how many flags been made
+		int flag_count = 0;
+		for (int i = 0; i < component_count; i += 2)
+		{
+			pool.flagRemoval(idList[i]);
+			flag_count++;
+		}
+
+		// Check flag count in pool
+		EXPECT_EQ(pool.getCurrentRemoveFlagCount(), flag_count);
+	}
+	TEST(TestComponentPool, HandleOutOfRange)
+	{
+		const int invalid_ID = -1;
+		ecs::ECSComponentPool pool(component_count, component_size);
+
+		// Create 10 components with data in range [0,9] 
+		for (int i = 0; i < component_count; i++)
+		{
+			pool.create(TestComponent(i));
+		}
+
+		EXPECT_EQ(pool.getComponent(invalid_ID), nullptr);
+	}
 }
