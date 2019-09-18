@@ -24,9 +24,9 @@ int main()
 	//CameraFunctions::CreateCameraSystems(ecs);
 
 
-	ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
-	ecs::BaseComponent* baseComp = iter.next();
-	ecs::components::CameraComponent* camera = static_cast<ecs::components::CameraComponent*>(baseComp);
+	//ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+	//ecs::BaseComponent* baseComp = iter.next();
+	//ecs::components::CameraComponent* camera = static_cast<ecs::components::CameraComponent*>(baseComp);
 
 	//camera.
 	DeviceInterface* pDevice;
