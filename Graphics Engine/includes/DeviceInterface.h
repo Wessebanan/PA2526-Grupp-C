@@ -1,87 +1,13 @@
 #pragma once
 
-#include "InternalStorage.h"
+#include "BufferStorage.h"
 #include "PresentWindow.h"
 
 namespace graphics
 {
-	enum CONSTANT_BUFFER_UPDATE_INTERVAL
-	{
-		CONSTANT_BUFFER_UPDATE_PER_MESH = 0,
-		CONSTANT_BUFFER_UPDATE_PER_DRAW = 1,
-	};
-
 	enum SHADER_RESOURCE_SLOT
 	{
 		SHADER_RESOURCE_SHADOW_MAP = 16,
-	};
-
-	template <class T, UINT S>
-	class StaticQueue
-	{
-	public:
-		StaticQueue();
-		~StaticQueue();
-
-		T* QueryNextItem(UINT& index);
-		void ReleaseItem(const UINT index);
-
-	private:
-		T m_data[S];
-		UINT m_at;
-
-		UINT m_available[S];
-		UINT m_occupied[S];
-	};
-
-	template <class T, UINT S>
-	StaticQueue<T, S>::StaticQueue()
-	{
-		m_at = 0;
-
-		for (UINT i = 0; i < S; i++)
-		{
-			m_available[i] = i;
-			m_occupied[i] = -1;
-		}
-	}
-
-	template <class T, UINT S>
-	StaticQueue<T, S>::~StaticQueue()
-	{
-	}
-
-	template <class T, UINT S>
-	inline T* StaticQueue<T, S>::QueryNextItem(UINT& index)
-	{
-		if (m_at >= S)
-		{
-			return nullptr;
-		}
-		else
-		{
-			index = m_occupied[m_at] = m_available[m_at];
-			m_available[m_at++] = -1;
-
-			return &m_data[index];
-		}
-	}
-
-	template<class T, UINT S>
-	inline void StaticQueue<T, S>::ReleaseItem(const UINT index)
-	{
-		m_available[--m_at] = m_occupied[index];
-		m_occupied[index] = -1;
-	}
-
-	struct float3
-	{
-		float x, y, z;
-	};
-
-	struct float2
-	{
-		float x, y;
 	};
 
 
@@ -219,8 +145,7 @@ namespace graphics
 		PresentWindow m_window;
 		RenderContext m_context;
 
-		GraphicsPipeline m_pipeline;
-
+		GraphicsPipelineArray m_pipelineArray;
 		InternalStorage m_storage;
 	};
 

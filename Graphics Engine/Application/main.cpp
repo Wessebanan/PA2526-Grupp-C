@@ -150,6 +150,16 @@ int main()
 
 	// Create Mesh
 
+	struct float3
+	{
+		float x, y, z;
+	};
+
+	struct float2
+	{
+		float x, y;
+	};
+
 	float3 t[3] = {
 		-1.0f, -1.0f, 0.0f,
 		 0.0f,  1.0f, 0.0f,

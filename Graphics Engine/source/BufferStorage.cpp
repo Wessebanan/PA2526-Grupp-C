@@ -1,4 +1,4 @@
-#include "../includes/InternalStorage.h"
+#include "../includes/BufferStorage.h"
 
 namespace graphics
 {

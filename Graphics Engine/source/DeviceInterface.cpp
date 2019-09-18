@@ -57,6 +57,7 @@ namespace graphics
 
 		m_storage.Initialize(m_pDevice4);
 		m_context.Initialize(m_pDevice4, &m_storage);
+		m_pipelineArray.Initialize(m_pDevice4, 10);
 	}
 
 	void DeviceInterface::CreateBufferRegion(
@@ -147,8 +148,8 @@ namespace graphics
 			if(pDepthTexture)
 			{
 				D3D11_DEPTH_STENCIL_VIEW_DESC desc = {};
-				desc.Format = DXGI_FORMAT_D32_FLOAT;
-				desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+				desc.Format				= DXGI_FORMAT_D32_FLOAT;
+				desc.ViewDimension		= D3D11_DSV_DIMENSION_TEXTURE2D;
 				desc.Texture2D.MipSlice = 0;
 
 				m_pDevice4->CreateDepthStencilView(
@@ -176,12 +177,18 @@ namespace graphics
 		const std::string& pixelShader,
 		GraphicsPipeline** ppPipeline)
 	{
-		m_pipeline.Initialize(
+		//m_pipeline.Initialize(
+		//	m_pDevice4,
+		//	vertexShader,
+		//	pixelShader);
+
+		//(*ppPipeline) = &m_pipeline;
+
+		m_pipelineArray.CreateGraphicsPipeline(
 			m_pDevice4,
 			vertexShader,
-			pixelShader);
-
-		(*ppPipeline) = &m_pipeline;
+			pixelShader,
+			ppPipeline);
 	}
 
 	void DeviceInterface::CreateDynamicBufferRegion(
@@ -221,6 +228,16 @@ namespace graphics
 		const void* pUVs,
 		BufferRegion* pRegion)
 	{
+		struct float3
+		{
+			float x, y, z;
+		};
+
+		struct float2
+		{
+			float x, y;
+		};
+
 		if (!pVertices) return false;
 
 		BufferRegion Vertices;
@@ -277,7 +294,8 @@ namespace graphics
 
 	void DeviceInterface::DeletePipeline(GraphicsPipeline* pPipeline)
 	{
-		pPipeline->Release();
+		m_pipelineArray.DeleteGraphicsPipeline(pPipeline);
+		//pPipeline->Release();
 	}
 
 	UINT64 DeviceInterface::QueryVideoMemoryUsage()

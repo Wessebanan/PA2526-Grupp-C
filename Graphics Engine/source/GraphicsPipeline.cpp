@@ -129,8 +129,15 @@ namespace graphics
 		return true;
 	}
 
+	UINT GraphicsPipeline::NUM_ALLOCATED = 0;
+
 	GraphicsPipeline::GraphicsPipeline()
 	{
+		m_pLayout		= NULL;
+		m_pVertexShader = NULL;
+		m_pPixelShader	= NULL;
+
+		m_id = NUM_ALLOCATED++;
 	}
 
 	GraphicsPipeline::~GraphicsPipeline()
@@ -159,5 +166,78 @@ namespace graphics
 		m_pLayout->Release();
 		m_pVertexShader->Release();
 		m_pPixelShader->Release();
+	}
+
+	GraphicsPipelineArray::GraphicsPipelineArray()
+	{
+		m_capacity	= 0;
+		m_count		= 0;
+
+		m_pPipelines = NULL;
+		m_pIsAvailableArray = NULL;
+	}
+
+	GraphicsPipelineArray::~GraphicsPipelineArray()
+	{
+	}
+
+	void GraphicsPipelineArray::Initialize(
+		ID3D11Device4* pDevice4, 
+		const UINT capacity)
+	{
+		m_capacity = capacity;
+
+		// Allocate Space
+		{
+			const size_t allocationSize =
+				sizeof(UINT) +
+				sizeof(GraphicsPipeline);
+
+			// Allocate a chunk for everyone to use
+			char* pData = (char*)malloc(allocationSize * m_capacity);
+
+			// Set pipelines as first in array
+			m_pPipelines = (GraphicsPipeline*)pData;
+
+			// set available as second in array
+			UINT offset = sizeof(GraphicsPipeline) * m_capacity;
+			m_pIsAvailableArray = (UINT*)(pData + offset);
+		}
+
+		for (UINT i = 0; i < m_capacity; i++)
+		{
+			m_pIsAvailableArray[i] = TRUE;
+			m_pPipelines[i] = GraphicsPipeline();
+		}
+
+		m_start = m_pPipelines[0].m_id;
+	}
+
+	bool GraphicsPipelineArray::CreateGraphicsPipeline(
+		ID3D11Device4* pDevice4, 
+		const std::string& vertexShader, 
+		const std::string& pixelShader,
+		GraphicsPipeline** ppPipeline)
+	{
+		if (m_count >= m_capacity) return false;
+
+		UINT i = 0;
+		while (!m_pIsAvailableArray[i]) { i++; }
+
+		m_pPipelines[i].Initialize(pDevice4, vertexShader, pixelShader);
+		(*ppPipeline) = &m_pPipelines[i];
+
+		m_pIsAvailableArray[i] = FALSE;
+
+		return true;
+	}
+
+	bool GraphicsPipelineArray::DeleteGraphicsPipeline(GraphicsPipeline* pPipeline)
+	{
+		const UINT index = pPipeline->m_id - m_start;
+		m_pIsAvailableArray[index] = TRUE;
+		pPipeline->Release();
+
+		return true;
 	}
 }
