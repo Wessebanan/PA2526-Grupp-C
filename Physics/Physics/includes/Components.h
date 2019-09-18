@@ -7,6 +7,11 @@ namespace ecs
 {
 	namespace components
 	{
+		enum BoundingVolumes
+		{
+			AABB, SPHERE
+		};
+
 		/*
 		* MovementComponent holds velocity
 		* and direction which are needed to
