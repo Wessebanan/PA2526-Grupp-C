@@ -137,7 +137,7 @@ int main()
 	components::UIBitmapComponent UIBitmap;
 	UIColor.color = brushColors::Green;
 	UIPos.drawArea = D2D1::RectF(600, 0, 800, 200);
-	UIPos2.drawArea = D2D1::RectF(0, 0, 800, 600);
+	UIPos2.drawArea = D2D1::RectF(1, 1, 799, 599);
 	UIText.strText = "hehehheehtest";
 	char hehe[10] = "pepe";
 	test2d.LoadImageToBitmap("PepeLaugh.jfif", hehe);

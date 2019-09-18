@@ -23,6 +23,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 int main(int argc, char** argv) {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }
@@ -73,14 +74,15 @@ TEST(ExpectedTrue, GetBitmap)
 	HWND windowHandle = CreateHwndWindow();
 	Direct2D Dtest;
 	ID myID;
+	HRESULT hr;
 	RECT rectTest = { 0,0,800,600 };
 	char hehe[10] = "pepe";
 	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	Dtest.LoadImageToBitmap("PepeLaugh.jfif", hehe);
+	hr = Dtest.LoadImageToBitmap("PepeLaugh.jfif", hehe);
 	myID = Dtest.GetBitmapIDFromName(hehe);
 	void* jej = Dtest.GetBitmap(myID); //Using the ID to get the bitmap
 
-
+	EXPECT_EQ(hr, S_OK);
 	EXPECT_NE(jej, nullptr);
 
 }
@@ -124,18 +126,20 @@ TEST(Expectedfalse, FailGetBitmapIDFromName)
 	EXPECT_EQ(myID, 0);
 }
 
-TEST(Expectedfalse, FailGetBitmap) //pass if d2d1 function GetBitMap returns nullptr (not if returns failmap that is default now)
+TEST(Expectedfalse, FailGetBitmap)
 {
 	HWND windowHandle = CreateHwndWindow();
 	Direct2D Dtest;
 	ID myID;
+	HRESULT hr;
 	RECT rectTest = { 0,0,800,600 };
 	char hehe[10] = "pepe";
 	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
+	hr = Dtest.LoadImageToBitmap("fdjak", hehe);
 	myID = Dtest.GetBitmapIDFromName(hehe);
 	void* jej = Dtest.GetBitmap(myID);
 
-
+	EXPECT_NE(hr, S_OK);
 	EXPECT_EQ(jej, nullptr);
 }
 

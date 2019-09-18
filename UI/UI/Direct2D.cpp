@@ -216,7 +216,7 @@ ID2D1Bitmap* Direct2D::GetBitmap(ID bitmapID)
 	}
 	else
 	{
-		return this->mpFailBitmap;
+		return nullptr;
 	}
 }
 
@@ -238,6 +238,10 @@ bool Direct2D::DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect)
 	{
 		canDraw = true;
 		this->mpHwndRenderTarget->DrawBitmap(bitmap, rect, 1, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, D2D1::RectF(0, 0, bitmap->GetSize().width, bitmap->GetSize().height));
+	}
+	else
+	{
+		this->mpHwndRenderTarget->DrawBitmap(this->mpFailBitmap, rect, 1, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, D2D1::RectF(0, 0, this->mpFailBitmap->GetSize().width, this->mpFailBitmap->GetSize().height));
 	}
 	return canDraw;
 }
