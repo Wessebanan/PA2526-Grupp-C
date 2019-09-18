@@ -19,14 +19,18 @@ using namespace graphics;
 int main()
 {
 	ecs::EntityComponentSystem ecs;
+	CameraFunctions::CreateDevCamera(ecs);
+	CameraFunctions::CreateCameraSystems(ecs);
+
+
+	ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+	ecs::BaseComponent* baseComp = iter.next();
+	ecs::components::CameraComponent* camera = static_cast<ecs::components::CameraComponent*>(baseComp);
 	size_t system_count = ecs.getTotalSystemCount();
-	//CameraFunctions::CreateDevCamera(ecs);
-	//CameraFunctions::CreateCameraSystems(ecs);
 
 
-	//ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
-	//ecs::BaseComponent* baseComp = iter.next();
-	//ecs::components::CameraComponent* camera = static_cast<ecs::components::CameraComponent*>(baseComp);
+
+
 
 	//camera.
 	DeviceInterface* pDevice;
@@ -71,7 +75,7 @@ int main()
 							  0.0f, 0.0f, 1.0f, 0.0f,
 							  0.0f, 0.0f, 0.0f, 1.0f);
 	DirectX::XMStoreFloat4x4(&world,
-		DirectX::XMMatrixRotationRollPitchYaw(-1.5708f, 0.0f, 0.0f));
+		DirectX::XMMatrixMultiply(DirectX::XMMatrixScaling(2.0f, 2.0f, 2.0f), DirectX::XMMatrixRotationRollPitchYaw(-1.5708f, 0.0f, 0.0f)));
 
 	DirectX::XMFLOAT4X4 worldMatrices[1024];
 	worldMatrices[0] = world;
@@ -82,9 +86,9 @@ int main()
 		for (int j = 0; j < 32; ++j)
 		{
 			if(i % 2 == 0)
-				DirectX::XMStoreFloat4x4(&worldMatrices[i* 32 + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(j * 2.0f, 0.0f, i * 2.0f)));
+				DirectX::XMStoreFloat4x4(&worldMatrices[i* 32 + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(j * 3.2f, 0.0f, i * 3.2f)));
 			else
-				DirectX::XMStoreFloat4x4(&worldMatrices[i * 32 + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(j * 2.0f + 1.0f, 0.0f, i * 2.0f)));
+				DirectX::XMStoreFloat4x4(&worldMatrices[i * 32 + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(j * 3.2f + 2.0f, 0.0f, i * 3.2f)));
 		}
 	}
 	DirectX::XMFLOAT4X4 view;
@@ -96,7 +100,7 @@ int main()
 	DirectX::XMFLOAT4X4 projection;
 	DirectX::XMStoreFloat4x4(&projection,
 		DirectX::XMMatrixPerspectiveFovLH(
-			3.14f / 2.0f, 1280 / (float)720, 0.1f, 8000.0f));
+			1.91986f, 1280 / (float)720, 0.1f, 8000.0f));
 	BufferRegion projRegion;
 
 	BufferRegion viewRegion;
@@ -148,6 +152,7 @@ int main()
 	{
 		if (!pWindow->Update())
 		{
+
 			QueryPerformanceCounter(&starting_time);
 			pContext->ClearRenderTarget(pBackBuffer, 34.0f / 255.f, 128.0f / 255.f, 178.0f / 255.f);
 			pContext->SetRenderTarget(pBackBuffer);
@@ -167,6 +172,11 @@ int main()
 			//pContext->DrawInstanced(1, 0, meshBuffReg);
 			pContext->DrawIndexedInstance(1024, 0, indexRegion, meshBuffReg);
 			pWindow->Present();
+			QueryPerformanceCounter(&ending_time);
+			elapsed_microseconds.QuadPart = ending_time.QuadPart - starting_time.QuadPart;
+			elapsed_microseconds.QuadPart *= 1000000;
+			elapsed_microseconds.QuadPart /= freq.QuadPart;
+			ecs.update((float)(elapsed_microseconds.QuadPart) / 1000000.0f);
 		}
 
 	}
