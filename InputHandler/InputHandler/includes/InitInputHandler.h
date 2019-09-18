@@ -11,6 +11,13 @@ void initInputECS(ecs::EntityComponentSystem& rECS);
 
 void initInputECS(ecs::EntityComponentSystem& rECS)
 {
+	//// SYSTEMS
+	TypeID var = ecs::systems::HandleInputSystem::typeID;
+	rECS.createSystem<ecs::systems::HandleInputSystem>(0);// parameter är layer
+
+	rECS.createSystem<ecs::systems::HandleKeyboardSystem>(1);
+	rECS.createSystem<ecs::systems::HandleMouseSystem>(1);
+	rECS.createSystem<ecs::systems::HandleWebSystem>(1);
 
 	//// COMPONENTS
 
@@ -40,12 +47,6 @@ void initInputECS(ecs::EntityComponentSystem& rECS)
 		backend);
 
 
-	//// SYSTEMS
-	rECS.createSystem<ecs::systems::HandleInputSystem>(0);// parameter är layer
-
-	rECS.createSystem<ecs::systems::HandleKeyboardSystem>(1);
-	rECS.createSystem<ecs::systems::HandleMouseSystem>(1);
-	rECS.createSystem<ecs::systems::HandleWebSystem>(1);
 }
 
 

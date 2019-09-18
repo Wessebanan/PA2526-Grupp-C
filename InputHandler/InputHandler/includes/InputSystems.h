@@ -2,8 +2,6 @@
 #ifndef INPUTSYSTEMS_H
 #define INPUTSYSTEMS_H
 
-#define ALLKEYS false
-
 #include <DirectXMath.h>
 #include <winsock2.h>
 #include <windows.h>
@@ -107,15 +105,10 @@ public:
 private:
 	// Handle for the connection to the website
 	WebConnection* webConn = nullptr;
-	
-	// Saves the whole keyboard
-	bool updateSavedState();
 
 	// Calcs and updates the new mouse data
 	void modyfiByMouse();
 
-	// Looks and updates if the whole keyboard is saved
-	bool checkKeyAll(key *key);
 	// Returns true if the key is pressed down
 	bool checkKey(key *key);
 

@@ -48,61 +48,29 @@ InputSystem::~InputSystem()
 bool InputSystem::updateKeyboard()
 {
 	bool retVal = false;
-
-	if (ALLKEYS)
-	{
-		this->updateSavedState();
-
-		if (this->checkKeyAll(&this->wsad->keyU))
-			retVal = true;
-		if (this->checkKeyAll(&this->wsad->keyD))
-			retVal = true;
-		if (this->checkKeyAll(&this->wsad->keyL))
-			retVal = true;
-		if (this->checkKeyAll(&this->wsad->keyR))
-			retVal = true;
-						  
-						  
-		if (this->checkKeyAll(&this->ressetKey->key))
-			retVal = true;
-		if (this->checkKeyAll(&this->mouseRKey->key))
-			retVal = true;
-		if (this->checkKeyAll(&this->mouseLKey->key))
-		{
-			retVal = true;
-		}
-	}					  
-	else				  
-	{					  
-		if (this->checkKey(&this->wsad->keyU))
-			retVal = true;
-		if (this->checkKey(&this->wsad->keyD))
-			retVal = true;
-		if (this->checkKey(&this->wsad->keyL))
-			retVal = true;
-		if (this->checkKey(&this->wsad->keyR))
-			retVal = true;
+				  
+	if (this->checkKey(&this->wsad->keyU))
+		retVal = true;
+	if (this->checkKey(&this->wsad->keyD))
+		retVal = true;
+	if (this->checkKey(&this->wsad->keyL))
+		retVal = true;
+	if (this->checkKey(&this->wsad->keyR))
+		retVal = true;
 
 
-		if (this->checkKey(&this->ressetKey->key))
-			retVal = true;
-		if (this->checkKey(&this->mouseRKey->key))
-			retVal = true;
-		if (this->checkKey(&this->mouseLKey->key))
-			retVal = true;
-		if (this->checkKey(&this->exitKey->key))
-			retVal = true;
-	}
+	if (this->checkKey(&this->ressetKey->key))
+		retVal = true;
+	if (this->checkKey(&this->mouseRKey->key))
+		retVal = true;
+	if (this->checkKey(&this->mouseLKey->key))
+		retVal = true;
+	if (this->checkKey(&this->exitKey->key))
+		retVal = true;
+	
 
 
 	return retVal; 
-}
-
-bool InputSystem::updateSavedState()
-{
-	GetKeyboardState(this->savedState);
-
-	return true;
 }
 
 void InputSystem::modyfiByMouse()
@@ -145,18 +113,11 @@ bool InputSystem::updateMouse()
 
 bool InputSystem::updateWeb()
 {
-	//this->webConn->update(); 
-
 	this->updateTiles();
 	this->updateButtons();
 	//this->updateName();
 
 	return true;
-}
-
-bool InputSystem::checkKeyAll(key* key)
-{
-	return false;
 }
 
 bool InputSystem::checkKey(key *key)
@@ -183,8 +144,6 @@ bool InputSystem::checkKey(key *key)
 bool InputSystem::checkWebKey(int playerIndex, const int button)
 {
 	bool retVal = (this->webConn->getPlayerButton(playerIndex) == button);
-	//const char *temp = this->webConn->jsonValuePlayers[playerIndex]["Button"].asCString();
-	//retVal = *temp == *button;
 	return retVal;
 }
 

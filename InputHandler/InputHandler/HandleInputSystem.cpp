@@ -7,8 +7,8 @@ using namespace ecs;
 ecs::systems::HandleKeyboardSystem::HandleKeyboardSystem()
 {
 	updateType = ecs::EntityUpdate;
-	componentFilter.addRequirement(ecs::components::KeyboardComponent::typeID);
-	componentFilter.addRequirement(ecs::components::InputBackendComp::typeID);
+	typeFilter.addRequirement(ecs::components::KeyboardComponent::typeID);
+	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
 }
 
 ecs::systems::HandleKeyboardSystem::~HandleKeyboardSystem()
@@ -38,8 +38,8 @@ void ecs::systems::HandleKeyboardSystem::updateEntity(FilteredEntity& _entityInf
 ecs::systems::HandleMouseSystem::HandleMouseSystem()
 {
 	updateType = ecs::EntityUpdate;
-	componentFilter.addRequirement(ecs::components::MouseComponent::typeID);
-	componentFilter.addRequirement(ecs::components::InputBackendComp::typeID);
+	typeFilter.addRequirement(ecs::components::MouseComponent::typeID);
+	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
 }
 
 ecs::systems::HandleMouseSystem::~HandleMouseSystem()
@@ -70,9 +70,9 @@ void ecs::systems::HandleMouseSystem::updateEntity(FilteredEntity& _entityInfo, 
 ecs::systems::HandleWebSystem::HandleWebSystem()
 {
 	updateType = ecs::EntityUpdate;
-	componentFilter.addRequirement(ecs::components::InputBackendComp::typeID);
-	componentFilter.addRequirement(ecs::components::UserButtonComponent::typeID);
-	componentFilter.addRequirement(ecs::components::UserTileComponent::typeID);
+	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
+	typeFilter.addRequirement(ecs::components::UserButtonComponent::typeID);
+	typeFilter.addRequirement(ecs::components::UserTileComponent::typeID);
 }
 
 ecs::systems::HandleWebSystem::~HandleWebSystem()
@@ -102,8 +102,7 @@ void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, fl
 systems::HandleInputSystem::HandleInputSystem()
 {
 	updateType = ecs::EntityUpdate;
-	//componentFilter.addRequirement(0);
-	componentFilter.addRequirement(ecs::components::InputBackendComp::typeID);
+	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
 
 
 }
