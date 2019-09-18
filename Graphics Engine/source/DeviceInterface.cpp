@@ -190,7 +190,7 @@ namespace graphics
 				&Vertices);
 
 			CreateBufferRegion(
-				BUFFER_VERTEX_POSITION,
+				BUFFER_VERTEX_NORMAL,
 				sizeof(float3) * vertexCount,
 				&Normals);
 
@@ -224,9 +224,9 @@ namespace graphics
 			}
 		}
 
-		pRegion->DataCount = Vertices.DataCount;
-		pRegion->DataLocation = Vertices.DataLocation;
-		pRegion->Type = BUFFER_TYPE_UNKNOWN;
+		pRegion->DataCount		= Vertices.DataCount;
+		pRegion->DataLocation	= Vertices.DataLocation;
+		pRegion->Type			= BUFFER_TYPE_UNKNOWN;
 
 		return true;
 	}

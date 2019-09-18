@@ -142,10 +142,9 @@ namespace graphics
 		pRegion->DataLocation	= m_currentSpent;
 		pRegion->Type			= m_type;
 		pRegion->DataCount		= allocatedSize;
-		pRegion->ID				= m_currentCreated;
+		pRegion->ID				= m_currentCreated++;
 
 		m_currentSpent		+= allocatedSize;
-		m_currentCreated	+= 1;
 
 		return true;
 	}
