@@ -49,15 +49,6 @@ bool InputSystem::updateKeyboard()
 {
 	bool retVal = false;
 
-	if (RUNSOCKET)
-	{
-
-	}
-	else
-	{
-		//this->webConn->update();
-	}
-	
 	if (ALLKEYS)
 	{
 		this->updateSavedState();

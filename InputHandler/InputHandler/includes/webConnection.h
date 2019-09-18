@@ -31,10 +31,6 @@ enum ActionType
 	BUTTON
 };
 
-
-// For future implementation
-#define RUNSOCKET true
-
 #pragma pack (push, 1)
 struct _websocket_header
 {
@@ -101,6 +97,7 @@ public:
 	// Returns the tile index of the axis (0 = X or 1 = Y)
 	int getPlayerTile(int player, int axis);
 	
+	int getNrOfPlayers() { return this->nrOfPlayers; };
 	
 	// Changes the gamestate for the users
 	bool setGamestate(int gamestate);
@@ -159,6 +156,9 @@ private:
 
 	void shutDownSocket(SOCKET sock);
 	void shutDownThread();
+	bool runThread = false;
+	bool runPlayerJoin = false;
+	bool runGameLoop = false;
 };
 
 

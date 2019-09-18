@@ -3,74 +3,63 @@
 
 WebConnection::WebConnection()
 {
-	if (RUNSOCKET)
-	{
-		this->msgToUsers = (char*)"start";
-		this->msgToClient = (char*)"No msg yet";
+	this->msgToUsers = (char*)"start";
+	this->msgToClient = (char*)"No msg yet";
 
-		this->nrOfPlayers = 0;
+	this->nrOfPlayers = 0;
 
 
 
-		// Initialize Winsock
-		iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-		if (iResult != 0) {
-			printf("WSAStartup failed with error: %d\n", iResult);
-		}
+	// Initialize Winsock
+	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (iResult != 0) {
+		printf("WSAStartup failed with error: %d\n", iResult);
+	}
 
-		ZeroMemory(&hints, sizeof(hints));
-		hints.ai_family = AF_INET;
-		hints.ai_socktype = SOCK_STREAM;
-		hints.ai_protocol = IPPROTO_TCP;
-		hints.ai_flags = AI_PASSIVE;
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_flags = AI_PASSIVE;
 
-		// Resolve the server address and port
-		iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
-		if (iResult != 0) {
-			printf("getaddrinfo failed with error: %d\n", iResult);
-			WSACleanup();
-		}
+	// Resolve the server address and port
+	iResult = getaddrinfo(NULL, DEFAULT_PORT, &hints, &result);
+	if (iResult != 0) {
+		printf("getaddrinfo failed with error: %d\n", iResult);
+		WSACleanup();
+	}
 
-		// Create a SOCKET for connecting to server
-		ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-		if (ListenSocket == INVALID_SOCKET) {
-			printf("socket failed with error: %ld\n", WSAGetLastError());
-			freeaddrinfo(result);
-			WSACleanup();
-		}
-
-		// Setup the TCP listening socket
-		iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
-		if (iResult == SOCKET_ERROR) {
-			printf("bind failed with error: %d\n", WSAGetLastError());
-			freeaddrinfo(result);
-			closesocket(ListenSocket);
-			WSACleanup();
-		}
-
+	// Create a SOCKET for connecting to server
+	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+	if (ListenSocket == INVALID_SOCKET) {
+		printf("socket failed with error: %ld\n", WSAGetLastError());
 		freeaddrinfo(result);
-
-		iResult = listen(ListenSocket, SOMAXCONN);
-		if (iResult == SOCKET_ERROR) {
-			printf("listen failed with error: %d\n", WSAGetLastError());
-			closesocket(ListenSocket);
-			WSACleanup();
-		}
-
-
-		FD_ZERO(&master);
-		FD_SET(ListenSocket, &master);
-
-
-		this->initThread();
-
+		WSACleanup();
 	}
-	else
-	{
-		// Save the gamestate file to a Json::Value
-		//this->jsonValuePlayers = this->readJson(this->webStateFilePath);
-		//this->jsonValueWebState = this->readJsonState();
+
+	// Setup the TCP listening socket
+	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+	if (iResult == SOCKET_ERROR) {
+		printf("bind failed with error: %d\n", WSAGetLastError());
+		freeaddrinfo(result);
+		closesocket(ListenSocket);
+		WSACleanup();
 	}
+
+	freeaddrinfo(result);
+
+	iResult = listen(ListenSocket, SOMAXCONN);
+	if (iResult == SOCKET_ERROR) {
+		printf("listen failed with error: %d\n", WSAGetLastError());
+		closesocket(ListenSocket);
+		WSACleanup();
+	}
+
+
+	FD_ZERO(&master);
+	FD_SET(ListenSocket, &master);
+
+	this->initThread();
 }
 
 WebConnection::~WebConnection()
@@ -161,17 +150,24 @@ void WebConnection::setTile(webMsgData wmd)
 
 void WebConnection::setButton(webMsgData wmd)
 {
+
+	int hun = ((int)wmd.data[0] - 48) * 100;
+	hun -= 100;
+	int ten = ((int)wmd.data[1] - 48) * 10;
+	int one = (int)wmd.data[2] - 48;
+
+	this->players[wmd.player].button = hun + ten + one;
 }
 
 void WebConnection::playersJoin()
 {
-	if (RUNSOCKET)
-	{
-		while (true)
+	this->runPlayerJoin = true;
+
+		while (this->runThread && this->runPlayerJoin)
 		{
 			fd_set copy = master;
 
-			cout << this->msgToClient << endl;
+			//cout << this->msgToClient << endl;
 
 			int socketCount = select(0, &copy, 0, 0, 0);
 			cout << "-socketcount		" << socketCount << endl;
@@ -244,20 +240,14 @@ void WebConnection::playersJoin()
 					{
 						cout << "-i " << i << endl;
 
-						for (size_t p = 0; p < nrOfPlayers; p++)
-						{
-							if (this->playerSockets[p] == sock)
-							{
-								cout << endl << "___We just got a message from " << p << endl;
-							}
-						}
+						cout << endl << "___We just got a message from " << this->idPlayerSocket(sock) << endl;
 
 						char* client_msg = this->reciveMsg(sock, recvbuf, iSendResult);
 						this->msgToClient = client_msg;
 
 						string str1 = client_msg;
 
-						if (!str1.compare(string("8")))
+						if (!str1.compare(string("start")))
 						{
 							this->gameLoop();
 						}
@@ -269,32 +259,44 @@ void WebConnection::playersJoin()
 
 
 		}// while (iResult > 0);
-	}
-	else
-	{
-		// Read the file with the buttons, bad to open and read a file each frame
-		//this->jsonValuePlayers = this->readJson(this->playerFilePath);
-		//this->jsonValuePlayers = this->readJsonPlay();
-	}
+
+
+		// Shuts down the tread
+		CloseHandle(this->t_update);
 
 }
 
 void WebConnection::gameLoop()
 {
+	this->runGameLoop = true;
 	int startCount = master.fd_count;
 
 	cout << "--------------------------------" << endl;
 	cout << "---------STARTING GAME----------" << endl;
 	cout << "--------------------------------" << endl;
 
+	int p = 0;
+	while (p < 4 && p < this->nrOfPlayers)
+	{
+		// Broadcast channel in the futore
+		string ss;
+		ss += "4. PLAYER " + to_string(p);
+
+		this->sendMsg(this->playerSockets[p], (char*)ss.c_str(), iSendResult);
+		//this->sendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
+
+
+		p++;
+	}
+
 	int nrMsg = 0;
-	while (true)
+	while (this->runThread && this->runGameLoop)
 	{
 		fd_set copy = master;
 
 		int socketCount = select(0, &copy, 0, 0, 0);
-		cout << master.fd_count << endl;
-		broadcastMsg("The server got a request, Nr: " + to_string(nrMsg));
+		//cout << master.fd_count << endl;
+		broadcastMsg("The server got a request, Nr: " + to_string(nrMsg++));
 
 		for (size_t i = 0; i < socketCount; i++)
 		{
@@ -324,9 +326,9 @@ void WebConnection::gameLoop()
 				if (iResult == 0)
 				{
 					printf("Connection closing...\n");
-					// Drop the client
 					shutDownSocket(sock);
 
+					break;
 				}
 				else if (iResult < 0)
 				{
@@ -338,8 +340,7 @@ void WebConnection::gameLoop()
 
 					shutDownSocket(sock);
 
-
-					//WSACleanup();
+					break;
 				}
 				else if (iResult == 8)
 				{
@@ -349,6 +350,8 @@ void WebConnection::gameLoop()
 					cout << "---------------------" << endl;
 					cout << "___The user closed___" << endl;
 					cout << "---------------------" << endl;
+
+					break;
 				}
 
 				recvbuf[iResult] = 0;
@@ -375,6 +378,9 @@ void WebConnection::gameLoop()
 					{
 						wmd.player = idPlayerSocket(sock);
 
+						cout << "-From player " << wmd.player << endl
+							<< userMsg << endl;
+
 						executeUserAction(wmd);
 					}
 				}
@@ -390,11 +396,11 @@ void WebConnection::broadcastMsg(string msg)
 	int p = 0;
 	while (p < 4 && p < this->nrOfPlayers)
 	{
+		// Broadcast channel in the futore
 		string ss;
+		ss += "1. " +msg;
 
-		ss += "1. " + msg;
-
-		this->sendMsg(this->playerSockets[p], (char*)ss.c_str(), iSendResult);
+		this->sendMsg(this->playerSockets[p], (char*)msg.c_str(), iSendResult);
 		//this->sendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
 		
 
@@ -404,50 +410,29 @@ void WebConnection::broadcastMsg(string msg)
 
 int WebConnection::getPlayerButton(int player)
 {
-	int retVal = -1;
-	//std::string str = jsonValuePlayers[player]["Button"].asString();
-
-//	retVal = std::stoi(str);
-
-	return retVal;
+	return this->players[player].button;
 }
 
 std::string WebConnection::getPlayername(int player)
 {
-
-	this->msgToUsers = (char*)"name";
-	
-	//this->msgToClient
-
-	return this->msgToClient;//jsonValuePlayers[player]["Name"].asString();
+	return this->players[player].name;//jsonValuePlayers[player]["Name"].asString();
 }
 
 int WebConnection::getPlayerTile(int player, int axis)
 {
-	int retVal = -1;
-	if (axis == 0)
-	{
-		//std::string str = jsonValuePlayers[player]["MapTileX"].asString();
-	//	retVal = std::stoi(str);
-	}
-	else
-	{
-		//std::string str = jsonValuePlayers[player]["MapTileY"].asString();
-		//retVal = std::stoi(str);
-	}
-
-	return retVal;
+	return this->players[player].tile[axis];
 }
 
 bool WebConnection::setGamestate(int gamestate)
 {
-	//this->jsonValueWebState["gameState"] = std::to_string(gamestate);
-
-	return true;// writeJson(this->jsonValueWebState);
+	return true;
 }
 
 void WebConnection::initThread(void)
 {
+
+	this->runThread = true;
+
 	t_update = CreateThread(
 		nullptr,
 		0,
@@ -570,12 +555,6 @@ char* WebConnection::reciveMsg(SOCKET sock, char* recvbuf, int& Res)
 			client_msg[i] = client_msg[i] ^ mask_key->value[i % 4];
 	}
 	return client_msg;
-
-	
-	
-	//printf("We recived: %s\r\n", client_msg);
-
-	return (char*)"noMsg";
 }
 
 void WebConnection::sendMsg(SOCKET sock, char* client_msg, int& Res)
@@ -644,9 +623,17 @@ void WebConnection::shutDownSocket(SOCKET sock)
 	closesocket(sock);
 	FD_CLR(sock, &master);
 	this->nrOfPlayers--;
+
+	WSACleanup();
+
+	this->runGameLoop = false;
+
+	this->shutDownThread();
 }
 
 void WebConnection::shutDownThread()
 {
-	CloseHandle(this->t_update);
+	this->runThread = false;
+	this->connectionOK = false;
+	//CloseHandle(this->t_update);
 }
