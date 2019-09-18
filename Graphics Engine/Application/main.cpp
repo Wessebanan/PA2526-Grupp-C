@@ -283,18 +283,18 @@ int main()
 			// Upload All Data to GPU
 			pContext->UploadToGPU(BUFFER_CONSTANT_DYNAMIC);
 
-			UINT at = buffer0.DataLocation;
-			UINT end = buffer0.DataLocation + buffer0.DataCount;
+			UINT at		= buffer0.DataLocation;
+			UINT end	= buffer0.DataLocation + buffer0.DataCount;
 
 			BufferRegion r = buffer0;
 			r.DataCount = 65536;
 
 			while (at < end)
 			{
-				r.DataLocation = at;							// Set active region
+				r.DataLocation = at;							// Set active region (65536 bytes per draw)
 				pContext->VSSetConstantBuffer(0, r);			// Apply active Region
-				pContext->DrawInstanced(512, 0, meshes[1]);		// Draw with first half
-				pContext->DrawInstanced(512, 512, meshes[0]);	// Draw with second half
+				pContext->DrawInstanced(512, 0, meshes[1]);		// Draw (with mesh[1])
+				pContext->DrawInstanced(512, 512, meshes[0]);	// Draw (with mesh[0])
 				at += 65536;									// Increment active region
 			}
 
