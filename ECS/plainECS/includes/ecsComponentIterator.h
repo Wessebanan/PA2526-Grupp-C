@@ -13,6 +13,7 @@ namespace ecs
 	class ComponentIterator
 	{
 	public:
+		ComponentIterator();
 		ComponentIterator(size_t _objectSize, size_t _totalSize, void* _memory);
 		~ComponentIterator();
 

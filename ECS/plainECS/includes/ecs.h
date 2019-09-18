@@ -16,6 +16,12 @@
 
 #define DEFAULT_LAYER_COUNT 10
 
+#ifdef _DEBUG
+#define DEBUG_ENTITY_PRINT_MAX_COUNT 20
+#endif
+
+// TODO: Move event creations for new entity and component out of internal functions.
+
 namespace ecs
 {
 	struct CompTypeMemDesc
@@ -32,36 +38,61 @@ namespace ecs
 		size_t systemLayerCount;
 	};
 
+	// EntityComponentSystem is the main class and API for using plainECS. It stores all ECSSystems
+	// and updates them appropriately during an ECS update. This class has multiple managers, and
+	// handles all communication between them. These managers are
+	//		- ECSEntityManager
+	//		- ECSComponentManager
+	//		- ECSEventManager
+	// Most API functions forwards requests for these managers.
 	class EntityComponentSystem : public ECSUserListener, public ECSEventListenerListener
 	{
 	public:
 		EntityComponentSystem();
 		~EntityComponentSystem();
 
+		// Initializes ECS for custom uses, using user set specifications on memory from an ECSDesc(ription). If this function is not
+		// called, the ECS will set memory usage to default values:
+		//		- Number of system layers is set to 10
+		//		- All component pools will have a size of 100 components (of that type). The pools will happen when a component of an
+		//		 uninitialized component pool is encountered during runtime.
+		//			- This will also happen if a component type is not specified in the ECSDesc.
 		bool initialize(ECSDesc &_desc);
 
 		// Creates an entity with given components. Components are created in component memory using the initial information from input.
 		// Will create a CreateEntityEvent and a CreateComponentEvent automatically.
+		//		Notation: the input component will only be used to set initial values of the new component, thus changing
+		//				 the input component after createEntity does not change the new component in ECS memory.
 		Entity* createEntity(BaseComponent& _comp);
 
 		// Creates an entity with given components. Components are created in component memory using the initial information from input.
 		// Will create a CreateEntityEvent and two CreateComponentEvents automatically.
+		//		Notation: the input components will only be used to set initial values of the new components, thus changing
+		//				 the input component after createEntity does not change the new components in ECS memory.
 		Entity* createEntity(BaseComponent& _compA, BaseComponent& _compB);
 
 		// Creates an entity with given components. Components are created in component memory using the initial information from input.
 		// Will create a CreateEntityEvent and three CreateComponentEvents automatically.
+		//		Notation: the input components will only be used to set initial values of the new components, thus changing
+		//				 the input components after createEntity does not change the new components in ECS memory.
 		Entity* createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC);
 
 		// Creates an entity with given components. Components are created in component memory using the initial information from input.
 		// Will create a CreateEntityEvent and four CreateComponentEvents automatically.
+		//		Notation: the input components will only be used to set initial values of the new components, thus changing
+		//				 the input components after createEntity does not change the new components in ECS memory.
 		Entity* createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD);
 
 		// Creates an entity with given components. Components are created in component memory using the initial information from input.
 		// Will create a CreateEntityEvent and five CreateComponentEvents automatically.
+		//		Notation: the input components will only be used to set initial values of the new components, thus changing
+		//				 the input components after createEntity does not change the new components in ECS memory.
 		Entity* createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD, BaseComponent& _compE);
 
 		// Creates an entity from a list of components. Components are created in component memory.
 		// Will create a CreateEntityEvent and multiple CreateComponentEvents automatically.
+		//		Notation: the input components will only be used to set initial values of the new components, thus changing
+		//				 the input components after createEntity does not change the new components in ECS memory.
 		Entity* createEntity(ComponentList _components);
 
 		// First removes all components a given entity has, then removes the entity itself.
@@ -83,6 +114,10 @@ namespace ecs
 
 		// Finds system of given type and removes in from memory, using its destructor.
 		template <typename T> void removeSystem();
+
+		// Creates an event in the ECS.
+		// This will notify all event listeners that has subscribed to that event type.
+		void createEvent(BaseEvent& _event);
 
 		// Initiate an ECS update, iterating through all layers and updates all system based
 		// on their SystemUpdateType.
@@ -182,7 +217,6 @@ namespace ecs
 		// Creates a new entity in the ECS, then creates all its components.
 		Entity* createEntityInternal(ComponentList _components);
 
-
 		BaseComponent* createComponentInternal(ID _entityID, BaseComponent& _componentInfo);
 		void createEventInternal(BaseEvent& _event);
 		void removeEntityInternal(ID _entityID);
@@ -231,7 +265,7 @@ namespace ecs
 
 		// Make ECS listen on ECSUser functionality. This makes ECS responsible for
 		// handling entity creations, component removals etc.
-		(dynamic_cast<ECSUser*>(newSystem))->ecsUserHandler = this;
+		(static_cast<ECSUser*>(newSystem))->ecsUserHandler = this;
 
 		// Set ECS to handle all subscriptions and unsubscriptions on event creations.
 		ECSEventListener* listenerCast = static_cast<ECSEventListener*>(newSystem);
@@ -269,22 +303,30 @@ namespace ecs
 			{
 				BaseSystem* sys = layer[i];						// Store system pointer
 				layer.erase(layer.begin() + i);					// Remove system from layer
-				SystemFreeFunction ff = sys->getFreeFunction(); /* Fetch free function, in case user hasn't
-																   written its destructor as virtual */
-				ff(sys);										// Call free function
-				typeIDToLayerMap.erase(T::typeID);
+				//SystemFreeFunction ff = sys->getFreeFunction(); /* Fetch free function, in case user hasn't
+				//												   written its destructor as virtual */
+				//ff(sys);										// Call free function
+				delete sys;
+				typeIDToLayerMap.erase(T::typeID);				// Erase from hash map
 				return;
 			}
 		}
 	}
 
-	template <typename T> T* EntityComponentSystem::getComponent(ID _id)
+	inline void EntityComponentSystem::createEvent(BaseEvent& _event)
 	{
+		return createEventInternal(_event);
+	}
+
+	template <typename T> inline T* EntityComponentSystem::getComponent(ID _id)
+	{
+		// Forwards to internal function and cast returning BaseComponent pointer
 		return (T*)getComponent(T::typeID, _id);
 	}
 
-	template <typename T> T* EntityComponentSystem::getComponentFromEntity(ID _entityID)
+	template <typename T> inline T* EntityComponentSystem::getComponentFromEntity(ID _entityID)
 	{
+		// Forwards to internal function and cast returning BaseComponent pointer
 		return (T*)getComponentFromEntity(_entityID);
 	}
 }

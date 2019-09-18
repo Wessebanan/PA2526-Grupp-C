@@ -9,16 +9,15 @@ namespace ecs
 	typedef ID(*ComponentCreateFunction)(void* _memoryPtr, BaseComponent* _initialData);
 
 	/*
-	*	BaseComponent is a top level struct in the component inheritance.
-	*	This struct handles all non-type specific information about the
-	*	component, like entity ID and component ID.
+		BaseComponent is a top level struct in the component inheritance.
+		This struct handles all non-type specific information about the
+		component, like entity ID and component ID.
 	*/
-
 	struct BaseComponent
 	{
 	private:
-		ID id;
-		ID entityID;
+		ID id = 0;
+		ID entityID = 0;
 
 	public:
 		bool alive = true;
@@ -32,8 +31,6 @@ namespace ecs
 		virtual ComponentCreateFunction getCreateFunction() { return nullptr; }
 
 	protected:
-		//static IDGenerator<TypeID> typeIDGenerator;
-		//static IDGenerator<ID> uniqueIDGenerator;
 		static TypeID typeIDCounter;
 		static TypeID uniqueIDCounter;
 
@@ -44,11 +41,10 @@ namespace ecs
 	};
 
 	/*
-	*	ECSComponent is the struct all user components will inherit from.
-	*	This struct handles all type specific information, like type ID
-	*	and create function.
+		ECSComponent is the struct all user components will inherit from.
+		This struct handles all type specific information, like type ID
+		and create function.
 	*/
-
 	template <typename T>
 	struct ECSComponent : public BaseComponent
 	{
@@ -64,10 +60,9 @@ namespace ecs
 	};
 
 	/*
-	*	Define a dynamic create function. This function will use the place-
-	*	ment operator to place the new object in already allocated memory.
+		Defines a dynamic create function. This function will use the place-
+		ment operator to place the new object in already allocated memory.
 	*/
-
 	template <typename T>
 	ID componentCreate(void* _memoryPtr, BaseComponent* _initialData)
 	{
@@ -79,13 +74,9 @@ namespace ecs
 
 
 
-	///*
-	//*	Initialize all static variables
-	//*/
-
-	//// Make id counters start at 1, since 0=error
-	//IDGenerator<TypeID> BaseComponent::typeIDGenerator(1);
-	//IDGenerator<ID> BaseComponent::uniqueIDGenerator(1);
+	/*
+		Initialize all static variables
+	*/
 
 	template <typename T>
 	const size_t ECSComponent<T>::size(sizeof(T));

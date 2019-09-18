@@ -2,6 +2,10 @@
 
 using namespace ecs;
 
+/*
+	All ECSUser methods forward resource requests to its handler.
+*/
+
 Entity* ECSUser::getEntity(ID _entityID)
 {
 	return ecsUserHandler->onGetEntity(_entityID);
@@ -9,6 +13,7 @@ Entity* ECSUser::getEntity(ID _entityID)
 
 EntityIterator ECSUser::getEntitiesByFilter(TypeFilter _filter)
 {
+
 	return ecsUserHandler->getEntitiesByFilter(_filter);
 }
 
@@ -29,8 +34,22 @@ BaseComponent* ECSUser::getComponent(TypeID _typeID, ID _id)
 	return ecsUserHandler->onGetComponent(_typeID, _id);
 }
 
+BaseComponent* ECSUser::getComponentFromKnownEntity(TypeID _typeID, ID _entityID)
+{
+	Entity* e = ecsUserHandler->onGetEntity(_entityID);
+
+	// Sanity check
+	if (!e || !e->hasComponentOfType(_typeID))
+	{
+		return nullptr;
+	}
+
+	return ecsUserHandler->onGetComponent(_typeID, e->getComponentID(_typeID));
+}
+
 Entity* ECSUser::createEntity(BaseComponent& _comp)
 {
+	// Create a list of component(s) and forward list to handler
 	BaseComponent* components[] = { &_comp };
 
 	ComponentList list;
@@ -42,6 +61,7 @@ Entity* ECSUser::createEntity(BaseComponent& _comp)
 
 Entity* ECSUser::createEntity(BaseComponent & _compA, BaseComponent & _compB)
 {
+	// Create a list of component(s) and forward list to handler
 	BaseComponent* components[] = { &_compA, &_compB };
 
 	ComponentList list;
@@ -53,6 +73,7 @@ Entity* ECSUser::createEntity(BaseComponent & _compA, BaseComponent & _compB)
 
 Entity* ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC)
 {
+	// Create a list of component(s) and forward list to handler
 	BaseComponent* components[] = { &_compA, &_compB, &_compC };
 
 	ComponentList list;
@@ -64,6 +85,7 @@ Entity* ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, Base
 
 Entity* ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD)
 {
+	// Create a list of component(s) and forward list to handler
 	BaseComponent* components[] = { &_compA, &_compB, &_compC, &_compD };
 
 	ComponentList list;
@@ -75,6 +97,7 @@ Entity* ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, Base
 
 Entity* ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, BaseComponent& _compC, BaseComponent& _compD, BaseComponent& _compE)
 {
+	// Create a list of component(s) and forward list to handler
 	BaseComponent* components[] = { &_compA, &_compB, &_compC, &_compD, &_compE };
 
 	ComponentList list;

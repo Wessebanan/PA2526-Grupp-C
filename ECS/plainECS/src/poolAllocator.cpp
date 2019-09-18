@@ -14,10 +14,18 @@ PoolAllocator::~PoolAllocator()
 
 void* PoolAllocator::allocate()
 {
-	if (freeList == nullptr) return nullptr;
+	// Sanity check. If freeList is nullptr, then there aren't any more space
+	// available for allocations.
+	if (!freeList)
+	{
+		return nullptr;
+	}
 
+	// Fetch next unused chunk from free list.
 	void* newAllocation = freeList;
-	freeList = (void**)(*freeList); // Increment free list (may not be in order)
+
+	// Increment freeList to next unused chunk
+	freeList = (void**)(*freeList);
 
 	memoryUsed += objectSize;
 	memoryAllocations++;
@@ -26,9 +34,17 @@ void* PoolAllocator::allocate()
 
 void PoolAllocator::free(void* _ptr)
 {
+	// May not be necessary to set chunk memory to zero, but makes it easy
+	// to detect garbage reading.
 	std::memset(_ptr, 0, objectSize);
+	
+	// Make the now unused chunk to a pointer, pointing to the first chunk
+	// in the freeList.
 	*((void**)_ptr) = freeList;
+
+	// Make the freeList point to the now unused chunk.
 	freeList = (void**)_ptr;
+
 	memoryUsed -= objectSize;
 	memoryAllocations--;
 }
@@ -36,20 +52,20 @@ void PoolAllocator::free(void* _ptr)
 void PoolAllocator::reset()
 {
 	memoryUsed = 0;
-
 	objectCap = memorySize / objectSize;
-
 	freeList = (void**)memoryStart;
 
 	// Make each free chunk in the memory be a pointer to the next available
-	// chunk. The free list exists in non-allocated chunks within memory.
-	void** p = freeList;
+	// chunk. The free list exist in non-allocated chunks within memory.
+	void** p = freeList; // Let p iterate over the memory.
 	for (size_t i = 0; i < objectCap - 1; i++)
 	{
-		// 1. Make this entry point to next chunk
-		// 2. Step to next chunk
+		// 1. Make current p point to the next chunk
+		// 2. Step to next chunk, using the pointer set in step 1.
+		// 3. ...
+		// 4. Profit???
 		*p = pointerIncrement(p, objectSize);
-		p = (void**)*p;						  
+		p = (void**)*p;
 	}
 	*p = nullptr; // Last chunk is nullptr.
 }
