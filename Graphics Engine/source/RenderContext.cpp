@@ -10,7 +10,7 @@ namespace graphics
 		m_viewport = { 0 };
 		m_viewport.MaxDepth = 1.0f;
 	
-		m_currentPipeline = NULL;
+		m_pCurrentPipeline = NULL;
 		ZeroMemory(m_clearColor, sizeof(m_clearColor));
 	}
 
@@ -112,19 +112,19 @@ namespace graphics
 	void RenderContext::SetGraphicsPipeline(GraphicsPipeline* pPipeline)
 	{
 		// --- SET PIPELINE --- 
-		if (m_currentPipeline != pPipeline)
+		if (m_pCurrentPipeline != pPipeline)
 		{
-			m_currentPipeline = pPipeline;
+			m_pCurrentPipeline = pPipeline;
 
-			m_pContext4->IASetInputLayout(m_currentPipeline->m_pLayout);
+			m_pContext4->IASetInputLayout(m_pCurrentPipeline->m_pLayout);
 
 			m_pContext4->VSSetShader(
-				m_currentPipeline->m_pVertexShader,
+				m_pCurrentPipeline->m_pVertexShader,
 				NULL,
 				0);
 
 			m_pContext4->PSSetShader(
-				m_currentPipeline->m_pPixelShader,
+				m_pCurrentPipeline->m_pPixelShader,
 				NULL,
 				0);
 		}

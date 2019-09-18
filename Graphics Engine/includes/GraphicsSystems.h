@@ -136,12 +136,10 @@ namespace ecs
 					}
 
 					UINT index = location + offset;
-					if (index > compCount)
+					if (index < compCount)
 					{
-						int x = 0;
+						m_pData->m_matrices[index] = wc->WorldMatrix;
 					}
-
-					m_pData->m_matrices[index] = wc->WorldMatrix;
 				}
 			}
 
