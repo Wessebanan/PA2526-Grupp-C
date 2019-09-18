@@ -5,7 +5,6 @@
 #include "ecsComponent.h"
 #include "ecsEvent.h"
 #include "ecsTypeFilter.h"
-//#include "ecsSystemUpdateTypes.h"
 
 using namespace std;
 using namespace ecs::components;
@@ -21,22 +20,16 @@ namespace ecs
 			PoisonSystem()
 			{
 				updateType = EntityUpdate;
-				componentFilter.addRequirement(HealthComponent::typeID);
-				componentFilter.addRequirement(PoisonComponent::typeID);
+				typeFilter.addRequirement(HealthComponent::typeID);
+				typeFilter.addRequirement(PoisonComponent::typeID);
 			}
-			~PoisonSystem() {}
+			virtual ~PoisonSystem() {}
 
 			void updateEntity(FilteredEntity &_entityInfo, float _delta) override
 			{
 				HealthComponent* hp = _entityInfo.getComponent<HealthComponent>();
 				PoisonComponent* poison = _entityInfo.getComponent<PoisonComponent>();
-
-				cout << "[PoisonSystem] Entity " << _entityInfo.entity->getID() << " damaged by poison.";
-				cout << " HP " << hp->health << " -> ";
-
 				hp->health -= poison->tickDamage;
-
-				cout << hp->health << " (" << poison->tickDamage << "dmg/tick)." << endl;
 			}
 		};
 
@@ -46,16 +39,15 @@ namespace ecs
 			EntityKillSystem()
 			{
 				updateType = EntityUpdate;
-				componentFilter.addRequirement(HealthComponent::typeID);
+				typeFilter.addRequirement(HealthComponent::typeID);
 			}
-			~EntityKillSystem() {}
+			virtual ~EntityKillSystem() {}
 
 			void updateEntity(FilteredEntity &_entityInfo, float _delta) override
 			{
 				HealthComponent* hp = _entityInfo.getComponent<HealthComponent>();
 				if (hp->health <= 0)
 				{
-					cout << "[EntityKillSystem] Entity " << _entityInfo.entity->getID() << " is dead." << endl;
 					ECSUser::removeEntity(hp->getEntityID());
 				}
 			}
@@ -67,16 +59,15 @@ namespace ecs
 			EntityKillCounter()
 			{
 				updateType = EventReader;
-				eventFilter.addRequirement(RemoveEntityEvent::typeID);
+				typeFilter.addRequirement(RemoveEntityEvent::typeID);
 			}
-			~EntityKillCounter() {}
+			virtual ~EntityKillCounter() {}
 
 			void readEvent(BaseEvent& _event, float _delta) override
 			{
 				RemoveEntityEvent* e = (RemoveEntityEvent*)&_event;
 				ID entityID = e->entityID;
 				entityKills++;
-				cout << "[EntityKillCounter] A total of " << entityKills << " entities has been killed so far." << endl;
 			}
 
 		private:
@@ -94,7 +85,7 @@ namespace ecs
 				subscribeEventCreation(events::CreateComponentEvent::typeID);
 				subscribeEventCreation(events::RemoveComponentEvent::typeID);
 			}
-			~EventPrintingSystem() {}
+			virtual ~EventPrintingSystem() {}
 
 			void onEvent(TypeID _eventType, BaseEvent* _event) override
 			{
@@ -113,12 +104,14 @@ namespace ecs
 				else if (_eventType == events::CreateComponentEvent::typeID)
 				{
 					events::CreateComponentEvent* e = static_cast<events::CreateComponentEvent*>(_event);
-					cout << "Entity " << e->entityID << " got component " << e->componentID << " of type ID " << e->componentTypeID << endl;
+					BaseComponent* c = getComponent(e->componentTypeID, e->componentID);
+					cout << "Entity " << e->entityID << " got component " << c->getName() << endl;
 				}
 				else if (_eventType == events::RemoveComponentEvent::typeID)
 				{
 					events::RemoveComponentEvent* e = static_cast<events::RemoveComponentEvent*>(_event);
-					cout << "Entity " << e->entityID << " lost component " << e->componentID << " of type ID " << e->componentTypeID << endl;
+					BaseComponent* c = getComponent(e->componentTypeID, e->componentID);
+					cout << "Entity " << e->entityID << " lost component " << c->getName() << endl;
 				}
 			}
 		};
