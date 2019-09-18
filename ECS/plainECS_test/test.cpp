@@ -8,6 +8,7 @@ int main(int argc, char** argv) {
 	return RUN_ALL_TESTS();
 }
 
+#pragma region MemoryTesting
 namespace TestPoolAllocator
 {
 	// Memory information
@@ -169,8 +170,7 @@ namespace TestPoolAllocator
 
 		free(mem);
 	}
-}
-
+} // namespace TestPoolAllocator
 namespace TestComponentPool
 {
 	// Component used for testing
@@ -376,4 +376,197 @@ namespace TestComponentPool
 
 		EXPECT_EQ(pool.getComponent(invalid_ID), nullptr);
 	}
-}
+} // namespace TestComponentPool
+namespace TestEventPool
+{
+	struct TestEvent : public ecs::ECSEvent<TestEvent>
+	{
+		TestEvent(int _data) : data(_data) {};
+		int data;
+	};
+
+	const unsigned int event_count = 10;
+
+	TEST(TestEventPool, Init)
+	{
+		ecs::ECSEventPool pool;
+		EXPECT_EQ(pool.getEventCount(), 0);
+		
+		// Expect empty iterator
+		std::vector<ecs::BaseEvent*> it = pool.getIterator();
+		EXPECT_EQ(it.size(), 0);
+	}
+	TEST(TestEventPool, Create)
+	{
+		int expected_data = 1337;
+		ecs::ECSEventPool pool;
+
+		ecs::BaseEvent *pBase = pool.create(TestEvent(expected_data));
+		EXPECT_NE(pBase, nullptr);
+
+		TestEvent *pEvent = static_cast<TestEvent*>(pBase);
+		EXPECT_EQ(pEvent->data, expected_data);
+	}
+	TEST(TestEventPool, Iterator)
+	{
+		ecs::ECSEventPool pool;
+
+		// Create events, store data in order
+		int expected_data[event_count];
+		for (int i = 0; i < event_count; i++)
+		{
+			pool.create(TestEvent(i));
+			expected_data[i] = i;
+		}
+
+		std::vector<ecs::BaseEvent*> it = pool.getIterator();
+
+		TestEvent *pEvent;
+		for (int i = 0; i < event_count; i++)
+		{
+			pEvent = static_cast<TestEvent*>(it[i]);
+			EXPECT_EQ(pEvent->data, expected_data[i]);
+		}
+	}
+	TEST(TestEventPool, Clear)
+	{
+		ecs::ECSEventPool pool;
+
+		// Create events
+		for (int i = 0; i < event_count; i++)
+		{
+			pool.create(TestEvent(i));
+		}
+
+		pool.clear();
+
+		EXPECT_EQ(pool.getEventCount(), 0);
+
+		// Expect empty iterator
+		EXPECT_EQ(pool.getIterator().size(), 0);
+	}
+	TEST(TestEventPool, GetCount)
+	{
+		ecs::ECSEventPool pool;
+
+		// Create events
+		for (int i = 0; i < event_count; i++)
+		{
+			pool.create(TestEvent(i));
+		}
+
+		EXPECT_EQ(pool.getEventCount(), event_count);
+	}
+	TEST(TestEventPool, CreateAfterClear)
+	{
+		ecs::ECSEventPool pool;
+
+		// Create events
+		for (int i = 0; i < event_count; i++)
+		{
+			pool.create(TestEvent(0));
+		}
+
+		pool.clear();
+
+		// Create more events after clear, store data
+		int expected_data[event_count];
+		for (int i = 0; i < event_count; i++)
+		{
+			pool.create(TestEvent(i));
+			expected_data[i] = i;
+		}
+
+		std::vector<ecs::BaseEvent*> it = pool.getIterator();
+
+		// Check data of new events
+		TestEvent *pEvent;
+		for (int i = 0; i < event_count; i++)
+		{
+			pEvent = static_cast<TestEvent*>(it[i]);
+			EXPECT_EQ(pEvent->data, expected_data[i]);
+		}
+	}
+} // namespace TestEventPool
+#pragma endregion MemoryTesting
+#pragma region UnitTesting
+namespace TestEntity
+{
+	/*
+		Notation: Entities are used dynamically, tests therefore
+				  use dynamic entities.
+	*/
+
+	//TEST(TestEntity, GetID)
+	//{
+	//	ecs::Entity* pEntity;
+	//	delete pEntity;
+	//}
+	//TEST(TestEntity, HasType)
+	//{
+	//	ecs::Entity* pEntity;
+	//	delete pEntity;
+	//}
+	//TEST(TestEntity, TemplatedGetID)
+	//{
+	//	ecs::Entity* pEntity;
+	//	delete pEntity;
+	//}
+	//TEST(TestEntity, TemplateHasType)
+	//{
+	//	ecs::Entity* pEntity;
+	//	delete pEntity;
+	//}
+} // namespace TestEntity
+#pragma endregion UnitTesting
+#pragma region ManagerTesting
+namespace TestEntityManager
+{
+	struct TestComponent1 : public ecs::ECSComponent<TestComponent1>
+	{
+		TestComponent1(int _data) : data(_data) {}
+		int data;
+	};
+
+	struct TestComponent2 : public ecs::ECSComponent<TestComponent2>
+	{
+		TestComponent2(int _data) : data(_data) {}
+		int data;
+	};
+
+	const unsigned int entity_count = 10;
+
+	TEST(TestEntityManager, Init)
+	{
+		ecs::ECSEntityManager mgr;
+
+		EXPECT_EQ(0, mgr.getCurrentRemoveFlagCount());
+		EXPECT_EQ(0, mgr.getEntityCount());
+	}
+	TEST(TestEntityManager, Create)
+	{
+		ecs::ECSEntityManager mgr;
+
+		// Create entities, check their default values
+		ecs::Entity *pEntity;
+		for (int i = 0; i < entity_count; i++)
+		{
+			pEntity = mgr.createEntity();
+			ASSERT_NE(pEntity, nullptr);
+			EXPECT_NE(pEntity->getID(), 0);
+		}
+	}
+	//TEST(TestEntityManager, GetEntity)
+	//TEST(TestEntityManager, RemoveFlag)
+	//TEST(TestEntityManager, CountGetters)
+	//TEST(TestEntityManager, CreateAfterRemove)
+} // namespace TestEntityManager
+namespace TestComponentManager
+{
+
+} // namespace TestComponentManager
+namespace TestEventManager
+{
+
+} // namespace TestEventManager
+#pragma endregion ManagerTesting
