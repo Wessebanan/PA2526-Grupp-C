@@ -196,32 +196,71 @@ namespace graphics
 
 	void DeviceInterface::CreateDynamicBufferRegion(
 		const UINT size,
+		const void* pData,
 		BufferRegion* pRegion)
 	{
+		BufferRegion region;
+
 		CreateBufferRegion(
 			BUFFER_CONSTANT_DYNAMIC,
 			size,
-			pRegion);
+			&region);
+
+		if (pData)
+		{
+			m_context.CopyDataToRegion(pData, size, region);
+		}
+
+		pRegion->DataCount = region.DataCount;
+		pRegion->DataLocation = region.DataLocation;
+		pRegion->ID = region.ID;
+		pRegion->Type = region.Type;
 	}
 
 	void DeviceInterface::CreateStaticBufferRegion(
-		const UINT size, 
+		const UINT size,
+		const void* pData,
 		BufferRegion* pRegion)
 	{
+		BufferRegion region;
+
 		CreateBufferRegion(
 			BUFFER_CONSTANT_STATIC,
 			size,
-			pRegion);
+			&region);
+
+		if (pData)
+		{
+			m_context.CopyDataToRegion(pData, size, region);
+		}
+
+		pRegion->DataCount = region.DataCount;
+		pRegion->DataLocation = region.DataLocation;
+		pRegion->ID = region.ID;
+		pRegion->Type = region.Type;
 	}
 
 	void DeviceInterface::CreateIndexBufferRegion(
-		const UINT size, 
+		const UINT size,
+		const void* pData,
 		BufferRegion* pRegion)
 	{
+		BufferRegion region;
+
 		CreateBufferRegion(
 			BUFFER_VERTEX_INDEX,
 			size,
-			pRegion);
+			&region);
+
+		if (pData)
+		{
+			m_context.CopyDataToRegion(pData, size, region);
+		}
+
+		pRegion->DataCount		= region.DataCount;
+		pRegion->DataLocation	= region.DataLocation;
+		pRegion->ID				= region.ID;
+		pRegion->Type			= region.Type;
 	}
 
 	bool DeviceInterface::CreateMeshRegion(

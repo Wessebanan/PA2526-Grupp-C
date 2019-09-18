@@ -30,7 +30,7 @@
 #include "../includes/GraphicsComponents.h"
 
 // MAKE SURE IT'S EVENLY DIVIDABLE BY SQRT()
-#define MESHES_X_AXIS (64)
+#define MESHES_X_AXIS (48)
 #define MESHES_Y_AXIS (32)
 #define MAXIMUM_MESHES_TO_DRAW (MESHES_X_AXIS * MESHES_Y_AXIS)//(ecs::systems::compCount)
 
@@ -258,14 +258,17 @@ int main()
 	// Per Frame Heap
 	pDevice->CreateDynamicBufferRegion(
 		sizeof(view),
+		NULL,
 		&viewRegion);
 
 	pDevice->CreateDynamicBufferRegion(
 		sizeof(XMFLOAT4X4) * systems::compCount,
+		NULL,
 		&buffer0);
 
 	pDevice->CreateStaticBufferRegion(
 		sizeof(projection),
+		NULL,
 		&projRegion);
 
 	pContext->VSSetConstantBuffer(1, viewRegion);

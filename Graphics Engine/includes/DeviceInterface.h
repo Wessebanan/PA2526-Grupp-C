@@ -126,14 +126,17 @@ namespace graphics
 
 		void CreateDynamicBufferRegion(
 			const UINT size,
+			const void* pData,
 			BufferRegion* pRegion);
 
 		void CreateStaticBufferRegion(
 			const UINT size,
+			const void* pData,
 			BufferRegion* pRegion);
 
 		void CreateIndexBufferRegion(
 			const UINT size,
+			const void* pData,
 			BufferRegion* pRegion);
 
 		bool CreateMeshRegion(
