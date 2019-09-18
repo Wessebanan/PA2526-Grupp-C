@@ -24,13 +24,6 @@
 #include <strsafe.h>
 
 
-enum ActionType
-{
-	NAME,
-	TILE,
-	BUTTON
-};
-
 #pragma pack (push, 1)
 struct _websocket_header
 {
@@ -62,22 +55,36 @@ struct _mask_key
 
 using namespace std;
 
-
+// List of the diffrent actions the user wants to do from the web
+enum ActionType
+{
+	NAME,
+	TILE,
+	BUTTON
+};
+// struct that holds the parsed info
 struct webMsgData
 {
+	// What index the player has, 
 	int player = -1;
+	// a defined action, 999 posible actions, use ENUM
 	int action = -1;
+	// the The rest of the recived data to be used, ea. name of item or command
 	string data = "";
 };
 
+// Collected information to be requested by frontend
 struct playerInfo
 {
+	// What plaer this struct is
 	int playerIndex = -1;
-	string name = "";
+	// Name that the player can change
+	string name = "No name yet";
+	// crrent selected tile
 	int tile[2] = { -1,-1 };
+	// current selected button
 	int button = -1;
 };
-
 
 // Handles getting info from the website
 class WebConnection
@@ -86,7 +93,7 @@ public:
 	WebConnection();
 	~WebConnection();
 
-
+	// Checks if the connection was successful
 	bool isConnected() { return this->connectionOK; };
 
 	// Returns the button index the player has selected
@@ -97,6 +104,7 @@ public:
 	// Returns the tile index of the axis (0 = X or 1 = Y)
 	int getPlayerTile(int player, int axis);
 	
+	// returns hte number of players that have connected since the client started up
 	int getNrOfPlayers() { return this->nrOfPlayers; };
 	
 	// Changes the gamestate for the users
@@ -104,56 +112,79 @@ public:
 
 
 private:
+	// Array of information to be sent to frontend
+	playerInfo players[4];
+
+
+	//// THREAD VARIBLES
+	// starts the thread to run sockets on the side
 	void initThread(void);
 	static DWORD WINAPI staticThreadStart(LPVOID lpParam);
-
+	// Handles to hold the thread
 	HANDLE t_update;
+	// id for thread,m isnt used
 	DWORD id_t_update;
 
 
-	// takes the newest values from the web
+	//// EXECUTE AFTER GETTING MSG FROM USER
+	// parses the message inte a struct
 	webMsgData parseMsg(char* userMsg);
+	// Switchcase for the mesage
 	bool executeUserAction(webMsgData wmd);
+	// Saves and sends out a new name
 	void setName(webMsgData wmd);
+	// Saves and sends out new tile
 	void setTile(webMsgData wmd);
+	// Saves new button
 	void setButton(webMsgData wmd);
-	playerInfo players[4];
 
+
+	//// BACKEND STATES
+	// Players joining the game
 	void playersJoin();
+	// Gameloop for getting controll information from web
 	void gameLoop();
+
+
+	// FUNCTIONS FOR INTERACTIONS
+	//Send out msg to all players
 	void broadcastMsg(string msg);
+	// Identifies what player the current socket is
+	int idPlayerSocket(SOCKET sock);
+	// takes in the a new message
+	char* reciveMsg(SOCKET sock, char* recvbuf, int& Res);
+	// sends out a message to the user, default will print to 0.
+	void sendMsg(SOCKET sock, char* client_msg, int& Res);
 
-
+	// Varible to see if system is still connected
 	bool connectionOK = true;
-	// %%%%		SOCKETS		%%%%
 
+	// %%%%		SOCKETS		%%%%
+	// socket that looks for new connections
 	SOCKET ListenSocket;
+	// interpets the key and preformes handshake
+	bool checkForKey(SOCKET sock, char* recBuff, int& Res);
+
 	int nrOfPlayers;
 	SOCKET playerSockets[30];
 	fd_set master; 
 
+	// BACKEND DEFENITIONS
 	WSADATA wsaData;
 	int iResult;
-
 	struct addrinfo* result = NULL;
 	struct addrinfo hints;
-
 	int iSendResult;
 	char recvbuf[DEFAULT_BUFLEN];
 	int recvbuflen = DEFAULT_BUFLEN;
 
 
+	// HOLDS INFORMATION INCOMING AND OUTGOING INFORMATION
 	char* msgToUsers;
 	char* msgToClient;
 
 
-
-	int idPlayerSocket(SOCKET sock);
-
-	bool checkForKey(SOCKET sock, char* recBuff, int& Res);
-	char* reciveMsg(SOCKET sock, char* recvbuf, int& Res);
-	void sendMsg(SOCKET sock, char* client_msg, int& Res);
-
+	// thread varibles and functions to handle sockets 
 	void shutDownSocket(SOCKET sock);
 	void shutDownThread();
 	bool runThread = false;

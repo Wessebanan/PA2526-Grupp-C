@@ -168,9 +168,9 @@ void WebConnection::playersJoin()
 			//cout << this->msgToClient << endl;
 
 			int socketCount = select(0, &copy, 0, 0, 0);
-			cout << "-socketcount		" << socketCount << endl;
-			cout << "-copy fd_count		" << copy.fd_count << endl;
-			cout << "-master fd_count	" << master.fd_count << endl;
+			//cout << "-socketcount		" << socketCount << endl;
+			//cout << "-copy fd_count		" << copy.fd_count << endl;
+			//cout << "-master fd_count	" << master.fd_count << endl;
 
 			for (size_t i = 0; i < socketCount; i++)
 			{
@@ -181,7 +181,7 @@ void WebConnection::playersJoin()
 				if (sock == ListenSocket)
 				{
 
-					cout << "-Listener is socket " << i << endl;
+					//cout << "-Listener is socket " << i << endl;
 
 					// Add the connection to one of the new clients
 					this->playerSockets[this->nrOfPlayers] = accept(ListenSocket, nullptr, nullptr);
