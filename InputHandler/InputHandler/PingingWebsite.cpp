@@ -10,28 +10,39 @@
 
 
 
-#include "webConnection.h"
+#include "InitInputHandler.h"
 
  
 int main()
 {
 
-	WebConnection conn;
+	ecs::EntityComponentSystem mecs;
 
-	int temp = 0;
-	while (conn.isConnected() || temp < 10)
+	initInputECS(mecs);
+
+
+	while (true)
 	{
-		++temp;
-		this_thread::sleep_for(chrono::seconds(1));
-		for (size_t i = 0; i < conn.getNrOfPlayers(); i++)
-		{
-			cout << "Player " << i << ": " << conn.getPlayername(i);
-			cout << " has selected tile (" << conn.getPlayerTile(i, 0);
-			cout << ", " << conn.getPlayerTile(i, 1);
-			cout << ") and selected button " << conn.getPlayerButton(i);
-			cout << endl;
-		}
+		mecs.update(0.2f);
+		this_thread::sleep_for(chrono::seconds(5));
 	}
+
+	//WebConnection conn;
+
+	//int temp = 0;
+	//while (conn.isConnected() || temp < 10)
+	//{
+	//	++temp;
+	//	this_thread::sleep_for(chrono::seconds(5));
+	//	for (size_t i = 0; i < conn.getNrOfPlayers(); i++)
+	//	{
+	//		cout << "Player " << i << ": " << conn.getPlayername(i);
+	//		cout << " has selected tile (" << conn.getPlayerTile(i, 0);
+	//		cout << ", " << conn.getPlayerTile(i, 1);
+	//		cout << ") and selected button " << conn.getPlayerButton(i);
+	//		cout << endl;
+	//	}
+	//}
 
 	//conn.update();
 		

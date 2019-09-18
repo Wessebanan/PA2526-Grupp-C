@@ -126,6 +126,8 @@ private:
 	void updateTiles();
 	// Reads and updates the buttons
 	void updateButtons();
+	// not implemented but webb has it stored
+	//void updateName();
 };
 
 

@@ -149,6 +149,7 @@ bool InputSystem::updateWeb()
 
 	this->updateTiles();
 	this->updateButtons();
+	//this->updateName();
 
 	return true;
 }
