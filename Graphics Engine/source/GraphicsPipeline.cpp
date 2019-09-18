@@ -172,6 +172,7 @@ namespace graphics
 	{
 		m_capacity	= 0;
 		m_count		= 0;
+		m_start		= 0;
 
 		m_pPipelines = NULL;
 		m_pIsAvailableArray = NULL;

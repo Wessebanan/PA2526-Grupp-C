@@ -7,6 +7,7 @@ namespace graphics
 
 	BufferHeap::BufferHeap()
 	{
+		// DEFAULT VALUES (WILL BE OVERWRITTEN)
 		m_currentSpent		= 0;
 		m_size				= 0;
 		m_pBuffer			= NULL;
@@ -33,66 +34,66 @@ namespace graphics
 		switch (type)
 		{
 		case BUFFER_CONSTANT_DYNAMIC:
-			desc.BindFlags = m_bindType = D3D11_BIND_CONSTANT_BUFFER;
-			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
+			desc.BindFlags	= m_bindType = D3D11_BIND_CONSTANT_BUFFER;
+			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
 			desc.Usage		= D3D11_USAGE_DYNAMIC;
-			desc.MiscFlags = 0;
+			desc.MiscFlags	= 0;
 			break;
 
 		case BUFFER_CONSTANT_STATIC:
-			desc.BindFlags = m_bindType = D3D11_BIND_CONSTANT_BUFFER;
-			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
-			desc.Usage = D3D11_USAGE_DEFAULT;
-			desc.MiscFlags = 0;
+			desc.BindFlags	= m_bindType = D3D11_BIND_CONSTANT_BUFFER;
+			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
+			desc.Usage		= D3D11_USAGE_DEFAULT;
+			desc.MiscFlags	= 0;
 			break;
 
 		case BUFFER_RTV:
-			desc.BindFlags = m_bindType = D3D11_BIND_RENDER_TARGET;
-			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
-			desc.Usage = D3D11_USAGE_DEFAULT;
-			desc.MiscFlags = 0;
+			desc.BindFlags	= m_bindType = D3D11_BIND_RENDER_TARGET;
+			desc.ByteWidth	= ALLOCATED_RTV_AND_SRV_SIZE;
+			desc.Usage		= D3D11_USAGE_DEFAULT;
+			desc.MiscFlags	= 0;
 			break;
 
 		case BUFFER_SRV:
-			desc.BindFlags = m_bindType = D3D11_BIND_SHADER_RESOURCE;
-			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
-			desc.Usage = D3D11_USAGE_DEFAULT;
-			desc.MiscFlags = 0;
+			desc.BindFlags	= m_bindType = D3D11_BIND_SHADER_RESOURCE;
+			desc.ByteWidth	= ALLOCATED_RTV_AND_SRV_SIZE;
+			desc.Usage		= D3D11_USAGE_DEFAULT;
+			desc.MiscFlags	= 0;
 			break;
 
 		case BUFFER_VERTEX_INDEX:
-			desc.BindFlags = m_bindType = D3D11_BIND_INDEX_BUFFER;
-			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
-			desc.Usage = D3D11_USAGE_DEFAULT;
-			desc.MiscFlags = 0;
+			desc.BindFlags	= m_bindType = D3D11_BIND_INDEX_BUFFER;
+			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
+			desc.Usage		= D3D11_USAGE_DEFAULT;
+			desc.MiscFlags	= 0;
 			break;
 
 		case BUFFER_VERTEX_POSITION:
-			desc.BindFlags = m_bindType = D3D11_BIND_VERTEX_BUFFER;
-			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
-			desc.Usage = D3D11_USAGE_DEFAULT;
-			desc.MiscFlags = 0;
+			desc.BindFlags	= m_bindType = D3D11_BIND_VERTEX_BUFFER;
+			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
+			desc.Usage		= D3D11_USAGE_DEFAULT;
+			desc.MiscFlags	= 0;
 			break;
 
 		case BUFFER_VERTEX_NORMAL:
-			desc.BindFlags = m_bindType = D3D11_BIND_VERTEX_BUFFER;
-			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
-			desc.Usage = D3D11_USAGE_DEFAULT;
-			desc.MiscFlags = 0;
+			desc.BindFlags	= m_bindType = D3D11_BIND_VERTEX_BUFFER;
+			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
+			desc.Usage		= D3D11_USAGE_DEFAULT;
+			desc.MiscFlags	= 0;
 			break;
 
 		case BUFFER_VERTEX_UV:
-			desc.BindFlags = m_bindType = D3D11_BIND_VERTEX_BUFFER;
-			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
-			desc.Usage = D3D11_USAGE_DEFAULT;
-			desc.MiscFlags = 0;
+			desc.BindFlags	= m_bindType = D3D11_BIND_VERTEX_BUFFER;
+			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
+			desc.Usage		= D3D11_USAGE_DEFAULT;
+			desc.MiscFlags	= 0;
 			break;
 
 		case BUFFER_VERTEX_ARRAY_INDEX:
-			desc.BindFlags = m_bindType = D3D11_BIND_VERTEX_BUFFER;
-			desc.ByteWidth = BUFFER_VERTEX_ARRAY_INDEX_LENGTH * sizeof(UINT);
-			desc.Usage = D3D11_USAGE_IMMUTABLE;
-			desc.MiscFlags = 0;
+			desc.BindFlags	= m_bindType = D3D11_BIND_VERTEX_BUFFER;
+			desc.ByteWidth	= BUFFER_VERTEX_ARRAY_INDEX_LENGTH * sizeof(UINT);
+			desc.Usage		= D3D11_USAGE_IMMUTABLE;
+			desc.MiscFlags	= 0;
 			break;
 
 		default:

@@ -134,10 +134,18 @@ int main()
 	PresentWindow* pWindow			= NULL;
 
 	CreateDeviceInterface(&pDevice);
-	RenderContext* pContext = pDevice->QueryRenderContext();
-	Texture2DView* pBackBuffer = pDevice->QueryBackBuffer();
+	RenderContext* pContext = pDevice->GetRenderContext();
 
-	pDevice->CreatePresentWindow(clientWidth, clientHeight, "D3D11", &pWindow);
+	RenderTarget backBuffer;
+	DepthBuffer depthBuffer;
+
+	pDevice->CreatePresentWindow(
+		clientWidth, 
+		clientHeight, 
+		"D3D11", 
+		&backBuffer, 
+		&depthBuffer,		
+		&pWindow);
 
 	pDevice->CreatePipeline(
 		gVertexShader,
@@ -268,15 +276,17 @@ int main()
 		sizeof(projection),
 		projRegion);
 
-	pContext->UploadToGPU(BUFFER_CONSTANT_STATIC);
+	pContext->UploadStaticDataToGPU();
 
 	pWindow->Show();
 	while (pWindow->IsOpen())
 	{
 		if (!pWindow->Update())
 		{
-			pContext->ClearRenderTarget(pBackBuffer, 0.0f, 0.0f, 0.0f);
-			pContext->SetRenderTarget(pBackBuffer);
+			pContext->ClearDepth(depthBuffer);
+			pContext->ClearRenderTarget(backBuffer, 0.0f, 0.0f, 0.0f);
+
+			pContext->SetRenderTarget(backBuffer, depthBuffer);
 
 			// Copy Data to CPU Buffer (View Matrix)
 			pContext->CopyDataToRegion(
@@ -291,13 +301,13 @@ int main()
 				buffer0);
 
 			// Upload All Data to GPU
-			pContext->UploadToGPU(BUFFER_CONSTANT_DYNAMIC);
+			pContext->UploadDynamicDataToGPU();
 
 			UINT at		= buffer0.DataLocation;
 			UINT end	= buffer0.DataLocation + buffer0.DataCount;
 
 			BufferRegion r = buffer0;
-			r.DataCount = 65536;
+			r.DataCount = RenderContext::CB_MAX_BYTES_PER_BIND;
 
 			while (at < end)
 			{
@@ -305,13 +315,16 @@ int main()
 				pContext->VSSetConstantBuffer(0, r);			// Apply active Region
 				pContext->DrawInstanced(512, 0, meshes[1]);		// Draw (with mesh[1])
 				pContext->DrawInstanced(512, 512, meshes[0]);	// Draw (with mesh[0])
-				at += 65536;									// Increment active region
+				at += RenderContext::CB_MAX_BYTES_PER_BIND;									// Increment active region
 			}
 
 			// Presenet
 			pWindow->Present();
 		}
 	}
+
+	pDevice->DeleteRenderTarget(backBuffer);
+	pDevice->DeleteDepthBuffer(depthBuffer);
 
 	pDevice->DeletePipeline(pPipeline);
 	pDevice->Release();

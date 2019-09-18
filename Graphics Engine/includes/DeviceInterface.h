@@ -10,20 +10,39 @@ namespace graphics
 		SHADER_RESOURCE_SHADOW_MAP = 16,
 	};
 
+	class RenderTarget
+	{
+		friend class RenderContext;
+		friend class DeviceInterface;
+
+		BufferRegion Region;
+		ID3D11RenderTargetView* pView;
+	};
+
+	class DepthBuffer
+	{
+		friend class RenderContext;
+		friend class DeviceInterface;
+
+		ID3D11DepthStencilView* pView;
+	};
 
 	// --- RENDER CONTEXT ---
 
 	class RenderContext
 	{
-		static constexpr UINT CONSTANT_BUFFER_MAX_BIND_BYTE = 65536;
 		friend class DeviceInterface;
 
 	public:
+		static constexpr UINT CB_MAX_BYTES_PER_BIND = 65536;
+
 		RenderContext();
 		~RenderContext();
 
+		void ClearDepth(const DepthBuffer& depthBuffer);
+
 		void ClearRenderTarget(
-			Texture2DView* pView,
+			const RenderTarget& renderTarget,
 			const float red,
 			const float green,
 			const float blue);
@@ -40,7 +59,9 @@ namespace graphics
 			const UINT slot,
 			const BufferRegion& region);
 
-		void SetRenderTarget(Texture2DView* pView);
+		void SetRenderTarget(
+			const RenderTarget& renderTarget, 
+			const DepthBuffer& depthBuffer);
 
 		void DrawInstanced(
 			const UINT instanceCount,
@@ -58,10 +79,12 @@ namespace graphics
 			const UINT byteWidth,
 			const BufferRegion& region);
 
-		void UploadToGPU(const BUFFER_TYPE type);
+		void UploadStaticDataToGPU();
+		void UploadDynamicDataToGPU();
 		void UploadMeshesToGPU();
 
 	private:
+		void UploadToGPU(const BUFFER_TYPE type);
 
 		void Initialize(ID3D11Device4* pDevice4, InternalStorage* pStorage);
 		void Release();
@@ -71,9 +94,6 @@ namespace graphics
 		InternalStorage* m_pStorage;
 		ID3D11DeviceContext4* m_pContext4;
 		GraphicsPipeline* m_pCurrentPipeline;
-
-		//Temporary fix for sprint goal
-		ID3D11DepthStencilView* m_pDepthBuffer; 
 
 		D3D11_VIEWPORT m_viewport;
 	};
@@ -88,14 +108,16 @@ namespace graphics
 		DeviceInterface();
 		~DeviceInterface();
 
+		RenderContext* GetRenderContext();
+		UINT64 QueryVideoMemoryUsage();
+
 		void CreatePresentWindow(
 			const UINT width,
 			const UINT height,
 			const char* pTitle,
+			RenderTarget* pRenderTarget,
+			DepthBuffer* pDepthBuffer,
 			PresentWindow** ppWindow);
-
-		RenderContext* QueryRenderContext();
-		Texture2DView* QueryBackBuffer();
 
 		void CreatePipeline(
 			const std::string& vertexShader,
@@ -122,8 +144,9 @@ namespace graphics
 			BufferRegion* pRegion);
 
 		void DeletePipeline(GraphicsPipeline* pPipeline);
+		void DeleteRenderTarget(const RenderTarget& renderTarget);
+		void DeleteDepthBuffer(const DepthBuffer& depthBuffer);
 
-		UINT64 QueryVideoMemoryUsage();
 
 		void Release();
 
@@ -139,8 +162,6 @@ namespace graphics
 		ID3D11Device4* m_pDevice4;
 		IDXGIFactory6* m_pFactory6;
 		IDXGIAdapter4* m_pAdapter4;
-
-		Texture2DView m_backBuffer;
 
 		PresentWindow m_window;
 		RenderContext m_context;
