@@ -25,22 +25,20 @@ void ecs::systems::StaticMovementSystem::updateEntity(ecs::FilteredEntity& _enti
 		// direction vector is normalized. 
 		// XMFLOAT3 has no operators besides = :joy: :gun:
 		transform->position =  DirectX::XMFLOAT3(
-			transform->position.x + movement->mVelocity * movement->mDirection.x,
-			transform->position.y + movement->mVelocity * movement->mDirection.y,
-			transform->position.z + movement->mVelocity * movement->mDirection.z);
+			transform->position.x + movement->mVelocity * _delta * movement->mDirection.x,
+			transform->position.y + movement->mVelocity * _delta * movement->mDirection.y,
+			transform->position.z + movement->mVelocity * _delta * movement->mDirection.z);
 
-		// Reducing the velocity by the constant deceleration value.
-		movement->mVelocity -= DEFAULT_DECELERATION;
+		// Removing the velocity, as there should be none unless there
+		// is input saying otherwise.
+		movement->mVelocity = 0;
 	}
 }
 
 ecs::systems::StaticMovementUpdateSystem::StaticMovementUpdateSystem()
 {
 	updateType = ecs::EventReader;
-	eventTypes.addRequirement(MovementInputEvent::typeID);
-
-	// Test
-	subscribeEventCreation(MovementInputEvent::typeID);
+	typeFilter.addRequirement(MovementInputEvent::typeID);
 }
 
 ecs::systems::StaticMovementUpdateSystem::~StaticMovementUpdateSystem()
@@ -58,10 +56,6 @@ void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event,
 	Entity* entity_to_move = getEntity(input_event.mEntityID);
 	ID movement_component_ID = entity_to_move->getComponentID(MovementComponent::typeID);
 	MovementComponent* movement_component = dynamic_cast<MovementComponent*>(getComponent(MovementComponent::typeID, movement_component_ID));
-	
-	// Temporarily assuming forward is (1, 0, 0) until a better solution.
-	// Would rather use camera forward as forward but we would need a camera for that.
-	DirectX::XMFLOAT3 forward(1.0f, 0.0f, 0.0f);
 
 	// Rotating its direction of movement based on current 
 	// direction and input direction.
@@ -70,30 +64,13 @@ void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event,
 	// Because radians.
 	float cos_rotation = (float)cos(rotation * PI / 180.0);
 	float sin_rotation = (float)sin(rotation * PI / 180.0);
+	
+	// Rotation application around z-axis using the forward vector of the movement component.
+	movement_component->mDirection.x = movement_component->mForward.x * cos_rotation - movement_component->mForward.y * sin_rotation;
+	movement_component->mDirection.y = movement_component->mForward.x * sin_rotation + movement_component->mForward.y * cos_rotation;
 
-	// Readability temp variables.
-	// float x = movement_component->mDirection.x;
-	// float y = movement_component->mDirection.y;
-
-	// Rotation application around z-axis.
-	movement_component->mDirection.x = forward.x * cos_rotation - forward.y * sin_rotation;
-	movement_component->mDirection.y = forward.x * sin_rotation + forward.y * cos_rotation;
-
-	// Setting the rotated x and y to the
-	// modified values.
-	// movement_component->mDirection.x = x;
-	// movement_component->mDirection.y = y;
-
-	// Setting velocity to the default velocity.
-	movement_component->mVelocity = DEFAULT_VELOCITY;
+	// Setting velocity to the max velocity.
+	movement_component->mVelocity = movement_component->mMaxVelocity;
 }
 
-void ecs::systems::StaticMovementUpdateSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
-{
-	if (_typeID == MovementInputEvent::typeID)
-	{
-		std::cout << MovementInputEvent().getName() << std::endl;
-	}
-
-}
 

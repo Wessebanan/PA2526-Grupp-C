@@ -5,11 +5,13 @@
 #include "UtilityComponents.h"
 #include <math.h>
 
-#define SYSTEM(name) class name : public ecs::ECSSystem<name>
+#define SYSTEM(name) struct name : public ecs::ECSSystem<name>
+#define _USE_MATH_DEFINES
 
 #define DEFAULT_DECELERATION 10.0f
 #define DEFAULT_VELOCITY 100.0f
-#define PI 3.14159265
+#define PI 3.14159265358979323846
+
 
 namespace ecs
 {
@@ -22,27 +24,22 @@ namespace ecs
 		* the z-axis being side-effects of moving in the x-y plane.
 		*/
 
-		// Updates static movement for statically moving entities.
+		// Applies movement changes to moving entities, and assumes
+		// no further input.
 		SYSTEM(StaticMovementSystem)
 		{
-		public:
 			StaticMovementSystem();
 			virtual ~StaticMovementSystem();
 			void updateEntity(ecs::FilteredEntity & _entityInfo, float _delta) override;
 		};
 		
-		// Handles input for static movement.
+		// Applies direction and velocity to entities affected by
+		// input events related to movement.
 		SYSTEM(StaticMovementUpdateSystem)
 		{
-		public:
 			StaticMovementUpdateSystem();
 			virtual ~StaticMovementUpdateSystem();
-			void act(float _delta) override 
-			{
-				int a = 0;
-			}
 			void readEvent(ecs::BaseEvent& _event, float _delta) override;
-			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;	
 		};
 
 		SYSTEM(DynamicMovementSystem)

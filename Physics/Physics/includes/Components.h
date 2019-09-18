@@ -14,8 +14,10 @@ namespace ecs
 		*/
 		COMP(MovementComponent)
 		{
+			float mMaxVelocity = 100.0f;
 			float mVelocity = 0.0f;
-			DirectX::XMFLOAT3 mDirection = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);	
+			DirectX::XMFLOAT3 mForward = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mDirection = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);	
 		};
 		
 		/*

@@ -3,7 +3,7 @@
 #include "Events.h"
 #include "Components.h"
 #include "UtilityComponents.h"
-#define SYSTEM(name) class name : public ecs::ECSSystem<name>
+#define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
 
 namespace ecs
@@ -14,7 +14,6 @@ namespace ecs
 		// Temporary system to test movement input events.
 		SYSTEM(InputSystem)
 		{
-		public:
 			InputSystem();
 			virtual ~InputSystem();
 			void updateEntity(ecs::FilteredEntity & _entityInfo, float _delta) override;
