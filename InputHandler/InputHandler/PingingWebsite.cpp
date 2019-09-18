@@ -6,9 +6,10 @@
 #include <chrono>
 
 
+//#include "ecs.h"
+//#include "HandleInputSystem.h"
 
 #include "InitInputHandler.h"
-
  
 int main()
 {
@@ -29,31 +30,31 @@ int main()
 
 	int size = mecs.getTotalSystemCount();
 
-	//initInputECS(mecs);
+	initInputECS(mecs);
 
-	InputSystem inpSys;
+	//InputSystem inpSys;
 	
 	
 
-	mecs.createSystem<ecs::systems::HandleKeyboardSystem>(0);// parameter är layer
+	//mecs.createSystem<ecs::systems::HandleKeyboardSystem>(0);// parameter är layer
 
 
 	while (true)
 	{
 		mecs.update(0.2f);
 
-		inpSys.updateMouse();
-		inpSys.updateKeyboard();
-		inpSys.updateWeb();
+		//inpSys.updateMouse();
+		//inpSys.updateKeyboard();
+		//inpSys.updateWeb();
 
 
-		cout << inpSys.players[0]->currButton0 << " I shte players X tile" << endl;
+		//cout << inpSys.players[0]->currButton0 << " I shte players X tile" << endl;
 
 
 		this_thread::sleep_for(chrono::seconds(2));
 	}
 
-	//WebConnection conn;
+	////WebConnection conn;
 
 	//int temp = 0;
 	//while (conn.isConnected() || temp < 10)

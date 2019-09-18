@@ -4,6 +4,7 @@
 #define INITINPUTHANDLER_H
 
 
+#include "ecs.h"
 #include "HandleInputSystem.h"
 
 // Initiates the systems and entitys for the InputHandling

@@ -8,8 +8,6 @@ WebConnection::WebConnection()
 
 	this->nrOfPlayers = 0;
 
-
-
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {

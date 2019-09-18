@@ -3,7 +3,7 @@
 InputSystem::InputSystem()
 {
 	//WEB
-	//this->webConn = new WebConnection();
+	this->webConn = new WebConnection();
 
 	//KEYBOARD
 	this->wsad = new MovementKeys('W', 'S', 'A', 'D');
