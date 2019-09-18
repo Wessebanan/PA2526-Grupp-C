@@ -29,6 +29,11 @@
 #include "../includes/GraphicsSystems.h"
 #include "../includes/GraphicsComponents.h"
 
+// MAKE SURE IT'S EVENLY DIVIDABLE BY SQRT()
+#define MESHES_X_AXIS (64)
+#define MESHES_Y_AXIS (32)
+#define MAXIMUM_MESHES_TO_DRAW (MESHES_X_AXIS * MESHES_Y_AXIS)//(ecs::systems::compCount)
+
 const std::string gVertexShader = R"(
 
 cbuffer gTransformation : register (b0)
@@ -84,7 +89,6 @@ float4 main(PSIN input) : SV_TARGET
 
 )";
 
-constexpr unsigned int compCount = 4000;
 
 void AddTransformation(
 	std::vector<DirectX::XMFLOAT4X4>& transformations,
@@ -109,8 +113,8 @@ int main()
 		ecs::ECSDesc ecsDesc;
 		ecs::CompTypeMemDesc ecsMemDesc[] =
 		{
-			{ components::WorldComponent::typeID, components::WorldComponent::size, compCount},
-			{ components::MeshComponent::typeID, components::MeshComponent::size, compCount},
+			{ components::WorldComponent::typeID, components::WorldComponent::size, systems::compCount},
+			{ components::MeshComponent::typeID, components::MeshComponent::size, systems::compCount},
 		};
 		ecsDesc.compTypeCount = 2;
 		ecsDesc.compTypeMemDescs = ecsMemDesc;
@@ -178,9 +182,9 @@ int main()
 	// Create Matrices
 
 	std::vector<XMFLOAT4X4> transformation;
-	for (UINT x = 0; x < 100; x++)
+	for (UINT x = 0; x < MESHES_X_AXIS; x++)
 	{
-		for (UINT y = 0; y < 40; y++)
+		for (UINT y = 0; y < MESHES_Y_AXIS; y++)
 		{
 			AddTransformation(
 				transformation,
@@ -190,22 +194,23 @@ int main()
 		}
 	}
 
-	components::WorldComponent wc[compCount];
+	components::WorldComponent wc[MAXIMUM_MESHES_TO_DRAW];
 	components::MeshComponent mc[2];
 
 	mc[0].MeshLocation = meshes[0];
 	mc[1].MeshLocation = meshes[1];
 
-	for (UINT i = 0; i < compCount; i++)
+	for (UINT i = 0; i < MAXIMUM_MESHES_TO_DRAW; i++)
 	{
 		wc[i].WorldMatrix = transformation[i];
 	}
 
-	UINT half = compCount / 2;
+	UINT half = MAXIMUM_MESHES_TO_DRAW / 2;
 	for (UINT i = 0; i < half; i++)
 	{
 		myECS.createEntity(wc[i], mc[0]);
 	}
+
 	for (UINT i = 0; i < half; i++)
 	{
 		UINT index = i + half;
@@ -238,7 +243,7 @@ int main()
 		&viewRegion);
 
 	pDevice->CreateDynamicBufferRegion(
-		sizeof(XMFLOAT4X4) * (UINT)mrData.m_matrices.size(),
+		sizeof(XMFLOAT4X4) * systems::compCount,
 		&buffer0);
 
 	pDevice->CreateStaticBufferRegion(
@@ -271,8 +276,8 @@ int main()
 
 			// Copy Data to CPU Buffer (World Matrices)
 			pContext->CopyDataToRegion(
-				mrData.m_matrices.data(),
-				mrData.m_matrices.size() * sizeof(XMFLOAT4X4),
+				mrData.m_matrices,
+				systems::compCount * sizeof(XMFLOAT4X4),
 				buffer0);
 
 			// Upload All Data to GPU

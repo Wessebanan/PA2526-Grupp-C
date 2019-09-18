@@ -37,11 +37,13 @@ namespace ecs
 		//	void* pointer; // Can be set after EntityComponentSystem::createSystem
 		//};
 
+		constexpr unsigned int compCount = 4000;
+
 		struct MeshRenderSystemData
 		{
 			UINT m_maximumMeshes;
 			std::map<UINT, UINT> m_meshCount;
-			std::vector<DirectX::XMFLOAT4X4> m_matrices;
+			DirectX::XMFLOAT4X4 m_matrices[compCount];
 		};
 
 		class MeshRenderSystem : public ECSSystem<MeshRenderSystem>
@@ -51,8 +53,8 @@ namespace ecs
 			{
 				updateType = SystemUpdateType::MultiEntityUpdate;
 
-				componentFilter.addRequirement(components::WorldComponent::typeID);
-				componentFilter.addRequirement(components::MeshComponent::typeID);
+				typeFilter.addRequirement(components::WorldComponent::typeID);
+				typeFilter.addRequirement(components::MeshComponent::typeID);
 
 				subscribeEventCreation(events::CreateComponentEvent::typeID);
 				subscribeEventCreation(events::RemoveComponentEvent::typeID);
@@ -73,7 +75,7 @@ namespace ecs
 					
 					if (e->componentTypeID == MeshComponent::typeID)
 					{
-						MeshComponent* mc = (MeshComponent*)GetComponent(MeshComponent::typeID, e->componentID);
+						MeshComponent* mc = (MeshComponent*)getComponent(MeshComponent::typeID, e->componentID);
 						
 						if (!m_pData->m_meshCount.count(mc->MeshLocation.ID))
 						{
@@ -83,7 +85,6 @@ namespace ecs
 						m_pData->m_meshCount[mc->MeshLocation.ID]++;
 
 						m_pData->m_maximumMeshes++;
-						m_pData->m_matrices.reserve(m_pData->m_maximumMeshes);
 					}
 				}
 				else if (_eventType == events::RemoveComponentEvent::typeID)
@@ -92,7 +93,7 @@ namespace ecs
 
 					if (e->componentTypeID == MeshComponent::typeID)
 					{
-						MeshComponent* mc = (MeshComponent*)GetComponent(MeshComponent::typeID, e->componentID);
+						MeshComponent* mc = (MeshComponent*)getComponent(MeshComponent::typeID, e->componentID);
 
 						if (!m_pData->m_meshCount[mc->MeshLocation.ID] == 1)
 						{
@@ -104,9 +105,10 @@ namespace ecs
 						}
 
 						m_pData->m_maximumMeshes--;
-						/*m_pData->m_matrices.reserve(m_pData->m_maximumMeshes);*/
 					}
 				}
+
+
 			}
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override
@@ -125,12 +127,23 @@ namespace ecs
 						offsets[mc->MeshLocation.ID] = 0;
 					}
 
-					UINT location	= m_pData->m_meshCount[mc->MeshLocation.ID];
-					UINT offset		= offsets[mc->MeshLocation.ID];
+					UINT offset = offsets[mc->MeshLocation.ID]++;
+					UINT location = 0;
+					for (int i = mc->MeshLocation.ID - 1; i >= 0; i--)
+					{
+						UINT count = (UINT)m_pData->m_meshCount.count(i);
+						location += count;
+					}
 
-					m_pData->m_matrices[UINT64(location) + offset] = wc->WorldMatrix;
+					UINT index = location + offset;
+					if (index < compCount)
+					{
+						m_pData->m_matrices[index] = wc->WorldMatrix;
+					}
 				}
 			}
+
+			//void insert(ID id, )
 
 			MeshRenderSystemData* m_pData;
 		};

@@ -140,14 +140,16 @@ namespace graphics
 		void Initialize(ID3D11Device4* pDevice4, InternalStorage* pStorage);
 		void Release();
 
-		ID3D11DeviceContext4* m_pContext4;
-		D3D11_VIEWPORT m_viewport;
-
-		GraphicsPipeline* m_currentPipeline;
-
 		float m_clearColor[4];
 
 		InternalStorage* m_pStorage;
+		ID3D11DeviceContext4* m_pContext4;
+		GraphicsPipeline* m_pCurrentPipeline;
+
+		//Temporary fix for sprint goal
+		ID3D11DepthStencilView* m_pDepthBuffer; 
+
+		D3D11_VIEWPORT m_viewport;
 	};
 
 

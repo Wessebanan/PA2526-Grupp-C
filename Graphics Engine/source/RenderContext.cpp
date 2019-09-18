@@ -10,7 +10,7 @@ namespace graphics
 		m_viewport = { 0 };
 		m_viewport.MaxDepth = 1.0f;
 	
-		m_currentPipeline = NULL;
+		m_pCurrentPipeline = NULL;
 		ZeroMemory(m_clearColor, sizeof(m_clearColor));
 	}
 
@@ -63,6 +63,12 @@ namespace graphics
 	void RenderContext::Release()
 	{
 		m_pContext4->Release();
+		
+		if (m_pDepthBuffer)
+		{
+			m_pDepthBuffer->Release();
+			m_pDepthBuffer = NULL;
+		}
 	}
 
 	void RenderContext::ClearRenderTarget(
@@ -75,7 +81,15 @@ namespace graphics
 		m_clearColor[1] = green;
 		m_clearColor[2] = blue;
 
-		m_pContext4->ClearRenderTargetView(pView->m_pRenderTarget, m_clearColor);
+		m_pContext4->ClearRenderTargetView(
+			pView->m_pRenderTarget, 
+			m_clearColor);
+
+		m_pContext4->ClearDepthStencilView(
+			m_pDepthBuffer,
+			D3D11_CLEAR_DEPTH,
+			1.0f,
+			0);
 	}
 
 	void RenderContext::CopyDataToRegion(
@@ -102,29 +116,36 @@ namespace graphics
 
 	void RenderContext::SetRenderTarget(Texture2DView* pView)
 	{
+		ID3D11DepthStencilView* pTemp = NULL;
+
+		if (m_pDepthBuffer)
+		{
+			pTemp = m_pDepthBuffer;
+		}
+
 		// --- SET RENDER TARGETS ---
 		m_pContext4->OMSetRenderTargets(
 			1,
 			&pView->m_pRenderTarget,
-			NULL);
+			pTemp);
 	}
 
 	void RenderContext::SetGraphicsPipeline(GraphicsPipeline* pPipeline)
 	{
 		// --- SET PIPELINE --- 
-		if (m_currentPipeline != pPipeline)
+		if (m_pCurrentPipeline != pPipeline)
 		{
-			m_currentPipeline = pPipeline;
+			m_pCurrentPipeline = pPipeline;
 
-			m_pContext4->IASetInputLayout(m_currentPipeline->m_pLayout);
+			m_pContext4->IASetInputLayout(m_pCurrentPipeline->m_pLayout);
 
 			m_pContext4->VSSetShader(
-				m_currentPipeline->m_pVertexShader,
+				m_pCurrentPipeline->m_pVertexShader,
 				NULL,
 				0);
 
 			m_pContext4->PSSetShader(
-				m_currentPipeline->m_pPixelShader,
+				m_pCurrentPipeline->m_pPixelShader,
 				NULL,
 				0);
 		}

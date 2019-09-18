@@ -10,12 +10,21 @@ EntityComponentSystem::EntityComponentSystem()
 
 EntityComponentSystem::~EntityComponentSystem()
 {
+	// Loop through all layers
 	for (size_t i = 0; i < layerCount; i++)
 	{
+		// Loop through all systems in layer
 		for (BaseSystem* s : systemLayers[i])
 		{
-			SystemFreeFunction ff = s->getFreeFunction();
-			ff(s);
+			// Fetch free function. This function uses the real destructor of the system.
+			// This is the same as if the system has a virtual destructor, but just in case
+			// the user hasn't set the system's destructor as virtual.
+			if (s)
+			{
+				/*SystemFreeFunction ff = s->getFreeFunction();
+				ff(s);*/
+				delete s;
+			}
 		}
 		systemLayers[i].clear();
 	}
@@ -27,7 +36,6 @@ bool ecs::EntityComponentSystem::initialize(ECSDesc& _desc)
 	// Init system layers
 	layerCount = _desc.systemLayerCount;
 	systemLayers = new SystemList[layerCount];
-	//systemsPerLayer = _desc.systemsPerLayerCount;
 
 	// Init component memories
 	CompTypeMemDesc desc;
@@ -165,7 +173,9 @@ void EntityComponentSystem::update(float _delta)
 	*		- Actor					The system will be updated without any entity or event input.
 	*/
 
-	cout << "\n[EntityComponentSystem]\t Updating " << typeIDToLayerMap.size() << " systems." << endl;
+	#ifdef _DEBUG
+		std::string debugPrint = "\n[" + __nameof<EntityComponentSystem>() + "]\t Updating systems:\n";
+	#endif
 
 	/*
 	*	Iterate all layers
@@ -180,8 +190,22 @@ void EntityComponentSystem::update(float _delta)
 		*/
 
 		SystemList& layer = systemLayers[i];
+
+		#ifdef _DEBUG
+			// Add layer print
+			if ((unsigned int)layer.size())
+			{
+				debugPrint += "\t[layer " + to_string(i) + "] ";
+			}
+		#endif
+
 		for (BaseSystem* s : layer)
 		{
+			#ifdef _DEBUG
+				// Print system
+				debugPrint += s->getName();
+			#endif
+
 			/*
 			*	Fetch the system's update behaviour and act accordingly.
 			*/
@@ -191,7 +215,7 @@ void EntityComponentSystem::update(float _delta)
 			case EntityUpdate:
 				// Fill list with entities that own all of the system's
 				// required component types.
-				fillEntityIteratorInternal(s->componentFilter, entities);
+				fillEntityIteratorInternal(s->typeFilter, entities);
 
 				// Iterate through all the entites of interest and update the system.
 				for (FilteredEntity e : entities.entities)
@@ -203,7 +227,7 @@ void EntityComponentSystem::update(float _delta)
 			case MultiEntityUpdate:
 				// Fill list with entities that own all of the system's
 				// required component types.
-				fillEntityIteratorInternal(s->componentFilter, entities);
+				fillEntityIteratorInternal(s->typeFilter, entities);
 
 				// Update the system with the list of all entities of interest.
 				s->updateMultipleEntities(entities, _delta);
@@ -211,7 +235,7 @@ void EntityComponentSystem::update(float _delta)
 
 			case EventReader:
 				// Fill list with events of the system's interest
-				fillEventIteratorInternal(s->eventFilter, events);
+				fillEventIteratorInternal(s->typeFilter, events);
 
 				// Iterator through all event types
 				for (EventTypeIterator::TypePair list : events.eventTypes)
@@ -226,8 +250,26 @@ void EntityComponentSystem::update(float _delta)
 			case Actor:
 				s->act(_delta);
 				break;
+
+		#ifdef _DEBUG
+			case Undefined:
+				debugPrint += "(Undefined update type)";
+				break;
+		#endif
+
 			}
+
+			#ifdef _DEBUG
+				debugPrint += ", ";
+			#endif
 		}
+
+		#ifdef _DEBUG
+			if ((unsigned int)layer.size())
+			{
+				debugPrint += "\n";
+			}
+		#endif
 	}
 
 	/*
@@ -242,6 +284,38 @@ void EntityComponentSystem::update(float _delta)
 	componentMgr.removeAllFlagged();
 	entityMgr.removeAllFlagged();
 	eventMgr.clearAllEvents();
+
+#ifdef _DEBUG
+	debugPrint += "\tComp. count:\t" + to_string(componentMgr.getTotalComponentCount()) + "\n";
+	debugPrint += "\tEntity count:\t" + to_string(entityMgr.getEntityCount()) + "\n";
+
+	if (entityMgr.getEntityCount() <= DEBUG_ENTITY_PRINT_MAX_COUNT)
+	{
+		unsigned int counter = 1;
+		using IDPair = std::pair<TypeID, ID>;
+		for (ECSEntityManager::EntityPair e : entityMgr.entities)
+		{
+			debugPrint += "\t  ";
+
+			debugPrint += (counter != entityMgr.getEntityCount()) ? "|" : " ";
+
+			debugPrint += "`-[ID=" + to_string(e.second->getID()) + "] ";
+
+			
+			for (IDPair idPair : e.second->componentIDs)
+			{
+				BaseComponent* pComp = getComponent(idPair.first, idPair.second);
+				debugPrint += pComp->getName() + " ";
+			}
+			debugPrint += "\n";
+			counter++;
+		}
+	}
+#endif
+
+#ifdef _DEBUG
+	cout << debugPrint << endl;
+#endif
 }
 
 /*
@@ -262,7 +336,7 @@ BaseComponent* EntityComponentSystem::getComponentFromEntity(TypeID _typeID, ID 
 {
 	Entity* entity = entityMgr.getEntity(_entityID);
 
-	// Sanity check
+	// Sanity check entity creation
 	if (!entity->hasComponentOfType(_typeID))
 	{
 		return nullptr;
@@ -385,13 +459,13 @@ Entity* EntityComponentSystem::createEntityInternal(ComponentList _components)
 {
 	Entity* entity = entityMgr.createEntity();
 
+	/*
+	*	Create all components and add them to the entity
+	*/
+
 	BaseComponent* component;
 	for (size_t i = 0; i < _components.componentCount; i++)
 	{
-		//component = _components.initialInfo[i];
-		//component->entityID = entity->getID();
-		//component = componentMgr.createComponent(*component);
-	
 		component = createComponentInternal(entity->getID(), *_components.initialInfo[i]);
 
 		// Sanity check component creation
@@ -416,15 +490,25 @@ Entity* EntityComponentSystem::createEntityInternal(ComponentList _components)
 
 BaseComponent* EntityComponentSystem::createComponentInternal(ID _entityID, BaseComponent& _componentInfo)
 {
+	// Fetch entity
 	Entity* entity = entityMgr.getEntity(_entityID);
 
+	// Sanity check that entity exist
 	if (!entity)
 	{
-		return 0;
+		return nullptr;
 	}
 
+	// Create component
 	_componentInfo.entityID = _entityID;
 	BaseComponent* component = componentMgr.createComponent(_componentInfo);
+
+	// Sanity check component creation
+	if (!component)
+	{
+		return nullptr;
+	}
+
 	entity->componentIDs[component->getTypeID()] = component->getID();
 
 	// Create event
@@ -445,6 +529,12 @@ void EntityComponentSystem::createEventInternal(BaseEvent& _event)
 void EntityComponentSystem::removeEntityInternal(ID _entityID)
 {
 	Entity* entity = entityMgr.getEntity(_entityID);
+
+	// Sanity check entity exist
+	if (!entity)
+	{
+		return;
+	}
 
 	std::map<TypeID, ID>::iterator it;
 	for (std::pair<TypeID, ID> c : entity->componentIDs)
@@ -485,7 +575,8 @@ void EntityComponentSystem::removeComponentInternal(ID _entityID, TypeID _compon
 	rve.componentTypeID = _componentTypeID;
 	eventMgr.createEvent(rve);
 
-
+	// Erasing component ID from entity must happen after event is created,
+	// in case some systems need to act to event.
 	entity->componentIDs.erase(_componentTypeID);
 	componentMgr.flagRemoval(_componentTypeID, componentID);
 
@@ -517,10 +608,9 @@ void EntityComponentSystem::fillEntityIteratorInternal(TypeFilter& _componentFil
 
 	// Get iterator from pool
 	ComponentIterator firstReqTypeIterator = componentMgr.getComponentIterator(minTypeID);
-	
-	BaseComponent* pComponent;
 
 	// If single component type requirement
+	BaseComponent* pComponent;
 	if (_componentFilter.requirements.size() == 1)
 	{
 		while (pComponent = firstReqTypeIterator.next())
