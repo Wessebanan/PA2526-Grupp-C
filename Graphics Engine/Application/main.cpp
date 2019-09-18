@@ -30,7 +30,9 @@
 #include "../includes/GraphicsComponents.h"
 
 // MAKE SURE IT'S EVENLY DIVIDABLE BY SQRT()
-#define MAXIMUM_MESHES_TO_DRAW (1024)//(ecs::systems::compCount)
+#define MESHES_X_AXIS (64)
+#define MESHES_Y_AXIS (32)
+#define MAXIMUM_MESHES_TO_DRAW (MESHES_X_AXIS * MESHES_Y_AXIS)//(ecs::systems::compCount)
 
 const std::string gVertexShader = R"(
 
@@ -180,9 +182,9 @@ int main()
 	// Create Matrices
 
 	std::vector<XMFLOAT4X4> transformation;
-	for (UINT x = 0; x < sqrt(MAXIMUM_MESHES_TO_DRAW); x++)
+	for (UINT x = 0; x < MESHES_X_AXIS; x++)
 	{
-		for (UINT y = 0; y < sqrt(MAXIMUM_MESHES_TO_DRAW); y++)
+		for (UINT y = 0; y < MESHES_Y_AXIS; y++)
 		{
 			AddTransformation(
 				transformation,

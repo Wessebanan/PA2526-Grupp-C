@@ -53,8 +53,8 @@ namespace ecs
 			{
 				updateType = SystemUpdateType::MultiEntityUpdate;
 
-				componentFilter.addRequirement(components::WorldComponent::typeID);
-				componentFilter.addRequirement(components::MeshComponent::typeID);
+				typeFilter.addRequirement(components::WorldComponent::typeID);
+				typeFilter.addRequirement(components::MeshComponent::typeID);
 
 				subscribeEventCreation(events::CreateComponentEvent::typeID);
 				subscribeEventCreation(events::RemoveComponentEvent::typeID);
@@ -131,11 +131,11 @@ namespace ecs
 					UINT location = 0;
 					for (int i = mc->MeshLocation.ID - 1; i >= 0; i--)
 					{
-						UINT count = m_pData->m_meshCount.count(i);
+						UINT count = (UINT)m_pData->m_meshCount.count(i);
 						location += count;
 					}
 
-					UINT index		= location + offset;
+					UINT index = location + offset;
 					if (index > compCount)
 					{
 						int x = 0;
