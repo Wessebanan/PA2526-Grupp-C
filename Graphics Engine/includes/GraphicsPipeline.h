@@ -42,6 +42,8 @@ namespace graphics
 			ID3D11Device4* pDevice4, 
 			const UINT capacity);
 
+		void Release();
+
 		bool CreateGraphicsPipeline(
 			ID3D11Device4* pDevice4,
 			const std::string& vertexShader,
@@ -51,6 +53,7 @@ namespace graphics
 		bool DeleteGraphicsPipeline(GraphicsPipeline* pPipeline);
 
 	private:
+		char* m_pData;
 		GraphicsPipeline* m_pPipelines;
 		UINT* m_pIsAvailableArray;
 

@@ -8,8 +8,7 @@ namespace GraphicsEngine
 		graphics::DeviceInterface* pDevice;
 		graphics::CreateDeviceInterface(&pDevice);
 		EXPECT_TRUE(pDevice);
-		pDevice->Release();
-		int x = 0;
+		graphics::DeleteDeviceInterface(pDevice);
 	}
 }
 

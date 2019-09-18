@@ -176,10 +176,12 @@ namespace graphics
 
 		m_pPipelines = NULL;
 		m_pIsAvailableArray = NULL;
+		m_pData = NULL;
 	}
 
 	GraphicsPipelineArray::~GraphicsPipelineArray()
 	{
+		free(m_pData);
 	}
 
 	void GraphicsPipelineArray::Initialize(
@@ -195,14 +197,14 @@ namespace graphics
 				sizeof(GraphicsPipeline);
 
 			// Allocate a chunk for everyone to use
-			char* pData = (char*)malloc(allocationSize * m_capacity);
+			m_pData = (char*)malloc(allocationSize * m_capacity);
 
 			// Set pipelines as first in array
-			m_pPipelines = (GraphicsPipeline*)pData;
+			m_pPipelines = (GraphicsPipeline*)m_pData;
 
 			// set available as second in array
 			UINT offset = sizeof(GraphicsPipeline) * m_capacity;
-			m_pIsAvailableArray = (UINT*)(pData + offset);
+			m_pIsAvailableArray = (UINT*)(m_pData + offset);
 		}
 
 		for (UINT i = 0; i < m_capacity; i++)
@@ -212,6 +214,10 @@ namespace graphics
 		}
 
 		m_start = m_pPipelines[0].m_id;
+	}
+
+	void GraphicsPipelineArray::Release()
+	{
 	}
 
 	bool GraphicsPipelineArray::CreateGraphicsPipeline(

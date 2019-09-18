@@ -21,6 +21,9 @@
 	#pragma comment(lib, "GraphicsEngine.lib")
 #endif // DEBUG
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 
 #include <string>
 #include <vector>
@@ -103,6 +106,8 @@ void AddTransformation(
 
 int main()
 {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
 	using namespace DirectX;
 	using namespace graphics;
 	using namespace ecs;
@@ -328,9 +333,9 @@ int main()
 
 	pDevice->DeleteRenderTarget(backBuffer);
 	pDevice->DeleteDepthBuffer(depthBuffer);
-
 	pDevice->DeletePipeline(pPipeline);
-	pDevice->Release();
+
+	DeleteDeviceInterface(pDevice);
 
 	return 0;
 }

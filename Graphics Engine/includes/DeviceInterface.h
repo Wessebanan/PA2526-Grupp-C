@@ -151,9 +151,9 @@ namespace graphics
 		void DeleteDepthBuffer(const DepthBuffer& depthBuffer);
 
 
-		void Release();
 
 	private:
+		void Release();
 		void Initialize();
 		void CreateBufferRegion(
 			const BUFFER_TYPE type,
@@ -161,6 +161,7 @@ namespace graphics
 			BufferRegion* pRegion);
 
 		friend void CreateDeviceInterface(DeviceInterface** ppDevice);
+		friend void DeleteDeviceInterface(DeviceInterface* pDevice);
 
 		ID3D11Device4* m_pDevice4;
 		IDXGIFactory6* m_pFactory6;
@@ -179,5 +180,11 @@ namespace graphics
 		pObj->Initialize();
 
 		(*ppDevice) = pObj;
+	}
+
+	inline void DeleteDeviceInterface(DeviceInterface* pDevice)
+	{
+		pDevice->Release();
+		delete pDevice;
 	}
 }
