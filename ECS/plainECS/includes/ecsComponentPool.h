@@ -48,7 +48,10 @@ namespace ecs
 		void flagRemoval(ID _componentID);
 		void removeAllFlagged();
 
-		bool initialized = false;
+		inline bool isInitialized()
+		{
+			return initialized;
+		}
 
 		inline unsigned int getCurrentRemoveFlagCount()
 		{
@@ -58,6 +61,7 @@ namespace ecs
 	private:
 		PoolAllocator allocator;
 		std::map<ID, BaseComponent*> lookUpList;
+		bool initialized = false;
 
 		std::string componentName; // TODO: remove this
 		void* memory;

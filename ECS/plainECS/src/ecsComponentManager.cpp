@@ -18,7 +18,7 @@ ECSComponentManager::~ECSComponentManager()
 void ECSComponentManager::initPoolType(TypeID _typeID, size_t _componentSize, size_t _count)
 {
 	// Sanity check if pool already exist and has been initialized
-	if (componentPools.count(_typeID) && componentPools[_typeID]->initialized)
+	if (componentPools.count(_typeID) && componentPools[_typeID]->isInitialized())
 	{
 		return;
 	}
@@ -33,7 +33,7 @@ BaseComponent* ECSComponentManager::createComponent(BaseComponent& _initInfo)
 
 	// Check if pool for component type exist. If not, create and initialize
 	// one with a default size.
-	if (componentPools.count(typeID) == 0 || !componentPools[typeID]->initialized)
+	if (componentPools.count(typeID) == 0 || !componentPools[typeID]->isInitialized())
 	{
 		componentPools[typeID] = new ECSComponentPool(DEFAULT_COMPONENT_POOL_SIZE_COUNT, _initInfo.getSize());
 		//componentPools[typeID]->initialize(DEFAULT_COMPONENT_POOL_SIZE_COUNT, _initInfo.getSize());
