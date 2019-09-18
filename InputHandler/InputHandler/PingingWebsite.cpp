@@ -12,8 +12,20 @@
  
 int main()
 {
+	//ecs::CompTypeMemDesc ecsMemDesc[] =
+	//{
+	//	{}
+	//};
+
+	//ecs::ECSDesc ecsDesc;
+	//ecsDesc.compTypeCount = 0;
+	//ecsDesc.compTypeMemDescs = ecsMemDesc;
+	//ecsDesc.systemLayerCount = 10;
 
 	ecs::EntityComponentSystem mecs;
+	//mecs.initialize(ecsDesc);
+
+
 
 	int size = mecs.getTotalSystemCount();
 
@@ -21,6 +33,8 @@ int main()
 
 	InputSystem inpSys;
 	
+	
+
 	mecs.createSystem<ecs::systems::HandleKeyboardSystem>(0);// parameter är layer
 
 
@@ -31,6 +45,10 @@ int main()
 		inpSys.updateMouse();
 		inpSys.updateKeyboard();
 		inpSys.updateWeb();
+
+
+		cout << inpSys.players[0]->currButton0 << " I shte players X tile" << endl;
+
 
 		this_thread::sleep_for(chrono::seconds(2));
 	}
