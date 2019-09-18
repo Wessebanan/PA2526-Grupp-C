@@ -149,6 +149,8 @@ namespace graphics
 					pDepthTexture, 
 					&desc,
 					&m_context.m_pDepthBuffer);
+
+				pDepthTexture->Release();
 			}
 		}
 	}
