@@ -24,10 +24,11 @@ struct VSOUT
 VSOUT main(
 	float3 pos : POSITION0, 
 	float3 normal : NORMAL0,
-	float2 uv : UV0)
+	float2 uv : UV0,
+	uint instance : INDEX0)
 {
 	VSOUT output;
-	float4x4 wvp = mul(gPerspective, mul(gView, gWorld[0]));
+	float4x4 wvp = mul(gPerspective, mul(gView, gWorld[instance]));
 	output.pos	= mul(wvp, float4(pos, 1.0f));
 	output.uv	= uv;
 	output.nor	= normal;
@@ -46,6 +47,6 @@ struct PSIN
 };
 float4 main(PSIN input) : SV_TARGET
 { 
-	return float4(input.worldPos.x, input.worldPos.y, input.worldPos.z, 1.0f);
+	return float4(input.nor.x, input.nor.y, input.nor.z, 1.0f);
 }	
 )";

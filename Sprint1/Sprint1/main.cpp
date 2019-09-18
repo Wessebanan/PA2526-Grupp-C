@@ -26,28 +26,52 @@ int main()
 	pContext->SetViewport(0, 0, 1280, 720);
 	pContext->SetGraphicsPipeline(pPipeline);
 
-	HRESULT hr = testMesh.LoadFBX("C:\\Users\\magno\\source\\repos\\PA2526-Grupp-C\\Sprint1\\x64\\Debug\\TriangulatedDragon.fbx");
+	HRESULT hr = testMesh.LoadFBX("C:\\Users\\magno\\source\\repos\\PA2526-Grupp-C\\Sprint1\\x64\\Debug\\hexTile.fbx");
 	std::vector<DirectX::XMFLOAT3>* pVertices = testMesh.GetVertexPositionVector();
 
 	std::vector<DirectX::XMFLOAT3>* test = testMesh.GetNormalVector();
-
-	pDevice->CreateMeshRegion(pVertices->size(), pVertices->data(), testMesh.GetNormalVector()->data(), testMesh.GetUVVector()->data(), &meshBuffReg);
+	if (!testMesh.HasUVs())
+	{
+		pDevice->CreateMeshRegion(pVertices->size(), pVertices->data(), testMesh.GetNormalVector()->data(), NULL, &meshBuffReg);
+	}
+	else
+	{
+		pDevice->CreateMeshRegion(pVertices->size(), pVertices->data(), testMesh.GetNormalVector()->data(), testMesh.GetUVVector()->data(), &meshBuffReg);
+	}
+	
 	pContext->UploadMeshesToGPU();
 
 	BufferRegion worldMatrixBufferRegion;
-	pDevice->CreateDynamicBufferRegion(sizeof(DirectX::XMFLOAT4X4), &worldMatrixBufferRegion);
+	pDevice->CreateDynamicBufferRegion(sizeof(DirectX::XMFLOAT4X4) * 1024, &worldMatrixBufferRegion);
 	
 	
 	DirectX::XMFLOAT4X4 world(1.0f, 0.0f, 0.0f, 0.0f,
 							  0.0f, 1.0f, 0.0f, 0.0f,
 							  0.0f, 0.0f, 1.0f, 0.0f,
 							  0.0f, 0.0f, 0.0f, 1.0f);
+	DirectX::XMStoreFloat4x4(&world,
+		DirectX::XMMatrixRotationRollPitchYaw(1.5708f, 0.0f, 0.0f));
 
+	DirectX::XMFLOAT4X4 world2; 
+	DirectX::XMStoreFloat4x4(&world2, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.1f)));
+	DirectX::XMFLOAT4X4 world3;
+	DirectX::XMStoreFloat4x4(&world3, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world2), DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.1f)));
+	DirectX::XMFLOAT4X4 worldMatrices[1024];
+	worldMatrices[0] = world;
+	//worldMatrices[1] = world2;
+	//worldMatrices[2] = world3;
+	for (int i = 0; i < 32; ++i)
+	{
+		for (int j = 0; j < 32; ++j)
+		{
+			DirectX::XMStoreFloat4x4(&worldMatrices[i* 32 + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(j * 2.5f, 0.0f, i * 2.5f)));
+		}
+	}
 	DirectX::XMFLOAT4X4 view;
 	DirectX::XMStoreFloat4x4(&view,
 		DirectX::XMMatrixLookAtLH(
-			{ 150.0f, 0.0f, 0.0f },
-			{ 0.0f, 0.0f, 0.0f },
+			{ 40.0f, 25.0f, -0.0f },
+			{ 40.0f, 0.0f, 40.0f },
 			{ 0.0f, 1.0f, 0.0f }));
 
 	DirectX::XMFLOAT4X4 projection;
@@ -108,14 +132,14 @@ int main()
 				viewRegion);
 
 			pContext->CopyDataToRegion(
-				&world,
-				sizeof(DirectX::XMFLOAT4X4),
+				&worldMatrices,
+				sizeof(DirectX::XMFLOAT4X4) * 1024,
 				worldMatrixBufferRegion);
 
 			pContext->UploadToGPU(BUFFER_CONSTANT_DYNAMIC);
 			pContext->VSSetConstantBuffer(0, worldMatrixBufferRegion);
 			//pContext->DrawInstanced(1, 0, meshBuffReg);
-			pContext->DrawIndexedInstance(1, 0, indexRegion, meshBuffReg);
+			pContext->DrawIndexedInstance(1024, 0, indexRegion, meshBuffReg);
 			pWindow->Present();
 		}
 
