@@ -29,7 +29,16 @@ namespace ecs
 			UITextSystem();
 			virtual ~UITextSystem();
 
-			// Override ONE of these
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+			Direct2D* D2D;
+		};
+
+		class UIDebugSystem : public ECSSystem<UIDebugSystem>
+		{
+		public:
+			UIDebugSystem();
+			virtual ~UIDebugSystem();
+
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 			Direct2D* D2D;
 		};
@@ -40,7 +49,6 @@ namespace ecs
 			UIBitmapSystem();
 			virtual ~UIBitmapSystem();
 
-			// Override ONE of these
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 			Direct2D* D2D;
 		};
@@ -51,7 +59,6 @@ namespace ecs
 			UIRectSystem();
 			virtual ~UIRectSystem();
 
-			// Override ONE of these
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 			Direct2D* D2D;
 		};
@@ -62,7 +69,6 @@ namespace ecs
 			UISolidRectSystem();
 			virtual ~UISolidRectSystem();
 
-			// Override ONE of these
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 			Direct2D* D2D;
 		};
@@ -78,7 +84,6 @@ namespace ecs
 			{
 			}
 
-			// Override ONE of these
 			void act(float _delta) override
 			{
 				D2D->getHwndRenderTarget()->BeginDraw();
@@ -99,7 +104,6 @@ namespace ecs
 				//
 			}
 
-			// Override ONE of these
 			void act(float _delta) override
 			{
 				D2D->getHwndRenderTarget()->EndDraw();

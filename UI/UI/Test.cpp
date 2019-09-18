@@ -94,7 +94,10 @@ int main()
 	//}
 	//char testy[10];
 	//std::strcpy(testy, "pepe");
+
 	test2d.CreateHwndRenderTarget(hwnd, &rect);
+
+
 	//test2d.LoadImageToBitmap("PepeLaugh.jfif",testy,D2D1::RectF(0,0,800,600));
 	//test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(100, 100, 700, 500));
 	//test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(200, 200, 600, 400));
@@ -122,9 +125,11 @@ int main()
 	systems::UIPreRenderSystem *UIpreSys = myECS.createSystem<systems::UIPreRenderSystem>();
 	systems::UIBitmapSystem *UIBitmapSys = myECS.createSystem<systems::UIBitmapSystem>();
 	systems::UITextSystem* UITextSys = myECS.createSystem<systems::UITextSystem>();
+	systems::UIDebugSystem* UIDebugSys = myECS.createSystem<systems::UIDebugSystem>();
 	systems::UIPostRenderSystem *UIpostSys = myECS.createSystem<systems::UIPostRenderSystem>();
-
-	UIpreSys->D2D = UITextSys->D2D = UIpostSys->D2D = UIBitmapSys->D2D = &test2d;
+	
+	
+	UIpreSys->D2D = UITextSys->D2D = UIpostSys->D2D = UIBitmapSys->D2D = UIDebugSys->D2D = &test2d;
 	components::UITextComponent UIText;
 	components::UIDrawColorComponent UIColor;
 	components::UIDrawPosComponent UIPos;
@@ -133,13 +138,14 @@ int main()
 	UIColor.color = brushColors::Green;
 	UIPos.drawArea = D2D1::RectF(600, 0, 800, 200);
 	UIPos2.drawArea = D2D1::RectF(0, 0, 800, 600);
-	UIText.strText = "test";
+	UIText.strText = "hehehheehtest";
 	char hehe[10] = "pepe";
-	//test2d.LoadImageToBitmap("PepeLaugh.jfif", hehe);
+	test2d.LoadImageToBitmap("PepeLaugh.jfif", hehe);
 	UIBitmap.bitmap = test2d.GetBitmap(test2d.GetBitmapIDFromName(hehe));
 
 	Entity* e1 = myECS.createEntity(UIBitmap, UIPos2);
-	Entity* e2 = myECS.createEntity(UIColor, UIText, UIPos);
+	//Entity* e2 = myECS.createEntity(UIColor, UIText, UIPos);
+	Entity* e3 = myECS.createEntity(UIText);
 
 
 

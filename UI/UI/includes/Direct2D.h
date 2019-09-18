@@ -60,7 +60,7 @@ class Direct2D
 public:
 	Direct2D();
 	~Direct2D();
-
+	
 	HRESULT CreateHwndRenderTarget(HWND window, RECT* rect);
 	void InitDeviceAndContext(IDXGIDevice* dxgiDevice); //Takes dxgidevice from dx11 and creates d2d device and device context
 	ID2D1DeviceContext* GetpContext();
@@ -74,6 +74,7 @@ public:
 	//void DrawBitmap();
 
 	bool PrintText(std::string text, RECT rect);
+	bool PrintDebug(std::string text); // debug printer thing
 	bool PrintText(std::string text, D2D1_RECT_F rect, brushColors color); //only one used in ECS atm
 	bool PrintText(std::string text, int left, int top, int right, int bottom);
 
@@ -93,15 +94,15 @@ private:
 	IWICImagingFactory* mpWicFactory; //factory for bitmaps
 	IWICBitmapDecoder* mpDecoder; //used to change image to bitmap
 	IWICBitmapFrameDecode* mpBitmapSrc; //used to change image to bitmap
-	IWICBitmapDecoderInfo* info; //used to change image to bitmap
 	ID2D1HwndRenderTarget* mpHwndRenderTarget; //window as rendertarget
-	ID2D1SolidColorBrush* mColorText; //used for color
-	ID2D1SolidColorBrush* mColorDraw;
-	ID2D1Bitmap* mFailBitmap;
+	ID2D1SolidColorBrush* mpColorText; //used for color
+	ID2D1SolidColorBrush* mpColorDraw;
+	ID2D1Bitmap* mpFailBitmap;
 	
 	IDWriteFactory7* mpTextFactory; //factory used for text
 	DWRITE_TRIMMING mTrimmer; //used for text format
 	IDWriteTextFormat* mpTextFormat; //things like font and size
+	IDWriteTextFormat* mpDebugTextFormat;
 
 	ID2D1Factory7* mpFactory; //d2d1 factory
 	ID2D1Device6* mpDevice;
@@ -137,7 +138,7 @@ private:
 	void mCreateFactory();
 	void mCreateWicFactory();
 	void mCreateTextFactory();
-	HRESULT mCreateTextFormat();
+	HRESULT mCreateTextFormat(std::wstring font, int size, IDWriteTextFormat** format);
 	HRESULT mCreateColorText();
 	HRESULT mCreateColorDraw();
 	HRESULT mCreateColorBrushes();

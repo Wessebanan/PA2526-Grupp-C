@@ -6,9 +6,9 @@ using namespace ecs::systems;
 UITextSystem::UITextSystem()
 {
 	updateType = SystemUpdateType::EntityUpdate;
-	componentFilter.addRequirement(components::UITextComponent::typeID);
-	componentFilter.addRequirement(components::UIDrawColorComponent::typeID);
-	componentFilter.addRequirement(components::UIDrawPosComponent::typeID);
+	typeFilter.addRequirement(components::UITextComponent::typeID);
+	typeFilter.addRequirement(components::UIDrawColorComponent::typeID);
+	typeFilter.addRequirement(components::UIDrawPosComponent::typeID);
 
 }
 
@@ -29,8 +29,8 @@ void UITextSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 UIBitmapSystem::UIBitmapSystem()
 {
 	updateType = SystemUpdateType::EntityUpdate;
-	componentFilter.addRequirement(components::UIBitmapComponent::typeID);
-	componentFilter.addRequirement(components::UIDrawPosComponent::typeID);
+	typeFilter.addRequirement(components::UIBitmapComponent::typeID);
+	typeFilter.addRequirement(components::UIDrawPosComponent::typeID);
 }
 
 UIBitmapSystem::~UIBitmapSystem()
@@ -49,9 +49,9 @@ void UIBitmapSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 ecs::systems::UIRectSystem::UIRectSystem()
 {
 	updateType = SystemUpdateType::EntityUpdate;
-	componentFilter.addRequirement(components::UIDrawColorComponent::typeID);
-	componentFilter.addRequirement(components::UIDrawPosComponent::typeID);
-	componentFilter.addRequirement(components::UIThicknessComponent::typeID);
+	typeFilter.addRequirement(components::UIDrawColorComponent::typeID);
+	typeFilter.addRequirement(components::UIDrawPosComponent::typeID);
+	typeFilter.addRequirement(components::UIThicknessComponent::typeID);
 }
 
 ecs::systems::UIRectSystem::~UIRectSystem()
@@ -70,8 +70,8 @@ void ecs::systems::UIRectSystem::updateEntity(FilteredEntity& _entityInfo, float
 ecs::systems::UISolidRectSystem::UISolidRectSystem()
 {
 	updateType = SystemUpdateType::EntityUpdate;
-	componentFilter.addRequirement(components::UIDrawColorComponent::typeID);
-	componentFilter.addRequirement(components::UIDrawPosComponent::typeID);
+	typeFilter.addRequirement(components::UIDrawColorComponent::typeID);
+	typeFilter.addRequirement(components::UIDrawPosComponent::typeID);
 }
 
 ecs::systems::UISolidRectSystem::~UISolidRectSystem()
@@ -85,4 +85,21 @@ void ecs::systems::UISolidRectSystem::updateEntity(FilteredEntity& _entityInfo, 
 	components::UIDrawPosComponent* UIPosComp = _entityInfo.getComponent<components::UIDrawPosComponent>();
 
 	D2D->solidRect(UIPosComp->drawArea, UIColorComp->color);
+}
+
+ecs::systems::UIDebugSystem::UIDebugSystem()
+{
+	updateType = SystemUpdateType::EntityUpdate;
+	typeFilter.addRequirement(components::UITextComponent::typeID);
+}
+
+ecs::systems::UIDebugSystem::~UIDebugSystem()
+{
+}
+
+void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	components::UITextComponent* UITextComp = _entityInfo.getComponent<components::UITextComponent>();
+
+	D2D->PrintDebug(UITextComp->strText);
 }
