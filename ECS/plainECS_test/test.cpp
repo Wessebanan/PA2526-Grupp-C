@@ -489,51 +489,9 @@ namespace TestEventPool
 	}
 } // namespace TestEventPool
 #pragma endregion MemoryTesting
-#pragma region UnitTesting
-namespace TestEntity
-{
-	/*
-		Notation: Entities are used dynamically, tests therefore
-				  use dynamic entities.
-	*/
-
-	//TEST(TestEntity, GetID)
-	//{
-	//	ecs::Entity* pEntity;
-	//	delete pEntity;
-	//}
-	//TEST(TestEntity, HasType)
-	//{
-	//	ecs::Entity* pEntity;
-	//	delete pEntity;
-	//}
-	//TEST(TestEntity, TemplatedGetID)
-	//{
-	//	ecs::Entity* pEntity;
-	//	delete pEntity;
-	//}
-	//TEST(TestEntity, TemplateHasType)
-	//{
-	//	ecs::Entity* pEntity;
-	//	delete pEntity;
-	//}
-} // namespace TestEntity
-#pragma endregion UnitTesting
 #pragma region ManagerTesting
 namespace TestEntityManager
 {
-	struct TestComponent1 : public ecs::ECSComponent<TestComponent1>
-	{
-		TestComponent1(int _data) : data(_data) {}
-		int data;
-	};
-
-	struct TestComponent2 : public ecs::ECSComponent<TestComponent2>
-	{
-		TestComponent2(int _data) : data(_data) {}
-		int data;
-	};
-
 	const unsigned int entity_count = 10;
 
 	TEST(TestEntityManager, Init)
@@ -552,18 +510,140 @@ namespace TestEntityManager
 		for (int i = 0; i < entity_count; i++)
 		{
 			pEntity = mgr.createEntity();
-			ASSERT_NE(pEntity, nullptr);
-			EXPECT_NE(pEntity->getID(), 0);
+			ASSERT_NE(nullptr, pEntity);
+			EXPECT_NE(0, pEntity->getID());
+			EXPECT_EQ(0, pEntity->getComponentCount());
 		}
 	}
-	//TEST(TestEntityManager, GetEntity)
-	//TEST(TestEntityManager, RemoveFlag)
-	//TEST(TestEntityManager, CountGetters)
-	//TEST(TestEntityManager, CreateAfterRemove)
+	TEST(TestEntityManager, GetEntity)
+	{
+		ecs::ECSEntityManager mgr;
+
+		// Create entities, store their IDs
+		ID id_list[entity_count];
+		for (int i = 0; i < entity_count; i++)
+		{
+			id_list[i] = (mgr.createEntity())->getID();
+		}
+
+		// Retrieve entities, check return pointer and ID
+		ecs::Entity *pEntity;
+		for (int i = 0; i < entity_count; i++)
+		{
+			pEntity = mgr.getEntity(id_list[i]);
+			EXPECT_NE(nullptr, pEntity);
+			EXPECT_EQ(id_list[i], pEntity->getID());
+		}
+	}
+	TEST(TestEntityManager, GetCount)
+	{
+		ecs::ECSEntityManager mgr;
+
+		// Create entities
+		for (int i = 0; i < entity_count; i++)
+		{
+			mgr.createEntity();
+		}
+		EXPECT_EQ(entity_count, mgr.getEntityCount());
+	}
+	TEST(TestEntityManager, Removal)
+	{
+		ecs::ECSEntityManager mgr;
+
+		// Create entities, store their IDs, keep count
+		int expected_count = 0;
+		ID id_list[entity_count];
+		for (int i = 0; i < entity_count; i++)
+		{
+			id_list[i] = (mgr.createEntity())->getID();
+			expected_count++;
+		}
+
+		// Flag half for removal
+		// Set removed entry in id_list to 0, used later
+		for (int i = 0; i < entity_count; i += 2)
+		{
+			mgr.flagRemoval(id_list[i]);
+			id_list[i] = 0;
+			expected_count--;
+		}
+
+		int expected_flags = entity_count - expected_count;
+		EXPECT_EQ(expected_flags, mgr.getCurrentRemoveFlagCount());
+
+		mgr.removeAllFlagged();
+		EXPECT_EQ(expected_count, mgr.getEntityCount());
+
+		// Check that existing entites has the correct IDs
+		ecs::Entity *pEntity;
+		for (int i = 0; i < entity_count; i++)
+		{
+			// Only check entity IDs that hasn't been removed
+			if (id_list[i] != 0)
+			{
+				pEntity = mgr.getEntity(id_list[i]);
+				EXPECT_EQ(id_list[i], pEntity->getID());
+			}
+		}
+	}
+	TEST(TestEntityManager, CreateAfterRemove)
+	{
+		ecs::ECSEntityManager mgr;
+
+		// Create entities, store their IDs
+		ID id_list[entity_count];
+		for (int i = 0; i < entity_count; i++)
+		{
+			id_list[i] = (mgr.createEntity())->getID();
+		}
+
+		// Remove all entities, in other order
+		for (int i = entity_count - 1; i >= 0; i--)
+		{
+			mgr.flagRemoval(id_list[i]);
+		}
+		mgr.removeAllFlagged();
+
+		// Create new entities, check IDs
+		ecs::Entity *pEntity;
+		for (int i = 0; i < entity_count; i++)
+		{
+			pEntity = mgr.createEntity();
+			EXPECT_NE(nullptr, pEntity);
+			EXPECT_NE(0, pEntity->getID());
+		}
+	}
 } // namespace TestEntityManager
 namespace TestComponentManager
 {
+	struct TestComponent1 : public ecs::ECSComponent<TestComponent1>
+	{
+		TestComponent1(int _data) : data(_data) {}
+		int data;
+	};
 
+	struct TestComponent2 : public ecs::ECSComponent<TestComponent2>
+	{
+		TestComponent2(int _data) : data(_data) {}
+		int data;
+	};
+
+	//TEST(TestComponentManager, Init)
+	//{
+	//	ecs::ECSComponentManager mgr;
+
+	//	EXPECT_EQ(0, mgr.getTotalComponentCount());
+	//	EXPECT_EQ(0, mgr.getComponentTypeCount());
+	//	EXPECT_EQ(0, mgr.getInitializedComponentTypes());
+	//	//EXPECT_EQ(0, mgr.get());
+	//}
+	//TEST(TestComponentManager, CreatePreInitiated)
+	//TEST(TestComponentManager, CreateNotInitiated)
+	//TEST(TestComponentManager, CountGetters)
+	//TEST(TestComponentManager, Get)
+	//TEST(TestComponentManager, FlagForRemoval)
+	//TEST(TestComponentManager, Removal)
+	//TEST(TestComponentManager, Iterator)
 } // namespace TestComponentManager
 namespace TestEventManager
 {
