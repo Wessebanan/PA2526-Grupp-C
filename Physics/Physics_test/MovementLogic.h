@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "MovementSystem.h"
+#include "InputTest.h"
 
 namespace MovementLogic
 {
@@ -54,5 +55,33 @@ namespace MovementLogic
 		EXPECT_EQ(ecs.getEntity(movable_entity->getID()), movable_entity);
 	}
 
+	TEST(MovementLogic, HandleInput)
+	{
+		ecs::EntityComponentSystem ecs;
 
+		MovementInputEvent eve;
+
+		if (MovementInputEvent::typeID == eve.getTypeID())
+		{
+			int a = 0;
+		}
+		// Temporary system to see if movement systems handle inputs correctly.
+		ecs.createSystem<ecs::systems::InputSystem>(0);
+
+		ecs.createSystem<ecs::systems::StaticMovementSystem>(1);
+		ecs.createSystem<ecs::systems::StaticMovementUpdateSystem>(1);
+		
+		MovementComponent movement;
+		TransformComponent transform;
+
+		ecs::Entity* movable_entity = ecs.createEntity(movement, transform);
+
+		for (int i = 0; i < 40; i++)
+		{
+			ecs.update(0.1f);
+			
+			MovementComponent* p_movement = dynamic_cast<MovementComponent*>(ecs.getComponent(MovementComponent::typeID, movable_entity->getComponentID(MovementComponent::typeID)));
+			std::cout << p_movement->mVelocity;
+		}
+	}
 } // MovementLogic

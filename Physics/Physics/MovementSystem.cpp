@@ -38,11 +38,16 @@ ecs::systems::StaticMovementUpdateSystem::StaticMovementUpdateSystem()
 {
 	updateType = ecs::EventReader;
 	eventTypes.addRequirement(MovementInputEvent::typeID);
+
+	// Test
+	subscribeEventCreation(MovementInputEvent::typeID);
 }
 
 ecs::systems::StaticMovementUpdateSystem::~StaticMovementUpdateSystem()
 {
 }
+
+
 
 void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event, float _delta)
 {
@@ -54,6 +59,10 @@ void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event,
 	ID movement_component_ID = entity_to_move->getComponentID(MovementComponent::typeID);
 	MovementComponent* movement_component = dynamic_cast<MovementComponent*>(getComponent(MovementComponent::typeID, movement_component_ID));
 	
+	// Temporarily assuming forward is (1, 0, 0) until a better solution.
+	// Would rather use camera forward as forward but we would need a camera for that.
+	DirectX::XMFLOAT3 forward(1.0f, 0.0f, 0.0f);
+
 	// Rotating its direction of movement based on current 
 	// direction and input direction.
 	float rotation = (float)input_event.mInput;
@@ -63,17 +72,28 @@ void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event,
 	float sin_rotation = (float)sin(rotation * PI / 180.0);
 
 	// Readability temp variables.
-	float x = movement_component->mDirection.x;
-	float y = movement_component->mDirection.y;
+	// float x = movement_component->mDirection.x;
+	// float y = movement_component->mDirection.y;
 
 	// Rotation application around z-axis.
-	x = x * cos_rotation - y * sin_rotation;
-	y = x * sin_rotation + y * cos_rotation;
+	movement_component->mDirection.x = forward.x * cos_rotation - forward.y * sin_rotation;
+	movement_component->mDirection.y = forward.x * sin_rotation + forward.y * cos_rotation;
 
 	// Setting the rotated x and y to the
-	// modified values. Setting 
-	// velocity to the default velocity.
-	movement_component->mDirection.x = x;
-	movement_component->mDirection.y = y;
+	// modified values.
+	// movement_component->mDirection.x = x;
+	// movement_component->mDirection.y = y;
+
+	// Setting velocity to the default velocity.
 	movement_component->mVelocity = DEFAULT_VELOCITY;
 }
+
+void ecs::systems::StaticMovementUpdateSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
+{
+	if (_typeID == MovementInputEvent::typeID)
+	{
+		std::cout << MovementInputEvent().getName() << std::endl;
+	}
+
+}
+

@@ -5,7 +5,7 @@
 #include "UtilityComponents.h"
 #include <math.h>
 
-#define SYSTEM(name) struct name : public ecs::ECSSystem<name>
+#define SYSTEM(name) class name : public ecs::ECSSystem<name>
 
 #define DEFAULT_DECELERATION 10.0f
 #define DEFAULT_VELOCITY 100.0f
@@ -25,6 +25,7 @@ namespace ecs
 		// Updates static movement for statically moving entities.
 		SYSTEM(StaticMovementSystem)
 		{
+		public:
 			StaticMovementSystem();
 			virtual ~StaticMovementSystem();
 			void updateEntity(ecs::FilteredEntity & _entityInfo, float _delta) override;
@@ -33,10 +34,15 @@ namespace ecs
 		// Handles input for static movement.
 		SYSTEM(StaticMovementUpdateSystem)
 		{
+		public:
 			StaticMovementUpdateSystem();
 			virtual ~StaticMovementUpdateSystem();
-			void readEvent(ecs::BaseEvent & _event, float _delta) override;
-		
+			void act(float _delta) override 
+			{
+				int a = 0;
+			}
+			void readEvent(ecs::BaseEvent& _event, float _delta) override;
+			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;	
 		};
 
 		SYSTEM(DynamicMovementSystem)

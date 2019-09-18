@@ -3,7 +3,6 @@
 
 #define EVENT(name) struct name : public ecs::ECSEvent<name>
 
-
 namespace ecs
 {
 	namespace events
@@ -26,8 +25,7 @@ namespace ecs
 		
 			// The entity that the user wants to move.
 			// Entity needs to support static movement.
-			ID mEntityID;
-			
+			ID mEntityID;			
 		};
 
 	} // events
