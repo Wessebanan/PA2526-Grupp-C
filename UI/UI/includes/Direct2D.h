@@ -61,83 +61,88 @@ public:
 	Direct2D();
 	~Direct2D();
 
-	void CreateHwndRenderTarget(HWND window, RECT* rect);
-	void InitDeviceAndContext(IDXGIDevice* dxgiDevice);
+	HRESULT CreateHwndRenderTarget(HWND window, RECT* rect);
+	void InitDeviceAndContext(IDXGIDevice* dxgiDevice); //Takes dxgidevice from dx11 and creates d2d device and device context
 	ID2D1DeviceContext* GetpContext();
-	void LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]/*, D2D1_RECT_F drawRect*/);
-	//ID2D1Bitmap* GetBitmapByName(std::string bitmapName);
-	ID GetBitmapIDFromName(char* bitmapName);
-	ID2D1Bitmap* GetBitmap(ID bitmapID);
-	ID GetBrushIDFromName(char* bitmapName);
-	//void DrawBitmap();
-	void DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect);
+	HRESULT LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
+	ID GetBitmapIDFromName(char* bitmapName); //returns bitmap ID
+	ID2D1Bitmap* GetBitmap(ID bitmapID); //returns bitmap
+	ID GetBrushIDFromName(char* bitmapName); //not in use right now
+	bool DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect);
 
-	void PrintText(std::string text, RECT rect);
-	void PrintText(std::string text, D2D1_RECT_F rect, brushColors color);
-	void PrintText(std::string text, int left, int top, int right, int bottom);
-	void setTextColor(float r, float g, float b, float a);
-	void setDrawColor(float r, float g, float b, float a);
-	void setBrushColor(char* name, float r, float g, float b, float a);
-	void setTextSize(unsigned int size);
-	void setFont(std::string font);
-	void drawRect(RECT rect, int thinkness);
-	void solidRect(RECT rect);
-	int charArrayCompare(char* s1, char* s2, size_t sz);
+	//ID2D1Bitmap* GetBitmapByName(std::string bitmapName); //used to draw all bitmaps, uses the BitmapInfo struct
+	//void DrawBitmap();
+
+	bool PrintText(std::string text, RECT rect);
+	bool PrintText(std::string text, D2D1_RECT_F rect, brushColors color); //only one used in ECS atm
+	bool PrintText(std::string text, int left, int top, int right, int bottom);
+
+	void setTextColor(float r, float g, float b, float a); //not in use atm
+	void setDrawColor(float r, float g, float b, float a); //not in use atm
+	void setBrushColor(char* name, float r, float g, float b, float a); //not in use atm
+	HRESULT setTextSize(unsigned int size); //Don't use in a loop because it creates a new textformat
+	HRESULT setFont(std::string font); //Don't use in a loop because it creates a new textformat
+	bool drawRect(D2D1_RECT_F rect, int thinkness, brushColors color); //draws a rect border/wireframe
+	bool solidRect(D2D1_RECT_F rect, brushColors color); //draws a filled solid rect
+	int charArrayCompare(char* s1, char* s2, size_t sz); //compares two char arrays
 	ID2D1HwndRenderTarget* getHwndRenderTarget();
 
 
 private:
-	IWICFormatConverter* mpFormatConverter;
-	IWICImagingFactory* mpWicFactory;
-	IWICBitmapDecoder* mpDecoder;
-	IWICBitmapFrameDecode* mpBitmapSrc;
-	ID2D1HwndRenderTarget* mpHwndRenderTarget;
-	ID2D1SolidColorBrush* mColorText;
-	ID2D1Bitmap* bitmap;
+	IWICFormatConverter* mpFormatConverter; //used to change image to bitmap
+	IWICImagingFactory* mpWicFactory; //factory for bitmaps
+	IWICBitmapDecoder* mpDecoder; //used to change image to bitmap
+	IWICBitmapFrameDecode* mpBitmapSrc; //used to change image to bitmap
+	IWICBitmapDecoderInfo* info; //used to change image to bitmap
+	ID2D1HwndRenderTarget* mpHwndRenderTarget; //window as rendertarget
+	ID2D1SolidColorBrush* mColorText; //used for color
 	ID2D1SolidColorBrush* mColorDraw;
+	ID2D1Bitmap* mFailBitmap;
 	
-	IDWriteFactory7* mpTextFactory;
-	DWRITE_TRIMMING mTrimmer;
-	IDWriteTextFormat* mpTextFormat;
+	IDWriteFactory7* mpTextFactory; //factory used for text
+	DWRITE_TRIMMING mTrimmer; //used for text format
+	IDWriteTextFormat* mpTextFormat; //things like font and size
 
-	ID2D1Factory7* mpFactory;
+	ID2D1Factory7* mpFactory; //d2d1 factory
 	ID2D1Device6* mpDevice;
 	ID2D1DeviceContext6* mpContext;
-	IWICBitmapDecoderInfo* info;
 
 	RECT* mpRect;
 	std::wstring mfont;
 	unsigned int mfontSize;
-	bool mBitMapLoaded = false;
+	bool mFailBitMapLoaded = false;
 	bool mHwndRenderTargetCreated = false;
 	//std::vector<BitmapInfo> mBitmapVector;
 	int test = 0;
 
-	using BitmapMap = std::unordered_map<ID, ID2D1Bitmap*>;
+	using BitmapMap = std::unordered_map<ID, ID2D1Bitmap*>; //unordered map of bitmaps
 	using BitmapPair = std::pair<ID, ID2D1Bitmap*>;
-
-	using BitmapNameToID = std::unordered_map<char*, ID>;
-	using BitmapNameIDPair = std::pair<char*, ID>;
-
-	using BrushMap = std::unordered_map<ID, ID2D1SolidColorBrush*>;
-	using BrushMapPair = std::pair<ID, ID2D1SolidColorBrush*>;
-	using BrushMapName = std::unordered_map<char*, ID>;
-	using BrushMapNamePair = std::pair<char*, ID>;
 	BitmapMap mBitmapList;
+
+	using BitmapNameToID = std::unordered_map<char*, ID>; //unordered map of bitmap names
+	using BitmapNameIDPair = std::pair<char*, ID>;
 	BitmapNameToID mBitmapNameID;
+
+	using BrushMap = std::unordered_map<ID, ID2D1SolidColorBrush*>; //unordered map of brushes (not in use now)
+	using BrushMapPair = std::pair<ID, ID2D1SolidColorBrush*>;
 	BrushMap mBrushMap;
+
+	using BrushMapName = std::unordered_map<char*, ID>; //corresponding brush name map
+	using BrushMapNamePair = std::pair<char*, ID>;
 	BrushMapName mBrushMapName;
 
-	ID2D1SolidColorBrush* mColorBrushes[COLOR_BRUSHES];
+
+	ID2D1SolidColorBrush* mColorBrushes[COLOR_BRUSHES]; //array of brushes we use now
 
 	void mCreateFactory();
 	void mCreateWicFactory();
 	void mCreateTextFactory();
-	void mCreateTextFormat();
-	void mCreateColorText();
-	void mCreateColorDraw();
-	void mCreateColorBrushes();
-	std::wstring mStrToWstrConverter(std::string str);
+	HRESULT mCreateTextFormat();
+	HRESULT mCreateColorText();
+	HRESULT mCreateColorDraw();
+	HRESULT mCreateColorBrushes();
+	HRESULT LoadImageToBitmap(std::string imageFilePath);
+	std::wstring mStrToWstrConverter(std::string str); //covert string to wstring
 
-	void mInit();
+	void mInit(); //used to init factories
 };

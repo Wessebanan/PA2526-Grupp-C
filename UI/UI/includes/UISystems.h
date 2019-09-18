@@ -45,6 +45,28 @@ namespace ecs
 			Direct2D* D2D;
 		};
 
+		class UIRectSystem : public ECSSystem<UIRectSystem>
+		{
+		public:
+			UIRectSystem();
+			virtual ~UIRectSystem();
+
+			// Override ONE of these
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+			Direct2D* D2D;
+		};
+
+		class UISolidRectSystem : public ECSSystem<UISolidRectSystem>
+		{
+		public:
+			UISolidRectSystem();
+			virtual ~UISolidRectSystem();
+
+			// Override ONE of these
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+			Direct2D* D2D;
+		};
+
 		class UIPreRenderSystem : public ECSSystem<UIPreRenderSystem>
 		{
 		public:

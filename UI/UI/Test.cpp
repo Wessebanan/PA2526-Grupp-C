@@ -5,6 +5,10 @@
 #include "UISystems.h"
 #include "UIComponents.h"
 #include "UIEvents.h"
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 
 const char g_szClassName[] = "myWindowClass";
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -42,8 +46,7 @@ int compStr(char* s1, char* s2, size_t sz) {
 //	LPSTR lpCmdLine, int nCmdShow)
 int main()
 {
-
-
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	HINSTANCE hInstance = GetModuleHandle(NULL);
 	Direct2D test2d;
 	WNDCLASSEX wc;
@@ -83,12 +86,12 @@ int main()
 		CW_USEDEFAULT, CW_USEDEFAULT, rect.right - rect.left, rect.bottom - rect.top,
 		NULL, NULL, hInstance, NULL);
 
-	if (hwnd == NULL)
-	{
-		MessageBox(NULL, "Window Creation Failed!", "Error!",
-			MB_ICONEXCLAMATION | MB_OK);
-		return 0;
-	}
+	//if (hwnd == NULL)
+	//{
+	//	MessageBox(NULL, "Window Creation Failed!", "Error!",
+	//		MB_ICONEXCLAMATION | MB_OK);
+	//	return 0;
+	//}
 	//char testy[10];
 	//std::strcpy(testy, "pepe");
 	test2d.CreateHwndRenderTarget(hwnd, &rect);
@@ -98,8 +101,10 @@ int main()
 	//test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(250, 250, 550, 350));
 	//test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(300, 275, 500, 325));
 	//test2d.LoadImageToBitmap("PepeLaugh.jfif", D2D1::RectF(350, 290, 440, 310));
+
 	ShowWindow(hwnd, 1);
 	UpdateWindow(hwnd);
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//static int i = 0, k = 0, l = 1;
 	//static std::string kek;
@@ -121,21 +126,20 @@ int main()
 
 	UIpreSys->D2D = UITextSys->D2D = UIpostSys->D2D = UIBitmapSys->D2D = &test2d;
 	components::UITextComponent UIText;
-	components::UIDrawColor UIColor;
-	components::UIDrawPos UIPos;
-	components::UIDrawPos UIPos2;
-	components::UIBitmap UIBitmap;
+	components::UIDrawColorComponent UIColor;
+	components::UIDrawPosComponent UIPos;
+	components::UIDrawPosComponent UIPos2;
+	components::UIBitmapComponent UIBitmap;
 	UIColor.color = brushColors::Green;
 	UIPos.drawArea = D2D1::RectF(600, 0, 800, 200);
 	UIPos2.drawArea = D2D1::RectF(0, 0, 800, 600);
 	UIText.strText = "test";
 	char hehe[10] = "pepe";
-	test2d.LoadImageToBitmap("PepeLaugh.jfif", hehe);
+	//test2d.LoadImageToBitmap("PepeLaugh.jfif", hehe);
 	UIBitmap.bitmap = test2d.GetBitmap(test2d.GetBitmapIDFromName(hehe));
 
 	Entity* e1 = myECS.createEntity(UIBitmap, UIPos2);
 	Entity* e2 = myECS.createEntity(UIColor, UIText, UIPos);
-
 
 
 
@@ -166,4 +170,5 @@ int main()
 
 	}
 	return Msg.wParam;
+
 }

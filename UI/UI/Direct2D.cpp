@@ -13,7 +13,8 @@ Direct2D::Direct2D()
 	this->mpDevice = nullptr;
 	this->mpContext = nullptr;
 	this->mColorText = nullptr;
-	this->bitmap = nullptr;
+	this->mFailBitmap = nullptr;
+	this->mpTextFormat = nullptr;
 	this->mTrimmer = {};
 	this->mTrimmer.granularity = DWRITE_TRIMMING_GRANULARITY_CHARACTER;
 	this->mfont = L"Arial";
@@ -45,9 +46,10 @@ Direct2D::~Direct2D()
 		this->mpBitmapSrc->Release();
 }
 
-void Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a render target that is a window,needs a window handle and how large you want the rendertarget
+HRESULT Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a render target that is a window,needs a window handle and how large you want the rendertarget
 {
-	if (SUCCEEDED(this->mpFactory->CreateHwndRenderTarget(
+	HRESULT hr = E_FAIL;
+	if (SUCCEEDED(hr = this->mpFactory->CreateHwndRenderTarget(
 		D2D1::RenderTargetProperties(),
 		D2D1::HwndRenderTargetProperties(
 			window,
@@ -55,18 +57,20 @@ void Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a rende
 		&this->mpHwndRenderTarget)))
 	{
 		this->mHwndRenderTargetCreated = true;
+		this->mpHwndRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+		this->mpHwndRenderTarget->AddRef(); //add reference counter
+		hr = this->mCreateColorText();
+		hr = this->mCreateColorDraw();
+		hr = this->mCreateTextFormat();
+		hr = this->mCreateColorBrushes();
+		this->LoadImageToBitmap("fail.png");
+		this->mpTextFormat->AddRef();
+		this->mColorText->AddRef();
+		this->mColorDraw->AddRef();
+		this->mpRect = rect;
 	};
-	this->mpHwndRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
-	this->mpHwndRenderTarget->AddRef(); //add reference counter
-	this->mCreateColorText();
-	this->mCreateColorDraw();
-	this->mCreateTextFormat();
-	this->mCreateColorBrushes();
-
-	this->mpTextFormat->AddRef();
-	this->mColorText->AddRef();
-	this->mColorDraw->AddRef();
-	this->mpRect = rect;
+	
+	return hr;
 }
 
 void Direct2D::InitDeviceAndContext(IDXGIDevice* dxgiDevice) //takes DXGIdevice from Dx11
@@ -82,8 +86,9 @@ ID2D1DeviceContext* Direct2D::GetpContext()
 	return this->mpContext;
 }
 
-void Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]/*, D2D1_RECT_F drawRect*/) //loads an image to a bitmap map with infostruct and ID
+HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]/*, D2D1_RECT_F drawRect*/) //loads an image to a bitmap map with infostruct and ID
 {
+	HRESULT hr = E_FAIL;
 	//BitmapInfo new_bitmap_struct;
 	ID2D1Bitmap* new_bitmap = nullptr;
 	//new_bitmap_struct.name = imageFilePath;
@@ -91,27 +96,28 @@ void Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITM
 	std::wstring w_str = this->mStrToWstrConverter(imageFilePath);
 	if (this->mHwndRenderTargetCreated)
 	{
-		if (SUCCEEDED(this->mpWicFactory->CreateFormatConverter(&this->mpFormatConverter)))
+		if (SUCCEEDED(hr = this->mpWicFactory->CreateFormatConverter(&this->mpFormatConverter)))
 		{
-			if (SUCCEEDED(this->mpWicFactory->CreateDecoderFromFilename(w_str.c_str(), NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &this->mpDecoder)))
+			if (SUCCEEDED(hr = this->mpWicFactory->CreateDecoderFromFilename(w_str.c_str(), NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &this->mpDecoder)))
 			{
-				if (SUCCEEDED(this->mpDecoder->GetFrame(0, &this->mpBitmapSrc)))
+				if (SUCCEEDED(hr = this->mpDecoder->GetFrame(0, &this->mpBitmapSrc)))
 				{
-					if (SUCCEEDED(this->mpFormatConverter->Initialize(this->mpBitmapSrc, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 1.f, WICBitmapPaletteTypeMedianCut)))
+					if (SUCCEEDED(hr = this->mpFormatConverter->Initialize(this->mpBitmapSrc, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 1.f, WICBitmapPaletteTypeMedianCut)))
 					{
-						if (SUCCEEDED(this->mpHwndRenderTarget->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
+						if (SUCCEEDED(hr = this->mpHwndRenderTarget->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
 						{
-							this->mBitMapLoaded = true;
+							ID newID = idGen.generateID();
+
+							this->mBitmapList[newID] = new_bitmap;
+							this->mBitmapNameID[bitmapName] = newID;
+							
 						}
 					}
 				}
 			}
 		}
 	}
-	ID newID = idGen.generateID();
-
-	this->mBitmapList[newID] = new_bitmap;
-	this->mBitmapNameID[bitmapName] = newID;
+	return hr;
 	//this->mBitmapVector.push_back(new_bitmap_struct);
 }
 
@@ -158,35 +164,47 @@ void Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITM
 
 ID Direct2D::GetBitmapIDFromName(char* bitmapName)
 {
+	ID toReturn = 0;
 	for (BitmapNameIDPair pair : this->mBitmapNameID)
 	{
 		if(this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
 			return pair.second;
 	}
-	return 0;
+	return toReturn;
 }
 
 ID2D1Bitmap* Direct2D::GetBitmap(ID bitmapID)
 {
-	return this->mBitmapList.at(bitmapID);
+	if (bitmapID != 0)
+	{
+		return this->mBitmapList.at(bitmapID);
+	}
+	else
+	{
+		return this->mFailBitmap;
+	}
 }
 
 ID Direct2D::GetBrushIDFromName(char* bitmapName)
 {
+	ID toReturn = 0;
 	for (BrushMapNamePair pair : this->mBrushMapName)
 	{
 		if (this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
 			return pair.second;
 	}
-	return 0;
+	return toReturn;
 }
 
-void Direct2D::DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect)
+bool Direct2D::DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect)
 {
+	bool canDraw = false;
 	if (this->mHwndRenderTargetCreated && bitmap != nullptr)
 	{
+		canDraw = true;
 		this->mpHwndRenderTarget->DrawBitmap(bitmap, rect, 1, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, D2D1::RectF(0, 0, bitmap->GetSize().width, bitmap->GetSize().height));
 	}
+	return canDraw;
 }
 
 //void Direct2D::DrawBitmap() //iterates through the bitmap vector and draws everything, if specific bitmap needs to be drawn an other draw function needs to be added
@@ -199,7 +217,7 @@ void Direct2D::DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect)
 //	}
 //}
 
-void Direct2D::PrintText(std::string text, RECT rect) //draws text with format, draw area and color
+bool Direct2D::PrintText(std::string text, RECT rect) //draws text with format, draw area and color
 {
 	std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
 
@@ -208,18 +226,20 @@ void Direct2D::PrintText(std::string text, RECT rect) //draws text with format, 
 	{
 		this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormat, layoutRect, this->mColorText);
 	}
+	return this->mHwndRenderTargetCreated;
 }
 
-void Direct2D::PrintText(std::string text, D2D1_RECT_F rect, brushColors color)
+bool Direct2D::PrintText(std::string text, D2D1_RECT_F rect, brushColors color)
 {
 	std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
 	if (this->mHwndRenderTargetCreated)
 	{
 		this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormat, rect, this->mColorBrushes[color]);
 	}
+	return this->mHwndRenderTargetCreated;
 }
 
-void Direct2D::PrintText(std::string text, int left, int top, int right, int bottom)//draws text with format, draw area and color
+bool Direct2D::PrintText(std::string text, int left, int top, int right, int bottom)//draws text with format, draw area and color
 {
 	std::wstring w_str = this->mStrToWstrConverter(text);
 
@@ -228,6 +248,7 @@ void Direct2D::PrintText(std::string text, int left, int top, int right, int bot
 	{
 		this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormat, layoutRect, this->mColorText);
 	}
+	return this->mHwndRenderTargetCreated;
 }
 
 void Direct2D::setTextColor(float r, float g, float b, float a)
@@ -246,7 +267,7 @@ void Direct2D::setBrushColor(char* name, float r, float g, float b, float a)
 	this->mBrushMap.at(searchID)->SetColor(D2D1::ColorF(r, g, b, a));
 }
 
-void Direct2D::setTextSize(unsigned int size)//updates the text format
+HRESULT Direct2D::setTextSize(unsigned int size)//updates the text format
 {
 	HRESULT hr = this->mpTextFactory->CreateTextFormat(
 		this->mfont.c_str(),
@@ -261,9 +282,10 @@ void Direct2D::setTextSize(unsigned int size)//updates the text format
 	this->mpTextFormat->SetTrimming(&this->mTrimmer, NULL);
 	this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 	this->mpTextFormat->AddRef();
+	return hr;
 }
 
-void Direct2D::setFont(std::string font)//updates the text format
+HRESULT Direct2D::setFont(std::string font)//updates the text format
 {
 	std::wstring w_font = this->mStrToWstrConverter(font);
 	this->mfont = w_font;
@@ -280,30 +302,33 @@ void Direct2D::setFont(std::string font)//updates the text format
 	this->mpTextFormat->SetTrimming(&this->mTrimmer, NULL);
 	this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 	this->mpTextFormat->AddRef();
+	return hr;
 }
 
-void Direct2D::drawRect(RECT rect, int thickness) //draws a rect with line thickness and color
+bool Direct2D::drawRect(D2D1_RECT_F rect, int thickness, brushColors color) //draws a rect with line thickness and color
 {
 	if (this->mHwndRenderTargetCreated)
 	{
 		this->mpHwndRenderTarget->DrawRectangle(
 			D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom),
-			this->mColorBrushes[0],
+			this->mColorBrushes[color],
 			thickness);
 	}
+	return this->mHwndRenderTargetCreated;
 }
 
-void Direct2D::solidRect(RECT rect) //draws a filled rect with color
+bool Direct2D::solidRect(D2D1_RECT_F rect, brushColors color) //draws a filled rect with color
 {
 	if (this->mHwndRenderTargetCreated)
 	{
 		this->mpHwndRenderTarget->FillRectangle(
 			D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom),
-			this->mColorBrushes[0]);
+			this->mColorBrushes[color]);
 	}
+	return this->mHwndRenderTargetCreated;
 }
 
-int Direct2D::charArrayCompare(char* s1, char* s2, size_t sz)
+int Direct2D::charArrayCompare(char* s1, char* s2, size_t sz) //A compares char arrays
 {
 	while (sz != 0) {
 		// At end of both strings, equal.
@@ -345,7 +370,7 @@ void Direct2D::mCreateTextFactory()
 	HRESULT hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory7), reinterpret_cast<IUnknown**>(&this->mpTextFactory));
 }
 
-void Direct2D::mCreateTextFormat()
+HRESULT Direct2D::mCreateTextFormat()
 {
 	HRESULT hr = this->mpTextFactory->CreateTextFormat(
 		L"Comic_sans",
@@ -360,27 +385,31 @@ void Direct2D::mCreateTextFormat()
 	this->mpTextFormat->SetTrimming(&this->mTrimmer, NULL);
 	this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 	this->mpTextFormat->AddRef();
+	return hr;
 }
 
-void Direct2D::mCreateColorText()
+HRESULT Direct2D::mCreateColorText()
 {
+	HRESULT hr = E_FAIL;
 	if (this->mHwndRenderTargetCreated)
 	{ 
-		HRESULT hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
-			D2D1::ColorF(D2D1::ColorF::DarkGoldenrod),
-			&this->mColorText);
+		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
+		D2D1::ColorF(D2D1::ColorF::DarkGoldenrod),
+		&this->mColorText);
 	}
 	ID newID = idGen.generateID();
 	char name[10] = "text";
 	this->mBrushMap[newID] = this->mColorText;
 	this->mBrushMapName[name] = newID;
+	return hr;
 }
 
-void Direct2D::mCreateColorDraw()
+HRESULT Direct2D::mCreateColorDraw()
 {
+	HRESULT hr = E_FAIL;
 	if (this->mHwndRenderTargetCreated)
 	{
-	HRESULT hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
+		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::DarkGoldenrod),
 		&this->mColorDraw);
 	}
@@ -388,28 +417,58 @@ void Direct2D::mCreateColorDraw()
 	char name[10] = "draw";
 	this->mBrushMap[newID] = this->mColorDraw;
 	this->mBrushMapName[name] = newID;
+	return hr;
 }
 
-void Direct2D::mCreateColorBrushes()
+HRESULT Direct2D::mCreateColorBrushes()
 {
+	HRESULT hr = E_FAIL;
 	if (this->mHwndRenderTargetCreated)
 	{
-	HRESULT hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Black),
-		&this->mColorBrushes[0]);
-	hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::White), //Color does not have same enum as defined
-		&this->mColorBrushes[1]);
-	hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Red),
-		&this->mColorBrushes[2]);
-	hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Blue),
-		&this->mColorBrushes[3]);
-	hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Green),
-		&this->mColorBrushes[4]);
+		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Black),
+			&this->mColorBrushes[0]);
+		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::White), //Color does not have same enum as defined
+			&this->mColorBrushes[1]);
+		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Red),
+			&this->mColorBrushes[2]);
+		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Blue),
+			&this->mColorBrushes[3]);
+		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Green),
+			&this->mColorBrushes[4]);
 	}
+	return hr;
+}
+
+HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath)
+{
+	HRESULT hr = E_FAIL;
+	
+	std::wstring w_str = this->mStrToWstrConverter(imageFilePath);
+	if (this->mHwndRenderTargetCreated)
+	{
+		if (SUCCEEDED(hr = this->mpWicFactory->CreateFormatConverter(&this->mpFormatConverter)))
+		{
+			if (SUCCEEDED(hr = this->mpWicFactory->CreateDecoderFromFilename(w_str.c_str(), NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &this->mpDecoder)))
+			{
+				if (SUCCEEDED(hr = this->mpDecoder->GetFrame(0, &this->mpBitmapSrc)))
+				{
+					if (SUCCEEDED(hr = this->mpFormatConverter->Initialize(this->mpBitmapSrc, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 1.f, WICBitmapPaletteTypeMedianCut)))
+					{
+						if (SUCCEEDED(hr = this->mpHwndRenderTarget->CreateBitmapFromWicBitmap(this->mpFormatConverter, &this->mFailBitmap)))
+						{
+							this->mFailBitMapLoaded = true;
+						}
+					}
+				}
+			}
+		}
+	}
+	return hr;
 }
 
 std::wstring Direct2D::mStrToWstrConverter(std::string str) //Converts string to widestring

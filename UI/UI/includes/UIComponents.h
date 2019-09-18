@@ -11,29 +11,27 @@ namespace ecs
 		{
 			//char text[30];
 			std::string strText;
-			//D2D1_COLOR_F textColor;
 		};
 
-		struct UIDrawPos : public ECSComponent<UIDrawPos>
+		struct UIDrawPosComponent : public ECSComponent<UIDrawPosComponent>
 		{
 			D2D1_RECT_F drawArea;
 		};
 
-		struct UIDrawColor : public ECSComponent<UIDrawColor>
+		struct UIDrawColorComponent : public ECSComponent<UIDrawColorComponent>
 		{
 			brushColors color;
 		};
 
-		struct UIBitmap : public ECSComponent<UIBitmap>
+		struct UIBitmapComponent : public ECSComponent<UIBitmapComponent>
 		{
 			ID2D1Bitmap* bitmap;
-			//ID bitmapID;
 		};
 
-		//struct BitMapComponent : public ECSComponent<BitMapComponent>
-		//{
-		//	D2D1_RECT_F drawArea;
-		//	ID bitMapID;
-		//};
+		struct UIThicknessComponent : public ECSComponent<UIThicknessComponent>
+		{
+			int thickness;
+		};
+
 	}
 }
