@@ -1,6 +1,5 @@
 #include "InputTest.h"
 
-
 ecs::systems::InputSystem::InputSystem()
 {
 	updateType = ecs::EntityUpdate;
