@@ -13,26 +13,26 @@
  
 int main()
 {
-	ecs::EntityComponentSystem mecs;
+	//ecs::EntityComponentSystem mecs;
 
-	int size = mecs.getTotalSystemCount();
+	//int size = mecs.getTotalSystemCount();
 
-	initInputECS(mecs);
+	//initInputECS(mecs);
 
-	//InputSystem inpSys;
-	
-	
-	while (true)
-	{
-		mecs.update(0.2f);
+	////InputSystem inpSys;
+	//
+	//
+	//while (true)
+	//{
+	//	mecs.update(0.2f);
 
-		//inpSys.updateMouse();
-		//inpSys.updateKeyboard();
-		//inpSys.updateWeb();
-		//cout << inpSys.players[0]->currButton0 << " I shte players X tile" << endl;
+	//	//inpSys.updateMouse();
+	//	//inpSys.updateKeyboard();
+	//	//inpSys.updateWeb();
+	//	//cout << inpSys.players[0]->currButton0 << " I shte players X tile" << endl;
 
-		this_thread::sleep_for(chrono::seconds(2));
-	}
+	//	this_thread::sleep_for(chrono::seconds(2));
+	//}
 
 	////WebConnection conn;
 
