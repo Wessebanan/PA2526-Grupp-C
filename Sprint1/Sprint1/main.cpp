@@ -2,6 +2,7 @@
 #include <Mesh.h>
 #include <DeviceInterface.h>
 #include <UtilityFunctions.h>
+#include <CameraFunctions.h>
 #include <DebugInfo.h>
 #include "Shaders.h"
 
@@ -17,6 +18,17 @@ namespace DInfo
 using namespace graphics;
 int main()
 {
+	ecs::EntityComponentSystem ecs;
+	size_t system_count = ecs.getTotalSystemCount();
+	//CameraFunctions::CreateDevCamera(ecs);
+	//CameraFunctions::CreateCameraSystems(ecs);
+
+
+	ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+	ecs::BaseComponent* baseComp = iter.next();
+	ecs::components::CameraComponent* camera = static_cast<ecs::components::CameraComponent*>(baseComp);
+
+	//camera.
 	DeviceInterface* pDevice;
 	PresentWindow* pWindow;
 	GraphicsPipeline* pPipeline;
@@ -36,7 +48,7 @@ int main()
 	pContext->SetViewport(0, 0, 1280, 720);
 	pContext->SetGraphicsPipeline(pPipeline);
 
-	HRESULT hr = testMesh.LoadFBX("C:\\Users\\magno\\source\\repos\\PA2526-Grupp-C\\Sprint1\\x64\\Debug\\hexTile2.fbx");
+	HRESULT hr = testMesh.LoadFBX("C:\\Users\\magno\\source\\repos\\PA2526-Grupp-C\\Sprint1\\x64\\Debug\\hexTile3.fbx");
 	std::vector<DirectX::XMFLOAT3>* pVertices = testMesh.GetVertexPositionVector();
 
 	std::vector<DirectX::XMFLOAT3>* test = testMesh.GetNormalVector();
@@ -59,12 +71,8 @@ int main()
 							  0.0f, 0.0f, 1.0f, 0.0f,
 							  0.0f, 0.0f, 0.0f, 1.0f);
 	DirectX::XMStoreFloat4x4(&world,
-		DirectX::XMMatrixRotationRollPitchYaw(1.5708f, 0.0f, 0.0f));
+		DirectX::XMMatrixRotationRollPitchYaw(-1.5708f, 0.0f, 0.0f));
 
-	DirectX::XMFLOAT4X4 world2; 
-	DirectX::XMStoreFloat4x4(&world2, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.1f)));
-	DirectX::XMFLOAT4X4 world3;
-	DirectX::XMStoreFloat4x4(&world3, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world2), DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.1f)));
 	DirectX::XMFLOAT4X4 worldMatrices[1024];
 	worldMatrices[0] = world;
 	//worldMatrices[1] = world2;
