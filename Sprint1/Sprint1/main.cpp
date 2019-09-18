@@ -26,7 +26,7 @@ int main()
 	pContext->SetViewport(0, 0, 1280, 720);
 	pContext->SetGraphicsPipeline(pPipeline);
 
-	HRESULT hr = testMesh.LoadFBX("C:\\Users\\magno\\source\\repos\\PA2526-Grupp-C\\Sprint1\\x64\\Debug\\hexTile.fbx");
+	HRESULT hr = testMesh.LoadFBX("C:\\Users\\magno\\source\\repos\\PA2526-Grupp-C\\Sprint1\\x64\\Debug\\cat.fbx");
 	std::vector<DirectX::XMFLOAT3>* pVertices = testMesh.GetVertexPositionVector();
 
 	std::vector<DirectX::XMFLOAT3>* test = testMesh.GetNormalVector();
@@ -50,12 +50,8 @@ int main()
 							  0.0f, 0.0f, 1.0f, 0.0f,
 							  0.0f, 0.0f, 0.0f, 1.0f);
 	DirectX::XMStoreFloat4x4(&world,
-		DirectX::XMMatrixRotationRollPitchYaw(1.5708f, 0.0f, 0.0f));
+		DirectX::XMMatrixMultiply(DirectX::XMMatrixScaling(0.005f, 0.005f, 0.005f), DirectX::XMMatrixRotationRollPitchYaw(-1.5708f, 0.0f, 0.0f)));
 
-	DirectX::XMFLOAT4X4 world2; 
-	DirectX::XMStoreFloat4x4(&world2, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.1f)));
-	DirectX::XMFLOAT4X4 world3;
-	DirectX::XMStoreFloat4x4(&world3, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world2), DirectX::XMMatrixTranslation(0.0f, 0.0f, 1.1f)));
 	DirectX::XMFLOAT4X4 worldMatrices[1024];
 	worldMatrices[0] = world;
 	//worldMatrices[1] = world2;
@@ -64,13 +60,13 @@ int main()
 	{
 		for (int j = 0; j < 32; ++j)
 		{
-			DirectX::XMStoreFloat4x4(&worldMatrices[i* 32 + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(j * 2.5f, 0.0f, i * 2.5f)));
+			DirectX::XMStoreFloat4x4(&worldMatrices[i* 32 + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(j * 2.5f, 0.0f, i * 3.5f)));
 		}
 	}
 	DirectX::XMFLOAT4X4 view;
 	DirectX::XMStoreFloat4x4(&view,
 		DirectX::XMMatrixLookAtLH(
-			{ 40.0f, 25.0f, -0.0f },
+			{ 40.0f, 5.0f, -0.0f },
 			{ 40.0f, 0.0f, 40.0f },
 			{ 0.0f, 1.0f, 0.0f }));
 
@@ -117,7 +113,7 @@ int main()
 
 	pContext->UploadToGPU(BUFFER_CONSTANT_STATIC);
 	pContext->UploadToGPU(BUFFER_INDEX);
-
+	 
 	pWindow->Show();
 	while (pWindow->IsOpen())
 	{
