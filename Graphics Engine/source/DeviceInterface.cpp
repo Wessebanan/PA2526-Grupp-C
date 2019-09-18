@@ -16,8 +16,16 @@ namespace graphics
 	void DeviceInterface::Initialize()
 	{
 		{
+			UINT factoryFlag	= 0;
+			UINT deviceFlag		= 0;
+
+#ifdef _DEBUG
+			deviceFlag	|= D3D11_CREATE_DEVICE_DEBUG;
+			factoryFlag |= DXGI_CREATE_FACTORY_DEBUG;
+#endif // _DEBUG
+
 			CreateDXGIFactory2(
-				DXGI_CREATE_FACTORY_DEBUG,
+				factoryFlag,
 				IID_PPV_ARGS(&m_pFactory6));
 
 			m_pFactory6->EnumAdapterByGpuPreference(
@@ -28,13 +36,11 @@ namespace graphics
 			ID3D11Device* pDeviceTemp = NULL;
 			ID3D11DeviceContext* pContextTemp = NULL;
 
-			UINT flag = D3D11_CREATE_DEVICE_DEBUG;
-
 			D3D11CreateDevice(
 				m_pAdapter4,
 				D3D_DRIVER_TYPE_UNKNOWN,
 				NULL,
-				flag,
+				deviceFlag,
 				NULL,
 				0,
 				D3D11_SDK_VERSION,
