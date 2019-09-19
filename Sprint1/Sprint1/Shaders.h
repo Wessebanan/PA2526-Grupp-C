@@ -53,6 +53,14 @@ float4 main(PSIN input) : SV_TARGET
 	float4 finalColor = float4(input.nor.x, input.nor.y, input.nor.z, 1.0f);
 	if(finalColor.z <= -0.93f) {
 		finalColor = float4(140.0f/255.0f, 125.0f/255.0f, 112.0f/255.0f, 1.0f) * (-((float)input.instance - 1024) / 712.0f);
+		if(input.instance % 7 <= 1 || input.instance % 7 >= 6)
+		{
+			finalColor = float4(0.486f, 0.988f, 0.0f, 1.0f) * (-((float)input.instance - 1024) / 712.0f);
+		}
+		if(input.instance % 19 == 0)
+		{
+			finalColor = float4(0.0f, 0.467f, 0.745f, 1.0f);
+		}
 	}	
 	else if (finalColor.z <= -0.50f) {
 		finalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
