@@ -54,6 +54,7 @@ TEST(CameraFunctions, InitDevCamera) {
 
 TEST(CameraFunctions, CreateCameraSystems) {
 	ecs::EntityComponentSystem mEcs;
+	//mEcs.createSystem<ecs::systems::UpdateCameraSystem>();
 	CameraFunctions::CreateCameraSystems(mEcs);
 
 	int nrOfSystems = mEcs.getTotalSystemCount();

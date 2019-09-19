@@ -13,9 +13,9 @@ namespace ecs
 			UpdateCameraSystem()
 			{
 				updateType = EntityUpdate;
-				typeFilter.addRequirement(0);
-				//typeFilter.addRequirement(components::CameraComponent::typeID);
-				//typeFilter.addRequirement(components::TransformComponent::typeID);
+				//typeFilter.addRequirement(0);
+				typeFilter.addRequirement(components::CameraComponent::typeID);
+				typeFilter.addRequirement(components::TransformComponent::typeID);
 			}
 			virtual ~UpdateCameraSystem() {}
 			void updateEntity(FilteredEntity& entity, float delta) override
