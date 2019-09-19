@@ -253,7 +253,7 @@ namespace graphics
 		BufferRegion region;
 
 		CreateBufferRegion(
-			BUFFER_VERTEX_INDEX,
+			BUFFER_VERTEX_INDICES,
 			size,
 			&region);
 
@@ -268,7 +268,7 @@ namespace graphics
 		pRegion->Type			= region.Type;
 	}
 
-	bool DeviceInterface::CreateMeshRegion(
+	bool DeviceInterface::CreateVertexBufferRegion(
 		const UINT vertexCount,
 		const void* pVertices,
 		const void* pNormals,

@@ -200,10 +200,10 @@ int main()
 
 	BufferRegion meshes[2];	// mesh
 
-	pDevice->CreateMeshRegion(3, t, NULL, uv, &meshes[0]);
-	pDevice->CreateMeshRegion(6, q, NULL, NULL, &meshes[1]);
+	pDevice->CreateVertexBufferRegion(3, t, NULL, uv, &meshes[0]);
+	pDevice->CreateVertexBufferRegion(6, q, NULL, NULL, &meshes[1]);
 
-	pContext->UploadMeshesToGPU();
+	pContext->UploadBufferToGPU(BUFFER_UPLOAD_VERTEX_DATA);
 
 	// Create Matrices
 
@@ -270,7 +270,7 @@ int main()
 		&viewRegion);
 
 	pDevice->CreateDynamicBufferRegion(
-		sizeof(XMFLOAT4X4) * systems::compCount,
+		sizeof(XMFLOAT4X4) * MAXIMUM_MESHES_TO_DRAW,
 		NULL,
 		&buffer0);
 
@@ -287,7 +287,7 @@ int main()
 		sizeof(projection),
 		projRegion);
 
-	pContext->UploadStaticDataToGPU();
+	pContext->UploadBufferToGPU(BUFFER_UPLOAD_STATIC_DATA);
 
 	pWindow->Show();
 	while (pWindow->IsOpen())
@@ -312,7 +312,7 @@ int main()
 				buffer0);
 
 			// Upload All Data to GPU
-			pContext->UploadDynamicDataToGPU();
+			pContext->UploadBufferToGPU(BUFFER_UPLOAD_DYNAMIC_DATA);
 
 			UINT at		= buffer0.DataLocation;
 			UINT end	= buffer0.DataLocation + buffer0.DataCount;

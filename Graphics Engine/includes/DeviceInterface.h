@@ -10,6 +10,14 @@ namespace graphics
 		SHADER_RESOURCE_SHADOW_MAP = 16,
 	};
 
+	enum BUFFER_UPLOAD_TYPE
+	{
+		BUFFER_UPLOAD_VERTEX_DATA,
+		BUFFER_UPLOAD_STATIC_DATA,
+		BUFFER_UPLOAD_DYNAMIC_DATA,
+		BUFFER_UPLOAD_INDEX_DATA
+	};
+
 	class RenderTarget
 	{
 		friend class RenderContext;
@@ -79,13 +87,10 @@ namespace graphics
 			const UINT byteWidth,
 			const BufferRegion& region);
 
-		void UploadStaticDataToGPU();
-		void UploadDynamicDataToGPU();
-		void UploadMeshesToGPU();
-		void UploadIndexBuffersToGPU();
+		void UploadBufferToGPU(const BUFFER_UPLOAD_TYPE type);
 
 	private:
-		void UploadToGPU(const BUFFER_TYPE type);
+		void internal_UploadBufferToGPU(const BUFFER_TYPE type);
 
 		void Initialize(ID3D11Device4* pDevice4, InternalStorage* pStorage);
 		void Release();
@@ -144,7 +149,7 @@ namespace graphics
 			const void* pData,
 			BufferRegion* pRegion);
 
-		bool CreateMeshRegion(
+		bool CreateVertexBufferRegion(
 			const UINT vertexCount,
 			const void* pVertices,
 			const void* pNormals,
@@ -154,8 +159,6 @@ namespace graphics
 		void DeletePipeline(GraphicsPipeline* pPipeline);
 		void DeleteRenderTarget(const RenderTarget& renderTarget);
 		void DeleteDepthBuffer(const DepthBuffer& depthBuffer);
-
-
 
 	private:
 		void Release();

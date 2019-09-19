@@ -55,7 +55,7 @@ namespace graphics
 			offsets);
 
 		m_pContext4->IASetIndexBuffer(
-			m_pStorage->GetBufferHeapGPU(BUFFER_VERTEX_INDEX),
+			m_pStorage->GetBufferHeapGPU(BUFFER_VERTEX_INDICES),
 			DXGI_FORMAT_R32_UINT,
 			0);
 	}
@@ -98,32 +98,33 @@ namespace graphics
 		pHeap->CopyDataToRegion(pData, region);
 	}
 
-	void RenderContext::UploadToGPU(const BUFFER_TYPE type)
+	void RenderContext::internal_UploadBufferToGPU(const BUFFER_TYPE type)
 	{
 		BufferHeap* pHeap = m_pStorage->GetBufferHeapCPU(type);
 		pHeap->UploadToGPU(m_pContext4, type);
 	}
 
-	void RenderContext::UploadStaticDataToGPU()
+	void RenderContext::UploadBufferToGPU(const BUFFER_UPLOAD_TYPE type)
 	{
-		UploadToGPU(BUFFER_CONSTANT_STATIC);
-	}
-
-	void RenderContext::UploadDynamicDataToGPU()
-	{
-		UploadToGPU(BUFFER_CONSTANT_DYNAMIC);
-	}
-
-	void RenderContext::UploadMeshesToGPU()
-	{
-		UploadToGPU(BUFFER_VERTEX_POSITION);
-		UploadToGPU(BUFFER_VERTEX_NORMAL);
-		UploadToGPU(BUFFER_VERTEX_UV);
-	}
-
-	void RenderContext::UploadIndexBuffersToGPU()
-	{
-		UploadToGPU(BUFFER_VERTEX_INDEX);
+		switch (type)
+		{
+		case BUFFER_UPLOAD_STATIC_DATA:
+			internal_UploadBufferToGPU(BUFFER_CONSTANT_STATIC);
+			break;
+		case BUFFER_UPLOAD_DYNAMIC_DATA:
+			internal_UploadBufferToGPU(BUFFER_CONSTANT_DYNAMIC);
+			break;
+		case BUFFER_UPLOAD_INDEX_DATA:
+			internal_UploadBufferToGPU(BUFFER_VERTEX_INDICES);
+			break;
+		case BUFFER_UPLOAD_VERTEX_DATA:
+			internal_UploadBufferToGPU(BUFFER_VERTEX_POSITION);
+			internal_UploadBufferToGPU(BUFFER_VERTEX_NORMAL);
+			internal_UploadBufferToGPU(BUFFER_VERTEX_UV);
+			break;
+		default:
+			break;
+		}
 	}
 
 	void RenderContext::SetRenderTarget(
