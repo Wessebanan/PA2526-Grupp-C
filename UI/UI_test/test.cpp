@@ -1,5 +1,6 @@
 #include "pch.h"
 #include"Direct2D.h"
+#include<winsock2.h>
 #include<Windows.h>
 #pragma comment (lib, "plainECS")
 #pragma comment (lib, "UI")

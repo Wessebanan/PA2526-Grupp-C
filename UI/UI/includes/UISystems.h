@@ -4,6 +4,7 @@
 #include "UIComponents.h"
 #include "UIEvents.h"
 #include "Direct2D.h"
+#include "InputComponents.h"
 
 namespace ecs
 {
