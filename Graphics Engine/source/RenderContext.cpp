@@ -121,6 +121,11 @@ namespace graphics
 		UploadToGPU(BUFFER_VERTEX_UV);
 	}
 
+	void RenderContext::UploadIndexBuffersToGPU()
+	{
+		UploadToGPU(BUFFER_VERTEX_INDEX);
+	}
+
 	void RenderContext::SetRenderTarget(
 		const RenderTarget& renderTarget,
 		const DepthBuffer& depthBuffer)

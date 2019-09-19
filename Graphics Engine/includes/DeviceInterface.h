@@ -82,6 +82,7 @@ namespace graphics
 		void UploadStaticDataToGPU();
 		void UploadDynamicDataToGPU();
 		void UploadMeshesToGPU();
+		void UploadIndexBuffersToGPU();
 
 	private:
 		void UploadToGPU(const BUFFER_TYPE type);
