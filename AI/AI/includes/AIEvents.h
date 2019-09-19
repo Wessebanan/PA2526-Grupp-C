@@ -6,9 +6,15 @@ namespace ecs
 {
 	namespace events
 	{
-		struct testEvent : public ECSEvent<testEvent>
-		{
-			// data
-		};
+		
 	}
 }
+
+//////////////////////////////////////////////
+////Event template
+////use this when creating new events
+//////////////////////////////////////////////
+//struct testEvent : public ECSEvent<testEvent>
+//{
+//	// data
+//};

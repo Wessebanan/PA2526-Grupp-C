@@ -6,11 +6,6 @@ namespace ecs
 {
 	namespace components
 	{
-		struct PositionComponent : public ECSComponent<PositionComponent>
-		{
-			float x = 0.0f, y = 0.0f, z = 0.0f;
-		};
-
 		struct TileComponent : public ECSComponent<TileComponent>
 		{
 			/*
