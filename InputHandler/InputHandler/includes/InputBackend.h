@@ -51,10 +51,6 @@ struct SingleKey
 		key.index = setKey;
 	}
 };
-struct Rotation
-{
-	DirectX::XMFLOAT2 dir;
-};
 struct MouseBehavior
 {
 	DirectX::XMFLOAT2 newPos;
