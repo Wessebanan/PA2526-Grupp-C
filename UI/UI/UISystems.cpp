@@ -101,6 +101,18 @@ ecs::systems::UIDebugSystem::~UIDebugSystem()
 
 void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
+	BaseComponent *pBase = (ECSUser::getComponentsOfType(components::KeyboardComponent::typeID)).next();
+
+	if (pBase)
+	{
+		components::KeyboardComponent* pKeyboard = static_cast<components::KeyboardComponent*>(pBase);
+
+		if (pKeyboard->Q)
+		{
+			toRender = !toRender;
+		}
+	}
+	
 	if (this->toRender)
 	{
 	components::UITextComponent* UITextComp = _entityInfo.getComponent<components::UITextComponent>();
