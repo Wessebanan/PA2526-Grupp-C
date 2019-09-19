@@ -1,4 +1,5 @@
 #include <ecs.h>
+#include "InitInputHandler.h"
 #include <Mesh.h>
 #include <DeviceInterface.h>
 #include <UtilityFunctions.h>
@@ -31,6 +32,11 @@ int main()
 
 	ecs::EntityComponentSystem ecs;
 	ecs.initialize(ecsDesc);
+
+	//InputBackend* inp;
+	//inp = new InputBackend;
+	//initInputECS(ecs,inp);
+
 	CameraFunctions::CreateDevCamera(ecs);
 	CameraFunctions::CreateCameraSystems(ecs);
 
