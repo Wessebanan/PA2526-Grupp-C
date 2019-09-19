@@ -8,9 +8,9 @@
 #include "HandleInputSystem.h"
 
 // Initiates the systems and entitys for the InputHandling
-void initInputECS(ecs::EntityComponentSystem& rECS);
+void initInputECS(ecs::EntityComponentSystem& rECS, InputSystem* pInputSystem);
 
-void initInputECS(ecs::EntityComponentSystem& rECS)
+void initInputECS(ecs::EntityComponentSystem& rECS, InputSystem* pInputSystem)
 {
 	//// SYSTEMS
 	TypeID var = ecs::systems::HandleInputSystem::typeID;
@@ -24,7 +24,8 @@ void initInputECS(ecs::EntityComponentSystem& rECS)
 
 	// Backend Components
 	ecs::components::InputBackendComp backend = ecs::components::InputBackendComp();
-	backend.backend = new InputSystem();
+	backend.backend = pInputSystem;
+	//backend.backend = new InputSystem();
 
 	// Keyboard Components
 	ecs::components::KeyboardComponent kbComp = ecs::components::KeyboardComponent();
