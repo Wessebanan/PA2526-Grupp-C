@@ -21,16 +21,15 @@ namespace ecs
 		};
 		
 		/*
-		* HitboxComponent holds a description
-		* of a hitbox, which is necessary
-		* to calculate collision.
+		* BoundingSphereComponent holds a description
+		* of a bounding sphere, which is necessary
+		* to calculate collision. Any entity that
+		* should check collision needs this.
 		*/
-		COMP(HitboxComponent)
+		COMP(BoundingSphereComponent)
 		{
-			DirectX::XMFLOAT3 mOrigin;
-			float mHeight;
-			float mWidth;
-			float mLength;
+			DirectX::XMFLOAT3 mCenter;
+			float mRadius;
 		};
 		
 		/*

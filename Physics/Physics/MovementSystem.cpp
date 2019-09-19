@@ -29,6 +29,16 @@ void ecs::systems::StaticMovementSystem::updateEntity(ecs::FilteredEntity& _enti
 			transform->position.y + movement->mVelocity * _delta * movement->mDirection.y,
 			transform->position.z + movement->mVelocity * _delta * movement->mDirection.z);
 
+		// If the moved entity has a bounding sphere, the 
+		// collision system is notified with a potential
+		// collision event.
+		if (_entityInfo.components.find(BoundingSphereComponent::typeID) != _entityInfo.components.end())
+		{
+			PotentialCollisionEvent potential_collision;
+			potential_collision.mEntityID = _entityInfo.entity->getID();
+			createEvent(potential_collision);
+		}
+
 		// Removing the velocity, as there should be none unless there
 		// is input saying otherwise.
 		movement->mVelocity = 0;
