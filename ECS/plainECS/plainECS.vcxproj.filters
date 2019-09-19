@@ -16,57 +16,45 @@
     <Filter Include="Header Files\custom">
       <UniqueIdentifier>{c5774f9a-ee2e-49ac-a473-122d49c4ef50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\managers">
+      <UniqueIdentifier>{591e3707-9d19-4252-9936-e61fb2b1373e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\custom includes">
+      <UniqueIdentifier>{4c250de0-0bbc-47db-88b4-be53ff783380}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\base handles">
+      <UniqueIdentifier>{9bf12d12-24cf-4376-8f07-ae14f135f877}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\iterators">
+      <UniqueIdentifier>{f2948b87-a8ce-45a1-9cc2-38685574588b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\memory">
+      <UniqueIdentifier>{3d9360ef-ee84-49e8-854c-7b5322a7adf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\base handles">
+      <UniqueIdentifier>{8284605f-3934-4722-9da0-2ab100af041c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\managers">
+      <UniqueIdentifier>{7d52a0cf-4211-4f0e-b7fd-06bb558ddf8a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\memory">
+      <UniqueIdentifier>{03a160e2-21a8-4f11-90b2-120567ec5d9f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\ecs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\ecsBaseComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\ecsBaseEvent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\ecsBaseSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\ecsComponentIncludes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\ecsComponentManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\ecsComponentPool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\ecsEntity.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\ecsEntityManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\ecsEventIncludes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\ecsEventIterator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\ecsEventListener.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\ecsEventManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\ecsEventPool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\ecsGlobals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\ecsIDGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\ecsSystemIncludes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\ecsTypeFilter.h">
@@ -78,9 +66,6 @@
     <ClInclude Include="includes\nameOf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\poolAllocator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\ecsComponent.h">
       <Filter>Header Files\custom</Filter>
     </ClInclude>
@@ -90,42 +75,57 @@
     <ClInclude Include="includes\ecsEvent.h">
       <Filter>Header Files\custom</Filter>
     </ClInclude>
+    <ClInclude Include="includes\ecsComponentManager.h">
+      <Filter>Header Files\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ecsEventManager.h">
+      <Filter>Header Files\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ecsEntityManager.h">
+      <Filter>Header Files\managers</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ecsComponentIncludes.h">
+      <Filter>Header Files\custom includes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ecsSystemIncludes.h">
+      <Filter>Header Files\custom includes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ecsEventIncludes.h">
+      <Filter>Header Files\custom includes</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ecsBaseComponent.h">
+      <Filter>Header Files\base handles</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ecsBaseEvent.h">
+      <Filter>Header Files\base handles</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ecsBaseSystem.h">
+      <Filter>Header Files\base handles</Filter>
+    </ClInclude>
     <ClInclude Include="includes\ecsComponentIterator.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ecsComponentPool.h">
+      <Filter>Header Files\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\poolAllocator.h">
+      <Filter>Header Files\memory</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ecsEventIterator.h">
+      <Filter>Header Files\iterators</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ecsEventPool.h">
+      <Filter>Header Files\memory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ecs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ecsBaseComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ecsBaseEvent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ecsBaseSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ecsComponentManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ecsComponentPool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ecsEntity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ecsEntityManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ecsEventListener.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ecsEventManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ecsEventPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ecsTypeFilter.cpp">
@@ -134,11 +134,35 @@
     <ClCompile Include="src\ecsUser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\poolAllocator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecsBaseComponent.cpp">
+      <Filter>Source Files\base handles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecsBaseEvent.cpp">
+      <Filter>Source Files\base handles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecsBaseSystem.cpp">
+      <Filter>Source Files\base handles</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecsComponentManager.cpp">
+      <Filter>Source Files\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecsEntityManager.cpp">
+      <Filter>Source Files\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecsEventManager.cpp">
+      <Filter>Source Files\managers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\poolAllocator.cpp">
+      <Filter>Source Files\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecsEventPool.cpp">
+      <Filter>Source Files\memory</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ecsComponentPool.cpp">
+      <Filter>Source Files\memory</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
