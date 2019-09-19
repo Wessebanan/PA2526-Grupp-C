@@ -7,7 +7,7 @@
 #include "ecs.h"
 #include "HandleInputBackend.h"
 
-// Initiates the systems and entitys for the InputHandling
+// Initiates ECS for input, IMPORTANT: pInputBackend needs to be initalized ONCE beforehand
 void initInputECS(ecs::EntityComponentSystem& rECS, InputBackend* pInputBackend);
 
 void initInputECS(ecs::EntityComponentSystem& rECS, InputBackend* pInputBackend)
