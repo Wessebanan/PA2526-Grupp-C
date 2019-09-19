@@ -910,17 +910,138 @@ namespace TestComponentManager
 } // namespace TestComponentManager
 namespace TestEventManager
 {
-	//TEST(TestEventManager, )
-	//TEST(TestEventManager, )
-	//TEST(TestEventManager, )
-	//TEST(TestEventManager, )
-	//TEST(TestEventManager, )
-	//TEST(TestEventManager, )
-	//TEST(TestEventManager, )
-	//TEST(TestEventManager, )
-	//TEST(TestEventManager, )
-	//TEST(TestEventManager, )
-	//TEST(TestEventManager, )
-	//TEST(TestEventManager, )
+	struct TestEvent : public ecs::ECSEvent<TestEvent>
+	{
+		TestEvent(int _data) : data(_data) {}
+		int data;
+	};
+
+	class SubSystem : public ecs::ECSEventListener
+	{
+	public:
+		SubSystem() {}
+		virtual ~SubSystem() {}
+		void onEvent(TypeID _eventType, ecs::BaseEvent* _event)
+		{
+			if (_eventType == TestEvent::typeID && _event && _event->getTypeID() == TestEvent::typeID)
+			{
+				gotEvent = true;
+			}
+		};
+		bool gotEvent = false;
+	};
+
+	const unsigned int event_count = 10;
+
+	TEST(TestEventManager, Init)
+	{
+		ecs::ECSEventManager mgr;
+
+		// Expect default values
+		EXPECT_EQ(mgr.getTotalEventCount(), 0);
+		EXPECT_EQ(mgr.getEventIterator(0).size(), 0);
+		EXPECT_EQ(mgr.getEventIterator(TestEvent::typeID).size(), 0);
+	}
+	TEST(TestEventManager, Create)
+	{
+		ecs::ECSEventManager mgr;
+
+		// Try create events, check if they are initialized correctly
+		TestEvent *pEvent;
+		for (int i = 0; i < event_count; i++)
+		{
+			ecs::BaseEvent* pBase = mgr.createEvent(TestEvent(i));
+			ASSERT_NE(pBase, nullptr);
+			ASSERT_EQ(pBase->getTypeID(), TestEvent::typeID);
+			
+			pEvent = static_cast<TestEvent*>(pBase);
+			EXPECT_EQ(pEvent->data, i);
+		}
+		EXPECT_EQ(mgr.getTotalEventCount(), event_count);
+	}
+	TEST(TestEventManager, Remove)
+	{
+		ecs::ECSEventManager mgr;
+
+		// Try create events
+		TestEvent* pEvent;
+		for (int i = 0; i < event_count; i++)
+		{
+			mgr.createEvent(TestEvent(i));
+		}
+
+		mgr.clearAllEvents();
+		EXPECT_EQ(mgr.getTotalEventCount(), 0);
+	}
+	TEST(TestEventManager, GetCount)
+	{
+		ecs::ECSEventManager mgr;
+
+		// Try create events
+		for (int i = 0; i < event_count; i++)
+		{
+			mgr.createEvent(TestEvent(i));
+		}
+		EXPECT_EQ(mgr.getTotalEventCount(), event_count);
+	}
+	TEST(TestEventManager, Subscriber)
+	{
+		ecs::ECSEventManager mgr;
+		SubSystem subSys;
+		subSys.gotEvent = false;
+
+		mgr.addEventSubscriber(TestEvent::typeID, &subSys);
+		mgr.createEvent(TestEvent(0));
+		EXPECT_TRUE(subSys.gotEvent);
+
+		subSys.gotEvent = false;
+		mgr.clearAllEvents();
+		mgr.removeEventSubscriber(TestEvent::typeID, &subSys);
+
+		mgr.createEvent(TestEvent(0));
+		EXPECT_FALSE(subSys.gotEvent);
+	}
+	TEST(TestEventManager, GetIterator)
+	{
+		ecs::ECSEventManager mgr;
+
+		// Try create events
+		for (int i = 0; i < event_count; i++)
+		{
+			mgr.createEvent(TestEvent(i));
+		}
+
+		std::vector<ecs::BaseEvent*> it = mgr.getEventIterator(TestEvent::typeID);
+		EXPECT_EQ(it.size(), event_count);
+
+		int expected_data = 0;
+		TestEvent *pEvent;
+		for (ecs::BaseEvent* pBase : it)
+		{
+			pEvent = static_cast<TestEvent*>(pBase);
+			EXPECT_EQ(pEvent->data, expected_data++);
+		}
+	}
+	TEST(TestEventManager, CreateAfterRemove)
+	{
+		ecs::ECSEventManager mgr;
+
+		for (int i = 0; i < event_count; i++)
+		{
+			mgr.createEvent(TestEvent(i));
+		}
+
+		mgr.clearAllEvents();
+
+		// Try create more events
+		ecs::BaseEvent *pBase;
+		for (int i = 0; i < event_count; i++)
+		{
+			pBase = mgr.createEvent(TestEvent(i));
+			EXPECT_NE(pBase, nullptr);
+		}
+	}
+	//TEST(TestEventManager, IteratorAfterRemove)
+	//TEST(TestEventManager, Notification)
 } // namespace TestEventManager
 #pragma endregion ManagerTesting
