@@ -2,7 +2,7 @@
 #include"Direct2D.h"
 #include<Windows.h>
 #pragma comment (lib, "plainECS")
-#pragma comment (lib, "UI")
+//#pragma comment (lib, "UI")
 
 
 const char g_szClassName[] = "myWindowClass";
