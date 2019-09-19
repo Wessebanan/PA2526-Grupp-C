@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <ecs.h>
+#include <unordered_map>
 #pragma comment(lib, "plainECS.lib")
 
 int main(int argc, char** argv) {
@@ -628,25 +629,298 @@ namespace TestComponentManager
 		int data;
 	};
 
-	//TEST(TestComponentManager, Init)
-	//{
-	//	ecs::ECSComponentManager mgr;
+	const unsigned int component_count = 10;
 
-	//	EXPECT_EQ(0, mgr.getTotalComponentCount());
-	//	EXPECT_EQ(0, mgr.getComponentTypeCount());
-	//	EXPECT_EQ(0, mgr.getInitializedComponentTypes());
-	//	//EXPECT_EQ(0, mgr.get());
-	//}
-	//TEST(TestComponentManager, CreatePreInitiated)
-	//TEST(TestComponentManager, CreateNotInitiated)
-	//TEST(TestComponentManager, CountGetters)
-	//TEST(TestComponentManager, Get)
-	//TEST(TestComponentManager, FlagForRemoval)
-	//TEST(TestComponentManager, Removal)
-	//TEST(TestComponentManager, Iterator)
+	TEST(TestComponentManager, Init)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Check default pre-initialization
+		EXPECT_EQ(0, mgr.getTotalComponentCount());
+		EXPECT_EQ(0, mgr.getComponentTypeCount());
+		EXPECT_EQ(0, mgr.getComponentCountOfType(0)); // Check error TypeID
+		EXPECT_EQ(0, mgr.getComponentCountOfType(TestComponent1::typeID)); // Check testing TypeID
+		EXPECT_EQ(0, mgr.getInitializedComponentTypes().getRequirements().size());
+
+		mgr.initPoolType(TestComponent1::typeID, TestComponent1::size, component_count);
+
+		EXPECT_EQ(0, mgr.getTotalComponentCount());
+		EXPECT_EQ(1, mgr.getComponentTypeCount());
+		EXPECT_EQ(0, mgr.getComponentCountOfType(TestComponent1::typeID)); // Check testing TypeID
+		EXPECT_EQ(1, mgr.getInitializedComponentTypes().getRequirements().size());
+	}
+	TEST(TestComponentManager, CreatePreInitiated)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Initialize pool for testing component type before creating a component
+		mgr.initPoolType(TestComponent1::typeID, TestComponent1::size, component_count);
+		EXPECT_EQ(1, mgr.getInitializedComponentTypes().getRequirements().size()); // Quick check
+
+		// Create components, check return pointer and data
+		TestComponent1 *pComponent;
+		ecs::BaseComponent *pBase;
+		for (int i = 0; i < component_count; i++)
+		{
+			// Set TestComponent1::data = i
+			pBase = mgr.createComponent(TestComponent1(i));
+			ASSERT_NE(nullptr, pBase);									// Component is created
+			EXPECT_NE(0, pBase->getID());								// Has ID (0=Error)
+			EXPECT_EQ(TestComponent1::typeID, pBase->getTypeID());		// Has correct TypeID
+
+			pComponent = static_cast<TestComponent1*>(pBase);
+			EXPECT_EQ(i, pComponent->data);								// Has correct data
+		}
+
+		EXPECT_EQ(component_count, mgr.getTotalComponentCount());
+		EXPECT_EQ(1, mgr.getComponentTypeCount());
+		EXPECT_EQ(component_count, mgr.getComponentCountOfType(TestComponent1::typeID)); // Check testing TypeID
+		EXPECT_EQ(1, mgr.getInitializedComponentTypes().getRequirements().size());
+	}
+	TEST(TestComponentManager, CreateNotInitiated)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Create components, check return pointer and data
+		TestComponent1* pComponent;
+		ecs::BaseComponent* pBase;
+		for (int i = 0; i < component_count; i++)
+		{
+			// Set TestComponent1::data = i
+			pBase = mgr.createComponent(TestComponent1(i));
+			ASSERT_NE(nullptr, pBase);									// Component is created
+			EXPECT_NE(0, pBase->getID());								// Has ID (0=Error)
+			EXPECT_EQ(TestComponent1::typeID, pBase->getTypeID());		// Has correct TypeID
+
+			pComponent = static_cast<TestComponent1*>(pBase);
+			EXPECT_EQ(i, pComponent->data);								// Has correct data
+		}
+
+		EXPECT_EQ(component_count, mgr.getTotalComponentCount());
+		EXPECT_EQ(1, mgr.getComponentTypeCount());
+		EXPECT_EQ(component_count, mgr.getComponentCountOfType(TestComponent1::typeID)); // Check testing TypeID
+		EXPECT_EQ(1, mgr.getInitializedComponentTypes().getRequirements().size());
+	}
+	TEST(TestComponentManager, CountGetters)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Create components
+		for (int i = 0; i < component_count; i++)
+		{
+			mgr.createComponent(TestComponent1(i));
+			mgr.createComponent(TestComponent2(i));
+		}
+
+		EXPECT_EQ(mgr.getTotalComponentCount(), component_count * 2);
+		EXPECT_EQ(mgr.getComponentTypeCount(), 2);
+		EXPECT_EQ(mgr.getInitializedComponentTypes().getRequirements().size(), 2);
+	}
+	TEST(TestComponentManager, Get)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Create components, store IDs
+		ID id_list[component_count];
+		for (int i = 0; i < component_count; i++)
+		{
+			id_list[i] = mgr.createComponent(TestComponent1(i))->getID();
+		}
+
+		// Try to retrive components
+		TestComponent1 *pComponent;
+		ecs::BaseComponent *pBase;
+		for (int i = 0; i < component_count; i++)
+		{
+			pBase = mgr.getComponent(TestComponent1::typeID, id_list[i]);
+			ASSERT_NE(pBase, nullptr);
+
+			pComponent = static_cast<TestComponent1*>(pBase);
+			EXPECT_EQ(pComponent->data, i);
+		}
+	}
+	TEST(TestComponentManager, FlagForRemoval)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Create components, store IDs
+		ID id_list[component_count];
+		for (int i = 0; i < component_count; i++)
+		{
+			id_list[i] = mgr.createComponent(TestComponent1(i))->getID();
+		}
+
+		// Flag half for removal, count flags
+		int expected_flags = 0;
+		for (int i = 0; i < component_count; i += 2)
+		{
+			mgr.flagRemoval(TestComponent1::typeID, id_list[i]);
+			expected_flags++;
+		}
+
+		EXPECT_EQ(expected_flags, mgr.getCurrentRemoveFlagCount());
+	}
+	TEST(TestComponentManager, Removal)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Create components, store IDs
+		ID id_list[component_count];
+		for (int i = 0; i < component_count; i++)
+		{
+			id_list[i] = mgr.createComponent(TestComponent1(i))->getID();
+		}
+
+		// Flag half for removal, subtract from expected components per flag
+		// Set removed IDs to 0, used later
+		int expected_components = component_count;
+		for (int i = 0; i < component_count; i += 2)
+		{
+			mgr.flagRemoval(TestComponent1::typeID, id_list[i]);
+			id_list[i] = 0;
+			expected_components--;
+		}
+		mgr.removeAllFlagged();
+
+		EXPECT_EQ(mgr.getTotalComponentCount(), expected_components);
+
+		// data = i
+		TestComponent1 *pComponent;
+		ecs::BaseComponent *pBase;
+		for (int i = 0; i < component_count; i++)
+		{
+			if (id_list[i] != 0)
+			{
+				pBase = mgr.getComponent(TestComponent1::typeID, id_list[i]);
+				ASSERT_NE(pBase, nullptr);
+				
+				pComponent = static_cast<TestComponent1*>(pBase);
+				EXPECT_EQ(pComponent->data, i);
+			}
+		}
+
+		// Try get removed IDs
+		for (int i = 0; i < component_count; i++)
+		{
+			if (id_list[i] == 0)
+			{
+				pBase = mgr.getComponent(TestComponent1::typeID, id_list[i]);
+				ASSERT_EQ(pBase, nullptr);
+			}
+		}
+	}
+	TEST(TestComponentManager, Iterator)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Create components, store IDs
+		ID id;
+		std::unordered_map<ID, int> expected_data;
+		for (int i = 0; i < component_count; i++)
+		{
+			id = mgr.createComponent(TestComponent1(i))->getID();
+			expected_data[id] = i;
+		}
+
+		ecs::ComponentIterator it = mgr.getComponentIterator(TestComponent1::typeID);
+
+		// Check all components the iterator has, check their data and count
+		int iterator_count = 0;
+		TestComponent1 *pComponent;
+		ecs::BaseComponent *pBase;
+		while (pBase = it.next())
+		{
+			pComponent = static_cast<TestComponent1*>(pBase);
+
+			id = pComponent->getID();
+			EXPECT_EQ(pComponent->data, expected_data[id]);
+			iterator_count++;
+		}
+		EXPECT_EQ(iterator_count, component_count);
+	}
+	TEST(TestComponentManager, CreateAfterRemoval)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Create components, store IDs
+		ID id_list[component_count];
+		for (int i = 0; i < component_count; i++)
+		{
+			id_list[i] = mgr.createComponent(TestComponent1(i))->getID();
+		}
+
+		// Remove all components, back to front
+		for (int i = component_count - 1; i >= 0; i--)
+		{
+			mgr.removeComponent(TestComponent1::typeID, id_list[i]);
+		}
+
+		// Create more components, then check if they have the correct data
+		TestComponent1 *pComponent;
+		ecs::BaseComponent *pBase;
+		for (int i = 0; i < component_count; i++)
+		{
+			pBase = mgr.createComponent(TestComponent1(i));
+			EXPECT_NE(pBase, nullptr);
+
+			pComponent = static_cast<TestComponent1*>(pBase);
+			EXPECT_EQ(pComponent->data, i);
+		}
+	}
+	TEST(TestComponentManager, IteratorAfterSomeRemovals)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Create components, store IDs
+		ID id_list[component_count];
+		std::map<ID, int> expected_data;
+		for (int i = 0; i < component_count; i++)
+		{
+			id_list[i] = mgr.createComponent(TestComponent1(i))->getID();
+		}
+
+		// Remove half of the components, keep count how many components
+		// are still existing. Set removed component IDs to 0.
+		int expected_component_count = component_count;
+		for (int i = 0; i < component_count; i++)
+		{
+			mgr.removeComponent(TestComponent1::typeID, id_list[i]);
+			id_list[i] = 0;
+			expected_component_count--;
+		}
+
+		ecs::ComponentIterator it = mgr.getComponentIterator(TestComponent1::typeID);
+
+		// Check component in iterator, keep count of components in iterator
+		int iterator_component_count = 0;
+		TestComponent1 *pComponent;
+		ecs::BaseComponent *pBase;
+		while (pBase = it.next())
+		{
+			ASSERT_NE(pBase, nullptr);
+			pComponent = static_cast<TestComponent1*>(pBase);
+
+			// Check if data is correct
+			ID id = pComponent->getID();
+			EXPECT_EQ(pComponent->data, expected_data[id]);
+			iterator_component_count++;
+		}
+		EXPECT_EQ(iterator_component_count, expected_component_count);
+	}
 } // namespace TestComponentManager
 namespace TestEventManager
 {
-
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
 } // namespace TestEventManager
 #pragma endregion ManagerTesting
