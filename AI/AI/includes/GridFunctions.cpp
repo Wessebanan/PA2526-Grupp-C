@@ -14,6 +14,7 @@ namespace GridFunctions
 		float mid_to_side = cos(30 * pi / 180) * radius; //Calculate length between the center position and a side. 
 		PositionComponent position;
 		TileComponent tile;
+		
 
 		//Calculate the position and create every tile.
 		for (int i = 0; i < rows; i++)

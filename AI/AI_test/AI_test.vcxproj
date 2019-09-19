@@ -87,7 +87,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)..\Lib_d</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AI.lib;plainECS.lib;$(MSBuildThisFileDirectory)..\..\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Debug\gtest_maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Utility.lib;AI.lib;plainECS.lib;$(MSBuildThisFileDirectory)..\..\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Debug\gtest_maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -122,7 +122,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <AdditionalLibraryDirectories>$(SolutionDir)..\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>AI.lib;plainECS.lib;$(MSBuildThisFileDirectory)..\..\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Release\gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Utility.lib;AI.lib;plainECS.lib;$(MSBuildThisFileDirectory)..\..\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Release\gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
