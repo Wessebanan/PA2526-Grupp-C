@@ -73,13 +73,13 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\ECS\plainECS\includes;$(SolutionDir)\Utility\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\InputHandler\InputHandler\includes;$(SolutionDir)..\ECS\plainECS\includes;$(SolutionDir)\Utility\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)..\Lib_d</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Utility.lib;plainECS.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>InputHandler.lib;Utility.lib;plainECS.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">
@@ -105,7 +105,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\ECS\plainECS\includes;$(SolutionDir)\Utility\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\InputHandler\InputHandler\includes;$(SolutionDir)..\ECS\plainECS\includes;$(SolutionDir)\Utility\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -113,7 +113,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <AdditionalLibraryDirectories>$(SolutionDir)..\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Utility.lib;plainECS.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>InputHandler.lib;Utility.lib;plainECS.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">
