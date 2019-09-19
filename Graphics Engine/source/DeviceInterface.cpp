@@ -107,7 +107,6 @@ namespace graphics
 		const UINT height, 
 		const char* pTitle,
 		RenderTarget* pRenderTarget,
-		DepthBuffer* pDepthBuffer,
 		PresentWindow** ppWindow)
 	{
 		{
@@ -142,7 +141,13 @@ namespace graphics
 		}
 
 		(*ppWindow) = &m_window;
+	}
 
+	void DeviceInterface::CreateDepthBuffer(
+		const UINT width, 
+		const UINT height, 
+		DepthBuffer* pDepthBuffer)
+	{
 		// Creating temporary depth buffer (quick fix for sprint goal)
 		{
 
@@ -329,6 +334,7 @@ namespace graphics
 
 		pRegion->DataCount		= Vertices.DataCount;
 		pRegion->DataLocation	= Vertices.DataLocation;
+		pRegion->ID				= Vertices.ID;
 		pRegion->Type			= BUFFER_TYPE_UNKNOWN;
 
 		return true;

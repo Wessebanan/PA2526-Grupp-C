@@ -2,7 +2,6 @@
 
 namespace graphics
 {
-
 	void CompileShader(
 		const char* pShaderCode,
 		const UINT length,
@@ -16,7 +15,7 @@ namespace graphics
 			length,
 			NULL,
 			NULL,
-			NULL,
+			NULL, 
 			"main",
 			pTarget,
 			0,
@@ -181,7 +180,7 @@ namespace graphics
 
 	GraphicsPipelineArray::~GraphicsPipelineArray()
 	{
-		free(m_pData);
+		free(m_pPipelines);
 	}
 
 	void GraphicsPipelineArray::Initialize(

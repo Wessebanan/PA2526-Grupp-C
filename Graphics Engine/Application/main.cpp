@@ -32,8 +32,7 @@
 #include "../includes/GraphicsSystems.h"
 #include "../includes/GraphicsComponents.h"
 
-// MAKE SURE IT'S EVENLY DIVIDABLE BY SQRT()
-#define MESHES_X_AXIS (48)
+#define MESHES_X_AXIS (120)
 #define MESHES_Y_AXIS (32)
 #define MAXIMUM_MESHES_TO_DRAW (MESHES_X_AXIS * MESHES_Y_AXIS)//(ecs::systems::compCount)
 
@@ -148,9 +147,13 @@ int main()
 		clientWidth, 
 		clientHeight, 
 		"D3D11", 
-		&backBuffer, 
-		&depthBuffer,		
+		&backBuffer, 	
 		&pWindow);
+
+	pDevice->CreateDepthBuffer(
+		clientWidth, 
+		clientHeight,
+		&depthBuffer);
 
 	pDevice->CreatePipeline(
 		gVertexShader,
@@ -229,16 +232,16 @@ int main()
 	}
 
 	UINT half = MAXIMUM_MESHES_TO_DRAW / 2;
-	for (UINT i = 0; i < half; i++)
+	for (UINT i = 0; i < MAXIMUM_MESHES_TO_DRAW; i++)
 	{
 		myECS.createEntity(wc[i], mc[0]);
 	}
 
-	for (UINT i = 0; i < half; i++)
-	{
-		UINT index = i + half;
-		myECS.createEntity(wc[index], mc[1]);
-	}
+	//for (UINT i = 0; i < half; i++)
+	//{
+	//	UINT index = i + half;
+	//	myECS.createEntity(wc[index], mc[1]);
+	//}
 
 	myECS.update(0); 
 
@@ -246,7 +249,7 @@ int main()
 	XMFLOAT4X4 view;
 	XMStoreFloat4x4(&view,
 		XMMatrixLookToLH(
-			{ 5.5f, 5.0f, -20.0f },
+			{ 5.5f, 0.0f, -20.0f },
 			{ 1.0f, 1.0f, 1.0f },
 			{ 0.0f, 1.0f, 0.0f }));
 
@@ -317,16 +320,39 @@ int main()
 			BufferRegion r = buffer0;
 			r.DataCount = RenderContext::CB_MAX_BYTES_PER_BIND;
 
-			while (at < end)
+
+			UINT meshIndex = 0;
+			std::map<UINT, UINT> meshCount = mrData.m_meshCount;
+			while (at < end && meshIndex < 2)
 			{
 				r.DataLocation = at;							// Set active region (65536 bytes per draw)
 				pContext->VSSetConstantBuffer(0, r);			// Apply active Region
-				pContext->DrawInstanced(512, 0, meshes[1]);		// Draw (with mesh[1])
-				pContext->DrawInstanced(512, 512, meshes[0]);	// Draw (with mesh[0])
+				
+				UINT drawn = 0;
+				while (drawn < 1024 && meshIndex < meshCount.size())
+				{
+					UINT count = meshCount[meshIndex];
+
+					if (count + drawn > 1024)
+					{
+						count = 1024 - drawn;
+					}
+
+					meshCount[meshIndex] -= count;
+
+					pContext->DrawInstanced(count, drawn, meshes[meshIndex]);		// Draw (with mesh[1])
+					drawn += count;
+
+					if (meshCount[meshIndex] == 0)
+					{
+						meshIndex++;
+					}
+				}
+				
 				at += RenderContext::CB_MAX_BYTES_PER_BIND;									// Increment active region
 			}
 
-			// Presenet
+			// Present
 			pWindow->Present();
 		}
 	}

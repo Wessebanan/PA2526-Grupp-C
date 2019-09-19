@@ -125,18 +125,11 @@ namespace graphics
 		const RenderTarget& renderTarget,
 		const DepthBuffer& depthBuffer)
 	{
-		ID3D11DepthStencilView* pTemp = NULL;
-
-		if (depthBuffer.pView)
-		{
-			pTemp = depthBuffer.pView;
-		}
-
 		// --- SET RENDER TARGETS ---
 		m_pContext4->OMSetRenderTargets(
 			1,
 			&renderTarget.pView,
-			pTemp);
+			depthBuffer.pView);
 	}
 
 	void RenderContext::SetGraphicsPipeline(GraphicsPipeline* pPipeline)

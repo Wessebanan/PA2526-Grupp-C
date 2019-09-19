@@ -116,8 +116,12 @@ namespace graphics
 			const UINT height,
 			const char* pTitle,
 			RenderTarget* pRenderTarget,
-			DepthBuffer* pDepthBuffer,
 			PresentWindow** ppWindow);
+
+		void CreateDepthBuffer(
+			const UINT width,
+			const UINT height,
+			DepthBuffer* pDepthBuffer);
 
 		void CreatePipeline(
 			const std::string& vertexShader,
