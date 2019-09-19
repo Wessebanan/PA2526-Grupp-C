@@ -115,9 +115,7 @@ int main()
 	//idTest = test2d.GetBitmapIDFromName(testy);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Step 3: The Message Loop
-
-
-
+	
 
 
 	using namespace ecs;
@@ -147,9 +145,7 @@ int main()
 	//Entity* e2 = myECS.createEntity(UIColor, UIText, UIPos);
 	Entity* e3 = myECS.createEntity(UIText);
 
-
-
-
+	
 
 	while (GetMessage(&Msg, NULL, 0, 0) > 0)
 	{

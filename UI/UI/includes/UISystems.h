@@ -5,6 +5,7 @@
 #include "UIEvents.h"
 #include "Direct2D.h"
 
+
 namespace ecs
 {
 	namespace systems
@@ -41,6 +42,8 @@ namespace ecs
 
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 			Direct2D* D2D;
+		private:
+			bool toRender = false;
 		};
 
 		class UIBitmapSystem : public ECSSystem<UIBitmapSystem>

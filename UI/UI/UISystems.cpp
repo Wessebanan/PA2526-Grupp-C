@@ -35,7 +35,7 @@ UIBitmapSystem::UIBitmapSystem()
 
 UIBitmapSystem::~UIBitmapSystem()
 {
-	
+	//
 }
 
 void UIBitmapSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
@@ -56,6 +56,7 @@ ecs::systems::UIRectSystem::UIRectSystem()
 
 ecs::systems::UIRectSystem::~UIRectSystem()
 {
+	//
 }
 
 void ecs::systems::UIRectSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
@@ -76,7 +77,7 @@ ecs::systems::UISolidRectSystem::UISolidRectSystem()
 
 ecs::systems::UISolidRectSystem::~UISolidRectSystem()
 {
-
+	//
 }
 
 void ecs::systems::UISolidRectSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
@@ -95,11 +96,15 @@ ecs::systems::UIDebugSystem::UIDebugSystem()
 
 ecs::systems::UIDebugSystem::~UIDebugSystem()
 {
+	//
 }
 
 void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
+	if (this->toRender)
+	{
 	components::UITextComponent* UITextComp = _entityInfo.getComponent<components::UITextComponent>();
 
 	D2D->PrintDebug(UITextComp->strText);
+	}
 }
