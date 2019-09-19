@@ -1,18 +1,18 @@
 #include "pch.h"
 #include "..//InputHandler/includes/InitInputHandler.h"
 
-// Crashes when tests try to make multiple inputSystems so this is how you init the input Backend
-InputSystem* gInputSystem;
+// Crashes when tests try to make multiple InputBackends so this is how you init the input Backend
+InputBackend* gInputBackend;
 TEST(ECS, InitInput) 
 {
-	gInputSystem = new InputSystem();
+	gInputBackend = new InputBackend();
 }
 
 TEST(ECS, InitCompEntSys) 
 {
 	ecs::EntityComponentSystem rECS;
 	
-	initInputECS(rECS, gInputSystem);
+	initInputECS(rECS, gInputBackend);
 	
 	rECS.update(0.3f);
 }

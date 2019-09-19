@@ -5,16 +5,16 @@
 
 
 #include "ecs.h"
-#include "HandleInputSystem.h"
+#include "HandleInputBackend.h"
 
 // Initiates the systems and entitys for the InputHandling
-void initInputECS(ecs::EntityComponentSystem& rECS, InputSystem* pInputSystem);
+void initInputECS(ecs::EntityComponentSystem& rECS, InputBackend* pInputBackend);
 
-void initInputECS(ecs::EntityComponentSystem& rECS, InputSystem* pInputSystem)
+void initInputECS(ecs::EntityComponentSystem& rECS, InputBackend* pInputBackend)
 {
 	//// SYSTEMS
-	TypeID var = ecs::systems::HandleInputSystem::typeID;
-	rECS.createSystem<ecs::systems::HandleInputSystem>(0);// parameter är layer
+	TypeID var = ecs::systems::HandleInputBackend::typeID;
+	rECS.createSystem<ecs::systems::HandleInputBackend>(0);// parameter är layer
 
 	rECS.createSystem<ecs::systems::HandleKeyboardSystem>(1);
 	rECS.createSystem<ecs::systems::HandleMouseSystem>(1);
@@ -24,8 +24,8 @@ void initInputECS(ecs::EntityComponentSystem& rECS, InputSystem* pInputSystem)
 
 	// Backend Components
 	ecs::components::InputBackendComp backend = ecs::components::InputBackendComp();
-	backend.backend = pInputSystem;
-	//backend.backend = new InputSystem();
+	backend.backend = pInputBackend;
+	//backend.backend = new InputBackend();
 
 	// Keyboard Components
 	ecs::components::KeyboardComponent kbComp = ecs::components::KeyboardComponent();

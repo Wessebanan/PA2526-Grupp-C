@@ -1,4 +1,4 @@
-#include "HandleInputSystem.h"
+#include "HandleInputBackend.h"
 
 using namespace ecs;
 
@@ -99,7 +99,7 @@ void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 /// HEADER INPUT 
 
-systems::HandleInputSystem::HandleInputSystem()
+systems::HandleInputBackend::HandleInputBackend()
 {
 	updateType = ecs::EntityUpdate;
 	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
@@ -107,11 +107,11 @@ systems::HandleInputSystem::HandleInputSystem()
 
 }
 
-systems::HandleInputSystem::~HandleInputSystem()
+systems::HandleInputBackend::~HandleInputBackend()
 {
 }
 
-void ecs::systems::HandleInputSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+void ecs::systems::HandleInputBackend::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
 

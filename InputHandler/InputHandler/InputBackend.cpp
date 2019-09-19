@@ -1,6 +1,6 @@
-#include "InputSystems.h"
+#include "InputBackend.h"
 
-InputSystem::InputSystem()
+InputBackend::InputBackend()
 {
 	//WEB
 	this->webConn = new WebConnection();
@@ -28,7 +28,7 @@ InputSystem::InputSystem()
 	this->playerControll[3] = new MovementKeys('0', '1', '2', '3');
 }
 
-InputSystem::~InputSystem()
+InputBackend::~InputBackend()
 {
 	delete this->wsad;
 	delete this->ressetKey;
@@ -47,7 +47,7 @@ InputSystem::~InputSystem()
 	delete webConn;
 }
 
-bool InputSystem::updateKeyboard()
+bool InputBackend::updateKeyboard()
 {
 	bool retVal = false;
 				  
@@ -75,7 +75,7 @@ bool InputSystem::updateKeyboard()
 	return retVal; 
 }
 
-void InputSystem::modyfiByMouse()
+void InputBackend::modyfiByMouse()
 {
 	DirectX::XMFLOAT2 diff(
 		  this->mouse->newPos.x - this->mouse->oldPos.x
@@ -89,7 +89,7 @@ void InputSystem::modyfiByMouse()
 	this->mouse->oldPos = this->mouse->newPos;
 }
 
-bool InputSystem::updateMouse()
+bool InputBackend::updateMouse()
 {
 	bool retVal = false;
 	POINT temp;
@@ -113,7 +113,7 @@ bool InputSystem::updateMouse()
 	return retVal;
 }
 
-bool InputSystem::updateWeb()
+bool InputBackend::updateWeb()
 {
 	this->updateTiles();
 	this->updateButtons();
@@ -122,7 +122,7 @@ bool InputSystem::updateWeb()
 	return true;
 }
 
-bool InputSystem::checkKey(key *key)
+bool InputBackend::checkKey(key *key)
 {
 	bool retVal = false;
 	 
@@ -143,13 +143,13 @@ bool InputSystem::checkKey(key *key)
 	return retVal;
 }
 
-bool InputSystem::checkWebKey(int playerIndex, const int button)
+bool InputBackend::checkWebKey(int playerIndex, const int button)
 {
 	bool retVal = (this->webConn->getPlayerButton(playerIndex) == button);
 	return retVal;
 }
 
-void InputSystem::updateTiles()
+void InputBackend::updateTiles()
 {
 	// Checks and updates each players UDLR movment keys
 	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
@@ -159,7 +159,7 @@ void InputSystem::updateTiles()
 	}
 }
 
-void InputSystem::updateButtons()
+void InputBackend::updateButtons()
 {
 	// Checks and updates each players UDLR movment keys
 	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)

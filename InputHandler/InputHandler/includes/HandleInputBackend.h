@@ -1,9 +1,9 @@
 #pragma once
 
-#ifndef HANDLEINPUTSYSTEM_H
-#define HANDLEINPUTSYSTEM_H
+#ifndef HANDLEInputBackend_H
+#define HANDLEInputBackend_H
 
-#include "InputSystems.h"
+#include "InputBackend.h"
 #include "InputComponents.h"
 
 namespace ecs
@@ -37,11 +37,11 @@ namespace ecs
 		private:
 		};
 
-		class HandleInputSystem : public ecs::ECSSystem<HandleInputSystem>
+		class HandleInputBackend : public ecs::ECSSystem<HandleInputBackend>
 		{
 		public:
-			HandleInputSystem();
-			~HandleInputSystem();
+			HandleInputBackend();
+			~HandleInputBackend();
 
 
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
@@ -53,4 +53,4 @@ namespace ecs
 
 
 
-#endif // !HANDLEINPUTSYSTEM_H
+#endif // !HANDLEInputBackend_H

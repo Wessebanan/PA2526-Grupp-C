@@ -1,6 +1,6 @@
 #pragma once
-#ifndef INPUTSYSTEMS_H
-#define INPUTSYSTEMS_H
+#ifndef InputBackendS_H
+#define InputBackendS_H
 
 #include <DirectXMath.h>
 #include <winsock2.h>
@@ -71,11 +71,11 @@ struct WebAction
 	//WebAction();
 };
 
-class InputSystem
+class InputBackend
 {
 public:
-	InputSystem();
-	~InputSystem();
+	InputBackend();
+	~InputBackend();
 
 	// returns true if there was a change to any of the allocated keys
 	bool updateKeyboard();
@@ -126,4 +126,4 @@ private:
 
 
 
-#endif // !INPUTSYSTEMS_H
+#endif // !InputBackendS_H
