@@ -1,3 +1,4 @@
+#pragma once
 #include<ecs.h>
 #include<Direct2D.h>
 #include <Windows.h>
