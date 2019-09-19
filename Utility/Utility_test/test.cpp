@@ -1,8 +1,10 @@
 #include "pch.h"
+#include "InputComponents.h"
+#include "ecsSystemIncludes.h"
+#include "ecsComponentIncludes.h"
 #include <CameraFunctions.h>
 #include <UtilityFunctions.h>
 #include "DebugInfoTestHeader.h"
-//#include <InitInputHandler.h>
 
 
 int main(int argc, char** argv)
@@ -44,8 +46,8 @@ TEST(CameraFunctions, InitDevCamera) {
 	ecs::EntityComponentSystem mEcs;
 	CameraFunctions::CreateDevCamera(mEcs);
 		
-	int numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
-	int numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
+	size_t numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
+	size_t numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
 
 	EXPECT_EQ(numberOfCc + numberOfTc, 2);
 	EXPECT_EQ(numberOfCc, 1);
@@ -56,13 +58,13 @@ TEST(CameraFunctions, CreateCameraSystems) {
 	ecs::EntityComponentSystem mEcs;
 	CameraFunctions::CreateCameraSystems(mEcs);
 
-	int nrOfSystems = mEcs.getTotalSystemCount();
+	size_t nrOfSystems = mEcs.getTotalSystemCount();
 	EXPECT_EQ(nrOfSystems, 1);
 }
 
 TEST(CameraFunctions, MoveCameraWithInput) {
 	ecs::EntityComponentSystem mEcs;
-	//InputBackend ibe;
+	InputBackend ibe;
 	//initInputECS(mEcs, &ibe);
 	CameraFunctions::CreateDevCamera(mEcs);
 	CameraFunctions::CreateCameraSystems(mEcs);
