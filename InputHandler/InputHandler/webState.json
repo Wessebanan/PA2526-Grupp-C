@@ -1,0 +1,7 @@
+{
+  "gameState": "0",
+  "player1":  {"score": 0, "name": "Player 1", "hp": 100},
+  "player2":  {"score": 0, "name": "Player 2", "hp": 100},
+  "player3":  {"score": 0, "name": "Player 3", "hp": 100},
+  "player4":  {"score": 0, "name": "Player 4", "hp": 100}
+}
