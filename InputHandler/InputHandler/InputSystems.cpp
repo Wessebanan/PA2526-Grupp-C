@@ -43,6 +43,8 @@ InputSystem::~InputSystem()
 		delete playerControll[i];
 		delete players[i];
 	}
+
+	delete webConn;
 }
 
 bool InputSystem::updateKeyboard()

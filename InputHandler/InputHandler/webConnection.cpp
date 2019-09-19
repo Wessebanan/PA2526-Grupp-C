@@ -62,6 +62,21 @@ WebConnection::WebConnection()
 
 WebConnection::~WebConnection()
 {
+	for (size_t i = 0; i < nrOfPlayers; i++)
+	{
+		if (this->playerSockets[i] != INVALID_SOCKET)
+		{
+			closesocket(this->playerSockets[i]);
+			FD_CLR(this->playerSockets[i], &master);
+		}
+	}
+
+	FD_ZERO(&master);
+	closesocket(this->ListenSocket);
+
+	WSACleanup();
+	this->shutDownThread();
+	this->t_update = nullptr;
 }
 
 webMsgData WebConnection::parseMsg(char* userMsg)
