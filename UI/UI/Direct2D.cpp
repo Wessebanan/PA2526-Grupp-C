@@ -3,20 +3,22 @@
 Direct2D::Direct2D()
 {
 
-	this->mpHwndRenderTarget = nullptr;
-	this->mpWicFactory = nullptr;
-	this->mpFormatConverter = nullptr;
-	this->mpDecoder = nullptr;
-	this->mpBitmapSrc = nullptr;
-	this->mpTextFactory = nullptr;
-	this->mpFactory = nullptr;
 	this->mpDevice = nullptr;
+	this->mpDecoder = nullptr;
+	this->mpFactory = nullptr;
 	this->mpContext = nullptr;
-	this->mColorText = nullptr;
-	this->mFailBitmap = nullptr;
+	this->mpColorText = nullptr;
+	this->mpColorDraw = nullptr;
+	this->mpBitmapSrc = nullptr;
+	this->mpFailBitmap = nullptr;
+	this->mpWicFactory = nullptr;
 	this->mpTextFormat = nullptr;
-	this->mTrimmer = {};
+	this->mpTextFactory = nullptr;
+	this->mpFormatConverter = nullptr;
+	this->mpDebugTextFormat = nullptr;
+	this->mpHwndRenderTarget = nullptr;
 	this->mTrimmer.granularity = DWRITE_TRIMMING_GRANULARITY_CHARACTER;
+	this->mTrimmer = {};
 	this->mfont = L"Arial";
 	this->mfontSize = 40;
 	this->mInit();
@@ -26,24 +28,54 @@ Direct2D::~Direct2D()
 {
 	if (this->mpHwndRenderTarget != nullptr)
 		this->mpHwndRenderTarget->Release();
+
 	if (this->mpTextFactory != nullptr)
 		this->mpTextFactory->Release();
+
 	if (this->mpFactory != nullptr)
 		this->mpFactory->Release();
-	if(this->mpTextFormat != nullptr)
+
+	if (this->mpTextFormat != nullptr)
 		this->mpTextFormat->Release();
-	//this->mpDevice->Release();
-	//this->mpContext->Release();
-	if (this->mColorText != nullptr)
-		this->mColorText->Release();
-	if(this->mpWicFactory != nullptr)
+
+	if (this->mpDebugTextFormat != nullptr)
+		this->mpDebugTextFormat->Release();
+
+	if (this->mpDevice != nullptr)
+		this->mpDevice->Release();
+
+	if (this->mpContext != nullptr)
+		this->mpContext->Release();
+
+	if (this->mpColorText != nullptr)
+		this->mpColorText->Release();
+
+	if (this->mpColorDraw != nullptr)
+		this->mpColorDraw->Release();
+
+	if (this->mpWicFactory != nullptr)
 		this->mpWicFactory->Release();
-	if(this->mpFormatConverter != nullptr)
+
+	if (this->mpFormatConverter != nullptr)
 		this->mpFormatConverter->Release();
-	if(this->mpDecoder != nullptr)
+
+	if (this->mpDecoder != nullptr)
 		this->mpDecoder->Release();
-	if(this->mpBitmapSrc != nullptr)
+
+	if (this->mpBitmapSrc != nullptr)
 		this->mpBitmapSrc->Release();
+
+	if (this->mpFailBitmap != nullptr)
+		this->mpFailBitmap->Release();
+
+	for (BitmapPair pair : this->mBitmapList)
+	{
+		pair.second->Release();
+	}
+	for (BrushMapPair pair : this->mBrushMap)
+	{
+		pair.second->Release();
+	}
 }
 
 HRESULT Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a render target that is a window,needs a window handle and how large you want the rendertarget
@@ -61,12 +93,15 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a re
 		this->mpHwndRenderTarget->AddRef(); //add reference counter
 		hr = this->mCreateColorText();
 		hr = this->mCreateColorDraw();
-		hr = this->mCreateTextFormat();
+		hr = this->mCreateTextFormat(this->mfont,this->mfontSize,&this->mpTextFormat);
+		this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
+		hr = this->mCreateTextFormat(L"Times New Roman",20,&this->mpDebugTextFormat);
+		this->mpDebugTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 		hr = this->mCreateColorBrushes();
 		this->LoadImageToBitmap("fail.png");
-		this->mpTextFormat->AddRef();
-		this->mColorText->AddRef();
-		this->mColorDraw->AddRef();
+		//this->mpTextFormat->AddRef();
+		this->mpColorText->AddRef();
+		this->mpColorDraw->AddRef();
 		this->mpRect = rect;
 	};
 	
@@ -181,7 +216,7 @@ ID2D1Bitmap* Direct2D::GetBitmap(ID bitmapID)
 	}
 	else
 	{
-		return this->mFailBitmap;
+		return nullptr;
 	}
 }
 
@@ -204,6 +239,10 @@ bool Direct2D::DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect)
 		canDraw = true;
 		this->mpHwndRenderTarget->DrawBitmap(bitmap, rect, 1, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, D2D1::RectF(0, 0, bitmap->GetSize().width, bitmap->GetSize().height));
 	}
+	else
+	{
+		this->mpHwndRenderTarget->DrawBitmap(this->mpFailBitmap, rect, 1, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, D2D1::RectF(0, 0, this->mpFailBitmap->GetSize().width, this->mpFailBitmap->GetSize().height));
+	}
 	return canDraw;
 }
 
@@ -224,7 +263,20 @@ bool Direct2D::PrintText(std::string text, RECT rect) //draws text with format, 
 	D2D1_RECT_F layoutRect = D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom);
 	if (this->mHwndRenderTargetCreated)
 	{
-		this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormat, layoutRect, this->mColorText);
+		this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormat, layoutRect, this->mpColorText);
+	}
+	return this->mHwndRenderTargetCreated;
+}
+
+bool Direct2D::PrintDebug(std::string text)
+{
+	std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
+	D2D1_RECT_F rect = D2D1::RectF(this->mpRect->right - (this->mpRect->right / 4), 0, this->mpRect->right, this->mpRect->bottom - (2*this->mpRect->bottom / 3));
+	//the drawing area takes up an eighth of the rendertarget which often is the whole window
+	if (this->mHwndRenderTargetCreated)
+	{
+		this->mpHwndRenderTarget->FillRectangle(rect, this->mColorBrushes[Red]);
+		this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpDebugTextFormat, rect, this->mColorBrushes[White]);
 	}
 	return this->mHwndRenderTargetCreated;
 }
@@ -246,19 +298,19 @@ bool Direct2D::PrintText(std::string text, int left, int top, int right, int bot
 	D2D1_RECT_F layoutRect = D2D1::RectF(left, top, right, bottom);
 	if (this->mHwndRenderTargetCreated)
 	{
-		this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormat, layoutRect, this->mColorText);
+		this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormat, layoutRect, this->mpColorText);
 	}
 	return this->mHwndRenderTargetCreated;
 }
 
 void Direct2D::setTextColor(float r, float g, float b, float a)
 {
-	this->mColorText->SetColor(D2D1::ColorF(r, g, b, a));
+	this->mpColorText->SetColor(D2D1::ColorF(r, g, b, a));
 }
 
 void Direct2D::setDrawColor(float r, float g, float b, float a)
 {
-	this->mColorDraw->SetColor(D2D1::ColorF(r, g, b, a));
+	this->mpColorDraw->SetColor(D2D1::ColorF(r, g, b, a));
 }
 
 void Direct2D::setBrushColor(char* name, float r, float g, float b, float a)
@@ -370,21 +422,21 @@ void Direct2D::mCreateTextFactory()
 	HRESULT hr = DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory7), reinterpret_cast<IUnknown**>(&this->mpTextFactory));
 }
 
-HRESULT Direct2D::mCreateTextFormat()
+HRESULT Direct2D::mCreateTextFormat(std::wstring font, int size, IDWriteTextFormat** format)
 {
+	//std::wstring w_font = this->mStrToWstrConverter(font);
 	HRESULT hr = this->mpTextFactory->CreateTextFormat(
-		L"Comic_sans",
+		font.c_str(),
 		NULL,
 		DWRITE_FONT_WEIGHT_NORMAL,
 		DWRITE_FONT_STYLE_NORMAL,
 		DWRITE_FONT_STRETCH_NORMAL,
-		50,
+		size,
 		L"en-US",
-		&this->mpTextFormat
-	);
-	this->mpTextFormat->SetTrimming(&this->mTrimmer, NULL);
-	this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
-	this->mpTextFormat->AddRef();
+		format);
+	(*format)->SetTrimming(&this->mTrimmer, NULL);
+	(*format)->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
+	(*format)->AddRef();
 	return hr;
 }
 
@@ -395,11 +447,11 @@ HRESULT Direct2D::mCreateColorText()
 	{ 
 		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::DarkGoldenrod),
-		&this->mColorText);
+		&this->mpColorText);
 	}
 	ID newID = idGen.generateID();
 	char name[10] = "text";
-	this->mBrushMap[newID] = this->mColorText;
+	this->mBrushMap[newID] = this->mpColorText;
 	this->mBrushMapName[name] = newID;
 	return hr;
 }
@@ -411,11 +463,11 @@ HRESULT Direct2D::mCreateColorDraw()
 	{
 		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::DarkGoldenrod),
-		&this->mColorDraw);
+		&this->mpColorDraw);
 	}
 	ID newID = idGen.generateID();
 	char name[10] = "draw";
-	this->mBrushMap[newID] = this->mColorDraw;
+	this->mBrushMap[newID] = this->mpColorDraw;
 	this->mBrushMapName[name] = newID;
 	return hr;
 }
@@ -459,7 +511,7 @@ HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath)
 				{
 					if (SUCCEEDED(hr = this->mpFormatConverter->Initialize(this->mpBitmapSrc, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 1.f, WICBitmapPaletteTypeMedianCut)))
 					{
-						if (SUCCEEDED(hr = this->mpHwndRenderTarget->CreateBitmapFromWicBitmap(this->mpFormatConverter, &this->mFailBitmap)))
+						if (SUCCEEDED(hr = this->mpHwndRenderTarget->CreateBitmapFromWicBitmap(this->mpFormatConverter, &this->mpFailBitmap)))
 						{
 							this->mFailBitMapLoaded = true;
 						}
