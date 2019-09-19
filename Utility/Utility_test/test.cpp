@@ -2,6 +2,8 @@
 #include <CameraFunctions.h>
 #include <UtilityFunctions.h>
 #include "DebugInfoTestHeader.h"
+//#include <InitInputHandler.h>
+
 
 int main(int argc, char** argv)
 {
@@ -56,6 +58,17 @@ TEST(CameraFunctions, CreateCameraSystems) {
 
 	int nrOfSystems = mEcs.getTotalSystemCount();
 	EXPECT_EQ(nrOfSystems, 1);
+}
+
+TEST(CameraFunctions, MoveCameraWithInput) {
+	ecs::EntityComponentSystem mEcs;
+	//InputBackend ibe;
+	//initInputECS(mEcs, &ibe);
+	CameraFunctions::CreateDevCamera(mEcs);
+	CameraFunctions::CreateCameraSystems(mEcs);
+
+
+	EXPECT_EQ(1, 1);
 }
 
 // Test if an int is initialized properly and that set/get and ToString
