@@ -3,6 +3,7 @@
 #define InputBackendS_H
 
 #include <DirectXMath.h>
+#define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <windows.h>
 #include <WinUser.h>
