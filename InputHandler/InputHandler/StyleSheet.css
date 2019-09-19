@@ -1,0 +1,40 @@
+body
+{
+    background-color: #000;
+    text-align: center;
+    color: white;
+}
+
+button
+{
+    background-color: #AAA;
+    margin: 5px;
+    font-style: normal;
+    font-size: 20px;
+}
+
+h2
+{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: 0px;
+}
+
+#playerButton
+{
+    margin-top: 10px;
+    height: 50px;
+    width: 100px;
+    color: black;
+}
+
+.buttonField
+{
+    margin-left: auto;
+    margin-right: auto;
+    height: 175px;
+    width: 225px;
+    border-style: solid;
+    border-width: 5px;
+    border-color: #fff;
+}
