@@ -1,5 +1,6 @@
 #include "pch.h"
-#include <ecs.h>
+#include "CameraSystems.h"
+#include "ecs.h"
 #include <CameraFunctions.h>
 #include <UtilityFunctions.h>
 #include "DebugInfoTestHeader.h"
@@ -42,7 +43,8 @@ TEST(UtilityFunctions, GetWorldMatrix) {
 
 TEST(CameraFunctions, InitDevCamera) {
 	ecs::EntityComponentSystem mEcs;
-	CameraFunctions::CreateDevCamera(mEcs);
+	CameraFunctions::CreateCameraSystems(mEcs);
+	//CameraFunctions::CreateDevCamera(mEcs);
 		
 	int numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
 	int numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
@@ -54,7 +56,6 @@ TEST(CameraFunctions, InitDevCamera) {
 
 TEST(CameraFunctions, CreateCameraSystems) {
 	ecs::EntityComponentSystem mEcs;
-	//mEcs.createSystem<ecs::systems::UpdateCameraSystem>();
 	CameraFunctions::CreateCameraSystems(mEcs);
 
 	int nrOfSystems = mEcs.getTotalSystemCount();
