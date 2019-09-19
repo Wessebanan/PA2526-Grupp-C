@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <ecs.h>
+#include <unordered_map>
 #pragma comment(lib, "plainECS.lib")
 
 int main(int argc, char** argv) {
@@ -808,7 +809,101 @@ namespace TestComponentManager
 			}
 		}
 	}
-	//TEST(TestComponentManager, Iterator)
+	TEST(TestComponentManager, Iterator)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Create components, store IDs
+		ID id;
+		std::unordered_map<ID, int> expected_data;
+		for (int i = 0; i < component_count; i++)
+		{
+			id = mgr.createComponent(TestComponent1(i))->getID();
+			expected_data[id] = i;
+		}
+
+		ecs::ComponentIterator it = mgr.getComponentIterator(TestComponent1::typeID);
+
+		// Check all components the iterator has, check their data and count
+		int iterator_count = 0;
+		TestComponent1 *pComponent;
+		ecs::BaseComponent *pBase;
+		while (pBase = it.next())
+		{
+			pComponent = static_cast<TestComponent1*>(pBase);
+
+			id = pComponent->getID();
+			EXPECT_EQ(pComponent->data, expected_data[id]);
+			iterator_count++;
+		}
+		EXPECT_EQ(iterator_count, component_count);
+	}
+	TEST(TestComponentManager, CreateAfterRemoval)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Create components, store IDs
+		ID id_list[component_count];
+		for (int i = 0; i < component_count; i++)
+		{
+			id_list[i] = mgr.createComponent(TestComponent1(i))->getID();
+		}
+
+		// Remove all components, back to front
+		for (int i = component_count - 1; i >= 0; i--)
+		{
+			mgr.removeComponent(TestComponent1::typeID, id_list[i]);
+		}
+
+		// Create more components, then check if they have the correct data
+		TestComponent1 *pComponent;
+		ecs::BaseComponent *pBase;
+		for (int i = 0; i < component_count; i++)
+		{
+			pBase = mgr.createComponent(TestComponent1(i));
+			EXPECT_NE(pBase, nullptr);
+
+			pComponent = static_cast<TestComponent1*>(pBase);
+			EXPECT_EQ(pComponent->data, i);
+		}
+	}
+	TEST(TestComponentManager, IteratorAfterSomeRemovals)
+	{
+		ecs::ECSComponentManager mgr;
+
+		// Create components, store IDs
+		ID id_list[component_count];
+		std::map<ID, int> expected_data;
+		for (int i = 0; i < component_count; i++)
+		{
+			id_list[i] = mgr.createComponent(TestComponent1(i))->getID();
+		}
+
+		// Remove half of the components, keep count how many components
+		// are still existing. Set removed component IDs to 0.
+		int expected_components = component_count;
+		for (int i = 0; i < component_count; i++)
+		{
+			mgr.removeComponent(TestComponent1::typeID, id_list[i]);
+			id_list[i] = 0;
+			expected_components--;
+		}
+
+		ecs::ComponentIterator it = mgr.getComponentIterator(TestComponent1::typeID);
+
+		// Check component in iterator
+		TestComponent1 *pComponent;
+		ecs::BaseComponent *pBase;
+		while (pBase = it.next())
+		{
+			ASSERT_NE(pBase, nullptr);
+			pComponent = static_cast<TestComponent1*>(pBase);
+
+			// Check if data is correct
+
+			//EXPECT_EQ()
+		}
+	}
 } // namespace TestComponentManager
 namespace TestEventManager
 {
