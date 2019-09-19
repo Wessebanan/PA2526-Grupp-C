@@ -72,3 +72,57 @@ float4 main(PSIN input) : SV_TARGET
 	return finalColor;
 }
 )";
+
+const std::string gVertexShader2 = R"(
+cbuffer gTransformation : register (b0)
+{
+	float4x4 gWorld;
+};
+cbuffer gCam : register (b1)
+{
+	float4x4 gView;
+};
+cbuffer gPer : register (b2)
+{
+	float4x4 gPerspective;
+};
+struct VSOUT
+{
+	float4 pos	: SV_POSITION;
+	float3 nor  : NORMAL;
+	float2 uv	: UV0;
+	float4 worldPos : POSITION;
+	uint instance : INDEX0;
+};
+VSOUT main(
+	float3 pos : POSITION0, 
+	float3 normal : NORMAL0,
+	float2 uv : UV0,
+	uint instance : INDEX0)
+{
+	VSOUT output;
+	float4x4 wvp = mul(gPerspective, mul(gView, gWorld));
+	output.pos	= mul(wvp, float4(pos, 1.0f));
+	output.uv	= uv;
+	output.nor	= normal;
+	output.worldPos  = mul(gWorld, float4(pos, 1.0f));
+	output.instance = instance;
+	return output;
+}	
+)";
+
+const std::string gPixelShader2 = R"(
+struct PSIN
+{
+	float4 pos	: SV_POSITION;
+	float3 nor  : NORMAL;
+	float2 uv	: UV0;
+	float4 worldPos : POSITION;
+	uint instance : INDEX0;
+};
+float4 main(PSIN input) : SV_TARGET
+{ 
+	float4 finalColor = float4(input.nor.x, input.nor.y, input.nor.z, 1.0f);
+	return finalColor;
+}
+)";
