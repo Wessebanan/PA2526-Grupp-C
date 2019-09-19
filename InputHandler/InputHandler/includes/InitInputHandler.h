@@ -4,19 +4,28 @@
 #define INITINPUTHANDLER_H
 
 
-#include "HandleInputSystem.h"
+#include "ecs.h"
+#include "HandleInputBackend.h"
 
 // Initiates the systems and entitys for the InputHandling
-void initInputECS(ecs::EntityComponentSystem& rECS);
+void initInputECS(ecs::EntityComponentSystem& rECS, InputBackend* pInputBackend);
 
-void initInputECS(ecs::EntityComponentSystem& rECS)
+void initInputECS(ecs::EntityComponentSystem& rECS, InputBackend* pInputBackend)
 {
+	//// SYSTEMS
+	TypeID var = ecs::systems::HandleInputBackend::typeID;
+	rECS.createSystem<ecs::systems::HandleInputBackend>(0);// parameter är layer
+
+	rECS.createSystem<ecs::systems::HandleKeyboardSystem>(1);
+	rECS.createSystem<ecs::systems::HandleMouseSystem>(1);
+	rECS.createSystem<ecs::systems::HandleWebSystem>(1);
 
 	//// COMPONENTS
 
 	// Backend Components
 	ecs::components::InputBackendComp backend = ecs::components::InputBackendComp();
-	backend.backend = new InputSystem();
+	backend.backend = pInputBackend;
+	//backend.backend = new InputBackend();
 
 	// Keyboard Components
 	ecs::components::KeyboardComponent kbComp = ecs::components::KeyboardComponent();
@@ -40,12 +49,6 @@ void initInputECS(ecs::EntityComponentSystem& rECS)
 		backend);
 
 
-	//// SYSTEMS
-	rECS.createSystem<ecs::systems::HandleInputSystem>(0);// parameter är layer
-
-	rECS.createSystem<ecs::systems::HandleKeyboardSystem>(1);
-	rECS.createSystem<ecs::systems::HandleMouseSystem>(1);
-	rECS.createSystem<ecs::systems::HandleWebSystem>(1);
 }
 
 
