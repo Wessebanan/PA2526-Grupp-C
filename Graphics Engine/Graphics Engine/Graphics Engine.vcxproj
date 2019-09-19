@@ -92,9 +92,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\includes\Renderer.cpp" />
     <ClCompile Include="..\source\DeviceInterface.cpp" />
     <ClCompile Include="..\source\GraphicsPipeline.cpp" />
-    <ClCompile Include="..\source\InternalStorage.cpp" />
+    <ClCompile Include="..\source\BufferStorage.cpp" />
     <ClCompile Include="..\source\PresentWindow.cpp" />
     <ClCompile Include="..\source\RenderContext.cpp" />
     <ClCompile Include="..\source\Source.cpp">
@@ -111,8 +112,9 @@
     <ClInclude Include="..\includes\GraphicsPipeline.h" />
     <ClInclude Include="..\includes\GraphicsSystems.h" />
     <ClInclude Include="..\includes\Info.h" />
-    <ClInclude Include="..\includes\InternalStorage.h" />
+    <ClInclude Include="..\includes\BufferStorage.h" />
     <ClInclude Include="..\includes\PresentWindow.h" />
+    <ClInclude Include="..\includes\Renderer.h" />
     <ClInclude Include="..\includes\Texture2DView.h" />
     <ClInclude Include="..\includes\Window.h" />
   </ItemGroup>

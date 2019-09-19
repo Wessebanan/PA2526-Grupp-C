@@ -55,7 +55,7 @@ namespace graphics
 			offsets);
 
 		m_pContext4->IASetIndexBuffer(
-			m_pStorage->GetBufferHeapGPU(BUFFER_INDEX),
+			m_pStorage->GetBufferHeapGPU(BUFFER_VERTEX_INDEX),
 			DXGI_FORMAT_R32_UINT,
 			0);
 	}
@@ -63,16 +63,19 @@ namespace graphics
 	void RenderContext::Release()
 	{
 		m_pContext4->Release();
-		
-		if (m_pDepthBuffer)
-		{
-			m_pDepthBuffer->Release();
-			m_pDepthBuffer = NULL;
-		}
+	}
+
+	void RenderContext::ClearDepth(const DepthBuffer& depthBuffer)
+	{
+		m_pContext4->ClearDepthStencilView(
+			depthBuffer.pView,
+			D3D11_CLEAR_DEPTH,
+			1.0f,
+			0);
 	}
 
 	void RenderContext::ClearRenderTarget(
-		Texture2DView* pView,
+		const RenderTarget& renderTarget,
 		const float red,
 		const float green,
 		const float blue)
@@ -82,14 +85,8 @@ namespace graphics
 		m_clearColor[2] = blue;
 
 		m_pContext4->ClearRenderTargetView(
-			pView->m_pRenderTarget, 
+			renderTarget.pView,
 			m_clearColor);
-
-		m_pContext4->ClearDepthStencilView(
-			m_pDepthBuffer,
-			D3D11_CLEAR_DEPTH,
-			1.0f,
-			0);
 	}
 
 	void RenderContext::CopyDataToRegion(
@@ -107,6 +104,16 @@ namespace graphics
 		pHeap->UploadToGPU(m_pContext4, type);
 	}
 
+	void RenderContext::UploadStaticDataToGPU()
+	{
+		UploadToGPU(BUFFER_CONSTANT_STATIC);
+	}
+
+	void RenderContext::UploadDynamicDataToGPU()
+	{
+		UploadToGPU(BUFFER_CONSTANT_DYNAMIC);
+	}
+
 	void RenderContext::UploadMeshesToGPU()
 	{
 		UploadToGPU(BUFFER_VERTEX_POSITION);
@@ -114,20 +121,15 @@ namespace graphics
 		UploadToGPU(BUFFER_VERTEX_UV);
 	}
 
-	void RenderContext::SetRenderTarget(Texture2DView* pView)
+	void RenderContext::SetRenderTarget(
+		const RenderTarget& renderTarget,
+		const DepthBuffer& depthBuffer)
 	{
-		ID3D11DepthStencilView* pTemp = NULL;
-
-		if (m_pDepthBuffer)
-		{
-			pTemp = m_pDepthBuffer;
-		}
-
 		// --- SET RENDER TARGETS ---
 		m_pContext4->OMSetRenderTargets(
 			1,
-			&pView->m_pRenderTarget,
-			pTemp);
+			&renderTarget.pView,
+			depthBuffer.pView);
 	}
 
 	void RenderContext::SetGraphicsPipeline(GraphicsPipeline* pPipeline)

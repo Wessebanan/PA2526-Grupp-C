@@ -127,11 +127,16 @@ namespace ecs
 						offsets[mc->MeshLocation.ID] = 0;
 					}
 
+					if (mc->MeshLocation.ID == 1)
+					{
+						int x = 0;
+					}
+
 					UINT offset = offsets[mc->MeshLocation.ID]++;
 					UINT location = 0;
 					for (int i = mc->MeshLocation.ID - 1; i >= 0; i--)
 					{
-						UINT count = (UINT)m_pData->m_meshCount.count(i);
+						UINT count = (UINT)m_pData->m_meshCount[i];
 						location += count;
 					}
 

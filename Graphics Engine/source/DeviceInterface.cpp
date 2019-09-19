@@ -57,6 +57,7 @@ namespace graphics
 
 		m_storage.Initialize(m_pDevice4);
 		m_context.Initialize(m_pDevice4, &m_storage);
+		m_pipelineArray.Initialize(m_pDevice4, 10);
 	}
 
 	void DeviceInterface::CreateBufferRegion(
@@ -78,21 +79,34 @@ namespace graphics
 			m_window.m_pSwapChain4->Release();
 		}
 
-		if (m_backBuffer.m_pRenderTarget)
-		{
-			m_backBuffer.m_pRenderTarget->Release();
-		}
-
 		m_context.Release();
 		m_storage.Release();
 
 		m_pDevice4->Release();
 	}
 
+	RenderContext* DeviceInterface::GetRenderContext()
+	{
+		return &m_context;
+	}
+
+	UINT64 DeviceInterface::QueryVideoMemoryUsage()
+	{
+		DXGI_QUERY_VIDEO_MEMORY_INFO info;
+
+		m_pAdapter4->QueryVideoMemoryInfo(
+			0,
+			DXGI_MEMORY_SEGMENT_GROUP_LOCAL,
+			&info);
+
+		return info.CurrentUsage;
+	}
+
 	void DeviceInterface::CreatePresentWindow(
-		const UINT width,
-		const UINT height,
+		const UINT width, 
+		const UINT height, 
 		const char* pTitle,
+		RenderTarget* pRenderTarget,
 		PresentWindow** ppWindow)
 	{
 		{
@@ -103,25 +117,37 @@ namespace graphics
 				height,
 				pTitle);
 
+			ID3D11Texture2D* pTexture2D = NULL;
 			m_window.m_pSwapChain4->GetBuffer(
 				0,
-				IID_PPV_ARGS(&m_backBuffer.m_pTexture2D));
+				IID_PPV_ARGS(&pTexture2D));
 
-			D3D11_RENDER_TARGET_VIEW_DESC desc = {};
-			desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-			desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-			desc.Texture2D.MipSlice = 0;
+			if (pTexture2D)
+			{
+				pRenderTarget->Region.Type = BUFFER_TYPE_UNKNOWN;
 
-			m_pDevice4->CreateRenderTargetView(
-				m_backBuffer.m_pTexture2D,
-				&desc,
-				&m_backBuffer.m_pRenderTarget);
+				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
+				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+				desc.Texture2D.MipSlice = 0;
 
-			m_backBuffer.m_pTexture2D->Release();
+				m_pDevice4->CreateRenderTargetView(
+					pTexture2D,
+					&desc,
+					&pRenderTarget->pView);
+
+				pTexture2D->Release();
+			}
 		}
 
 		(*ppWindow) = &m_window;
+	}
 
+	void DeviceInterface::CreateDepthBuffer(
+		const UINT width, 
+		const UINT height, 
+		DepthBuffer* pDepthBuffer)
+	{
 		// Creating temporary depth buffer (quick fix for sprint goal)
 		{
 
@@ -139,12 +165,12 @@ namespace graphics
 				desc.MiscFlags = 0;
 
 				m_pDevice4->CreateTexture2D(
-					&desc, 
-					NULL, 
+					&desc,
+					NULL,
 					&pDepthTexture);
 			}
 
-			if(pDepthTexture)
+			if (pDepthTexture)
 			{
 				D3D11_DEPTH_STENCIL_VIEW_DESC desc = {};
 				desc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -152,23 +178,13 @@ namespace graphics
 				desc.Texture2D.MipSlice = 0;
 
 				m_pDevice4->CreateDepthStencilView(
-					pDepthTexture, 
+					pDepthTexture,
 					&desc,
-					&m_context.m_pDepthBuffer);
+					&pDepthBuffer->pView);
 
 				pDepthTexture->Release();
 			}
 		}
-	}
-
-	RenderContext* DeviceInterface::QueryRenderContext()
-	{
-		return &m_context;
-	}
-
-	Texture2DView* DeviceInterface::QueryBackBuffer()
-	{
-		return &m_backBuffer;
 	}
 
 	void DeviceInterface::CreatePipeline(
@@ -176,42 +192,80 @@ namespace graphics
 		const std::string& pixelShader,
 		GraphicsPipeline** ppPipeline)
 	{
-		m_pipeline.Initialize(
+		m_pipelineArray.CreateGraphicsPipeline(
 			m_pDevice4,
 			vertexShader,
-			pixelShader);
-
-		(*ppPipeline) = &m_pipeline;
+			pixelShader,
+			ppPipeline);
 	}
 
 	void DeviceInterface::CreateDynamicBufferRegion(
 		const UINT size,
+		const void* pData,
 		BufferRegion* pRegion)
 	{
+		BufferRegion region;
+
 		CreateBufferRegion(
 			BUFFER_CONSTANT_DYNAMIC,
 			size,
-			pRegion);
+			&region);
+
+		if (pData)
+		{
+			m_context.CopyDataToRegion(pData, size, region);
+		}
+
+		pRegion->DataCount = region.DataCount;
+		pRegion->DataLocation = region.DataLocation;
+		pRegion->ID = region.ID;
+		pRegion->Type = region.Type;
 	}
 
 	void DeviceInterface::CreateStaticBufferRegion(
-		const UINT size, 
+		const UINT size,
+		const void* pData,
 		BufferRegion* pRegion)
 	{
+		BufferRegion region;
+
 		CreateBufferRegion(
 			BUFFER_CONSTANT_STATIC,
 			size,
-			pRegion);
+			&region);
+
+		if (pData)
+		{
+			m_context.CopyDataToRegion(pData, size, region);
+		}
+
+		pRegion->DataCount = region.DataCount;
+		pRegion->DataLocation = region.DataLocation;
+		pRegion->ID = region.ID;
+		pRegion->Type = region.Type;
 	}
 
 	void DeviceInterface::CreateIndexBufferRegion(
-		const UINT size, 
+		const UINT size,
+		const void* pData,
 		BufferRegion* pRegion)
 	{
+		BufferRegion region;
+
 		CreateBufferRegion(
-			BUFFER_INDEX,
+			BUFFER_VERTEX_INDEX,
 			size,
-			pRegion);
+			&region);
+
+		if (pData)
+		{
+			m_context.CopyDataToRegion(pData, size, region);
+		}
+
+		pRegion->DataCount		= region.DataCount;
+		pRegion->DataLocation	= region.DataLocation;
+		pRegion->ID				= region.ID;
+		pRegion->Type			= region.Type;
 	}
 
 	bool DeviceInterface::CreateMeshRegion(
@@ -221,6 +275,16 @@ namespace graphics
 		const void* pUVs,
 		BufferRegion* pRegion)
 	{
+		struct float3
+		{
+			float x, y, z;
+		};
+
+		struct float2
+		{
+			float x, y;
+		};
+
 		if (!pVertices) return false;
 
 		BufferRegion Vertices;
@@ -270,6 +334,7 @@ namespace graphics
 
 		pRegion->DataCount		= Vertices.DataCount;
 		pRegion->DataLocation	= Vertices.DataLocation;
+		pRegion->ID				= Vertices.ID;
 		pRegion->Type			= BUFFER_TYPE_UNKNOWN;
 
 		return true;
@@ -277,18 +342,16 @@ namespace graphics
 
 	void DeviceInterface::DeletePipeline(GraphicsPipeline* pPipeline)
 	{
-		pPipeline->Release();
+		m_pipelineArray.DeleteGraphicsPipeline(pPipeline);
 	}
 
-	UINT64 DeviceInterface::QueryVideoMemoryUsage()
+	void DeviceInterface::DeleteRenderTarget(const RenderTarget& renderTarget)
 	{
-		DXGI_QUERY_VIDEO_MEMORY_INFO info;
+		renderTarget.pView->Release();
+	}
 
-		m_pAdapter4->QueryVideoMemoryInfo(
-			0,
-			DXGI_MEMORY_SEGMENT_GROUP_LOCAL,
-			&info);
-
-		return info.CurrentUsage;
+	void DeviceInterface::DeleteDepthBuffer(const DepthBuffer& depthBuffer)
+	{
+		depthBuffer.pView->Release();
 	}
 }

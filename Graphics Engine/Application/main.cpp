@@ -21,6 +21,9 @@
 	#pragma comment(lib, "GraphicsEngine.lib")
 #endif // DEBUG
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 
 #include <string>
 #include <vector>
@@ -29,8 +32,7 @@
 #include "../includes/GraphicsSystems.h"
 #include "../includes/GraphicsComponents.h"
 
-// MAKE SURE IT'S EVENLY DIVIDABLE BY SQRT()
-#define MESHES_X_AXIS (64)
+#define MESHES_X_AXIS (120)
 #define MESHES_Y_AXIS (32)
 #define MAXIMUM_MESHES_TO_DRAW (MESHES_X_AXIS * MESHES_Y_AXIS)//(ecs::systems::compCount)
 
@@ -103,6 +105,8 @@ void AddTransformation(
 
 int main()
 {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
 	using namespace DirectX;
 	using namespace graphics;
 	using namespace ecs;
@@ -134,10 +138,22 @@ int main()
 	PresentWindow* pWindow			= NULL;
 
 	CreateDeviceInterface(&pDevice);
-	RenderContext* pContext = pDevice->QueryRenderContext();
-	Texture2DView* pBackBuffer = pDevice->QueryBackBuffer();
+	RenderContext* pContext = pDevice->GetRenderContext();
 
-	pDevice->CreatePresentWindow(clientWidth, clientHeight, "D3D11", &pWindow);
+	RenderTarget backBuffer;
+	DepthBuffer depthBuffer;
+
+	pDevice->CreatePresentWindow(
+		clientWidth, 
+		clientHeight, 
+		"D3D11", 
+		&backBuffer, 	
+		&pWindow);
+
+	pDevice->CreateDepthBuffer(
+		clientWidth, 
+		clientHeight,
+		&depthBuffer);
 
 	pDevice->CreatePipeline(
 		gVertexShader,
@@ -149,6 +165,16 @@ int main()
 
 
 	// Create Mesh
+
+	struct float3
+	{
+		float x, y, z;
+	};
+
+	struct float2
+	{
+		float x, y;
+	};
 
 	float3 t[3] = {
 		-1.0f, -1.0f, 0.0f,
@@ -206,16 +232,16 @@ int main()
 	}
 
 	UINT half = MAXIMUM_MESHES_TO_DRAW / 2;
-	for (UINT i = 0; i < half; i++)
+	for (UINT i = 0; i < MAXIMUM_MESHES_TO_DRAW; i++)
 	{
 		myECS.createEntity(wc[i], mc[0]);
 	}
 
-	for (UINT i = 0; i < half; i++)
-	{
-		UINT index = i + half;
-		myECS.createEntity(wc[index], mc[1]);
-	}
+	//for (UINT i = 0; i < half; i++)
+	//{
+	//	UINT index = i + half;
+	//	myECS.createEntity(wc[index], mc[1]);
+	//}
 
 	myECS.update(0); 
 
@@ -223,7 +249,7 @@ int main()
 	XMFLOAT4X4 view;
 	XMStoreFloat4x4(&view,
 		XMMatrixLookToLH(
-			{ 5.5f, 5.0f, -20.0f },
+			{ 5.5f, 0.0f, -20.0f },
 			{ 1.0f, 1.0f, 1.0f },
 			{ 0.0f, 1.0f, 0.0f }));
 
@@ -240,14 +266,17 @@ int main()
 	// Per Frame Heap
 	pDevice->CreateDynamicBufferRegion(
 		sizeof(view),
+		NULL,
 		&viewRegion);
 
 	pDevice->CreateDynamicBufferRegion(
 		sizeof(XMFLOAT4X4) * systems::compCount,
+		NULL,
 		&buffer0);
 
 	pDevice->CreateStaticBufferRegion(
 		sizeof(projection),
+		NULL,
 		&projRegion);
 
 	pContext->VSSetConstantBuffer(1, viewRegion);
@@ -258,15 +287,17 @@ int main()
 		sizeof(projection),
 		projRegion);
 
-	pContext->UploadToGPU(BUFFER_CONSTANT_STATIC);
+	pContext->UploadStaticDataToGPU();
 
 	pWindow->Show();
 	while (pWindow->IsOpen())
 	{
 		if (!pWindow->Update())
 		{
-			pContext->ClearRenderTarget(pBackBuffer, 0.0f, 0.0f, 0.0f);
-			pContext->SetRenderTarget(pBackBuffer);
+			pContext->ClearDepth(depthBuffer);
+			pContext->ClearRenderTarget(backBuffer, 0.0f, 0.0f, 0.0f);
+
+			pContext->SetRenderTarget(backBuffer, depthBuffer);
 
 			// Copy Data to CPU Buffer (View Matrix)
 			pContext->CopyDataToRegion(
@@ -281,30 +312,56 @@ int main()
 				buffer0);
 
 			// Upload All Data to GPU
-			pContext->UploadToGPU(BUFFER_CONSTANT_DYNAMIC);
+			pContext->UploadDynamicDataToGPU();
 
-			UINT at = buffer0.DataLocation;
-			UINT end = buffer0.DataLocation + buffer0.DataCount;
+			UINT at		= buffer0.DataLocation;
+			UINT end	= buffer0.DataLocation + buffer0.DataCount;
 
 			BufferRegion r = buffer0;
-			r.DataCount = 65536;
+			r.DataCount = RenderContext::CB_MAX_BYTES_PER_BIND;
 
-			while (at < end)
+
+			UINT meshIndex = 0;
+			std::map<UINT, UINT> meshCount = mrData.m_meshCount;
+			while (at < end && meshIndex < 2)
 			{
-				r.DataLocation = at;							// Set active region
+				r.DataLocation = at;							// Set active region (65536 bytes per draw)
 				pContext->VSSetConstantBuffer(0, r);			// Apply active Region
-				pContext->DrawInstanced(512, 0, meshes[1]);		// Draw with first half
-				pContext->DrawInstanced(512, 512, meshes[0]);	// Draw with second half
-				at += 65536;									// Increment active region
+				
+				UINT drawn = 0;
+				while (drawn < 1024 && meshIndex < meshCount.size())
+				{
+					UINT count = meshCount[meshIndex];
+
+					if (count + drawn > 1024)
+					{
+						count = 1024 - drawn;
+					}
+
+					meshCount[meshIndex] -= count;
+
+					pContext->DrawInstanced(count, drawn, meshes[meshIndex]);		// Draw (with mesh[1])
+					drawn += count;
+
+					if (meshCount[meshIndex] == 0)
+					{
+						meshIndex++;
+					}
+				}
+				
+				at += RenderContext::CB_MAX_BYTES_PER_BIND;									// Increment active region
 			}
 
-			// Presenet
+			// Present
 			pWindow->Present();
 		}
 	}
 
+	pDevice->DeleteRenderTarget(backBuffer);
+	pDevice->DeleteDepthBuffer(depthBuffer);
 	pDevice->DeletePipeline(pPipeline);
-	pDevice->Release();
+
+	DeleteDeviceInterface(pDevice);
 
 	return 0;
 }
