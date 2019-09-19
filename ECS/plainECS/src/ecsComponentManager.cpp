@@ -100,6 +100,7 @@ size_t ECSComponentManager::getComponentCountOfType(TypeID _typeID)
 
 size_t ECSComponentManager::getTotalComponentCount()
 {
+	// TODO: subtract with current remove flags?
 	size_t sum = 0;
 	for (PoolPair poolPair : componentPools)
 	{
