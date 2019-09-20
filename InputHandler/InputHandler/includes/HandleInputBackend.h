@@ -5,6 +5,7 @@
 
 #include "InputBackend.h"
 #include "InputComponents.h"
+#include "InputBackendComponent.h"
 
 namespace ecs
 {
