@@ -14,8 +14,9 @@ namespace graphics
 		m_type				= BUFFER_CONSTANT_DYNAMIC;
 		m_bindType			= D3D11_BIND_CONSTANT_BUFFER;
 		m_currentCreated	= 0;
+		m_pCpuData			= NULL;
 
-		ZeroMemory(m_cpuData, ARRAYSIZE(m_cpuData));
+		//ZeroMemory(m_cpuData, ARRAYSIZE(m_cpuData));
 	}
 
 	BufferHeap::~BufferHeap()
@@ -24,7 +25,8 @@ namespace graphics
 
 	void BufferHeap::Initialize(
 		ID3D11Device4* pDevice4,
-		BUFFER_TYPE type)
+		BUFFER_TYPE type,
+		char** pDataStart)
 	{
 		m_type = type;
 
@@ -38,6 +40,8 @@ namespace graphics
 			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
 			desc.Usage		= D3D11_USAGE_DYNAMIC;
 			desc.MiscFlags	= 0;
+
+			m_size = ALLOCATED_BUFFER_SIZE;
 			break;
 
 		case BUFFER_CONSTANT_STATIC:
@@ -45,20 +49,26 @@ namespace graphics
 			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
 			desc.Usage		= D3D11_USAGE_DEFAULT;
 			desc.MiscFlags	= 0;
+
+			m_size = ALLOCATED_BUFFER_SIZE;
 			break;
 
-		case BUFFER_RTV:
+		case BUFFER_RENDER_TARGET:
 			desc.BindFlags	= m_bindType = D3D11_BIND_RENDER_TARGET;
 			desc.ByteWidth	= ALLOCATED_RTV_AND_SRV_SIZE;
 			desc.Usage		= D3D11_USAGE_DEFAULT;
 			desc.MiscFlags	= 0;
+
+			m_size = ALLOCATED_RTV_AND_SRV_SIZE;
 			break;
 
-		case BUFFER_SRV:
+		case BUFFER_SHADER_RESOURCE:
 			desc.BindFlags	= m_bindType = D3D11_BIND_SHADER_RESOURCE;
 			desc.ByteWidth	= ALLOCATED_RTV_AND_SRV_SIZE;
 			desc.Usage		= D3D11_USAGE_DEFAULT;
 			desc.MiscFlags	= 0;
+
+			m_size = ALLOCATED_RTV_AND_SRV_SIZE;
 			break;
 
 		case BUFFER_VERTEX_INDICES:
@@ -66,6 +76,8 @@ namespace graphics
 			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
 			desc.Usage		= D3D11_USAGE_DEFAULT;
 			desc.MiscFlags	= 0;
+
+			m_size = ALLOCATED_BUFFER_SIZE;
 			break;
 
 		case BUFFER_VERTEX_POSITION:
@@ -73,6 +85,8 @@ namespace graphics
 			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
 			desc.Usage		= D3D11_USAGE_DEFAULT;
 			desc.MiscFlags	= 0;
+
+			m_size = ALLOCATED_BUFFER_SIZE;
 			break;
 
 		case BUFFER_VERTEX_NORMAL:
@@ -80,6 +94,8 @@ namespace graphics
 			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
 			desc.Usage		= D3D11_USAGE_DEFAULT;
 			desc.MiscFlags	= 0;
+
+			m_size = ALLOCATED_BUFFER_SIZE;
 			break;
 
 		case BUFFER_VERTEX_UV:
@@ -87,6 +103,8 @@ namespace graphics
 			desc.ByteWidth	= ALLOCATED_BUFFER_SIZE;
 			desc.Usage		= D3D11_USAGE_DEFAULT;
 			desc.MiscFlags	= 0;
+
+			m_size = ALLOCATED_BUFFER_SIZE;
 			break;
 
 		case BUFFER_VERTEX_ARRAY_INDEX:
@@ -94,6 +112,8 @@ namespace graphics
 			desc.ByteWidth	= BUFFER_VERTEX_ARRAY_INDEX_LENGTH * sizeof(UINT);
 			desc.Usage		= D3D11_USAGE_IMMUTABLE;
 			desc.MiscFlags	= 0;
+
+			m_size = BUFFER_VERTEX_ARRAY_INDEX_LENGTH * sizeof(UINT);
 			break;
 
 		default:
@@ -126,7 +146,8 @@ namespace graphics
 			break;
 		}
 
-		m_size = ALLOCATED_BUFFER_SIZE;
+		m_pCpuData = *pDataStart;
+		*pDataStart += m_size;
 	}
 
 	bool BufferHeap::AllocateRegion(const UINT size, BufferRegion* pRegion)
@@ -161,7 +182,7 @@ namespace graphics
 
 		default:
 			memcpy(
-				m_cpuData + region.DataLocation,
+				m_pCpuData + region.DataLocation,
 				pData,
 				region.DataCount);
 			break;
@@ -185,7 +206,7 @@ namespace graphics
 
 			memcpy(
 				(char*)map.pData,
-				m_cpuData,
+				m_pCpuData,
 				m_currentSpent);
 
 			pContext4->Unmap(m_pBuffer, 0);
@@ -196,7 +217,7 @@ namespace graphics
 				m_pBuffer,
 				0,
 				NULL,
-				m_cpuData,
+				m_pCpuData,
 				m_currentSpent,
 				0);
 			break;
@@ -220,7 +241,7 @@ namespace graphics
 				m_pBuffer,
 				0,
 				&box,
-				m_cpuData,
+				m_pCpuData,
 				m_currentSpent,
 				0);
 			break;
@@ -242,8 +263,9 @@ namespace graphics
 
 	void InternalStorage::Initialize(ID3D11Device4* pDevice4)
 	{
-		for (UINT i = 0; i < BUFFER_TYPE_LENGTH; i++)
-			m_heaps[i].Initialize(pDevice4, BUFFER_TYPE(i));
+		char* pDataStart = m_cpuData;
+		for (UINT i = 0; i < ALLOCATED_BUFFER_COUNT; i++)
+			m_heaps[i].Initialize(pDevice4, BUFFER_TYPE(i), &pDataStart);
 	}
 
 	BufferHeap* InternalStorage::GetBufferHeapCPU(const BUFFER_TYPE type)
@@ -258,7 +280,7 @@ namespace graphics
 
 	void InternalStorage::Release()
 	{
-		for (UINT i = 0; i < ALLOCATED_BUFFERS; i++)
+		for (UINT i = 0; i < ALLOCATED_BUFFER_COUNT; i++)
 		{
 			m_heaps[i].Release();
 		}

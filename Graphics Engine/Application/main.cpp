@@ -91,6 +91,8 @@ float4 main(PSIN input) : SV_TARGET
 
 )";
 
+// Structs: must be variables on the stack
+// classes: must be pointers retrieved from 'DeviceInterface'
 
 void AddTransformation(
 	std::vector<DirectX::XMFLOAT4X4>& transformations,
@@ -308,7 +310,7 @@ int main()
 			// Copy Data to CPU Buffer (World Matrices)
 			pContext->CopyDataToRegion(
 				mrData.m_matrices,
-				systems::compCount * sizeof(XMFLOAT4X4),
+				MAXIMUM_MESHES_TO_DRAW * sizeof(XMFLOAT4X4),
 				buffer0);
 
 			// Upload All Data to GPU

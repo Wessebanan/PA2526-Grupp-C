@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 
 #include "ecsEvent.h"
 #include "ecsComponent.h"

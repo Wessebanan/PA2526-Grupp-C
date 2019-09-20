@@ -58,6 +58,8 @@ namespace graphics
 		m_storage.Initialize(m_pDevice4);
 		m_context.Initialize(m_pDevice4, &m_storage);
 		m_pipelineArray.Initialize(m_pDevice4, 10);
+
+		ResourceView view;
 	}
 
 	void DeviceInterface::CreateBufferRegion(

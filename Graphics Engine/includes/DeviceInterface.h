@@ -18,20 +18,22 @@ namespace graphics
 		BUFFER_UPLOAD_INDEX_DATA
 	};
 
-	class RenderTarget
+	struct RenderTarget
 	{
 		friend class RenderContext;
 		friend class DeviceInterface;
 
+	private:
 		BufferRegion Region;
 		ID3D11RenderTargetView* pView;
 	};
 
-	class DepthBuffer
+	struct DepthBuffer
 	{
 		friend class RenderContext;
 		friend class DeviceInterface;
 
+	private:
 		ID3D11DepthStencilView* pView;
 	};
 
@@ -97,11 +99,11 @@ namespace graphics
 
 		float m_clearColor[4];
 
-		InternalStorage* m_pStorage;
 		ID3D11DeviceContext4* m_pContext4;
-		GraphicsPipeline* m_pCurrentPipeline;
-
 		D3D11_VIEWPORT m_viewport;
+
+		InternalStorage* m_pStorage;
+		GraphicsPipeline* m_pCurrentPipeline;
 	};
 
 
@@ -180,6 +182,9 @@ namespace graphics
 
 		GraphicsPipelineArray m_pipelineArray;
 		InternalStorage m_storage;
+
+		// Sampler states will only be a definite amount 
+		ID3D11SamplerState* m_pSamplerStates[10];
 	};
 
 	inline void CreateDeviceInterface(DeviceInterface** ppDevice)

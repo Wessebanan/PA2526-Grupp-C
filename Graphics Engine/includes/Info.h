@@ -2,23 +2,8 @@
 
 #include "D3D11Header.h"
 
-struct MeshIndexedRegion
-{
-	UINT 
-		IndexCount, 
-		IndexLocation,
-		VertexLocation;
-};
 
-enum BUFFER_SLOT_TYPE			 // SetActiveBufferRegion(BUFFER_SLOT_TYPE, Buffer) 
-{
-	BUFFER_SLOT_PER_DRAW	= 0, // Update region each draw call (?? or maybe SetWorldMatrixData() ??)
-	BUFFER_SLOT_PER_PASS	= 1, // Update region each render pass
-	BUFFER_SLOT_PER_FRAME	= 2, // Update region each rendered frame
-	BUFFER_SLOT_PERSISTENT	= 3, // Persistent during whole program
-};
 // How will this handle large chuncks of data split up in per draw?
-
 
 /*
 	___ INITIALIZIATION AND HANDLING OF RESOURCES ___
@@ -75,7 +60,7 @@ enum BUFFER_SLOT_TYPE			 // SetActiveBufferRegion(BUFFER_SLOT_TYPE, Buffer)
 		- Vertex Position
 		- Vertex Normals
 		- Vertex UV
-		- Per Instance index (0 ... 1024)
+		- Per Instance index (0 ... 1023)
 		
 
 */
