@@ -149,7 +149,7 @@ int main()
 	Entity* e3 = myECS.createEntity(UIText);
 
 	InputBackend Input;
-	//initInputECS(myECS, &Input);
+	initInputECS(myECS, &Input);
 
 	
 
