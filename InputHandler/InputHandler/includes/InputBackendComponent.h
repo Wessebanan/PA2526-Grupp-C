@@ -1,5 +1,5 @@
 #pragma once
-#include "ecs.h"
+#include "ecsComponentIncludes.h"
 #include "InputBackend.h"
 
 
