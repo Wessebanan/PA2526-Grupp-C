@@ -60,7 +60,8 @@ enum ActionType
 {
 	NAME,
 	TILE,
-	BUTTON
+	BUTTON,
+	COMMAND
 };
 // struct that holds the parsed info
 struct webMsgData
