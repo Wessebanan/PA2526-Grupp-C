@@ -9,6 +9,7 @@
 #include <string>
 #include <locale>
 #include <vector>
+#include "DeviceInterface.h"
 #pragma comment(lib, "Dwrite")
 #pragma comment(lib, "windowscodecs")
 #pragma comment(lib, "d2d1")
