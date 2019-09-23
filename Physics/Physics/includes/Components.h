@@ -1,6 +1,7 @@
 #pragma once
 #include "ecs.h"
 #include <DirectXMath.h>
+#include "Mesh.h"
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
 namespace ecs
@@ -43,6 +44,15 @@ namespace ecs
 			float mWeight;
 		};	
 
+		COMP(GroundCollisionComponent)
+		{
+			DirectX::XMFLOAT3 mLowestPoint;
+		};
+		
+		COMP(MeshComponent)
+		{
+			ModelLoader::Mesh mMesh;
+		};
 	} // components
 } // ecs
 

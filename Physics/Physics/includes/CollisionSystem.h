@@ -25,5 +25,18 @@ namespace ecs
 		* Receives collision events and... 
 		*/
 		SYSTEM(CollisionHandlingSystem) {};
+
+		/** GroundCollisionComponentInitSystem:
+		* Whenever a ground collision component is
+		* created, this system calculates the lowest
+		* point of the mesh to compare against the ground.
+		*/
+		SYSTEM(GroundCollisionComponentInitSystem)
+		{
+			GroundCollisionComponentInitSystem();
+			~GroundCollisionComponentInitSystem();
+			void readEvent(ecs::BaseEvent & _event, float _delta) override;
+		};
+
 	} // systems
 } // ecs

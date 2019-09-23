@@ -35,5 +35,10 @@ namespace ecs
 			ID mEntityID;
 		};
 
+		EVENT(GroundCollisionComponentCreateEvent)
+		{
+			ID mEntityID;
+		};
+
 	} // events
 } // ecs
