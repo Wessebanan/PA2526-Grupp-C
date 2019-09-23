@@ -18,7 +18,7 @@ namespace graphics
 
 		static UINT NUM_ALLOCATED;
 
-		void Initialize(
+		int Initialize(
 			ID3D11Device4* pDevice4,
 			const std::string& vertexShader,
 			const std::string& pixelShader);
@@ -38,13 +38,13 @@ namespace graphics
 		GraphicsPipelineArray();
 		~GraphicsPipelineArray();
 
-		void Initialize(
+		int Initialize(
 			ID3D11Device4* pDevice4, 
 			const UINT capacity);
 
 		void Release();
 
-		bool CreateGraphicsPipeline(
+		int CreateGraphicsPipeline(
 			ID3D11Device4* pDevice4,
 			const std::string& vertexShader,
 			const std::string& pixelShader,

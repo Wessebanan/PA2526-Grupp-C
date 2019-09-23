@@ -94,7 +94,7 @@ namespace graphics
 	private:
 		void internal_UploadBufferToGPU(const BUFFER_TYPE type);
 
-		void Initialize(ID3D11Device4* pDevice4, InternalStorage* pStorage);
+		int Initialize(ID3D11Device4* pDevice4, InternalStorage* pStorage);
 		void Release();
 
 		float m_clearColor[4];
@@ -119,67 +119,70 @@ namespace graphics
 		RenderContext* GetRenderContext();
 		UINT64 QueryVideoMemoryUsage();
 
-		void CreatePresentWindow(
+		int CreatePresentWindow(
 			const UINT width,
 			const UINT height,
 			const char* pTitle,
 			RenderTarget* pRenderTarget,
-			PresentWindow** ppWindow);
+			PresentWindow* pWindow);
 
-		void CreateDepthBuffer(
+		int CreateDepthBuffer(
 			const UINT width,
 			const UINT height,
 			DepthBuffer* pDepthBuffer);
 
-		void CreatePipeline(
+		int CreateGraphicsPipeline(
 			const std::string& vertexShader,
 			const std::string& pixelShader,
 			GraphicsPipeline** ppPipeline);
 
-		void CreateDynamicBufferRegion(
+		int CreateDynamicBufferRegion(
 			const UINT size,
 			const void* pData,
 			BufferRegion* pRegion);
 
-		void CreateStaticBufferRegion(
+		int CreateStaticBufferRegion(
 			const UINT size,
 			const void* pData,
 			BufferRegion* pRegion);
 
-		void CreateIndexBufferRegion(
+		int CreateIndexBufferRegion(
 			const UINT size,
 			const void* pData,
 			BufferRegion* pRegion);
 
-		bool CreateVertexBufferRegion(
+		int CreateVertexBufferRegion(
 			const UINT vertexCount,
 			const void* pVertices,
 			const void* pNormals,
 			const void* pUVs,
 			BufferRegion* pRegion);
 
-		void DeletePipeline(GraphicsPipeline* pPipeline);
+		void DeleteGraphicsPipeline(GraphicsPipeline* pPipeline);
 		void DeleteRenderTarget(const RenderTarget& renderTarget);
 		void DeleteDepthBuffer(const DepthBuffer& depthBuffer);
+		void DeletePresentWindow(const PresentWindow& window);
 
 	private:
 		void Release();
-		void Initialize();
-		void CreateBufferRegion(
+		int Initialize();
+		int CreateBufferRegion(
 			const BUFFER_TYPE type,
 			const UINT size,
+			const void* pData,
 			BufferRegion* pRegion);
 
-		friend void CreateDeviceInterface(DeviceInterface** ppDevice);
+		friend int CreateDeviceInterface(DeviceInterface** ppDevice);
 		friend void DeleteDeviceInterface(DeviceInterface* pDevice);
 
 		ID3D11Device4* m_pDevice4;
 		IDXGIFactory6* m_pFactory6;
 		IDXGIAdapter4* m_pAdapter4;
 
-		PresentWindow m_window;
 		RenderContext m_context;
 
+		// Internal storage because it will be easier 
+		// for render context to fetch with index
 		GraphicsPipelineArray m_pipelineArray;
 		InternalStorage m_storage;
 
@@ -187,12 +190,13 @@ namespace graphics
 		ID3D11SamplerState* m_pSamplerStates[10];
 	};
 
-	inline void CreateDeviceInterface(DeviceInterface** ppDevice)
+	inline int CreateDeviceInterface(DeviceInterface** ppDevice)
 	{
 		DeviceInterface* pObj = new DeviceInterface();
-		pObj->Initialize();
-
+		int result = pObj->Initialize();
 		(*ppDevice) = pObj;
+
+		return result;
 	}
 
 	inline void DeleteDeviceInterface(DeviceInterface* pDevice)

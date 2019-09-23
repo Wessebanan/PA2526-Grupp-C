@@ -23,7 +23,7 @@ namespace graphics
 	{
 	}
 
-	void BufferHeap::Initialize(
+	int BufferHeap::Initialize(
 		ID3D11Device4* pDevice4,
 		BUFFER_TYPE type,
 		char** pDataStart)
@@ -127,6 +127,7 @@ namespace graphics
 		constexpr UINT elements = BUFFER_VERTEX_ARRAY_INDEX_LENGTH;
 		UINT indices[elements];
 		D3D11_SUBRESOURCE_DATA data = { 0 };
+		HRESULT hr;
 
 		switch (type)
 		{
@@ -138,19 +139,22 @@ namespace graphics
 
 			data.pSysMem = indices;
 
-			pDevice4->CreateBuffer(&desc, &data, &m_pBuffer);
+			hr = pDevice4->CreateBuffer(&desc, &data, &m_pBuffer);
+			if (FAILED(hr)) return FALSE;
 			break;
 
 		default:
-			pDevice4->CreateBuffer(&desc, NULL, &m_pBuffer);
+			hr = pDevice4->CreateBuffer(&desc, NULL, &m_pBuffer);
+			if (FAILED(hr)) return FALSE;
 			break;
 		}
 
 		m_pCpuData = *pDataStart;
 		*pDataStart += m_size;
+		return TRUE;
 	}
 
-	bool BufferHeap::AllocateRegion(const UINT size, BufferRegion* pRegion)
+	int BufferHeap::AllocateRegion(const UINT size, BufferRegion* pRegion)
 	{
 		UINT allocatedSize = size;
 		if (m_bindType == D3D11_BIND_CONSTANT_BUFFER)
@@ -159,7 +163,7 @@ namespace graphics
 			allocatedSize *= 256;
 		}
 
-		if (allocatedSize + m_currentSpent > m_size) return false;
+		if (allocatedSize + m_currentSpent > m_size) return FALSE;
 
 		pRegion->DataLocation	= m_currentSpent;
 		pRegion->Type			= m_type;
@@ -168,7 +172,7 @@ namespace graphics
 
 		m_currentSpent		+= allocatedSize;
 
-		return true;
+		return TRUE;
 	}
 
 	void BufferHeap::CopyDataToRegion(const void* pData, const BufferRegion& region)
@@ -261,11 +265,15 @@ namespace graphics
 	{
 	}
 
-	void InternalStorage::Initialize(ID3D11Device4* pDevice4)
+	int InternalStorage::Initialize(ID3D11Device4* pDevice4)
 	{
+		int flag = TRUE;
 		char* pDataStart = m_cpuData;
-		for (UINT i = 0; i < ALLOCATED_BUFFER_COUNT; i++)
-			m_heaps[i].Initialize(pDevice4, BUFFER_TYPE(i), &pDataStart);
+
+		for (UINT i = 0; i < ALLOCATED_BUFFER_COUNT && flag; i++)
+			flag = m_heaps[i].Initialize(pDevice4, BUFFER_TYPE(i), &pDataStart);
+
+		return flag;
 	}
 
 	BufferHeap* InternalStorage::GetBufferHeapCPU(const BUFFER_TYPE type)

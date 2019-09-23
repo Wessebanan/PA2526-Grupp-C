@@ -5,7 +5,7 @@
 
 namespace graphics
 {
-	class PresentWindow : public Window
+	struct PresentWindow : public Window
 	{
 		friend class RenderContext;
 		friend class DeviceInterface;
@@ -19,7 +19,7 @@ namespace graphics
 
 	private:
 
-		void Initialize(
+		HRESULT Initialize(
 			ID3D11Device4* pDevice4,
 			IDXGIFactory6* pFactory6,
 			const UINT width,

@@ -2,7 +2,7 @@
 
 namespace graphics
 {
-	void CompileShader(
+	int CompileShader(
 		const char* pShaderCode,
 		const UINT length,
 		const char* pTarget,
@@ -27,10 +27,13 @@ namespace graphics
 		{
 			OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
 			pErrorBlob->Release();
+			return FALSE;
 		}
+
+		return TRUE;
 	}
 
-	bool CreateInputLayout(
+	int CreateInputLayout(
 		ID3D11Device4* pDevice4,
 		ID3DBlob* pVertexShader,
 		ID3D11InputLayout** ppLayout)
@@ -70,14 +73,16 @@ namespace graphics
 		desc[3].SemanticIndex = 0;
 		desc[3].SemanticName = "INDEX";
 
-		pDevice4->CreateInputLayout(
+		HRESULT hr = pDevice4->CreateInputLayout(
 			desc,
 			ARRAYSIZE(desc),
 			pVertexShader->GetBufferPointer(),
 			pVertexShader->GetBufferSize(),
 			ppLayout);
 
-		return true;
+		if (FAILED(hr))	return FALSE;
+
+		return TRUE;
 	}
 
 	bool CreateVertexShader(
@@ -86,25 +91,38 @@ namespace graphics
 		ID3D11VertexShader** ppVertexShader,
 		ID3D11InputLayout** ppInputLayout)
 	{
+		int result;
+		HRESULT hr;
+
 		ID3DBlob* pShader = NULL;
-		CompileShader(
+		result = CompileShader(
 			shaderCode.c_str(),
 			(UINT)shaderCode.length(),
 			"vs_5_0",
 			&pShader);
 
-		pDevice4->CreateVertexShader(
+		if (!result) return FALSE;
+
+		hr = pDevice4->CreateVertexShader(
 			pShader->GetBufferPointer(),
 			pShader->GetBufferSize(),
 			NULL,
 			ppVertexShader);
 
-		CreateInputLayout(
+		if (FAILED(hr))
+		{
+			pShader->Release();
+			return FALSE;
+		}
+
+		result = CreateInputLayout(
 			pDevice4,
 			pShader,
 			ppInputLayout);
 
-		return true;
+		if (!result) return FALSE;
+
+		return TRUE;
 	}
 
 	bool CreatePixelShader(
@@ -112,20 +130,27 @@ namespace graphics
 		const std::string& shaderCode,
 		ID3D11PixelShader** ppPixelShader)
 	{
+		int result;
+		HRESULT hr;
+
 		ID3DBlob* pShader = NULL;
-		CompileShader(
+		result = CompileShader(
 			shaderCode.c_str(),
 			(UINT)shaderCode.length(),
 			"ps_5_0",
 			&pShader);
 
-		pDevice4->CreatePixelShader(
+		if (!result) return FALSE;
+
+		hr = pDevice4->CreatePixelShader(
 			pShader->GetBufferPointer(),
 			pShader->GetBufferSize(),
 			NULL,
 			ppPixelShader);
 
-		return true;
+		if (FAILED(hr)) return FALSE;
+
+		return TRUE;
 	}
 
 	UINT GraphicsPipeline::NUM_ALLOCATED = 0;
@@ -143,21 +168,29 @@ namespace graphics
 	{
 	}
 
-	void GraphicsPipeline::Initialize(
+	int GraphicsPipeline::Initialize(
 		ID3D11Device4* pDevice4,
 		const std::string& vertexShader,
 		const std::string& pixelShader)
 	{
-		CreateVertexShader(
+		int result;
+
+		result = CreateVertexShader(
 			pDevice4,
 			vertexShader,
 			&m_pVertexShader,
 			&m_pLayout);
 
-		CreatePixelShader(
+		if (!result) return FALSE;
+
+		result = CreatePixelShader(
 			pDevice4,
 			pixelShader,
 			&m_pPixelShader);
+
+		if (!result) return FALSE;
+
+		return TRUE;
 	}
 
 	void GraphicsPipeline::Release()
@@ -183,7 +216,7 @@ namespace graphics
 		free(m_pPipelines);
 	}
 
-	void GraphicsPipelineArray::Initialize(
+	int GraphicsPipelineArray::Initialize(
 		ID3D11Device4* pDevice4, 
 		const UINT capacity)
 	{
@@ -213,35 +246,44 @@ namespace graphics
 		}
 
 		m_start = m_pPipelines[0].m_id;
+
+		return TRUE;
 	}
 
 	void GraphicsPipelineArray::Release()
 	{
 	}
 
-	bool GraphicsPipelineArray::CreateGraphicsPipeline(
+	int GraphicsPipelineArray::CreateGraphicsPipeline(
 		ID3D11Device4* pDevice4, 
 		const std::string& vertexShader, 
 		const std::string& pixelShader,
 		GraphicsPipeline** ppPipeline)
 	{
-		if (m_count >= m_capacity) return false;
+		if (m_count >= m_capacity) return FALSE;
 
 		UINT i = 0;
 		while (!m_pIsAvailableArray[i]) { i++; }
 
-		m_pPipelines[i].Initialize(pDevice4, vertexShader, pixelShader);
+		int result = 
+			m_pPipelines[i].Initialize(pDevice4, vertexShader, pixelShader);
+
+		if (!result) return FALSE;
+
 		(*ppPipeline) = &m_pPipelines[i];
 
 		m_pIsAvailableArray[i] = FALSE;
 
-		return true;
+		return TRUE;
 	}
 
 	bool GraphicsPipelineArray::DeleteGraphicsPipeline(GraphicsPipeline* pPipeline)
 	{
 		const UINT index = pPipeline->m_id - m_start;
+
 		m_pIsAvailableArray[index] = TRUE;
+		m_count--;
+
 		pPipeline->Release();
 
 		return true;

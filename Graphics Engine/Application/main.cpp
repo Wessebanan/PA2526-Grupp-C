@@ -13,7 +13,7 @@
 #include "../includes/DeviceInterface.h"
 #include "../../ECS/plainECS/includes/ecs.h"
 
-#pragma comment(lib, "plainECS.lib")
+#pragma comment(lib, "plainECS.lib")   
 
 #ifdef _DEBUG
 	#pragma comment(lib, "GraphicsEngine_d.lib")
@@ -137,27 +137,27 @@ int main()
 
 	DeviceInterface* pDevice		= NULL;
 	GraphicsPipeline* pPipeline		= NULL;
-	PresentWindow* pWindow			= NULL;
 
 	CreateDeviceInterface(&pDevice);
 	RenderContext* pContext = pDevice->GetRenderContext();
 
 	RenderTarget backBuffer;
 	DepthBuffer depthBuffer;
+	PresentWindow wnd;
 
 	pDevice->CreatePresentWindow(
 		clientWidth, 
 		clientHeight, 
 		"D3D11", 
 		&backBuffer, 	
-		&pWindow);
+		&wnd);
 
 	pDevice->CreateDepthBuffer(
 		clientWidth, 
 		clientHeight,
 		&depthBuffer);
 
-	pDevice->CreatePipeline(
+	pDevice->CreateGraphicsPipeline(
 		gVertexShader,
 		gPixelShader,
 		&pPipeline);
@@ -291,10 +291,10 @@ int main()
 
 	pContext->UploadBufferToGPU(BUFFER_UPLOAD_STATIC_DATA);
 
-	pWindow->Show();
-	while (pWindow->IsOpen())
+	wnd.Show();
+	while (wnd.IsOpen())
 	{
-		if (!pWindow->Update())
+		if (!wnd.Update())
 		{
 			pContext->ClearDepth(depthBuffer);
 			pContext->ClearRenderTarget(backBuffer, 0.0f, 0.0f, 0.0f);
@@ -319,8 +319,8 @@ int main()
 			UINT at		= buffer0.DataLocation;
 			UINT end	= buffer0.DataLocation + buffer0.DataCount;
 
-			BufferRegion r = buffer0;
-			r.DataCount = RenderContext::CB_MAX_BYTES_PER_BIND;
+			BufferRegion r	= buffer0;
+			r.DataCount		= RenderContext::CB_MAX_BYTES_PER_BIND;
 
 
 			UINT meshIndex = 0;
@@ -355,13 +355,14 @@ int main()
 			}
 
 			// Present
-			pWindow->Present();
+			wnd.Present();
 		}
 	}
 
 	pDevice->DeleteRenderTarget(backBuffer);
 	pDevice->DeleteDepthBuffer(depthBuffer);
-	pDevice->DeletePipeline(pPipeline);
+	pDevice->DeleteGraphicsPipeline(pPipeline);
+	pDevice->DeletePresentWindow(wnd);
 
 	DeleteDeviceInterface(pDevice);
 

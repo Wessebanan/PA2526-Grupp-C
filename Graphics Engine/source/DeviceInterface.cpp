@@ -13,8 +13,9 @@ namespace graphics
 	{
 	}
 
-	void DeviceInterface::Initialize()
+	int DeviceInterface::Initialize()
 	{
+		HRESULT hr;
 		{
 			UINT factoryFlag	= 0;
 			UINT deviceFlag		= 0;
@@ -24,14 +25,22 @@ namespace graphics
 			factoryFlag |= DXGI_CREATE_FACTORY_DEBUG;
 #endif // _DEBUG
 
-			CreateDXGIFactory2(
+			hr = CreateDXGIFactory2(
 				factoryFlag,
 				IID_PPV_ARGS(&m_pFactory6));
 
-			m_pFactory6->EnumAdapterByGpuPreference(
+			if (FAILED(hr)) return FALSE;
+
+			hr = m_pFactory6->EnumAdapterByGpuPreference(
 				0,
 				DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
 				IID_PPV_ARGS(&m_pAdapter4));
+
+			if (FAILED(hr))
+			{
+				m_pFactory6->Release();
+				return FALSE;
+			}
 
 			ID3D11Device* pDeviceTemp = NULL;
 			ID3D11DeviceContext* pContextTemp = NULL;
@@ -48,6 +57,13 @@ namespace graphics
 				NULL,
 				&pContextTemp);
 
+			if (FAILED(hr))
+			{
+				m_pFactory6->Release();
+				m_pAdapter4->Release();
+				return FALSE;
+			}
+
 			pDeviceTemp->QueryInterface(IID_PPV_ARGS(&m_pDevice4));
 			pContextTemp->QueryInterface(IID_PPV_ARGS(&m_context.m_pContext4));
 
@@ -55,31 +71,25 @@ namespace graphics
 			pContextTemp->Release();
 		}
 
-		m_storage.Initialize(m_pDevice4);
-		m_context.Initialize(m_pDevice4, &m_storage);
-		m_pipelineArray.Initialize(m_pDevice4, 10);
+		int flag;
 
-		ResourceView view;
+		flag = m_storage.Initialize(m_pDevice4);
+		if (!flag) return FALSE;
+
+		flag = m_context.Initialize(m_pDevice4, &m_storage);
+		if (!flag) return FALSE;
+
+		flag = m_pipelineArray.Initialize(m_pDevice4, 10);
+		if (!flag) return FALSE;
+
+		return TRUE;
 	}
 
-	void DeviceInterface::CreateBufferRegion(
-		const BUFFER_TYPE type, 
-		const UINT size, 
-		BufferRegion* pRegion)
-	{
-		BufferHeap* pHeap = m_storage.GetBufferHeapCPU(type);
-		pHeap->AllocateRegion(size, pRegion);
-	}
 
 	void DeviceInterface::Release()
 	{
 		m_pAdapter4->Release();
 		m_pFactory6->Release();
-
-		if (m_window.m_pSwapChain4)
-		{
-			m_window.m_pSwapChain4->Release();
-		}
 
 		m_context.Release();
 		m_storage.Release();
@@ -104,25 +114,30 @@ namespace graphics
 		return info.CurrentUsage;
 	}
 
-	void DeviceInterface::CreatePresentWindow(
+	int DeviceInterface::CreatePresentWindow(
 		const UINT width, 
 		const UINT height, 
 		const char* pTitle,
 		RenderTarget* pRenderTarget,
-		PresentWindow** ppWindow)
+		PresentWindow* pWindow)
 	{
+		HRESULT hr = S_OK;
 		{
-			m_window.Initialize(
+			hr = pWindow->Initialize(
 				m_pDevice4,
 				m_pFactory6,
 				width,
 				height,
 				pTitle);
 
+			if (FAILED(hr)) return FALSE;
+
 			ID3D11Texture2D* pTexture2D = NULL;
-			m_window.m_pSwapChain4->GetBuffer(
+			hr = pWindow->m_pSwapChain4->GetBuffer(
 				0,
 				IID_PPV_ARGS(&pTexture2D));
+
+			if (FAILED(hr)) return FALSE;
 
 			if (pTexture2D)
 			{
@@ -133,26 +148,28 @@ namespace graphics
 				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 				desc.Texture2D.MipSlice = 0;
 
-				m_pDevice4->CreateRenderTargetView(
+				hr = m_pDevice4->CreateRenderTargetView(
 					pTexture2D,
 					&desc,
 					&pRenderTarget->pView);
 
 				pTexture2D->Release();
+
+				if (FAILED(hr)) return FALSE;
 			}
 		}
 
-		(*ppWindow) = &m_window;
+		return TRUE;
 	}
 
-	void DeviceInterface::CreateDepthBuffer(
+	int DeviceInterface::CreateDepthBuffer(
 		const UINT width, 
 		const UINT height, 
 		DepthBuffer* pDepthBuffer)
 	{
 		// Creating temporary depth buffer (quick fix for sprint goal)
+		HRESULT hr = S_OK;
 		{
-
 			ID3D11Texture2D* pDepthTexture = NULL;
 			{
 				D3D11_TEXTURE2D_DESC desc = { 0 };
@@ -166,10 +183,12 @@ namespace graphics
 				desc.CPUAccessFlags = 0;
 				desc.MiscFlags = 0;
 
-				m_pDevice4->CreateTexture2D(
+				hr = m_pDevice4->CreateTexture2D(
 					&desc,
 					NULL,
 					&pDepthTexture);
+
+				if (FAILED(hr)) return FALSE;
 			}
 
 			if (pDepthTexture)
@@ -179,98 +198,94 @@ namespace graphics
 				desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 				desc.Texture2D.MipSlice = 0;
 
-				m_pDevice4->CreateDepthStencilView(
+				hr = m_pDevice4->CreateDepthStencilView(
 					pDepthTexture,
 					&desc,
 					&pDepthBuffer->pView);
 
 				pDepthTexture->Release();
+
+				if (FAILED(hr)) return FALSE;
 			}
 		}
+
+		return TRUE;
 	}
 
-	void DeviceInterface::CreatePipeline(
+	int DeviceInterface::CreateGraphicsPipeline(
 		const std::string& vertexShader,
 		const std::string& pixelShader,
 		GraphicsPipeline** ppPipeline)
 	{
-		m_pipelineArray.CreateGraphicsPipeline(
+		return m_pipelineArray.CreateGraphicsPipeline(
 			m_pDevice4,
 			vertexShader,
 			pixelShader,
 			ppPipeline);
 	}
 
-	void DeviceInterface::CreateDynamicBufferRegion(
+	int DeviceInterface::CreateBufferRegion(
+		const BUFFER_TYPE type,
 		const UINT size,
 		const void* pData,
 		BufferRegion* pRegion)
 	{
-		BufferRegion region;
+		BufferHeap* pHeap = m_storage.GetBufferHeapCPU(type);
+		int result = pHeap->AllocateRegion(size, pRegion);
 
-		CreateBufferRegion(
+		if (!result) return FALSE;
+
+		if (pData)
+		{
+			m_context.CopyDataToRegion(pData, size, *pRegion);
+		}
+
+		return TRUE;
+	}
+
+	int DeviceInterface::CreateDynamicBufferRegion(
+		const UINT size,
+		const void* pData,
+		BufferRegion* pRegion)
+	{
+		int result = CreateBufferRegion(
 			BUFFER_CONSTANT_DYNAMIC,
 			size,
-			&region);
+			pData,
+			pRegion);
 
-		if (pData)
-		{
-			m_context.CopyDataToRegion(pData, size, region);
-		}
-
-		pRegion->DataCount = region.DataCount;
-		pRegion->DataLocation = region.DataLocation;
-		pRegion->ID = region.ID;
-		pRegion->Type = region.Type;
+		return TRUE;
 	}
 
-	void DeviceInterface::CreateStaticBufferRegion(
+	int DeviceInterface::CreateStaticBufferRegion(
 		const UINT size,
 		const void* pData,
 		BufferRegion* pRegion)
 	{
-		BufferRegion region;
-
-		CreateBufferRegion(
+		int result = CreateBufferRegion(
 			BUFFER_CONSTANT_STATIC,
 			size,
-			&region);
+			pData,
+			pRegion);
 
-		if (pData)
-		{
-			m_context.CopyDataToRegion(pData, size, region);
-		}
-
-		pRegion->DataCount = region.DataCount;
-		pRegion->DataLocation = region.DataLocation;
-		pRegion->ID = region.ID;
-		pRegion->Type = region.Type;
+		return TRUE;
 	}
 
-	void DeviceInterface::CreateIndexBufferRegion(
+	int DeviceInterface::CreateIndexBufferRegion(
 		const UINT size,
 		const void* pData,
 		BufferRegion* pRegion)
 	{
-		BufferRegion region;
-
-		CreateBufferRegion(
+		int result = CreateBufferRegion(
 			BUFFER_VERTEX_INDICES,
 			size,
-			&region);
+			pData,
+			pRegion);
 
-		if (pData)
-		{
-			m_context.CopyDataToRegion(pData, size, region);
-		}
-
-		pRegion->DataCount		= region.DataCount;
-		pRegion->DataLocation	= region.DataLocation;
-		pRegion->ID				= region.ID;
-		pRegion->Type			= region.Type;
+		return TRUE;
 	}
 
-	bool DeviceInterface::CreateVertexBufferRegion(
+	int DeviceInterface::CreateVertexBufferRegion(
 		const UINT vertexCount,
 		const void* pVertices,
 		const void* pNormals,
@@ -287,51 +302,37 @@ namespace graphics
 			float x, y;
 		};
 
-		if (!pVertices) return false;
+		if (!pVertices) return FALSE;
 
 		BufferRegion Vertices;
 		BufferRegion Normals;
 		BufferRegion UVs;
 
+		int result;
 		{
-			CreateBufferRegion(
+			result = CreateBufferRegion(
 				BUFFER_VERTEX_POSITION,
 				sizeof(float3) * vertexCount,
+				pVertices,
 				&Vertices);
 
-			CreateBufferRegion(
+			if (!result) return FALSE;
+
+			result = CreateBufferRegion(
 				BUFFER_VERTEX_NORMAL,
 				sizeof(float3) * vertexCount,
+				pNormals,
 				&Normals);
 
-			CreateBufferRegion(
+			if (!result) return FALSE;
+
+			result = CreateBufferRegion(
 				BUFFER_VERTEX_UV,
 				sizeof(float2) * vertexCount,
+				pUVs,
 				&UVs);
-		}
 
-
-		{
-			m_context.CopyDataToRegion(
-				pVertices,
-				sizeof(float3) * vertexCount,
-				Vertices);
-
-			if (pNormals)
-			{
-				m_context.CopyDataToRegion(
-					pNormals,
-					sizeof(float3) * vertexCount,
-					Normals);
-			}
-
-			if (pUVs)
-			{
-				m_context.CopyDataToRegion(
-					pUVs,
-					sizeof(float2) * vertexCount,
-					UVs);
-			}
+			if (!result) return FALSE;
 		}
 
 		pRegion->DataCount		= Vertices.DataCount;
@@ -339,10 +340,10 @@ namespace graphics
 		pRegion->ID				= Vertices.ID;
 		pRegion->Type			= BUFFER_TYPE_UNKNOWN;
 
-		return true;
+		return TRUE;
 	}
 
-	void DeviceInterface::DeletePipeline(GraphicsPipeline* pPipeline)
+	void DeviceInterface::DeleteGraphicsPipeline(GraphicsPipeline* pPipeline)
 	{
 		m_pipelineArray.DeleteGraphicsPipeline(pPipeline);
 	}
@@ -355,5 +356,10 @@ namespace graphics
 	void DeviceInterface::DeleteDepthBuffer(const DepthBuffer& depthBuffer)
 	{
 		depthBuffer.pView->Release();
+	}
+
+	void DeviceInterface::DeletePresentWindow(const PresentWindow& window)
+	{
+		window.m_pSwapChain4->Release();
 	}
 }

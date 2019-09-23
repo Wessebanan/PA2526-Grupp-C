@@ -14,30 +14,30 @@ namespace graphics
 		TEXTURE2D_DEPTH_STENCIL,
 	};
 
-	struct ResourceView
-	{
-		friend class RenderContext;
-		friend class DeviceInterface;
+	//struct ResourceView
+	//{
+	//	friend class RenderContext;
+	//	friend class DeviceInterface;
 
-	private:
-		TEXTURE2D_TYPE Type;
+	//private:
+	//	TEXTURE2D_TYPE Type;
 
-		union
-		{
-			// use with depth stencil
-			ID3D11Texture2D* pTexture;	
+	//	union
+	//	{
+	//		// use with depth stencil
+	//		ID3D11Texture2D* pTexture;	
 
-			// use with render targets and shader resources
-			BufferRegion Region;		
-		};		
+	//		// use with render targets and shader resources
+	//		BufferRegion Region;		
+	//	};		
 
-		union
-		{
-			ID3D11RenderTargetView* pRenderTargetView;
-			ID3D11ShaderResourceView* pShaderResourceView;
-			ID3D11DepthStencilView* pDepthStencilView;
-		};
-	};
+	//	union
+	//	{
+	//		ID3D11RenderTargetView* pRenderTargetView;
+	//		ID3D11ShaderResourceView* pShaderResourceView;
+	//		ID3D11DepthStencilView* pDepthStencilView;
+	//	};
+	//};
 
 	enum BUFFER_TYPE
 	{
@@ -82,12 +82,12 @@ namespace graphics
 		BufferHeap();
 		~BufferHeap();
 
-		void Initialize(
+		int Initialize(
 			ID3D11Device4* pDevice4,
 			BUFFER_TYPE type,
 			char** pDataStart);
 
-		bool AllocateRegion(const UINT size, BufferRegion* pRegion);
+		int AllocateRegion(const UINT size, BufferRegion* pRegion);
 		void CopyDataToRegion(const void* pData, const BufferRegion& region);
 		void UploadToGPU(ID3D11DeviceContext4* pContext4, const BUFFER_TYPE type);
 
@@ -112,7 +112,7 @@ namespace graphics
 		InternalStorage();
 		~InternalStorage();
 
-		void Initialize(ID3D11Device4* pDevice4);
+		int Initialize(ID3D11Device4* pDevice4);
 		BufferHeap* GetBufferHeapCPU(const BUFFER_TYPE type);
 		ID3D11Buffer* GetBufferHeapGPU(const BUFFER_TYPE type);
 

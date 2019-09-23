@@ -17,7 +17,7 @@ namespace graphics
 		m_pSwapChain4->Present(0, 0);
 	}
 
-	void PresentWindow::Initialize(
+	HRESULT PresentWindow::Initialize(
 		ID3D11Device4* pDevice4,
 		IDXGIFactory6* pFactory6,
 		const UINT width,
@@ -25,6 +25,8 @@ namespace graphics
 		const char* pTitle)
 	{
 		Window::Initialize(width, height, pTitle);
+
+		HRESULT hr = S_OK;
 
 		{
 			IDXGISwapChain1* pTemp = NULL;
@@ -42,7 +44,7 @@ namespace graphics
 			desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
 			desc.Flags = 0;
 
-			pFactory6->CreateSwapChainForHwnd(
+			hr = pFactory6->CreateSwapChainForHwnd(
 				pDevice4,
 				m_hwnd,
 				&desc,
@@ -50,8 +52,12 @@ namespace graphics
 				NULL,
 				&pTemp);
 
+			if (FAILED(hr)) return hr;
+
 			pTemp->QueryInterface(IID_PPV_ARGS(&m_pSwapChain4));
 			pTemp->Release();
 		}
+
+		return S_OK;
 	}
 }

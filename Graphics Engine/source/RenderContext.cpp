@@ -18,7 +18,7 @@ namespace graphics
 	{
 	}
 
-	void RenderContext::Initialize(ID3D11Device4* pDevice4, InternalStorage* pStorage)
+	int RenderContext::Initialize(ID3D11Device4* pDevice4, InternalStorage* pStorage)
 	{
 		m_pStorage = pStorage;
 
@@ -58,6 +58,8 @@ namespace graphics
 			m_pStorage->GetBufferHeapGPU(BUFFER_VERTEX_INDICES),
 			DXGI_FORMAT_R32_UINT,
 			0);
+
+		return TRUE;
 	}
 
 	void RenderContext::Release()
