@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <title>TEST</title>
+
+    <script>
+    var socket = new WebSocket("ws://192.168.1.45:80");
+
+    socket.onopen = function (event)
+    {
+        socket.send("The connection was established");
+    };
+
+    socket.onmessage = function(e)
+    {
+        var msg = e.data;
+
+        if (msg == "name")
+        {
+            socket.send("My name is Ludvig");
+        }
+        else if(msg == "start")
+        {
+            console.log("We are wating for the client to start");
+        }
+        else if(msg[0] == 1)
+        {
+            document.getElementById("clientMsg1").innerHTML = msg;
+        }
+        else if(msg[0] == 2)
+        {
+            document.getElementById("clientMsg2").innerHTML = msg;
+        }
+        else if(msg[0] == 3)
+        {
+            document.getElementById("clientMsg3").innerHTML = msg;
+        }
+        else if(msg[0] == 4)
+        {
+            msg[0] = " ";
+            msg[1] = " ";
+            document.getElementById("clientMsg4").innerHTML = msg;
+        }
+        else
+            document.getElementById("clientMsg0").innerHTML = msg;
+    }
+
+    function ping()
+    {
+        socket.send("ping");
+    }
+    function start()
+    {
+        socket.send("start");
+
+        document.getElementById('gamefield').style.display = "block";
+        document.getElementById('startfield').style.display = "none";
+    }
+    function setName(name)
+    {
+
+        socket.send("0000" +  name.toString());
+    }
+    function setTile(x,y)
+    {
+        var player = "0";
+        var action = "001";
+        x += 100;
+        y += 100;
+        var tileX = x.toString();
+        var tileY = y.toString();
+
+
+        var msg = player.concat(action.concat(tileX.concat(tileY)));
+
+        console.log(msg);
+        socket.send(msg);
+    }
+
+    function setButton(x)
+    {
+        var player = "0";
+        var action = "002";
+        x += 100;
+        var Button = x.toString();
+
+
+        var msg = player.concat(action.concat(Button));
+
+        console.log(msg);
+        socket.send(msg);
+    }
+
+    </script>
+</head>
+<body>
+    <button onclick="ping()">ping</button>
+    <button onclick="start()">START pong()</button>
+    <button onclick="setTile(087,456)">My tile is (87,456)</button>
+    <button onclick="setTile(020,031)">My tile is (20,31)</button>
+</br>
+    <button onclick="location.reload()">Stop game</button>
+
+        <p id='clientMsg0'>0. No msg yet</p>
+        <p id='clientMsg1'>1. No msg yet</p>
+        <p id='clientMsg2'>2. No msg yet</p>
+        <p id='clientMsg3'>3. No msg yet</p>
+
+        <div id='startfield' style='display:block;background-color:red;padding:3px'>
+
+            <button onclick="start()">START</button>
+
+        </div>
+
+        <div id='gamefield' style='display:none;background-color:gray;padding:3px'>
+        <p id='clientMsg4'>4. No msg yet</p>
+            <button onclick="setName('Hasse')">Name: Hasse</button>
+            <button onclick="setName('Nisse')">Name: Nisse</button>
+            <button onclick="setName('Kisse')">Name: Kisse</button>
+        </br>
+            <button onclick="setButton(0)">0</button>
+            <button onclick="setButton(1)">1</button>
+            <button onclick="setButton(2)">2</button>
+            <button onclick="setButton(3)">3</button>
+        </br>
+            <button onclick="setTile(0,0)">(0,0)</button>
+            <button onclick="setTile(0,1)">(0,1)</button>
+            <button onclick="setTile(0,2)">(0,2)</button>
+        </br>
+            <button onclick="setTile(1,0)">(1,0)</button>
+            <button onclick="setTile(1,1)">(1,1)</button>
+            <button onclick="setTile(1,2)">(1,2)</button>
+        </br>
+            <button onclick="setTile(2,0)">(2,0)</button>
+            <button onclick="setTile(2,1)">(2,1)</button>
+            <button onclick="setTile(2,2)">(2,2)</button>
+        </div>
+</br>
+</br>
+            <button onclick="location.reload()">Stop game</button>
+
+</body>
+</html>

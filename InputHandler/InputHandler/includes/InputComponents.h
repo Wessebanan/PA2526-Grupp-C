@@ -1,6 +1,5 @@
 #pragma once
-#include "ecs.h"
-
+#include "ecsComponentIncludes.h"
 
 namespace ecs 
 {
