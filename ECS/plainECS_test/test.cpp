@@ -190,13 +190,13 @@ namespace TestComponentPool
 	{
 		// Create component information
 		ecs::ECSComponentPool pool;
-		
+
 		ASSERT_FALSE(pool.isInitialized());
 		pool.initialize(component_count, component_size);
 		ASSERT_TRUE(pool.isInitialized());
 		ASSERT_EQ(pool.getAllocations(), 0);
 		ASSERT_EQ(pool.getCurrentRemoveFlagCount(), 0);
-		
+
 	}
 	TEST(TestComponentPool, Create)
 	{
@@ -213,7 +213,7 @@ namespace TestComponentPool
 		{
 			pComp = static_cast<TestComponent*>(pool.create(TestComponent(i)));
 			EXPECT_EQ(pComp->data, i);
-			
+
 			allocation_count++;
 		}
 
@@ -238,10 +238,10 @@ namespace TestComponentPool
 			}
 		}
 
-		ecs::BaseComponent *pBase = pool.getComponent(tester_ID);
+		ecs::BaseComponent* pBase = pool.getComponent(tester_ID);
 		ASSERT_NE(pBase, nullptr);
 
-		TestComponent *pComp = static_cast<TestComponent*>(pBase);
+		TestComponent* pComp = static_cast<TestComponent*>(pBase);
 		EXPECT_EQ(pComp->data, tester_data);
 	}
 	TEST(TestComponentPool, GetIterator)
@@ -259,8 +259,8 @@ namespace TestComponentPool
 
 		// Check if iterator is correct
 		int comp_counter = 0;
-		ecs::BaseComponent *pBase;
-		TestComponent *p;
+		ecs::BaseComponent* pBase;
+		TestComponent* p;
 		while (pBase = it.next())
 		{
 			// Use counter to expect data
@@ -300,8 +300,8 @@ namespace TestComponentPool
 
 		ecs::ComponentIterator it = pool.getIterator();
 
-		TestComponent *pComp;
-		ecs::BaseComponent *pBase;
+		TestComponent* pComp;
+		ecs::BaseComponent* pBase;
 		while (pBase = it.next())
 		{
 			pComp = static_cast<TestComponent*>(pBase);
@@ -312,7 +312,7 @@ namespace TestComponentPool
 			// Decrease components to check.
 			current_count--;
 		}
-		
+
 		// current_count should be zero after iteration,
 		// since it iterated all existing components
 		EXPECT_EQ(current_count, 0);
@@ -330,7 +330,7 @@ namespace TestComponentPool
 		}
 
 		// Remove all
-		for (int i = component_count-1; i >= 0; i--)
+		for (int i = component_count - 1; i >= 0; i--)
 		{
 			pool.remove(idList[i]);
 		}
@@ -392,7 +392,7 @@ namespace TestEventPool
 	{
 		ecs::ECSEventPool pool;
 		EXPECT_EQ(pool.getEventCount(), 0);
-		
+
 		// Expect empty iterator
 		std::vector<ecs::BaseEvent*> it = pool.getIterator();
 		EXPECT_EQ(it.size(), 0);
@@ -402,10 +402,10 @@ namespace TestEventPool
 		int expected_data = 1337;
 		ecs::ECSEventPool pool;
 
-		ecs::BaseEvent *pBase = pool.create(TestEvent(expected_data));
+		ecs::BaseEvent* pBase = pool.create(TestEvent(expected_data));
 		EXPECT_NE(pBase, nullptr);
 
-		TestEvent *pEvent = static_cast<TestEvent*>(pBase);
+		TestEvent* pEvent = static_cast<TestEvent*>(pBase);
 		EXPECT_EQ(pEvent->data, expected_data);
 	}
 	TEST(TestEventPool, Iterator)
@@ -422,7 +422,7 @@ namespace TestEventPool
 
 		std::vector<ecs::BaseEvent*> it = pool.getIterator();
 
-		TestEvent *pEvent;
+		TestEvent* pEvent;
 		for (int i = 0; i < event_count; i++)
 		{
 			pEvent = static_cast<TestEvent*>(it[i]);
@@ -481,7 +481,7 @@ namespace TestEventPool
 		std::vector<ecs::BaseEvent*> it = pool.getIterator();
 
 		// Check data of new events
-		TestEvent *pEvent;
+		TestEvent* pEvent;
 		for (int i = 0; i < event_count; i++)
 		{
 			pEvent = static_cast<TestEvent*>(it[i]);
@@ -507,7 +507,7 @@ namespace TestEntityManager
 		ecs::ECSEntityManager mgr;
 
 		// Create entities, check their default values
-		ecs::Entity *pEntity;
+		ecs::Entity* pEntity;
 		for (int i = 0; i < entity_count; i++)
 		{
 			pEntity = mgr.createEntity();
@@ -528,7 +528,7 @@ namespace TestEntityManager
 		}
 
 		// Retrieve entities, check return pointer and ID
-		ecs::Entity *pEntity;
+		ecs::Entity* pEntity;
 		for (int i = 0; i < entity_count; i++)
 		{
 			pEntity = mgr.getEntity(id_list[i]);
@@ -576,7 +576,7 @@ namespace TestEntityManager
 		EXPECT_EQ(expected_count, mgr.getEntityCount());
 
 		// Check that existing entites has the correct IDs
-		ecs::Entity *pEntity;
+		ecs::Entity* pEntity;
 		for (int i = 0; i < entity_count; i++)
 		{
 			// Only check entity IDs that hasn't been removed
@@ -606,7 +606,7 @@ namespace TestEntityManager
 		mgr.removeAllFlagged();
 
 		// Create new entities, check IDs
-		ecs::Entity *pEntity;
+		ecs::Entity* pEntity;
 		for (int i = 0; i < entity_count; i++)
 		{
 			pEntity = mgr.createEntity();
@@ -658,8 +658,8 @@ namespace TestComponentManager
 		EXPECT_EQ(1, mgr.getInitializedComponentTypes().getRequirements().size()); // Quick check
 
 		// Create components, check return pointer and data
-		TestComponent1 *pComponent;
-		ecs::BaseComponent *pBase;
+		TestComponent1* pComponent;
+		ecs::BaseComponent* pBase;
 		for (int i = 0; i < component_count; i++)
 		{
 			// Set TestComponent1::data = i
@@ -728,8 +728,8 @@ namespace TestComponentManager
 		}
 
 		// Try to retrive components
-		TestComponent1 *pComponent;
-		ecs::BaseComponent *pBase;
+		TestComponent1* pComponent;
+		ecs::BaseComponent* pBase;
 		for (int i = 0; i < component_count; i++)
 		{
 			pBase = mgr.getComponent(TestComponent1::typeID, id_list[i]);
@@ -785,15 +785,15 @@ namespace TestComponentManager
 		EXPECT_EQ(mgr.getTotalComponentCount(), expected_components);
 
 		// data = i
-		TestComponent1 *pComponent;
-		ecs::BaseComponent *pBase;
+		TestComponent1* pComponent;
+		ecs::BaseComponent* pBase;
 		for (int i = 0; i < component_count; i++)
 		{
 			if (id_list[i] != 0)
 			{
 				pBase = mgr.getComponent(TestComponent1::typeID, id_list[i]);
 				ASSERT_NE(pBase, nullptr);
-				
+
 				pComponent = static_cast<TestComponent1*>(pBase);
 				EXPECT_EQ(pComponent->data, i);
 			}
@@ -826,8 +826,8 @@ namespace TestComponentManager
 
 		// Check all components the iterator has, check their data and count
 		int iterator_count = 0;
-		TestComponent1 *pComponent;
-		ecs::BaseComponent *pBase;
+		TestComponent1* pComponent;
+		ecs::BaseComponent* pBase;
 		while (pBase = it.next())
 		{
 			pComponent = static_cast<TestComponent1*>(pBase);
@@ -856,8 +856,8 @@ namespace TestComponentManager
 		}
 
 		// Create more components, then check if they have the correct data
-		TestComponent1 *pComponent;
-		ecs::BaseComponent *pBase;
+		TestComponent1* pComponent;
+		ecs::BaseComponent* pBase;
 		for (int i = 0; i < component_count; i++)
 		{
 			pBase = mgr.createComponent(TestComponent1(i));
@@ -893,8 +893,8 @@ namespace TestComponentManager
 
 		// Check component in iterator, keep count of components in iterator
 		int iterator_component_count = 0;
-		TestComponent1 *pComponent;
-		ecs::BaseComponent *pBase;
+		TestComponent1* pComponent;
+		ecs::BaseComponent* pBase;
 		while (pBase = it.next())
 		{
 			ASSERT_NE(pBase, nullptr);
@@ -947,13 +947,13 @@ namespace TestEventManager
 		ecs::ECSEventManager mgr;
 
 		// Try create events, check if they are initialized correctly
-		TestEvent *pEvent;
+		TestEvent* pEvent;
 		for (int i = 0; i < event_count; i++)
 		{
 			ecs::BaseEvent* pBase = mgr.createEvent(TestEvent(i));
 			ASSERT_NE(pBase, nullptr);
 			ASSERT_EQ(pBase->getTypeID(), TestEvent::typeID);
-			
+
 			pEvent = static_cast<TestEvent*>(pBase);
 			EXPECT_EQ(pEvent->data, i);
 		}
@@ -1015,7 +1015,7 @@ namespace TestEventManager
 		EXPECT_EQ(it.size(), event_count);
 
 		int expected_data = 0;
-		TestEvent *pEvent;
+		TestEvent* pEvent;
 		for (ecs::BaseEvent* pBase : it)
 		{
 			pEvent = static_cast<TestEvent*>(pBase);
@@ -1034,14 +1034,87 @@ namespace TestEventManager
 		mgr.clearAllEvents();
 
 		// Try create more events
-		ecs::BaseEvent *pBase;
+		ecs::BaseEvent* pBase;
 		for (int i = 0; i < event_count; i++)
 		{
 			pBase = mgr.createEvent(TestEvent(i));
 			EXPECT_NE(pBase, nullptr);
 		}
 	}
-	//TEST(TestEventManager, IteratorAfterRemove)
-	//TEST(TestEventManager, Notification)
+	TEST(TestEventManager, IteratorAfterRemove)
+	{
+		ecs::ECSEventManager mgr;
+
+		for (int i = 0; i < event_count; i++)
+		{
+			mgr.createEvent(TestEvent(i));
+		}
+
+		mgr.clearAllEvents();
+
+		std::vector<ecs::BaseEvent*> it = mgr.getEventIterator(TestEvent::typeID);
+		EXPECT_EQ(it.size(), 0);
+	}
 } // namespace TestEventManager
 #pragma endregion ManagerTesting
+#pragma region ECSUserTesting	// NOT DONE
+namespace TestECSUserCore
+{
+	//TEST(TestECSUser, Init)
+} // TestECSUserCore
+namespace TestECSUserEntity
+{
+	//TEST(TestECSUser, CreateEntity)
+	//TEST(TestECSUser, RemoveEntity)
+	//TEST(TestECSUser, GetEntity)
+} // TestECSUserEntity
+namespace TestECSUserComponent
+{
+	//TEST(TestECSUser, )
+	//TEST(TestECSUser, )
+	//TEST(TestECSUser, )
+} // TestECSUserComponent
+namespace TestECSUserSystem
+{
+	//TEST(TestECSUser, )
+	//TEST(TestECSUser, )
+	//TEST(TestECSUser, )
+} // TestECSUserSystem
+namespace TestECSUserComponent
+{
+	//TEST(TestECSUser, )
+	//TEST(TestECSUser, )
+	//TEST(TestECSUser, )
+} // TestECSUserComponent
+#pragma endregion ECSUserTesting
+#pragma region ECSTesting // NOT DONE
+namespace TestECSCore
+{
+	//TEST(TestECSCore, Init)
+	//TEST(TestECSCore, Destructor)
+	//TEST(TestECSCore, Update)
+} // TestECSCore
+namespace TestECSEntity
+{
+	//TEST(TestECSEntity, CreateEntity)
+	//TEST(TestECSEntity, RemoveEntity)
+	//TEST(TestECSEntity, GetEntity)
+} // TestECSEntity
+namespace TestECSComponent
+{
+	//TEST(TestECSComponent, CreateComponent)
+	//TEST(TestECSComponent, RemoveComponent)
+	//TEST(TestECSComponent, GetComponent)
+} // TestECSComponent
+namespace TestECSEvent
+{
+	//TEST(TestECSEvent, CreateEvent)
+	//TEST(TestECSEvent, RemoveEvent)
+	//TEST(TestECSEvent, GetEvent)
+} // TestECSEvent
+namespace TestECSSystem
+{
+	//TEST(TestECSSystem, CreateSystem)
+	//TEST(TestECSSystem, RemoveSystem)
+} // TestECSSystem
+#pragma endregion ECSTesting
