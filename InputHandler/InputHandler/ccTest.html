@@ -5,6 +5,8 @@
 
     <title>TEST</title>
 
+    <link rel="stylesheet" type="text/css" href="StyleSheet.css">
+
     <script>
     var socket = new WebSocket("ws://192.168.1.45:80");
 
@@ -57,6 +59,22 @@
         document.getElementById('commandField').style.display = "block";
         document.getElementById('startfield').style.display = "none";
     }
+
+    function openPrep()
+    {
+
+        document.getElementById('prepField').style.display = "block";
+        document.getElementById('commandField').style.display = "none";
+        document.getElementById('startfield').style.display = "none";
+    }
+
+    function openCommand()
+    {
+        document.getElementById('prepField').style.display = "none";
+        document.getElementById('commandField').style.display = "block";
+        document.getElementById('startfield').style.display = "none";
+    }
+
     function setName(name)
     {
         socket.send("0000" +  name.toString());
@@ -108,19 +126,21 @@
 </head>
 <body>
     <button onclick="location.reload()">Stop game</button>
+    <button onclick="openPrep()">DEV: show prep</button>
+    <button onclick="openCommand()">DEV: show Commands</button>
 
     <p id='clientMsg0'>0. No msg yet</p>
     <p id='clientMsg1'>1. No msg yet</p>
     <p id='clientMsg2'>2. No msg yet</p>
     <p id='clientMsg3'>3. No msg yet</p>
 
-    <div id='startfield' style='display:block;background-color:red;padding:3px'>
+    <div id='startfield' class='buttonField' style='display:block;background-color:red;padding:3px'>
 
         <button onclick="start()">START</button>
 
     </div>
 
-    <div id='prepField' style='display:none;background-color:gray;padding:3px'>
+    <div id='prepField' class='buttonField' style='display:none;background-color:gray;padding:3px'>
             <button onclick="setButton(0)">0</button>
             <button onclick="setButton(1)">1</button>
             <button onclick="setButton(2)">2</button>
@@ -140,7 +160,7 @@
     </div>
 
 
-    <div id='commandField' style='display:none;background-color:green;padding:3px'>
+    <div id='commandField' class='buttonField' style='display:none;background-color:green;padding:3px'>
             <button onclick="setCommand('idel')">IDEL</button>
         </br>
             <button onclick="setCommand('move')">MOVE</button>
