@@ -271,12 +271,13 @@ bool Direct2D::PrintText(std::string text, RECT rect) //draws text with format, 
 bool Direct2D::PrintDebug(std::string text)
 {
 	std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
-	D2D1_RECT_F rect = D2D1::RectF(this->mpRect->right - (this->mpRect->right / 4), 0, this->mpRect->right, this->mpRect->bottom - (2*this->mpRect->bottom / 3));
+	//D2D1_RECT_F rect = D2D1::RectF(this->mpRect->right - (this->mpRect->right / 4), 0, this->mpRect->right, this->mpRect->bottom - (2*this->mpRect->bottom / 3));
+	D2D1_RECT_F rect = D2D1::RectF(200, 100, 600,400);
 	//the drawing area takes up an eighth of the rendertarget which often is the whole window
 	if (this->mHwndRenderTargetCreated)
 	{
-		this->mpHwndRenderTarget->FillRectangle(rect, this->mColorBrushes[Red]);
-		this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpDebugTextFormat, rect, this->mColorBrushes[White]);
+		this->mpHwndRenderTarget->FillRectangle(rect, this->mpColorDraw);
+		this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpDebugTextFormat, rect, this->mColorBrushes[Purple]);
 	}
 	return this->mHwndRenderTargetCreated;
 }
@@ -462,7 +463,7 @@ HRESULT Direct2D::mCreateColorDraw()
 	if (this->mHwndRenderTargetCreated)
 	{
 		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::DarkGoldenrod),
+		D2D1::ColorF(D2D1::ColorF::Gray,0.4),
 		&this->mpColorDraw);
 	}
 	ID newID = idGen.generateID();
@@ -492,6 +493,9 @@ HRESULT Direct2D::mCreateColorBrushes()
 		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
 			D2D1::ColorF(D2D1::ColorF::Green),
 			&this->mColorBrushes[4]);
+		hr = this->mpHwndRenderTarget->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Purple),
+			&this->mColorBrushes[5]);
 	}
 	return hr;
 }

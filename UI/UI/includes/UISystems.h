@@ -44,7 +44,7 @@ namespace ecs
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 			Direct2D* D2D;
 		private:
-			bool toRender = false;
+			bool toRender = true;
 		};
 
 		class UIBitmapSystem : public ECSSystem<UIBitmapSystem>

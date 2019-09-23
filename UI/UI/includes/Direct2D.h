@@ -15,7 +15,7 @@
 #pragma comment (lib, "d3d11")
 
 #define BITMAP_NAME_LENGTH 10
-#define COLOR_BRUSHES 5
+#define COLOR_BRUSHES 6
 //struct BitmapInfo
 //{
 //	ID2D1Bitmap* bitmap = nullptr;
@@ -28,7 +28,8 @@ enum brushColors
 	White = 1,
 	Red = 2,
 	Blue = 3,
-	Green = 4
+	Green = 4,
+	Purple = 5
 };
 static IDGenerator<ID> idGen(0);
 struct cmp_str

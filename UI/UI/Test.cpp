@@ -1,4 +1,5 @@
 #pragma once
+#include "InitInputHandler.h"
 #include <winsock2.h>
 #include <Windows.h>
 #include<ecs.h>
@@ -146,6 +147,9 @@ int main()
 	Entity* e1 = myECS.createEntity(UIBitmap, UIPos2);
 	//Entity* e2 = myECS.createEntity(UIColor, UIText, UIPos);
 	Entity* e3 = myECS.createEntity(UIText);
+
+	InputBackend Input;
+	//initInputECS(myECS, &Input);
 
 	
 
