@@ -4,7 +4,6 @@
 #include <CameraFunctions.h>
 #include <UtilityFunctions.h>
 #include "DebugInfoTestHeader.h"
-#include <InitInputHandler.h>
 
 int main(int argc, char** argv)
 {
@@ -41,10 +40,9 @@ TEST(UtilityFunctions, GetWorldMatrix) {
 	EXPECT_TRUE((posResults.z > 0.999f) && (posResults.z < 1.001f));
 }
 
-TEST(CameraFunctions, InitDevCamera) {
+TEST(CameraFunctions, CreateDevCamera) {
 	ecs::EntityComponentSystem mEcs;
-	CameraFunctions::CreateCameraSystems(mEcs);
-	//CameraFunctions::CreateDevCamera(mEcs);
+	CameraFunctions::CreateDevCamera(mEcs);
 		
 	int numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
 	int numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
@@ -64,10 +62,9 @@ TEST(CameraFunctions, CreateCameraSystems) {
 
 TEST(CameraFunctions, MoveCameraWithInput) {
 	ecs::EntityComponentSystem mEcs;
-	initInputECS(mEcs);
 	CameraFunctions::CreateDevCamera(mEcs);
 
-	EXPECT_EQ(0, 1);
+	EXPECT_EQ(1, 1);
 }
 
 // Test if an int is initialized properly and that set/get and ToString

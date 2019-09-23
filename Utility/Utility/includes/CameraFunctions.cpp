@@ -1,5 +1,6 @@
 #include "CameraFunctions.h"
 #include "ecs.h"
+#include <DirectXMath.h>
 using namespace DirectX;
 using namespace ecs;
 using namespace ecs::components;
