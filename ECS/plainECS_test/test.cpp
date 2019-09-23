@@ -1,6 +1,10 @@
 #include "pch.h"
 
-#include <ecs.h>
+#include "ecs.h"
+#include "ecsComponentIncludes.h"
+#include "ecsSystemIncludes.h"
+#include "ecsEventIncludes.h"
+
 #include <unordered_map>
 #pragma comment(lib, "plainECS.lib")
 
@@ -1088,33 +1092,233 @@ namespace TestECSUserComponent
 } // TestECSUserComponent
 #pragma endregion ECSUserTesting
 #pragma region ECSTesting // NOT DONE
-namespace TestECSCore
+namespace TestECS
 {
-	//TEST(TestECSCore, Init)
-	//TEST(TestECSCore, Destructor)
-	//TEST(TestECSCore, Update)
-} // TestECSCore
-namespace TestECSEntity
-{
-	//TEST(TestECSEntity, CreateEntity)
-	//TEST(TestECSEntity, RemoveEntity)
-	//TEST(TestECSEntity, GetEntity)
-} // TestECSEntity
-namespace TestECSComponent
-{
-	//TEST(TestECSComponent, CreateComponent)
-	//TEST(TestECSComponent, RemoveComponent)
-	//TEST(TestECSComponent, GetComponent)
-} // TestECSComponent
-namespace TestECSEvent
-{
-	//TEST(TestECSEvent, CreateEvent)
-	//TEST(TestECSEvent, RemoveEvent)
-	//TEST(TestECSEvent, GetEvent)
-} // TestECSEvent
-namespace TestECSSystem
-{
-	//TEST(TestECSSystem, CreateSystem)
-	//TEST(TestECSSystem, RemoveSystem)
-} // TestECSSystem
+	/*
+		This counter is used to check in which order systems are
+		updated. In each system's update, the system will fetch
+		the current value in g_update_ticket_counter and increase
+		it by one.
+	*/
+	int g_update_ticket_counter = 0;
+
+	#pragma region TestDataTypes
+	struct TestComponent : public ecs::ECSComponent<TestComponent>
+	{
+		TestComponent(int _data) : data(_data) {}
+		int data;
+	};
+
+	struct TestEvent : public ecs::ECSEvent<TestEvent>
+	{
+		TestEvent(int _data) : data(_data) {}
+		int data;
+	};
+
+	class TestEntityUpdateSystem : public ecs::ECSSystem<TestEntityUpdateSystem>
+	{
+	public:
+		bool isUpdated = false;
+		int updateTicket = 0;
+		TestEntityUpdateSystem()
+		{
+			updateType = ecs::SystemUpdateType::EntityUpdate;
+			typeFilter.addRequirement(TestComponent::typeID);
+		}
+		virtual ~TestEntityUpdateSystem() {}
+		void updateEntity(ecs::FilteredEntity& _entityInfo, float _delta) override
+		{
+			isUpdated = true;
+			updateTicket = g_update_ticket_counter++;
+		}
+	};
+	class TestMultipleEntityUpdateSystem: public ecs::ECSSystem<TestMultipleEntityUpdateSystem>
+	{
+	public:
+		bool isUpdated = false;
+		int updateTicket = 0;
+		TestMultipleEntityUpdateSystem()
+		{
+			updateType = ecs::SystemUpdateType::MultiEntityUpdate;
+			typeFilter.addRequirement(TestComponent::typeID);
+		}
+		virtual ~TestMultipleEntityUpdateSystem() {}
+		void updateMultipleEntities(ecs::EntityIterator& _entityInfo, float _delta) override
+		{
+			isUpdated = true;
+			updateTicket = g_update_ticket_counter++;
+		}
+	};
+	class TestEventReaderSystem : public ecs::ECSSystem<TestEventReaderSystem>
+	{
+	public:
+		bool isUpdated = false;
+		int updateTicket = 0;
+		TestEventReaderSystem()
+		{
+			updateType = ecs::SystemUpdateType::EventReader;
+			typeFilter.addRequirement(TestEvent::typeID);
+		}
+		virtual ~TestEventReaderSystem() {}
+		void readEvent(ecs::BaseEvent& _event, float _delta) override
+		{
+			isUpdated = true;
+			updateTicket = g_update_ticket_counter++;
+		}
+	};
+	class TestEventListenerSystem : public ecs::ECSSystem<TestEventListenerSystem>
+	{
+	public:
+		bool isUpdated = false;
+		int updateTicket = 0;
+		TestEventListenerSystem()
+		{
+			updateType = ecs::SystemUpdateType::EventListenerOnly;
+			subscribeEventCreation(TestEvent::typeID);
+		}
+		virtual ~TestEventListenerSystem() {}
+		void onEvent(TypeID _eventType, ecs::BaseEvent* _event) override
+		{
+			isUpdated = true;
+			updateTicket = g_update_ticket_counter++;
+		}
+	};
+	class TestActorSystem : public ecs::ECSSystem<TestActorSystem>
+	{
+	public:
+		bool isUpdated = false;
+		int updateTicket = 0;
+		TestActorSystem()
+		{
+			updateType = ecs::SystemUpdateType::Actor;
+		}
+		virtual ~TestActorSystem() {}
+		void act(float _delta) override
+		{
+			isUpdated = true;
+			updateTicket = g_update_ticket_counter++;
+		}
+	};
+	#pragma endregion TestDataTypes
+
+	namespace TestECSCore
+	{
+		TEST(TestECSCore, Init)
+		{
+			ecs::EntityComponentSystem ecs;
+
+			EXPECT_EQ(ecs.getTotalEntityCount(), 0);
+			EXPECT_EQ(ecs.getTotalEntityCount(), 0);
+			EXPECT_EQ(ecs.getTotalSystemCount(), 0);
+		}
+		TEST(TestECSCore, Update)
+		{
+			ecs::EntityComponentSystem ecs;
+
+			// Create systems
+			TestEventListenerSystem			*p_elSystem  = ecs.createSystem<TestEventListenerSystem>();
+			TestEntityUpdateSystem			*p_euSystem	 = ecs.createSystem<TestEntityUpdateSystem>();
+			TestMultipleEntityUpdateSystem	*p_meuSystem = ecs.createSystem<TestMultipleEntityUpdateSystem>();
+			TestEventReaderSystem			*p_erSystem  = ecs.createSystem<TestEventReaderSystem>();
+			TestActorSystem					*p_aSystem	 = ecs.createSystem<TestActorSystem>();
+
+			ecs.createEntity(TestComponent(1337));
+			ecs.createEvent(TestEvent(1337));
+
+			// p_elSystem subscribes on TestEvent creation. Let's check that first.
+			EXPECT_TRUE(p_elSystem->isUpdated);
+
+			// Test all other system types
+
+			// Create a map for expected update ticket number (order of execution)
+			std::unordered_map<TypeID, int> expected_tickets;
+			expected_tickets[TestEntityUpdateSystem::typeID]			= 1;
+			expected_tickets[TestMultipleEntityUpdateSystem::typeID]	= 2;
+			expected_tickets[TestEventReaderSystem::typeID]				= 3;
+			expected_tickets[TestActorSystem::typeID]					= 4;
+
+			// Set first ticket to be 1
+			g_update_ticket_counter = 1;
+
+			EXPECT_FALSE(p_euSystem->isUpdated);
+			EXPECT_FALSE(p_meuSystem->isUpdated);
+			EXPECT_FALSE(p_erSystem->isUpdated);
+			EXPECT_FALSE(p_aSystem->isUpdated);
+
+			ecs.update(0.0f);
+
+			EXPECT_TRUE(p_euSystem->isUpdated);
+			EXPECT_TRUE(p_meuSystem->isUpdated);
+			EXPECT_TRUE(p_erSystem->isUpdated);
+			EXPECT_TRUE(p_aSystem->isUpdated);
+
+			EXPECT_EQ(p_euSystem->updateTicket, expected_tickets[p_euSystem->getTypeID()]);
+			EXPECT_EQ(p_meuSystem->updateTicket, expected_tickets[p_meuSystem->getTypeID()]);
+			EXPECT_EQ(p_erSystem->updateTicket, expected_tickets[p_erSystem->getTypeID()]);
+			EXPECT_EQ(p_aSystem->updateTicket, expected_tickets[p_aSystem->getTypeID()]);
+		}
+	} // TestECSCore
+	namespace TestECSEntity
+	{
+		TEST(TestECSEntity, CreateEntity)
+		{
+			ecs::EntityComponentSystem ecs;
+
+			ecs::Entity *p_entity = ecs.createEntity(TestComponent(1));
+			ASSERT_NE(p_entity, nullptr);
+
+			// Check ECS data
+			EXPECT_EQ(ecs.getTotalEntityCount(), 1);
+
+			// Check entity data
+			// ID that is 0 is an error flag
+			EXPECT_NE(p_entity->getID(), 0); 
+			EXPECT_TRUE(p_entity->hasComponentOfType(TestComponent::typeID));
+			EXPECT_TRUE(p_entity->hasComponentOfType<TestComponent>());
+			EXPECT_NE(p_entity->getComponentID(TestComponent::typeID), 0);
+			EXPECT_NE(p_entity->getComponentID<TestComponent>(), 0);
+			EXPECT_EQ(p_entity->getComponentCount(), 1);
+		}
+		TEST(TestECSEntity, RemoveEntity)
+		{
+			ecs::EntityComponentSystem ecs;
+			ecs::Entity *p_entity = ecs.createEntity(TestComponent(1));
+
+			ecs.removeEntity(p_entity->getID()); // Flags removal
+			ecs.update(0.f); // Actual removals happen end of update
+
+			EXPECT_EQ(ecs.getTotalEntityCount(), 0);
+		}
+		TEST(TestECSEntity, GetEntity)
+		{
+			ecs::EntityComponentSystem ecs;
+			ID entity_id = ecs.createEntity(TestComponent(1))->getID();
+
+			ecs::Entity *p_entity = ecs.getEntity(entity_id);
+			EXPECT_NE(p_entity, nullptr);
+
+			ecs::TypeFilter filter;
+			filter.addRequirement(TestComponent::typeID);
+			//ecs::EntityIterator it = ecs.getEntitiesByFilter(filter);
+		}
+	} // TestECSEntity
+
+	namespace TestECSComponent
+	{
+		//TEST(TestECSComponent, CreateComponent)
+		//TEST(TestECSComponent, RemoveComponent)
+		//TEST(TestECSComponent, GetComponent)
+	} // TestECSComponent
+	namespace TestECSEvent
+	{
+		//TEST(TestECSEvent, CreateEvent)
+		//TEST(TestECSEvent, RemoveEvent)
+		//TEST(TestECSEvent, GetEvent)
+	} // TestECSEvent
+	namespace TestECSSystem
+	{
+		//TEST(TestECSSystem, CreateSystem)
+		//TEST(TestECSSystem, RemoveSystem)
+	} // TestECSSystem
+}
 #pragma endregion ECSTesting
