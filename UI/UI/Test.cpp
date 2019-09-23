@@ -123,11 +123,11 @@ int main()
 
 	using namespace ecs;
 	EntityComponentSystem myECS;
-	systems::UIPreRenderSystem *UIpreSys = myECS.createSystem<systems::UIPreRenderSystem>();
+	systems::UIPreRenderSystem *UIpreSys = myECS.createSystem<systems::UIPreRenderSystem>(0);
 	systems::UIBitmapSystem *UIBitmapSys = myECS.createSystem<systems::UIBitmapSystem>();
 	systems::UITextSystem* UITextSys = myECS.createSystem<systems::UITextSystem>();
-	systems::UIDebugSystem* UIDebugSys = myECS.createSystem<systems::UIDebugSystem>();
-	systems::UIPostRenderSystem *UIpostSys = myECS.createSystem<systems::UIPostRenderSystem>();
+	systems::UIDebugSystem* UIDebugSys = myECS.createSystem<systems::UIDebugSystem>(9);
+	systems::UIPostRenderSystem *UIpostSys = myECS.createSystem<systems::UIPostRenderSystem>(9);
 	
 	
 	UIpreSys->D2D = UITextSys->D2D = UIpostSys->D2D = UIBitmapSys->D2D = UIDebugSys->D2D = &test2d;
