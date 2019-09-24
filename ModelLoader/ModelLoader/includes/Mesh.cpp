@@ -21,32 +21,31 @@ ModelLoader::Mesh::~Mesh()
 
 HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 {
-	// Create vectors if they dont already exist
 	if (!this->mpIndexVector || !this->mpVertexPosVector || !this->mpNormalVector || !this->mpUVVector)
 	{
 		this->mpIndexVector = new std::vector<int>;
 		this->mpVertexPosVector = new std::vector<DirectX::XMFLOAT3>;
 		this->mpNormalVector = new std::vector<DirectX::XMFLOAT3>;
 		this->mpUVVector = new std::vector<DirectX::XMFLOAT2>;
+		this->mpSkeleton = new ModelLoader::Skeleton();
+		this->mpSkinningWeights = new std::vector<ModelLoader::ControlPointInfo>;
 	}
-	HRESULT hr = ModelLoader::LoadFBX(filePath, this->mpVertexPosVector, this->mpIndexVector, this->mpNormalVector, this->mpUVVector);
-	// Load failed, clean memory
-	if (FAILED(hr))
+	HRESULT hr = E_FAIL;
+	try
 	{
-		delete mpVertexPosVector;
-		delete mpIndexVector;
-		delete mpNormalVector;
-		delete mpUVVector;
-		mpVertexPosVector = nullptr;
-		mpUVVector = nullptr;
-		mpNormalVector = nullptr;
-		mpIndexVector = nullptr;
+		hr = ModelLoader::LoadFBX(filePath, this->mpVertexPosVector, this->mpIndexVector, this->mpNormalVector, this->mpUVVector, this->mpSkeleton, this->mpSkinningWeights);
 	}
-	else
+	catch (std::exception e)
+	{
+		MessageBoxA(NULL, e.what(), "Error in FBX Loader.", MB_OK);
+	}
+
+	if (SUCCEEDED(hr))
 	{
 		// Assume UVs and normals exist
 		this->mHasUvs = true;
 		this->mHasNormals = true;
+		this->mHasSkeleton = true;
 		if (this->mpNormalVector->size() <= 0)
 		{
 			delete mpNormalVector;
@@ -59,7 +58,27 @@ HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 			mpUVVector = nullptr;
 			this->mHasUvs = false;
 		}
+		if (this->mpSkeleton->joints.size() <= 0)
+		{
+			delete this->mpSkeleton;
+			delete this->mpSkinningWeights;
+			this->mpSkinningWeights = nullptr;
+			mpSkeleton = nullptr;
+			this->mHasSkeleton = false;
+		}
 	}
+	else
+	{
+		delete mpVertexPosVector;
+		delete mpIndexVector;
+		delete mpNormalVector;
+		delete mpUVVector;
+		mpVertexPosVector = nullptr;
+		mpUVVector = nullptr;
+		mpNormalVector = nullptr;
+		mpIndexVector = nullptr;
+	}
+
 	return hr;
 
 }
@@ -87,6 +106,16 @@ std::vector<DirectX::XMFLOAT2>* ModelLoader::Mesh::GetUVVector()
 	return this->mpUVVector;
 }
 
+ModelLoader::Skeleton* ModelLoader::Mesh::GetSkeleton()
+{
+	return this->mpSkeleton;
+}
+
+std::vector<ModelLoader::ControlPointInfo>* ModelLoader::Mesh::GetSkinningWeights()
+{
+	return this->mpSkinningWeights;
+}
+
 bool ModelLoader::Mesh::HasUVs()
 {
 	return mHasUvs;
@@ -95,4 +124,9 @@ bool ModelLoader::Mesh::HasUVs()
 bool ModelLoader::Mesh::HasNormals()
 {
 	return this->mHasNormals;
+}
+
+bool ModelLoader::Mesh::HasSkeleton()
+{
+	return this->mHasSkeleton;
 }

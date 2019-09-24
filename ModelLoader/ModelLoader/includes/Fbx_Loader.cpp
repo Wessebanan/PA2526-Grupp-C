@@ -1,8 +1,36 @@
 #include "Fbx_Loader.h"
 
 // Anonymous namespace for Fbx_Loader
+// Contains helper functions that do not need to be accessed by the average user
 namespace {
 	static FbxManager* gpFbxSdkManager = nullptr;
+
+	FbxAMatrix GetGeometryTransformation(FbxNode* node)
+	{
+		if (!node) {
+			throw std::exception("Null for mesh geometry\n\n");
+		}
+
+		const FbxVector4 IT = node->GetGeometricTranslation(FbxNode::eSourcePivot);
+		const FbxVector4 IR = node->GetGeometricRotation(FbxNode::eSourcePivot);
+		const FbxVector4 IS = node->GetGeometricScaling(FbxNode::eSourcePivot);
+
+		return FbxAMatrix(IT, IR, IS);
+
+	}
+
+	unsigned int FindJointIndexUsingName(const std::string& inJointName, ModelLoader::Skeleton* skeleton)
+	{
+		for (unsigned int i = 0; i < skeleton->joints.size(); ++i)
+		{
+			if (skeleton->joints[i].jointName.Compare(inJointName.c_str()) == 0)
+			{
+				return i;
+			}
+		}
+
+		throw std::exception("Skeleton information in FBX file is corrupted or invalid.");
+	}
 
 	FbxMesh* FindMesh(FbxNode* currentNode)
 	{
@@ -125,10 +153,110 @@ namespace {
 			}
 		}
 	}
+
+	void ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int myIndex, int inParentIndex, ModelLoader::Skeleton* inSkeleton)
+	{
+		if (inNode->GetNodeAttribute() && inNode->GetNodeAttribute()->GetAttributeType()
+			&& inNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
+		{
+			ModelLoader::Joint curr_joint;
+			curr_joint.parentIndex = inParentIndex;
+			curr_joint.currentIndex = myIndex;
+			curr_joint.jointName = inNode->GetName();
+			inSkeleton->joints.push_back(curr_joint);
+		}
+		for (int i = 0; i < inNode->GetChildCount(); ++i)
+		{
+			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inSkeleton->joints.size(), myIndex, inSkeleton);
+		}
+	}
+
+	// Traverse the Fbx and populate the Skeleton struct with the joints inside
+	void ProcessSkeletonHierarchy(FbxNode* inRootNode, ModelLoader::Skeleton* inSkeleton)
+	{
+		for (int child_index = 0; child_index < inRootNode->GetChildCount(); ++child_index)
+		{
+			FbxNode* curr_node = inRootNode->GetChild(child_index);
+			ProcessSkeletonHierarchyRecursively(curr_node, 0, -1, inSkeleton);
+		}
+	}
+
+	void CheckSumOfWeights(std::vector<ModelLoader::ControlPointInfo>* jointData) {
+		for (auto it = jointData->begin(); it != jointData->end(); ++it)
+		{
+			double sum_of_weights = 0.0;
+			for (auto it2 = it->weightPairs.begin(); it2 != it->weightPairs.end(); ++it2)
+			{
+				sum_of_weights += it2->weight;
+			}
+			if ((sum_of_weights - 1.0) > 0.0005 || (sum_of_weights - 1.0) < -0.0005)
+			{
+				throw std::exception("Vertex weights do not add up to 1, please normalize the vertex weights.");
+			}
+		}
+	}
+
+	void ProcessJointsAndAnimations(FbxNode* inNode, ModelLoader::Skeleton* skeleton, std::vector<ModelLoader::ControlPointInfo>* jointData)
+	{
+		FbxMesh* curr_mesh = inNode->GetMesh();
+		if (curr_mesh)
+		{
+			unsigned int num_deformers = curr_mesh->GetDeformerCount();
+			// geometry transform is potentially something included with the model
+			// not all modeling programs provide this
+			// including it for safety because I don't know if blender does or not
+			FbxAMatrix geometry_transform = GetGeometryTransformation(inNode);
+			// Loop through deformers
+			// Deformer is basically a skeleton
+			// Most likely only on exists in the mesh
+			for (unsigned int deformer_index = 0; deformer_index < num_deformers; ++deformer_index)
+			{
+				FbxSkin* curr_skin = static_cast<FbxSkin*>(curr_mesh->GetDeformer(deformer_index, FbxDeformer::eSkin));
+				if (!curr_skin)
+				{
+					continue;
+				}
+				// Clusters contain links, which are basically joints
+				unsigned int num_of_clusters = curr_skin->GetClusterCount();
+				for (unsigned int cluster_index = 0; cluster_index < num_of_clusters; ++cluster_index)
+				{
+					FbxCluster* curr_cluster = curr_skin->GetCluster(cluster_index);
+					std::string curr_joint_name = curr_cluster->GetLink()->GetName();
+					unsigned int curr_joint_index = FindJointIndexUsingName(curr_joint_name, skeleton);
+					FbxAMatrix transform_matrix;
+					FbxAMatrix transform_link_matrix;
+					FbxAMatrix global_bindpose_inverse_matrix;
+
+					curr_cluster->GetTransformMatrix(transform_matrix); // Bind pose mesh transform
+					curr_cluster->GetTransformLinkMatrix(transform_link_matrix); // Transformation of the joint at bind time from joint space to model space
+					global_bindpose_inverse_matrix = transform_link_matrix.Inverse() * transform_matrix * geometry_transform;
+
+					// Update skeleton
+					skeleton->joints[curr_joint_index].mGlobalBindposeInverse = global_bindpose_inverse_matrix;
+					skeleton->joints[curr_joint_index].mNode = curr_cluster->GetLink();
+
+					// Get index weight pairs - https://www.gamedev.net/articles/programming/graphics/how-to-work-with-fbx-sdk-r3582
+					// https://github.com/Larry955/FbxParser/blob/master/FbxParser/FbxParser.cpp - Rad 781 och 993
+
+					// Fbx has every joint store the vertices it affects, we need to reverse this relationship
+					unsigned int num_of_indices = curr_cluster->GetControlPointIndicesCount();
+					for (unsigned int i = 0; i < num_of_indices; ++i)
+					{
+						ModelLoader::IndexWeightPair curr_index_weight_pair;
+						curr_index_weight_pair.index = curr_joint_index;
+						curr_index_weight_pair.weight = curr_cluster->GetControlPointWeights()[i];
+						(*jointData)[curr_cluster->GetControlPointIndices()[i]].weightPairs.push_back(curr_index_weight_pair);
+					}
+
+				}
+			}
+			CheckSumOfWeights(jointData);
+		}
+	}
 }
 
 HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMFLOAT3>* pOutVertexPosVector, std::vector<int>* pOutIndexVector,
-	std::vector<DirectX::XMFLOAT3>* pOutNormalVector, std::vector<DirectX::XMFLOAT2>* pOutUVVector)
+	std::vector<DirectX::XMFLOAT3>* pOutNormalVector, std::vector<DirectX::XMFLOAT2>* pOutUVVector, Skeleton* pOutSkeleton, std::vector<ControlPointInfo>* pOutCPInfoVector)
 {
 	// Create the FbxManager if it does not already exist
 	if (gpFbxSdkManager == nullptr)
@@ -147,9 +275,15 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 
 	// Import model
 	bool b_success = p_importer->Initialize(fileName.c_str(), -1, gpFbxSdkManager->GetIOSettings());
+
+	FbxAxisSystem direct_x_axis_system(FbxAxisSystem::eDirectX);
+	if (p_fbx_scene.get()->GetGlobalSettings().GetAxisSystem() != direct_x_axis_system)
+	{
+		direct_x_axis_system.ConvertScene(p_fbx_scene.get());
+	}
 	// Handle failed import
-	// Returns information if the FBX is in the incorrect file format version
-	if (!b_success) {
+	if (!b_success)
+	{
 		FbxString error = p_importer->GetStatus().GetErrorString();
 		OutputDebugStringA("error: Call to FbxImporter::Initialize() failed.\n");
 
@@ -157,7 +291,7 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 		sprintf_s(buffer, "error: Error returned: %s\n", error.Buffer());
 		OutputDebugStringA(buffer);
 		// Error checking, print to visual studio debug window
-		if (p_importer->GetStatus().GetCode() == FbxStatus::eInvalidFileVersion || true) {
+		if (p_importer->GetStatus().GetCode() == FbxStatus::eInvalidFileVersion) {
 			int lFileMajor, lFileMinor, lFileRevision;
 			int lSDKMajor, lSDKMinor, lSDKRevision;
 			// Get the file version number generate by the FBX SDK.
@@ -181,7 +315,9 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 	// Importer is no longer needed, remove from memory
 	p_importer->Destroy();
 
+
 	FbxNode* p_fbx_root_node = p_fbx_scene->GetRootNode();
+
 
 	FbxAxisSystem scene_axis_system = p_fbx_scene->GetGlobalSettings().GetAxisSystem();
 	FbxAxisSystem our_axis_system = FbxAxisSystem::eDirectX;
@@ -190,14 +326,23 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 		our_axis_system.ConvertScene(p_fbx_scene.get());
 	}
 
+	// Useful for skeleton/bone structure
+	//DisplayHierarchy(p_fbx_scene);
+
 	if (p_fbx_root_node)
 	{
+		::ProcessSkeletonHierarchy(p_fbx_root_node, pOutSkeleton);
+
+		FbxNode* root_child = p_fbx_scene->GetRootNode();
 		FbxMesh* p_mesh = ::FindMesh(p_fbx_root_node);
 		if (p_mesh)
 		{
 
 			// Make sure the mesh is triangulated
-			assert(p_mesh->IsTriangleMesh() && "Mesh contains non-triangles, please triangulate the mesh.");
+			if (!p_mesh->IsTriangleMesh())
+			{
+				throw std::exception("Mesh contains non-triangles, please triangulate the mesh.");
+			}
 
 			FbxVector4* p_vertices = p_mesh->GetControlPoints();
 
@@ -211,7 +356,6 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 
 			for (int j = 0; j < p_mesh->GetControlPointsCount(); ++j)
 			{
-				// Process vertex positions
 				DirectX::XMFLOAT3 vertex_pos;
 				vertex_pos.x = (float)p_vertices[j].mData[0];
 				vertex_pos.y = (float)p_vertices[j].mData[1];
@@ -219,16 +363,18 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 				pOutVertexPosVector->push_back(vertex_pos);
 
 
+				// Save to control point info map 
+				//control_points_info[j].ctrlPoint = p_mesh->GetControlPointAt(j);
+
 				fbxsdk::FbxVector4 normal;
 				// If the mesh normals are not in "per vertex" mode, re-generate them to be useable by this parser
 				if (p_mesh->GetElementNormal(0)->GetMappingMode() != FbxGeometryElement::eByControlPoint)
 				{
 					p_mesh->GenerateNormals(true, true, true);
 				}
-				// Only allowing one normal per element currently, fetching the first available
+				// Only allowing one normal per element currently
 				fbxsdk::FbxGeometryElementNormal* le_normal = p_mesh->GetElementNormal(0);
 
-				// Different type of indexing in vector based on reference mode
 				switch (le_normal->GetReferenceMode())
 				{
 				case FbxGeometryElement::eDirect:
@@ -244,13 +390,28 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 					throw std::exception("Invalid Fbx Normal Reference");
 				}
 				DirectX::XMFLOAT3 vertex_normal;
-				// Double checking that the normal is normalized
 				normal.Normalize();
 				vertex_normal.x = (float)normal.mData[0];
 				vertex_normal.y = (float)normal.mData[1];
 				vertex_normal.z = (float)normal.mData[2];
 				pOutNormalVector->push_back(vertex_normal);
+
 			}
+
+			if (pOutSkeleton->joints.size() > 0)
+			{
+				// In progress, very likely to break
+				std::vector<ControlPointInfo> vertex_joint_data;
+				// Prepare the vector with ControlPointInfo objects to be written to in any order
+				vertex_joint_data.resize(p_mesh->GetControlPointsCount());
+				::ProcessJointsAndAnimations(p_mesh->GetNode(), pOutSkeleton, &vertex_joint_data);
+				int k = 632;
+			}
+
+		}
+		else
+		{
+			throw std::exception("No mesh found in .fbx file");
 		}
 	}
 	return S_OK;
