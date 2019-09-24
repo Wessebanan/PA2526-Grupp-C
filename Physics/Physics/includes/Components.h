@@ -44,11 +44,21 @@ namespace ecs
 			float mWeight;
 		};	
 
+		/*
+		* GroundCollisionComponent is an OBB which only checks
+		* against the ground plane for collision. Not using lowest
+		* point as objects may rotate which requires recalculation 
+		* of the lowest point.
+		*/
 		COMP(GroundCollisionComponent)
 		{
-			DirectX::XMFLOAT3 mLowestPoint;
+			// Vertices making up the OBB.
+			DirectX::XMFLOAT3 vertices[8];
 		};
 		
+		/*
+		* Temporary mesh component to test with ECS.
+		*/
 		COMP(MeshComponent)
 		{
 			ModelLoader::Mesh mMesh;

@@ -27,9 +27,9 @@ namespace ecs
 		SYSTEM(CollisionHandlingSystem) {};
 
 		/** GroundCollisionComponentInitSystem:
-		* Whenever a ground collision component is
-		* created, this system calculates the lowest
-		* point of the mesh to compare against the ground.
+		* Creates the OBB that is used for ground
+		* collision whenever a ground collision
+		* component is created.
 		*/
 		SYSTEM(GroundCollisionComponentInitSystem)
 		{

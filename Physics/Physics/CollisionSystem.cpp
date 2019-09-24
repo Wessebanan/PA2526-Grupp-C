@@ -33,6 +33,9 @@ void ecs::systems::GroundCollisionComponentInitSystem::readEvent(ecs::BaseEvent&
 
 	// Assumes the entity has a mesh component as well as a ground collision component.
 	Entity* entity = getEntity(ground_collision_component_create_event.mEntityID);
-	MeshComponent* mesh_component = dynamic_cast<MeshComponent*>(getComponentFromKnownEntity(GroundCollisionComponentCreateEvent::typeID, entity->getID()));
+	MeshComponent* mesh_component = dynamic_cast<MeshComponent*>(getComponentFromKnownEntity(MeshComponent::typeID, entity->getID()));
+	GroundCollisionComponent* ground_collision_component = dynamic_cast<GroundCollisionComponent*>(getComponentFromKnownEntity(GroundCollisionComponent::typeID, entity->getID()));
 
+	std::vector<DirectX::XMFLOAT3> *vertex_vector = mesh_component->mMesh.GetVertexPositionVector();
+	
 }
