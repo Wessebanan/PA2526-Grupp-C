@@ -49,6 +49,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="ecsObjectsForTesting.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
