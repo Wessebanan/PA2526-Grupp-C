@@ -138,6 +138,8 @@ private:
 	void setTile(webMsgData wmd);
 	// Saves new button
 	void setButton(webMsgData wmd);
+	// Saves new button
+	void setCommand(webMsgData wmd);
 
 
 	//// BACKEND STATES

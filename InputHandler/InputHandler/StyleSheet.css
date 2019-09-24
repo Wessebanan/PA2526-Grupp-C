@@ -23,7 +23,7 @@ h2
 #playerButton
 {
     margin-top: 10px;
-    height: 50px;
+    height: 40px;
     width: 100px;
     color: black;
 }
@@ -32,8 +32,8 @@ h2
 {
     margin-left: auto;
     margin-right: auto;
-    height: 175px;
-    width: 225px;
+    height: 205px;
+    width: 305px;
     border-style: solid;
     border-width: 5px;
     border-color: #fff;

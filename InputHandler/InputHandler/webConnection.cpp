@@ -112,8 +112,8 @@ bool WebConnection::executeUserAction(webMsgData wmd)
 	case ActionType::BUTTON:
 		this->setButton(wmd);
 		break;
-	case 3:
-		cout << "" << endl;
+	case ActionType::COMMAND:
+		cout << wmd.data << endl;
 		break;
 	default:
 		return false;
@@ -170,6 +170,11 @@ void WebConnection::setButton(webMsgData wmd)
 	int one = (int)wmd.data[2] - 48;
 
 	this->players[wmd.player].button = hun + ten + one;
+}
+
+void WebConnection::setCommand(webMsgData wmd)
+{
+
 }
 
 void WebConnection::playersJoin()
