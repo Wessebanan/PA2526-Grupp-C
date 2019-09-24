@@ -162,7 +162,7 @@ namespace ecs
 	template<typename T>
 	inline T* ECSUser::getComponent(ID _componentID)
 	{
-		return ecsUserHandler->onGetComponent(T::typeID, _componentID);
+		return (T*)ecsUserHandler->onGetComponent(T::typeID, _componentID);
 	}
 
 	template<typename T>
