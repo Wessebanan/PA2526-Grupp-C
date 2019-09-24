@@ -62,21 +62,39 @@ WebConnection::WebConnection()
 
 WebConnection::~WebConnection()
 {
-	for (size_t i = 0; i < nrOfPlayers; i++)
+	this->shutDown();
+}
+
+bool WebConnection::shutDown()
+{
+	this->shutDownThread();
+
+	FD_CLR(ListenSocket, &master);
+	closesocket(ListenSocket);
+	//if (this->ListenSocket != INVALID_SOCKET)
+	//{
+	while (master.fd_count > 0)
 	{
-		if (this->playerSockets[i] != INVALID_SOCKET)
-		{
-			closesocket(this->playerSockets[i]);
-			FD_CLR(this->playerSockets[i], &master);
-		}
+		// Get the socket number
+		SOCKET sock = master.fd_array[0];
+
+		// Remove it from the master file list and close the socket
+		FD_CLR(sock, &master);
+
+		shutdown(sock, SD_SEND);
+		closesocket(sock);
 	}
 
-	FD_ZERO(&master);
-	closesocket(this->ListenSocket);
-
+	// Cleanup winsock
 	WSACleanup();
-	this->shutDownThread();
-	this->t_update = nullptr;
+
+
+	//TerminateThread(t_update,0);
+	WaitForSingleObject(t_update, INFINITE);
+	CloseHandle(t_update);
+	//}
+
+	return true;
 }
 
 webMsgData WebConnection::parseMsg(char* userMsg)
@@ -228,13 +246,13 @@ void WebConnection::playersJoin()
 					}
 					else if (iResult < 0)
 					{
-						printf("recv failed with error: %d\n", WSAGetLastError());
+						printf("recv failed with error < 0 : %d\n", WSAGetLastError());
 						closesocket(sock);
-						WSACleanup();
+						FD_CLR(sock, &master);
 					}
 					else if (iResult == 8)
 					{
-						printf("recv failed with error: %d\n", WSAGetLastError());
+						printf("recv failed with error 8: %d\n", WSAGetLastError());
 						closesocket(sock);
 						FD_CLR(sock, &master);
 
@@ -279,8 +297,9 @@ void WebConnection::playersJoin()
 		}// while (iResult > 0);
 
 
+		printf("Closing playerJoin ...\n");
 		// Shuts down the tread
-		CloseHandle(this->t_update);
+		//CloseHandle(this->t_update);
 
 }
 
@@ -407,6 +426,8 @@ void WebConnection::gameLoop()
 			// 
 		}
 	}
+
+	printf("Closing gameloop\n");
 }
 
 void WebConnection::broadcastMsg(string msg)
@@ -471,6 +492,8 @@ DWORD WINAPI WebConnection::staticThreadStart(LPVOID lpParam)
 
 	This->playersJoin();
 
+
+	printf("Closing thread\n");
 	return 0;
 }
 

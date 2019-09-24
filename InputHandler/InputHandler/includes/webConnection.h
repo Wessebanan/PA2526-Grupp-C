@@ -92,6 +92,8 @@ class WebConnection
 public:
 	WebConnection();
 	~WebConnection();
+	// retuns true when the thread was closed
+	bool shutDown();
 
 	// Checks if the connection was successful
 	bool isConnected() { return this->connectionOK; };
