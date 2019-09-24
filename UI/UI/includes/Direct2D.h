@@ -14,6 +14,7 @@
 #pragma comment(lib, "windowscodecs")
 #pragma comment(lib, "d2d1")
 #pragma comment (lib, "d3d11")
+#pragma comment (lib, "GraphicsEngine_d")
 
 #define BITMAP_NAME_LENGTH 10
 #define COLOR_BRUSHES 6
