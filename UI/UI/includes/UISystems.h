@@ -25,7 +25,7 @@ namespace ecs
 		//	void act(float _delta) override;
 		//};
 
-		class UITextSystem : public ECSSystem<UITextSystem>
+		class UITextSystem : public ECSSystem<UITextSystem> //system for drawing text
 		{
 		public:
 			UITextSystem();
@@ -35,7 +35,7 @@ namespace ecs
 			Direct2D* D2D;
 		};
 
-		class UIDebugSystem : public ECSSystem<UIDebugSystem>
+		class UIDebugSystem : public ECSSystem<UIDebugSystem> //system for just debug print
 		{
 		public:
 			UIDebugSystem();
@@ -48,7 +48,7 @@ namespace ecs
 			bool pressedLastUpdate = false;
 		};
 
-		class UIBitmapSystem : public ECSSystem<UIBitmapSystem>
+		class UIBitmapSystem : public ECSSystem<UIBitmapSystem> //system for drawing bitmaps
 		{
 		public:
 			UIBitmapSystem();
@@ -58,7 +58,7 @@ namespace ecs
 			Direct2D* D2D;
 		};
 
-		class UIRectSystem : public ECSSystem<UIRectSystem>
+		class UIRectSystem : public ECSSystem<UIRectSystem> //system for drawing "wire mesh" rects
 		{
 		public:
 			UIRectSystem();
@@ -68,7 +68,7 @@ namespace ecs
 			Direct2D* D2D;
 		};
 
-		class UISolidRectSystem : public ECSSystem<UISolidRectSystem>
+		class UISolidRectSystem : public ECSSystem<UISolidRectSystem> //system for drawing filled rects
 		{
 		public:
 			UISolidRectSystem();
@@ -81,7 +81,7 @@ namespace ecs
 		class UIPreRenderSystem : public ECSSystem<UIPreRenderSystem>
 		{
 		public:
-			UIPreRenderSystem()
+			UIPreRenderSystem() //system for that needs to be before all drawing
 			{
 				updateType = SystemUpdateType::Actor;
 			}
@@ -100,7 +100,7 @@ namespace ecs
 		class UIPostRenderSystem : public ECSSystem<UIPostRenderSystem>
 		{
 		public:
-			UIPostRenderSystem()
+			UIPostRenderSystem() //system for that needs to be after all drawing
 			{
 				updateType = SystemUpdateType::Actor;
 			}

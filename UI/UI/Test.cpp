@@ -141,10 +141,10 @@ int main()
 	UIPos2.drawArea = D2D1::RectF(1, 1, 799, 599);
 	UIText.strText = "hehehheehtest";
 	char hehe[10] = "pepe";
-	test2d.LoadImageToBitmap("PepeLaugh.jfif", hehe);
-	UIBitmap.bitmap = test2d.GetBitmap(test2d.GetBitmapIDFromName(hehe));
+	//test2d.LoadImageToBitmap("PepeLaugh.jfif", hehe);
+	//UIBitmap.bitmap = test2d.GetBitmap(test2d.GetBitmapIDFromName(hehe));
 
-	Entity* e1 = myECS.createEntity(UIBitmap, UIPos2);
+	//Entity* e1 = myECS.createEntity(UIBitmap, UIPos2);
 	//Entity* e2 = myECS.createEntity(UIColor, UIText, UIPos);
 	Entity* e3 = myECS.createEntity(UIText);
 
