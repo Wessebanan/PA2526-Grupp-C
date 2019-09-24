@@ -41,19 +41,23 @@ namespace ecs
 
 		struct UserButtonComponent : public ecs::ECSComponent<UserButtonComponent>
 		{
-			// [player][button]
-			bool buttons[4][4];
+			// Index is the player
+			WebButton userButtons[4];
 		};
 		struct UserTileComponent : public ecs::ECSComponent<UserTileComponent>
 		{
-			// The selected tile cord
-			int tile[4][2];
-			//int ;
+			// Index is the player
+			WebTile userTiles[4];
 		};
 		struct UserNameComponent : public ecs::ECSComponent<UserNameComponent>
 		{
-			// Name
+			// Index is the player
 			std::string names[4];
+		};
+		struct UserCommandComponent : public ecs::ECSComponent<UserCommandComponent>
+		{
+			// Index is the player
+			WebCommand userCommands[4];
 		};
 	}
 }
