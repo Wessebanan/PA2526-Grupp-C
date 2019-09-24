@@ -118,6 +118,10 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">../includes/pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">../includes/pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="..\source\Renderer.cpp">
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">../includes/pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">../includes/pch.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="..\source\Window.cpp">
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">../includes/pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">../includes/pch.h</PrecompiledHeaderFile>
