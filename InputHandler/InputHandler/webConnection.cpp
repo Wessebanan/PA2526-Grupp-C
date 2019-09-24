@@ -125,7 +125,7 @@ bool WebConnection::executeUserAction(webMsgData wmd)
 
 void WebConnection::setName(webMsgData wmd)
 {
-	this->players[wmd.player].name = wmd.data;
+	mUsers[wmd.player].name = wmd.data;
 
 	int res = 0;
 	this->sendMsg(this->playerSockets[wmd.player],
@@ -143,20 +143,20 @@ void WebConnection::setTile(webMsgData wmd)
 	hun -= 100;
 	int ten = ((int)wmd.data[1] - 48) * 10;
 	int one = (int)wmd.data[2] - 48;
-	this->players[wmd.player].tile[0] = hun + ten + one;
+	mUsers[wmd.player].tile[0] = hun + ten + one;
 
 	hun = ((int)wmd.data[3] - 48) * 100;
 	hun -= 100;
 	ten = ((int)wmd.data[4] - 48) * 10;
 	one = (int)wmd.data[5] - 48;
-	this->players[wmd.player].tile[1] = hun + ten + one;
+	mUsers[wmd.player].tile[1] = hun + ten + one;
 
 	int res = 0;
 	this->sendMsg(this->playerSockets[wmd.player], 
 		(char*)string("3. Your tile is now " + 
-			to_string(this->players[wmd.player].tile[0]) + 
+			to_string(mUsers[wmd.player].tile[0]) + 
 			"," +
-			to_string(this->players[wmd.player].tile[1])
+			to_string(mUsers[wmd.player].tile[1])
 		).c_str()
 		, res);
 }
@@ -169,7 +169,7 @@ void WebConnection::setButton(webMsgData wmd)
 	int ten = ((int)wmd.data[1] - 48) * 10;
 	int one = (int)wmd.data[2] - 48;
 
-	this->players[wmd.player].button = hun + ten + one;
+	mUsers[wmd.player].button = hun + ten + one;
 }
 
 void WebConnection::setCommand(webMsgData wmd)
@@ -426,19 +426,24 @@ void WebConnection::broadcastMsg(string msg)
 	}
 }
 
-int WebConnection::getPlayerButton(int player)
+int WebConnection::getUserButton(int player)
 {
-	return this->players[player].button;
+	return mUsers[player].button;
 }
 
-std::string WebConnection::getPlayername(int player)
+std::string WebConnection::getUserName(int player)
 {
-	return this->players[player].name;//jsonValuePlayers[player]["Name"].asString();
+	return mUsers[player].name;
 }
 
-int WebConnection::getPlayerTile(int player, int axis)
+int WebConnection::getUserTile(int player, int axis)
 {
-	return this->players[player].tile[axis];
+	return mUsers[player].tile[axis];
+}
+
+string WebConnection::getUserCommand(int player)
+{
+	return mUsers[player].command;
 }
 
 bool WebConnection::setGamestate(int gamestate)
