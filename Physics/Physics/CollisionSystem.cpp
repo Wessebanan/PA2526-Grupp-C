@@ -18,7 +18,7 @@ void ecs::systems::CollisionEventSystem::readEvent(ecs::BaseEvent& _event, float
 ecs::systems::GroundCollisionComponentInitSystem::GroundCollisionComponentInitSystem()
 {
 	updateType = ecs::EventListenerOnly;
-	typeFilter.addRequirement(GroundCollisionComponentCreateEvent::typeID);
+	typeFilter.addRequirement(CreateComponentEvent::typeID);
 }
 
 ecs::systems::GroundCollisionComponentInitSystem::~GroundCollisionComponentInitSystem()
@@ -29,11 +29,23 @@ ecs::systems::GroundCollisionComponentInitSystem::~GroundCollisionComponentInitS
 void ecs::systems::GroundCollisionComponentInitSystem::readEvent(ecs::BaseEvent& _event, float _delta)
 {
 	// IMPORTANT: Made temporary mesh component in order to make progress.
-	GroundCollisionComponentCreateEvent ground_collision_component_create_event = dynamic_cast<GroundCollisionComponentCreateEvent&>(_event);
+	CreateComponentEvent create_component_event = dynamic_cast<CreateComponentEvent&>(_event);
+
+	// If the component created was any other than ground collision component, do nothing.
+	if (create_component_event.componentTypeID != GroundCollisionComponent::typeID)
+	{
+		return;
+	}
 
 	// Assumes the entity has a mesh component as well as a ground collision component.
-	Entity* entity = getEntity(ground_collision_component_create_event.mEntityID);
+	Entity* entity = getEntity(create_component_event.entityID);
 	MeshComponent* mesh_component = dynamic_cast<MeshComponent*>(getComponentFromKnownEntity(MeshComponent::typeID, entity->getID()));
+
+	// Do nothing if there is no mesh component.
+	if (!mesh_component)
+	{
+		return;
+	}
 	GroundCollisionComponent* ground_collision_component = dynamic_cast<GroundCollisionComponent*>(getComponentFromKnownEntity(GroundCollisionComponent::typeID, entity->getID()));
 
 	std::vector<DirectX::XMFLOAT3> *vertex_vector = mesh_component->mMesh.GetVertexPositionVector();
