@@ -82,7 +82,7 @@ namespace graphics
 		flag = m_context.Initialize(m_pDevice4, &m_storage);
 		if (!flag) return FALSE;
 
-		flag = m_pipelineArray.Initialize(m_pDevice4, 10);
+		flag = m_pipelineArray.Initialize(m_pDevice4, MAXIMUM_GRAPHICS_PIPELINES);
 		if (!flag) return FALSE;
 
 		return TRUE;
@@ -144,6 +144,8 @@ namespace graphics
 
 			if (pTexture2D)
 			{
+				// setting region type to unknow
+				// swap chain is the owner
 				pRenderTarget->Region.Type = BUFFER_TYPE_UNKNOWN;
 
 				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
@@ -233,11 +235,13 @@ namespace graphics
 		const void* pData,
 		BufferRegion* pRegion)
 	{
+		// Get the cpu buffer and allocate a region on it
 		BufferHeap* pHeap = m_storage.GetBufferHeapCPU(type);
 		int result = pHeap->AllocateRegion(size, pRegion);
 
 		if (!result) return FALSE;
 
+		// copy data to the region if it exists
 		if (pData)
 		{
 			m_context.CopyDataToRegion(pData, size, *pRegion);
@@ -295,6 +299,15 @@ namespace graphics
 		const void* pUVs,
 		BufferRegion* pRegion)
 	{
+		// Vertex buffer is a bit different since it 
+		// must handle several buffers within one
+
+		// allocate separate regions on the 3 buffers
+		// and let one be primary (since they are the same)
+
+		// memory will be inefficent because of this 
+		// can be improved later
+
 		struct float3
 		{
 			float x, y, z;

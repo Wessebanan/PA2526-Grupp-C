@@ -158,6 +158,8 @@ namespace graphics
 	int BufferHeap::AllocateRegion(const UINT size, BufferRegion* pRegion)
 	{
 		UINT allocatedSize = size;
+
+		// Constant buffers need alignment because of Direct3D 
 		if (m_bindType == D3D11_BIND_CONSTANT_BUFFER)
 		{
 			allocatedSize = (UINT)ceil(allocatedSize / 256.0f);

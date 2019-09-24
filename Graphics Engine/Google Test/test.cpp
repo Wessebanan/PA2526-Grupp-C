@@ -434,6 +434,111 @@ TEST(TestingGraphicsEngine, InitializeAndRunFrame)
 	graphics::DeleteDeviceInterface(pDevice);
 }
 
+TEST(TestingDeviceInterface, CreatingAndDeletingGraphicsPipelines)
+{
+	int result;
+
+	graphics::DeviceInterface* pDevice;
+	graphics::CreateDeviceInterface(&pDevice);
+
+	const UINT maxPipelines = graphics::DeviceInterface::MAXIMUM_GRAPHICS_PIPELINES;
+
+	graphics::GraphicsPipeline* pPipeline[maxPipelines];
+	{
+		// Create maximum allowed pipelines
+		for (unsigned int i = 0; i < maxPipelines; i++)
+		{
+			result = pDevice->CreateGraphicsPipeline(
+				gVertexShader,
+				gPixelShader,
+				&pPipeline[i]);
+
+			EXPECT_TRUE(result);
+		}
+
+		// Delete a pipeline and create a new one at the same index
+		// to see if it works correctly
+		pDevice->DeleteGraphicsPipeline(pPipeline[5]);
+
+		result = pDevice->CreateGraphicsPipeline(
+			gVertexShader,
+			gPixelShader,
+			&pPipeline[5]);
+
+		EXPECT_TRUE(result);
+
+		// Create one extra to see if it fails
+		graphics::GraphicsPipeline* pExtraPipeline = NULL;
+		result = pDevice->CreateGraphicsPipeline(
+			gVertexShader,
+			gPixelShader,
+			&pExtraPipeline);
+
+		EXPECT_FALSE(result);
+
+
+		for (unsigned int i = 0; i < maxPipelines; i++)
+		{
+			pDevice->DeleteGraphicsPipeline(pPipeline[i]);
+		}
+	}
+	graphics::DeleteDeviceInterface(pDevice);
+}
+
+TEST(TestingDeviceInterface, CorrectConstantBufferRegionSizeAndLocation)
+{
+	graphics::DeviceInterface* pDevice;
+	graphics::CreateDeviceInterface(&pDevice);
+
+	graphics::BufferRegion regions[10];
+	{
+		// Creating constant buffer region
+		// has alignment of 256 bytes (56 becomes 256)
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			int result =
+				pDevice->CreateDynamicBufferRegion(56, NULL, &regions[i]);
+
+			EXPECT_TRUE(result);
+		}
+
+		// check alignment is correct
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			EXPECT_EQ(regions[i].DataCount, 256);
+			EXPECT_EQ(regions[i].DataLocation, i * 256);
+		}
+	}
+	graphics::DeleteDeviceInterface(pDevice);
+}
+
+TEST(TestingDeviceInterface, CorrectBufferRegionSizeAndLocation)
+{
+	graphics::DeviceInterface* pDevice;
+	graphics::CreateDeviceInterface(&pDevice);
+
+	graphics::BufferRegion regions[10];
+	{
+		// Creating non-costant buffer region
+		// will have no alignment
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			int result =
+				pDevice->CreateIndexBufferRegion(56, NULL, &regions[i]);
+
+			EXPECT_TRUE(result);
+		}
+
+		// check that they are correct size and on correct location
+		for (unsigned int i = 0; i < 10; i++)
+		{
+			EXPECT_EQ(regions[i].DataCount, 56);
+			EXPECT_EQ(regions[i].DataLocation, i * 56);
+		}
+	}
+	graphics::DeleteDeviceInterface(pDevice);
+}
+
 int main(int argc, char** argv)
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);

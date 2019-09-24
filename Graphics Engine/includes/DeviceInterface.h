@@ -113,6 +113,8 @@ namespace graphics
 	{
 
 	public:
+		static constexpr UINT MAXIMUM_GRAPHICS_PIPELINES = 10;
+
 		DeviceInterface();
 		~DeviceInterface();
 
@@ -181,10 +183,11 @@ namespace graphics
 
 		RenderContext m_context;
 
-		// Internal storage because it will be easier 
-		// for render context to fetch with index
-		GraphicsPipelineArray m_pipelineArray;
+		// handled in the class because it will be easier 
+		// for render context to fetch with some kind of index
 		InternalStorage m_storage;
+		GraphicsPipelineArray m_pipelineArray;
+
 
 		// Sampler states will only be a definite amount 
 		ID3D11SamplerState* m_pSamplerStates[10];

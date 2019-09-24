@@ -32,6 +32,11 @@ namespace graphics
 		UINT m_id;
 	};		
 
+
+
+	// as of now 'GraphicsPipelineArray' gives a pointer
+	// but should be changed to an index (can be changed easily)
+
 	class GraphicsPipelineArray
 	{
 	public:

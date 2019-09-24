@@ -263,6 +263,7 @@ namespace graphics
 	{
 		if (m_count >= m_capacity) return FALSE;
 
+		// Find the first available one (can be improved if needed)
 		UINT i = 0;
 		while (!m_pIsAvailableArray[i]) { i++; }
 
@@ -274,6 +275,7 @@ namespace graphics
 		(*ppPipeline) = &m_pPipelines[i];
 
 		m_pIsAvailableArray[i] = FALSE;
+		m_count++;
 
 		return TRUE;
 	}
