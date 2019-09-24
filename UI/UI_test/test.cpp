@@ -1,5 +1,6 @@
 #include "pch.h"
 #include"Direct2D.h"
+#include "UISystems.h"
 //#include<Windows.h>
 #pragma comment (lib, "plainECS")
 //#pragma comment (lib, "UI")
@@ -84,6 +85,40 @@ TEST(ExpectedTrue, GetBitmap)
 
 	EXPECT_EQ(hr, S_OK);
 	EXPECT_NE(jej, nullptr);
+
+}
+
+TEST(ExpectedTrue, DebugWindow)
+{
+	HWND windowHandle = CreateHwndWindow();
+	Direct2D Dtest;
+	RECT rectTest = { 0,0,800,600 };
+	HRESULT hr = Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
+	
+	using namespace ecs;
+	EntityComponentSystem myECS;
+
+	//systems::HandleKeyboardSystem* TestKeyboard = myECS.createSystem<systems::HandleKeyboardSystem>();
+	
+	systems::UIPreRenderSystem* UIpreSys = myECS.createSystem<systems::UIPreRenderSystem>(0);
+	systems::UIDebugSystem* UIDebugSys = myECS.createSystem<systems::UIDebugSystem>(9);
+	systems::UIPostRenderSystem* UIpostSys = myECS.createSystem<systems::UIPostRenderSystem>(9);
+	UIpreSys->D2D = UIpostSys->D2D = UIDebugSys->D2D = &Dtest;
+	components::UITextComponent UIText;
+	UIText.strText = "hehehheehtest";
+
+
+	components::KeyboardComponent keyboard;
+	keyboard.W = true;
+	//InputBackend Input;
+	//initInputECS(myECS, &Input);
+
+	Entity* e1 = myECS.createEntity(UIText);
+	Entity* e2 = myECS.createEntity(keyboard);
+	myECS.update(0);
+
+	EXPECT_EQ(UIDebugSys->toRender, true);
+	//EXPECT_NE(jej, nullptr);
 
 }
 

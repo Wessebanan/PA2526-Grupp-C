@@ -25,6 +25,13 @@ namespace ecs
 		//	void act(float _delta) override;
 		//};
 
+
+
+
+		/*
+			ALL UI SYSTEMS NEEDS A DIRECT2D THAT HAS A HWND RENDER TARGET INITIALIZED
+		*/
+
 		class UITextSystem : public ECSSystem<UITextSystem> //system for drawing text
 		{
 		public:
@@ -41,10 +48,10 @@ namespace ecs
 			UIDebugSystem();
 			virtual ~UIDebugSystem();
 
+			bool toRender = false;
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 			Direct2D* D2D;
 		private:
-			bool toRender = false;
 			bool pressedLastUpdate = false;
 		};
 
