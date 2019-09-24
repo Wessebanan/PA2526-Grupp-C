@@ -9,7 +9,7 @@
 #include "Shaders.h"
 
 #define GRID_WIDTH 32
-#define GRID_HEIGHT 25
+#define GRID_HEIGHT 32
 #define GRID_HEX_SIZE 8
 
 namespace DInfo
