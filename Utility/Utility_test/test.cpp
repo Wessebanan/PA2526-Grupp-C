@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "CameraSystems.h"
 #include "ecs.h"
-#include <CameraFunctions.h>
-#include <UtilityFunctions.h>
+#include "CameraFunctions.h"
+#include "UtilityFunctions.h"
 #include "DebugInfoTestHeader.h"
 
 int main(int argc, char** argv)
