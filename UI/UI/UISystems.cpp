@@ -23,7 +23,7 @@ void UITextSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 	components::UIDrawPosComponent* UIPosComp = _entityInfo.getComponent<components::UIDrawPosComponent>();
 	components::UIDrawColorComponent* UIColorComp = _entityInfo.getComponent<components::UIDrawColorComponent>();
 	
-	D2D->PrintText(UITextComp->strText, UIPosComp->drawArea, UIColorComp->color);
+	mpD2D->PrintText(UITextComp->mStrText, UIPosComp->mDrawArea, UIColorComp->mColor);
 }
 
 UIBitmapSystem::UIBitmapSystem()
@@ -43,7 +43,7 @@ void UIBitmapSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 	components::UIDrawPosComponent* UIPosComp = _entityInfo.getComponent<components::UIDrawPosComponent>();
 	components::UIBitmapComponent* UIBitmapComp = _entityInfo.getComponent<components::UIBitmapComponent>();
 
-	D2D->DrawBitmap(UIBitmapComp->bitmap, UIPosComp->drawArea);
+	mpD2D->DrawBitmap(UIBitmapComp->mpBitmap, UIPosComp->mDrawArea);
 }
 
 ecs::systems::UIRectSystem::UIRectSystem()
@@ -65,7 +65,7 @@ void ecs::systems::UIRectSystem::updateEntity(FilteredEntity& _entityInfo, float
 	components::UIDrawPosComponent* UIPosComp = _entityInfo.getComponent<components::UIDrawPosComponent>();
 	components::UIThicknessComponent* UIThicknessComp = _entityInfo.getComponent<components::UIThicknessComponent>();
 
-	D2D->drawRect(UIPosComp->drawArea, UIThicknessComp->thickness, UIColorComp->color);
+	mpD2D->drawRect(UIPosComp->mDrawArea, UIThicknessComp->mThickness, UIColorComp->mColor);
 }
 
 ecs::systems::UISolidRectSystem::UISolidRectSystem()
@@ -85,7 +85,7 @@ void ecs::systems::UISolidRectSystem::updateEntity(FilteredEntity& _entityInfo, 
 	components::UIDrawColorComponent* UIColorComp = _entityInfo.getComponent<components::UIDrawColorComponent>();
 	components::UIDrawPosComponent* UIPosComp = _entityInfo.getComponent<components::UIDrawPosComponent>();
 
-	D2D->solidRect(UIPosComp->drawArea, UIColorComp->color);
+	mpD2D->solidRect(UIPosComp->mDrawArea, UIColorComp->mColor);
 }
 
 ecs::systems::UIDebugSystem::UIDebugSystem()
@@ -122,6 +122,6 @@ void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, floa
 	{
 	components::UITextComponent* UITextComp = _entityInfo.getComponent<components::UITextComponent>();
 
-	D2D->PrintDebug(UITextComp->strText);
+	mpD2D->PrintDebug(UITextComp->mStrText);
 	}
 }
