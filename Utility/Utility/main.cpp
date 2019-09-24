@@ -5,10 +5,10 @@
 int main()
 {
 	ecs::EntityComponentSystem mEcs;
-	CameraFunctions::CreateDevCamera(mEcs);
-	CameraFunctions::CreateCameraSystems(mEcs);
 	InputBackend ibe;
 	initInputECS(mEcs, &ibe);
+	CameraFunctions::CreateDevCamera(mEcs);
+	CameraFunctions::CreateCameraSystems(mEcs);
 
 	int dank = mEcs.getComponentCountOfType(ecs::components::MouseComponent::typeID);
 

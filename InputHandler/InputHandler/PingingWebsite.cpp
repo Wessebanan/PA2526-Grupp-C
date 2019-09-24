@@ -36,6 +36,9 @@ int main()
 		inp.mouse->diffFloat2.x;
 		inp.mouse->diffFloat2.y;
 
+		MouseComponent* p_mouse = (MouseComponent*)mecs.getAllComponentsOfType(MouseComponent::typeID).next();
+		cout << "x: " << p_mouse->diffx << endl;
+		cout << "y: " << p_mouse->diffy << endl;
 
 		this_thread::sleep_for(chrono::seconds(2));
 	}

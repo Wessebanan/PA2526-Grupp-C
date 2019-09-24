@@ -3,6 +3,7 @@
 #include "CameraComponents.h"
 #include "UtilityComponents.h"
 #include "InputComponents.h"
+//#include "InputBackendComponent.h"
 #include <DirectXMath.h>
 using namespace DirectX;
 
@@ -38,11 +39,9 @@ namespace ecs
 				//If the Mouse- and KeyboardComponent exists in the ECS we update the cameras position. 
 				if (p_mouse && p_keyboard)
 				{
-					if (p_mouse->diffx > 1.0f)
-						int swag = 10.0f;
 					//Update the cameras rotation vector and matrix with the mouse input.
-					p_tc->rotation.x += p_mouse->diffx / 1280.0f; 
-					p_tc->rotation.y += p_mouse->diffy / 720.0f; 
+					p_tc->rotation.y += 5.0f * delta;//p_mouse->diffx;
+					p_tc->rotation.x += 0.0f;//p_mouse->diffy * 0.0001;
 					p_cam->rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(p_tc->rotation.x, p_tc->rotation.y, 0);
 					//Update the cameras target with the new rotation matrix and normalize it.
 					p_cam->target = DirectX::XMVector3TransformCoord(world_forward, p_cam->rotationMatrix);

@@ -34,16 +34,15 @@ int main()
 	ecs::EntityComponentSystem ecs;
 	ecs.initialize(ecsDesc);
 
-	InputBackend* inp;
-	inp = new InputBackend;
-	initInputECS(ecs,inp);
+	InputBackend inp;
+	initInputECS(ecs, &inp);
 	CameraFunctions::CreateDevCamera(ecs);
 	CameraFunctions::CreateCameraSystems(ecs);
 	ecs::components::CameraComponent* p_camera = (ecs::components::CameraComponent*)ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
 
-	ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
-	ecs::BaseComponent* baseComp = iter.next();
-	ecs::components::CameraComponent* camera = static_cast<ecs::components::CameraComponent*>(baseComp);
+//	ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+//	ecs::BaseComponent* baseComp = iter.next();
+//	ecs::components::CameraComponent* camera = static_cast<ecs::components::CameraComponent*>(baseComp);
 	size_t system_count = ecs.getTotalSystemCount();
 
 
@@ -235,6 +234,10 @@ int main()
 	{
 		if (!pWindow->Update())
 		{
+			MouseComponent* p_mouse = (MouseComponent*)ecs.getAllComponentsOfType(MouseComponent::typeID).next();
+			cout << "x: " << p_mouse->diffx << endl;
+			cout << "y: " << p_mouse->diffy << endl;
+
 			DirectX::XMStoreFloat4x4(&dudeMatrix, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&dudeMatrix), DirectX::XMMatrixTranslation(rotation / 10.0f, rotation / 20.0f, rotation / 10.0f)));
 			pContext->CopyDataToRegion(
 				&dudeMatrix,
