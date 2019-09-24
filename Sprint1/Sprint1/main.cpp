@@ -8,6 +8,10 @@
 #include <DebugInfo.h>
 #include "Shaders.h"
 
+#define GRID_WIDTH 32
+#define GRID_HEIGHT 32
+#define GRID_HEX_SIZE 8
+
 namespace DInfo
 {
 	namespace Graphics
@@ -16,13 +20,13 @@ namespace DInfo
 	}
 }
 
-#pragma comment (lib, "GraphicsEngine_d")
+//#pragma comment (lib, "GraphicsEngine_d")
 using namespace graphics;
 int main()
 {
 	ecs::CompTypeMemDesc ecsMemDesc[] = {
-		{ TileComponent::typeID, TileComponent::size, 1024 },
-		{ TransformComponent::typeID, TransformComponent::size, 1024 },
+		{ TileComponent::typeID, TileComponent::size, GRID_WIDTH * GRID_HEIGHT },
+		{ TransformComponent::typeID, TransformComponent::size, GRID_WIDTH * GRID_HEIGHT },
 	};
 
 	ecs::ECSDesc ecsDesc;
@@ -32,20 +36,20 @@ int main()
 
 	ecs::EntityComponentSystem ecs;
 	ecs.initialize(ecsDesc);
-
-	//InputBackend* inp;
+	
+	WebConnection web;
+	InputBackend* inp;
 	//inp = new InputBackend;
 	//initInputECS(ecs,inp);
 
-	CameraFunctions::CreateDevCamera(ecs);
-	CameraFunctions::CreateCameraSystems(ecs);
+	//CameraFunctions::CreateDevCamera(ecs);
+	//CameraFunctions::CreateCameraSystems(ecs);
 
 
-	ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
-	ecs::BaseComponent* baseComp = iter.next();
-	ecs::components::CameraComponent* camera = static_cast<ecs::components::CameraComponent*>(baseComp);
-	size_t system_count = ecs.getTotalSystemCount();
-
+	//ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+	//ecs::BaseComponent* baseComp = iter.next();
+	//ecs::components::CameraComponent* camera = static_cast<ecs::components::CameraComponent*>(baseComp);
+	//size_t system_count = ecs.getTotalSystemCount();
 
 
 
@@ -100,7 +104,7 @@ int main()
 	pContext->UploadMeshesToGPU();
 
 	BufferRegion worldMatrixBufferRegion;
-	pDevice->CreateDynamicBufferRegion(sizeof(DirectX::XMFLOAT4X4) * 1024, NULL, &worldMatrixBufferRegion);
+	pDevice->CreateDynamicBufferRegion(sizeof(DirectX::XMFLOAT4X4) * GRID_HEIGHT * GRID_WIDTH, NULL, &worldMatrixBufferRegion);
 	
 	
 	DirectX::XMFLOAT4X4 world(1.0f, 0.0f, 0.0f, 0.0f,
@@ -108,15 +112,15 @@ int main()
 							  0.0f, 0.0f, 1.0f, 0.0f,
 							  0.0f, 0.0f, 0.0f, 1.0f);
 	DirectX::XMStoreFloat4x4(&world,
-		DirectX::XMMatrixMultiply(DirectX::XMMatrixScaling(2.0f, 2.0f, 2.0f), DirectX::XMMatrixRotationRollPitchYaw(-1.5708f, 0.0f, -1.5708f)));
+		DirectX::XMMatrixMultiply(DirectX::XMMatrixScaling(GRID_HEX_SIZE, GRID_HEX_SIZE, GRID_HEX_SIZE), DirectX::XMMatrixRotationRollPitchYaw(-1.5708f, 0.0f, -1.5708f)));
 
-	DirectX::XMFLOAT4X4 worldMatrices[1024];
+	DirectX::XMFLOAT4X4 worldMatrices[GRID_HEIGHT * GRID_WIDTH];
 	
-	GridFunctions::CreateGrid(ecs, 32, 32, 2.0f);
+	GridFunctions::CreateGrid(ecs, GRID_WIDTH, GRID_HEIGHT, GRID_HEX_SIZE);
 	ecs::ComponentIterator comp_iter = ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID);
 	ecs::BaseComponent* p;
 	ecs::components::TransformComponent* pTransform;
-	DirectX::XMFLOAT3 tile_positions[1024];
+	DirectX::XMFLOAT3 tile_positions[GRID_HEIGHT * GRID_WIDTH];
 	int counter = 0;
 	while (p = comp_iter.next())
 	{
@@ -125,19 +129,19 @@ int main()
 		counter++;
 	}
 	
-	for (int i = 0; i < 32; ++i)
+	for (int i = 0; i < GRID_HEIGHT; ++i)
 	{
-		for (int j = 0; j < 32; ++j)
+		for (int j = 0; j < GRID_WIDTH; ++j)
 		{
 			if (i % 2 == 0) {
 
-				DirectX::XMStoreFloat4x4(&worldMatrices[i* 32 + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(j * 3.2f, 0.0f, i * 3.2f)));
+				DirectX::XMStoreFloat4x4(&worldMatrices[i* GRID_HEIGHT + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(j * 3.2f, 0.0f, i * 3.2f)));
 
 			}
 			else {
-				DirectX::XMStoreFloat4x4(&worldMatrices[i * 32 + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(j * 3.2f + 1.5f, 0.0f, i * 3.1f)));
+				DirectX::XMStoreFloat4x4(&worldMatrices[i * GRID_HEIGHT + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(j * 3.2f + 1.5f, 0.0f, i * 3.1f)));
 			}
-			DirectX::XMStoreFloat4x4(&worldMatrices[i * 32 + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(tile_positions[i * 32 + j].x, tile_positions[i * 32 + j].y, tile_positions[i * 32 + j].z)));
+			DirectX::XMStoreFloat4x4(&worldMatrices[i * GRID_HEIGHT + j], DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&world), DirectX::XMMatrixTranslation(tile_positions[i * GRID_HEIGHT + j].x, tile_positions[i * GRID_HEIGHT + j].y, tile_positions[i * GRID_HEIGHT + j].z)));
 		}
 	}
 
@@ -145,12 +149,12 @@ int main()
 	DirectX::XMFLOAT4X4 dudeMatrix;
 	pDevice->CreateDynamicBufferRegion(sizeof(DirectX::XMFLOAT4X4), NULL, &dudeMatrixRegion);
 	DirectX::XMStoreFloat4x4(&dudeMatrix, DirectX::XMMatrixMultiply(DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.0f),
-		DirectX::XMMatrixMultiply(DirectX::XMMatrixScaling(5.0f, 5.0f, 5.0f), DirectX::XMMatrixRotationRollPitchYaw(-1.5708f, 0.0f, 0.0f))));
+		DirectX::XMMatrixMultiply(DirectX::XMMatrixScaling(2.5f, 2.5f, 2.5f), DirectX::XMMatrixRotationRollPitchYaw(-1.5708f, 0.0f, 0.0f))));
 
 	DirectX::XMFLOAT4X4 view;
 	DirectX::XMStoreFloat4x4(&view,
 		DirectX::XMMatrixLookAtLH(
-			{ -5.0f, 20.0f, -5.0f },
+			{ -5.0f, 60.0f, -5.0f },
 			{ 32.0f, 0.0f, 32.0f },
 			{ 0.0f, 1.0f, 0.0f }));
 	DirectX::XMFLOAT4X4 projection;
@@ -220,7 +224,7 @@ int main()
 
 	pContext->CopyDataToRegion(
 		&worldMatrices,
-		sizeof(DirectX::XMFLOAT4X4) * 1024,
+		sizeof(DirectX::XMFLOAT4X4) * GRID_HEIGHT * GRID_WIDTH,
 		worldMatrixBufferRegion);
 
 	float rotation = 0.0f;
@@ -230,11 +234,36 @@ int main()
 		sizeof(DirectX::XMFLOAT4X4),
 		dudeMatrixRegion);
 	
+	DirectX::XMStoreFloat4x4(&dudeMatrix, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&dudeMatrix), DirectX::XMMatrixTranslation(0.0f, 30.0f, 0.0f)));
 	while (pWindow->IsOpen())
 	{
 		if (!pWindow->Update())
 		{
-			DirectX::XMStoreFloat4x4(&dudeMatrix, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&dudeMatrix), DirectX::XMMatrixTranslation(rotation / 10.0f, rotation / 20.0f, rotation / 10.0f)));
+			ecs::ComponentIterator iter2 = ecs.getAllComponentsOfType(ecs::components::UserButtonComponent::typeID);
+			ecs::BaseComponent* user_button;
+			bool user0Button0;
+
+
+
+			int h_u0b0 = web.getPlayerButton(0);
+			if (h_u0b0 == 0)
+			{
+				DirectX::XMStoreFloat4x4(&dudeMatrix, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&dudeMatrix), DirectX::XMMatrixTranslation(-rotation / 1.0f, 0.0f, 0.0f)));
+			}
+			else if (h_u0b0 == 1)
+			{
+				DirectX::XMStoreFloat4x4(&dudeMatrix, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&dudeMatrix), DirectX::XMMatrixTranslation(0.0f, 0.0f, -rotation / 1.0f)));
+			}
+			else if (h_u0b0 == 2)
+			{
+				DirectX::XMStoreFloat4x4(&dudeMatrix, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&dudeMatrix), DirectX::XMMatrixTranslation(0.0f, 0.0f, rotation / 1.0f)));
+			}
+			else if (h_u0b0 == 3)
+			{
+				DirectX::XMStoreFloat4x4(&dudeMatrix, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&dudeMatrix), DirectX::XMMatrixTranslation(rotation / 1.0f, 0.0f, 0.0f)));
+			}
+
+
 			pContext->CopyDataToRegion(
 				&dudeMatrix,
 				sizeof(DirectX::XMFLOAT4X4),
@@ -254,7 +283,7 @@ int main()
 
 			pContext->SetGraphicsPipeline(pPipeline);
 			pContext->VSSetConstantBuffer(0, worldMatrixBufferRegion);
-			pContext->DrawIndexedInstance(1024, 0, indexRegion, hexMeshBuffReg);
+			pContext->DrawIndexedInstance(GRID_HEIGHT * GRID_WIDTH, 0, indexRegion, hexMeshBuffReg);
 
 			pContext->SetGraphicsPipeline(pPipeline2);
 			pContext->VSSetConstantBuffer(0, dudeMatrixRegion);
@@ -266,11 +295,15 @@ int main()
 			elapsed_microseconds.QuadPart *= 1000000;
 			elapsed_microseconds.QuadPart /= freq.QuadPart;
 			ecs.update((float)(elapsed_microseconds.QuadPart) / 1000000.0f);
-			rotation += elapsed_microseconds.QuadPart / 1000000.0f;
+			char buffer[100];
+			sprintf_s(buffer, "Fps: %f\n", 1000.0f / ((float)(elapsed_microseconds.QuadPart) / 1000.0f));
+			OutputDebugStringA(buffer);
+			rotation = elapsed_microseconds.QuadPart / 500000.0f;
 		}
 
 	}
 	pDevice->DeletePipeline(pPipeline);
 	graphics::DeleteDeviceInterface(pDevice);
+	//delete inp;
 	
 }

@@ -118,14 +118,14 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\ECS\plainECS\includes;$(ProjectDir)includes;$(SolutionDir)..\ModelLoader\ModelLoader\includes;$(SolutionDir)..\Graphics Engine\includes;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\InputHandler\InputHandler\includes;$(SolutionDir)..\AI\AI\includes;$(SolutionDir)..\Utility\Utility\includes;$(SolutionDir)..\ECS\plainECS\includes;$(ProjectDir)includes;$(SolutionDir)..\ModelLoader\ModelLoader\includes;$(SolutionDir)..\Graphics Engine\includes;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)..\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>plainECS.lib;GraphicsEngine.lib;libfbxsdk.lib;ModelLoader.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>InputHandler.lib;AI.lib;Utility.lib;plainECS.lib;GraphicsEngine.lib;libfbxsdk.lib;ModelLoader.lib;libfbxsdk.lib;ModelLoader.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

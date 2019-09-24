@@ -881,17 +881,18 @@ namespace TestComponentManager
 
 		// Remove half of the components, keep count how many components
 		// are still existing. Set removed component IDs to 0.
-		int expected_components = component_count;
+		int expected_component_count = component_count;
 		for (int i = 0; i < component_count; i++)
 		{
 			mgr.removeComponent(TestComponent1::typeID, id_list[i]);
 			id_list[i] = 0;
-			expected_components--;
+			expected_component_count--;
 		}
 
 		ecs::ComponentIterator it = mgr.getComponentIterator(TestComponent1::typeID);
 
-		// Check component in iterator
+		// Check component in iterator, keep count of components in iterator
+		int iterator_component_count = 0;
 		TestComponent1 *pComponent;
 		ecs::BaseComponent *pBase;
 		while (pBase = it.next())
@@ -900,13 +901,26 @@ namespace TestComponentManager
 			pComponent = static_cast<TestComponent1*>(pBase);
 
 			// Check if data is correct
-
-			//EXPECT_EQ()
+			ID id = pComponent->getID();
+			EXPECT_EQ(pComponent->data, expected_data[id]);
+			iterator_component_count++;
 		}
+		EXPECT_EQ(iterator_component_count, expected_component_count);
 	}
 } // namespace TestComponentManager
 namespace TestEventManager
 {
-
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
+	//TEST(TestEventManager, )
 } // namespace TestEventManager
 #pragma endregion ManagerTesting
