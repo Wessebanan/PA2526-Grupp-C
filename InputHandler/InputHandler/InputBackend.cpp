@@ -118,6 +118,7 @@ bool InputBackend::updateWeb()
 {
 	this->updateTiles();
 	this->updateButtons();
+	this->updateCommands();
 	//this->updateName();
 
 	return true;
@@ -162,6 +163,15 @@ void InputBackend::updateButtons()
 	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
 	{
 		mpUserButton[playerIndex]->mButton = mpWebConn->getUserButton(playerIndex);
+	}
+}
+
+void InputBackend::updateCommands()
+{
+	// Checks and updates each players current command
+	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
+	{
+		mpUserCommand[playerIndex]->mCommand = mpWebConn->getUserCommand(playerIndex);
 	}
 }
 

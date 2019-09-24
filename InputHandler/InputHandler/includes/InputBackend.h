@@ -126,10 +126,12 @@ private:
 	// Returns true if the key is pressed down
 	bool checkKey(key *key);
 
-	// Reads and updates the selected tiles
+	// Reads and updates the selected tiles for all users
 	void updateTiles();
-	// Reads and updates the buttons
+	// Reads and updates the buttons for all users
 	void updateButtons();
+	// Reads and updates the commands for all users
+	void updateCommands();
 	// not implemented but webb has it stored
 	//void updateName();
 };
