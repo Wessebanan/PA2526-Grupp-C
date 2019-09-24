@@ -1,12 +1,13 @@
 #include "InitInputHandler.h"
-#include <ecs.h>
-#include <Mesh.h>
-#include <DeviceInterface.h>
-#include <UtilityFunctions.h>
-#include <CameraFunctions.h>
-#include <GridFunctions.h>
+#include "ecs.h"
+#include "Mesh.h"
+#include "DeviceInterface.h"
+#include "UtilityFunctions.h"
+#include "CameraFunctions.h"
+#include "GridFunctions.h"
 #include <DebugInfo.h>
 #include "Shaders.h"
+#include "ecsUser.h"
 
 namespace DInfo
 {
@@ -38,7 +39,7 @@ int main()
 	initInputECS(ecs,inp);
 	CameraFunctions::CreateDevCamera(ecs);
 	CameraFunctions::CreateCameraSystems(ecs);
-
+	ecs::components::CameraComponent* p_camera = (ecs::components::CameraComponent*)ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
 
 	ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
 	ecs::BaseComponent* baseComp = iter.next();
@@ -156,6 +157,7 @@ int main()
 	DirectX::XMStoreFloat4x4(&projection,
 		DirectX::XMMatrixPerspectiveFovLH(
 			1.5708f, 1280 / (float)720, 0.1f, 8000.0f));
+	XMStoreFloat4x4(&projection, p_camera->projectionMatrix);
 	BufferRegion projRegion;
 
 	BufferRegion viewRegion;
@@ -228,8 +230,6 @@ int main()
 		&dudeMatrix,
 		sizeof(DirectX::XMFLOAT4X4),
 		dudeMatrixRegion);
-	
-	ecs::components::CameraComponent* p_camera; //= (ecs::components::CameraComponent*)
 
 	while (pWindow->IsOpen())
 	{
@@ -247,12 +247,12 @@ int main()
 			pContext->ClearDepth(depthBuffer);
 			pContext->SetRenderTarget(backBuffer, depthBuffer);
 
+			XMStoreFloat4x4(&view, p_camera->viewMatrix);
 			pContext->CopyDataToRegion(
 				&view,
 				sizeof(view),
 				viewRegion);
 			pContext->UploadDynamicDataToGPU();
-
 			pContext->SetGraphicsPipeline(pPipeline);
 			pContext->VSSetConstantBuffer(0, worldMatrixBufferRegion);
 			pContext->DrawIndexedInstance(1024, 0, indexRegion, hexMeshBuffReg);

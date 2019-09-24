@@ -29,6 +29,6 @@ namespace CameraFunctions
 
 	void CreateCameraSystems(ecs::EntityComponentSystem& rEcs)
 	{
-		rEcs.createSystem<systems::UpdateCameraSystem>();
+		rEcs.createSystem<systems::UpdateCameraSystem>(3);
 	}
 }

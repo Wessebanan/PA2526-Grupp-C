@@ -17,9 +17,9 @@ int main()
 
 	int size = mecs.getTotalSystemCount();
 
-	InputBackend* inp = new InputBackend;
+	InputBackend inp; //= new InputBackend;
 
-	initInputECS(mecs,inp);
+	initInputECS(mecs,&inp);
 
 	//InputBackend inpSys;
 	
@@ -32,6 +32,10 @@ int main()
 		//inpSys.updateKeyboard();
 		//inpSys.updateWeb();
 		//cout << inpSys.players[0]->currButton0 << " I shte players X tile" << endl;
+
+		inp.mouse->diffFloat2.x;
+		inp.mouse->diffFloat2.y;
+
 
 		this_thread::sleep_for(chrono::seconds(2));
 	}

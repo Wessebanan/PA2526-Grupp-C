@@ -60,7 +60,9 @@ void ecs::systems::HandleMouseSystem::updateEntity(FilteredEntity& _entityInfo, 
 
 	//if (mouse->diffLength == backendComp->backend->mouse->diffLength && mouse->diffFloat2.x == backendComp->backend->mouse->diffFloat2)
 	
-	mouse->diffFloat2 = backendComp->backend->mouse->diffFloat2;
+//	mouse->diffFloat2 = backendComp->backend->mouse->diffFloat2;
+	mouse->diffx = backendComp->backend->mouse->diffFloat2.x;
+	mouse->diffy = backendComp->backend->mouse->diffFloat2.y;
 	mouse->diffLength = backendComp->backend->mouse->diffLength;
 
 }

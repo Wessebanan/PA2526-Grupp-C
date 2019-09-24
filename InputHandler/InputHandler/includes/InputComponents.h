@@ -31,7 +31,9 @@ namespace ecs
 			bool RMB = false;
 
 			// Directional varibles
-			DirectX::XMFLOAT2 diffFloat2;
+			//DirectX::XMFLOAT2 diffFloat2;
+			float diffx;
+			float diffy;
 			float diffLength = 0.0f;
 
 			// Position of the cursor on the whole screen
