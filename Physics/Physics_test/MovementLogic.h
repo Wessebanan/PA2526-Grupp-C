@@ -75,7 +75,7 @@ namespace MovementLogic
 		MovementComponent* p_movement = dynamic_cast<MovementComponent*>(ecs.getComponent(MovementComponent::typeID, movable_entity->getComponentID(MovementComponent::typeID)));
 		TransformComponent* p_transform = dynamic_cast<TransformComponent*>(ecs.getComponent(TransformComponent::typeID, movable_entity->getComponentID(TransformComponent::typeID)));
 
-		const float delta = 0.1f;
+		const float DELTA = 0.1f;
 		const float abs_error = (float)pow(10, -10);
 		// Saving the previous position to check correct movement.
 		DirectX::XMFLOAT3 previous_position = p_transform->position;
@@ -85,7 +85,7 @@ namespace MovementLogic
 		// in the order: [FORWARD, BACKWARD, RIGHT, LEFT].
 
 		// FORWARD
-		ecs.update(delta);
+		ecs.update(DELTA);
 		
 		// Checking direction.
 		EXPECT_NEAR(p_movement->mDirection.x, p_movement->mForward.x, abs_error);
@@ -93,14 +93,14 @@ namespace MovementLogic
 		EXPECT_NEAR(p_movement->mDirection.z, p_movement->mForward.z, abs_error);
 
 		// Checking movement according to [d = d_0 + v * t] in each direction.
-		EXPECT_FLOAT_EQ(p_transform->position.x, previous_position.x + delta * p_movement->mMaxVelocity * p_movement->mDirection.x);
-		EXPECT_FLOAT_EQ(p_transform->position.y, previous_position.y + delta * p_movement->mMaxVelocity * p_movement->mDirection.y);
-		EXPECT_FLOAT_EQ(p_transform->position.z, previous_position.z + delta * p_movement->mMaxVelocity * p_movement->mDirection.z);
+		EXPECT_FLOAT_EQ(p_transform->position.x, previous_position.x + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.x);
+		EXPECT_FLOAT_EQ(p_transform->position.y, previous_position.y + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.y);
+		EXPECT_FLOAT_EQ(p_transform->position.z, previous_position.z + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.z);
 
 		previous_position = p_transform->position;
 
 		// BACKWARD
-		ecs.update(delta);
+		ecs.update(DELTA);
 
 		// Checking direction.
 		EXPECT_NEAR(p_movement->mDirection.x, -p_movement->mForward.x, abs_error);
@@ -108,14 +108,14 @@ namespace MovementLogic
 		EXPECT_NEAR(p_movement->mDirection.z, p_movement->mForward.z, abs_error);
 
 		// Checking movement according to [d = d_0 + v * t] in each direction.
-		EXPECT_FLOAT_EQ(p_transform->position.x, previous_position.x + delta * p_movement->mMaxVelocity * p_movement->mDirection.x);
-		EXPECT_FLOAT_EQ(p_transform->position.y, previous_position.y + delta * p_movement->mMaxVelocity * p_movement->mDirection.y);
-		EXPECT_FLOAT_EQ(p_transform->position.z, previous_position.z + delta * p_movement->mMaxVelocity * p_movement->mDirection.z);
+		EXPECT_FLOAT_EQ(p_transform->position.x, previous_position.x + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.x);
+		EXPECT_FLOAT_EQ(p_transform->position.y, previous_position.y + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.y);
+		EXPECT_FLOAT_EQ(p_transform->position.z, previous_position.z + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.z);
 
 		previous_position = p_transform->position;
 
 		// RIGHT
-		ecs.update(delta);
+		ecs.update(DELTA);
 
 		// Checking direction.
 		EXPECT_NEAR(p_movement->mDirection.x, p_movement->mForward.x - 1.0f, abs_error);
@@ -123,14 +123,14 @@ namespace MovementLogic
 		EXPECT_NEAR(p_movement->mDirection.z, p_movement->mForward.z + 1.0f, abs_error);
 
 		// Checking movement according to [d = d_0 + v * t] in each direction.
-		EXPECT_FLOAT_EQ(p_transform->position.x, previous_position.x + delta * p_movement->mMaxVelocity * p_movement->mDirection.x);
-		EXPECT_FLOAT_EQ(p_transform->position.y, previous_position.y + delta * p_movement->mMaxVelocity * p_movement->mDirection.y);
-		EXPECT_FLOAT_EQ(p_transform->position.z, previous_position.z + delta * p_movement->mMaxVelocity * p_movement->mDirection.z);
+		EXPECT_FLOAT_EQ(p_transform->position.x, previous_position.x + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.x);
+		EXPECT_FLOAT_EQ(p_transform->position.y, previous_position.y + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.y);
+		EXPECT_FLOAT_EQ(p_transform->position.z, previous_position.z + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.z);
 		
 		previous_position = p_transform->position;
 
 		// LEFT
-		ecs.update(delta);
+		ecs.update(DELTA);
 
 		// Checking direction.
 		EXPECT_NEAR(p_movement->mDirection.x, p_movement->mForward.x - 1.0f, abs_error);
@@ -138,9 +138,9 @@ namespace MovementLogic
 		EXPECT_NEAR(p_movement->mDirection.z, p_movement->mForward.z - 1.0f, abs_error);
 
 		// Checking movement according to [d = d_0 + v * t] in each direction.
-		EXPECT_FLOAT_EQ(p_transform->position.x, previous_position.x + delta * p_movement->mMaxVelocity * p_movement->mDirection.x);
-		EXPECT_FLOAT_EQ(p_transform->position.y, previous_position.y + delta * p_movement->mMaxVelocity * p_movement->mDirection.y);
-		EXPECT_FLOAT_EQ(p_transform->position.z, previous_position.z + delta * p_movement->mMaxVelocity * p_movement->mDirection.z);
+		EXPECT_FLOAT_EQ(p_transform->position.x, previous_position.x + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.x);
+		EXPECT_FLOAT_EQ(p_transform->position.y, previous_position.y + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.y);
+		EXPECT_FLOAT_EQ(p_transform->position.z, previous_position.z + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.z);
 
 	}
 

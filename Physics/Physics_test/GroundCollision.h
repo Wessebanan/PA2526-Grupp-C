@@ -42,8 +42,6 @@ namespace GroundCollision
 	{
 		ecs::EntityComponentSystem ecs;
 
-		const float delta = 0.1f;
-		
 		ecs::systems::GroundCollisionComponentInitSystem* ground_collision_component_init_system = ecs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
 
 		MeshComponent mesh_component;
