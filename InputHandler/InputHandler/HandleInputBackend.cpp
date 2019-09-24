@@ -20,6 +20,7 @@ void ecs::systems::HandleKeyboardSystem::updateEntity(FilteredEntity& _entityInf
 	KeyboardComponent* kb = _entityInfo.getComponent<components::KeyboardComponent>();
 	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
 
+	// saves all keyboard keys, the mouse keys are done in mouse system
 	kb->W = backendComp->backend->mpWsad->keyU.pressed;
 	kb->S = backendComp->backend->mpWsad->keyD.pressed;
 	kb->A = backendComp->backend->mpWsad->keyL.pressed;
@@ -51,15 +52,16 @@ void ecs::systems::HandleMouseSystem::updateEntity(FilteredEntity& _entityInfo, 
 	MouseComponent* mouse = _entityInfo.getComponent<components::MouseComponent>();
 	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
 
-	
 
+	// the mouse buttons
 	mouse->LMB = backendComp->backend->mpMouseLKey->key.pressed;
 	mouse->RMB = backendComp->backend->mpMouseRKey->key.pressed;
 
+	// the current position
 	mouse->pos = backendComp->backend->mpMouse->mNewPos;
 
-	//if (mouse->diffLength == backendComp->backend->mouse->diffLength && mouse->diffFloat2.x == backendComp->backend->mouse->diffFloat2)
 	
+	// the delta values
 	mouse->diffFloat2 = backendComp->backend->mpMouse->mDiffFloat2;
 	mouse->diffLength = backendComp->backend->mpMouse->mDiffLength;
 
@@ -82,6 +84,7 @@ ecs::systems::HandleWebSystem::~HandleWebSystem()
 
 void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
+	// Each diffrent button
 	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
 	UserButtonComponent* buttonComp = _entityInfo.getComponent<components::UserButtonComponent>();
 	UserTileComponent* tileComp = _entityInfo.getComponent<components::UserTileComponent>();
@@ -114,10 +117,15 @@ systems::HandleInputBackend::~HandleInputBackend()
 
 void ecs::systems::HandleInputBackend::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
+	// updates the components with the data from the backend
+
 	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
 
+	// keyboard input 
 	backendComp->backend->updateKeyboard();
+	// mouse input
 	backendComp->backend->updateMouse();
+	// web input from users
 	backendComp->backend->updateWeb();
 
 }

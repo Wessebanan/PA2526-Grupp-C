@@ -12,6 +12,7 @@ namespace ecs
 {
 	namespace systems
 	{
+		// saves the keyboard
 		class HandleKeyboardSystem : public ecs::ECSSystem<HandleKeyboardSystem>
 		{
 		public:
@@ -21,6 +22,7 @@ namespace ecs
 		private:
 		};
 
+		// svaes the mouses delta and keys 
 		class HandleMouseSystem : public ecs::ECSSystem<HandleMouseSystem>
 		{
 		public:
@@ -30,6 +32,7 @@ namespace ecs
 		private:
 		};
 
+		// All buttons are saved
 		class HandleWebSystem : public ecs::ECSSystem<HandleWebSystem>
 		{
 		public:
@@ -39,6 +42,7 @@ namespace ecs
 		private:
 		};
 
+		// the backend in updated
 		class HandleInputBackend : public ecs::ECSSystem<HandleInputBackend>
 		{
 		public:
