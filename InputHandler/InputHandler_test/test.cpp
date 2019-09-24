@@ -90,3 +90,63 @@ TEST(ECS, TestComponentCreation)
 
 	EXPECT_EQ(rECS.getTotalComponentCount(), 5);
 }
+
+TEST(ECSvsInput, updateALLSystems)
+{
+	ecs::EntityComponentSystem rECS;
+
+	initInputECS(rECS, gInputBackend);
+
+	gInputBackend->wsad->keyU.pressed = true;
+	gInputBackend->wsad->keyD.pressed = true;
+	gInputBackend->ressetKey->key.pressed = true;
+
+	rECS.update(0.3f);
+
+	EXPECT_FALSE(gInputBackend->wsad->keyU.pressed);
+	EXPECT_FALSE(gInputBackend->wsad->keyD.pressed);
+	EXPECT_FALSE(gInputBackend->ressetKey->key.pressed);
+}
+
+TEST(ECSvsInput, updateKBWithInpBackend)
+{
+	ecs::EntityComponentSystem rECS;
+
+	initInputECS(rECS, gInputBackend);
+
+	gInputBackend->wsad->keyU.pressed = true;
+	gInputBackend->wsad->keyD.pressed = true;
+	gInputBackend->ressetKey->key.pressed = true;
+
+	gInputBackend->updateKeyboard();
+
+	EXPECT_FALSE(gInputBackend->wsad->keyU.pressed);
+	EXPECT_FALSE(gInputBackend->wsad->keyD.pressed);
+	EXPECT_FALSE(gInputBackend->ressetKey->key.pressed);
+}
+
+TEST(ECSvsInput, updateMouseSYS)
+{
+	ecs::EntityComponentSystem rECS;
+
+	initInputECS(rECS, gInputBackend);
+
+	gInputBackend->mouse->diffLength = 10000;
+
+	rECS.update(0.3f);
+
+	EXPECT_EQ(gInputBackend->mouse->diffLength, 0.0f);
+}
+
+TEST(ECSvsInput, updateMouseWithInpBackend)
+{
+	ecs::EntityComponentSystem rECS;
+
+	initInputECS(rECS, gInputBackend);
+
+	gInputBackend->mouse->diffLength = 10000;
+
+	gInputBackend->updateMouse();
+
+	EXPECT_EQ(gInputBackend->mouse->diffLength, 0);
+}

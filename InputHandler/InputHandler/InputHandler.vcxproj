@@ -160,6 +160,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\HandleInputBackend.h" />
+    <ClInclude Include="includes\InputBackendComponent.h" />
     <ClInclude Include="includes\InputComponents.h" />
     <ClInclude Include="includes\InputBackend.h" />
     <ClInclude Include="includes\sha1.h" />
