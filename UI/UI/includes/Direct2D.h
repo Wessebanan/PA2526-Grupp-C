@@ -70,7 +70,7 @@ public:
 	HRESULT LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
 	ID GetBitmapIDFromName(char* bitmapName); //returns bitmap ID
 	ID2D1Bitmap* GetBitmap(ID bitmapID); //returns bitmap
-	ID GetBrushIDFromName(char* bitmapName); //not in use right now
+	ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS
 	bool DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect);
 
 	//ID2D1Bitmap* GetBitmapByName(std::string bitmapName); //used to draw all bitmaps, uses the BitmapInfo struct
@@ -81,9 +81,9 @@ public:
 	bool PrintText(std::string text, D2D1_RECT_F rect, brushColors color); //only one used in ECS atm
 	bool PrintText(std::string text, int left, int top, int right, int bottom);
 
-	void setTextColor(float r, float g, float b, float a); //not in use atm
-	void setDrawColor(float r, float g, float b, float a); //not in use atm
-	void setBrushColor(char* name, float r, float g, float b, float a); //not in use atm
+	void setTextColor(float r, float g, float b, float a); //not in use atm by ECS
+	void setDrawColor(float r, float g, float b, float a); //not in use atm by ECS
+	void setBrushColor(char* name, float r, float g, float b, float a); //not in use atm by ECS
 	HRESULT setTextSize(unsigned int size); //Don't use in a loop because it creates a new textformat
 	HRESULT setFont(std::string font); //Don't use in a loop because it creates a new textformat
 	bool drawRect(D2D1_RECT_F rect, int thinkness, brushColors color); //draws a rect border/wireframe
@@ -117,7 +117,6 @@ private:
 	bool mFailBitMapLoaded = false;
 	bool mHwndRenderTargetCreated = false;
 	//std::vector<BitmapInfo> mBitmapVector;
-	int test = 0;
 
 	using BitmapMap = std::unordered_map<ID, ID2D1Bitmap*>; //unordered map of bitmaps
 	using BitmapPair = std::pair<ID, ID2D1Bitmap*>;

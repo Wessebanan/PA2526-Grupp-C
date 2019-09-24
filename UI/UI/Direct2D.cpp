@@ -121,7 +121,7 @@ ID2D1DeviceContext* Direct2D::GetpContext()
 	return this->mpContext;
 }
 
-HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]/*, D2D1_RECT_F drawRect*/) //loads an image to a bitmap map with infostruct and ID
+HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]/*, D2D1_RECT_F drawRect*/) //loads an image to a bitmap map with bitmap and ID
 {
 	HRESULT hr = E_FAIL;
 	//BitmapInfo new_bitmap_struct;
@@ -156,7 +156,7 @@ HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[B
 	//this->mBitmapVector.push_back(new_bitmap_struct);
 }
 
-//ID2D1Bitmap* Direct2D::GetBitmapByName(std::string bitmapName)//------------------------------------------------------------------------------------------------------------------
+//ID2D1Bitmap* Direct2D::GetBitmapByName(std::string bitmapName)//-----
 //{
 //	ID2D1Bitmap* to_return = nullptr; // Default return is nullptr
 //	std::vector<BitmapInfo>::iterator it;
@@ -271,9 +271,8 @@ bool Direct2D::PrintText(std::string text, RECT rect) //draws text with format, 
 bool Direct2D::PrintDebug(std::string text)
 {
 	std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
-	D2D1_RECT_F rect = D2D1::RectF(this->mpRect->right - (this->mpRect->right / 4), 0, this->mpRect->right, this->mpRect->bottom - (2*this->mpRect->bottom / 3));
-	//D2D1_RECT_F rect = D2D1::RectF(200, 100, 600,400);
-	//the drawing area takes up an eighth of the rendertarget which often is the whole window
+	D2D1_RECT_F rect = D2D1::RectF(this->mpRect->right - (this->mpRect->right / 4), 0, this->mpRect->right, this->mpRect->bottom - (2*this->mpRect->bottom / 3)); // probably will need adjustment later on 
+	
 	if (this->mHwndRenderTargetCreated)
 	{
 		this->mpHwndRenderTarget->FillRectangle(rect, this->mpColorDraw);
