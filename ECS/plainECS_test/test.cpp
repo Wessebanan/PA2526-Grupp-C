@@ -6,6 +6,12 @@
 #include <unordered_map>
 #pragma comment(lib, "plainECS.lib")
 
+/*
+	For easier reading: ctrl-A and then ctrl-M-M to collapse all
+	regions. Only open up pragma region and namespace that you
+	are reading in.
+*/
+
 int main(int argc, char** argv) {
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
@@ -947,7 +953,6 @@ namespace TestEventManager
 		ecs::ECSEventManager mgr;
 
 		// Try create events
-		TestEvent* pEvent;
 		for (int i = 0; i < event_count; i++)
 		{
 			mgr.createEvent(TestEvent(i));
@@ -1040,7 +1045,7 @@ namespace TestEventManager
 	}
 } // namespace TestEventManager
 #pragma endregion ManagerTesting
-#pragma region ECSUserTesting	// NOT DONE
+#pragma region ECSUserTesting
 namespace TestECSUser
 {
 	const int expected_event_data = 1111;
@@ -1048,6 +1053,11 @@ namespace TestECSUser
 	const int expected_other_component_data = 3333;
 
 	#pragma region TestDataTypes
+	/*
+		These systems has tests in them. That's why they are in
+		test.cpp instead of ecsObjectsForTesting.h.
+	*/
+
 	class TestCreatorystem : public ecs::ECSSystem<TestCreatorystem>
 	{
 	public:
@@ -1091,7 +1101,6 @@ namespace TestECSUser
 			ecs::Entity *p_entity;
 			ecs::BaseComponent *p_base;
 			TestComponent *p_test;
-			OtherTestComponent *p_other;
 
 			// First try to get entity by using component types
 			ecs::EntityIterator entity_iterator = ecs::ECSUser::getEntitiesWithComponent<TestComponent>();
