@@ -131,9 +131,10 @@ bool WebConnection::executeUserAction(webMsgData wmd)
 		this->setButton(wmd);
 		break;
 	case ActionType::COMMAND:
-		cout << wmd.data << endl;
+		this->setCommand(wmd);
 		break;
 	default:
+		cout << "-Parsing error: Not a action" << endl;
 		return false;
 		break;
 	}
@@ -192,7 +193,7 @@ void WebConnection::setButton(webMsgData wmd)
 
 void WebConnection::setCommand(webMsgData wmd)
 {
-
+	mUsers[wmd.player].command = wmd.data;
 }
 
 void WebConnection::playersJoin()
