@@ -15,30 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="InputSystems.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="webConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PingingWebsite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HandleInputSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="includes\sha1.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="InputBackend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HandleInputBackend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\InputSystems.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\webConnection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\HandleInputSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\InputComponents.h">
@@ -46,6 +40,12 @@
     </ClInclude>
     <ClInclude Include="includes\sha1.h">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\InputBackend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\HandleInputBackend.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

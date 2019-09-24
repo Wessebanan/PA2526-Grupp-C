@@ -7,7 +7,7 @@
 
 
 //#include "ecs.h"
-//#include "HandleInputSystem.h"
+//#include "HandleInputBackend.h"
 
 #include "InitInputHandler.h"
  
@@ -19,7 +19,7 @@ int main()
 
 	//initInputECS(mecs);
 
-	////InputSystem inpSys;
+	////InputBackend inpSys;
 	//
 	//
 	//while (true)
