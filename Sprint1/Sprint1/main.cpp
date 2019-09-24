@@ -33,9 +33,9 @@ int main()
 	ecs::EntityComponentSystem ecs;
 	ecs.initialize(ecsDesc);
 
-	//InputBackend* inp;
-	//inp = new InputBackend;
-	//initInputECS(ecs,inp);
+	InputBackend* inp;
+	inp = new InputBackend;
+	initInputECS(ecs,inp);
 	CameraFunctions::CreateDevCamera(ecs);
 	CameraFunctions::CreateCameraSystems(ecs);
 
@@ -229,6 +229,8 @@ int main()
 		sizeof(DirectX::XMFLOAT4X4),
 		dudeMatrixRegion);
 	
+	ecs::components::CameraComponent* p_camera; //= (ecs::components::CameraComponent*)
+
 	while (pWindow->IsOpen())
 	{
 		if (!pWindow->Update())
