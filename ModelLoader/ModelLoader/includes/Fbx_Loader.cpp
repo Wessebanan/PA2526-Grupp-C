@@ -161,6 +161,13 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 
 	FbxNode* p_fbx_root_node = p_fbx_scene->GetRootNode();
 
+	FbxAxisSystem scene_axis_system = p_fbx_scene->GetGlobalSettings().GetAxisSystem();
+	FbxAxisSystem our_axis_system = FbxAxisSystem::eDirectX;
+	if (scene_axis_system != our_axis_system)
+	{
+		our_axis_system.ConvertScene(p_fbx_scene.get());
+	}
+
 	if (p_fbx_root_node)
 	{
 		// Traverse the FBX tree
