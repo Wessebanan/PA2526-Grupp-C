@@ -1,8 +1,8 @@
 #pragma once
-#include <ecsSystemIncludes.h>
-#include <CameraComponents.h>
-#include <UtilityComponents.h>
-#include <InputComponents.h>
+#include "ecsSystemIncludes.h"
+#include "CameraComponents.h"
+#include "UtilityComponents.h"
+#include "InputComponents.h"
 #include <DirectXMath.h>
 
 using namespace DirectX;
