@@ -1299,7 +1299,9 @@ namespace TestECS
 
 			ecs::TypeFilter filter;
 			filter.addRequirement(TestComponent::typeID);
-			//ecs::EntityIterator it = ecs.getEntitiesByFilter(filter);
+			ecs::EntityIterator it = ecs.getEntititesByFilter(filter);
+			ASSERT_EQ(it.entities.size(), 1);
+			EXPECT_EQ(it.entities.front().entity->getID(), entity_id);
 		}
 	} // TestECSEntity
 
