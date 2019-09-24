@@ -176,6 +176,6 @@ namespace ecs
 			return nullptr;
 		}
 
-		return ecsUserHandler->onGetComponent(T::typeID, e->getComponentID(T::typeID));
+		return (T*)ecsUserHandler->onGetComponent(T::typeID, e->getComponentID(T::typeID));
 	}
 }
