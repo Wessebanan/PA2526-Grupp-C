@@ -1,9 +1,4 @@
 #pragma once
-
-#ifndef INITINPUTHANDLER_H
-#define INITINPUTHANDLER_H
-
-
 #include "ecs.h"
 #include "HandleInputBackend.h"
 
@@ -61,6 +56,3 @@ void initInputECS(ecs::EntityComponentSystem& rECS, InputBackend* pInputBackend)
 
 
 }
-
-
-#endif // !INITINPUTHANDLER_H

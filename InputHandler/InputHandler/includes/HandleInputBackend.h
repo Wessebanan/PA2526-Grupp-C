@@ -1,8 +1,4 @@
 #pragma once
-
-#ifndef HANDLEInputBackend_H
-#define HANDLEInputBackend_H
-
 #include "ecsSystemIncludes.h"
 #include "InputBackend.h"
 #include "InputComponents.h"
@@ -55,8 +51,3 @@ namespace ecs
 		};
 	}
 }
-
-
-
-
-#endif // !HANDLEInputBackend_H
