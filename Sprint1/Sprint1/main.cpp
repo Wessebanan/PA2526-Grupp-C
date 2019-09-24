@@ -36,9 +36,8 @@ int main()
 	//InputBackend* inp;
 	//inp = new InputBackend;
 	//initInputECS(ecs,inp);
-
 	CameraFunctions::CreateDevCamera(ecs);
-//	CameraFunctions::CreateCameraSystems(ecs);
+	CameraFunctions::CreateCameraSystems(ecs);
 
 
 	ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
