@@ -1,7 +1,4 @@
 #pragma once
-#ifndef InputBackendS_H
-#define InputBackendS_H
-
 #include <DirectXMath.h>
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
@@ -119,8 +116,3 @@ private:
 	// not implemented but webb has it stored
 	//void updateName();
 };
-
-
-
-
-#endif // !InputBackendS_H

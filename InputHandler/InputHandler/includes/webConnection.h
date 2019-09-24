@@ -1,7 +1,4 @@
 #pragma once
-#ifndef WEBCONNECTION_H
-#define WEBCONNECTION_H
-
 // Socket includes
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
@@ -194,7 +191,3 @@ private:
 	bool runPlayerJoin = false;
 	bool runGameLoop = false;
 };
-
-
-
-#endif // !WEBCONNECTION_H
