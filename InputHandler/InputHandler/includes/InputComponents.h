@@ -1,6 +1,6 @@
 #pragma once
 #include "ecsComponentIncludes.h"
-
+#include <DirectXMath.h>
 namespace ecs 
 {
 	namespace components
