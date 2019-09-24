@@ -3,6 +3,7 @@
 #include "ecs.h"
 #include "ecsObjectsForTesting.h"
 
+#include <crtdbg.h>
 #include <unordered_map>
 #pragma comment(lib, "plainECS.lib")
 
@@ -11,8 +12,8 @@
 	regions. Only open up pragma region and namespace that you
 	are reading in.
 */
-
 int main(int argc, char** argv) {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }
