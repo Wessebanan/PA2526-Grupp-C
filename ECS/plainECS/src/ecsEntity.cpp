@@ -20,3 +20,8 @@ bool Entity::hasComponentOfType(TypeID _typeID)
 	// If not exists, when .count return 0 (==false)
 	return componentIDs.count(_typeID);
 }
+
+unsigned int Entity::getComponentCount()
+{
+	return (unsigned int)componentIDs.size();
+}

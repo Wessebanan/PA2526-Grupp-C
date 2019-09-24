@@ -49,7 +49,7 @@ namespace ecs
 		void removeAllFlagged();
 
 		/*
-		*	Getters
+			Getters
 		*/
 
 		size_t getComponentCountOfType(TypeID _typeID);
