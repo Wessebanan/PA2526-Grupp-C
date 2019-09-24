@@ -119,8 +119,8 @@ namespace MovementLogic
 
 		// Checking direction.
 		EXPECT_NEAR(p_movement->mDirection.x, p_movement->mForward.x - 1.0f, abs_error);
-		EXPECT_NEAR(p_movement->mDirection.y, p_movement->mForward.y + 1.0f, abs_error);
-		EXPECT_NEAR(p_movement->mDirection.z, p_movement->mForward.z, abs_error);
+		EXPECT_NEAR(p_movement->mDirection.y, p_movement->mForward.y, abs_error);
+		EXPECT_NEAR(p_movement->mDirection.z, p_movement->mForward.z + 1.0f, abs_error);
 
 		// Checking movement according to [d = d_0 + v * t] in each direction.
 		EXPECT_FLOAT_EQ(p_transform->position.x, previous_position.x + delta * p_movement->mMaxVelocity * p_movement->mDirection.x);
@@ -134,8 +134,8 @@ namespace MovementLogic
 
 		// Checking direction.
 		EXPECT_NEAR(p_movement->mDirection.x, p_movement->mForward.x - 1.0f, abs_error);
-		EXPECT_NEAR(p_movement->mDirection.y, p_movement->mForward.y - 1.0f, abs_error);
-		EXPECT_NEAR(p_movement->mDirection.z, p_movement->mForward.z, abs_error);
+		EXPECT_NEAR(p_movement->mDirection.y, p_movement->mForward.y, abs_error);
+		EXPECT_NEAR(p_movement->mDirection.z, p_movement->mForward.z - 1.0f, abs_error);
 
 		// Checking movement according to [d = d_0 + v * t] in each direction.
 		EXPECT_FLOAT_EQ(p_transform->position.x, previous_position.x + delta * p_movement->mMaxVelocity * p_movement->mDirection.x);

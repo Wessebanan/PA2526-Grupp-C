@@ -53,7 +53,7 @@ namespace ecs
 		COMP(GroundCollisionComponent)
 		{
 			// Vertices making up the OBB.
-			DirectX::XMFLOAT3 mVertices[8];
+			DirectX::XMFLOAT3 mVertices[8] = { DirectX::XMFLOAT3(0, 0, 0) };
 		};
 		
 		/*

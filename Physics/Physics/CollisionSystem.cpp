@@ -56,7 +56,7 @@ void ecs::systems::GroundCollisionComponentInitSystem::readEvent(ecs::BaseEvent&
 
 	// Looping over each vertex to see if they contain
 	// the lowest or highest value in each axis.
-	for (int i = 0; i < vertex_vector->size; i++)
+	for (int i = 0; i < vertex_vector->size(); i++)
 	{
 		DirectX::XMFLOAT3 current = vertex_vector->at(i);
 		if (current.x < min_point.x)
