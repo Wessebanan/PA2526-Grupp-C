@@ -17,8 +17,8 @@ void ecs::systems::CollisionEventSystem::readEvent(ecs::BaseEvent& _event, float
 
 ecs::systems::GroundCollisionComponentInitSystem::GroundCollisionComponentInitSystem()
 {
-	updateType = ecs::EventReader;
-	typeFilter.addRequirement(CreateComponentEvent::typeID);
+	updateType = ecs::EventListenerOnly;
+	subscribeEventCreation(CreateComponentEvent::typeID);
 }
 
 ecs::systems::GroundCollisionComponentInitSystem::~GroundCollisionComponentInitSystem()
@@ -26,26 +26,27 @@ ecs::systems::GroundCollisionComponentInitSystem::~GroundCollisionComponentInitS
 
 }
 
-void ecs::systems::GroundCollisionComponentInitSystem::readEvent(ecs::BaseEvent& _event, float _delta)
+void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent *_event)
 {
 	// IMPORTANT: Made temporary mesh component in order to make progress.
-	CreateComponentEvent create_component_event = dynamic_cast<CreateComponentEvent&>(_event);
+	CreateComponentEvent *create_component_event = dynamic_cast<CreateComponentEvent*>(_event);
 
 	// If the component created was any other than ground collision component, do nothing.
-	if (create_component_event.componentTypeID != GroundCollisionComponent::typeID)
+	if (create_component_event->componentTypeID != GroundCollisionComponent::typeID)
 	{
 		return;
 	}
 
 	// Assumes the entity has a mesh component as well as a ground collision component.
-	Entity* entity = getEntity(create_component_event.entityID);
-	MeshComponent* mesh_component = dynamic_cast<MeshComponent*>(getComponentFromKnownEntity(MeshComponent::typeID, entity->getID()));
+	Entity* entity = getEntity(create_component_event->entityID);
 
-	// Do nothing if there is no mesh component.
-	if (!mesh_component)
+	if (!entity->hasComponentOfType(MeshComponent::typeID))
 	{
 		return;
 	}
+
+	MeshComponent* mesh_component = dynamic_cast<MeshComponent*>(getComponentFromKnownEntity(MeshComponent::typeID, entity->getID()));
+	
 	GroundCollisionComponent* ground_collision_component = dynamic_cast<GroundCollisionComponent*>(getComponentFromKnownEntity(GroundCollisionComponent::typeID, entity->getID()));
 
 	std::vector<DirectX::XMFLOAT3> *vertex_vector = mesh_component->mMesh.GetVertexPositionVector();

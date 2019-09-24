@@ -36,7 +36,7 @@ namespace ecs
 		{
 			GroundCollisionComponentInitSystem();
 			~GroundCollisionComponentInitSystem();
-			void readEvent(ecs::BaseEvent & _event, float _delta) override;
+			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
 		};
 
 	} // systems

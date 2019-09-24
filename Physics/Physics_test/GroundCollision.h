@@ -24,6 +24,7 @@ namespace GroundCollision
 		EXPECT_EQ(ecs.getTotalComponentCount(), 0);
 
 		MeshComponent mesh_component;		
+		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
 		GroundCollisionComponent ground_collision_component;
 
 		ecs::Entity* ground_collision_entity = ecs.createEntity(mesh_component, ground_collision_component);
@@ -43,34 +44,27 @@ namespace GroundCollision
 
 		const float delta = 0.1f;
 		
-		// Initial update of ecs.
-		//ecs.update(delta);
-
 		ecs::systems::GroundCollisionComponentInitSystem* ground_collision_component_init_system = ecs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
 
 		MeshComponent mesh_component;
 		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+
+		// Checking that the ground collision hitbox is initialized properly.
 		GroundCollisionComponent ground_collision_component;
+		for (int i = 0; i < 8; i++)
+		{
+			EXPECT_FLOAT_EQ(ground_collision_component.mVertices[i].x, 0.0f);
+			EXPECT_FLOAT_EQ(ground_collision_component.mVertices[i].y, 0.0f);
+			EXPECT_FLOAT_EQ(ground_collision_component.mVertices[i].z, 0.0f);
+		}
 
 		ecs::Entity* ground_collision_entity = ecs.createEntity(mesh_component, ground_collision_component);
 		
 		// Getting a pointer to the ground collision component to check its values.
 		GroundCollisionComponent* p_ground_collision_component = dynamic_cast<GroundCollisionComponent*>(ecs.getComponent(GroundCollisionComponent::typeID, ground_collision_entity->getComponentID(GroundCollisionComponent::typeID)));
 		
-		const float abs_error = (float)pow(10, -10);
+		const float abs_error = (float)pow(10, -10);		
 		
-		// Checking that the ground collision hitbox is initialized properly.
-		for (int i = 0; i < 8; i++)
-		{
-			EXPECT_FLOAT_EQ(p_ground_collision_component->mVertices[i].x, 0.0f);
-			EXPECT_FLOAT_EQ(p_ground_collision_component->mVertices[i].y, 0.0f);
-			EXPECT_FLOAT_EQ(p_ground_collision_component->mVertices[i].z, 0.0f);
-		}
-
-		// Updating to trigger init system.
-		ecs.update(delta);
-
-
 		// Checking that each vertex is inside the box.
 		std::vector<DirectX::XMFLOAT3> *vertices = mesh_component.mMesh.GetVertexPositionVector();
 		for (int i = 0; i < vertices->size(); i++)
