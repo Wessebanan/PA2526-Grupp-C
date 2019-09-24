@@ -16,8 +16,17 @@ namespace ecs
 	*/
 	struct ECSEventListenerListener
 	{
+	protected:
 		virtual void onAddSubscription(TypeID _eventTypeID, ECSEventListener* _listener) = 0;
 		virtual void onRemoveSubscription(TypeID _eventTypeID, ECSEventListener* _listener) = 0;
+
+		/*
+			Virtual functions are protected. EntityComponentSystem is inheriting from
+			ECSEventListenerListener, so the protection makes sure no one outside of
+			EntityComponentSystem can touch these functions.
+			ECSEventListener need access to the functions though, hince friending the struct.
+		*/
+		friend struct ECSEventListener;
 	};
 
 
@@ -50,9 +59,9 @@ namespace ecs
 		// Adds an event type that onEvent will be called-back with.
 		void subscribeEventCreation(TypeID _eventType);
 		void unsubscribeEventCreation(TypeID _eventType);
-		TypeFilter eventTypes;
 
 	private:
+		TypeFilter eventTypes;
 		void notifyHandler();
 		TypeFilter newSubscriptions;
 		TypeFilter newUnsubscriptions;
