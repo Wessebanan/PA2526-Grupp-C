@@ -1,3 +1,4 @@
+#include "../includes/pch.h"
 #include "../includes/Window.h"
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

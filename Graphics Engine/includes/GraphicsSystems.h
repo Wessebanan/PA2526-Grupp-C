@@ -10,33 +10,6 @@ namespace ecs
 {
 	namespace systems
 	{
-		//class CustomSystem : public ECSSystem<CustomSystem>
-		//{
-		//public:
-		//	CustomSystem()
-		//	{
-		//		// Choose ONE of these
-		//		updateType = SystemUpdateType::EntityUpdate;		// One entity of interest per update
-		//		updateType = SystemUpdateType::MultiEntityUpdate;	// All entities of interest per update
-		//		updateType = SystemUpdateType::EventReader;			// Get one event of interest per update, you have to check event type and cast to your event struct on your own
-		//		updateType = SystemUpdateType::EventListenerOnly;
-
-		//		// List all component types IDs of interest
-		//		componentFilter.addRequirement(components::WorldComponent::typeID);
-
-		//		// Or event type IDs...
-		//		//eventFilter.addRequirement(...)
-		//	}
-		//	virtual ~CustomSystem();
-
-		//	// Override ONE of these, depending on your update (see above)
-		//	void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
-		//	void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
-		//	void readEvent(BaseEvent& _event, float _delta) override;
-
-		//	void* pointer; // Can be set after EntityComponentSystem::createSystem
-		//};
-
 		constexpr unsigned int compCount = 4000;
 
 		struct MeshRenderSystemData

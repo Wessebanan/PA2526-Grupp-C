@@ -1,3 +1,4 @@
+#include "../includes/pch.h"
 #include "../includes/DeviceInterface.h"
 
 namespace graphics
@@ -7,6 +8,8 @@ namespace graphics
 		m_pAdapter4		= NULL;
 		m_pDevice4		= NULL;
 		m_pFactory6		= NULL;
+
+		ZeroMemory(m_pSamplerStates, sizeof(m_pSamplerStates));
 	}
 
 	DeviceInterface::~DeviceInterface()

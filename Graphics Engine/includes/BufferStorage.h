@@ -1,9 +1,7 @@
 #pragma once
 
 #include "Window.h"
-#include "Texture2DView.h"
 #include "GraphicsPipeline.h"
-#include "Mesh.h"
 
 namespace graphics
 {

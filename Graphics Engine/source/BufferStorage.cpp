@@ -1,3 +1,4 @@
+#include "../includes/pch.h"
 #include "../includes/BufferStorage.h"
 
 namespace graphics
@@ -259,6 +260,7 @@ namespace graphics
 
 	InternalStorage::InternalStorage()
 	{
+		ZeroMemory(m_cpuData, sizeof(m_cpuData));
 	}
 
 	InternalStorage::~InternalStorage()

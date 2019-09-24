@@ -33,7 +33,7 @@
     <ClCompile Include="..\source\BufferStorage.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\includes\Renderer.cpp">
+    <ClCompile Include="..\source\pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -66,6 +66,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

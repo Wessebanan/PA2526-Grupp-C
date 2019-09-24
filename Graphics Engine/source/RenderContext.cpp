@@ -1,3 +1,4 @@
+#include "../includes/pch.h"
 #include "../includes/DeviceInterface.h"
 #include <DirectXMath.h>
 

@@ -1,3 +1,4 @@
+#include "../includes/pch.h"
 #include "../includes/GraphicsPipeline.h"
 
 namespace graphics
