@@ -23,9 +23,7 @@ namespace GroundCollision
 		EXPECT_EQ(ecs.getTotalEntityCount(), 0);
 		EXPECT_EQ(ecs.getTotalComponentCount(), 0);
 
-		MeshComponent mesh_component;
-		EXPECT_HRESULT_SUCCEEDED(mesh_component.mMesh.LoadFBX("../TestModel/deer.fbx"));
-		
+		MeshComponent mesh_component;		
 		GroundCollisionComponent ground_collision_component;
 
 		ecs::Entity* ground_collision_entity = ecs.createEntity(mesh_component, ground_collision_component);
@@ -46,19 +44,15 @@ namespace GroundCollision
 		const float delta = 0.1f;
 		
 		// Initial update of ecs.
-		ecs.update(delta);
+		//ecs.update(delta);
 
 		ecs::systems::GroundCollisionComponentInitSystem* ground_collision_component_init_system = ecs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
 
 		MeshComponent mesh_component;
-		EXPECT_HRESULT_SUCCEEDED(mesh_component.mMesh.LoadFBX("../TestModel/deer.fbx"));
-
-		ecs::Entity* ground_collision_entity = ecs.createEntity(mesh_component);
-		
-		ecs.update(delta);
+		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
 		GroundCollisionComponent ground_collision_component;
-		ecs.createComponent(ground_collision_entity->getID(), ground_collision_component);
-		ecs.update(delta);
+
+		ecs::Entity* ground_collision_entity = ecs.createEntity(mesh_component, ground_collision_component);
 		
 		// Getting a pointer to the ground collision component to check its values.
 		GroundCollisionComponent* p_ground_collision_component = dynamic_cast<GroundCollisionComponent*>(ecs.getComponent(GroundCollisionComponent::typeID, ground_collision_entity->getComponentID(GroundCollisionComponent::typeID)));
@@ -73,13 +67,22 @@ namespace GroundCollision
 			EXPECT_FLOAT_EQ(p_ground_collision_component->mVertices[i].z, 0.0f);
 		}
 
-		for (int i = 0; i < 8; i++)
+		// Updating to trigger init system.
+		ecs.update(delta);
+
+
+		// Checking that each vertex is inside the box.
+		std::vector<DirectX::XMFLOAT3> *vertices = mesh_component.mMesh.GetVertexPositionVector();
+		for (int i = 0; i < vertices->size(); i++)
 		{
-			std::cout
-				<< "( " << p_ground_collision_component->mVertices[i].x
-				<< ", " << p_ground_collision_component->mVertices[i].y
-				<< ", " << p_ground_collision_component->mVertices[i].z
-				<< " )" << std::endl;
+			// Min point is at index 0 and max point at index 7.
+			EXPECT_TRUE(vertices->at(i).x >= p_ground_collision_component->mVertices[0].x);
+			EXPECT_TRUE(vertices->at(i).x <= p_ground_collision_component->mVertices[7].x);
+			EXPECT_TRUE(vertices->at(i).y >= p_ground_collision_component->mVertices[0].y);
+			EXPECT_TRUE(vertices->at(i).y <= p_ground_collision_component->mVertices[7].y);
+			EXPECT_TRUE(vertices->at(i).z >= p_ground_collision_component->mVertices[0].z);
+			EXPECT_TRUE(vertices->at(i).z <= p_ground_collision_component->mVertices[7].z);
 		}
+		
 	}
 } // GroundCollision

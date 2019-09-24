@@ -17,7 +17,7 @@ void ecs::systems::CollisionEventSystem::readEvent(ecs::BaseEvent& _event, float
 
 ecs::systems::GroundCollisionComponentInitSystem::GroundCollisionComponentInitSystem()
 {
-	updateType = ecs::EventListenerOnly;
+	updateType = ecs::EventReader;
 	typeFilter.addRequirement(CreateComponentEvent::typeID);
 }
 
@@ -88,13 +88,18 @@ void ecs::systems::GroundCollisionComponentInitSystem::readEvent(ecs::BaseEvent&
 	// Creating the vertices for the box with the min and max points.
 	DirectX::XMFLOAT3 vertices[] =
 	{
+		// Near z:	2 3
+		//			0 1
 		min_point,
 		DirectX::XMFLOAT3(max_point.x, min_point.y, min_point.z),
 		DirectX::XMFLOAT3(min_point.x, max_point.y, min_point.z),
-		DirectX::XMFLOAT3(min_point.x, min_point.y, max_point.z),
-		DirectX::XMFLOAT3(min_point.x, max_point.y, max_point.z),
-		DirectX::XMFLOAT3(max_point.x, min_point.y, max_point.z),
 		DirectX::XMFLOAT3(max_point.x, max_point.y, min_point.z),
+
+		// Far z:	6 7
+		//			4 5
+		DirectX::XMFLOAT3(min_point.x, min_point.y, max_point.z),
+		DirectX::XMFLOAT3(max_point.x, min_point.y, max_point.z),
+		DirectX::XMFLOAT3(min_point.x, max_point.y, max_point.z),
 		max_point
 	};
 	
