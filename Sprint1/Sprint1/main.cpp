@@ -1,5 +1,5 @@
-#include <ecs.h>
 #include "InitInputHandler.h"
+#include <ecs.h>
 #include <Mesh.h>
 #include <DeviceInterface.h>
 #include <UtilityFunctions.h>
