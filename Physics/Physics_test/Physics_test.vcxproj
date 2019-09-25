@@ -45,6 +45,7 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="GroundCollision.h" />
     <ClInclude Include="InputTest.h" />
     <ClInclude Include="MovementLogic.h" />
     <ClInclude Include="pch.h" />

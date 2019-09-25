@@ -28,5 +28,12 @@ namespace ecs
 			ID mEntityID;			
 		};
 
+		// Used to notify collision systems that 
+		// an entity with a bounding sphere has moved.
+		EVENT(PotentialCollisionEvent)
+		{
+			ID mEntityID;
+		};
+
 	} // events
 } // ecs
