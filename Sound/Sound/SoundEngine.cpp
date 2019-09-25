@@ -15,12 +15,12 @@ bool Sound::Engine::OpenStream()
 	return OpenStream(Pa_GetDefaultOutputDevice());
 }
 
-bool Sound::Engine::OpenStream(PaDeviceIndex Index)
+bool Sound::Engine::OpenStream(PaDeviceIndex index)
 {
 	PaStreamParameters output_parameters;
 
 	// Double check that the device is valid
-	output_parameters.device = Index;
+	output_parameters.device = index;
 	if (output_parameters.device == paNoDevice) {
 		return false;
 	}
@@ -93,24 +93,24 @@ bool Sound::Engine::StopStream()
 	return (err == paNoError);
 }
 
-Sound::Buffer* Sound::Engine::__GetChainBuffer(int Index)
+Sound::Buffer* Sound::Engine::__GetChainBuffer(int index)
 {
-	return mpChainBuffers[Index];
+	return mpChainBuffers[index];
 }
 
 int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
-	unsigned long FramesPerBuffer,
+	unsigned long framesPerBuffer,
 	const PaStreamCallbackTimeInfo* pTimeInfo,
-	PaStreamCallbackFlags StatusFlags)
+	PaStreamCallbackFlags statusFlags)
 {
 	float* out = (float*)pOutputBuffer;
 	unsigned long i;
 
 	(void)pTimeInfo;				// Are not used right now, this is to prevent
-	(void)StatusFlags;			// the unused warning
+	(void)statusFlags;			// the unused warning
 	(void)pInputBuffer;
 
-	for (i = 0; i < FramesPerBuffer; i++)
+	for (i = 0; i < framesPerBuffer; i++)
 	{
 		*out++ = mpChainBuffers[mConsumeBufferIndex]->Data[0][i];  /* left */
 		*out++ = mpChainBuffers[mConsumeBufferIndex]->Data[1][i];  /* right */
@@ -124,17 +124,17 @@ int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffe
 // It may called at interrupt level on some machines so don't do anything
 // that could mess up the system like calling malloc() or free().
 // 
-int Sound::Engine::PaCallback(const void* inputBuffer, void* outputBuffer,
+int Sound::Engine::PaCallback(const void* pInputBuffer, void* pOutputBuffer,
 	unsigned long framesPerBuffer,
-	const PaStreamCallbackTimeInfo* timeInfo,
+	const PaStreamCallbackTimeInfo* pTimeInfo,
 	PaStreamCallbackFlags statusFlags,
-	void* userData)
+	void* pUserData)
 {
 // Here we cast userData to Engine* type so we can call the instance method paCallbackMethod,
 // we can do that since we called Pa_OpenStream with 'this' for userData
-	return ((Engine*)userData)->PaCallbackMethod(inputBuffer, outputBuffer,
+	return ((Engine*)pUserData)->PaCallbackMethod(pInputBuffer, pOutputBuffer,
 		framesPerBuffer,
-		timeInfo,
+		pTimeInfo,
 		statusFlags);
 }
 

@@ -17,19 +17,19 @@ namespace Sound
 	// frames.
 	struct Buffer
 	{
-		int Channels;
-		int Frames;
+		int channels;
+		int frames;
 		float* Data[SOUND_MAX_CHANNELS];
 
-		Buffer(int Channels, int Frames)
+		Buffer(int channels, int frames)
 		{
-			this->Channels = Channels;
-			this->Frames = Frames;
+			this->channels = channels;
+			this->frames = frames;
 
 			// Initialize a float array for every channel
-			for (int i = 0; i < Channels; i++)
+			for (int i = 0; i < channels; i++)
 			{
-				this->Data[i] = new float[(long long)Channels * Frames];
+				this->Data[i] = new float[(long long)channels * frames];
 			}
 		}
 	};
@@ -48,7 +48,7 @@ namespace Sound
 		// Initializes a stream by targeting the default
 		// sound output
 		bool OpenStream();
-		bool OpenStream(PaDeviceIndex Index);
+		bool OpenStream(PaDeviceIndex index);
 		// Closest the stream
 		bool CloseStream();
 		// Starts the stream so that the callback function
@@ -63,22 +63,22 @@ namespace Sound
 		// and are only meant to be used by
 		// SoundEngineTester. If someone can come up with
 		// a better way of doing this, please do tell me :)
-		Buffer* __GetChainBuffer(int Index);
+		Buffer* __GetChainBuffer(int index);
 
 	private:
 		// This is the function that are called everytime
 		// the sound card require a refill
 		int PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
-			unsigned long FramesPerBuffer,
+			unsigned long framesPerBuffer,
 			const PaStreamCallbackTimeInfo* pTimeInfo,
-			PaStreamCallbackFlags StatusFlags);
+			PaStreamCallbackFlags statusFlags);
 
 		// This function redirects the callback function
 		// to the member function above
 		static int PaCallback(const void* pInputBuffer, void* pOutputBuffer,
-			unsigned long FramesPerBuffer,
+			unsigned long framesPerBuffer,
 			const PaStreamCallbackTimeInfo* pTimeInfo,
-			PaStreamCallbackFlags StatusFlags,
+			PaStreamCallbackFlags statusFlags,
 			void* pUserData);
 
 		// Function called when the stream finishes
