@@ -17,6 +17,8 @@ ModelLoader::Mesh::~Mesh()
 	delete mpIndexVector;
 	delete mpNormalVector;
 	delete mpUVVector;
+	delete mpSkeleton;
+	delete mpSkinningWeights;
 }
 
 HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)

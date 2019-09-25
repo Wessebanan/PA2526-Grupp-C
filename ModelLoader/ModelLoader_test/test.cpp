@@ -1,7 +1,10 @@
 #include "pch.h"
 #include <Mesh.h>
 
+
+
 int main(int argc, char** argv) {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 }
@@ -172,6 +175,12 @@ TEST(SkeletonDataFailureTesting, NonNormalizedSkeletonWeights) {
 	{
 		FAIL() << "Unknown exception thrown.\n";
 	}
+	delete pIndexVector;
+	delete pVertexPosVector;
+	delete pNormalVector;
+	delete pUVVector;
+	delete pSkeleton;
+	delete pSkinningWeights;
 }
 
 TEST(SkeletonDataFailureTesting, TooManyWeightsPerVertex) {
@@ -201,4 +210,10 @@ TEST(SkeletonDataFailureTesting, TooManyWeightsPerVertex) {
 	{
 		FAIL() << "Unknown exception thrown.\n";
 	}
+	delete pVertexPosVector;
+	delete pIndexVector;
+	delete pNormalVector;
+	delete pUVVector;
+	delete pSkeleton;
+	delete pSkinningWeights;
 }
