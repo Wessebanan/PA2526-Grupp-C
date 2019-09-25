@@ -38,11 +38,16 @@ namespace graphics
 		int Index;
 	};
 
+	struct PerObjectData
+	{
+		UINT byteWidth;
+		void* pData;
+	};
+
 	struct Model
 	{
 		GPUMesh GPUMeshIndex;
 		GPUShader GPUShaderIndex;
-		XMFLOAT4X4 WorldLocation;
 	};
 
 	class Renderer
@@ -55,16 +60,26 @@ namespace graphics
 			const UINT width, 
 			const UINT height, 
 			const char* pTitle);
-
+		/*
+		Creates mesh with specified input data.
+		
+		Required:
+		- Vertex Data			/float3
+		
+		Optional:
+		- Normal Data			/float3
+		- Texture Coord Data	/float2
+		- Index Data			/uint
+		*/
 		int CreateMesh(
 			const VERTEX_BUFFER_DATA* pVertexData,
 			const INDEX_BUFFER_DATA* pIndexData,
 			GPUMesh& rMesh);
 
-		GPUShader CreateShader();
-
 		void Clear();
-		void Submit(const Model model);
+		void Submit(
+			const Model& rModel,
+			const PerObjectData& rData);
 
 		void Draw();
 
@@ -73,9 +88,11 @@ namespace graphics
 		PresentWindow* GetWindow();
 
 	private:
+		char* m_pAt;
+		char m_perObjectData[65536];
+
 		DeviceInterface* m_pDevice;
 		RenderContext* m_pContext;
-
 
 		RenderTarget m_backBuffer;
 		DepthBuffer m_depthBuffer;

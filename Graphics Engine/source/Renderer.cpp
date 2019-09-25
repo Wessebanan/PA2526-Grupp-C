@@ -61,8 +61,11 @@ namespace graphics
 	Renderer::Renderer()
 	{
 		m_pDevice = NULL;
-		m_meshCount = 0;
-		m_drawCount = 0;
+
+		m_meshCount		= 0;
+		m_drawCount		= 0;
+
+		m_pAt = m_perObjectData;
 	}
 
 	Renderer::~Renderer()
@@ -161,31 +164,24 @@ namespace graphics
 		return TRUE;
 	}
 
-	GPUShader Renderer::CreateShader()
-	{
-		m_pDevice->CreateGraphicsPipeline(
-			gVertexShader,
-			gPixelShader,
-			&m_pPipelines[0]);
-
-		GPUShader shader;
-		shader.Index = 0;
-
-		return shader;
-	}
-
 	void Renderer::Clear()
 	{
 		m_drawCount = 0;
+		m_pAt = m_perObjectData;
 
 		m_pContext->ClearDepth(m_depthBuffer);
 		m_pContext->ClearRenderTarget(m_backBuffer, 0.0f, 0.0f, 0.0f);
 	}
 
-	void Renderer::Submit(const Model model)
+	void Renderer::Submit(
+		const Model& rModel, 
+		const PerObjectData& rData)
 	{
-		m_drawList[m_drawCount] = model;
+		m_drawList[m_drawCount] = Model(rModel);
+		memcpy(m_pAt, &rData, rData.byteWidth);
+
 		m_drawCount++;
+		m_pAt += rData.byteWidth;
 	}
 
 	void Renderer::Draw()
