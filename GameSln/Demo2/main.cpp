@@ -48,6 +48,7 @@ int main()
 	CameraFunctions::CreateCameraSystems(ecs);
 	CameraFunctions::CreateDevCamera(ecs);
 
+	int u = 1337;
 
 	// Rendereing
 	DeviceInterface* pDevice;
