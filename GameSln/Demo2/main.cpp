@@ -1,12 +1,13 @@
 #include <ecs.h>
 #include "InitInputHandler.h"
-#include <Mesh.h>
+#include "Mesh.h"
 #include <DeviceInterface.h>
 #include <UtilityFunctions.h>
 #include <CameraFunctions.h>
 #include <GridFunctions.h>
 #include <DebugInfo.h>
 #include "Shaders.h"
+#include "Fbx_Loader.h"
 
 
 #define GRID_WIDTH 12
@@ -27,52 +28,41 @@ using namespace graphics;
 
 int main()
 {
-	ecs::CompTypeMemDesc ecsMemDesc[] = {
-		{ TileComponent::typeID, TileComponent::size, GRID_WIDTH * GRID_HEIGHT },
-		{ TransformComponent::typeID, TransformComponent::size, GRID_WIDTH * GRID_HEIGHT },
-	};
-
-	ecs::ECSDesc ecsDesc;
-	ecsDesc.compTypeCount = 2;
-	ecsDesc.compTypeMemDescs = ecsMemDesc;
-	ecsDesc.systemLayerCount = 10;
-
 	ecs::EntityComponentSystem ecs;
-	ecs.initialize(ecsDesc);
 
 	// Input
 	InputBackend* inp = new InputBackend;
 	initInputECS(ecs,inp);
 
+
 	// Camera
-	CameraFunctions::CreateCameraSystems(ecs);
 	CameraFunctions::CreateDevCamera(ecs);
-
-	int u = 1337;
-
-	// Rendereing
-	DeviceInterface* pDevice;
-	PresentWindow* pWindow;
-	GraphicsPipeline* pPipeline, * pPipeline2;
-	CreateDeviceInterface(&pDevice);
-	BufferRegion hexMeshBuffReg, dudeMeshBuffReg;
-
-	CreateDeviceInterface(&pDevice);
-	RenderContext* pContext = pDevice->GetRenderContext();
-	RenderTarget backBuffer;
-	DepthBuffer depthBuffer;
-	pDevice->CreateDepthBuffer(1280, 720, &depthBuffer);
-
-	pDevice->CreatePresentWindow(1280, 720, "D3D11", &backBuffer, &pWindow);
-
-	pDevice->CreatePipeline(gVertexShader, gPixelShader, &pPipeline);
-	pDevice->CreatePipeline(gVertexShader2, gPixelShader2, &pPipeline2);
-
-	pContext->SetViewport(0, 0, 1280, 720);
-	pContext->SetGraphicsPipeline(pPipeline);
+	//CameraFunctions::CreateCameraSystems(ecs);
 
 
-	ModelLoader::Mesh hexMesh;
+	// ModelLoader
+	//initModelLoader()
 
+
+	// Physics
+	//initPhysics
+	
+
+	// Grid
+	//initGrid(ecs)
+	
+
+	// GraphicsEngine
+	//initGraphicsEngine(ecs)
+
+
+
+	
+	while (true)
+	{
+		ecs.update(0.1f);
+	}
+	
+	delete inp;
 	return 0;
 }

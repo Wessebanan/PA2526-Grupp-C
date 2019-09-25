@@ -133,7 +133,10 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="initRenderer.h" />
+    <ClInclude Include="GameComponents.h" />
+    <ClInclude Include="initGameECS.h" />
+    <ClInclude Include="Shaders.h" />
+    <ClInclude Include="GameSystems.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
