@@ -10,6 +10,9 @@
 #include "Fbx_Loader.h"
 
 
+#include "initGameECS.h"
+
+
 #define GRID_WIDTH 12
 #define GRID_HEIGHT 12
 #define GRID_HEX_SIZE 8
@@ -28,7 +31,16 @@ using namespace graphics;
 
 int main()
 {
+	// Memmory Management
+	//initMem()
+	
 	ecs::EntityComponentSystem ecs;
+
+	// Game systems for loops and states
+	initGameECS(ecs);
+
+
+	/// **** Bigger systems *****
 
 	// Input
 	InputBackend* inp = new InputBackend;
@@ -41,28 +53,59 @@ int main()
 
 
 	// ModelLoader
-	//initModelLoader()
+	//initModelLoader(ecs)
 
 
 	// Physics
-	//initPhysics
+	//initPhysics(ecs)
 	
 
-	// Grid
-	//initGrid(ecs)
+	// Sound
+	//initSound(ecs)
 	
 
 	// GraphicsEngine
 	//initGraphicsEngine(ecs)
 
 
+	// Pathfinding
+	//initPathfinding(ecs)
 
+
+	// AI
+	//initAI(ecs);
+
+
+
+	/// **** Game objects *****
+
+	// Grid
+	//initGrid(ecs)
+
+	// Armies
+	//initArmies(ecs)
+
+	// 
+
+	bool loop = true;
 	
-	while (true)
+	while (loop)
 	{
+		// Update ECS
 		ecs.update(0.1f);
+
+
+		// Gameloop outside of ecs
+
+
+
+
+		// Check if game should stop
+		if ( 666 == ((ecs::components::GameStateComponent*)ecs.getAllComponentsOfType(ecs::components::GameStateComponent::typeID).next())->gameState )
+			loop = false;
 	}
-	
+
+
 	delete inp;
 	return 0;
 }
