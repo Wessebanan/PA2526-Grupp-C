@@ -76,7 +76,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\InputHandler\InputHandler\includes;$(SolutionDir)..\ECS\plainECS\includes;$(SolutionDir)\Utility\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\InputHandler\InputHandler\includes;$(SolutionDir)..\AI\AI\includes;$(SolutionDir)\Utility\includes;$(SolutionDir)..\ECS\plainECS\includes;$(ProjectDir)includes;$(SolutionDir)..\ModelLoader\ModelLoader\includes;$(SolutionDir)..\Graphics Engine\includes%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

@@ -1,5 +1,5 @@
 #include "CameraFunctions.h"
-#include "ecs.h"
+//#include "ecs.h"
 #include <DirectXMath.h>
 using namespace DirectX;
 using namespace ecs;
@@ -29,6 +29,6 @@ namespace CameraFunctions
 
 	void CreateCameraSystems(ecs::EntityComponentSystem& rEcs)
 	{
-		rEcs.createSystem<systems::UpdateCameraSystem>(3);
+		//rEcs.createSystem<systems::Mackes>(3);
 	}
 }

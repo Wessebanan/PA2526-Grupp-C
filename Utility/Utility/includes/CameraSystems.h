@@ -1,9 +1,12 @@
 #pragma once
+//#include "InitInputHandler.h"
+#include "ecs.h"
 #include "ecsSystemIncludes.h"
+#include "InputComponents.h"
+#include "InputBackendComponent.h"
 #include "CameraComponents.h"
 #include "UtilityComponents.h"
-#include "InputComponents.h"
-//#include "InputBackendComponent.h"
+#include <iostream>
 #include <DirectXMath.h>
 using namespace DirectX;
 
@@ -11,20 +14,21 @@ namespace ecs
 {
 	namespace systems
 	{
-		class UpdateCameraSystem : public ECSSystem<UpdateCameraSystem>
+		class Mackes : public ECSSystem<Mackes>
 		{
 		public:
-			UpdateCameraSystem()
+			Mackes()
 			{
 				updateType = EntityUpdate;
 				typeFilter.addRequirement(components::CameraComponent::typeID);
 				typeFilter.addRequirement(components::TransformComponent::typeID);
 			}
-			virtual ~UpdateCameraSystem() {}
+			virtual ~Mackes() {}
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
 				//Initialize standard values.
-				float speed = 0.50f;
+				float speed = 0.20f;
+				float sensitivity = 0.01f;
 				DirectX::XMVECTOR world_forward = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 				DirectX::XMVECTOR world_right = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 				//Fetch Mouse-, Keyboard-, Camera- and TranformComponent
@@ -39,9 +43,15 @@ namespace ecs
 				//If the Mouse- and KeyboardComponent exists in the ECS we update the cameras position. 
 				if (p_mouse && p_keyboard)
 				{
+					std::cout << "MouseComponent: " << std::endl;
+					std::cout << "x: " << p_mouse->diffx << std::endl;
+					std::cout << "y: " << p_mouse->diffy << std::endl;
 					//Update the cameras rotation vector and matrix with the mouse input.
-					p_tc->rotation.y += 5.0f * delta;//p_mouse->diffx;
-					p_tc->rotation.x += 0.0f;//p_mouse->diffy * 0.0001;
+					p_tc->rotation.y += p_mouse->diffx * sensitivity;
+					p_tc->rotation.x += p_mouse->diffy * sensitivity;
+					std::cout << "TransformComponent: " << std::endl;
+					std::cout << "x: " << p_tc->rotation.y;
+					std::cout << "y: " << p_tc->rotation.x;
 					p_cam->rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(p_tc->rotation.x, p_tc->rotation.y, 0);
 					//Update the cameras target with the new rotation matrix and normalize it.
 					p_cam->target = DirectX::XMVector3TransformCoord(world_forward, p_cam->rotationMatrix);

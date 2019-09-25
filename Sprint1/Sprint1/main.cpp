@@ -37,7 +37,8 @@ int main()
 	InputBackend inp;
 	initInputECS(ecs, &inp);
 	CameraFunctions::CreateDevCamera(ecs);
-	CameraFunctions::CreateCameraSystems(ecs);
+	ecs.createSystem<ecs::systems::Mackes>();
+	//CameraFunctions::CreateCameraSystems(ecs);
 	ecs::components::CameraComponent* p_camera = (ecs::components::CameraComponent*)ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
 
 //	ecs::ComponentIterator iter = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
@@ -234,9 +235,9 @@ int main()
 	{
 		if (!pWindow->Update())
 		{
-			MouseComponent* p_mouse = (MouseComponent*)ecs.getAllComponentsOfType(MouseComponent::typeID).next();
-			cout << "x: " << p_mouse->diffx << endl;
-			cout << "y: " << p_mouse->diffy << endl;
+			//MouseComponent* p_mouse = (MouseComponent*)ecs.getAllComponentsOfType(MouseComponent::typeID).next();
+			//cout << "x: " << p_mouse->diffx << endl;
+			//cout << "y: " << p_mouse->diffy << endl;
 
 			DirectX::XMStoreFloat4x4(&dudeMatrix, DirectX::XMMatrixMultiply(DirectX::XMLoadFloat4x4(&dudeMatrix), DirectX::XMMatrixTranslation(rotation / 10.0f, rotation / 20.0f, rotation / 10.0f)));
 			pContext->CopyDataToRegion(

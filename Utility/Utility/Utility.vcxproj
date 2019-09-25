@@ -81,7 +81,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\InputHandler\InputHandler\includes;$(SolutionDir)..\ECS\plainECS\includes;$(ProjectDir)includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\InputHandler\InputHandler\includes;$(SolutionDir)..\AI\AI\includes;$(SolutionDir)..\Utility\Utility\includes;$(SolutionDir)..\ECS\plainECS\includes;$(ProjectDir)includes;$(SolutionDir)..\ModelLoader\ModelLoader\includes;$(SolutionDir)..\Graphics Engine\includes%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
