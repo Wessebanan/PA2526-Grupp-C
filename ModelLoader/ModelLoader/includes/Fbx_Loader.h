@@ -17,6 +17,8 @@
 // If you are looking for the model loader, use ModelLoader::Mesh found in Mesh.h
 // WARNING TO END USER --------------------!!!!!!!!!!!!!!!!----------------------
 
+#define MAX_NUM_WEIGHTS_PER_VERTEX 4
+
 namespace ModelLoader
 {
 
@@ -39,7 +41,7 @@ namespace ModelLoader
 
 	struct ControlPointInfo
 	{
-		std::vector<IndexWeightPair> weightPairs;
+		IndexWeightPair weightPairs[4];
 	};
 
 	struct Joint {

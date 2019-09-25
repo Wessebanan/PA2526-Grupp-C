@@ -185,9 +185,9 @@ namespace {
 		for (auto it = jointData->begin(); it != jointData->end(); ++it)
 		{
 			double sum_of_weights = 0.0;
-			for (auto it2 = it->weightPairs.begin(); it2 != it->weightPairs.end(); ++it2)
+			for (unsigned int i = 0; i < 4; ++i)
 			{
-				sum_of_weights += it2->weight;
+				sum_of_weights += it->weightPairs[i].weight;
 			}
 			if ((sum_of_weights - 1.0) > 0.0005 || (sum_of_weights - 1.0) < -0.0005)
 			{
@@ -206,6 +206,10 @@ namespace {
 			// not all modeling programs provide this
 			// including it for safety because I don't know if blender does or not
 			FbxAMatrix geometry_transform = GetGeometryTransformation(inNode);
+
+			// Create a temporary vector of index weight pair vectors, as index weight pairs will not be read in order and are not guaranteed to contain 4 pairs per vertex
+			std::vector<std::vector<ModelLoader::IndexWeightPair>> temp(jointData->size(), std::vector<ModelLoader::IndexWeightPair>());
+
 			// Loop through deformers
 			// Deformer is basically a skeleton
 			// Most likely only on exists in the mesh
@@ -240,14 +244,26 @@ namespace {
 
 					// Fbx has every joint store the vertices it affects, we need to reverse this relationship
 					unsigned int num_of_indices = curr_cluster->GetControlPointIndicesCount();
+
 					for (unsigned int i = 0; i < num_of_indices; ++i)
 					{
 						ModelLoader::IndexWeightPair curr_index_weight_pair;
 						curr_index_weight_pair.index = curr_joint_index;
 						curr_index_weight_pair.weight = curr_cluster->GetControlPointWeights()[i];
-						(*jointData)[curr_cluster->GetControlPointIndices()[i]].weightPairs.push_back(curr_index_weight_pair);
+						temp[curr_cluster->GetControlPointIndices()[i]].push_back(curr_index_weight_pair);
 					}
 
+				}
+			}
+			for (unsigned int i = 0; i < temp.size(); ++i)
+			{
+				for (unsigned int j = 0; j < temp[i].size(); ++j)
+				{
+					(*jointData)[i].weightPairs[j] = temp[i][j];
+					if (j >= MAX_NUM_WEIGHTS_PER_VERTEX)
+					{
+						throw std::exception("Mesh contains vertices with more than 4 bone weights. The engine does not support this.");
+					}
 				}
 			}
 			CheckSumOfWeights(jointData);
@@ -258,6 +274,10 @@ namespace {
 HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMFLOAT3>* pOutVertexPosVector, std::vector<int>* pOutIndexVector,
 	std::vector<DirectX::XMFLOAT3>* pOutNormalVector, std::vector<DirectX::XMFLOAT2>* pOutUVVector, Skeleton* pOutSkeleton, std::vector<ControlPointInfo>* pOutCPInfoVector)
 {
+	if (!pOutVertexPosVector || !pOutIndexVector || !pOutNormalVector || !pOutUVVector || !pOutSkeleton || !pOutCPInfoVector)
+	{
+		throw std::exception("One or more input vectors to LoadFBX were nullptr.");
+	}
 	// Create the FbxManager if it does not already exist
 	if (gpFbxSdkManager == nullptr)
 	{
@@ -400,11 +420,8 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 
 			if (pOutSkeleton->joints.size() > 0)
 			{
-				// In progress, very likely to break
-				std::vector<ControlPointInfo> vertex_joint_data;
-				// Prepare the vector with ControlPointInfo objects to be written to in any order
-				vertex_joint_data.resize(p_mesh->GetControlPointsCount());
-				::ProcessJointsAndAnimations(p_mesh->GetNode(), pOutSkeleton, &vertex_joint_data);
+				pOutCPInfoVector->resize(p_mesh->GetControlPointsCount());
+				::ProcessJointsAndAnimations(p_mesh->GetNode(), pOutSkeleton, pOutCPInfoVector);
 				int k = 632;
 			}
 
