@@ -73,6 +73,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\MemoryAPI.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="includes\LinearHeap.h" />
+    <ClInclude Include="includes\MemoryAPI.h" />
+    <ClInclude Include="includes\MemoryGlobals.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
