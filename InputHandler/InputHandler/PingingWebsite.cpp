@@ -7,32 +7,52 @@
 
 
 //#include "ecs.h"
-//#include "HandleInputSystem.h"
+//#include "HandleInputBackend.h"
 
 #include "InitInputHandler.h"
  
 int main()
 {
-	//ecs::EntityComponentSystem mecs;
+	ecs::EntityComponentSystem mecs;
 
-	//int size = mecs.getTotalSystemCount();
+	int size = mecs.getTotalSystemCount();
 
-	//initInputECS(mecs);
+	InputBackend* inp = new InputBackend;
 
-	////InputSystem inpSys;
-	//
-	//
-	//while (true)
-	//{
-	//	mecs.update(0.2f);
+	initInputECS(mecs,inp);
 
-	//	//inpSys.updateMouse();
-	//	//inpSys.updateKeyboard();
-	//	//inpSys.updateWeb();
-	//	//cout << inpSys.players[0]->currButton0 << " I shte players X tile" << endl;
+	//InputBackend inpSys;
+	
+	
+	while (true)
+	{
+		mecs.update(0.2f);
 
-	//	this_thread::sleep_for(chrono::seconds(2));
-	//}
+
+		ecs::ComponentIterator itt = mecs.getAllComponentsOfType(ecs::components::UserCommandComponent::typeID);
+
+		ecs::BaseComponent* base;
+		while (base = itt.next())
+		{
+			ecs::components::UserCommandComponent* commComp = dynamic_cast<ecs::components::UserCommandComponent*>(base);
+
+			if (commComp != nullptr)
+			{
+				cout << commComp->userCommands[0].mCommand << endl;
+				cout << commComp->userCommands[1].mCommand << endl;
+				cout << commComp->userCommands[2].mCommand << endl;
+				cout << commComp->userCommands[3].mCommand << endl;
+			}
+		}
+		
+
+		//inpSys.updateMouse();
+		//inpSys.updateKeyboard();
+		//inpSys.updateWeb();
+		//cout << inpSys.players[0]->currButton0 << " I shte players X tile" << endl;
+
+		this_thread::sleep_for(chrono::seconds(2));
+	}
 
 	////WebConnection conn;
 

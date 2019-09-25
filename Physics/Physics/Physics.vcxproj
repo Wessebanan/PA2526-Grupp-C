@@ -146,11 +146,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="includes\CollisionSystem.h" />
     <ClInclude Include="includes\Components.h" />
     <ClInclude Include="includes\Events.h" />
     <ClInclude Include="includes\MovementSystem.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
