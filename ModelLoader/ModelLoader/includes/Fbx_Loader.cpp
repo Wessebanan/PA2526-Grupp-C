@@ -212,9 +212,10 @@ namespace {
 
 			// Loop through deformers
 			// Deformer is basically a skeleton
-			// Most likely only on exists in the mesh
+			// Most likely only one exists in the mesh
 			for (unsigned int deformer_index = 0; deformer_index < num_deformers; ++deformer_index)
 			{
+				// Skin is the deformer type we care about
 				FbxSkin* curr_skin = static_cast<FbxSkin*>(curr_mesh->GetDeformer(deformer_index, FbxDeformer::eSkin));
 				if (!curr_skin)
 				{
@@ -224,8 +225,10 @@ namespace {
 				unsigned int num_of_clusters = curr_skin->GetClusterCount();
 				for (unsigned int cluster_index = 0; cluster_index < num_of_clusters; ++cluster_index)
 				{
+					// Declare neccesary variables
 					FbxCluster* curr_cluster = curr_skin->GetCluster(cluster_index);
 					std::string curr_joint_name = curr_cluster->GetLink()->GetName();
+					// Get the index of the current joint
 					unsigned int curr_joint_index = FindJointIndexUsingName(curr_joint_name, skeleton);
 					FbxAMatrix transform_matrix;
 					FbxAMatrix transform_link_matrix;
@@ -239,12 +242,12 @@ namespace {
 					skeleton->joints[curr_joint_index].mGlobalBindposeInverse = global_bindpose_inverse_matrix;
 					skeleton->joints[curr_joint_index].mNode = curr_cluster->GetLink();
 
-					// Get index weight pairs - https://www.gamedev.net/articles/programming/graphics/how-to-work-with-fbx-sdk-r3582
-					// https://github.com/Larry955/FbxParser/blob/master/FbxParser/FbxParser.cpp - Rad 781 och 993
+					// Get index weight pairs - More info at https://www.gamedev.net/articles/programming/graphics/how-to-work-with-fbx-sdk-r3582
+					// https://github.com/Larry955/FbxParser/blob/master/FbxParser/FbxParser.cpp - Row 781 & 993
 
-					// Fbx has every joint store the vertices it affects, we need to reverse this relationship
+					// Fbx has every joint store the vertices it affects, we need to reverse this relationship,
+					// vertices need to know which joints it's affected by
 					unsigned int num_of_indices = curr_cluster->GetControlPointIndicesCount();
-
 					for (unsigned int i = 0; i < num_of_indices; ++i)
 					{
 						ModelLoader::IndexWeightPair curr_index_weight_pair;
@@ -255,6 +258,7 @@ namespace {
 
 				}
 			}
+			// Convert the vector vector temp storage of weight pairs to the vector array structure
 			for (unsigned int i = 0; i < temp.size(); ++i)
 			{
 				for (unsigned int j = 0; j < temp[i].size(); ++j)
@@ -266,6 +270,7 @@ namespace {
 					}
 				}
 			}
+			// Check so that the weights add up to 1 in every vertex
 			CheckSumOfWeights(jointData);
 		}
 	}
@@ -296,6 +301,7 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 	// Import model
 	bool b_success = p_importer->Initialize(fileName.c_str(), -1, gpFbxSdkManager->GetIOSettings());
 
+	// Convert to directX axis system if needed
 	FbxAxisSystem direct_x_axis_system(FbxAxisSystem::eDirectX);
 	if (p_fbx_scene.get()->GetGlobalSettings().GetAxisSystem() != direct_x_axis_system)
 	{
@@ -346,9 +352,6 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 		our_axis_system.ConvertScene(p_fbx_scene.get());
 	}
 
-	// Useful for skeleton/bone structure
-	//DisplayHierarchy(p_fbx_scene);
-
 	if (p_fbx_root_node)
 	{
 		::ProcessSkeletonHierarchy(p_fbx_root_node, pOutSkeleton);
@@ -381,10 +384,6 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 				vertex_pos.y = (float)p_vertices[j].mData[1];
 				vertex_pos.z = (float)p_vertices[j].mData[2];
 				pOutVertexPosVector->push_back(vertex_pos);
-
-
-				// Save to control point info map 
-				//control_points_info[j].ctrlPoint = p_mesh->GetControlPointAt(j);
 
 				fbxsdk::FbxVector4 normal;
 				// If the mesh normals are not in "per vertex" mode, re-generate them to be useable by this parser
@@ -424,7 +423,6 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 				::ProcessJointsAndAnimations(p_mesh->GetNode(), pOutSkeleton, pOutCPInfoVector);
 				int k = 632;
 			}
-
 		}
 		else
 		{

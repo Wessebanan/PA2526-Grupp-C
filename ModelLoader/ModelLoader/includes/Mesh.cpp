@@ -58,6 +58,7 @@ HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 			mpUVVector = nullptr;
 			this->mHasUvs = false;
 		}
+		// If mesh has no skeleton, remove the associated vectors
 		if (this->mpSkeleton->joints.size() <= 0)
 		{
 			delete this->mpSkeleton;
@@ -73,10 +74,14 @@ HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 		delete mpIndexVector;
 		delete mpNormalVector;
 		delete mpUVVector;
+		delete mpSkeleton;
+		delete mpSkinningWeights;
 		mpVertexPosVector = nullptr;
 		mpUVVector = nullptr;
 		mpNormalVector = nullptr;
 		mpIndexVector = nullptr;
+		mpSkeleton = nullptr;
+		mpSkinningWeights = nullptr;
 	}
 
 	return hr;
@@ -85,10 +90,7 @@ HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 
 std::vector<DirectX::XMFLOAT3>* ModelLoader::Mesh::GetVertexPositionVector()
 {
-	if (this->mpVertexPosVector)
-		return this->mpVertexPosVector;
-	else
-		return nullptr;
+	return this->mpVertexPosVector;
 }
 
 std::vector<int>* ModelLoader::Mesh::GetIndexVector()
