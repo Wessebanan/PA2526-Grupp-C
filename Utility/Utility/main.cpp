@@ -7,9 +7,10 @@
 int main()
 {
 	ecs::EntityComponentSystem mEcs;
+	InputBackend ibe;
 	CameraFunctions::CreateDevCamera(mEcs);
 	mEcs.createSystem<ecs::systems::UpdateCameraSystem>();
-	initInputECS(mEcs);
+	initInputECS(mEcs, &ibe);
 	while (true)
 	{
 		mEcs.update(0.1f);

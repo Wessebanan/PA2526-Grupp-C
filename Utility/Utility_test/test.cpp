@@ -22,7 +22,7 @@ TEST(UtilityFunctions, GetWorldMatrix) {
 	tc.rotation.x = 0.0f;
 	tc.rotation.y = 0.0f;
 	tc.rotation.z = DirectX::XM_PI / 2.0f;
-	
+
 	//Create the world matrix given the TransformComponent
 	DirectX::XMMATRIX world = UtilityFunctions::GetWorldMatrix(tc);
 	//Generate a test position which we will use with the world matrix
@@ -43,7 +43,7 @@ TEST(UtilityFunctions, GetWorldMatrix) {
 TEST(CameraFunctions, CreateDevCamera) {
 	ecs::EntityComponentSystem mEcs;
 	CameraFunctions::CreateDevCamera(mEcs);
-		
+
 	int numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
 	int numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
 
@@ -61,10 +61,58 @@ TEST(CameraFunctions, CreateCameraSystems) {
 }
 
 TEST(CameraFunctions, MoveCameraWithInput) {
-	ecs::EntityComponentSystem mEcs;
-	CameraFunctions::CreateDevCamera(mEcs);
+	//Create ECS and components needed for the test.
+	ecs::EntityComponentSystem m_ecs;
+	ecs::components::MouseComponent mouse;
+	ecs::components::KeyboardComponent keyboard;
+	//Set a constant input on the mouse and keyboard to test against.
+	mouse.diffFloat2.x = 50.0f;
+	mouse.diffFloat2.y = 50.0f;
+	keyboard.A = true;
+	keyboard.W = true;
+	//Create the entity holding the mouse and keyboard components and create the camera and its system.
+	m_ecs.createEntity(mouse, keyboard);
+	CameraFunctions::CreateDevCamera(m_ecs);
+	m_ecs.createSystem<ecs::systems::UpdateCameraSystem>();
+	//Update the system once.
+	m_ecs.update(0.01f);
+	//Fetch the updated components of the camera.
+	TransformComponent* transform = (ecs::components::TransformComponent*)m_ecs.getAllComponentsOfType(ecs::components::TransformComponent::typeID).next();
+	CameraComponent* camera = (ecs::components::CameraComponent*)m_ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
 
-	EXPECT_EQ(1, 1);
+	//Test to see that the new values of the components are what we expect them to be with the given input.
+	bool trans = false;
+	bool cam = false;
+	if (transform->position.x > -0.1f && transform->position.x < -0.08f &&
+		transform->position.y > 9.8f && transform->position.y < 10.0f &&
+		transform->position.z > 0.2f && transform->position.z < 0.3f &&
+		transform->rotation.x > 0.4f && transform->rotation.x < 0.6f &&
+		transform->rotation.y > 0.4f && transform->rotation.y < 0.6f &&
+		transform->rotation.z > -0.1f && transform->rotation.z < 0.1f &&
+		transform->scale.x > 0.9f && transform->scale.x < 1.1f &&
+		transform->scale.y > 0.9f && transform->scale.y < 1.1f &&
+		transform->scale.z > 0.9f && transform->scale.z < 1.1f)
+	{
+		trans = true;
+	}
+	if (camera->target.x > 0.2f && camera->target.x < 0.4f &&
+		camera->target.y > 9.3f && camera->target.y < 9.5f &&
+		camera->target.z > 0.9f && camera->target.z < 1.1f &&
+		camera->up.x > 0.1f && camera->up.x < 0.3f &&
+		camera->up.y > 0.7f && camera->up.y < 0.9f &&
+		camera->up.z > 0.3f && camera->up.z < 0.5f &&
+		camera->forward.x > 0.3f && camera->forward.x < 0.5f &&
+		camera->forward.y > -0.5f && camera->forward.y < -0.3f &&
+		camera->forward.z > 0.6f && camera->forward.z < 0.8f &&
+		camera->right.x > 0.7f && camera->right.x < 0.9f &&
+		camera->right.y > -0.1f && camera->right.y < 0.1f &&
+		camera->right.z > -0.5f && camera->right.z < -0.3f)
+	{
+		cam = true;
+	}
+	//Check if the test succeded or not.
+	EXPECT_TRUE(trans);
+	EXPECT_TRUE(cam);
 }
 
 // Test if an int is initialized properly and that set/get and ToString
