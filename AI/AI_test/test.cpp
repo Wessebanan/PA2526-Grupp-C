@@ -58,20 +58,24 @@ TEST(GridFunctions, heightMapTest) {
 	desc.systemLayerCount = 10;
 	ecs::EntityComponentSystem mEcs;
 	mEcs.initialize(desc);
+
 	bool found = false;
-	GridFunctions::CreateGrid(mEcs, nr_of_rows, nr_of_columns, radius);
-	ecs::ComponentIterator it = mEcs.getAllComponentsOfType(ecs::components::TransformComponent::typeID);
+	int nrOfComponents = 0;
+	GridFunctions::CreateGrid(mEcs, nr_of_rows, nr_of_columns, radius); //Create grid with diffrent height
+	ecs::ComponentIterator it = mEcs.getAllComponentsOfType(ecs::components::TransformComponent::typeID); //iterator for all transform components
 	ecs::BaseComponent *p_base;
 	ecs::components::TransformComponent *p_transform;
-	while (p_base = it.next())
+	while (p_base = it.next()) //loop through all components and returns a base component
 	{
-		p_transform = (ecs::components::TransformComponent*)p_base;
-		if (p_transform->position.y == 3.f)
+		p_transform = (ecs::components::TransformComponent*)p_base; //casts base component to transform component
+		if (p_transform->position.y == 3.f) // check if there is a component with a y pos that is 3(there is only one that has 3 according to the height map)
 		{
 			found = true;
+			nrOfComponents++;
 		}
 	}
 	
 	EXPECT_EQ(found, true);
+	EXPECT_EQ(nrOfComponents, 1);
 }
 

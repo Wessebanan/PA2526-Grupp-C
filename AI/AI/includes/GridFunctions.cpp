@@ -58,7 +58,9 @@ namespace GridFunctions
 	{
 		rEcs.createSystem<systems::TilePrintSystem>();
 	}
-	void CreateHeightmap(float* arr)
+
+	void CreateHeightmap(float* arr) //Creates a fixed array that is used to change the hight for the map
+		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
 		float heightValues[144] =
 		{ 0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f,0.f,
@@ -76,7 +78,7 @@ namespace GridFunctions
 
 		for (int i = 0; i < 144; i++)
 		{
-			arr[i] = heightValues[i];
+			arr[i] = heightValues[i]; 
 		}
 	}
 };
