@@ -37,10 +37,15 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 		return;
 	}
 
-	// Assumes the entity has a mesh component as well as a ground collision component.
+	// Assumes the entity has a mesh component, transform component and ground collision component.
+	// Check for ground collision component is already made.
 	Entity* entity = getEntity(create_component_event->entityID);
 
 	if (!entity->hasComponentOfType(MeshComponent::typeID))
+	{
+		return;
+	}
+	if (!entity->hasComponentOfType(TransformComponent::typeID))
 	{
 		return;
 	}
@@ -85,25 +90,10 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 			max_point.z = current.z;
 		}
 	}
+
+	// Creating the OBB holding the model.
 	DirectX::XMFLOAT3 vertices[8];
 	helper_functions::CreateOBB(vertices, min_point, max_point);
-	//// Creating the vertices for the box with the min and max points.
-	//DirectX::XMFLOAT3 vertices[] =
-	//{
-	//	// Near z:	2 3
-	//	//			0 1
-	//	min_point,
-	//	DirectX::XMFLOAT3(max_point.x, min_point.y, min_point.z),
-	//	DirectX::XMFLOAT3(min_point.x, max_point.y, min_point.z),
-	//	DirectX::XMFLOAT3(max_point.x, max_point.y, min_point.z),
-	//
-	//	// Far z:	6 7
-	//	//			4 5
-	//	DirectX::XMFLOAT3(min_point.x, min_point.y, max_point.z),
-	//	DirectX::XMFLOAT3(max_point.x, min_point.y, max_point.z),
-	//	DirectX::XMFLOAT3(min_point.x, max_point.y, max_point.z),
-	//	max_point
-	//};
 
 	// Calculating the average position while setting
 	// the vertices array of GroundCollisionComponent
@@ -123,6 +113,13 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 	average.y /= 8;
 	average.z /= 8;
 	ground_collision_component->mCenterPos = average;
+
+	// NOTE: The center position can be calculated more efficiently,
+	// although it would not make a noticable difference.
+	// current: 24 additions, 3 divisions. 
+	// possible: 3 subtractions, 3 divisons, 3 additions.
+	// gain: 21 additions, -3 subtractions.
+	// Can fix if you want Mr. Reviewer.
 }
 
 ecs::systems::GroundCollisionSystem::GroundCollisionSystem() 
@@ -220,6 +217,8 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	// If the biggest difference is negative, move the object above ground again.
 	if (biggest_diff < 0.0f)
 	{
+		// This should place the ground collision component so that no
+		// vertex intersects the ground level.
 		ground_collision_transform->position.y += -biggest_diff;
 	}
 }
