@@ -17,8 +17,9 @@ namespace GridFunctions
 		float mid_to_side = cos(30 * pi / 180) * radius; //Calculate length between the center position and a side. 
 		TransformComponent transform;
 		TileComponent tile;
+		float heightMap[144];
+		CreateHeightmap(heightMap);
 		
-
 		//Calculate the position and create every tile.
 		for (int i = 0; i < rows; i++)
 		{
@@ -27,9 +28,11 @@ namespace GridFunctions
 			current_pos.z = starting_pos.z + i * mid_to_side * 2;
 			for (int j = 0; j < columns; j++)
 			{
+				//test2 = heightMap[(i*12)+j];
+				
 				//Save the calculated values into the PositionComponent.
 				transform.position.x = current_pos.x;
-				transform.position.y = current_pos.y;
+				transform.position.y = heightMap[(i*12)+j];
 				transform.position.z = current_pos.z;
 				//Create the new entity
 				rEcs.createEntity(transform, tile);
@@ -54,5 +57,26 @@ namespace GridFunctions
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs)
 	{
 		rEcs.createSystem<systems::TilePrintSystem>();
+	}
+	void CreateHeightmap(float* arr)
+	{
+		float heightValues[144] =
+		{ 0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f,0.f,
+		  0.f,0.f,0.f,0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,
+		  0.f,0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f,
+		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
+		  1.f,1.f,1.f,1.f,1.f,0.f,0.f,1.f,1.f,1.f,1.f,1.f,
+		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
+		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
+		  0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f,
+		  0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f,
+		  0.f,1.f,2.f,3.f,2.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,
+		  0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
+		  0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f };
+
+		for (int i = 0; i < 144; i++)
+		{
+			arr[i] = heightValues[i];
+		}
 	}
 };
