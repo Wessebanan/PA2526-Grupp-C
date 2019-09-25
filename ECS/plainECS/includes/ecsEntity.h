@@ -23,6 +23,7 @@ namespace ecs
 		// thus making component type ID enough to fetch component ID.
 		ID getComponentID(TypeID _typeID);
 		bool hasComponentOfType(TypeID _typeID);
+		unsigned int getComponentCount();
 
 		/*
 			Templated getters

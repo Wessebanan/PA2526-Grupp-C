@@ -29,6 +29,16 @@ void ecs::systems::StaticMovementSystem::updateEntity(ecs::FilteredEntity& _enti
 			transform->position.y + movement->mVelocity * _delta * movement->mDirection.y,
 			transform->position.z + movement->mVelocity * _delta * movement->mDirection.z);
 
+		// If the moved entity has a bounding sphere, the 
+		// collision system is notified with a potential
+		// collision event.
+		if (_entityInfo.components.find(BoundingSphereComponent::typeID) != _entityInfo.components.end())
+		{
+			PotentialCollisionEvent potential_collision;
+			potential_collision.mEntityID = _entityInfo.entity->getID();
+			createEvent(potential_collision);
+		}
+
 		// Removing the velocity, as there should be none unless there
 		// is input saying otherwise.
 		movement->mVelocity = 0;
@@ -65,9 +75,9 @@ void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event,
 	float cos_rotation = (float)cos(rotation * PI / 180.0);
 	float sin_rotation = (float)sin(rotation * PI / 180.0);
 	
-	// Rotation application around z-axis using the forward vector of the movement component.
-	movement_component->mDirection.x = movement_component->mForward.x * cos_rotation - movement_component->mForward.y * sin_rotation;
-	movement_component->mDirection.y = movement_component->mForward.x * sin_rotation + movement_component->mForward.y * cos_rotation;
+	// Rotation application around y-axis using the forward vector of the movement component.
+	movement_component->mDirection.x = movement_component->mForward.x * cos_rotation - movement_component->mForward.z * sin_rotation;
+	movement_component->mDirection.z = movement_component->mForward.x * sin_rotation + movement_component->mForward.z * cos_rotation;
 
 	// Setting velocity to the max velocity.
 	movement_component->mVelocity = movement_component->mMaxVelocity;
