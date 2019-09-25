@@ -48,7 +48,7 @@ namespace Sound
 		// Initializes a stream by targeting the default
 		// sound output
 		bool OpenStream();
-		bool OpenStream(PaDeviceIndex index);
+		bool OpenStream(PaDeviceIndex Index);
 		// Closest the stream
 		bool CloseStream();
 		// Starts the stream so that the callback function
@@ -68,18 +68,18 @@ namespace Sound
 	private:
 		// This is the function that are called everytime
 		// the sound card require a refill
-		int PaCallbackMethod(const void* inputBuffer, void* outputBuffer,
-			unsigned long framesPerBuffer,
-			const PaStreamCallbackTimeInfo* timeInfo,
-			PaStreamCallbackFlags statusFlags);
+		int PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
+			unsigned long FramesPerBuffer,
+			const PaStreamCallbackTimeInfo* pTimeInfo,
+			PaStreamCallbackFlags StatusFlags);
 
 		// This function redirects the callback function
 		// to the member function above
-		static int PaCallback(const void* inputBuffer, void* outputBuffer,
-			unsigned long framesPerBuffer,
-			const PaStreamCallbackTimeInfo* timeInfo,
-			PaStreamCallbackFlags statusFlags,
-			void* userData);
+		static int PaCallback(const void* pInputBuffer, void* pOutputBuffer,
+			unsigned long FramesPerBuffer,
+			const PaStreamCallbackTimeInfo* pTimeInfo,
+			PaStreamCallbackFlags StatusFlags,
+			void* pUserData);
 
 		// Function called when the stream finishes
 		// but currently have no use
@@ -87,7 +87,7 @@ namespace Sound
 
 		// This function redirects the callback function
 		// to the member function above
-		static void PaStreamFinished(void* userData);
+		static void PaStreamFinished(void* pUserData);
 
 		// PortAudio stream handler
 		PaStream* mpStream;
