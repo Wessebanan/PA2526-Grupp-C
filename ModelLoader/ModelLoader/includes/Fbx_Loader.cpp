@@ -3,6 +3,28 @@
 // Anonymous namespace for Fbx_Loader
 namespace {
 	static FbxManager* gpFbxSdkManager = nullptr;
+
+	FbxMesh* FindMesh(FbxNode* currentNode)
+	{
+		FbxMesh* mesh = nullptr;
+		if (mesh = currentNode->GetMesh())
+		{
+			return mesh;
+		}
+		else
+		{
+			for (int i = 0; i < currentNode->GetChildCount(); ++i)
+			{
+				FbxNode* child = currentNode->GetChild(i);
+				if (mesh = FindMesh(child))
+				{
+					return mesh;
+				}
+			}
+			return nullptr;
+		}
+	}
+
 	void LoadUV(fbxsdk::FbxMesh* pMesh, std::vector<DirectX::XMFLOAT2>* pOutUVVector)
 	{
 		fbxsdk::FbxStringList uv_set_name_list;
@@ -170,82 +192,66 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 
 	if (p_fbx_root_node)
 	{
-		// Traverse the FBX tree
-		for (int i = 0; i < p_fbx_root_node->GetChildCount(); i++)
+		FbxMesh* p_mesh = ::FindMesh(p_fbx_root_node);
+		if (p_mesh)
 		{
-			FbxNode* pFbxChildNode = p_fbx_root_node->GetChild(i);
 
-			// If node has no attribute - not interested
-			if (pFbxChildNode->GetNodeAttribute() == NULL)
-				continue;
+			// Make sure the mesh is triangulated
+			assert(p_mesh->IsTriangleMesh() && "Mesh contains non-triangles, please triangulate the mesh.");
 
-			std::string node_name = pFbxChildNode->GetName();
-			FbxNodeAttribute::EType attribute_type = pFbxChildNode->GetNodeAttribute()->GetAttributeType();
+			FbxVector4* p_vertices = p_mesh->GetControlPoints();
 
-			// Handle Mesh attribute item
-			if (attribute_type == FbxNodeAttribute::eMesh)
+			// Populate the returned index vector
+			int* p_indices = p_mesh->GetPolygonVertices();
+			int index_count = p_mesh->GetPolygonVertexCount();
+			pOutIndexVector->insert(pOutIndexVector->end(), &p_indices[0], &p_indices[index_count]);
+
+			// Load UVs and populate the returned UV vector
+			::LoadUV(p_mesh, pOutUVVector);
+
+			for (int j = 0; j < p_mesh->GetControlPointsCount(); ++j)
 			{
-				FbxMesh* p_mesh = (FbxMesh*)pFbxChildNode->GetNodeAttribute();
+				// Process vertex positions
+				DirectX::XMFLOAT3 vertex_pos;
+				vertex_pos.x = (float)p_vertices[j].mData[0];
+				vertex_pos.y = (float)p_vertices[j].mData[1];
+				vertex_pos.z = (float)p_vertices[j].mData[2];
+				pOutVertexPosVector->push_back(vertex_pos);
 
-				// Make sure the mesh is triangulated
-				assert(p_mesh->IsTriangleMesh() && "Mesh contains non-triangles, please triangulate the mesh.");
 
-				FbxVector4* p_vertices = p_mesh->GetControlPoints();
-
-				// Populate the returned index vector
-				int* p_indices = p_mesh->GetPolygonVertices();
-				int index_count = p_mesh->GetPolygonVertexCount();
-				pOutIndexVector->insert(pOutIndexVector->end(), &p_indices[0], &p_indices[index_count]);
-
-				// Load UVs and populate the returned UV vector
-				::LoadUV(p_mesh, pOutUVVector);
-
-				for (int j = 0; j < p_mesh->GetControlPointsCount(); ++j)
+				fbxsdk::FbxVector4 normal;
+				// If the mesh normals are not in "per vertex" mode, re-generate them to be useable by this parser
+				if (p_mesh->GetElementNormal(0)->GetMappingMode() != FbxGeometryElement::eByControlPoint)
 				{
-					// Process vertex positions
-					DirectX::XMFLOAT3 vertex_pos;
-					vertex_pos.x = (float)p_vertices[j].mData[0];
-					vertex_pos.y = (float)p_vertices[j].mData[1];
-					vertex_pos.z = (float)p_vertices[j].mData[2];
-					pOutVertexPosVector->push_back(vertex_pos);
-
-
-					fbxsdk::FbxVector4 normal;
-					// If the mesh normals are not in "per vertex" mode, re-generate them to be useable by this parser
-					if (p_mesh->GetElementNormal(0)->GetMappingMode() != FbxGeometryElement::eByControlPoint)
-					{
-						p_mesh->GenerateNormals(true, true, true);
-					}
-					// Only allowing one normal per element currently, fetching the first available
-					fbxsdk::FbxGeometryElementNormal* le_normal = p_mesh->GetElementNormal(0);
-
-					// Different type of indexing in vector based on reference mode
-					switch (le_normal->GetReferenceMode())
-					{
-					case FbxGeometryElement::eDirect:
-						normal = le_normal->GetDirectArray().GetAt(j).mData;
-						break;
-					case FbxGeometryElement::eIndexToDirect:
-					{
-						int index = le_normal->GetIndexArray().GetAt(j);
-						normal = le_normal->GetDirectArray().GetAt(index).mData;
-						break;
-					}
-					default:
-						throw std::exception("Invalid Fbx Normal Reference");
-					}
-					DirectX::XMFLOAT3 vertex_normal;
-					// Double checking that the normal is normalized
-					normal.Normalize();
-					vertex_normal.x = (float)normal.mData[0];
-					vertex_normal.y = (float)normal.mData[1];
-					vertex_normal.z = (float)normal.mData[2];
-					pOutNormalVector->push_back(vertex_normal);
-
+					p_mesh->GenerateNormals(true, true, true);
 				}
+				// Only allowing one normal per element currently, fetching the first available
+				fbxsdk::FbxGeometryElementNormal* le_normal = p_mesh->GetElementNormal(0);
+
+				// Different type of indexing in vector based on reference mode
+				switch (le_normal->GetReferenceMode())
+				{
+				case FbxGeometryElement::eDirect:
+					normal = le_normal->GetDirectArray().GetAt(j).mData;
+					break;
+				case FbxGeometryElement::eIndexToDirect:
+				{
+					int index = le_normal->GetIndexArray().GetAt(j);
+					normal = le_normal->GetDirectArray().GetAt(index).mData;
+					break;
+				}
+				default:
+					throw std::exception("Invalid Fbx Normal Reference");
+				}
+				DirectX::XMFLOAT3 vertex_normal;
+				// Double checking that the normal is normalized
+				normal.Normalize();
+				vertex_normal.x = (float)normal.mData[0];
+				vertex_normal.y = (float)normal.mData[1];
+				vertex_normal.z = (float)normal.mData[2];
+				pOutNormalVector->push_back(vertex_normal);
 			}
 		}
-
 	}
 	return S_OK;
 }

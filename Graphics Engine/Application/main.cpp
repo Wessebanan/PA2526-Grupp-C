@@ -302,7 +302,7 @@ int main()
 			pContext->SetRenderTarget(backBuffer, depthBuffer);
 
 			// Copy Data to CPU Buffer (View Matrix)
-			pContext->CopyDataToRegion(
+			pContext->CopyDataToRegion( 
 				&view,
 				sizeof(view),
 				viewRegion);
