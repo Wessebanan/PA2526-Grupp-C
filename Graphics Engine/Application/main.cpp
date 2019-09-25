@@ -38,9 +38,14 @@
 
 const std::string gVertexShader = R"(
 
+struct PerObjectData
+{
+	float4x4 World;
+};
+
 cbuffer gTransformation : register (b0)
 {
-	float4x4 gWorld[3];
+	PerObjectData gMesh[3];
 };
 
 cbuffer gCam : register (b1)
@@ -66,7 +71,7 @@ VSOUT main(
 {
 	VSOUT output;
 
-	float4x4 wvp = mul(gPerspective, mul(gView, gWorld[instance]));
+	float4x4 wvp = mul(gPerspective, mul(gView, gMesh[instance].World));
 
 	output.pos	= mul(wvp, float4(pos, 1.0f));
 	output.uv	= uv;

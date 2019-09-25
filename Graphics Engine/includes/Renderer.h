@@ -88,8 +88,8 @@ namespace graphics
 		PresentWindow* GetWindow();
 
 	private:
-		char* m_pAt;
-		char m_perObjectData[65536];
+		char* m_pBufferAt;
+		char m_perObjectBuffer[65536];
 
 		DeviceInterface* m_pDevice;
 		RenderContext* m_pContext;

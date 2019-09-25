@@ -3,9 +3,14 @@
 
 const std::string gVertexShader = R"(
 
+struct PerObjectData
+{
+	float4x4 World;
+};
+
 cbuffer gTransformation : register (b0)
 {
-	float4x4 gWorld[3];
+	PerObjectData gMesh[3];
 };
 
 cbuffer gCam : register (b1)
@@ -31,7 +36,7 @@ VSOUT main(
 {
 	VSOUT output;
 
-	float4x4 wvp = mul(gPerspective, mul(gView, gWorld[instance]));
+	float4x4 wvp = mul(gPerspective, mul(gView, gMesh[instance].World));
 
 	output.pos	= mul(wvp, float4(pos, 1.0f));
 	output.uv	= uv;
@@ -65,7 +70,7 @@ namespace graphics
 		m_meshCount		= 0;
 		m_drawCount		= 0;
 
-		m_pAt = m_perObjectData;
+		m_pBufferAt = m_perObjectBuffer;
 	}
 
 	Renderer::~Renderer()
@@ -167,7 +172,7 @@ namespace graphics
 	void Renderer::Clear()
 	{
 		m_drawCount = 0;
-		m_pAt = m_perObjectData;
+		m_pBufferAt = m_perObjectBuffer;
 
 		m_pContext->ClearDepth(m_depthBuffer);
 		m_pContext->ClearRenderTarget(m_backBuffer, 0.0f, 0.0f, 0.0f);
@@ -178,10 +183,10 @@ namespace graphics
 		const PerObjectData& rData)
 	{
 		m_drawList[m_drawCount] = Model(rModel);
-		memcpy(m_pAt, &rData, rData.byteWidth);
+		memcpy(m_pBufferAt, &rData, rData.byteWidth);
 
 		m_drawCount++;
-		m_pAt += rData.byteWidth;
+		m_pBufferAt += rData.byteWidth;
 	}
 
 	void Renderer::Draw()
