@@ -14,19 +14,19 @@ Entity* ECSUser::getEntity(ID _entityID)
 EntityIterator ECSUser::getEntitiesByFilter(TypeFilter _filter)
 {
 
-	return ecsUserHandler->getEntitiesByFilter(_filter);
+	return ecsUserHandler->onGetEntitiesByFilter(_filter);
 }
 
 EntityIterator ECSUser::getEntitiesWithComponent(TypeID _typeID)
 {
 	TypeFilter filter;
 	filter.addRequirement(_typeID);
-	return ecsUserHandler->getEntitiesByFilter(filter);
+	return ecsUserHandler->onGetEntitiesByFilter(filter);
 }
 
 ComponentIterator ECSUser::getComponentsOfType(TypeID _typeID)
 {
-	return ecsUserHandler->getComponentsOfType(_typeID);
+	return ecsUserHandler->onGetComponentsOfType(_typeID);
 }
 
 BaseComponent* ECSUser::getComponent(TypeID _typeID, ID _id)

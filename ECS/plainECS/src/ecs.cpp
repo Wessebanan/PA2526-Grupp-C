@@ -375,7 +375,7 @@ size_t EntityComponentSystem::getComponentCountOfType(TypeID _typeID)
 	return componentMgr.getComponentCountOfType(_typeID);
 }
 
-EntityIterator EntityComponentSystem::getFilteredEntityIterator(TypeFilter _componentFilter)
+EntityIterator EntityComponentSystem::getEntititesByFilter(TypeFilter _componentFilter)
 {
 	EntityIterator iterator;
 	fillEntityIteratorInternal(_componentFilter, iterator);
@@ -418,14 +418,14 @@ BaseComponent* EntityComponentSystem::onCreateComponent(ID _entityID, BaseCompon
 	return createComponentInternal(_entityID, _componentInfo);
 }
 
-EntityIterator EntityComponentSystem::getEntitiesByFilter(TypeFilter _componentFilter)
+EntityIterator EntityComponentSystem::onGetEntitiesByFilter(TypeFilter _componentFilter)
 {
 	EntityIterator iterator;
 	fillEntityIteratorInternal(_componentFilter, iterator);
 	return iterator;
 }
 
-ComponentIterator EntityComponentSystem::getComponentsOfType(TypeID _typeID)
+ComponentIterator EntityComponentSystem::onGetComponentsOfType(TypeID _typeID)
 {
 	return componentMgr.getComponentIterator(_typeID);
 }

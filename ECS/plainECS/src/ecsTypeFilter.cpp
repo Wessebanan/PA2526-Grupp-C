@@ -15,23 +15,23 @@ TypeFilter::~TypeFilter()
 void TypeFilter::addRequirement(TypeID _typeID)
 {
 	// Check if requirement already exists
-	for (TypeID t : requirements)
+	for (TypeID t : this->requirements)
 	{
 		if (t == _typeID)
 		{
 			return;
 		}
 	}
-	requirements.push_back(_typeID);
+	this->requirements.push_back(_typeID);
 }
 
 void TypeFilter::removeRequirement(TypeID _typeID)
 {
-	for (size_t i = 0; i < requirements.size(); i++)
+	for (size_t i = 0; i < this->requirements.size(); i++)
 	{
-		if (requirements[i] == _typeID)
+		if (this->requirements[i] == _typeID)
 		{
-			requirements.erase(requirements.begin() + i);
+			this->requirements.erase(this->requirements.begin() + i);
 			return;
 		}
 	}
@@ -39,5 +39,5 @@ void TypeFilter::removeRequirement(TypeID _typeID)
 
 std::vector<TypeID> ecs::TypeFilter::getRequirements()
 {
-	return requirements;
+	return this->requirements;
 }

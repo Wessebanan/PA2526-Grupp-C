@@ -19,15 +19,24 @@ namespace ecs
 	*/
 	struct ECSUserListener
 	{
+	protected:
 		virtual Entity* onGetEntity(ID _entityID) = 0;
 		virtual BaseComponent* onGetComponent(TypeID _typeID, ID _id) = 0;
 		virtual Entity* onCreateEntity(ComponentList _components) = 0;
 		virtual BaseComponent* onCreateComponent(ID _entityID, BaseComponent& _componentInfo) = 0;
-		virtual EntityIterator getEntitiesByFilter(TypeFilter _componentFilter) = 0;
-		virtual ComponentIterator getComponentsOfType(TypeID _typeID) = 0;
+		virtual EntityIterator onGetEntitiesByFilter(TypeFilter _componentFilter) = 0;
+		virtual ComponentIterator onGetComponentsOfType(TypeID _typeID) = 0;
 		virtual void onCreateEvent(BaseEvent& _event) = 0;
 		virtual void onRemoveEntity(ID _entityID) = 0;
 		virtual void onRemoveComponent(ID _entityID, TypeID _componentTypeID) = 0;
+
+		/*
+			Virtual functions are protected. EntityComponentSystem is inheriting from
+			ECSUserListener, so the protection makes sure no one outside of
+			EntityComponentSystem can touch these functions.
+			ECSUser need access to the functions though, hince friending the struct.
+		*/
+		friend struct ECSUser;
 	};
 
 	/*
@@ -135,13 +144,13 @@ namespace ecs
 	{
 		TypeFilter filter;
 		filter.addRequirement(T::typeID);
-		return ecsUserHandler->getEntitiesByFilter(filter);
+		return ecsUserHandler->onGetEntitiesByFilter(filter);
 	}
 
 	template <typename T>
 	inline ComponentIterator ECSUser::getComponentsOfType()
 	{
-		return ecsUserHandler->getComponentsOfType(T::typeID);
+		return ecsUserHandler->onGetComponentsOfType(T::typeID);
 	}
 
 	template <typename T>
@@ -153,7 +162,7 @@ namespace ecs
 	template<typename T>
 	inline T* ECSUser::getComponent(ID _componentID)
 	{
-		return ecsUserHandler->onGetComponent(T::typeID, _componentID);
+		return (T*)ecsUserHandler->onGetComponent(T::typeID, _componentID);
 	}
 
 	template<typename T>
@@ -167,6 +176,6 @@ namespace ecs
 			return nullptr;
 		}
 
-		return ecsUserHandler->onGetComponent(T::typeID, e->getComponentID(T::typeID));
+		return (T*)ecsUserHandler->onGetComponent(T::typeID, e->getComponentID(T::typeID));
 	}
 }
