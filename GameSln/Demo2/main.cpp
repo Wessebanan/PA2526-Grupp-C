@@ -6,7 +6,7 @@
 #include <CameraFunctions.h>
 #include <GridFunctions.h>
 #include <DebugInfo.h>
-
+#include "Shaders.h"
 
 
 #define GRID_WIDTH 12
