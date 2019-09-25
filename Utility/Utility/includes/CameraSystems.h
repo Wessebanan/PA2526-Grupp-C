@@ -25,22 +25,31 @@ namespace ecs
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
 				//Initialize standard values.
-				float speed = 1.0f;
+				float speed = 0.20f;
+				float sensitivity = 0.01f;
 				DirectX::XMVECTOR world_forward = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 				DirectX::XMVECTOR world_right = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 				//Fetch Mouse-, Keyboard-, Camera- and TranformComponent
-				ecs::components::MouseComponent *p_mouse;
-				ecs::components::KeyboardComponent *p_keyboard;
+				ecs::components::MouseComponent* p_mouse;
+				ecs::components::KeyboardComponent* p_keyboard;
+
 				p_mouse = (components::MouseComponent*)getComponentsOfType(ecs::components::MouseComponent::typeID).next();
 				p_keyboard = (components::KeyboardComponent*)getComponentsOfType(ecs::components::KeyboardComponent::typeID).next();
-				components::CameraComponent *p_cam = entity.getComponent<CameraComponent>();
-				components::TransformComponent* p_tc = entity.getComponent<TransformComponent>();
+				components::CameraComponent* p_cam = entity.getComponent<components::CameraComponent>();
+				components::TransformComponent* p_tc = entity.getComponent<components::TransformComponent>();
+
 				//If the Mouse- and KeyboardComponent exists in the ECS we update the cameras position. 
 				if (p_mouse && p_keyboard)
 				{
+					std::cout << "MouseComponent: " << std::endl;
+					std::cout << "x: " << p_mouse->diffFloat2.x << std::endl;
+					std::cout << "y: " << p_mouse->diffFloat2.y << std::endl;
 					//Update the cameras rotation vector and matrix with the mouse input.
-					p_tc->rotation.x += p_mouse->diffFloat2.x;
-					p_tc->rotation.y += p_mouse->diffFloat2.y;
+					p_tc->rotation.y += p_mouse->diffFloat2.x * sensitivity;
+					p_tc->rotation.x += p_mouse->diffFloat2.y * sensitivity;
+					std::cout << "TransformComponent: " << std::endl;
+					std::cout << "x: " << p_tc->rotation.y;
+					std::cout << "y: " << p_tc->rotation.x;
 					p_cam->rotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(p_tc->rotation.x, p_tc->rotation.y, 0);
 					//Update the cameras target with the new rotation matrix and normalize it.
 					p_cam->target = DirectX::XMVector3TransformCoord(world_forward, p_cam->rotationMatrix);
@@ -58,7 +67,7 @@ namespace ecs
 					if (p_keyboard->S)
 						cam_pos -= speed * p_cam->forward;
 					if (p_keyboard->A)
-						cam_pos += speed * p_cam->right;
+						cam_pos -= speed * p_cam->right;
 					if (p_keyboard->D)
 						cam_pos += speed * p_cam->right;
 					//Store the new position in the TransformComponent position XMFLOAT3.
