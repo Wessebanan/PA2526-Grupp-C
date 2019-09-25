@@ -1,5 +1,5 @@
 #pragma once
-#include "InitInputHandler.h"
+//#include "InitInputHandler.h"
 #include <winsock2.h>
 #include <Windows.h>
 #include<ecs.h>
@@ -130,16 +130,16 @@ int main()
 	systems::UIPostRenderSystem *UIpostSys = myECS.createSystem<systems::UIPostRenderSystem>(9);
 	
 	
-	UIpreSys->D2D = UITextSys->D2D = UIpostSys->D2D = UIBitmapSys->D2D = UIDebugSys->D2D = &test2d;
+	UIpreSys->mpD2D = UITextSys->mpD2D = UIpostSys->mpD2D = UIBitmapSys->mpD2D = UIDebugSys->mpD2D = &test2d;
 	components::UITextComponent UIText;
 	components::UIDrawColorComponent UIColor;
 	components::UIDrawPosComponent UIPos;
 	components::UIDrawPosComponent UIPos2;
 	components::UIBitmapComponent UIBitmap;
-	UIColor.color = brushColors::Green;
-	UIPos.drawArea = D2D1::RectF(600, 0, 800, 200);
-	UIPos2.drawArea = D2D1::RectF(1, 1, 799, 599);
-	UIText.strText = "hehehheehtest";
+	UIColor.mColor = brushColors::Green;
+	UIPos.mDrawArea = D2D1::RectF(600, 0, 800, 200);
+	UIPos2.mDrawArea = D2D1::RectF(1, 1, 799, 599);
+	UIText.mStrText = "hehehheehtest";
 	char hehe[10] = "pepe";
 	//test2d.LoadImageToBitmap("PepeLaugh.jfif", hehe);
 	//UIBitmap.bitmap = test2d.GetBitmap(test2d.GetBitmapIDFromName(hehe));
@@ -148,8 +148,8 @@ int main()
 	//Entity* e2 = myECS.createEntity(UIColor, UIText, UIPos);
 	Entity* e3 = myECS.createEntity(UIText);
 
-	InputBackend Input;
-	initInputECS(myECS, &Input);
+	//InputBackend Input;
+	//initInputECS(myECS, &Input);
 
 	
 

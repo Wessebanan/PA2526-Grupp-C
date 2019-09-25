@@ -1,5 +1,5 @@
 #pragma once
-#include "InputComponents.h"
+//#include "InputComponents.h"
 
 #include "ecsSystemIncludes.h"
 #include "UIComponents.h"
@@ -52,7 +52,7 @@ namespace ecs
 			UIDebugSystem();
 			virtual ~UIDebugSystem();
 
-			bool toRender = false;
+			bool toRender = true;
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 			Direct2D* mpD2D;
 		private:
