@@ -45,15 +45,30 @@ namespace ecs
 				XMVECTOR right;
 				XMVECTOR forward;
 				XMVECTOR up;
-
+				XMVECTOR position;
 				//If the Mouse- and KeyboardComponent exists in the ECS we update the cameras position. 
 				if (p_mouse && p_keyboard)
 				{
-					if (p_keyboard->R)
+					if (p_keyboard->R) //If camera should be reset run this.
 					{
-
+						//Reset position, rotation and scale.
+						p_tc->position = {0.0f, 10.0f, 0.0f};
+						p_tc->rotation = {0.0f, 0.0f, 0.0f};
+						p_tc->scale = {1.0f, 1.0f, 1.0f};
+						//Reset the cameras target, up, forward and right.
+						p_cam->target = { 0.0f, 0.0f, 0.0f, 0.0f };
+						p_cam->up = { 0.0f, 1.0f, 0.0f, 0.0f };
+						p_cam->forward = { 0.0f, 0.0f, 1.0f, 0.0f };
+						p_cam->right = { 1.0f, 0.0f, 0.0f, 0.0f };
+						//Update the cameras view matrix.
+						position = XMLoadFloat3(&p_tc->position);
+						target = XMLoadFloat4(&p_cam->target);
+						up = XMLoadFloat4(&p_cam->up);
+						view = XMMatrixLookAtLH(position, target, up);
+						//Store the matrix in the camera component.
+						XMStoreFloat4x4(&p_cam->viewMatrix, view);
 					}
-					else
+					else //If the camers is not supposed to be reset run this.
 					{
 						rotation = XMLoadFloat4x4(&p_cam->rotationMatrix);
 						//Update the cameras rotation vector and matrix with the mouse input.
