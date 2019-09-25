@@ -117,6 +117,15 @@ TEST(SkeletonDataSuccessTesting, CorrectSkeleton) {
 	EXPECT_EQ(testMesh.GetSkinningWeights()->size(), testMesh.GetVertexPositionVector()->size());
 }
 
+// Loader should still support non-skinned models without any issue
+TEST(SkeletonDataSuccessTesting, MeshWithoutSkeleton)
+{
+	ModelLoader::Mesh testMesh("cat.fbx");
+	EXPECT_FALSE(testMesh.HasSkeleton());
+	EXPECT_EQ(testMesh.GetSkeleton(), nullptr);
+	EXPECT_EQ(testMesh.GetSkinningWeights(), nullptr);
+}
+
 // Failure tests use the internal LoadFBX function instead of the Mesh structure to check that the thrown errors are correct.
 // The mesh structure normally intercepts these throws and outputs a message box.
 TEST(SkeletonDataFailureTesting, NullptrInputVectors) {

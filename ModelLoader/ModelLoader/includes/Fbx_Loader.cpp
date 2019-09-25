@@ -417,7 +417,7 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 				pOutNormalVector->push_back(vertex_normal);
 
 			}
-
+			// If bone structure was processed, also process the weights
 			if (pOutSkeleton->joints.size() > 0)
 			{
 				pOutCPInfoVector->resize(p_mesh->GetControlPointsCount());
