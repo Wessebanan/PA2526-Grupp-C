@@ -92,53 +92,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\source\DeviceInterface.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">../includes/pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">../includes/pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\source\GraphicsPipeline.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">../includes/pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">../includes/pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\source\BufferStorage.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">../includes/pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">../includes/pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\source\pch.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">../includes/pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">../includes/pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\source\PresentWindow.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">../includes/pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">../includes/pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\source\RenderContext.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">../includes/pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">../includes/pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\source\Renderer.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">../includes/pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">../includes/pch.h</PrecompiledHeaderFile>
-    </ClCompile>
-    <ClCompile Include="..\source\Window.cpp">
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">../includes/pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">../includes/pch.h</PrecompiledHeaderFile>
-    </ClCompile>
+    <ClInclude Include="..\includes\graphics\BufferStorage.h" />
+    <ClInclude Include="..\includes\graphics\D3D11Header.h" />
+    <ClInclude Include="..\includes\graphics\DeviceInterface.h" />
+    <ClInclude Include="..\includes\graphics\GraphicsComponents.h" />
+    <ClInclude Include="..\includes\graphics\GraphicsPipeline.h" />
+    <ClInclude Include="..\includes\graphics\GraphicsSystems.h" />
+    <ClInclude Include="..\includes\graphics\Header.h" />
+    <ClInclude Include="..\includes\graphics\Info.h" />
+    <ClInclude Include="..\includes\graphics\pch.h" />
+    <ClInclude Include="..\includes\graphics\PresentWindow.h" />
+    <ClInclude Include="..\includes\graphics\Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\includes\D3D11Header.h" />
-    <ClInclude Include="..\includes\DeviceInterface.h" />
-    <ClInclude Include="..\includes\GraphicsComponents.h" />
-    <ClInclude Include="..\includes\GraphicsPipeline.h" />
-    <ClInclude Include="..\includes\GraphicsSystems.h" />
-    <ClInclude Include="..\includes\Info.h" />
-    <ClInclude Include="..\includes\BufferStorage.h" />
-    <ClInclude Include="..\includes\pch.h" />
-    <ClInclude Include="..\includes\PresentWindow.h" />
-    <ClInclude Include="..\includes\Renderer.h" />
-    <ClInclude Include="..\includes\Window.h" />
+    <ClCompile Include="..\source\graphics\BufferStorage.cpp" />
+    <ClCompile Include="..\source\graphics\DeviceInterface.cpp" />
+    <ClCompile Include="..\source\graphics\GraphicsPipeline.cpp" />
+    <ClCompile Include="..\source\graphics\pch.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\source\graphics\PresentWindow.cpp" />
+    <ClCompile Include="..\source\graphics\RenderContext.cpp" />
+    <ClCompile Include="..\source\graphics\Window.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

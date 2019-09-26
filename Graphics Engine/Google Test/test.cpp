@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "../includes/DeviceInterface.h"
+#include "../includes/graphics/DeviceInterface.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
