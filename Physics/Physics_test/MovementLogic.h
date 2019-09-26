@@ -143,5 +143,4 @@ namespace MovementLogic
 		EXPECT_FLOAT_EQ(p_transform->position.z, previous_position.z + DELTA * p_movement->mMaxVelocity * p_movement->mDirection.z);
 
 	}
-
 } // MovementLogic
