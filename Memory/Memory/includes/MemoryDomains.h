@@ -27,6 +27,7 @@ const std::map<MemoryDomain, DomainInfo> MEMORY_DOMAIN_SIZES
 		Available heap types:
 			- Linear
 	*/
+
 	MEMORY_DOMAIN(ECS, Linear, 100),
 	MEMORY_DOMAIN(Misc, Linear, 100),
 };
