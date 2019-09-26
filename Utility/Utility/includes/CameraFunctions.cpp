@@ -37,8 +37,4 @@ namespace CameraFunctions
 		rEcs.createEntity(transform, camera);
 	}
 
-	void CreateCameraSystems(ecs::EntityComponentSystem& rEcs)
-	{
-		//rEcs.createSystem<systems::UpdateCameraSystem>();
-	}
 }

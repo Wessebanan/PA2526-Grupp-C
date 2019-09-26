@@ -52,14 +52,6 @@ TEST(CameraFunctions, CreateDevCamera) {
 	EXPECT_EQ(numberOfTc, 1);
 }
 
-TEST(CameraFunctions, CreateCameraSystems) { //Not used anymore.
-	ecs::EntityComponentSystem mEcs;
-	CameraFunctions::CreateCameraSystems(mEcs);
-
-	size_t nrOfSystems = mEcs.getTotalSystemCount();
-	EXPECT_EQ(nrOfSystems, 0);
-}
-
 TEST(CameraFunctions, MoveCameraWithInput) {
 	//Create ECS and components needed for the test.
 	ecs::EntityComponentSystem temp_ecs;
@@ -81,38 +73,28 @@ TEST(CameraFunctions, MoveCameraWithInput) {
 	CameraComponent* camera = (ecs::components::CameraComponent*)temp_ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
 
 	//Test to see that the new values of the components are what we expect them to be with the given input.
-	bool trans = false;
-	bool cam = false;
-	if (transform->position.x > -0.1f && transform->position.x < -0.08f &&
-		transform->position.y > 9.8f && transform->position.y < 10.0f &&
-		transform->position.z > 0.2f && transform->position.z < 0.3f &&
-		transform->rotation.x > 0.4f && transform->rotation.x < 0.6f &&
-		transform->rotation.y > 0.4f && transform->rotation.y < 0.6f &&
-		transform->rotation.z > -0.1f && transform->rotation.z < 0.1f &&
-		transform->scale.x > 0.9f && transform->scale.x < 1.1f &&
-		transform->scale.y > 0.9f && transform->scale.y < 1.1f &&
-		transform->scale.z > 0.9f && transform->scale.z < 1.1f)
-	{
-		trans = true;
-	}
-	if (camera->target.x > 0.2f && camera->target.x < 0.4f &&
-		camera->target.y > 9.3f && camera->target.y < 9.5f &&
-		camera->target.z > 0.9f && camera->target.z < 1.1f &&
-		camera->up.x > 0.1f && camera->up.x < 0.3f &&
-		camera->up.y > 0.7f && camera->up.y < 0.9f &&
-		camera->up.z > 0.3f && camera->up.z < 0.5f &&
-		camera->forward.x > 0.3f && camera->forward.x < 0.5f &&
-		camera->forward.y > -0.5f && camera->forward.y < -0.3f &&
-		camera->forward.z > 0.6f && camera->forward.z < 0.8f &&
-		camera->right.x > 0.7f && camera->right.x < 0.9f &&
-		camera->right.y > -0.1f && camera->right.y < 0.1f &&
-		camera->right.z > -0.5f && camera->right.z < -0.3f)
-	{
-		cam = true;
-	}
-	//Check if the test succeded or not.
-	EXPECT_TRUE(trans);
-	EXPECT_TRUE(cam);
+	EXPECT_NEAR(transform->position.x, -0.09f, 0.2f);
+	EXPECT_NEAR(transform->position.y, 9.9f, 0.2f);
+	EXPECT_NEAR(transform->position.z, 0.2f, 0.2f);
+	EXPECT_NEAR(transform->rotation.x, 0.5f, 0.2f);
+	EXPECT_NEAR(transform->rotation.y, 0.5f, 0.2f);
+	EXPECT_NEAR(transform->rotation.z, 0.0f, 0.2f);
+	EXPECT_NEAR(transform->scale.x, 1.0f, 0.2f);
+	EXPECT_NEAR(transform->scale.y, 1.0f, 0.2f);
+	EXPECT_NEAR(transform->scale.z, 1.0f, 0.2f);
+
+	EXPECT_NEAR(camera->target.x, 0.3f, 0.2f);
+	EXPECT_NEAR(camera->target.y, 9.4f, 0.2f);
+	EXPECT_NEAR(camera->target.z, 1.0f, 0.2f);
+	EXPECT_NEAR(camera->up.x, 0.2f, 0.2f);
+	EXPECT_NEAR(camera->up.y, 0.8f, 0.2f);
+	EXPECT_NEAR(camera->up.z, 0.4f, 0.2f);
+	EXPECT_NEAR(camera->forward.x, 0.4f, 0.2f);
+	EXPECT_NEAR(camera->forward.y, -0.4f, 0.2f);
+	EXPECT_NEAR(camera->forward.z, 0.7f, 0.2f);
+	EXPECT_NEAR(camera->right.x, 0.8f, 0.2f);
+	EXPECT_NEAR(camera->right.y, 0.0f, 0.2f);
+	EXPECT_NEAR(camera->right.z, -0.4f, 0.2f);
 }
 
 TEST(CameraFunctions, ResetCamera) {
