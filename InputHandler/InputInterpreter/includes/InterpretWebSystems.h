@@ -14,7 +14,7 @@ namespace ecs
 			~ChangeFSMSystem();
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 		private:
-			events::FSMStates mCurrStates[4];
+			STATE mCurrStates[4];
 		};
 	}
 }

@@ -1,22 +1,16 @@
 #pragma once
 #include "ecsEventIncludes.h"
+#include "AIGlobals.h"
 
 
 namespace ecs
 {
 	namespace events
 	{
-		enum FSMStates
-		{
-			IDLE = 0,
-			MOVE = -1,
-			ERR = -1
-		};
-
 		struct ChangeUserStateEvent : public ecs::ECSEvent<ChangeUserStateEvent>
 		{
-			int playerId = -1;
-			FSMStates newState = FSMStates::ERR;
+			PLAYER playerId = PLAYER::PLAYER1;
+			STATE newState = STATE::IDLE;
 		};
 	}
 }

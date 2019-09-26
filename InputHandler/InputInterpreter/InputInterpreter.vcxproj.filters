@@ -21,12 +21,15 @@
     <ClCompile Include="InterpretWebSystems.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InterpretWebSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\InterpretWebSystem.h">
+    <ClInclude Include="includes\InterpretWebEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\InterpretWebEvents.h">
+    <ClInclude Include="includes\InterpretWebSystems.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
