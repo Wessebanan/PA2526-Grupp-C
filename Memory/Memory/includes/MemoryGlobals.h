@@ -1,14 +1,26 @@
 #pragma once
 
-#define TOTAL_HEAP_SIZE_BYTES 100000
+#include <map>
+#include <string>
+
+#define DEBUG_CONSOLE_LINE(line) std::cout << line << std::endl;
+#define DEBUG_CONSOLE(str) std::cout << str;
 
 using uint = unsigned int;
 
-using MemoryType = unsigned int;
-enum MemoryTypes
-{
-	Global,
+using MemoryDomain = unsigned int;
 
-	MemoryTypeCount,
-	Undefined
+using HeapType = unsigned int;
+enum HeapTypes
+{
+	Linear
 };
+
+struct DomainInfo
+{
+	MemoryDomain domain;
+	HeapType type;
+	uint size;
+	std::string domainString;
+};
+#define MEMORY_DOMAIN(domain, type, size) { domain, { domain, type, size, #domain }}

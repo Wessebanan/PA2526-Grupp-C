@@ -16,11 +16,14 @@
     <Filter Include="Header Files\API">
       <UniqueIdentifier>{bdc4b0e6-02e3-4d2e-9069-ff4091eead4f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\API">
-      <UniqueIdentifier>{988b8950-4623-4094-bf2e-74999cef66dc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Allocators">
       <UniqueIdentifier>{657d3710-d27b-4463-9205-43104a343acb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Allocators">
+      <UniqueIdentifier>{b79be0c4-2371-42ca-ae3d-1c53dcfcff68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\API">
+      <UniqueIdentifier>{988b8950-4623-4094-bf2e-74999cef66dc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -29,6 +32,9 @@
     </ClCompile>
     <ClCompile Include="src\MemoryAPI.cpp">
       <Filter>Source Files\API</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LinearHeap.cpp">
+      <Filter>Source Files\Allocators</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -40,6 +46,12 @@
     </ClInclude>
     <ClInclude Include="includes\LinearHeap.h">
       <Filter>Header Files\Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\Heap.h">
+      <Filter>Header Files\Allocators</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\MemoryDomains.h">
+      <Filter>Header Files\API</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

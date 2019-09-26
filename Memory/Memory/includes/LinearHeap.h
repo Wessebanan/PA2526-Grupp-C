@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MemoryGlobals.h"
+#include "Heap.h"
 
 /*
 							! NOTATION !
@@ -11,22 +12,29 @@
 
 namespace memory
 {
-
-
-	class LinearHeap
+	namespace heaps
 	{
-	public:
+		class LinearHeap : public Heap
+		{
+		public:
 
-		// Delete copy constructor and copy operator
-		LinearHeap(const LinearHeap& other) = delete;
-		LinearHeap& operator=(const LinearHeap& other) = delete;
+			// Delete copy constructor and copy operator
+			LinearHeap(const LinearHeap& other) = delete;
+			LinearHeap& operator=(const LinearHeap& other) = delete;
 
-		LinearHeap(void *memoryStart, uint memorySize);
-		~LinearHeap();
+			LinearHeap();
+			virtual ~LinearHeap();
 
-	private:
+			bool initialize(void* memoryStart, uint memorySize) override;
+			void* allocate(uint size) override;
 
-		void* mMemoryStart;
-		uint mMemorySize;
-	};
+		private:
+
+			void* mMemoryStart;
+			uint mMemorySize;
+			uint mUsedMemory;
+
+			void* mCurrent;
+		};
+	}
 }
