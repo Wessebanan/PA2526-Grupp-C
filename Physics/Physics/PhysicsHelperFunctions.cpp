@@ -1,7 +1,7 @@
 #include "PhysicsHelperFunctions.h"
 
 
-float helper_functions::CalculateDistance(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
+float physics_helper_functions::CalculateDistance(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2)
 {
 	float x_diff = p1.x - p2.x;
 	float y_diff = p1.y - p2.y;
@@ -10,7 +10,7 @@ float helper_functions::CalculateDistance(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT
 	// Returns the floating point distance according to the distance formula.
 	return sqrt(pow(x_diff, 2) + pow(y_diff, 2) + pow(z_diff, 2));
 }
-void helper_functions::CreateOBB(DirectX::XMFLOAT3(&vertices)[8], DirectX::XMFLOAT3 min_point, DirectX::XMFLOAT3 max_point)
+void physics_helper_functions::CreateOBB(DirectX::XMFLOAT3(&vertices)[8], DirectX::XMFLOAT3 min_point, DirectX::XMFLOAT3 max_point)
 {
 	// Creating the vertices for the box with the min and max points.
 

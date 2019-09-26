@@ -93,7 +93,7 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 
 	// Creating the OBB holding the model.
 	DirectX::XMFLOAT3 vertices[8];
-	helper_functions::CreateOBB(vertices, min_point, max_point);
+	physics_helper_functions::CreateOBB(vertices, min_point, max_point);
 
 	// Calculating the average position while setting
 	// the vertices array of GroundCollisionComponent

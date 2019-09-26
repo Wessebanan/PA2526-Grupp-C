@@ -18,16 +18,16 @@
     <ClInclude Include="includes\MovementSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\Components.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\Events.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\CollisionSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\PhysicsHelperFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\PhysicsComponents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\PhysicsEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

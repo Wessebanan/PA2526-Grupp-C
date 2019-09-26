@@ -149,8 +149,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="includes\CollisionSystem.h" />
-    <ClInclude Include="includes\Components.h" />
-    <ClInclude Include="includes\Events.h" />
+    <ClInclude Include="includes\PhysicsComponents.h" />
+    <ClInclude Include="includes\PhysicsEvents.h" />
     <ClInclude Include="includes\MovementSystem.h" />
     <ClInclude Include="includes\PhysicsHelperFunctions.h" />
   </ItemGroup>

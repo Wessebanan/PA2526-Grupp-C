@@ -1,7 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 
-namespace helper_functions
+namespace physics_helper_functions
 {
 	// Returns the distance between two points as a float.
 	float CalculateDistance(DirectX::XMFLOAT3 p1, DirectX::XMFLOAT3 p2);
