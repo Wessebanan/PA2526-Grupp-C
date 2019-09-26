@@ -1,0 +1,11 @@
+#pragma once
+
+enum STATE
+{
+	MOVE, IDLE, ATTACK, LOOT
+};
+
+enum PLAYER
+{
+	PLAYER1, PLAYER2, PLAYER3, PLAYER4
+};
