@@ -7,6 +7,7 @@ namespace ecs
 {
 	namespace systems
 	{
+		// Looks thro the commands and creates events when a diffrent command comes in
 		class ChangeFSMSystem : public ecs::ECSSystem<ChangeFSMSystem>
 		{
 		public:

@@ -10,5 +10,7 @@ int main()
 
 	mECS.createSystem<ecs::systems::ChangeFSMSystem>();
 
+	mECS.update(0.3f);
+
 	return 0;
 }
