@@ -17,8 +17,8 @@ namespace GridFunctions
 		float mid_to_side = cos(30 * pi / 180) * radius; //Calculate length between the center position and a side. 
 		TransformComponent transform;
 		TileComponent tile;
-		float heightMap[144];
-		CreateHeightmap(heightMap);
+		float height_map[144];
+		CreateHeightmap(height_map);
 		
 		//Calculate the position and create every tile.
 		for (int i = 0; i < rows; i++)
@@ -31,7 +31,7 @@ namespace GridFunctions
 				
 				//Save the calculated values into the PositionComponent.
 				transform.position.x = current_pos.x;
-				transform.position.y = heightMap[(i*12)+j];
+				transform.position.y = height_map[(i*12)+j];
 				transform.position.z = current_pos.z;
 				//Create the new entity
 				rEcs.createEntity(transform, tile);
@@ -61,7 +61,7 @@ namespace GridFunctions
 	void CreateHeightmap(float* arr) //Creates a fixed array that is used to change the hight for the map
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
-		float heightValues[144] =
+		float height_values[144] =
 		{ 0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f,
@@ -77,7 +77,7 @@ namespace GridFunctions
 
 		for (int i = 0; i < 144; i++)
 		{
-			arr[i] = heightValues[i]; 
+			arr[i] = height_values[i];
 		}
 	}
 };
