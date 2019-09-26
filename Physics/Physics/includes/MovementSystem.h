@@ -1,12 +1,11 @@
 #pragma once
 #include "ecs.h"
-#include "Components.h"
-#include "Events.h"
+#include "PhysicsComponents.h"
+#include "PhysicsEvents.h"
 #include "UtilityComponents.h"
 #include <math.h>
 
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
-#define _USE_MATH_DEFINES
 
 #define DEFAULT_DECELERATION 10.0f
 #define DEFAULT_VELOCITY 100.0f
