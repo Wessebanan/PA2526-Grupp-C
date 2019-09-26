@@ -7,6 +7,11 @@ ecs::systems::ChangeFSMSystem::ChangeFSMSystem()
 {
 	updateType = ecs::EntityUpdate;
 	typeFilter.addRequirement(ecs::components::UserCommandComponent::typeID);
+
+	for (size_t i = 0; i < 4; i++)
+	{
+		mCurrStates[i] = STATE::IDLE;
+	}
 }
 
 ecs::systems::ChangeFSMSystem::~ChangeFSMSystem()
@@ -16,8 +21,6 @@ ecs::systems::ChangeFSMSystem::~ChangeFSMSystem()
 void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	UserCommandComponent* ucComp = _entityInfo.getComponent<UserCommandComponent>();
-
-	// state component 
 
 	if (ucComp)
 	{
@@ -46,8 +49,5 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				createEvent(cus_event);
 			}
 		}
-		
-		
 	}
-
 }
