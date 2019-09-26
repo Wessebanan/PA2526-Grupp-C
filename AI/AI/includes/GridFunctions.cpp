@@ -17,6 +17,7 @@ namespace GridFunctions
 		float mid_to_side = cos(30 * pi / 180) * radius; //Calculate length between the center position and a side. 
 		TransformComponent transform;
 		TileComponent tile;
+		
 		float heightMap[144];
 		CreateHeightmap(heightMap);
 		
@@ -33,6 +34,13 @@ namespace GridFunctions
 				transform.position.x = current_pos.x;
 				transform.position.y = heightMap[(i*12)+j];
 				transform.position.z = current_pos.z;
+				if (transform.position.y == -1.f)
+				{ 
+					tile.tileType = Water;
+					tile.impassable = true;
+				}
+				else if (transform.position.y == 3)
+					tile.tileType = Stone;
 				//Create the new entity
 				rEcs.createEntity(transform, tile);
 
@@ -66,7 +74,7 @@ namespace GridFunctions
 		  0.f,0.f,0.f,0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
-		  1.f,1.f,1.f,1.f,1.f,0.f,0.f,1.f,1.f,1.f,1.f,1.f,
+		  -1.f,-1.f,-1.f,-1.f,-1.f,0.f,0.f,-1.f,-1.f,-1.f,-1.f,-1.f,
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f,
