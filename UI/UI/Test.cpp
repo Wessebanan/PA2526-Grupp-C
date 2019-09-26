@@ -1,9 +1,9 @@
 #pragma once
 //#include "InitInputHandler.h"
-#include <winsock2.h>
-#include <Windows.h>
-#include<ecs.h>
-#include<Direct2D.h>
+//#include <winsock2.h>
+//#include <Windows.h>
+#include "ecs.h"
+#include "Direct2D.h"
 #pragma warning(disable:4996)
 #include "UISystems.h"
 #include "UIComponents.h"
