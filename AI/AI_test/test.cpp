@@ -1,5 +1,6 @@
 #include "pch.h"
-#include <GridFunctions.h>
+#include "GridFunctions.h"
+#include "AISystems.h"
 
 TEST(GridFunctions, InitGrid) {
 
@@ -24,8 +25,8 @@ TEST(GridFunctions, InitGrid) {
 	//Call function that will create the components of the grid.
     GridFunctions::CreateGrid(mEcs, nr_of_rows, nr_of_columns, radius);  
 	//Fetch the number of components created of each type.
-	int number_of_tile_components = mEcs.getComponentCountOfType(ecs::components::TileComponent::typeID);
-	int number_of_transform_componenets = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
+	size_t number_of_tile_components = mEcs.getComponentCountOfType(ecs::components::TileComponent::typeID);
+	size_t number_of_transform_componenets = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
 
 	//Check so that the correct number of components was created.
     EXPECT_EQ(number_of_transform_componenets + number_of_tile_components, count * 2);
@@ -37,9 +38,33 @@ TEST(GridFunctions, CreateDebugSystems) {
 	ecs::EntityComponentSystem mEcs;
 	GridFunctions::CreateDebugSystems(mEcs);	
 
-	int number_of_systems = mEcs.getTotalSystemCount();
+	size_t number_of_systems = mEcs.getTotalSystemCount();
 
 	//Check so that the debug system was created.
 	EXPECT_EQ(number_of_systems, 1);
 }
 
+TEST(AI, CreateAIComponents) {
+	ecs::EntityComponentSystem my_ecs;
+	ecs::components::PathfindingStateComponent psc;
+	ecs::components::MoveStateComponent msc;
+	ecs::components::IdleStateComponent isc;
+
+	my_ecs.createEntity(psc, msc, isc);
+	size_t number_of_components = my_ecs.getTotalComponentCount();
+
+	//Check so that the debug system was created.
+	EXPECT_EQ(number_of_components, 3);
+}
+
+TEST(AI, CreateAISystems) {
+	ecs::EntityComponentSystem my_ecs;
+	my_ecs.createSystem<ecs::systems::PathfindingStateSystem>();
+	my_ecs.createSystem<ecs::systems::IdleStateSystem>();
+	my_ecs.createSystem<ecs::systems::MoveStateSystem>();
+
+	size_t number_of_systems = my_ecs.getTotalSystemCount();
+
+	//Check so that the debug system was created.
+	EXPECT_EQ(number_of_systems, 3);
+}
