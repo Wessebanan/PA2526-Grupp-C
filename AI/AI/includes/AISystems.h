@@ -34,6 +34,23 @@ namespace ecs
 				std::cout << "Entity: " << pTc->getEntityID() << " Position: " << pTc->position.x << " , " << pTc->position.y << " , " << pTc->position.z << std::endl;
 			}
 		};
+
+		class SwitchStateSystem : public ECSSystem<SwitchStateSystem>
+		{
+		public:
+			SwitchStateSystem()
+			{
+				updateType = EventReader;
+				//typeFilter.addRequirement(); //Needs to be added when the input event is merged into master.
+			}
+			virtual ~SwitchStateSystem() {}
+			void readEvent(BaseEvent& event, float delta) override
+			{
+				/*
+					Add logic when the input event is merged into master.
+				*/
+			}
+		};
 	}
 }
 
