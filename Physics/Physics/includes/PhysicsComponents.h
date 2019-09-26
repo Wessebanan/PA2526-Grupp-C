@@ -70,6 +70,19 @@ namespace ecs
 		};
 		
 		/*
+		* Object collision component is in its current state
+		* a non-adaptive AABB, since there needs to be vertex
+		* groups and animations to begin using BVHs and 
+		* adaptive bounding volumes.
+		*/
+		COMP(ObjectCollisionComponent)
+		{
+			DirectX::XMFLOAT3 mMin;
+			DirectX::XMFLOAT3 mMax;
+			DirectX::XMFLOAT3 mCenter;
+		};
+
+		/*
 		* Temporary mesh component to test with ECS.
 		*/
 		COMP(MeshComponent)

@@ -1,5 +1,6 @@
 #include "CollisionSystem.h"
 
+#pragma region CollisionEventSystem
 ecs::systems::CollisionEventSystem::CollisionEventSystem()
 {
 	updateType = ecs::EventListenerOnly;
@@ -14,7 +15,8 @@ void ecs::systems::CollisionEventSystem::readEvent(ecs::BaseEvent& _event, float
 {
 
 }
-
+#pragma endregion
+#pragma region GroundCollisionComponentInitSystem
 ecs::systems::GroundCollisionComponentInitSystem::GroundCollisionComponentInitSystem()
 {
 	updateType = ecs::EventListenerOnly;
@@ -121,7 +123,8 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 	// gain: 21 additions, -3 subtractions.
 	// Can fix if you want Mr. Reviewer.
 }
-
+#pragma endregion
+#pragma region GroundCollisionSystem
 ecs::systems::GroundCollisionSystem::GroundCollisionSystem() 
 {
 	updateType = ecs::EntityUpdate;
@@ -222,3 +225,30 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		ground_collision_transform->position.y += -biggest_diff;
 	}
 }
+#pragma endregion
+#pragma region ObjectBoundingVolumeInitSystem
+ecs::systems::ObjectBoundingVolumeInitSystem::ObjectBoundingVolumeInitSystem()
+{
+	updateType = ecs::EventListenerOnly;
+	subscribeEventCreation(CreateComponentEvent::typeID);
+}
+
+ecs::systems::ObjectBoundingVolumeInitSystem::~ObjectBoundingVolumeInitSystem()
+{
+
+}
+
+void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
+{
+	CreateComponentEvent* create_component_event = dynamic_cast<CreateComponentEvent*>(_event);
+	
+	// If the component created was any other than object collision component, do nothing.
+	if (create_component_event->componentTypeID != ObjectCollisionComponent::typeID)
+	{
+		return;
+	}
+
+	Entity* entity = getEntity(create_component_event->entityID);
+	
+}
+#pragma endregion

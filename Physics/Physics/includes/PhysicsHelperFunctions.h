@@ -18,4 +18,6 @@ namespace physics_helper_functions
 	*/
 	void CreateOBB(DirectX::XMFLOAT3 (&vertices)[8], DirectX::XMFLOAT3 min_point, DirectX::XMFLOAT3 max_point);
 
+	void GetExtremes(DirectX::XMFLOAT3 *points, DirectX::XMFLOAT3 &min, DirectX::XMFLOAT3 &max)
+
 } // helper_functions
