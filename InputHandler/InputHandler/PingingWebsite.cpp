@@ -29,21 +29,7 @@ int main()
 		mecs.update(0.2f);
 
 
-		ecs::ComponentIterator itt = mecs.getAllComponentsOfType(ecs::components::MouseComponent::typeID);
-
-		ecs::BaseComponent* base;
-		while (base = itt.next())
-		{
-			ecs::components::MouseComponent* commComp = dynamic_cast<ecs::components::MouseComponent*>(base);
-
-			if (commComp != nullptr)
-			{
-				cout << commComp->diffFloat2.x << endl;
-				cout << commComp->diffFloat2.y << endl;
-			}
-		}
-
-		/*ecs::ComponentIterator itt = mecs.getAllComponentsOfType(ecs::components::UserCommandComponent::typeID);
+		ecs::ComponentIterator itt = mecs.getAllComponentsOfType(ecs::components::UserCommandComponent::typeID);
 
 		ecs::BaseComponent* base;
 		while (base = itt.next())
@@ -57,7 +43,7 @@ int main()
 				cout << commComp->userCommands[2].mCommand << endl;
 				cout << commComp->userCommands[3].mCommand << endl;
 			}
-		}*/
+		}
 		
 
 		//inpSys.updateMouse();
