@@ -63,6 +63,10 @@ namespace ecs
 			0-------1		|: y, -: x /: z
 			*/
 			DirectX::XMFLOAT3 mVertices[8] = { DirectX::XMFLOAT3(0, 0, 0) };
+			
+			// Center Position is the middle of the box, for distance calculation.
+			// Important to apply transform to this point as well.
+			DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);
 		};
 		
 		/*
