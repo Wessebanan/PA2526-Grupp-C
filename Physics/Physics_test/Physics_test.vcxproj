@@ -35,16 +35,19 @@
     <Import Project="..\props\Physics_Release.props" />
     <Import Project="..\props\ModelLoader_Release.props" />
     <Import Project="..\props\Utility_Release.props" />
+    <Import Project="..\props\AI_Release.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="..\props\ECS_Debug.props" />
     <Import Project="..\props\Physics_Debug.props" />
     <Import Project="..\props\Utility_Debug.props" />
     <Import Project="..\props\ModelLoader_Debug.props" />
+    <Import Project="..\props\AI_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="GroundCollision.h" />
     <ClInclude Include="InputTest.h" />
     <ClInclude Include="MovementLogic.h" />
     <ClInclude Include="pch.h" />
