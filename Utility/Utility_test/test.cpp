@@ -44,20 +44,20 @@ TEST(CameraFunctions, CreateDevCamera) {
 	ecs::EntityComponentSystem mEcs;
 	CameraFunctions::CreateDevCamera(mEcs);
 
-	int numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
-	int numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
+	size_t numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
+	size_t numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
 
 	EXPECT_EQ(numberOfCc + numberOfTc, 2);
 	EXPECT_EQ(numberOfCc, 1);
 	EXPECT_EQ(numberOfTc, 1);
 }
 
-TEST(CameraFunctions, CreateCameraSystems) {
+TEST(CameraFunctions, CreateCameraSystems) { //Not used anymore.
 	ecs::EntityComponentSystem mEcs;
 	CameraFunctions::CreateCameraSystems(mEcs);
 
-	int nrOfSystems = mEcs.getTotalSystemCount();
-	EXPECT_EQ(nrOfSystems, 1);
+	size_t nrOfSystems = mEcs.getTotalSystemCount();
+	EXPECT_EQ(nrOfSystems, 0);
 }
 
 TEST(CameraFunctions, MoveCameraWithInput) {
