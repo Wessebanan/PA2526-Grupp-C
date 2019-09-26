@@ -132,5 +132,11 @@ namespace ecs
 			}
 			Direct2D* mpD2D;
 		};
+
 	}
+	namespace init
+	{
+		void InitUISystems(EntityComponentSystem& ECS, Direct2D** D2D);//inits ECS systems and takes D2D** to create new D2D
+	}
+
 }

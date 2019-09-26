@@ -125,3 +125,14 @@ void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, floa
 	mpD2D->PrintDebug(UITextComp->mStrText);
 	}
 }
+
+void ecs::init::InitUISystems(EntityComponentSystem& ECS, Direct2D** D2D) //inits ECS systems and takes D2D** to create new D2D
+{
+	systems::UIPreRenderSystem* UIpreSys = ECS.createSystem<systems::UIPreRenderSystem>(0);
+	systems::UIBitmapSystem* UIBitmapSys = ECS.createSystem<systems::UIBitmapSystem>();
+	systems::UITextSystem* UITextSys = ECS.createSystem<systems::UITextSystem>();
+	systems::UIDebugSystem* UIDebugSys = ECS.createSystem<systems::UIDebugSystem>(9);
+	systems::UIPostRenderSystem* UIpostSys = ECS.createSystem<systems::UIPostRenderSystem>(9);
+	*D2D = new Direct2D;
+	UIpreSys->mpD2D = UITextSys->mpD2D = UIpostSys->mpD2D = UIBitmapSys->mpD2D = UIDebugSys->mpD2D = *D2D;
+}
