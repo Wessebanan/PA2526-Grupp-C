@@ -122,38 +122,28 @@ TEST(CameraFunctions, ResetCamera) {
 	temp_ecs.update(0.01f);
 
 	//Test to see that the new values of the components are what we expect them to be after the reset.
-	bool trans = false;
-	bool cam = false;
-	if (p_transform->position.x > -0.1f && p_transform->position.x < 0.1f &&
-		p_transform->position.y > 9.9f && p_transform->position.y < 10.1f &&
-		p_transform->position.z > -0.1f && p_transform->position.z < 0.1f &&
-		p_transform->rotation.x > -0.1f && p_transform->rotation.x < 0.1f &&
-		p_transform->rotation.y > -0.1f && p_transform->rotation.y < 0.1f &&
-		p_transform->rotation.z > -0.1f && p_transform->rotation.z < 0.1f &&
-		p_transform->scale.x > 0.9f && p_transform->scale.x < 1.1f &&
-		p_transform->scale.y > 0.9f && p_transform->scale.y < 1.1f &&
-		p_transform->scale.z > 0.9f && p_transform->scale.z < 1.1f)
-	{
-		trans = true;
-	}
-	if (p_camera->target.x > -0.1f && p_camera->target.x < 0.1f &&
-		p_camera->target.y > -0.1f && p_camera->target.y < 0.1f &&
-		p_camera->target.z > -0.1f && p_camera->target.z < 0.1f &&
-		p_camera->up.x > -0.1f && p_camera->up.x < 0.1f &&
-		p_camera->up.y > 0.9f && p_camera->up.y < 1.1f &&
-		p_camera->up.z > -0.1f && p_camera->up.z < 0.1f &&
-		p_camera->forward.x > -0.1f && p_camera->forward.x < 0.1f &&
-		p_camera->forward.y > -0.1f && p_camera->forward.y < 0.1f &&
-		p_camera->forward.z > 0.9f && p_camera->forward.z < 1.1f &&
-		p_camera->right.x > 0.9f && p_camera->right.x < 1.1f &&
-		p_camera->right.y > -0.1f && p_camera->right.y < 0.1f &&
-		p_camera->right.z > -0.1f && p_camera->right.z < 0.1f)
-	{
-		cam = true;
-	}
-	//Check if the test succeded or not.
-	EXPECT_TRUE(trans);
-	EXPECT_TRUE(cam);
+	EXPECT_NEAR(p_transform->position.x, CameraDefines::originalPosition.x, 0.1f);
+	EXPECT_NEAR(p_transform->position.y, CameraDefines::originalPosition.y, 0.1f);
+	EXPECT_NEAR(p_transform->position.z, CameraDefines::originalPosition.z, 0.1f);
+	EXPECT_NEAR(p_transform->rotation.x, CameraDefines::originalRotation.x, 0.1f);
+	EXPECT_NEAR(p_transform->rotation.y, CameraDefines::originalRotation.y, 0.1f);
+	EXPECT_NEAR(p_transform->rotation.z, CameraDefines::originalRotation.z, 0.1f);
+	EXPECT_NEAR(p_transform->scale.x, CameraDefines::originalScale.x, 0.1f);
+	EXPECT_NEAR(p_transform->scale.y, CameraDefines::originalScale.y, 0.1f);
+	EXPECT_NEAR(p_transform->scale.z, CameraDefines::originalScale.z, 0.1f);
+
+	EXPECT_NEAR(p_camera->target.x, CameraDefines::originalTarget.x, 0.1f);
+	EXPECT_NEAR(p_camera->target.y, CameraDefines::originalTarget.y, 0.1f);
+	EXPECT_NEAR(p_camera->target.z, CameraDefines::originalTarget.z, 0.1f);
+	EXPECT_NEAR(p_camera->forward.x, CameraDefines::originalForward.x, 0.1f);
+	EXPECT_NEAR(p_camera->forward.y, CameraDefines::originalForward.y, 0.1f);
+	EXPECT_NEAR(p_camera->forward.z, CameraDefines::originalForward.z, 0.1f);
+	EXPECT_NEAR(p_camera->up.x, CameraDefines::originalUp.x, 0.1f);
+	EXPECT_NEAR(p_camera->up.y, CameraDefines::originalUp.y, 0.1f);
+	EXPECT_NEAR(p_camera->up.z, CameraDefines::originalUp.z, 0.1f);
+	EXPECT_NEAR(p_camera->right.x, CameraDefines::originalRight.x, 0.1f);
+	EXPECT_NEAR(p_camera->right.y, CameraDefines::originalRight.y, 0.1f);
+	EXPECT_NEAR(p_camera->right.z, CameraDefines::originalRight.z, 0.1f);
 }
 
 // Test if an int is initialized properly and that set/get and ToString

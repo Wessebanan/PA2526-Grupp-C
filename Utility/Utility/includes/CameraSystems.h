@@ -3,7 +3,7 @@
 #include "CameraComponents.h"
 #include "UtilityComponents.h"
 #include "InputComponents.h"
-#include <DirectXMath.h>
+#include "GlobalsCamera.h"
 #include <iostream>
 
 using namespace DirectX;
@@ -51,14 +51,14 @@ namespace ecs
 					if (p_keyboard->R) //If camera should be reset run this.
 					{
 						//Reset position, rotation and scale.
-						p_tc->position = {0.0f, 10.0f, 0.0f};
-						p_tc->rotation = {0.0f, 0.0f, 0.0f};
-						p_tc->scale = {1.0f, 1.0f, 1.0f};
+						p_tc->position = CameraDefines::originalPosition;
+						p_tc->rotation = CameraDefines::originalRotation;
+						p_tc->scale = CameraDefines::originalScale;
 						//Reset the cameras target, up, forward and right.
-						p_cam->target = { 0.0f, 0.0f, 0.0f, 0.0f };
-						p_cam->up = { 0.0f, 1.0f, 0.0f, 0.0f };
-						p_cam->forward = { 0.0f, 0.0f, 1.0f, 0.0f };
-						p_cam->right = { 1.0f, 0.0f, 0.0f, 0.0f };
+						p_cam->target = CameraDefines::originalTarget;
+						p_cam->up = CameraDefines::originalUp;
+						p_cam->forward = CameraDefines::originalForward;
+						p_cam->right = CameraDefines::originalRight;
 						//Update the cameras view matrix.
 						position = XMLoadFloat3(&p_tc->position);
 						target = XMLoadFloat4(&p_cam->target);
