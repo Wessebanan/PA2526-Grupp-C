@@ -62,21 +62,39 @@ WebConnection::WebConnection()
 
 WebConnection::~WebConnection()
 {
-	for (size_t i = 0; i < nrOfPlayers; i++)
+	this->shutDown();
+}
+
+bool WebConnection::shutDown()
+{
+	this->shutDownThread();
+
+	FD_CLR(ListenSocket, &master);
+	closesocket(ListenSocket);
+	//if (this->ListenSocket != INVALID_SOCKET)
+	//{
+	while (master.fd_count > 0)
 	{
-		if (this->playerSockets[i] != INVALID_SOCKET)
-		{
-			closesocket(this->playerSockets[i]);
-			FD_CLR(this->playerSockets[i], &master);
-		}
+		// Get the socket number
+		SOCKET sock = master.fd_array[0];
+
+		// Remove it from the master file list and close the socket
+		FD_CLR(sock, &master);
+
+		shutdown(sock, SD_SEND);
+		closesocket(sock);
 	}
 
-	FD_ZERO(&master);
-	closesocket(this->ListenSocket);
-
+	// Cleanup winsock
 	WSACleanup();
-	this->shutDownThread();
-	this->t_update = nullptr;
+
+
+	//TerminateThread(t_update,0);
+	WaitForSingleObject(t_update, INFINITE);
+	CloseHandle(t_update);
+	//}
+
+	return true;
 }
 
 webMsgData WebConnection::parseMsg(char* userMsg)
@@ -112,10 +130,11 @@ bool WebConnection::executeUserAction(webMsgData wmd)
 	case ActionType::BUTTON:
 		this->setButton(wmd);
 		break;
-	case 3:
-		cout << "" << endl;
+	case ActionType::COMMAND:
+		this->setCommand(wmd);
 		break;
 	default:
+		cout << "-Parsing error: Not a action" << endl;
 		return false;
 		break;
 	}
@@ -125,7 +144,7 @@ bool WebConnection::executeUserAction(webMsgData wmd)
 
 void WebConnection::setName(webMsgData wmd)
 {
-	this->players[wmd.player].name = wmd.data;
+	mUsers[wmd.player].name = wmd.data;
 
 	int res = 0;
 	this->sendMsg(this->playerSockets[wmd.player],
@@ -143,20 +162,20 @@ void WebConnection::setTile(webMsgData wmd)
 	hun -= 100;
 	int ten = ((int)wmd.data[1] - 48) * 10;
 	int one = (int)wmd.data[2] - 48;
-	this->players[wmd.player].tile[0] = hun + ten + one;
+	mUsers[wmd.player].tile[0] = hun + ten + one;
 
 	hun = ((int)wmd.data[3] - 48) * 100;
 	hun -= 100;
 	ten = ((int)wmd.data[4] - 48) * 10;
 	one = (int)wmd.data[5] - 48;
-	this->players[wmd.player].tile[1] = hun + ten + one;
+	mUsers[wmd.player].tile[1] = hun + ten + one;
 
 	int res = 0;
 	this->sendMsg(this->playerSockets[wmd.player], 
 		(char*)string("3. Your tile is now " + 
-			to_string(this->players[wmd.player].tile[0]) + 
+			to_string(mUsers[wmd.player].tile[0]) + 
 			"," +
-			to_string(this->players[wmd.player].tile[1])
+			to_string(mUsers[wmd.player].tile[1])
 		).c_str()
 		, res);
 }
@@ -169,7 +188,12 @@ void WebConnection::setButton(webMsgData wmd)
 	int ten = ((int)wmd.data[1] - 48) * 10;
 	int one = (int)wmd.data[2] - 48;
 
-	this->players[wmd.player].button = hun + ten + one;
+	mUsers[wmd.player].button = hun + ten + one;
+}
+
+void WebConnection::setCommand(webMsgData wmd)
+{
+	mUsers[wmd.player].command = wmd.data;
 }
 
 void WebConnection::playersJoin()
@@ -223,13 +247,13 @@ void WebConnection::playersJoin()
 					}
 					else if (iResult < 0)
 					{
-						printf("recv failed with error: %d\n", WSAGetLastError());
+						printf("recv failed with error < 0 : %d\n", WSAGetLastError());
 						closesocket(sock);
-						WSACleanup();
+						FD_CLR(sock, &master);
 					}
 					else if (iResult == 8)
 					{
-						printf("recv failed with error: %d\n", WSAGetLastError());
+						printf("recv failed with error 8: %d\n", WSAGetLastError());
 						closesocket(sock);
 						FD_CLR(sock, &master);
 
@@ -274,8 +298,9 @@ void WebConnection::playersJoin()
 		}// while (iResult > 0);
 
 
+		printf("Closing playerJoin ...\n");
 		// Shuts down the tread
-		CloseHandle(this->t_update);
+		//CloseHandle(this->t_update);
 
 }
 
@@ -402,6 +427,8 @@ void WebConnection::gameLoop()
 			// 
 		}
 	}
+
+	printf("Closing gameloop\n");
 }
 
 void WebConnection::broadcastMsg(string msg)
@@ -421,19 +448,24 @@ void WebConnection::broadcastMsg(string msg)
 	}
 }
 
-int WebConnection::getPlayerButton(int player)
+int WebConnection::getUserButton(int player)
 {
-	return this->players[player].button;
+	return mUsers[player].button;
 }
 
-std::string WebConnection::getPlayername(int player)
+std::string WebConnection::getUserName(int player)
 {
-	return this->players[player].name;//jsonValuePlayers[player]["Name"].asString();
+	return mUsers[player].name;
 }
 
-int WebConnection::getPlayerTile(int player, int axis)
+int WebConnection::getUserTile(int player, int axis)
 {
-	return this->players[player].tile[axis];
+	return mUsers[player].tile[axis];
+}
+
+string WebConnection::getUserCommand(int player)
+{
+	return mUsers[player].command;
 }
 
 bool WebConnection::setGamestate(int gamestate)
@@ -461,6 +493,8 @@ DWORD WINAPI WebConnection::staticThreadStart(LPVOID lpParam)
 
 	This->playersJoin();
 
+
+	printf("Closing thread\n");
 	return 0;
 }
 

@@ -1,7 +1,4 @@
 #pragma once
-#ifndef WEBCONNECTION_H
-#define WEBCONNECTION_H
-
 // Socket includes
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
@@ -60,7 +57,8 @@ enum ActionType
 {
 	NAME,
 	TILE,
-	BUTTON
+	BUTTON,
+	COMMAND
 };
 // struct that holds the parsed info
 struct webMsgData
@@ -84,6 +82,8 @@ struct playerInfo
 	int tile[2] = { -1,-1 };
 	// current selected button
 	int button = -1;
+	// current selected command
+	string command = "No command yet";
 };
 
 // Handles getting info from the website
@@ -92,17 +92,22 @@ class WebConnection
 public:
 	WebConnection();
 	~WebConnection();
+	// retuns true when the thread was closed
+	bool shutDown();
 
 	// Checks if the connection was successful
 	bool isConnected() { return this->connectionOK; };
 
 	// Returns the button index the player has selected
-	int getPlayerButton(int player);
+	int getUserButton(int player);
 	// Returns the name of the set player (playres cant change this yet)
-	std::string getPlayername(int player);
+	std::string getUserName(int player);
 
 	// Returns the tile index of the axis (0 = X or 1 = Y)
-	int getPlayerTile(int player, int axis);
+	int getUserTile(int player, int axis);
+
+	// Returns the command of the player
+	string getUserCommand(int player);
 	
 	// returns hte number of players that have connected since the client started up
 	int getNrOfPlayers() { return this->nrOfPlayers; };
@@ -113,7 +118,7 @@ public:
 
 private:
 	// Array of information to be sent to frontend
-	playerInfo players[4];
+	playerInfo mUsers[4];
 
 
 	//// THREAD VARIBLES
@@ -137,6 +142,8 @@ private:
 	void setTile(webMsgData wmd);
 	// Saves new button
 	void setButton(webMsgData wmd);
+	// Saves new button
+	void setCommand(webMsgData wmd);
 
 
 	//// BACKEND STATES
@@ -191,7 +198,3 @@ private:
 	bool runPlayerJoin = false;
 	bool runGameLoop = false;
 };
-
-
-
-#endif // !WEBCONNECTION_H

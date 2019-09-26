@@ -5,6 +5,8 @@
 
     <title>TEST</title>
 
+    <link rel="stylesheet" type="text/css" href="StyleSheet.css">
+
     <script>
     var socket = new WebSocket("ws://192.168.1.45:80");
 
@@ -39,8 +41,6 @@
         }
         else if(msg[0] == 4)
         {
-            msg[0] = " ";
-            msg[1] = " ";
             document.getElementById("clientMsg4").innerHTML = msg;
         }
         else
@@ -55,12 +55,26 @@
     {
         socket.send("start");
 
-        document.getElementById('gamefield').style.display = "block";
-        document.getElementById('startfield').style.display = "none";
+        openCommand();
     }
-    function setName(name)
+
+    function openPrep()
     {
 
+        document.getElementById('prepField').style.display = "block";
+        document.getElementById('commandField').style.display = "none";
+        document.getElementById('startfield').style.display = "none";
+    }
+
+    function openCommand()
+    {
+        document.getElementById('prepField').style.display = "none";
+        document.getElementById('commandField').style.display = "block";
+        document.getElementById('startfield').style.display = "none";
+    }
+
+    function setName(name)
+    {
         socket.send("0000" +  name.toString());
     }
     function setTile(x,y)
@@ -93,33 +107,38 @@
         socket.send(msg);
     }
 
+    function setCommand(buttonCommand)
+    {
+        var player = "0";
+        var action = "003";
+        var Button = buttonCommand.toString();
+
+
+        var msg = player.concat(action.concat(Button));
+
+        console.log(msg);
+        socket.send(msg);
+    }
+
     </script>
 </head>
 <body>
-    <button onclick="ping()">ping</button>
-    <button onclick="start()">START pong()</button>
-    <button onclick="setTile(087,456)">My tile is (87,456)</button>
-    <button onclick="setTile(020,031)">My tile is (20,31)</button>
-</br>
     <button onclick="location.reload()">Stop game</button>
+    <button onclick="openPrep()">DEV: show prep</button>
+    <button onclick="openCommand()">DEV: show Commands</button>
 
-        <p id='clientMsg0'>0. No msg yet</p>
-        <p id='clientMsg1'>1. No msg yet</p>
-        <p id='clientMsg2'>2. No msg yet</p>
-        <p id='clientMsg3'>3. No msg yet</p>
+    <p id='clientMsg0'>0. No msg yet</p>
+    <p id='clientMsg1'>1. No msg yet</p>
+    <p id='clientMsg2'>2. No msg yet</p>
+    <p id='clientMsg3'>3. No msg yet</p>
 
-        <div id='startfield' style='display:block;background-color:red;padding:3px'>
+    <div id='startfield' class='buttonField' style='display:block;background-color:red;padding:3px'>
 
-            <button onclick="start()">START</button>
+        <button onclick="start()">START</button>
 
-        </div>
+    </div>
 
-        <div id='gamefield' style='display:none;background-color:gray;padding:3px'>
-        <p id='clientMsg4'>4. No msg yet</p>
-            <button onclick="setName('Hasse')">Name: Hasse</button>
-            <button onclick="setName('Nisse')">Name: Nisse</button>
-            <button onclick="setName('Kisse')">Name: Kisse</button>
-        </br>
+    <div id='prepField' class='buttonField' style='display:none;background-color:gray;padding:3px'>
             <button onclick="setButton(0)">0</button>
             <button onclick="setButton(1)">1</button>
             <button onclick="setButton(2)">2</button>
@@ -128,15 +147,30 @@
             <button onclick="setTile(0,0)">(0,0)</button>
             <button onclick="setTile(0,1)">(0,1)</button>
             <button onclick="setTile(0,2)">(0,2)</button>
+            <button onclick="setTile(0,3)">(0,3)</button>
         </br>
             <button onclick="setTile(1,0)">(1,0)</button>
             <button onclick="setTile(1,1)">(1,1)</button>
             <button onclick="setTile(1,2)">(1,2)</button>
+            <button onclick="setTile(1,3)">(1,3)</button>
         </br>
             <button onclick="setTile(2,0)">(2,0)</button>
             <button onclick="setTile(2,1)">(2,1)</button>
             <button onclick="setTile(2,2)">(2,2)</button>
-        </div>
+            <button onclick="setTile(2,3)">(2,3)</button>
+        </br>
+            <button onclick="setTile(3,0)">(3,0)</button>
+            <button onclick="setTile(3,1)">(3,1)</button>
+            <button onclick="setTile(3,2)">(3,2)</button>
+            <button onclick="setTile(3,3)">(3,3)</button>
+    </div>
+
+
+    <div id='commandField' class='buttonField' style='display:none;background-color:green;padding:3px'>
+            <button id='CommandButton'  onclick="setCommand('idel')">IDEL</button>
+        </br>
+            <button id='CommandButton' onclick="setCommand('move')">MOVE</button>
+    </div>
 </br>
 </br>
             <button onclick="location.reload()">Stop game</button>

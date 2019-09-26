@@ -3,120 +3,122 @@
 InputBackend::InputBackend()
 {
 	//WEB
-	this->webConn = new WebConnection();
+	mpWebConn = new WebConnection();
 
 	//KEYBOARD
-	this->wsad = new MovementKeys('W', 'S', 'A', 'D');
-	this->ressetKey = new SingleKey((int)'R'); //0x52
-	this->mouseRKey = new SingleKey(0x02);
-	this->mouseLKey = new SingleKey(0x01);
-	this->exitKey = new SingleKey((int)VK_ESCAPE);
+	mpWsad = new MovementKeys('W', 'S', 'A', 'D');
+	mpRessetKey = new SingleKey((int)'R'); //0x52
+	mpMouseRKey = new SingleKey(0x02);
+	mpMouseLKey = new SingleKey(0x01);
+	mpExitKey = new SingleKey((int)VK_ESCAPE);
 
 	//MOUSE
-	this->mouse = new MouseBehavior();
+	mpMouse = new MouseBehavior();
 
-	// PLAYER ACTION
-	this->players[0] = new WebAction();
-	this->players[1] = new WebAction();
-	this->players[2] = new WebAction();
-	this->players[3] = new WebAction();
-
-	// WEB CONTROLL
-	this->playerControll[0] = new MovementKeys('0', '1', '2', '3');
-	this->playerControll[1] = new MovementKeys('0', '1', '2', '3');
-	this->playerControll[2] = new MovementKeys('0', '1', '2', '3');
-	this->playerControll[3] = new MovementKeys('0', '1', '2', '3');
+	// USER	INPUT FOR WEB
+	for (size_t i = 0; i < 4; i++)
+	{
+		mpUserButton[i] = new WebButton();
+		mpUserTile[i] = new WebTile();
+		mpUserCommand[i] = new WebCommand();
+	}
 }
 
 InputBackend::~InputBackend()
 {
-	delete this->wsad;
-	delete this->ressetKey;
-	delete this->mouseRKey;
-	delete this->mouseLKey;
-	delete this->exitKey;
+	delete mpWsad;
+	delete mpRessetKey;
+	delete mpMouseRKey;
+	delete mpMouseLKey;
+	delete mpExitKey;
 
-	delete mouse;
+	delete mpMouse;
 
 	for (size_t i = 0; i < 4; i++)
 	{
-		delete playerControll[i];
-		delete players[i];
+		delete mpUserButton[i];
+		delete mpUserTile[i];
+		delete mpUserCommand[i];
 	}
 
-	delete webConn;
+	delete mpWebConn;
 }
 
 bool InputBackend::updateKeyboard()
 {
-	bool retVal = false;
+	bool ret_val = false;
 				  
-	if (this->checkKey(&this->wsad->keyU))
-		retVal = true;
-	if (this->checkKey(&this->wsad->keyD))
-		retVal = true;
-	if (this->checkKey(&this->wsad->keyL))
-		retVal = true;
-	if (this->checkKey(&this->wsad->keyR))
-		retVal = true;
+	// goes over all keys
+
+	if (this->checkKey(&mpWsad->keyU))
+		ret_val = true;
+	if (this->checkKey(&mpWsad->keyD))
+		ret_val = true;
+	if (this->checkKey(&mpWsad->keyL))
+		ret_val = true;
+	if (this->checkKey(&mpWsad->keyR))
+		ret_val = true;
 
 
-	if (this->checkKey(&this->ressetKey->key))
-		retVal = true;
-	if (this->checkKey(&this->mouseRKey->key))
-		retVal = true;
-	if (this->checkKey(&this->mouseLKey->key))
-		retVal = true;
-	if (this->checkKey(&this->exitKey->key))
-		retVal = true;
+	if (this->checkKey(&mpRessetKey->key))
+		ret_val = true;
+	if (this->checkKey(&mpMouseRKey->key))
+		ret_val = true;
+	if (this->checkKey(&mpMouseLKey->key))
+		ret_val = true;
+	if (this->checkKey(&mpExitKey->key))
+		ret_val = true;
 	
 
 
-	return retVal; 
+	return ret_val; 
 }
 
 void InputBackend::modyfiByMouse()
 {
 	DirectX::XMFLOAT2 diff(
-		  this->mouse->newPos.x - this->mouse->oldPos.x
-		, this->mouse->newPos.y - this->mouse->oldPos.y
+		  mpMouse->mNewPos.x - mpMouse->mOldPos.x
+		, mpMouse->mNewPos.y - mpMouse->mOldPos.y
 	);
 
-	this->mouse->diffLength = sqrt((diff.x * diff.x) + (diff.y * diff.y));
+	mpMouse->mDiffLength = sqrt((diff.x * diff.x) + (diff.y * diff.y));
 
-	this->mouse->diffFloat2 = diff;
+	mpMouse->mDiffFloat2 = diff;
 
-	this->mouse->oldPos = this->mouse->newPos;
+	mpMouse->mOldPos = mpMouse->mNewPos;
 }
 
 bool InputBackend::updateMouse()
 {
-	bool retVal = false;
+	bool ret_val = false;
 	POINT temp;
 
 	GetCursorPos(&temp);
 
-	if (this->mouse->oldPos.x != temp.x || this->mouse->oldPos.y != temp.y)
+	// checks if it any of the cords was changed
+	if (mpMouse->mOldPos.x != temp.x || mpMouse->mOldPos.y != temp.y)
 	{
-		retVal = true;
-		this->mouse->newPos.x = temp.x;
-		this->mouse->newPos.y = temp.y;
+		// saves and updates members
+		ret_val = true;
+		mpMouse->mNewPos.x = temp.x;
+		mpMouse->mNewPos.y = temp.y;
 
 		this->modyfiByMouse();
 	}
-	else
+	else // else resets 
 	{
-		this->mouse->diffFloat2.x = 0.0f;
-		this->mouse->diffFloat2.y = 0.0f;
-		this->mouse->diffLength = 0.0f;
+		mpMouse->mDiffFloat2.x = 0.0f;
+		mpMouse->mDiffFloat2.y = 0.0f;
+		mpMouse->mDiffLength = 0.0f;
 	}
-	return retVal;
+	return ret_val;
 }
 
 bool InputBackend::updateWeb()
 {
 	this->updateTiles();
 	this->updateButtons();
+	this->updateCommands();
 	//this->updateName();
 
 	return true;
@@ -124,38 +126,34 @@ bool InputBackend::updateWeb()
 
 bool InputBackend::checkKey(key *key)
 {
-	bool retVal = false;
+	bool ret_val = false;
 	 
+	// Checks if the index has been pressed sicnce the last time this was run
 	if (GetAsyncKeyState(key->index))
 	{
+		// makes it so that it wont jump back and forth
 		if (!key->pressed)
 		{
-			retVal = true;
+			ret_val = true;
 			key->pressed = true;
 		}
 	}
 	else if(key->pressed)
 	{
-		retVal = true;
+		ret_val = true;
 		key->pressed = false;
 	}
 
-	return retVal;
-}
-
-bool InputBackend::checkWebKey(int playerIndex, const int button)
-{
-	bool retVal = (this->webConn->getPlayerButton(playerIndex) == button);
-	return retVal;
+	return ret_val;
 }
 
 void InputBackend::updateTiles()
 {
-	// Checks and updates each players UDLR movment keys
+	// Checks and updates each players cords
 	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
 	{
-		this->players[playerIndex]->currButton0 = this->webConn->getPlayerTile(playerIndex, 0);
-		this->players[playerIndex]->currButton1 = this->webConn->getPlayerTile(playerIndex, 1);
+		mpUserTile[playerIndex]->mCordX = mpWebConn->getUserTile(playerIndex, 0);
+		mpUserTile[playerIndex]->mCordY = mpWebConn->getUserTile(playerIndex, 1);
 	}
 }
 
@@ -164,45 +162,16 @@ void InputBackend::updateButtons()
 	// Checks and updates each players UDLR movment keys
 	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
 	{
-		if (checkWebKey(playerIndex, 0))
-		{
-			this->playerControll[playerIndex]->keyU.pressed = true;
+		mpUserButton[playerIndex]->mButton = mpWebConn->getUserButton(playerIndex);
+	}
+}
 
-		}
-		else
-		{
-			this->playerControll[playerIndex]->keyU.pressed = false;
-		}
-		
-		if (checkWebKey(playerIndex, 1))
-		{
-			this->playerControll[playerIndex]->keyD.pressed = true;
-
-		}
-		else
-		{
-			this->playerControll[playerIndex]->keyD.pressed = false;
-		}
-		
-		if (checkWebKey(playerIndex, 2))
-		{
-			this->playerControll[playerIndex]->keyL.pressed = true;
-
-		}
-		else
-		{
-			this->playerControll[playerIndex]->keyL.pressed = false;
-		}
-
-		if (checkWebKey(playerIndex, 3))
-		{
-			this->playerControll[playerIndex]->keyR.pressed = true;
-
-		}
-		else
-		{
-			this->playerControll[playerIndex]->keyR.pressed = false;
-		}
+void InputBackend::updateCommands()
+{
+	// Checks and updates each players current command
+	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
+	{
+		mpUserCommand[playerIndex]->mCommand = mpWebConn->getUserCommand(playerIndex);
 	}
 }
 

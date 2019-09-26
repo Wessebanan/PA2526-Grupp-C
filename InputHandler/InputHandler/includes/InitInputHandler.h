@@ -1,9 +1,4 @@
 #pragma once
-
-#ifndef INITINPUTHANDLER_H
-#define INITINPUTHANDLER_H
-
-
 #include "ecs.h"
 #include "HandleInputBackend.h"
 
@@ -36,20 +31,28 @@ void initInputECS(ecs::EntityComponentSystem& rECS, InputBackend* pInputBackend)
 	// Web Components
 	ecs::components::UserButtonComponent userButtonComp = ecs::components::UserButtonComponent();
 	ecs::components::UserTileComponent userTileComp = ecs::components::UserTileComponent();
+	ecs::components::UserCommandComponent userCommandComp = ecs::components::UserCommandComponent();
 	//ecs::components::UserNameComponent userNameComp = ecs::components::UserNameComponent();
 
+	ecs::BaseComponent* components[] = 
+	{ 
+		&userButtonComp, 
+		&userTileComp,
+		&userCommandComp,
+		&mouseComp,
+		&kbComp,
+		&backend
+	};
+
+	ecs::ComponentList list;
+
+	list.initialInfo = components;
+	list.componentCount = 6;
 
 	//// ENTITIES
 	rECS.createEntity(
-		userButtonComp,
-		userTileComp,
-		//userNameComp, 
-		mouseComp,
-		kbComp,
-		backend);
+		list
+		);
 
 
 }
-
-
-#endif // !INITINPUTHANDLER_H

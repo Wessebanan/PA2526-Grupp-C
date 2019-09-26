@@ -1,7 +1,4 @@
 #pragma once
-#ifndef InputBackendS_H
-#define InputBackendS_H
-
 #include <DirectXMath.h>
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
@@ -12,12 +9,14 @@
 #include "webConnection.h"
 #include "ecs.h"
 
+// combines the key with the index and if it is pressed
 struct key
 {
 	int index = 0;
 	bool pressed = false;
 };
 
+// Holds the up, down, left and rigth keys
 struct MovementKeys
 {
 	key keyU;
@@ -41,6 +40,7 @@ struct MovementKeys
 	};
 };
 
+// Holds one key
 struct SingleKey
 {
 	key key;
@@ -52,20 +52,38 @@ struct SingleKey
 		key.index = setKey;
 	}
 };
+// Holds the varibles that calculates the mouse movment
 struct MouseBehavior
 {
-	DirectX::XMFLOAT2 newPos;
-	DirectX::XMFLOAT2 oldPos;
-	DirectX::XMFLOAT2 diffFloat2;
-	float diffLength = 0.0f;
+	// The new pos of the mouse this frame
+	DirectX::XMFLOAT2 mNewPos;
+	// the pos the last frame
+	DirectX::XMFLOAT2 mOldPos;
+	// A vector describing the movment since last frame
+	DirectX::XMFLOAT2 mDiffFloat2;
+	// the length of hte diff vector
+	float mDiffLength = 0.0f;
 };
 
-struct WebAction
+// The tile the user has selected
+struct WebTile
 {
-	int currButton0 = 0;
-	int currButton1 = 0;
-
-	//WebAction();
+	// -1 if none selected
+	int mCordX = -1;
+	// -1 if none selected
+	int mCordY = -1;
+};
+// The last button pressed
+struct WebButton
+{
+	// -1 if none selected yet
+	int mButton = -1;
+};
+// The last command selected by the user
+struct WebCommand
+{
+	// holds the command, is NaN if none has been selected yet
+	string mCommand = "NaN";
 };
 
 class InputBackend
@@ -82,26 +100,25 @@ public:
 	bool updateWeb();
 
 	// Allocated keyboard keys, assinged in constructor
-	MovementKeys* wsad = nullptr; // W S A D
-	SingleKey* ressetKey = nullptr; // R
-	SingleKey* mouseRKey = nullptr; // Rigth mouse
-	SingleKey* mouseLKey = nullptr; // Left mouse
-	SingleKey* exitKey = nullptr; // ESC
-
-	// Would save the hold keyboard if the software needs to take in more than 3 keys at once
-	PBYTE savedState;
+	MovementKeys* mpWsad = nullptr; // W S A D
+	SingleKey* mpRessetKey = nullptr; // R
+	SingleKey* mpMouseRKey = nullptr; // Rigth mouse
+	SingleKey* mpMouseLKey = nullptr; // Left mouse
+	SingleKey* mpExitKey = nullptr; // ESC
 
 	// Holds the mouse change data
-	MouseBehavior *mouse = nullptr;
+	MouseBehavior* mpMouse = nullptr;
 
 	// The players different buttons
-	MovementKeys* playerControll[4];
+	WebButton* mpUserButton[4];
 	// The players tile selected
-	WebAction* players[4];
+	WebTile* mpUserTile[4];
+	// The user command selected
+	WebCommand* mpUserCommand[4];
 
 private:
 	// Handle for the connection to the website
-	WebConnection* webConn = nullptr;
+	WebConnection* mpWebConn = nullptr;
 
 	// Calcs and updates the new mouse data
 	void modyfiByMouse();
@@ -109,18 +126,12 @@ private:
 	// Returns true if the key is pressed down
 	bool checkKey(key *key);
 
-	// Returns true if the button is the current selected by the user
-	bool checkWebKey(int playerIndex, const int button);
-
-	// Reads and updates the selected tiles
+	// Reads and updates the selected tiles for all users
 	void updateTiles();
-	// Reads and updates the buttons
+	// Reads and updates the buttons for all users
 	void updateButtons();
+	// Reads and updates the commands for all users
+	void updateCommands();
 	// not implemented but webb has it stored
 	//void updateName();
 };
-
-
-
-
-#endif // !InputBackendS_H

@@ -1,6 +1,7 @@
 #pragma once
 #include "ecs.h"
 #include <DirectXMath.h>
+#include "Mesh.h"
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
 namespace ecs
@@ -21,16 +22,15 @@ namespace ecs
 		};
 		
 		/*
-		* HitboxComponent holds a description
-		* of a hitbox, which is necessary
-		* to calculate collision.
+		* BoundingSphereComponent holds a description
+		* of a bounding sphere, which is necessary
+		* to calculate collision. Any entity that
+		* should check collision needs this.
 		*/
-		COMP(HitboxComponent)
+		COMP(BoundingSphereComponent)
 		{
-			DirectX::XMFLOAT3 mOrigin;
-			float mHeight;
-			float mWidth;
-			float mLength;
+			DirectX::XMFLOAT3 mCenter;
+			float mRadius;
 		};
 		
 		/*
@@ -44,6 +44,34 @@ namespace ecs
 			float mWeight;
 		};	
 
+		/*
+		* GroundCollisionComponent is an OBB which only checks
+		* against the ground plane for collision. Not using lowest
+		* point as objects may rotate which requires recalculation 
+		* of the lowest point.
+		*/
+		COMP(GroundCollisionComponent)
+		{
+			// Vertices making up the OBB:
+			/*
+			   6-------7
+			  /|      /|
+			 / |     / |
+			2--|----3  |
+			|  4----|--5
+			| /     | /
+			0-------1		|: y, -: x /: z
+			*/
+			DirectX::XMFLOAT3 mVertices[8] = { DirectX::XMFLOAT3(0, 0, 0) };
+		};
+		
+		/*
+		* Temporary mesh component to test with ECS.
+		*/
+		COMP(MeshComponent)
+		{
+			ModelLoader::Mesh mMesh;
+		};
 	} // components
 } // ecs
 

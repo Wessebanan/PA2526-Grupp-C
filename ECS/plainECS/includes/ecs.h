@@ -163,7 +163,7 @@ namespace ecs
 		
 		// Returns an EntityIterator that only contains entities that have all components
 		// in given component type filter.
-		EntityIterator getFilteredEntityIterator(TypeFilter _componentFilter);
+		EntityIterator getEntititesByFilter(TypeFilter _componentFilter);
 
 		// Returns a ComponentIterator that only contains components of given TypeID.
 		ComponentIterator getAllComponentsOfType(TypeID _typeID);
@@ -197,8 +197,8 @@ namespace ecs
 		BaseComponent* onGetComponent(TypeID _typeID, ID _id) override;
 		Entity* onCreateEntity(ComponentList _components) override;
 		BaseComponent* onCreateComponent(ID _entityID, BaseComponent& _componentInfo) override;
-		EntityIterator getEntitiesByFilter(TypeFilter _componentFilter) override;
-		ComponentIterator getComponentsOfType(TypeID _typeID) override;
+		EntityIterator onGetEntitiesByFilter(TypeFilter _componentFilter) override;
+		ComponentIterator onGetComponentsOfType(TypeID _typeID) override;
 		void onCreateEvent(BaseEvent& _event) override;
 		void onRemoveEntity(ID _entityID) override;
 		void onRemoveComponent(ID _entityID, TypeID _componentTypeID) override;

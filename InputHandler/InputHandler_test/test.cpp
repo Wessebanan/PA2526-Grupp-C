@@ -3,31 +3,41 @@
 
 // Crashes when tests try to make multiple InputBackends so this is how you init the input Backend
 InputBackend* gInputBackend;
+
+
+int main(int argc, char** argv) {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
+}
+
+
+
 TEST(Input, InitInputAndWeb) 
 {
-	EXPECT_NO_FATAL_FAILURE(gInputBackend = new InputBackend());
+	gInputBackend = new InputBackend();
 }
 
 // All updates can run without crash
 TEST(Input, updates)
 {
-	EXPECT_NO_FATAL_FAILURE(gInputBackend->updateKeyboard());
-	EXPECT_NO_FATAL_FAILURE(gInputBackend->updateMouse());
-	EXPECT_NO_FATAL_FAILURE(gInputBackend->updateWeb());
+	(gInputBackend->updateKeyboard());
+	(gInputBackend->updateMouse());
+	(gInputBackend->updateWeb());
 }
 
 // All keys have been init
 TEST(Input, keys)
 {
-	EXPECT_TRUE(gInputBackend->exitKey->key.index > -1);
-	EXPECT_TRUE(gInputBackend->ressetKey->key.index > -1);
-	EXPECT_TRUE(gInputBackend->mouseRKey->key.index > -1);
-	EXPECT_TRUE(gInputBackend->mouseLKey->key.index > -1);
+	EXPECT_TRUE(gInputBackend->mpExitKey->key.index > -1);
+	EXPECT_TRUE(gInputBackend->mpRessetKey->key.index > -1);
+	EXPECT_TRUE(gInputBackend->mpMouseRKey->key.index > -1);
+	EXPECT_TRUE(gInputBackend->mpMouseLKey->key.index > -1);
 
-	EXPECT_TRUE(gInputBackend->wsad->keyU.index > -1);
-	EXPECT_TRUE(gInputBackend->wsad->keyD.index > -1);
-	EXPECT_TRUE(gInputBackend->wsad->keyL.index > -1);
-	EXPECT_TRUE(gInputBackend->wsad->keyR.index > -1);
+	EXPECT_TRUE(gInputBackend->mpWsad->keyU.index > -1);
+	EXPECT_TRUE(gInputBackend->mpWsad->keyD.index > -1);
+	EXPECT_TRUE(gInputBackend->mpWsad->keyL.index > -1);
+	EXPECT_TRUE(gInputBackend->mpWsad->keyR.index > -1);
 }
 
 //Checks if any key was selected, should not have any button pressed
@@ -36,7 +46,7 @@ TEST(Input, web)
 	gInputBackend->updateWeb();
 	for (size_t i = 0; i < 4; i++)
 	{
-		EXPECT_FALSE(gInputBackend->playerControll[i]->keyU.pressed);
+		EXPECT_TRUE(gInputBackend->mpUserButton[0]->mButton == -1);
 	}
 	
 }
@@ -46,7 +56,7 @@ TEST(ECS, InitCompEntSys)
 {
 	ecs::EntityComponentSystem rECS;
 	
-	EXPECT_NO_FATAL_FAILURE(initInputECS(rECS, gInputBackend));
+	(initInputECS(rECS, gInputBackend));
 	
 	rECS.update(0.3f);
 
@@ -62,7 +72,7 @@ TEST(ECS, TestEntityCreation)
 
 	rECS.update(0.3f);
 
-	EXPECT_NO_FATAL_FAILURE(rECS.getEntity(1));
+	(rECS.getEntity(1));
 
 }
 
@@ -88,7 +98,7 @@ TEST(ECS, TestComponentCreation)
 
 	rECS.update(0.3f);
 
-	EXPECT_EQ(rECS.getTotalComponentCount(), 5);
+	EXPECT_EQ(rECS.getTotalComponentCount(), 6);
 }
 
 TEST(ECSvsInput, updateALLSystems)
@@ -97,15 +107,15 @@ TEST(ECSvsInput, updateALLSystems)
 
 	initInputECS(rECS, gInputBackend);
 
-	gInputBackend->wsad->keyU.pressed = true;
-	gInputBackend->wsad->keyD.pressed = true;
-	gInputBackend->ressetKey->key.pressed = true;
+	gInputBackend->mpWsad->keyU.pressed = true;
+	gInputBackend->mpWsad->keyD.pressed = true;
+	gInputBackend->mpRessetKey->key.pressed = true;
 
 	rECS.update(0.3f);
 
-	EXPECT_FALSE(gInputBackend->wsad->keyU.pressed);
-	EXPECT_FALSE(gInputBackend->wsad->keyD.pressed);
-	EXPECT_FALSE(gInputBackend->ressetKey->key.pressed);
+	EXPECT_FALSE(gInputBackend->mpWsad->keyU.pressed);
+	EXPECT_FALSE(gInputBackend->mpWsad->keyD.pressed);
+	EXPECT_FALSE(gInputBackend->mpRessetKey->key.pressed);
 }
 
 TEST(ECSvsInput, updateKBWithInpBackend)
@@ -114,15 +124,15 @@ TEST(ECSvsInput, updateKBWithInpBackend)
 
 	initInputECS(rECS, gInputBackend);
 
-	gInputBackend->wsad->keyU.pressed = true;
-	gInputBackend->wsad->keyD.pressed = true;
-	gInputBackend->ressetKey->key.pressed = true;
+	gInputBackend->mpWsad->keyU.pressed = true;
+	gInputBackend->mpWsad->keyD.pressed = true;
+	gInputBackend->mpRessetKey->key.pressed = true;
 
 	gInputBackend->updateKeyboard();
 
-	EXPECT_FALSE(gInputBackend->wsad->keyU.pressed);
-	EXPECT_FALSE(gInputBackend->wsad->keyD.pressed);
-	EXPECT_FALSE(gInputBackend->ressetKey->key.pressed);
+	EXPECT_FALSE(gInputBackend->mpWsad->keyU.pressed);
+	EXPECT_FALSE(gInputBackend->mpWsad->keyD.pressed);
+	EXPECT_FALSE(gInputBackend->mpRessetKey->key.pressed);
 }
 
 TEST(ECSvsInput, updateMouseSYS)
@@ -131,11 +141,11 @@ TEST(ECSvsInput, updateMouseSYS)
 
 	initInputECS(rECS, gInputBackend);
 
-	gInputBackend->mouse->diffLength = 10000;
+	gInputBackend->mpMouse->mDiffLength = 10000;
 
 	rECS.update(0.3f);
 
-	EXPECT_EQ(gInputBackend->mouse->diffLength, 0.0f);
+	EXPECT_EQ(gInputBackend->mpMouse->mDiffLength, 0.0f);
 }
 
 TEST(ECSvsInput, updateMouseWithInpBackend)
@@ -144,9 +154,15 @@ TEST(ECSvsInput, updateMouseWithInpBackend)
 
 	initInputECS(rECS, gInputBackend);
 
-	gInputBackend->mouse->diffLength = 10000;
+	gInputBackend->mpMouse->mDiffLength = 10000;
 
 	gInputBackend->updateMouse();
 
-	EXPECT_EQ(gInputBackend->mouse->diffLength, 0);
+	EXPECT_EQ(gInputBackend->mpMouse->mDiffLength, 0.0f);
+}
+
+
+TEST(Memory, deleteInput)
+{
+	delete gInputBackend;
 }
