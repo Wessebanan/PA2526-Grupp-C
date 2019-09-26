@@ -1,7 +1,15 @@
 #include "pch.h"
-#include "MovementLogic.h"
-#include "GroundCollision.h"
+//#include "MovementLogic.h"
+//#include "GroundCollision.h"
 #include <crtdbg.h>
+#include "Mesh.h"
+
+TEST(MeshTest, MessAroundWithMesh)
+{
+	ModelLoader::Mesh mesh;
+	//mesh.LoadFBX("../TestModel/untitled2.fbx");
+	EXPECT_TRUE(mesh.HasSkeleton());
+}
 
 int main(int argc, char** argv) {
 	
