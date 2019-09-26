@@ -1,6 +1,7 @@
 #include "CameraFunctions.h"
 #include "ecs.h"
-#include <DirectXMath.h>
+#include "GlobalsCamera.h"
+
 using namespace DirectX;
 using namespace ecs;
 using namespace ecs::components;
@@ -11,8 +12,14 @@ namespace CameraFunctions
 	{
 		//Initialize components
 		TransformComponent transform;
-		transform.position.y = 10.0f;
+		transform.position = CameraDefines::originalPosition;
+		transform.rotation = CameraDefines::originalRotation;
+		transform.scale = CameraDefines::originalScale;
 		CameraComponent camera;
+		camera.target = CameraDefines::originalTarget;
+		camera.up = CameraDefines::originalUp;
+		camera.forward = CameraDefines::originalForward;
+		camera.right = CameraDefines::originalRight;
 		XMVECTOR cam_pos = XMVectorSet(transform.position.x, transform.position.y, transform.position.z, 0.0f);
 		XMVECTOR target = XMLoadFloat4(&camera.target);
 		XMVECTOR up = XMLoadFloat4(&camera.up);
@@ -21,11 +28,7 @@ namespace CameraFunctions
 		
 		//Set the view and projection matrix in the CameraComponent.
 		view = XMMatrixLookAtLH(cam_pos, target, up);
-		float fov_angle = 0.4f * 3.14f;
-		float aspect_ratio = 1280.0f / 720.0f;
-		float near_plane = 1.0f;
-		float far_plane = 1000.0f;
-		projection = XMMatrixPerspectiveFovLH(fov_angle, aspect_ratio, near_plane, far_plane);
+		projection = XMMatrixPerspectiveFovLH(CameraDefines::fovAngle, CameraDefines::aspectRatio, CameraDefines::nearPlane, CameraDefines::farPlane);
 
 		//Store the values in the component.
 		XMStoreFloat4(&camera.target, target);
