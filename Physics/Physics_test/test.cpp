@@ -7,8 +7,11 @@
 TEST(MeshTest, MessAroundWithMesh)
 {
 	ModelLoader::Mesh mesh;
-	//mesh.LoadFBX("../TestModel/untitled2.fbx");
+	mesh.LoadFBX("../TestModel/dude2.fbx");
 	EXPECT_TRUE(mesh.HasSkeleton());
+
+	ModelLoader::Skeleton *spooky = mesh.GetSkeleton();
+	spooky->joints.at(0).
 }
 
 int main(int argc, char** argv) {
