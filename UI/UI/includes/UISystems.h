@@ -1,5 +1,5 @@
 #pragma once
-//#include "InputComponents.h"
+#include "InputComponents.h"
 
 #include "ecsSystemIncludes.h"
 #include "UIComponents.h"
@@ -52,11 +52,11 @@ namespace ecs
 			UIDebugSystem();
 			virtual ~UIDebugSystem();
 
-			bool toRender = true;
+			bool toRender = false;
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 			Direct2D* mpD2D;
 		private:
-			bool pressedLastUpdate = false;
+			bool mPressedLastUpdate = false;
 		};
 
 		class UIBitmapSystem : public ECSSystem<UIBitmapSystem> //system for drawing bitmaps
