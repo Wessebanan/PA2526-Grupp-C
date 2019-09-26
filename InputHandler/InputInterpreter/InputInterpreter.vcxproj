@@ -143,7 +143,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="InterpretWebSystem.cpp" />
     <ClCompile Include="InterpretWebSystems.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
