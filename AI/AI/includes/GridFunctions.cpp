@@ -28,7 +28,6 @@ namespace GridFunctions
 			current_pos.z = starting_pos.z + i * mid_to_side * 2;
 			for (int j = 0; j < columns; j++)
 			{
-				//test2 = heightMap[(i*12)+j];
 				
 				//Save the calculated values into the PositionComponent.
 				transform.position.x = current_pos.x;
