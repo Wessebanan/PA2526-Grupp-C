@@ -62,7 +62,7 @@ TEST(CameraFunctions, CreateCameraSystems) {
 
 TEST(CameraFunctions, MoveCameraWithInput) {
 	//Create ECS and components needed for the test.
-	ecs::EntityComponentSystem m_ecs;
+	ecs::EntityComponentSystem temp_ecs;
 	ecs::components::MouseComponent mouse;
 	ecs::components::KeyboardComponent keyboard;
 	//Set a constant input on the mouse and keyboard to test against.
@@ -71,14 +71,14 @@ TEST(CameraFunctions, MoveCameraWithInput) {
 	keyboard.A = true;
 	keyboard.W = true;
 	//Create the entity holding the mouse and keyboard components and create the camera and its system.
-	m_ecs.createEntity(mouse, keyboard);
-	CameraFunctions::CreateDevCamera(m_ecs);
-	m_ecs.createSystem<ecs::systems::UpdateCameraSystem>();
+	temp_ecs.createEntity(mouse, keyboard);
+	CameraFunctions::CreateDevCamera(temp_ecs);
+	temp_ecs.createSystem<ecs::systems::UpdateCameraSystem>();
 	//Update the system once.
-	m_ecs.update(0.01f);
+	temp_ecs.update(0.01f);
 	//Fetch the updated components of the camera.
-	TransformComponent* transform = (ecs::components::TransformComponent*)m_ecs.getAllComponentsOfType(ecs::components::TransformComponent::typeID).next();
-	CameraComponent* camera = (ecs::components::CameraComponent*)m_ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
+	TransformComponent* transform = (ecs::components::TransformComponent*)temp_ecs.getAllComponentsOfType(ecs::components::TransformComponent::typeID).next();
+	CameraComponent* camera = (ecs::components::CameraComponent*)temp_ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
 
 	//Test to see that the new values of the components are what we expect them to be with the given input.
 	bool trans = false;
@@ -107,6 +107,65 @@ TEST(CameraFunctions, MoveCameraWithInput) {
 		camera->right.x > 0.7f && camera->right.x < 0.9f &&
 		camera->right.y > -0.1f && camera->right.y < 0.1f &&
 		camera->right.z > -0.5f && camera->right.z < -0.3f)
+	{
+		cam = true;
+	}
+	//Check if the test succeded or not.
+	EXPECT_TRUE(trans);
+	EXPECT_TRUE(cam);
+}
+
+TEST(CameraFunctions, ResetCamera) {
+	//Create ECS and components needed for the test.
+	ecs::EntityComponentSystem temp_ecs;
+	ecs::components::MouseComponent mouse;
+	ecs::components::KeyboardComponent keyboard;
+	//Set a constant input on the mouse and keyboard to test against.
+	mouse.diffFloat2.x = 50.0f;
+	mouse.diffFloat2.y = 50.0f;
+	keyboard.A = true;
+	keyboard.W = true;
+	//Create the entity holding the mouse and keyboard components and create the camera and its system.
+	temp_ecs.createEntity(mouse, keyboard);
+	CameraFunctions::CreateDevCamera(temp_ecs);
+	temp_ecs.createSystem<ecs::systems::UpdateCameraSystem>();
+	//Update the system once to move the camera.
+	temp_ecs.update(0.01f);
+	//Fetch the updated components of the camera and the keyboard Component.
+	KeyboardComponent* p_keyboard = (ecs::components::KeyboardComponent*)temp_ecs.getAllComponentsOfType(ecs::components::KeyboardComponent::typeID).next();
+	TransformComponent* p_transform = (ecs::components::TransformComponent*)temp_ecs.getAllComponentsOfType(ecs::components::TransformComponent::typeID).next();
+	CameraComponent* p_camera = (ecs::components::CameraComponent*)temp_ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
+	//Set reset button to true and update the system again.
+	p_keyboard->R = true;
+	temp_ecs.update(0.01f);
+
+	//Test to see that the new values of the components are what we expect them to be after the reset.
+	bool trans = false;
+	bool cam = false;
+	if (p_transform->position.x > -0.1f && p_transform->position.x < 0.1f &&
+		p_transform->position.y > 9.9f && p_transform->position.y < 10.1f &&
+		p_transform->position.z > -0.1f && p_transform->position.z < 0.1f &&
+		p_transform->rotation.x > -0.1f && p_transform->rotation.x < 0.1f &&
+		p_transform->rotation.y > -0.1f && p_transform->rotation.y < 0.1f &&
+		p_transform->rotation.z > -0.1f && p_transform->rotation.z < 0.1f &&
+		p_transform->scale.x > 0.9f && p_transform->scale.x < 1.1f &&
+		p_transform->scale.y > 0.9f && p_transform->scale.y < 1.1f &&
+		p_transform->scale.z > 0.9f && p_transform->scale.z < 1.1f)
+	{
+		trans = true;
+	}
+	if (p_camera->target.x > -0.1f && p_camera->target.x < 0.1f &&
+		p_camera->target.y > -0.1f && p_camera->target.y < 0.1f &&
+		p_camera->target.z > -0.1f && p_camera->target.z < 0.1f &&
+		p_camera->up.x > -0.1f && p_camera->up.x < 0.1f &&
+		p_camera->up.y > 0.9f && p_camera->up.y < 1.1f &&
+		p_camera->up.z > -0.1f && p_camera->up.z < 0.1f &&
+		p_camera->forward.x > -0.1f && p_camera->forward.x < 0.1f &&
+		p_camera->forward.y > -0.1f && p_camera->forward.y < 0.1f &&
+		p_camera->forward.z > 0.9f && p_camera->forward.z < 1.1f &&
+		p_camera->right.x > 0.9f && p_camera->right.x < 1.1f &&
+		p_camera->right.y > -0.1f && p_camera->right.y < 0.1f &&
+		p_camera->right.z > -0.1f && p_camera->right.z < 0.1f)
 	{
 		cam = true;
 	}
