@@ -10,7 +10,7 @@ ecs::systems::ChangeFSMSystem::ChangeFSMSystem()
 
 	for (size_t i = 0; i < 4; i++)
 	{
-		mCurrStates[i] = FSMStates::ERROR;
+		mCurrStates[i] = FSMStates::ERR;
 	}
 }
 
@@ -41,6 +41,13 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 			else if (ucComp->userCommands[i].mCommand == "idle" && mCurrStates[i] != FSMStates::IDLE)
 			{
 				// change state component
+				events::ChangeUserStateEvent tempEvent;
+				tempEvent.playerId = i;
+				tempEvent.newState = FSMStates::IDLE;
+
+				mCurrStates[i] = FSMStates::IDLE;
+
+				createEvent(tempEvent);
 			}
 		}
 		

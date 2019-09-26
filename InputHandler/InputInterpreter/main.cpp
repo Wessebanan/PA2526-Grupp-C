@@ -1,6 +1,6 @@
 #include "InitInputHandler.h"
 #include "ecs.h"
-
+#include "includes/InterpretWebSystem.h"
 
 int main()
 {
@@ -8,6 +8,7 @@ int main()
 
 	cout << "yoloSwag" << endl;
 
+	mECS.createSystem<ecs::systems::ChangeFSMSystem>();
 
 	return 0;
 }
