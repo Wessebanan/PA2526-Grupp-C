@@ -18,7 +18,6 @@ namespace ecs
 			UpdateCameraSystem()
 			{
 				updateType = EntityUpdate;
-				//typeFilter.addRequirement(0);
 				typeFilter.addRequirement(components::CameraComponent::typeID);
 				typeFilter.addRequirement(components::TransformComponent::typeID);
 			}

@@ -52,14 +52,6 @@ TEST(CameraFunctions, CreateDevCamera) {
 	EXPECT_EQ(numberOfTc, 1);
 }
 
-TEST(CameraFunctions, CreateCameraSystems) {
-	ecs::EntityComponentSystem mEcs;
-	CameraFunctions::CreateCameraSystems(mEcs);
-
-	int nrOfSystems = mEcs.getTotalSystemCount();
-	EXPECT_EQ(nrOfSystems, 1);
-}
-
 TEST(CameraFunctions, MoveCameraWithInput) {
 	//Create ECS and components needed for the test.
 	ecs::EntityComponentSystem m_ecs;
