@@ -10,7 +10,6 @@ enum TileTypes //enum used in AIcomponents right now
 	TileTypeCount,
 	Undefined
 };
-#pragma once
 
 enum STATE
 {
