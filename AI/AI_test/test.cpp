@@ -16,15 +16,15 @@ TEST(GridFunctions, InitGrid) {
 	desc.compTypeCount = 2;
 	desc.compTypeMemDescs = types;
 	desc.systemLayerCount = 10;
-	ecs::EntityComponentSystem mEcs;
-	mEcs.initialize(desc);
+	ecs::EntityComponentSystem my_ecs;
+	my_ecs.initialize(desc);
 
 
 	//Call function that will create the components of the grid.
-	GridFunctions::CreateGrid(mEcs, nr_of_rows, nr_of_columns, radius);
+	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius);
 	//Fetch the number of components created of each type.
-	int number_of_tile_components = mEcs.getComponentCountOfType(ecs::components::TileComponent::typeID);
-	int number_of_transform_componenets = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
+	int number_of_tile_components = my_ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
+	int number_of_transform_componenets = my_ecs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
 
 	//Check so that the correct number of components was created.
     EXPECT_EQ(number_of_transform_componenets + number_of_tile_components, count * 2);
@@ -33,10 +33,10 @@ TEST(GridFunctions, InitGrid) {
 } 
 
 TEST(GridFunctions, CreateDebugSystems) {
-	ecs::EntityComponentSystem mEcs;
-	GridFunctions::CreateDebugSystems(mEcs);	
+	ecs::EntityComponentSystem my_ecs;
+	GridFunctions::CreateDebugSystems(my_ecs);
 
-	int number_of_systems = mEcs.getTotalSystemCount();
+	int number_of_systems = my_ecs.getTotalSystemCount();
 
 	//Check so that the debug system was created.
 	EXPECT_EQ(number_of_systems, 1);
@@ -129,3 +129,28 @@ TEST(GridFunctions, differentTypes) {
 	EXPECT_EQ(nr_of_water, 10);
 }
 
+TEST(AI, CreateComponents) {
+	ecs::EntityComponentSystem my_ecs;
+	ecs::components::PathfindingStateComponent psc;
+	ecs::components::IdleStateComponent isc;
+	ecs::components::MoveStateComponent msc;
+		
+	my_ecs.createEntity(psc, isc, msc);
+
+	int number_of_components = my_ecs.getTotalComponentCount();
+
+	//Check so that the debug system was created.
+	EXPECT_EQ(number_of_components, 3);
+}
+
+TEST(AI, CreateSystems) {
+	ecs::EntityComponentSystem my_ecs;
+	my_ecs.createSystem<ecs::systems::PathfindingStateSystem>();
+	my_ecs.createSystem<ecs::systems::IdleStateSystem>();
+	my_ecs.createSystem<ecs::systems::MoveStateSystem>();
+
+	int number_of_systems = my_ecs.getTotalSystemCount();
+
+	//Check so that the debug system was created.
+	EXPECT_EQ(number_of_systems, 3);
+}
