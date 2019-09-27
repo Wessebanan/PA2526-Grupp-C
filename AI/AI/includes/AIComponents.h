@@ -13,7 +13,7 @@ namespace ecs
 			  This component is used to help filter for tile entities in systems.
 			  It will be expanded on when pathfinding and other systems is implemented.
 			*/
-			TileType tileType = Grass;
+			TileType tileType = GRASS;
 			bool impassable = false;
 		};
 

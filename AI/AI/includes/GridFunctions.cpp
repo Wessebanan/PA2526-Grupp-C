@@ -35,17 +35,17 @@ namespace GridFunctions
 				transform.position.z = current_pos.z;
 				if (transform.position.y == -1.f)
 				{
-					tile.tileType = Water;
+					tile.tileType = WATER;
 					tile.impassable = true;
 				}
 				else if (transform.position.y == 3)
 				{
-					tile.tileType = Stone;
+					tile.tileType = STONE;
 					tile.impassable = false;
 				}
 				else
 				{
-					tile.tileType = Grass;
+					tile.tileType = GRASS;
 					tile.impassable = false;
 				}
 
