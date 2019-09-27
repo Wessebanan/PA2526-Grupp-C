@@ -125,7 +125,7 @@ TEST(GridFunctions, differentTypes) {
 
 	EXPECT_EQ(stone_found, true);
 	EXPECT_EQ(water_found, true);
-	EXPECT_EQ(nr_of_stone, 1); 
+	EXPECT_EQ(nr_of_stone, 1); //the map is predifined so expectation for how many tile of a type can be tested 
 	EXPECT_EQ(nr_of_water, 10);
 }
 
