@@ -64,7 +64,6 @@
     <Import Project="..\props\ECS_Debug.props" />
     <Import Project="..\props\ModelLoader_Debug.props" />
     <Import Project="..\props\Utility_Debug.props" />
-    <Import Project="..\props\AI_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -74,7 +73,6 @@
     <Import Project="..\props\ECS_Release.props" />
     <Import Project="..\props\ModelLoader_Release.props" />
     <Import Project="..\props\Utility_Release.props" />
-    <Import Project="..\props\AI_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">
@@ -149,15 +147,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="includes\CollisionSystem.h" />
-    <ClInclude Include="includes\PhysicsComponents.h" />
-    <ClInclude Include="includes\PhysicsEvents.h" />
+    <ClInclude Include="includes\Components.h" />
+    <ClInclude Include="includes\Events.h" />
     <ClInclude Include="includes\MovementSystem.h" />
-    <ClInclude Include="includes\PhysicsHelperFunctions.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
-    <ClCompile Include="PhysicsHelperFunctions.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

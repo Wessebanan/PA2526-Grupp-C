@@ -1,7 +1,7 @@
 #pragma once
 #include "ecs.h"
-#include "PhysicsComponents.h"
-#include "PhysicsEvents.h"
+#include "Components.h"
+#include "Events.h"
 #include "UtilityComponents.h"
 #include <math.h>
 

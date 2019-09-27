@@ -30,9 +30,6 @@
     <ClInclude Include="includes\GridFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\AIGlobals.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

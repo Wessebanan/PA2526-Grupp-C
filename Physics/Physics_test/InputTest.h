@@ -1,8 +1,8 @@
 #pragma once
 #include "pch.h"
 #include "ecs.h"
-#include "PhysicsEvents.h"
-#include "PhysicsComponents.h"
+#include "Events.h"
+#include "Components.h"
 #include "UtilityComponents.h"
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 

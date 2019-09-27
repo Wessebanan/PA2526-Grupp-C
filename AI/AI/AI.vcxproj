@@ -148,7 +148,6 @@
   <ItemGroup>
     <ClInclude Include="includes\AIComponents.h" />
     <ClInclude Include="includes\AIEvents.h" />
-    <ClInclude Include="includes\AIGlobals.h" />
     <ClInclude Include="includes\AISystems.h" />
     <ClInclude Include="includes\GridFunctions.h" />
   </ItemGroup>
