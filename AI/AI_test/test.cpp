@@ -84,13 +84,16 @@ TEST(AI, CreateComponents) {
 	ecs::components::PathfindingStateComponent psc;
 	ecs::components::IdleStateComponent isc;
 	ecs::components::MoveStateComponent msc;
+	ecs::components::UnitComponent uc;
+	ecs::components::ArmyComponent ac;
 		
 	my_ecs.createEntity(psc, isc, msc);
+	my_ecs.createEntity(uc, ac);
 
 	int number_of_components = my_ecs.getTotalComponentCount();
 
 	//Check so that the debug system was created.
-	EXPECT_EQ(number_of_components, 3);
+	EXPECT_EQ(number_of_components, 5);
 }
 
 TEST(AI, CreateSystems) {
@@ -98,9 +101,10 @@ TEST(AI, CreateSystems) {
 	my_ecs.createSystem<ecs::systems::PathfindingStateSystem>();
 	my_ecs.createSystem<ecs::systems::IdleStateSystem>();
 	my_ecs.createSystem<ecs::systems::MoveStateSystem>();
+	my_ecs.createSystem<ecs::systems::SwitchStateSystem>();
 
 	int number_of_systems = my_ecs.getTotalSystemCount();
 
 	//Check so that the debug system was created.
-	EXPECT_EQ(number_of_systems, 3);
+	EXPECT_EQ(number_of_systems, 4);
 }
