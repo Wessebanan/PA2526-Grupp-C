@@ -35,6 +35,69 @@ namespace ecs
 			}
 		};
 
+		/*
+			A system that calculates the path for a unit.
+		*/
+		class PathfindingStateSystem : public ECSSystem<PathfindingStateSystem>
+		{
+		public:
+			PathfindingStateSystem()
+			{
+				updateType = EntityUpdate;
+				typeFilter.addRequirement(components::PathfindingStateComponent::typeID);
+			}
+			virtual ~PathfindingStateSystem() {}
+
+			//Update function that prints the center position of every tile in the order they 
+			//were created.
+			void updateEntity(FilteredEntity& entity, float delta) override
+			{
+				/* FILL OUT WITH LOGIC IN ANOTHER TASK */
+			}
+		};
+
+		/*
+			A system that updates idle units.
+		*/
+		class IdleStateSystem : public ECSSystem<IdleStateSystem>
+		{
+		public:
+			IdleStateSystem()
+			{
+				updateType = EntityUpdate;
+				typeFilter.addRequirement(components::IdleStateComponent::typeID);
+			}
+			virtual ~IdleStateSystem() {}
+
+			//Update function that prints the center position of every tile in the order they 
+			//were created.
+			void updateEntity(FilteredEntity& entity, float delta) override
+			{
+				/* FILL OUT WITH LOGIC IN ANOTHER TASK */
+			}
+		};
+
+		/*
+			A system that moving units.
+		*/
+		class MoveStateSystem : public ECSSystem<MoveStateSystem>
+		{
+		public:
+			MoveStateSystem()
+			{
+				updateType = EntityUpdate;
+				typeFilter.addRequirement(components::MoveStateComponent::typeID);
+			}
+			virtual ~MoveStateSystem() {}
+
+			//Update function that prints the center position of every tile in the order they 
+			//were created.
+			void updateEntity(FilteredEntity& entity, float delta) override
+			{
+				/* FILL OUT WITH LOGIC IN ANOTHER TASK */
+			}
+		};
+
 		class SwitchStateSystem : public ECSSystem<SwitchStateSystem>
 		{
 		public:

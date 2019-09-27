@@ -16,6 +16,21 @@ namespace ecs
 			int data = 0; // ELLER ENTITY ID
 		};
 
+		struct PathfindingStateComponent : public ECSComponent<PathfindingStateComponent>
+		{
+			int data = 0;
+		};
+
+		struct IdleStateComponent : public ECSComponent<IdleStateComponent>
+		{
+			int data = 0;
+		};
+
+		struct MoveStateComponent : public ECSComponent<MoveStateComponent>
+		{
+			int data = 0;
+		};
+
 		struct UnitComponent : public ECSComponent<UnitComponent>
 		{
 			int userID = -1;
