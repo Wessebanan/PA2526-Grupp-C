@@ -97,6 +97,27 @@ namespace ecs
 				/* FILL OUT WITH LOGIC IN ANOTHER TASK */
 			}
 		};
+
+		/*
+			A system that reads events generated when a user sends a command with their phone.
+			The system then switch the states of all units in that players army.
+		*/
+		class SwitchStateSystem : public ECSSystem<SwitchStateSystem>
+		{
+		public:
+			SwitchStateSystem()
+			{
+				updateType = EventReader;
+				//typeFilter.addRequirement(); //Needs to be added when the input event is merged into master.
+			}
+			virtual ~SwitchStateSystem() {}
+			void readEvent(BaseEvent& event, float delta) override
+			{
+				/*
+					Add logic when the input event is merged into master.
+				*/
+			}
+		};
 	}
 }
 
