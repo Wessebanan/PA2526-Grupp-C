@@ -17,8 +17,8 @@ ecs::systems::HandleKeyboardSystem::~HandleKeyboardSystem()
 
 void ecs::systems::HandleKeyboardSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	KeyboardComponent* kb = _entityInfo.getComponent<components::KeyboardComponent>();
-	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
+	components::KeyboardComponent* kb = _entityInfo.getComponent<components::KeyboardComponent>();
+	components::InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
 
 	// saves all keyboard keys, the mouse keys are done in mouse system
 	kb->W = backendComp->backend->mpWsad->keyU.pressed;
@@ -49,8 +49,8 @@ ecs::systems::HandleMouseSystem::~HandleMouseSystem()
 
 void ecs::systems::HandleMouseSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	MouseComponent* mouse = _entityInfo.getComponent<components::MouseComponent>();
-	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
+	components::MouseComponent* mouse = _entityInfo.getComponent<components::MouseComponent>();
+	components::InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
 
 
 	// the mouse buttons
@@ -85,10 +85,10 @@ ecs::systems::HandleWebSystem::~HandleWebSystem()
 void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	// Each diffrent button
-	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
-	UserButtonComponent* buttonComp = _entityInfo.getComponent<components::UserButtonComponent>();
-	UserTileComponent* tileComp = _entityInfo.getComponent<components::UserTileComponent>();
-	UserCommandComponent* commandComp = _entityInfo.getComponent<components::UserCommandComponent>();
+	components::InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
+	components::UserButtonComponent* buttonComp = _entityInfo.getComponent<components::UserButtonComponent>();
+	components::UserTileComponent* tileComp = _entityInfo.getComponent<components::UserTileComponent>();
+	components::UserCommandComponent* commandComp = _entityInfo.getComponent<components::UserCommandComponent>();
 
 	for (int i = 0; i < 4; i++)
 	{
@@ -119,7 +119,7 @@ void ecs::systems::HandleInputBackend::updateEntity(FilteredEntity& _entityInfo,
 {
 	// updates the components with the data from the backend
 
-	InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
+	components::InputBackendComp* backendComp = _entityInfo.getComponent<components::InputBackendComp>();
 
 	// keyboard input 
 	backendComp->backend->updateKeyboard();
