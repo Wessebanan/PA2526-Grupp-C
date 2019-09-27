@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "..//InputHandler/includes/InitInputHandler.h"
+#include "InterpretWebSystems.h"
 
 // Crashes when tests try to make multiple InputBackends so this is how you init the input Backend
 InputBackend* gInputBackend;
@@ -162,7 +163,56 @@ TEST(ECSvsInput, updateMouseWithInpBackend)
 }
 
 
+
+
+
+// Checks that the system was created correctly
+TEST(Interperter, InitECS) {
+
+	ecs::EntityComponentSystem mecs;
+
+	initInputECS(mecs, gInputBackend);
+
+	int pre = mecs.getTotalSystemCount();
+	mecs.createSystem<ecs::systems::ChangeFSMSystem>();
+
+	EXPECT_EQ(mecs.getTotalSystemCount(), (pre+1));
+
+	mecs.update(0.1f);
+}
+
+// Checks that no fatal error occured when the event was created
+TEST(Interperter, CreateECSEvent) {
+
+	ecs::EntityComponentSystem mecs;
+
+	initInputECS(mecs, gInputBackend);
+
+	//gInputBackend->mpUserCommand[2]->mCommand = "move";
+
+	ecs::systems::ChangeFSMSystem* psys = mecs.createSystem<ecs::systems::ChangeFSMSystem>();
+
+	ecs::events::ChangeUserStateEvent testEvent;
+	testEvent.newState = STATE::MOVE;
+	testEvent.playerId = PLAYER::PLAYER3;
+
+	EXPECT_NO_FATAL_FAILURE(mecs.createEvent(testEvent));
+}
+
+
+
+
+
+
+
+
+
+
 TEST(Memory, deleteInput)
 {
 	delete gInputBackend;
 }
+
+
+
+
