@@ -33,6 +33,22 @@ namespace GridFunctions
 				transform.position.x = current_pos.x;
 				transform.position.y = height_map[(i*12)+j];
 				transform.position.z = current_pos.z;
+				if (transform.position.y == -1.f)
+				{
+					tile.tileType = Water;
+					tile.impassable = true;
+				}
+				else if (transform.position.y == 3)
+				{
+					tile.tileType = Stone;
+					tile.impassable = false;
+				}
+				else
+				{
+					tile.tileType = Grass;
+					tile.impassable = false;
+				}
+
 				//Create the new entity
 				rEcs.createEntity(transform, tile);
 
@@ -50,7 +66,6 @@ namespace GridFunctions
 				}
 			}
 		}
-
 	}
 
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs)
@@ -66,7 +81,7 @@ namespace GridFunctions
 		  0.f,0.f,0.f,0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
-		  1.f,1.f,1.f,1.f,1.f,0.f,0.f,1.f,1.f,1.f,1.f,1.f,
+		  -1.f,-1.f,-1.f,-1.f,-1.f,0.f,0.f,-1.f,-1.f,-1.f,-1.f,-1.f,
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f,
