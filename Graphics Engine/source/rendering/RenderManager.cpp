@@ -18,7 +18,8 @@ namespace rendering
 			totalByteWidth += arr[i].ByteWidth;
 		}
 
-		char* pByte = (char*)malloc(totalByteWidth);
+		m_pMemoryForTechniques = (char*)malloc(totalByteWidth);
+		char* pByte = m_pMemoryForTechniques;
 
 		for (unsigned int i = 0; i < RENDER_TECHNIQUES_COUNT; i++)
 		{
@@ -36,8 +37,8 @@ namespace rendering
 		graphics::CreateDeviceInterface(&m_pDevice);
 		m_pContext = m_pDevice->GetRenderContext();
 
-		m_meshManager.m_pDevice			= m_pDevice;
 		m_drawManager.m_pMeshManager	= &m_meshManager;
+		m_drawManager.m_pBuffer			= &m_meshDataRegion;
 
 		m_techniques.InitializeAll(m_pDevice);
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_STATIC_DATA);
@@ -45,12 +46,15 @@ namespace rendering
 		m_techniques.SetDrawManager(&m_drawManager);
 	}
 
-	void RenderManager::Submit(const Model& rModel)
-	{
-	}
-
 	void RenderManager::Draw()
 	{
+		m_drawManager.Clear();
+
+		m_pContext->CopyDataToRegion(
+			m_meshManager.m_pModelData,
+			m_meshManager.m_modelDataSize,
+			m_meshDataRegion);
+
 		m_techniques.UpdateAll(m_pContext);
 
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_DYNAMIC_DATA);
@@ -61,11 +65,18 @@ namespace rendering
 	void RenderManager::Destroy()
 	{
 		m_techniques.DeconstructAll(m_pDevice);
+
+		free(m_pMemoryForTechniques);
 		graphics::DeleteDeviceInterface(m_pDevice);
 	}
 
-	MeshManager* RenderManager::pGetMeshManager()
+	int RenderManager::LoadMeshes(const LOAD_MESH_DESC* pDesc, const UINT count)
 	{
-		return &m_meshManager;
+		if (!m_meshManager.LoadMeshes(m_pDevice, pDesc, count)) return FALSE;
+
+		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_VERTEX_DATA);
+		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_INDEX_DATA);
+
+		return TRUE;
 	}
 }

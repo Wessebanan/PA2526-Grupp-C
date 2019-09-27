@@ -4,50 +4,51 @@ namespace rendering
 {
 	DrawManager::DrawManager()
 	{
+		m_perObjectRegion.DataCount = graphics::RenderContext::CB_MAX_BYTES_PER_BIND;
 	}
 
 	DrawManager::~DrawManager()
 	{
 	}
 
+	void DrawManager::Clear()
+	{
+		m_perObjectRegion.DataLocation = m_pBuffer->DataLocation;
+		m_start = 0;
+	}
+
 	void DrawManager::Draw(
 		RENDER_TECHNIQUES technique, 
 		graphics::RenderContext* pContext)
 	{
-		//// --- DRAW MANAGER ---
-		//UINT meshIndex = 0;
-		//std::map<UINT, UINT> meshCount = mrData.m_meshCount;
-		//while (at < end && meshIndex < 2)
-		//{
-		//	r.DataLocation = at;							// Set active region (65536 bytes per draw)
-		//	pContext->VSSetConstantBuffer(0, r);			// Apply active Region
+		UINT techniqueCount = technique;
+		PerTechniqueData m = m_pMeshManager->m_perTechniqueData[techniqueCount];
 
-		//	UINT drawn = 0;
-		//	while (drawn < 1024 && meshIndex < meshCount.size())
-		//	{
-		//		UINT count = meshCount[meshIndex];
+		UINT maxMeshes	= (UINT)m.MeshCount.size();
+		UINT meshIndex	= 0;
 
-		//		if (count + drawn > 1024)
-		//		{
-		//			count = 1024 - drawn;
-		//		}
+		while (meshIndex < maxMeshes)
+		{
+			GPUMesh* pMesh		= &m_pMeshManager->m_pMeshes[meshIndex];
+			UINT maxMeshCount	= m.MeshCount[meshIndex];
+			UINT byteWidth		= pMesh->GetModelSize();
 
-		//		meshCount[meshIndex] -= count;
+			UINT maxMeshCountPerDraw = m_perObjectRegion.DataCount / byteWidth;
 
-		//		pContext->DrawInstanced(count, drawn, meshes[meshIndex]);		// Draw (with mesh[1])
-		//		drawn += count;
+			UINT numDrawCalls = (maxMeshCount / maxMeshCountPerDraw) + 1;
 
-		//		if (meshCount[meshIndex] == 0)
-		//		{
-		//			meshIndex++;
-		//		}
-		//	}
+			for (UINT i = 0; i < numDrawCalls; i++)
+			{
+				UINT toDraw = maxMeshCount % maxMeshCountPerDraw;
 
-		//	at += RenderContext::CB_MAX_BYTES_PER_BIND;									// Increment active region
-		//}
+				pContext->VSSetConstantBuffer(0, m_perObjectRegion);
+				pMesh->Draw(toDraw, m_start, pContext);
 
-		UINT i = 0;
+				m_start += toDraw;
+				m_perObjectRegion.DataLocation += graphics::RenderContext::CB_MAX_BYTES_PER_BIND;
+			}
 
-		UINT meshCount = m_pMeshManager->m_pMeshInfo[technique + i].MeshCount;
+			meshIndex++;
+		}
 	}
 }

@@ -7,14 +7,6 @@
 
 namespace rendering
 {
-	struct Model
-	{
-		void* pData;
-		UINT ByteWidth;
-
-		UINT MeshID;
-	};
-
 	class RenderManager
 	{
 	public:
@@ -22,11 +14,13 @@ namespace rendering
 		~RenderManager();
 
 		void Initialize();
-		void Submit(const Model& rModel);
+
 		void Draw();
 		void Destroy();
 
-		MeshManager* pGetMeshManager();
+		int LoadMeshes(
+			const LOAD_MESH_DESC* pDesc,
+			const UINT count);
 
 		template<RENDER_TECHNIQUES T>
 		inline void* GetData()
@@ -42,5 +36,9 @@ namespace rendering
 
 		MeshManager m_meshManager;
 		DrawManager m_drawManager;
+
+		graphics::BufferRegion m_meshDataRegion;
+
+		char* m_pMemoryForTechniques;
 	};
-}
+} 

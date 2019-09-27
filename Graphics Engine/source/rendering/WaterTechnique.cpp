@@ -3,9 +3,11 @@
 
 namespace rendering
 {
-	// initialize	(upload static data)
-	// update		(update dynamic data)
-	// set & draw	(set state and it will draw afterwards)
+	/* 
+		initialize	(set static data)	-(Is followed by an upload of static data)
+		update		(set dynamic data)	-(Is followed by an upload of dynamic data)
+		set & draw	(set state)			-(Is followed by a draw)
+	*/
 
 	static WaterTechniqueData* gpData = NULL;
 
@@ -13,8 +15,8 @@ namespace rendering
 	void RenderTechnique::Construct<RENDER_WATER>(
 		RENDER_TECHNIQUE_DESC& rDescription)
 	{
-		rDescription.ByteWidth = sizeof(WaterTechniqueData);
-		rDescription.ppData = (void**)&gpData;
+		rDescription.ByteWidth	= sizeof(WaterTechniqueData);
+		rDescription.ppData		= (void**)& gpData;
 	}
 
 	template<>
