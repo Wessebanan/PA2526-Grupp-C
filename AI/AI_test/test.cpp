@@ -79,3 +79,28 @@ TEST(GridFunctions, heightMapTest) {
 	EXPECT_EQ(nrOfComponents, 1);
 }
 
+TEST(AI, CreateComponents) {
+	ecs::EntityComponentSystem mEcs;
+	ecs::components::PathfindingStateComponent psc;
+	ecs::components::IdleStateComponent isc;
+	ecs::components::MoveStateComponent msc;
+		
+	mEcs.createEntity(psc, isc, msc);
+
+	int number_of_components = mEcs.getTotalComponentCount();
+
+	//Check so that the debug system was created.
+	EXPECT_EQ(number_of_components, 3);
+}
+
+TEST(AI, CreateSystems) {
+	ecs::EntityComponentSystem mEcs;
+	mEcs.createSystem<ecs::systems::PathfindingStateSystem>();
+	mEcs.createSystem<ecs::systems::IdleStateSystem>();
+	mEcs.createSystem<ecs::systems::MoveStateSystem>();
+
+	int number_of_systems = mEcs.getTotalSystemCount();
+
+	//Check so that the debug system was created.
+	EXPECT_EQ(number_of_systems, 3);
+}
