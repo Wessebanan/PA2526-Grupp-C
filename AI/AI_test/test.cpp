@@ -1,11 +1,12 @@
 #include "pch.h"
-#include <GridFunctions.h>
+#include "GridFunctions.h"
+#include "AIFunctions.h"
 
 TEST(GridFunctions, InitGrid) {
 
-	int nr_of_rows = 12;
-	int nr_of_columns = 12;
-	float radius = 4.0f;
+	int nr_of_rows = ArenaProperties::rows;
+	int nr_of_columns = ArenaProperties::columns;
+	float radius = ArenaProperties::tileRadius;
 	unsigned int count = nr_of_columns * nr_of_rows;
 	//Define some ECS stuff to allow the ECS to create more than 100 of each component.
 	ecs::CompTypeMemDesc types[] = {
@@ -43,9 +44,9 @@ TEST(GridFunctions, CreateDebugSystems) {
 }
 
 TEST(GridFunctions, heightMapTest) {
-	int nr_of_rows = 12;
-	int nr_of_columns = 12;
-	float radius = 4.0f;
+	int nr_of_rows = ArenaProperties::rows;
+	int nr_of_columns = ArenaProperties::columns;
+	float radius = ArenaProperties::tileRadius;
 	unsigned int count = nr_of_columns * nr_of_rows;
 	//Define some ECS stuff to allow the ECS to create more than 100 of each component.
 	ecs::CompTypeMemDesc types[] = {
@@ -80,9 +81,9 @@ TEST(GridFunctions, heightMapTest) {
 }
 
 TEST(GridFunctions, differentTypes) {
-	int nr_of_rows = 12;
-	int nr_of_columns = 12;
-	float radius = 4.0f;
+	int nr_of_rows = ArenaProperties::rows;
+	int nr_of_columns = ArenaProperties::columns;
+	float radius = ArenaProperties::tileRadius;
 	unsigned int count = nr_of_columns * nr_of_rows;
 
 	//Define some ECS stuff to allow the ECS to create more than 100 of each component.
@@ -157,4 +158,15 @@ TEST(AI, CreateSystems) {
 
 	//Check so that the debug system was created.
 	EXPECT_EQ(number_of_systems, 4);
+}
+
+TEST(AIFunctions, CreatePlayerArmies) {
+	ecs::EntityComponentSystem my_ecs;
+	AIFunctions::CreatePlayerArmies(my_ecs);
+
+	int expected_number_of_components = 4 * PlayerProperties::numberOfUnits * 3 + 4;
+	size_t number_of_components = my_ecs.getTotalComponentCount();
+	
+	//Check so that the debug system was created.
+	EXPECT_EQ(number_of_components, expected_number_of_components);
 }

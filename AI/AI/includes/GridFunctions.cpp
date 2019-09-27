@@ -37,16 +37,19 @@ namespace GridFunctions
 				{
 					tile.tileType = WATER;
 					tile.impassable = true;
+					ArenaProperties::gridLogic[i][j] = 1;
 				}
 				else if (transform.position.y == 3)
 				{
 					tile.tileType = STONE;
 					tile.impassable = false;
+					ArenaProperties::gridLogic[i][j] = 0;
 				}
 				else
 				{
 					tile.tileType = GRASS;
 					tile.impassable = false;
+					ArenaProperties::gridLogic[i][j] = 0;
 				}
 
 				//Create the new entity
@@ -94,5 +97,10 @@ namespace GridFunctions
 		{
 			arr[i] = height_values[i];
 		}
+	}
+
+	DirectX::XMFLOAT2 FindStartingTile()
+	{
+
 	}
 };
