@@ -98,6 +98,10 @@ namespace ecs
 			}
 		};
 
+		/*
+			A system that reads events generated when a user sends a command with their phone.
+			The system then switch the states of all units in that players army.
+		*/
 		class SwitchStateSystem : public ECSSystem<SwitchStateSystem>
 		{
 		public:

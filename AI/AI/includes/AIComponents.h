@@ -2,6 +2,7 @@
 
 #include "ecsComponentIncludes.h"
 #include <vector>
+#include "AIGlobals.h"
 
 namespace ecs
 {
@@ -33,12 +34,12 @@ namespace ecs
 
 		struct UnitComponent : public ECSComponent<UnitComponent>
 		{
-			int userID = -1;
+			PLAYER playerID; //Holds an enum to know which player the unit belongs to.
 		};
 
 		struct ArmyComponent : public ECSComponent<ArmyComponent>
 		{
-			std::vector<int> unitIDs;
+			std::vector<int> unitIDs; //Holds the entity IDs of every unit in one players army.
 		};
 	}
 }
