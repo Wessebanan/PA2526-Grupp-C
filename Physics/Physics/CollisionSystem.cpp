@@ -1,5 +1,7 @@
 #include "CollisionSystem.h"
 
+// This hefty boy uses pragma regions to easily look at the system you want.
+
 #pragma region CollisionEventSystem
 ecs::systems::CollisionEventSystem::CollisionEventSystem()
 {
@@ -47,55 +49,21 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 	{
 		return;
 	}
-	if (!entity->hasComponentOfType(TransformComponent::typeID))
-	{
-		return;
-	}
 
 	MeshComponent* mesh_component = dynamic_cast<MeshComponent*>(getComponentFromKnownEntity(MeshComponent::typeID, entity->getID()));
 	
 	GroundCollisionComponent* ground_collision_component = dynamic_cast<GroundCollisionComponent*>(getComponentFromKnownEntity(GroundCollisionComponent::typeID, entity->getID()));
 
 	std::vector<DirectX::XMFLOAT3> *vertex_vector = mesh_component->mMesh.GetVertexPositionVector();
-	
-	// Creating min and max points to make a box.
-	DirectX::XMFLOAT3 min_point(INFINITY, INFINITY, INFINITY);
-	DirectX::XMFLOAT3 max_point(-INFINITY, -INFINITY, -INFINITY);
 
-	// Looping over each vertex to see if they contain
-	// the lowest or highest value in each axis.
-	for (int i = 0; i < vertex_vector->size(); i++)
-	{
-		DirectX::XMFLOAT3 current = vertex_vector->at(i);
-		if (current.x < min_point.x)
-		{
-			min_point.x = current.x;
-		}
-		else if (current.x > max_point.x)
-		{
-			max_point.x = current.x;
-		}
-		if (current.y < min_point.y)
-		{
-			min_point.y = current.y;
-		}
-		else if (current.y > max_point.y)
-		{
-			max_point.y = current.y;
-		}
-		if (current.z < min_point.z)
-		{
-			min_point.z = current.z;
-		}
-		else if (current.z > max_point.z)
-		{
-			max_point.z = current.z;
-		}
-	}
+	// Getting the extreme points of the vertex group.
+	DirectX::XMFLOAT3 min_point;
+	DirectX::XMFLOAT3 max_point;
+	PhysicsHelpers::GetExtremes(vertex_vector->data(), vertex_vector->size(), min_point, max_point);
 
 	// Creating the OBB holding the model.
 	DirectX::XMFLOAT3 vertices[8];
-	physics_helper_functions::CreateOBB(vertices, min_point, max_point);
+	PhysicsHelpers::CreateOBB(vertices, min_point, max_point);
 
 	// Calculating the average position while setting
 	// the vertices array of GroundCollisionComponent
@@ -103,25 +71,15 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 	DirectX::XMFLOAT3 average(0, 0, 0);
 	for (int i = 0; i < 8; i++)
 	{
-		average.x += vertices[i].x;
-		average.y += vertices[i].y;
-		average.z += vertices[i].z;
 		ground_collision_component->mVertices[i] = vertices[i];
 	}
-
-	// Dividing by the number of vertices of a box (8) for
-	// the center of the box.
-	average.x /= 8;
-	average.y /= 8;
-	average.z /= 8;
-	ground_collision_component->mCenterPos = average;
-
-	// NOTE: The center position can be calculated more efficiently,
-	// although it would not make a noticable difference.
-	// current: 24 additions, 3 divisions. 
-	// possible: 3 subtractions, 3 divisons, 3 additions.
-	// gain: 21 additions, -3 subtractions.
-	// Can fix if you want Mr. Reviewer.
+	
+	ground_collision_component->mCenterPos = DirectX::XMFLOAT3
+	(
+		(min_point.x + max_point.x) / 2.0f,
+		(min_point.y + max_point.y) / 2.0f,
+		(min_point.z + max_point.z) / 2.0f
+	);
 }
 #pragma endregion
 #pragma region GroundCollisionSystem
@@ -250,5 +208,33 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 
 	Entity* entity = getEntity(create_component_event->entityID);
 	
+	// Checking that there is a mesh to compute a bounding volume from.
+	if (!entity->hasComponentOfType(MeshComponent::typeID))
+	{
+		return;
+	}
+
+	// Grabbing the mesh component and in turn the vertex list.
+	MeshComponent* mesh_component = getComponentFromKnownEntity<MeshComponent>(entity->getID());
+	std::vector<DirectX::XMFLOAT3> *vertex_list = mesh_component->mMesh.GetVertexPositionVector();
+
+	// Getting the extreme values of the vertex list.
+	DirectX::XMFLOAT3 min_point, max_point;
+	PhysicsHelpers::GetExtremes(vertex_list->data(), vertex_list->size(), min_point, max_point);
+
+	// Grabbing the object collision component to fill it up.
+	ObjectCollisionComponent* object_collision_component = getComponentFromKnownEntity<ObjectCollisionComponent>(entity->getID());
+
+	object_collision_component->mMin = min_point;
+	object_collision_component->mMax = max_point;
+
+	// min + max / 2 gives us the center.
+	object_collision_component->mCenter = DirectX::XMFLOAT3
+	(
+		(min_point.x + max_point.x) / 2.0f,
+		(min_point.y + max_point.y) / 2.0f,
+		(min_point.z + max_point.z) / 2.0f
+	);
+
 }
 #pragma endregion

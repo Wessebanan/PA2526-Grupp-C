@@ -66,7 +66,7 @@ namespace ecs
 			
 			// Center Position is the middle of the box, for distance calculation.
 			// Important to apply transform to this point as well.
-			DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);
+			DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);		
 		};
 		
 		/*
@@ -77,9 +77,9 @@ namespace ecs
 		*/
 		COMP(ObjectCollisionComponent)
 		{
-			DirectX::XMFLOAT3 mMin;
-			DirectX::XMFLOAT3 mMax;
-			DirectX::XMFLOAT3 mCenter;
+			DirectX::XMFLOAT3 mMin		= DirectX::XMFLOAT3(0, 0, 0);
+			DirectX::XMFLOAT3 mMax		= DirectX::XMFLOAT3(0, 0, 0);
+			DirectX::XMFLOAT3 mCenter	= DirectX::XMFLOAT3(0, 0, 0);
 		};
 
 		/*
