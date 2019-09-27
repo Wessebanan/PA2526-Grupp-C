@@ -186,10 +186,6 @@ TEST(Interperter, CreateECSEvent) {
 
 	ecs::EntityComponentSystem mecs;
 
-	initInputECS(mecs, gInputBackend);
-
-	//gInputBackend->mpUserCommand[2]->mCommand = "move";
-
 	ecs::systems::ChangeFSMSystem* psys = mecs.createSystem<ecs::systems::ChangeFSMSystem>();
 
 	ecs::events::ChangeUserStateEvent testEvent;
