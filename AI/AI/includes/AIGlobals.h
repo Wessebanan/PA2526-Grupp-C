@@ -3,12 +3,12 @@
 using TileType = unsigned int;
 enum TileTypes //enum used in AIcomponents right now 
 {
-	Grass,
-	Stone,
-	Water,
+	GRASS,
+	STONE,
+	WATER,
 
-	TileTypeCount,
-	Undefined
+	TILETYPECOUNT,
+	UNDEFINED
 };
 
 enum STATE
