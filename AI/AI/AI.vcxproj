@@ -155,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\AIFunctions.cpp" />
+    <ClCompile Include="includes\AIGlobals.cpp" />
     <ClCompile Include="includes\GridFunctions.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>

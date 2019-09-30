@@ -47,5 +47,8 @@
     <ClCompile Include="includes\AIFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="includes\AIGlobals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

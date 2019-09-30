@@ -1,5 +1,6 @@
-#include <GridFunctions.h>
-#include <UtilityComponents.h>
+#include "GridFunctions.h"
+#include "AIGlobals.h"
+#include "UtilityComponents.h"
 #include <DirectXMath.h>
 
 using namespace ecs;
@@ -20,6 +21,14 @@ namespace GridFunctions
 		ecs::Entity* currentTile;
 		float height_map[144];
 		CreateHeightmap(height_map);
+		//for (int i = 0; i < rows; i++)
+		//{
+		//	ArenaProperties::gridLogic[0][i].entityID = i;
+		//}
+		//for (int i = 0; i < rows; i++)
+		//{
+		//	std::cout << ArenaProperties::gridLogic[0][i].entityID << std::endl;
+		//}
 		
 		//Calculate the position and create every tile.
 		for (int i = 0; i < rows; i++)
@@ -38,24 +47,31 @@ namespace GridFunctions
 				{
 					tile.tileType = WATER;
 					tile.impassable = true;
-					ArenaProperties::gridLogic[i][j].isPassable = false;
+					ArenaProperties::gridPassable[i][j] = false;
 				}
 				else if (transform.position.y == 3)
 				{
 					tile.tileType = STONE;
 					tile.impassable = false;
-					ArenaProperties::gridLogic[i][j].isPassable = true;
+					ArenaProperties::gridPassable[i][j] = true;
 				}
 				else
 				{
 					tile.tileType = GRASS;
 					tile.impassable = false;
-					ArenaProperties::gridLogic[i][j].isPassable = true;
+					ArenaProperties::gridPassable[i][j] = ArenaProperties::gridID[i][j] = true;
 				}
 
 				//Create the new entity
 				currentTile = rEcs.createEntity(transform, tile);
-				ArenaProperties::gridLogic[i][j].entityID = currentTile->getID();
+				ArenaProperties::test = 10;
+				ArenaProperties::MackeID[i][j] = 1337; // = currentTile->getID();
+				ArenaProperties::test = currentTile->getID();
+				int testing = ArenaProperties::gridID[i][j];
+				std::cout << ArenaProperties::gridID[i][j] << std::endl;
+				ArenaProperties::gridPassable;
+				ArenaProperties::gridID;
+				ArenaProperties::MackeID;
 				//Update the x-position of the next tile in this row.
 				current_pos.x += 1.5f * radius;
 				//Update the z-position of the next tile depending on if it is in a 
@@ -70,6 +86,8 @@ namespace GridFunctions
 				}
 			}
 		}
+		
+		int dank = 0;
 	}
 
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs)
@@ -105,7 +123,7 @@ namespace GridFunctions
 		int2 index;
 		index.x = 0;
 		index.y = 0;
-		switch (id)
+		/*switch (id)
 		{
 		case PLAYER1:
 			for (int y = 0; y < ArenaProperties::rows / 2; y++)
@@ -165,7 +183,7 @@ namespace GridFunctions
 			break;
 		default:
 			break;
-		}
+		}*/
 		return index;
 	}
 };

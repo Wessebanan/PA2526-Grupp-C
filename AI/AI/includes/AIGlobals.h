@@ -23,8 +23,14 @@ enum PLAYER
 
 struct TileData
 {
-	int entityID = 0;
-	bool isPassable = false;
+	int entityID = 1;
+	bool isPassable;
+};
+
+struct TileTEST
+{
+	bool gridPassable[12][12];
+	unsigned int gridID[12][12];
 };
 
 struct int2
@@ -38,7 +44,13 @@ namespace ArenaProperties
 	constexpr int rows = 12;
 	constexpr int columns = 12;
 	constexpr float tileRadius = 4.0f;
-	static TileData gridLogic[rows][columns];
+	//static TileData gridLogic[rows][columns];
+	static bool gridID[rows][columns];
+	static unsigned int MackeID[rows][columns];
+	static bool gridPassable[rows][columns];
+	static int test;
+
+//	static TileTEST tileTest;
 }
 
 namespace PlayerProperties

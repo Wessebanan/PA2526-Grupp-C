@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "AIGlobals.h"
 #include "GridFunctions.h"
 #include "AIFunctions.h"
 
@@ -161,7 +162,30 @@ TEST(AI, CreateSystems) {
 }
 
 TEST(AIFunctions, CreatePlayerArmies) {
+	int nr_of_rows = ArenaProperties::rows;
+	int nr_of_columns = ArenaProperties::columns;
+	float radius = ArenaProperties::tileRadius;
+	unsigned int count = nr_of_columns * nr_of_rows;
+	ecs::CompTypeMemDesc types[] = {
+		{ TileComponent::typeID, TileComponent::size, count},
+		{ TransformComponent::typeID, TransformComponent::size, count},
+	};
+	ecs::ECSDesc desc;
+	desc.compTypeCount = 2;
+	desc.compTypeMemDescs = types;
+	desc.systemLayerCount = 10;
 	ecs::EntityComponentSystem my_ecs;
+	my_ecs.initialize(desc);
+
+	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius);
+	//for (int i = 0; i < ArenaProperties::rows; i++)
+	//{
+	//	std::cout << ArenaProperties::gridID[0][i] << std::endl;
+	//}
+	std::cout << ArenaProperties::test << std::endl;
+	ArenaProperties::gridPassable;
+	ArenaProperties::MackeID;
+	int testing = ArenaProperties::gridID[0][0];
 	AIFunctions::CreatePlayerArmies(my_ecs);
 
 	int expected_number_of_components = 4 * PlayerProperties::numberOfUnits * 3 + 4;
