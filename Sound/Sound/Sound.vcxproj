@@ -142,6 +142,7 @@
     <ClCompile Include="SoundEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="includes\RingBuffer.h" />
     <ClInclude Include="includes\SoundEngine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
