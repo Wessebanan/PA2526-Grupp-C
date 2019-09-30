@@ -1,4 +1,5 @@
 #include "../../includes/rendering/RenderManager.h"
+#include <iostream>
 
 namespace rendering
 {
@@ -38,7 +39,6 @@ namespace rendering
 		m_pContext = m_pDevice->GetRenderContext();
 
 		m_drawManager.m_pMeshManager	= &m_meshManager;
-		m_drawManager.m_pBuffer			= &m_meshDataRegion;
 
 		m_techniques.InitializeAll(m_pDevice);
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_STATIC_DATA);
@@ -46,13 +46,20 @@ namespace rendering
 		m_techniques.SetDrawManager(&m_drawManager);
 	}
 
-	void RenderManager::Draw()
+	void RenderManager::Clear()
 	{
 		m_drawManager.Clear();
+		m_pContext->ClearDepth(m_depthBuffer);
+		m_pContext->ClearRenderTarget(m_target, 0.0f, 0.0f, 0.0f);
+	}
+
+	void RenderManager::Draw()
+	{
+		m_pContext->SetRenderTarget(m_target, m_depthBuffer);
 
 		m_pContext->CopyDataToRegion(
-			m_meshManager.m_pModelData,
-			m_meshManager.m_modelDataSize,
+			m_meshManager.m_pPerInstanceData,
+			m_meshManager.m_perInstanceDataSize,
 			m_meshDataRegion);
 
 		m_techniques.UpdateAll(m_pContext);
@@ -66,17 +73,57 @@ namespace rendering
 	{
 		m_techniques.DeconstructAll(m_pDevice);
 
+		m_pDevice->DeleteRenderTarget(m_target);
+		m_pDevice->DeleteDepthBuffer(m_depthBuffer);
+		m_pDevice->DeletePresentWindow(m_wnd);
+
 		free(m_pMemoryForTechniques);
 		graphics::DeleteDeviceInterface(m_pDevice);
 	}
 
-	int RenderManager::LoadMeshes(const LOAD_MESH_DESC* pDesc, const UINT count)
+	int RenderManager::CreateMesh(
+		const VERTEX_BUFFER_DATA* pVertexData, 
+		const INDEX_BUFFER_DATA* pIndexData)
 	{
-		if (!m_meshManager.LoadMeshes(m_pDevice, pDesc, count)) return FALSE;
+		return m_meshManager.CreateMesh(pVertexData, pIndexData, m_pDevice);
+	}
 
+	void RenderManager::CreateModelHeap(
+		const TECHNIQUE_HEAP_LAYOUT_DESC layoutDesc[RENDER_TECHNIQUES_COUNT])
+	{
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_VERTEX_DATA);
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_INDEX_DATA);
 
-		return TRUE;
+		m_meshManager.CreateModelHeap(layoutDesc);
+
+		m_pDevice->CreateDynamicBufferRegion(
+			m_meshManager.m_perInstanceDataSize, 
+			NULL, 
+			&m_meshDataRegion);
+		m_drawManager.m_pBuffer = &m_meshDataRegion;
+	}
+
+	void* RenderManager::GetTechniqueModelBuffer(
+		const RENDER_TECHNIQUES techniqueIndex)
+	{
+		return m_meshManager.GetTechniqueModelBuffer(techniqueIndex);
+	}
+	graphics::PresentWindow* RenderManager::SetWndSettings(
+		const UINT width, 
+		const UINT height, 
+		const char* pTitle)
+	{
+		m_pContext->SetViewport(0, 0, width, height);
+
+		m_pDevice->CreatePresentWindow(
+			width, 
+			height, 
+			pTitle, 
+			&m_target, 
+			&m_wnd);
+
+		m_pDevice->CreateDepthBuffer(width, height, &m_depthBuffer);
+
+		return &m_wnd;
 	}
 }

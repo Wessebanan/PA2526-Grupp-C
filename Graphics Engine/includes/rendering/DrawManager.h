@@ -25,7 +25,5 @@ namespace rendering
 
 		// Region to hold everything to draw all meshes
 		graphics::BufferRegion m_perObjectRegion;
-
-		UINT m_start;
 	};
 }

@@ -4,72 +4,104 @@ namespace rendering
 {
 	MeshManager::MeshManager()
 	{
-		m_modelDataSize = 0;
+		m_perInstanceDataSize = 0;
+		m_pPerInstanceData = NULL;
 	}
 
 	MeshManager::~MeshManager()
 	{
-		free(m_pModelData);
+		free(m_pPerInstanceData);
 	}
 
-	int MeshManager::LoadMeshes(
-		graphics::DeviceInterface* pDevice,
-		const LOAD_MESH_DESC* pDesc, 
-		const UINT count)
+	int MeshManager::CreateMesh(
+		const VERTEX_BUFFER_DATA* pVertexData, 
+		const INDEX_BUFFER_DATA* pIndexData, 
+		graphics::DeviceInterface* pDevice)
 	{
-		m_modelDataSize = 0;
-		for (UINT i = 0; i < count; i++)
+		// If there's no data to create a mesh
+		if (!pVertexData) return -1;
+
+		GPUMesh mesh;
+
+		graphics::BufferRegion meshRegion;
+		
+		// Create vertex buffer
+		int result = pDevice->CreateVertexBufferRegion(
+			pVertexData->VertexCount,
+			pVertexData->pVertexData,
+			pVertexData->pNormalsData,
+			pVertexData->pTextureCoordData,
+			&meshRegion);
+		
+		if (!result) return -1;
+
+		mesh.SetMeshRegion(meshRegion);
+		
+		// if there's index data, create a region for that too
+		if (pIndexData)
 		{
-			if (pDesc[i].ByteWidth > graphics::RenderContext::CB_MAX_BYTES_PER_BIND) 
+			graphics::BufferRegion indexRegion;
+
+			pDevice->CreateIndexBufferRegion(
+				pIndexData->IndexCount,
+				pIndexData->pIndexData,
+				&indexRegion);
+
+			mesh.SetIndexRegion(indexRegion);
+		}
+
+		m_meshes.push_back(mesh);
+		
+		return (UINT)m_meshes.size() - 1;
+	}
+
+	int MeshManager::CreateModelHeap(
+		const TECHNIQUE_HEAP_LAYOUT_DESC layoutDesc[RENDER_TECHNIQUES_COUNT])
+	{
+		UINT totalByteWidth = 0;
+		// Per Technique
+		for (UINT t = 0; t < RENDER_TECHNIQUES_COUNT; t++)
+		{
+			PerTechniqueData& ptd = m_perTechniqueData[t];
+			ptd.PerInstanceByteWidth = layoutDesc[t].PerInstanceByteWidth;
+
+			UINT modelCount = 0;
+			// Per mesh inside technique
+			for (UINT m = 0; m < layoutDesc[t].ModelLayoutCount; m++)
 			{
-				return FALSE;
+				ptd.MeshCount.push_back(layoutDesc[t].pModelLayout[m].InstanceCount);
+				ptd.MeshIndex.push_back(layoutDesc[t].pModelLayout[m].MeshIndex);
+				ptd.ModelCount.push_back(0);
+
+				modelCount += layoutDesc[t].pModelLayout[m].InstanceCount;
 			}
 
-			m_modelDataSize += pDesc[i].ByteWidth * pDesc[i].InstanceCount;
-			m_perTechniqueData[pDesc[i].Technique].MeshCount.push_back(pDesc[i].InstanceCount);
+			ptd.TotalModelCount = modelCount;
+			ptd.ModelDataByteWidth = ptd.PerInstanceByteWidth * modelCount;
+			totalByteWidth += (UINT)ceil(ptd.ModelDataByteWidth / 256.0f) * 256;
 		}
 
-		size_t maxAllocSize = 
-			m_modelDataSize
-			+ count * sizeof(GPUMesh) 
-			+ count * sizeof(char*);
+		m_pPerInstanceData = (char*)malloc(totalByteWidth);
+		m_perInstanceDataSize = totalByteWidth;
 
-		char* pData = (char*)malloc(maxAllocSize);
+		ZeroMemory(m_pPerInstanceData, m_perInstanceDataSize);
 
-		m_pModelData = pData;
-		ZeroMemory(m_pModelData, m_modelDataSize);
-
-		pData += m_modelDataSize;
-		m_pMeshes = (GPUMesh*)pData;
-
-		pData += count * sizeof(GPUMesh);
-		m_ppModelDataStart = (char**)pData;
-
-		UINT size = 0;
-		for (UINT i = 0; i < count; i++)
+		char* pDataBegin = m_pPerInstanceData;
+		for (UINT i = 0; i < RENDER_TECHNIQUES_COUNT; i++)
 		{
-			size += pDesc[i].ByteWidth * pDesc[i].InstanceCount;
-			m_ppModelDataStart[i] = m_pModelData + size;
+			PerTechniqueData& ptd = m_perTechniqueData[i];
 
-			LoadMeshFromFile(pDevice, pDesc[i].Filepath, i);
+			ptd.pModelDataStart = pDataBegin;
+			pDataBegin += (UINT)(ceil(ptd.ModelDataByteWidth / 256.0f) * 256);
 		}
 
-		return TRUE;
-	}
-
-	void* MeshManager::AllocateMesh(const int index)
-	{
-		void* pStart = m_ppModelDataStart[index];
-		m_ppModelDataStart[index] += m_pMeshes[index].GetModelSize();
-
-		return pStart;
-	}
-
-	int MeshManager::LoadMeshFromFile(
-		graphics::DeviceInterface* pDevice, 
-		const std::string filepath, 
-		const int index)
-	{
 		return 0;
+	}
+
+	void* MeshManager::GetTechniqueModelBuffer(
+		const RENDER_TECHNIQUES techniqueIndex)
+	{
+		PerTechniqueData& ptd = m_perTechniqueData[techniqueIndex];
+		return ptd.pModelDataStart;
 	}
 }

@@ -4,9 +4,8 @@
 
 namespace rendering
 {
-
 	struct WaterTechniqueData
 	{
-
+		graphics::GraphicsPipeline* pPipeline;
 	};
 }

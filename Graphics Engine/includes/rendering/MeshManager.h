@@ -8,40 +8,46 @@ namespace rendering
 	class GPUMesh
 	{
 	public:
-		/*
-			How much memory is used per model that uses this mesh
-		*/
-		UINT GetModelSize()
-		{
-			return m_modelByteWidth;
-		}
-
 		void Draw(
 			const UINT count,
 			const UINT start,
 			graphics::RenderContext* pContext)
 		{
-			pContext->DrawIndexedInstance(
-				count,
-				start,
-				m_meshRegion,
-				m_indexRegion);
+			switch (m_indexRegion.DataCount)
+			{
+				// No indexed region
+			case 0:
+				pContext->DrawInstanced(
+					count,
+					start,
+					m_meshRegion);
+				break;
+
+				// otherwise draw with indexed region
+			default:
+				pContext->DrawIndexedInstance(
+					count,
+					start,
+					m_meshRegion,
+					m_indexRegion);
+				break;
+			}
 		}
 
 		void SetMeshRegion(const graphics::BufferRegion& rMeshRegion)
 		{
 			m_meshRegion = graphics::BufferRegion(rMeshRegion);
+			m_indexRegion.DataCount = 0;
 		}
 
 		void SetIndexRegion(const graphics::BufferRegion& rIndexRegion)
 		{
 			m_indexRegion = graphics::BufferRegion(rIndexRegion);
 		}
-	private:
 
+	private:
 		graphics::BufferRegion m_meshRegion;
 		graphics::BufferRegion m_indexRegion;
-		UINT m_modelByteWidth;
 
 	};
 
@@ -53,14 +59,46 @@ namespace rendering
 			MeshCount index is which mesh it is
 		*/
 		std::vector<UINT> MeshCount;
+		std::vector<UINT> MeshIndex;
+
+		UINT PerInstanceByteWidth;
+
+		char* pModelDataStart;
+		UINT ModelDataByteWidth;
+
+		UINT TotalModelCount;
+
+		std::vector<UINT> ModelCount;
 	};
 
-	struct LOAD_MESH_DESC
+	struct MODEL_LAYOUT_DESC
 	{
-		std::string Filepath;
-		UINT InstanceCount;
-		UINT ByteWidth;
-		RENDER_TECHNIQUES Technique;
+		UINT MeshIndex;			// What mesh to use
+		UINT InstanceCount;		// How many instances of that mesh
+	};
+
+	struct TECHNIQUE_HEAP_LAYOUT_DESC
+	{
+		UINT PerInstanceByteWidth;		// How much data per instance
+
+		MODEL_LAYOUT_DESC* pModelLayout;
+		UINT ModelLayoutCount;
+	};
+
+	struct VERTEX_BUFFER_DATA
+	{
+		UINT VertexCount;
+	
+		void
+			*pVertexData,
+			*pNormalsData,
+			*pTextureCoordData;
+	};
+	
+	struct INDEX_BUFFER_DATA
+	{
+		UINT IndexCount;
+		void* pIndexData;
 	};
 
 	class MeshManager
@@ -72,26 +110,22 @@ namespace rendering
 		MeshManager();
 		~MeshManager();
 
-		int LoadMeshes(
-			graphics::DeviceInterface* pDevice,
-			const LOAD_MESH_DESC* pDesc,
-			const UINT count);
+		int CreateMesh(
+			const VERTEX_BUFFER_DATA* pVertexData,
+			const INDEX_BUFFER_DATA* pIndexData,
+			graphics::DeviceInterface* pDevice);
 
-		void* AllocateMesh(const int index);
+		int CreateModelHeap(const TECHNIQUE_HEAP_LAYOUT_DESC layoutDesc[RENDER_TECHNIQUES_COUNT]);
+
+		void* GetTechniqueModelBuffer(
+			const RENDER_TECHNIQUES techniqueIndex);
 
 	private:
 		PerTechniqueData m_perTechniqueData[RENDER_TECHNIQUES_COUNT];
 
-		char* m_pModelData;
-		UINT m_modelDataSize;
+		char* m_pPerInstanceData;
+		UINT m_perInstanceDataSize;
 
-		char** m_ppModelDataStart; // Per Mesh
-
-		GPUMesh* m_pMeshes;
-
-		int LoadMeshFromFile(
-			graphics::DeviceInterface* pDevice,
-			const std::string filepath,
-			const int index);
+		std::vector<GPUMesh> m_meshes;
 	};
 }

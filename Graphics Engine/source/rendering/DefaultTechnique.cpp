@@ -13,12 +13,12 @@ namespace rendering
 
 	struct PerObjectData
 	{
-		float3 Pos;
-	};
+		float4 Pos;
+	}; 
 
 	cbuffer gTransformation : register (b0)
 	{
-		PerObjectData gMesh[3];
+		PerObjectData gMesh[4];
 	};
 
 	cbuffer gCam : register (b1)
@@ -42,7 +42,7 @@ namespace rendering
 	{
 		VSOUT output;
 
-		output.pos	= float4(pos + gMesh[instance].Pos, 1.0f);
+		output.pos	= float4(pos.xyz + gMesh[instance].Pos.xyz, 1.0f);
 	
 		return output;
 	}	

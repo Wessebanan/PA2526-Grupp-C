@@ -3,7 +3,7 @@
 namespace graphics
 {
 
-#define BUFFER_VERTEX_ARRAY_INDEX_LENGTH (1024)
+#define BUFFER_VERTEX_ARRAY_INDEX_LENGTH (4096)
 
 	BufferHeap::BufferHeap()
 	{
