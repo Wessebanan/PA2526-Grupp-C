@@ -340,6 +340,11 @@ void WebConnection::gameLoop()
 					if (this->checkForKey(sock, recvbuf, iSendResult))
 					{
 						cout << "-A key was sent midgame" << endl;
+
+
+						string ss;
+						ss += "3. PLAYER " + to_string(idUserSocket(sock));
+						this->sendMsg(sock, (char*)ss.c_str(), iSendResult);
 					}
 					// if the socket is the listener in the array
 					else
