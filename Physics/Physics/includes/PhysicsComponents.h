@@ -66,9 +66,22 @@ namespace ecs
 			
 			// Center Position is the middle of the box, for distance calculation.
 			// Important to apply transform to this point as well.
-			DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);
+			DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);		
 		};
 		
+		/*
+		* Object collision component is in its current state
+		* a non-adaptive AABB, since there needs to be vertex
+		* groups and animations to begin using BVHs and 
+		* adaptive bounding volumes.
+		*/
+		COMP(ObjectCollisionComponent)
+		{
+			DirectX::XMFLOAT3 mMin		= DirectX::XMFLOAT3(0, 0, 0);
+			DirectX::XMFLOAT3 mMax		= DirectX::XMFLOAT3(0, 0, 0);
+			DirectX::XMFLOAT3 mCenter	= DirectX::XMFLOAT3(0, 0, 0);
+		};
+
 		/*
 		* Temporary mesh component to test with ECS.
 		*/
