@@ -307,7 +307,7 @@ void WebConnection::gameLoop()
 
 		int socketCount = select(0, &copy, 0, 0, 0);
 		//cout << master.fd_count << endl;
-		broadcastMsg("The server got a request, Nr: " + to_string(nrMsg++));
+		
 
 		for (size_t i = 0; i < socketCount; i++)
 		{
@@ -347,6 +347,8 @@ void WebConnection::gameLoop()
 						cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
 
 						char* userMsg = reciveMsg(sock, recvbuf, iSendResult);
+
+						broadcastMsg("The server got a request, Nr: " + to_string(nrMsg++));
 
 						webMsgData wmd = parseMsg(userMsg);
 						if (wmd.player == -1)
