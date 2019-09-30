@@ -12,5 +12,5 @@ namespace GridFunctions
 	//Create a system for printing every tiles center position for debugging purposes.
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs);
 	void CreateHeightmap(float* arr);
-	DirectX::XMFLOAT2 FindStartingTile();
+	DirectX::XMFLOAT2 FindStartingTile(PLAYER id);
 };

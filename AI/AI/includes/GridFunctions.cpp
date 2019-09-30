@@ -17,6 +17,7 @@ namespace GridFunctions
 		float mid_to_side = cos(30 * pi / 180) * radius; //Calculate length between the center position and a side. 
 		TransformComponent transform;
 		TileComponent tile;
+		ecs::Entity* currentTile;
 		float height_map[144];
 		CreateHeightmap(height_map);
 		
@@ -37,24 +38,24 @@ namespace GridFunctions
 				{
 					tile.tileType = WATER;
 					tile.impassable = true;
-					ArenaProperties::gridLogic[i][j] = 1;
+					ArenaProperties::gridLogic[i][j].isPassable = false;
 				}
 				else if (transform.position.y == 3)
 				{
 					tile.tileType = STONE;
 					tile.impassable = false;
-					ArenaProperties::gridLogic[i][j] = 0;
+					ArenaProperties::gridLogic[i][j].isPassable = true;
 				}
 				else
 				{
 					tile.tileType = GRASS;
 					tile.impassable = false;
-					ArenaProperties::gridLogic[i][j] = 0;
+					ArenaProperties::gridLogic[i][j].isPassable = true;
 				}
 
 				//Create the new entity
-				rEcs.createEntity(transform, tile);
-
+				currentTile = rEcs.createEntity(transform, tile);
+				ArenaProperties::gridLogic[i][j].entityID = currentTile->getID();
 				//Update the x-position of the next tile in this row.
 				current_pos.x += 1.5f * radius;
 				//Update the z-position of the next tile depending on if it is in a 
@@ -99,8 +100,34 @@ namespace GridFunctions
 		}
 	}
 
-	DirectX::XMFLOAT2 FindStartingTile()
+	DirectX::XMFLOAT2 FindStartingTile(PLAYER id)
 	{
+		DirectX::XMFLOAT2 dank = { 0.0f, 0.0f };
+		int startTileX = -1;
+		int startTileY = -1;
+		switch (id)
+		{
+		case PLAYER1:
+			for (int x = 0; x < ArenaProperties::columns / 2; x++)
+			{
+				for (int y = 0; y < ArenaProperties::rows / 2; y++)
+				{
 
+				}
+			}
+			break;
+		case PLAYER2:
+
+			break;
+		case PLAYER3:
+			break;
+		case PLAYER4:
+			break;
+		default:
+			break;
+		}
+
+
+		return dank;
 	}
 };
