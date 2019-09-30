@@ -35,6 +35,11 @@ namespace memory
 			bool Initialize(void* memoryStart, uint memorySize, bool memoryIncludesAllocator = false) override;
 
 			/*
+				Hard reset allocator
+			*/
+			void Wipe() override;
+
+			/*
 				Reserves a chunk of memory and returns a pointer to it. Returns nullptr if allocation
 				isn't possible.
 			*/
@@ -48,7 +53,7 @@ namespace memory
 
 		private:
 
-			void* mCurrent;
+			void* mpCurrent;
 		};
 	}
 }

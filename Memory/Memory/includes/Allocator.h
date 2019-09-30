@@ -28,9 +28,11 @@ namespace memory
 			virtual ~Allocator() {}
 
 			virtual bool Initialize(void* memoryStart, uint memorySize, bool memoryIncludesAllocator = false) = 0;
+			virtual void Wipe() { mMemorySize = 0; mMemoryUsed = 0; mpMemoryStart = nullptr; }
 
 			virtual void* Allocate(uint size) = 0;
 			virtual void Free(void* ptr) = 0;
+
 
 		protected:
 

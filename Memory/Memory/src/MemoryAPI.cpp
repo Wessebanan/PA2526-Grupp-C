@@ -17,21 +17,24 @@ memory::MemoryManager& memory::MemoryManager::Instance()
 
 bool memory::MemoryManager::Initialize(uint size)
 {
-	mpHeapStart = malloc(size);
+	IF_INITIALIZED_RETURN(false);
+
+	mpMemoryStart = malloc(size);
 
 	// Sanity check creation
-	if (!mpHeapStart)
+	if (!mpMemoryStart)
 	{
 		return false;
 	}
 
-	mHeapSize = size;
+	mMemorySize = size;
 
 	// Sanity check heap initialization
-	if (!mHeap.Initialize(mpHeapStart, mHeapSize))
+	if (!mMemory.Initialize(mpMemoryStart, mMemorySize))
 	{
-		mHeapSize = 0;
-		free(mpHeapStart);
+		mMemorySize = 0;
+		free(mpMemoryStart);
+		mpMemoryStart = nullptr;
 		return false;
 	}
 
@@ -43,11 +46,23 @@ void memory::MemoryManager::End()
 	if (mInstance)
 	{
 		delete mInstance;
+		mInstance = nullptr;
 	}
 }
 
 memory::allocators::Allocator* memory::MemoryManager::CreateAllocator(uint size)
 {
+	IF_NOT_INITIALIZED_RETURN(nullptr);
+
+
+	/*
+		A user wants an allocator that manage a memory chunk of 'size' bytes.
+		MemoryManager will put the allocator at the beginning of this memory
+		chunk, hince we need to allocate for 'size' AND the size of the
+		allocator.
+	*/
+	uint size_with_allocator = size + sizeof(allocators::LinearAllocator);
+
 	/*
 		Notation:
 		This function is in beta version. For now, all heap allocatiors are linear
@@ -55,7 +70,7 @@ memory::allocators::Allocator* memory::MemoryManager::CreateAllocator(uint size)
 		functions for creating different allocator types, like linear and pool.
 	*/
 
-	void* p = mHeap.Allocate(size);
+	void* p = mMemory.Allocate(size_with_allocator);
 	
 	// Sanity check allocation
 	if (!p)
@@ -78,10 +93,10 @@ memory::allocators::Allocator* memory::MemoryManager::CreateAllocator(uint size)
 	*/
 
 	// Sanity check initialization
-	if (!pAllocator->Initialize(p, size, true))
+	if (!pAllocator->Initialize(p, size_with_allocator, true))
 	{
 		// Return memory chunk to main heap
-		mHeap.Free(p);
+		mMemory.Free(p);
 		return nullptr;
 	}
 
@@ -89,8 +104,8 @@ memory::allocators::Allocator* memory::MemoryManager::CreateAllocator(uint size)
 }
 
 memory::MemoryManager::MemoryManager() :
-	mHeapSize(0),
-	mpHeapStart(nullptr)
+	mMemorySize(0),
+	mpMemoryStart(nullptr)
 {
 	/*
 		Set all member variables to default. Initialize() will
@@ -100,7 +115,8 @@ memory::MemoryManager::MemoryManager() :
 
 memory::MemoryManager::~MemoryManager()
 {
-	free(mpHeapStart);
+	mMemory.Wipe();
+	free(mpMemoryStart);
+	mMemorySize = 0;
+	mpMemoryStart = nullptr;
 }
-
-

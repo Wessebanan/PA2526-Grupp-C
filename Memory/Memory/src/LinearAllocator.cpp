@@ -3,7 +3,7 @@
 using namespace memory;
 
 allocators::LinearAllocator::LinearAllocator() : 
-	mCurrent(nullptr)
+	mpCurrent(nullptr)
 {
 	/*
 		Set all member variables to default. Initialize() will
@@ -30,12 +30,13 @@ bool allocators::LinearAllocator::Initialize(void* memoryStart, uint memorySize,
 	{
 		/*
 			TODO: Calculate and add offset for free memory data structure.
+			TODO: Check if size of allocator is larger than memorySize, and handle it.
 		*/
-		mpMemoryStart = mCurrent = (char*)memoryStart + sizeof(LinearAllocator);
+		mpMemoryStart = mpCurrent = (char*)memoryStart + sizeof(LinearAllocator);
 	}
 	else
 	{
-		mpMemoryStart = mCurrent = memoryStart;
+		mpMemoryStart = mpCurrent = memoryStart;
 	}
 
 	mMemorySize = memorySize;
@@ -47,6 +48,12 @@ bool allocators::LinearAllocator::Initialize(void* memoryStart, uint memorySize,
 	return true;
 }
 
+void memory::allocators::LinearAllocator::Wipe()
+{
+	mpCurrent = nullptr;
+	Allocator::Wipe();
+}
+
 void* memory::allocators::LinearAllocator::Allocate(uint size)
 {
 	// Sanity check if allocation fits in free memory
@@ -55,8 +62,9 @@ void* memory::allocators::LinearAllocator::Allocate(uint size)
 		return nullptr;
 	}
 
-	void* p = mCurrent;
-	mCurrent = (char*)mCurrent + size;
+	void* p = mpCurrent;
+	mpCurrent = (char*)mpCurrent + size;
+	mMemoryUsed += size;
 
 	/*
 		TODO: Update free memory data structure

@@ -8,6 +8,15 @@
 namespace memory
 {
 	/*
+		Static functions for usability.
+		These funtions fetches the memory manager instance and calls
+		on its methods.
+	*/
+	static inline bool Initialize(uint size);
+	static inline void End();
+	static inline allocators::Allocator* CreateAllocator(uint size);
+
+	/*
 		MemoryManager is a singleton class that handles the creation and
 		destruction of all primary memory domains.
 
@@ -56,8 +65,38 @@ namespace memory
 
 		static MemoryManager* mInstance;
 
-		uint mHeapSize;
-		void *mpHeapStart;
-		allocators::LinearAllocator mHeap;
+		uint mMemorySize;
+		void *mpMemoryStart;
+		allocators::LinearAllocator mMemory;
+
+
+		inline bool IsInitialized()
+		{
+			return mpMemoryStart;
+		}
+
+		#define IF_INITIALIZED_RETURN(ret) if (mpMemoryStart) {return ret;}
+		#define IF_NOT_INITIALIZED_RETURN(ret) if (!mpMemoryStart) {return ret;}
 	};
+
+
+
+	/*
+		Static function declarations
+	*/
+
+	static inline bool Initialize(uint size)
+	{
+		return MemoryManager::Instance().Initialize(size);
+	}
+
+	static inline void End()
+	{
+		MemoryManager::Instance().End();
+	}
+
+	static inline allocators::Allocator* CreateAllocator(uint size)
+	{
+		return MemoryManager::Instance().CreateAllocator(size);
+	}
 }
