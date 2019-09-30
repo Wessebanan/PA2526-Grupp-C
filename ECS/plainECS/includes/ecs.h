@@ -327,6 +327,6 @@ namespace ecs
 	template <typename T> inline T* EntityComponentSystem::getComponentFromEntity(ID _entityID)
 	{
 		// Forwards to internal function and cast returning BaseComponent pointer
-		return (T*)getComponentFromEntity(_entityID);
+		return getComponentFromEntity<T>(_entityID);
 	}
 }

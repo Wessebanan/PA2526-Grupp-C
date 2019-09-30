@@ -100,34 +100,72 @@ namespace GridFunctions
 		}
 	}
 
-	DirectX::XMFLOAT2 FindStartingTile(PLAYER id)
+	int2 FindStartingTile(PLAYER id)
 	{
-		DirectX::XMFLOAT2 dank = { 0.0f, 0.0f };
-		int startTileX = -1;
-		int startTileY = -1;
+		int2 index;
+		index.x = 0;
+		index.y = 0;
 		switch (id)
 		{
 		case PLAYER1:
-			for (int x = 0; x < ArenaProperties::columns / 2; x++)
+			for (int y = 0; y < ArenaProperties::rows / 2; y++)
 			{
-				for (int y = 0; y < ArenaProperties::rows / 2; y++)
+				for (int x = 0; x < ArenaProperties::columns / 2; x++)
 				{
-
+					if (ArenaProperties::gridLogic[y][x].isPassable)
+					{
+						index.x = x;
+						index.y = y;
+						break;
+					}
 				}
 			}
 			break;
 		case PLAYER2:
-
+			for (int y = 0; y < ArenaProperties::rows / 2; y++)
+			{
+				for (int x = ArenaProperties::columns - 1; x > ArenaProperties::columns / 2; x--)
+				{
+					if (ArenaProperties::gridLogic[y][x].isPassable)
+					{
+						index.x = x;
+						index.y = y;
+						break;
+					}
+				}
+			}
 			break;
 		case PLAYER3:
+			for (int y = ArenaProperties::rows - 1; y > ArenaProperties::rows / 2; y--)
+			{
+				for (int x = 0; x < ArenaProperties::columns / 2; x++)
+				{
+					if (ArenaProperties::gridLogic[y][x].isPassable)
+					{
+						index.x = x;
+						index.y = y;
+						break;
+					}
+				}
+			}
 			break;
 		case PLAYER4:
+			for (int y = ArenaProperties::rows - 1; y > ArenaProperties::rows / 2; y--)
+			{
+				for (int x = ArenaProperties::columns - 1; x > ArenaProperties::columns / 2; x--)
+				{
+					if (ArenaProperties::gridLogic[y][x].isPassable)
+					{
+						index.x = x;
+						index.y = y;
+						break;
+					}
+				}
+			}
 			break;
 		default:
 			break;
 		}
-
-
-		return dank;
+		return index;
 	}
 };

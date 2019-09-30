@@ -27,6 +27,12 @@ struct TileData
 	bool isPassable = false;
 };
 
+struct int2
+{
+	int x; 
+	int y;
+};
+
 namespace ArenaProperties
 {
 	constexpr int rows = 12;
