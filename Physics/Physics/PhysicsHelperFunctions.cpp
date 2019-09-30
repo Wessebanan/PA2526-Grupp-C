@@ -68,6 +68,15 @@ void PhysicsHelpers::GetExtremes(const DirectX::XMFLOAT3* points, const unsigned
 	}
 }
 
+DirectX::XMFLOAT3 PhysicsHelpers::operator+(const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2)
+{
+	DirectX::XMFLOAT3 res;
+	res.x = p1.x + p2.x;
+	res.x = p1.y + p2.y;
+	res.x = p1.z + p2.z;
+	return res;
+}
+
 void CreateBoundingSphere(const DirectX::XMFLOAT3* points, const unsigned int& n_points, const DirectX::XMFLOAT3& min_point, const DirectX::XMFLOAT3& max_point, float& radius, DirectX::XMFLOAT3& center)
 {
 	// min + max / 2 gives us the center.

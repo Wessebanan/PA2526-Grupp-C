@@ -3,7 +3,7 @@
 ecs::systems::StaticMovementSystem::StaticMovementSystem()
 {
 	updateType = ecs::EntityUpdate;
-	typeFilter.addRequirement(MovementComponent::typeID);
+	typeFilter.addRequirement(StaticMovementComponent::typeID);
 	typeFilter.addRequirement(TransformComponent::typeID);
 }
 
@@ -14,7 +14,7 @@ ecs::systems::StaticMovementSystem::~StaticMovementSystem()
 void ecs::systems::StaticMovementSystem::updateEntity(ecs::FilteredEntity& _entityInfo, float _delta)
 {
 	// If an entity is movable and moving, move it and reduce velocity on update. 
-	MovementComponent* movement = _entityInfo.getComponent<MovementComponent>();
+	StaticMovementComponent* movement = _entityInfo.getComponent<StaticMovementComponent>();
 	if (movement->mVelocity > 0.0f)
 	{
 		// Grabbing the transform component in order to modify the position of the entity.
@@ -61,19 +61,26 @@ void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event,
 {
 	// Receiving a direction and entity ID from the event.
 	MovementInputEvent input_event = dynamic_cast<MovementInputEvent&>(_event);
-	
+
+	// Checking that the entity should move statically.
+	Entity* entity = getEntity(input_event.mEntityID);
+	if (!entity->hasComponentOfType(StaticMovementComponent::typeID))
+	{
+		return;
+	}
+
 	// Finding the entity that should move and grabbing its movement component.
 	Entity* entity_to_move = getEntity(input_event.mEntityID);
-	ID movement_component_ID = entity_to_move->getComponentID(MovementComponent::typeID);
-	MovementComponent* movement_component = dynamic_cast<MovementComponent*>(getComponent(MovementComponent::typeID, movement_component_ID));
+	ID movement_component_ID = entity_to_move->getComponentID(StaticMovementComponent::typeID);
+	StaticMovementComponent* movement_component = dynamic_cast<StaticMovementComponent*>(getComponent(StaticMovementComponent::typeID, movement_component_ID));
 
 	// Rotating its direction of movement based on current 
 	// direction and input direction.
 	float rotation = (float)input_event.mInput;
 
 	// Because radians.
-	float cos_rotation = (float)cos(rotation * PI / 180.0);
-	float sin_rotation = (float)sin(rotation * PI / 180.0);
+	float cos_rotation = (float)cos(rotation * PI / 180.0f);
+	float sin_rotation = (float)sin(rotation * PI / 180.0f);
 	
 	// Rotation application around y-axis using the forward vector of the movement component.
 	movement_component->mDirection.x = movement_component->mForward.x * cos_rotation - movement_component->mForward.z * sin_rotation;
@@ -83,4 +90,73 @@ void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event,
 	movement_component->mVelocity = movement_component->mMaxVelocity;
 }
 
+ecs::systems::DynamicMovementSystem::DynamicMovementSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(DynamicMovementComponent::typeID);
+	typeFilter.addRequirement(TransformComponent::typeID);
+	subscribeEventCreation(MovementInputEvent::typeID);
+}
 
+ecs::systems::DynamicMovementSystem::~DynamicMovementSystem()
+{
+
+}
+
+void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _entityInfo, float _delta)
+{
+	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(_entityInfo.entity->getID());
+	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
+
+	// Using THE FORCE, if any, to calculate acceleration --> velocity --> movement.
+
+	// a = F/m
+	movement_component->mAcceleration.x = movement_component->mForce.x / movement_component->mWeight;
+	movement_component->mAcceleration.y = movement_component->mForce.y / movement_component->mWeight;
+	movement_component->mAcceleration.z = movement_component->mForce.z / movement_component->mWeight;	
+	
+	// v = v_0 + a*delta_t
+	movement_component->mVelocity.x += movement_component->mAcceleration.x * _delta;
+	movement_component->mVelocity.y += movement_component->mAcceleration.y * _delta;
+	movement_component->mVelocity.z += movement_component->mAcceleration.z * _delta;
+
+	// d = d_0 + v*delta_t
+	transform_component->position.x += movement_component->mVelocity.x * _delta;
+	transform_component->position.y += movement_component->mVelocity.y * _delta;
+	transform_component->position.z += movement_component->mVelocity.z * _delta;
+
+	// Reset force here as it should be 0 if there is no further input event.
+	movement_component->mForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+}
+
+void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
+{
+	MovementInputEvent input_event = dynamic_cast<MovementInputEvent&>(*_event);
+
+	// Checking that the entity should move dynamically.
+	Entity* entity = getEntity(input_event.mEntityID);
+	if (!entity->hasComponentOfType(DynamicMovementComponent::typeID))
+	{
+		return;
+	}
+
+	// Apply force in the direction of the movement input relative to forward direction.
+	MovementInputs input = input_event.mInput;
+
+	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(entity->getID());
+
+	// Rotating direction of movement around the y axis.
+	DirectX::XMFLOAT3 direction = movement_component->mForward;
+	float rotation = (float)input_event.mInput;
+
+	float cos_rotation = (float)cos(rotation * PI / 180.0);
+	float sin_rotation = (float)sin(rotation * PI / 180.0);
+
+	// Rotation application around y-axis using the forward vector of the movement component.
+	direction.x = movement_component->mForward.x * cos_rotation - movement_component->mForward.z * sin_rotation;
+	direction.z = movement_component->mForward.x * sin_rotation + movement_component->mForward.z * cos_rotation;
+	
+	// Applying force in the direction of the movement.
+	movement_component->mForce.x = direction.x * DEFAULT_MOVEMENT_FORCE;
+	movement_component->mForce.z = direction.z * DEFAULT_MOVEMENT_FORCE;
+}
