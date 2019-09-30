@@ -8,10 +8,10 @@
       <AdditionalIncludeDirectories>$(SolutionDir)..\ModelLoader\ModelLoader\includes;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>ModelLoader.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalDependencies>ModelLoader.lib;libfbxsdk.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>ModelLoader.lib;%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalDependencies>ModelLoader.lib;libfbxsdk.lib;%(AdditionalDependencies);</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup />
