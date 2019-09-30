@@ -156,7 +156,7 @@ namespace GroundCollision
 		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
 		GroundCollisionComponent ground_collision_component;
 		TransformComponent transform_component;
-		//transform_component.position = DirectX::XMFLOAT3(10.0f, 0.0f, 10.0f);
+		transform_component.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 		ecs::Entity* ground_collision_entity = ecs.createEntity(mesh_component, transform_component, ground_collision_component);
 
@@ -223,6 +223,7 @@ namespace GroundCollision
 		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
 		GroundCollisionComponent ground_collision_component;
 		TransformComponent transform_component;
+		transform_component.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 
 		ecs::Entity* ground_collision_entity = ecs.createEntity(mesh_component, transform_component, ground_collision_component);
 
