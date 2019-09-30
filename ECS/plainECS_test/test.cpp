@@ -1371,6 +1371,11 @@ namespace TestECS
 			EXPECT_EQ(p_test->data, expected_test_data);
 			EXPECT_EQ(p_other->data, expected_other_data);
 
+			p_base = ecs.getComponentFromEntity(TestComponent::typeID, p_entity->getID());
+			ASSERT_NE(p_base, nullptr);
+			p_test = (TestComponent*)p_base;
+			EXPECT_EQ(p_test->data, expected_test_data);
+
 			/*
 				Test templated
 			*/
@@ -1385,6 +1390,10 @@ namespace TestECS
 
 			EXPECT_EQ(p_test->data, expected_test_data);
 			EXPECT_EQ(p_other->data, expected_other_data);
+
+			p_test = ecs.getComponentFromEntity<TestComponent>(p_entity->getID());
+			ASSERT_NE(p_test, nullptr);
+			EXPECT_EQ(p_test->data, expected_test_data);
 		}
 		TEST(TestECSComponent, Iterators)
 		{
