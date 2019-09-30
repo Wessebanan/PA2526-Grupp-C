@@ -1,10 +1,15 @@
 #pragma once
 #include <DirectXMath.h>
-
+#define PI 3.14159265358979323846
 namespace PhysicsHelpers
 {
 	// Returns the distance between two points as a float.
 	float CalculateDistance(const DirectX::XMFLOAT3 &p1, const DirectX::XMFLOAT3 &p2);
+
+	// Returns the vector length as a float.
+	float CalculateVectorLength(const DirectX::XMFLOAT3 vec);
+
+	void RotateAroundY(DirectX::XMFLOAT3 &vec, int degrees);
 
 	// Fills the vertices parameter with OBB vertices according to:
 	/*
@@ -23,6 +28,6 @@ namespace PhysicsHelpers
 
 	// Takes the extreme points of a vertex group and writes the resulting center and radius to parameters center and radius.
 	void CreateBoundingSphere(const DirectX::XMFLOAT3* points, const unsigned int &n_points, const DirectX::XMFLOAT3& min_point, const DirectX::XMFLOAT3& max_point, float& radius, DirectX::XMFLOAT3& center);
-
+	
 	DirectX::XMFLOAT3 operator+(const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2);
 } // helper_functions

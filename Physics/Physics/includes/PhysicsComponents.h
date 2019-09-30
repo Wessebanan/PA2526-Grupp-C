@@ -18,13 +18,15 @@ namespace ecs
 			float mMaxVelocity = 100.0f;
 			float mVelocity = 0.0f;
 			DirectX::XMFLOAT3 mForward = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);
-			DirectX::XMFLOAT3 mDirection = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);	
+			DirectX::XMFLOAT3 mDirection = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 		};
 		
 		COMP(DynamicMovementComponent)
 		{
 			float mMaxVelocity = 100.0f;
 			float mMaxAcceleration = 10.0f;
+
+			DirectX::XMFLOAT3 mDirection = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mAcceleration = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mVelocity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -48,7 +50,7 @@ namespace ecs
 			float mRadius;
 		};
 		
-		/* !!!NOT USED!!!
+		/** !!!NOT USED!!!
 		* ForceComponent holds the center of mass
 		* and weight of an entity to calculate
 		* the acceleration of said entity.

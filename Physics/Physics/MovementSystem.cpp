@@ -1,5 +1,6 @@
 #include "MovementSystem.h"
 
+#pragma region StaticMovementSystem
 ecs::systems::StaticMovementSystem::StaticMovementSystem()
 {
 	updateType = ecs::EntityUpdate;
@@ -44,7 +45,8 @@ void ecs::systems::StaticMovementSystem::updateEntity(ecs::FilteredEntity& _enti
 		movement->mVelocity = 0;
 	}
 }
-
+#pragma endregion
+#pragma region StaticMovementUpdateSystem
 ecs::systems::StaticMovementUpdateSystem::StaticMovementUpdateSystem()
 {
 	updateType = ecs::EventReader;
@@ -76,20 +78,17 @@ void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event,
 
 	// Rotating its direction of movement based on current 
 	// direction and input direction.
-	float rotation = (float)input_event.mInput;
+	DirectX::XMFLOAT3 direction = movement_component->mForward;
+	RotateAroundY(direction, input_event.mInput);
 
-	// Because radians.
-	float cos_rotation = (float)cos(rotation * PI / 180.0f);
-	float sin_rotation = (float)sin(rotation * PI / 180.0f);
-	
-	// Rotation application around y-axis using the forward vector of the movement component.
-	movement_component->mDirection.x = movement_component->mForward.x * cos_rotation - movement_component->mForward.z * sin_rotation;
-	movement_component->mDirection.z = movement_component->mForward.x * sin_rotation + movement_component->mForward.z * cos_rotation;
+	movement_component->mDirection.x = direction.x;
+	movement_component->mDirection.z = direction.z;
 
 	// Setting velocity to the max velocity.
 	movement_component->mVelocity = movement_component->mMaxVelocity;
 }
-
+#pragma endregion
+#pragma region DynamicMovementSystem
 ecs::systems::DynamicMovementSystem::DynamicMovementSystem()
 {
 	updateType = ecs::EntityUpdate;
@@ -112,21 +111,40 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 
 	// a = F/m
 	movement_component->mAcceleration.x = movement_component->mForce.x / movement_component->mWeight;
-	movement_component->mAcceleration.y = movement_component->mForce.y / movement_component->mWeight;
-	movement_component->mAcceleration.z = movement_component->mForce.z / movement_component->mWeight;	
+	//movement_component->mAcceleration.y = movement_component->mForce.y / movement_component->mWeight;
+	movement_component->mAcceleration.z = movement_component->mForce.z / movement_component->mWeight;
 	
-	// v = v_0 + a*delta_t
-	movement_component->mVelocity.x += movement_component->mAcceleration.x * _delta;
-	movement_component->mVelocity.y += movement_component->mAcceleration.y * _delta;
-	movement_component->mVelocity.z += movement_component->mAcceleration.z * _delta;
+	// Applying deceleration if velocity and acceleration are greater than 0 in that axis.
+	if (fabs(movement_component->mVelocity.x) > 0.0f && movement_component->mAcceleration.x / movement_component->mVelocity.x <= 0.0f)
+	{
+		int sign = (int)(fabs(movement_component->mVelocity.x) / movement_component->mVelocity.x);
+		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
+		movement_component->mAcceleration.x -= sign * DEFAULT_DECELERATION;
+	}
+	if (fabs(movement_component->mVelocity.z) > 0.0f && movement_component->mAcceleration.z / movement_component->mVelocity.z <= 0.0f)
+	{
+		int sign = (int)(fabs(movement_component->mVelocity.z) / movement_component->mVelocity.z);
+		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
+		movement_component->mAcceleration.z -= sign * DEFAULT_DECELERATION;
+	}
+
+	// If the max velocity is not exceeded:
+	if (CalculateVectorLength(movement_component->mVelocity) < movement_component->mMaxVelocity)
+	{
+		// v = v_0 + a*delta_t
+		movement_component->mVelocity.x += movement_component->mAcceleration.x * _delta;
+		//movement_component->mVelocity.y += movement_component->mAcceleration.y * _delta;
+		movement_component->mVelocity.z += movement_component->mAcceleration.z * _delta;
+	}
 
 	// d = d_0 + v*delta_t
 	transform_component->position.x += movement_component->mVelocity.x * _delta;
-	transform_component->position.y += movement_component->mVelocity.y * _delta;
+	//transform_component->position.y += movement_component->mVelocity.y * _delta;
 	transform_component->position.z += movement_component->mVelocity.z * _delta;
 
-	// Reset force here as it should be 0 if there is no further input event.
+	// Reset movement force to 0 after since it should be 0 if no further input.
 	movement_component->mForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+
 }
 
 void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
@@ -147,16 +165,14 @@ void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	// Rotating direction of movement around the y axis.
 	DirectX::XMFLOAT3 direction = movement_component->mForward;
-	float rotation = (float)input_event.mInput;
+	RotateAroundY(direction, input_event.mInput);
 
-	float cos_rotation = (float)cos(rotation * PI / 180.0);
-	float sin_rotation = (float)sin(rotation * PI / 180.0);
+	// Updating direction according to the direction of movement.
+	movement_component->mDirection.x = direction.x;
+	movement_component->mDirection.z = direction.z;
 
-	// Rotation application around y-axis using the forward vector of the movement component.
-	direction.x = movement_component->mForward.x * cos_rotation - movement_component->mForward.z * sin_rotation;
-	direction.z = movement_component->mForward.x * sin_rotation + movement_component->mForward.z * cos_rotation;
-	
 	// Applying force in the direction of the movement.
 	movement_component->mForce.x = direction.x * DEFAULT_MOVEMENT_FORCE;
 	movement_component->mForce.z = direction.z * DEFAULT_MOVEMENT_FORCE;
 }
+#pragma endregion

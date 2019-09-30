@@ -4,7 +4,6 @@
 ecs::systems::InputSystem::InputSystem()
 {
 	updateType = ecs::EntityUpdate;
-	typeFilter.addRequirement(MovementComponent::typeID);
 	typeFilter.addRequirement(TransformComponent::typeID);
 }
 
