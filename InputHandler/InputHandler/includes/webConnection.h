@@ -6,7 +6,7 @@
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "sha1.h"
+#include "sha1.h" // Has the encryption
 
 #include <string>
 

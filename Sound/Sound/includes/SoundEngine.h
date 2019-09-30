@@ -17,19 +17,19 @@ namespace Sound
 	// frames.
 	struct Buffer
 	{
-		int Channels;
-		int Frames;
+		int channels;
+		int frames;
 		float* Data[SOUND_MAX_CHANNELS];
 
-		Buffer(int Channels, int Frames)
+		Buffer(int channels, int frames)
 		{
-			this->Channels = Channels;
-			this->Frames = Frames;
+			this->channels = channels;
+			this->frames = frames;
 
 			// Initialize a float array for every channel
-			for (int i = 0; i < Channels; i++)
+			for (int i = 0; i < channels; i++)
 			{
-				this->Data[i] = new float[(long long)Channels * Frames];
+				this->Data[i] = new float[(long long)channels * frames];
 			}
 		}
 	};
@@ -63,23 +63,23 @@ namespace Sound
 		// and are only meant to be used by
 		// SoundEngineTester. If someone can come up with
 		// a better way of doing this, please do tell me :)
-		Buffer* __GetChainBuffer(int Index);
+		Buffer* __GetChainBuffer(int index);
 
 	private:
 		// This is the function that are called everytime
 		// the sound card require a refill
-		int PaCallbackMethod(const void* inputBuffer, void* outputBuffer,
+		int PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
 			unsigned long framesPerBuffer,
-			const PaStreamCallbackTimeInfo* timeInfo,
+			const PaStreamCallbackTimeInfo* pTimeInfo,
 			PaStreamCallbackFlags statusFlags);
 
 		// This function redirects the callback function
 		// to the member function above
-		static int PaCallback(const void* inputBuffer, void* outputBuffer,
+		static int PaCallback(const void* pInputBuffer, void* pOutputBuffer,
 			unsigned long framesPerBuffer,
-			const PaStreamCallbackTimeInfo* timeInfo,
+			const PaStreamCallbackTimeInfo* pTimeInfo,
 			PaStreamCallbackFlags statusFlags,
-			void* userData);
+			void* pUserData);
 
 		// Function called when the stream finishes
 		// but currently have no use
@@ -87,7 +87,7 @@ namespace Sound
 
 		// This function redirects the callback function
 		// to the member function above
-		static void PaStreamFinished(void* userData);
+		static void PaStreamFinished(void* pUserData);
 
 		// PortAudio stream handler
 		PaStream* mpStream;
