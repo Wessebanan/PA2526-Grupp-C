@@ -49,19 +49,6 @@ namespace ecs
 			DirectX::XMFLOAT3 mCenter;
 			float mRadius;
 		};
-		
-		/** !!!NOT USED!!!
-		* ForceComponent holds the center of mass
-		* and weight of an entity to calculate
-		* the acceleration of said entity.
-		*/
-		COMP(ForceComponent)
-		{
-			// Assuming objects are equal in
-			// density all over.
-			DirectX::XMFLOAT3 mMassCenter;
-			float mWeight = 50.0f;
-		};	
 
 		/*
 		* GroundCollisionComponent is an OBB which only checks
