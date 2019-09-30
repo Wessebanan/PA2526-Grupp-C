@@ -28,6 +28,9 @@ bool allocators::LinearAllocator::Initialize(void* memoryStart, uint memorySize,
 
 	if (memoryIncludesAllocator)
 	{
+		/*
+			TODO: Calculate and add offset for free memory data structure.
+		*/
 		mpMemoryStart = mCurrent = (char*)memoryStart + sizeof(LinearAllocator);
 	}
 	else

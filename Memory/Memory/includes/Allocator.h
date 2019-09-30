@@ -6,9 +6,9 @@
 							! NOTATION !
 
 	For this pull-request, there exist only only one class that
-	inherits from Allocator; LinearHeap. In future pull-requests,
-	there will exist different types of allocators that each
-	manage memory differently.
+	inherits from Allocator; LinearAllocator. In future pull-
+	requests, there will exist different types of allocators that
+	each manage memory differently.
 */
 
 namespace memory
