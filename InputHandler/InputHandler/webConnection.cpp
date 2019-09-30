@@ -123,25 +123,32 @@ webMsgData WebConnection::parseMsg(char* userMsg)
 
 bool WebConnection::executeUserAction(webMsgData wmd)
 {
-
-	switch (wmd.action)
+	if (wmd.player < 4)
 	{
-	case ActionType::NAME:
-		this->setName(wmd);
-		break;
-	case ActionType::TILE:
-		this->setTile(wmd);
-		break;
-	case ActionType::BUTTON:
-		this->setButton(wmd);
-		break;
-	case ActionType::COMMAND:
-		this->setCommand(wmd);
-		break;
-	default:
-		cout << "-Parsing error: Not a action" << endl;
+		switch (wmd.action)
+		{
+		case ActionType::NAME:
+			this->setName(wmd);
+			break;
+		case ActionType::TILE:
+			this->setTile(wmd);
+			break;
+		case ActionType::BUTTON:
+			this->setButton(wmd);
+			break;
+		case ActionType::COMMAND:
+			this->setCommand(wmd);
+			break;
+		default:
+			cout << "-Parsing error: Not a action" << endl;
+			return false;
+			break;
+		}
+	}
+	else
+	{
+		cout << "-Parsing error: User is beyond amount of player slots" << endl;
 		return false;
-		break;
 	}
 
 
