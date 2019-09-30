@@ -168,6 +168,7 @@ private:
 	bool addUserSocket(SOCKET sock);
 
 
+
 	// Varible to see if system is still connected
 	bool connectionOK = true;
 

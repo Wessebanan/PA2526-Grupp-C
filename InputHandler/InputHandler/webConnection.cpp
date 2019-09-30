@@ -221,13 +221,10 @@ void WebConnection::playersJoin()
 				// if the socket is the listener in the array
 				if (sock == ListenSocket)
 				{
-					//cout << "-Listener is socket " << i << endl;
 					this->addUserSocket(sock);
 				}
 				else // its the cliet socket
 				{
-					//cout << "-reciving and sending on socket " << i << endl;
-
 					iResult = recv(sock, recvbuf, recvbuflen, 0);
 
 					if (iResult <= 0 || iResult == 8)
@@ -249,7 +246,7 @@ void WebConnection::playersJoin()
 						// if the socket is the listener in the array
 						else
 						{
-							cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
+							//cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
 
 							char* userMsg = reciveMsg(sock, recvbuf, iSendResult);
 
@@ -259,8 +256,6 @@ void WebConnection::playersJoin()
 							{
 								this->gameLoop();
 							}
-
-							//this->sendMsg(master.fd_array[1], (char*)this->msgToUsers, iSendResult);
 						}
 					}
 				}
@@ -269,9 +264,6 @@ void WebConnection::playersJoin()
 
 
 		printf("Closing playerJoin ...\n");
-		// Shuts down the tread
-		//CloseHandle(this->t_update);
-
 }
 
 void WebConnection::gameLoop()
@@ -284,19 +276,13 @@ void WebConnection::gameLoop()
 	cout << "--------------------------------" << endl;
 
 	int p = 0;
-	while (p < 4/* && p < this->nrOfPlayers*/)
+	while (p < 4)
 	{
 		// Broadcast channel in the futore
 		string ss;
 		ss += "3. PLAYER " + to_string(p);
-
-		//this->sendMsg(this->userSockets[p], (char*)ss.c_str(), iSendResult);
-		//this->sendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
 		if (this->userSockets[p] != INVALID_SOCKET)
-		{
 			this->sendMsg(this->userSockets[p], (char*)ss.c_str(), iSendResult);
-		}
-
 		p++;
 	}
 
@@ -306,8 +292,6 @@ void WebConnection::gameLoop()
 		fd_set copy = master;
 
 		int socketCount = select(0, &copy, 0, 0, 0);
-		//cout << master.fd_count << endl;
-		
 
 		for (size_t i = 0; i < socketCount; i++)
 		{
@@ -339,9 +323,6 @@ void WebConnection::gameLoop()
 					// Connect if it hasnt
 					if (this->checkForKey(sock, recvbuf, iSendResult))
 					{
-						cout << "-A key was sent midgame" << endl;
-
-
 						string ss;
 						ss += "3. PLAYER " + to_string(idUserSocket(sock));
 						this->sendMsg(sock, (char*)ss.c_str(), iSendResult);
@@ -349,11 +330,11 @@ void WebConnection::gameLoop()
 					// if the socket is the listener in the array
 					else
 					{
-						cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
+						//cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
 
 						char* userMsg = reciveMsg(sock, recvbuf, iSendResult);
 
-						broadcastMsg("The server got a request, Nr: " + to_string(nrMsg++));
+						broadcastMsg("Recived mesages: " + to_string(nrMsg++));
 
 						webMsgData wmd = parseMsg(userMsg);
 						if (wmd.player == -1)
@@ -373,8 +354,6 @@ void WebConnection::gameLoop()
 				}
 				
 			}
-			
-			// 
 		}
 	}
 
@@ -387,7 +366,7 @@ void WebConnection::broadcastMsg(string msg)
 	// Broadcast channel in the futore
 	string ss;
 	ss += "1. " + msg;
-	while (p < 4/* && p < this->nrOfPlayers*/)
+	while (p < 4)
 	{
 
 		if (this->userSockets[p] != INVALID_SOCKET)
@@ -630,7 +609,7 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 {
 	if (sock == INVALID_SOCKET || sock == 0)
 	{
-		cout << "-Tried to remove closed socket" << endl;
+		cout << "-ERROR: Tried to remove closed socket" << endl;
 	}
 	else
 	{
@@ -660,7 +639,7 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 					break;
 				}
 			}
-			cout << "--The client closed--" << endl;
+			cout << "--The user closed--" << endl;
 			return true;
 		}
 		else if (error == 8)
@@ -679,7 +658,7 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 					break;
 				}
 			}
-			cout << "--The client closed--" << endl;
+			cout << "--The user closed--" << endl;
 			return true;
 		}
 	}
@@ -699,7 +678,7 @@ bool WebConnection::addUserSocket(SOCKET sock)
 		}
 	}
 
-	cout << "-FIRST EMPTY: " << firstEmpty << endl;
+	cout << "-Assigning user to slot: " << firstEmpty << endl;
 
 	// Add the connection to one of the new clients
 	this->userSockets[firstEmpty] = accept(ListenSocket, nullptr, nullptr);
