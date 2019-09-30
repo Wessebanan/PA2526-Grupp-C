@@ -3,11 +3,6 @@
 
 WebConnection::WebConnection()
 {
-	this->msgToUsers = (char*)"start";
-	this->msgToClient = (char*)"No msg yet";
-
-	//this->nrOfPlayers = 0;
-
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != 0) {
@@ -28,38 +23,38 @@ WebConnection::WebConnection()
 	}
 
 	// Create a SOCKET for connecting to server
-	ListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-	if (ListenSocket == INVALID_SOCKET) {
+	mListenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+	if (mListenSocket == INVALID_SOCKET) {
 		printf("socket failed with error: %ld\n", WSAGetLastError());
 		freeaddrinfo(result);
 		WSACleanup();
 	}
 
 	// Setup the TCP listening socket
-	iResult = bind(ListenSocket, result->ai_addr, (int)result->ai_addrlen);
+	iResult = bind(mListenSocket, result->ai_addr, (int)result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) {
 		printf("bind failed with error: %d\n", WSAGetLastError());
 		freeaddrinfo(result);
-		closesocket(ListenSocket);
+		closesocket(mListenSocket);
 		WSACleanup();
 	}
 
 	freeaddrinfo(result);
 
-	iResult = listen(ListenSocket, SOMAXCONN);
+	iResult = listen(mListenSocket, SOMAXCONN);
 	if (iResult == SOCKET_ERROR) {
 		printf("listen failed with error: %d\n", WSAGetLastError());
-		closesocket(ListenSocket);
+		closesocket(mListenSocket);
 		WSACleanup();
 	}
 
 
-	FD_ZERO(&master);
-	FD_SET(ListenSocket, &master);
+	FD_ZERO(&mMaster);
+	FD_SET(mListenSocket, &mMaster);
 
-	for (size_t i = 0; i < mMaxUserSockets; i++)
+	for (size_t i = 0; i < mMaxmUserSockets; i++)
 	{
-		userSockets[i] = INVALID_SOCKET;
+		mUserSockets[i] = INVALID_SOCKET;
 	}
 
 	this->initThread();
@@ -74,17 +69,17 @@ bool WebConnection::shutDown()
 {
 	this->shutDownThread();
 
-	FD_CLR(ListenSocket, &master);
-	closesocket(ListenSocket);
-	//if (this->ListenSocket != INVALID_SOCKET)
+	FD_CLR(mListenSocket, &mMaster);
+	closesocket(mListenSocket);
+	//if (this->mListenSocket != INVALID_SOCKET)
 	//{
-	while (master.fd_count > 0)
+	while (mMaster.fd_count > 0)
 	{
 		// Get the socket number
-		SOCKET sock = master.fd_array[0];
+		SOCKET sock = mMaster.fd_array[0];
 
-		// Remove it from the master file list and close the socket
-		FD_CLR(sock, &master);
+		// Remove it from the mMaster file list and close the socket
+		FD_CLR(sock, &mMaster);
 
 		shutdown(sock, SD_SEND);
 		closesocket(sock);
@@ -104,21 +99,21 @@ bool WebConnection::shutDown()
 
 webMsgData WebConnection::parseMsg(char* userMsg)
 {
-	webMsgData retVal;
+	webMsgData ret_val;
 
 	string str = userMsg;
 
-	retVal.player = (str[0] - 48);
+	ret_val.player = (str[0] - 48);
 
 	int hun = ((int)str[1] - 48) * 100;
 	int ten = ((int)str[2] - 48) * 10;
 	int one = (int)str[3] - 48;
 
-	retVal.action = hun + ten + one;
+	ret_val.action = hun + ten + one;
 
-	retVal.data = str.substr(4, str.size());
+	ret_val.data = str.substr(4, str.size());
 
-	return retVal;
+	return ret_val;
 }
 
 bool WebConnection::executeUserAction(webMsgData wmd)
@@ -159,7 +154,7 @@ void WebConnection::setName(webMsgData wmd)
 	mUsers[wmd.player].name = wmd.data;
 
 	int res = 0;
-	this->sendMsg(this->userSockets[wmd.player],
+	this->sendMsg(this->mUserSockets[wmd.player],
 		(char*)string(
 			"2. Your name is now " + 
 			wmd.data
@@ -183,7 +178,7 @@ void WebConnection::setTile(webMsgData wmd)
 	mUsers[wmd.player].tile[1] = hun + ten + one;
 
 	int res = 0;
-	this->sendMsg(this->userSockets[wmd.player], 
+	this->sendMsg(this->mUserSockets[wmd.player], 
 		(char*)string("3. Your tile is now " + 
 			to_string(mUsers[wmd.player].tile[0]) + 
 			"," +
@@ -210,11 +205,11 @@ void WebConnection::setCommand(webMsgData wmd)
 
 void WebConnection::playersJoin()
 {
-	this->runPlayerJoin = true;
+	this->mRunPlayerJoin = true;
 
-		while (this->runThread && this->runPlayerJoin)
+		while (this->mRunThread && this->mRunPlayerJoin)
 		{
-			fd_set copy = master;
+			fd_set copy = mMaster;
 
 			//cout << this->msgToClient << endl;
 
@@ -226,7 +221,7 @@ void WebConnection::playersJoin()
 				SOCKET sock = copy.fd_array[i];
 
 				// if the socket is the listener in the array
-				if (sock == ListenSocket)
+				if (sock == mListenSocket)
 				{
 					this->addUserSocket(sock);
 				}
@@ -255,9 +250,9 @@ void WebConnection::playersJoin()
 						{
 							//cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
 
-							char* userMsg = reciveMsg(sock, recvbuf, iSendResult);
+							char* user_msg = reciveMsg(sock, recvbuf, iSendResult);
 
-							string str1 = userMsg;
+							string str1 = user_msg;
 
 							if (!str1.compare(string("start")))
 							{
@@ -275,8 +270,8 @@ void WebConnection::playersJoin()
 
 void WebConnection::gameLoop()
 {
-	this->runGameLoop = true;
-	int startCount = master.fd_count;
+	this->mRunGameLoop = true;
+	int startCount = mMaster.fd_count;
 
 	cout << "--------------------------------" << endl;
 	cout << "---------STARTING GAME----------" << endl;
@@ -288,15 +283,15 @@ void WebConnection::gameLoop()
 		// Broadcast channel in the futore
 		string ss;
 		ss += "3. PLAYER " + to_string(p);
-		if (this->userSockets[p] != INVALID_SOCKET)
-			this->sendMsg(this->userSockets[p], (char*)ss.c_str(), iSendResult);
+		if (this->mUserSockets[p] != INVALID_SOCKET)
+			this->sendMsg(this->mUserSockets[p], (char*)ss.c_str(), iSendResult);
 		p++;
 	}
 
 	int nrMsg = 0;
-	while (this->runThread && this->runGameLoop)
+	while (this->mRunThread && this->mRunGameLoop)
 	{
-		fd_set copy = master;
+		fd_set copy = mMaster;
 
 		int socketCount = select(0, &copy, 0, 0, 0);
 
@@ -305,7 +300,7 @@ void WebConnection::gameLoop()
 			SOCKET sock = copy.fd_array[i];
 
 			// if the socket is the listener in the array
-			if (sock == ListenSocket)
+			if (sock == mListenSocket)
 			{
 				// If the listener gets set in this we have a new player mid-game
 				cout << "-LISTENER got a player mid game" << i << endl;
@@ -339,11 +334,11 @@ void WebConnection::gameLoop()
 					{
 						//cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
 
-						char* userMsg = reciveMsg(sock, recvbuf, iSendResult);
+						char* user_msg = reciveMsg(sock, recvbuf, iSendResult);
 
 						broadcastMsg("Recived mesages: " + to_string(nrMsg++));
 
-						webMsgData wmd = parseMsg(userMsg);
+						webMsgData wmd = parseMsg(user_msg);
 						if (wmd.player == -1)
 						{
 							cout << "-Couldnt parse msg form user" << endl;
@@ -353,7 +348,7 @@ void WebConnection::gameLoop()
 							wmd.player = idUserSocket(sock);
 
 							cout << "-From player " << wmd.player << endl
-								<< userMsg << endl;
+								<< user_msg << endl;
 
 							executeUserAction(wmd);
 						}
@@ -376,9 +371,9 @@ void WebConnection::broadcastMsg(string msg)
 	while (p < 4)
 	{
 
-		if (this->userSockets[p] != INVALID_SOCKET)
+		if (this->mUserSockets[p] != INVALID_SOCKET)
 		{
-			this->sendMsg(this->userSockets[p], (char*)msg.c_str(), iSendResult);
+			this->sendMsg(this->mUserSockets[p], (char*)msg.c_str(), iSendResult);
 		}
 		//this->sendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
 		
@@ -414,7 +409,7 @@ bool WebConnection::setGamestate(int gamestate)
 void WebConnection::initThread(void)
 {
 
-	this->runThread = true;
+	this->mRunThread = true;
 
 	t_update = CreateThread(
 		nullptr,
@@ -449,9 +444,9 @@ int WebConnection::idUserSocket(SOCKET sock)
 		cout << "-Asked for ID of 0 socket" << endl;
 	}
 	else
-		for (size_t p = 0; p < this->mMaxUserSockets; p++)
+		for (size_t p = 0; p < this->mMaxmUserSockets; p++)
 		{
-			if (sock == this->userSockets[p])
+			if (sock == this->mUserSockets[p])
 			{
 				player = p;
 			}
@@ -625,7 +620,7 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 			printf("Connection closing...\n");
 			// Drop the client
 			closesocket(sock);
-			FD_CLR(sock, &master);
+			FD_CLR(sock, &mMaster);
 			return true;
 		}
 		else if (error < 0)
@@ -636,13 +631,13 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 			// Failed with handshake
 
 			closesocket(sock);
-			FD_CLR(sock, &master);
-			this->userSockets[id] = INVALID_SOCKET;
-			for (size_t i = 1; i < mMaxUserSockets; i++)
+			FD_CLR(sock, &mMaster);
+			this->mUserSockets[id] = INVALID_SOCKET;
+			for (size_t i = 1; i < mMaxmUserSockets; i++)
 			{
-				if (master.fd_array[i] == 0)
+				if (mMaster.fd_array[i] == 0)
 				{
-					this->master.fd_array[i - 1] = 0;
+					this->mMaster.fd_array[i - 1] = 0;
 					break;
 				}
 			}
@@ -655,13 +650,13 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 			printf("recv failed with error 8: %d\n", WSAGetLastError());
 			int id = idUserSocket(sock);
 			closesocket(sock);
-			FD_CLR(sock, &master);
-			this->userSockets[id] = INVALID_SOCKET;
-			for (size_t i = 1; i < mMaxUserSockets; i++)
+			FD_CLR(sock, &mMaster);
+			this->mUserSockets[id] = INVALID_SOCKET;
+			for (size_t i = 1; i < mMaxmUserSockets; i++)
 			{
-				if (master.fd_array[i] == 0)
+				if (mMaster.fd_array[i] == 0)
 				{
-					this->master.fd_array[i-1] = 0;
+					this->mMaster.fd_array[i-1] = 0;
 					break;
 				}
 			}
@@ -675,23 +670,23 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 
 bool WebConnection::addUserSocket(SOCKET sock)
 {
-	int firstEmpty = 0;
-	for (size_t i = 0; i < mMaxUserSockets; i++)
+	int first_empty = 0;
+	for (size_t i = 0; i < mMaxmUserSockets; i++)
 	{
-		if (userSockets[i] == INVALID_SOCKET)
+		if (mUserSockets[i] == INVALID_SOCKET)
 		{
-			firstEmpty = i;
+			first_empty = i;
 			break;
 		}
 	}
 
-	cout << "-Assigning user to slot: " << firstEmpty << endl;
+	cout << "-Assigning user to slot: " << first_empty << endl;
 
 	// Add the connection to one of the new clients
-	this->userSockets[firstEmpty] = accept(ListenSocket, nullptr, nullptr);
+	this->mUserSockets[first_empty] = accept(mListenSocket, nullptr, nullptr);
 
-	// Adds to the master
-	FD_SET(this->userSockets[firstEmpty], &master);
+	// Adds to the mMaster
+	FD_SET(this->mUserSockets[first_empty], &mMaster);
 
 	//this->nrOfPlayers++;
 	return false;
@@ -701,19 +696,19 @@ void WebConnection::shutDownSocket(SOCKET sock)
 {
 	cout << "Closing dow a socket" << endl;
 	closesocket(sock);
-	FD_CLR(sock, &master);
+	FD_CLR(sock, &mMaster);
 	//this->nrOfPlayers--;
 
 	WSACleanup();
 
-	this->runGameLoop = false;
+	this->mRunGameLoop = false;
 
 	this->shutDownThread();
 }
 
 void WebConnection::shutDownThread()
 {
-	this->runThread = false;
-	this->connectionOK = false;
+	this->mRunThread = false;
+	this->mConnectionOK = false;
 	//CloseHandle(this->t_update);
 }

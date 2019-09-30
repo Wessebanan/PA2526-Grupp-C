@@ -96,7 +96,7 @@ public:
 	bool shutDown();
 
 	// Checks if the connection was successful
-	bool isConnected() { return this->connectionOK; };
+	bool isConnected() { return this->mConnectionOK; };
 
 	// Returns the button index the player has selected
 	int getUserButton(int player);
@@ -164,24 +164,24 @@ private:
 	void sendMsg(SOCKET sock, char* client_msg, int& Res);
 	// closes socket and hadels chages in the playersSockets
 	bool removeUserSocket(SOCKET sock, int error);
-	// adds the new socket to the UserSockets list
+	// adds the new socket to the mUserSockets list
 	bool addUserSocket(SOCKET sock);
 
 
 
 	// Varible to see if system is still connected
-	bool connectionOK = true;
+	bool mConnectionOK = true;
 
 	// %%%%		SOCKETS		%%%%
 	// socket that looks for new connections
-	SOCKET ListenSocket;
+	SOCKET mListenSocket;
 	// interpets the key and preformes handshake
 	bool checkForKey(SOCKET sock, char* recBuff, int& Res);
 
 	//int nrOfPlayers;
-	const int mMaxUserSockets = 30;
-	SOCKET userSockets[30];
-	fd_set master; 
+	const int mMaxmUserSockets = 30;
+	SOCKET mUserSockets[30];
+	fd_set mMaster; 
 
 	// BACKEND DEFENITIONS
 	WSADATA wsaData;
@@ -192,16 +192,10 @@ private:
 	char recvbuf[DEFAULT_BUFLEN];
 	int recvbuflen = DEFAULT_BUFLEN;
 
-
-	// HOLDS INFORMATION INCOMING AND OUTGOING INFORMATION
-	char* msgToUsers;
-	char* msgToClient;
-
-
 	// thread varibles and functions to handle sockets 
 	void shutDownSocket(SOCKET sock);
 	void shutDownThread();
-	bool runThread = false;
-	bool runPlayerJoin = false;
-	bool runGameLoop = false;
+	bool mRunThread = false;
+	bool mRunPlayerJoin = false;
+	bool mRunGameLoop = false;
 };
