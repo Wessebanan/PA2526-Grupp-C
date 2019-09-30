@@ -326,7 +326,15 @@ namespace ecs
 
 	template <typename T> inline T* EntityComponentSystem::getComponentFromEntity(ID _entityID)
 	{
-		// Forwards to internal function and cast returning BaseComponent pointer
-		return getComponentFromEntity<T>(_entityID);
+		// Retrieve entity and then fetch the ID of wanted component type
+		Entity* e = getEntity(_entityID);
+
+		// Sanity check
+		if (!e->hasComponentOfType<T>())
+		{
+			return nullptr;
+		}
+
+		return getComponent<T>(e->getComponentID<T>());
 	}
 }
