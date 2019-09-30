@@ -40,3 +40,11 @@ namespace PlayerProperties
 	constexpr int numberOfUnits = 3;
 	constexpr float unitHealth = 100.0f;
 }
+
+//struct ObstaclePlacment
+//{
+//	int x;
+//	int z = 4;
+//};
+//
+//ObstaclePlacment kek[10];

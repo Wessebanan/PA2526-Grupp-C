@@ -20,7 +20,6 @@ namespace GridFunctions
 		ecs::Entity* currentTile;
 		float height_map[144];
 		CreateHeightmap(height_map);
-		
 		//Calculate the position and create every tile.
 		for (int i = 0; i < rows; i++)
 		{
@@ -70,6 +69,7 @@ namespace GridFunctions
 				}
 			}
 		}
+		CreatePotentialField(rEcs);
 	}
 
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs)
@@ -85,12 +85,12 @@ namespace GridFunctions
 		  0.f,0.f,0.f,0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
-		  -1.f,-1.f,-1.f,-1.f,-1.f,0.f,0.f,-1.f,-1.f,-1.f,-1.f,-1.f,
+		  -1.f,-1.f,-1.f,-1.f,-1.f,0.f,0.f,-1.f,-1.f,-1.f,-1.f,-1.f, ////////////////////////////
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f,
 		  0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f,
-		  0.f,1.f,2.f,3.f,2.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,
+		  0.f,1.f,2.f,3.f,2.f,1.f,0.f,0.f,5.f,0.f,0.f,0.f,
 		  0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f };
 
@@ -98,6 +98,73 @@ namespace GridFunctions
 		{
 			arr[i] = height_values[i];
 		}
+		/*for (int i = 0; i < 5; i++)
+		{
+			kek[i].x = i;
+		}
+		for (int i = 7; i < 12; i++)
+		{
+			kek[i].x = i;
+		}*/
+	}
+
+	void CreatePotentialField(ecs::EntityComponentSystem& rEcs)
+	{
+		ecs::TypeFilter filter;
+		filter.addRequirement(ecs::components::TransformComponent::typeID);
+		filter.addRequirement(ecs::components::TileComponent::typeID);
+		ecs::EntityIterator entity_iterator = rEcs.getEntititesByFilter(filter);
+		float e_x, e_z, o_x, o_z;
+		int nr_of_obstacles = 0;
+		float test = 0;
+		for (ecs::FilteredEntity entry : entity_iterator.entities)
+		{
+			nr_of_obstacles = 0;
+			if (!entry.getComponent<ecs::components::TileComponent>()->impassable)//temp, checking if itself is -1(impassable)
+			{
+				e_x = entry.getComponent<ecs::components::TransformComponent>()->position.x;
+				e_z = entry.getComponent<ecs::components::TransformComponent>()->position.z;
+				for (ecs::FilteredEntity other : entity_iterator.entities)
+				{
+					if (entry.entity->getID() == other.entity->getID())
+					{
+						continue;
+					}
+
+					if (other.getComponent<ecs::components::TileComponent>()->impassable)//temp because only looking for predefined -1 tiles right now 
+					{
+						o_x = other.getComponent<ecs::components::TransformComponent>()->position.x;
+						o_z = other.getComponent<ecs::components::TransformComponent>()->position.z;
+						entry.getComponent<ecs::components::TileComponent>()->niceness += CreateCharge(e_x, e_z, o_x, o_z,-5);
+						nr_of_obstacles++;
+					}
+					if (other.getComponent<ecs::components::TransformComponent>()->position.y == 5)
+					{
+						test = entry.getComponent<ecs::components::TileComponent>()->niceness;
+						o_x = other.getComponent<ecs::components::TransformComponent>()->position.x;
+						o_z = other.getComponent<ecs::components::TransformComponent>()->position.z;
+						entry.getComponent<ecs::components::TileComponent>()->niceness += CreateCharge(e_x, e_z, o_x, o_z, 50);
+						test = entry.getComponent<ecs::components::TileComponent>()->niceness;
+					}
+				}
+				entry.getComponent<ecs::components::TileComponent>()->niceness = entry.getComponent<ecs::components::TileComponent>()->niceness / nr_of_obstacles;
+			}
+			else
+				entry.getComponent<ecs::components::TileComponent>()->niceness = -5.0f;
+		}
+	}
+
+	float CreateCharge(float startX, float startZ, float endX, float endZ, float charge)
+	{
+		float to_return = 0.f;
+		float x = abs(endX - startX);
+		float z = abs(endZ - startZ);
+		float dist = sqrt(x * x + z * z);
+		dist = dist / ((ArenaProperties::tileRadius) * 4);
+		int sign = (int)(fabs(charge) / charge);
+		to_return = sign*pow(fabs(charge), 1 / (dist + 1));
+
+		return to_return;
 	}
 
 	DirectX::XMFLOAT2 FindStartingTile(PLAYER id)
