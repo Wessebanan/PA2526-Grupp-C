@@ -32,18 +32,18 @@ int main()
 		ecs::ComponentIterator itt = mecs.getAllComponentsOfType(ecs::components::UserCommandComponent::typeID);
 
 		ecs::BaseComponent* base;
-		//while (base = itt.next())
-		//{
-		//	ecs::components::UserCommandComponent* commComp = dynamic_cast<ecs::components::UserCommandComponent*>(base);
+		while (base = itt.next())
+		{
+			ecs::components::UserCommandComponent* commComp = dynamic_cast<ecs::components::UserCommandComponent*>(base);
 
-		//	if (commComp != nullptr)
-		//	{
-		//		cout << commComp->userCommands[0].mCommand << endl;
-		//		cout << commComp->userCommands[1].mCommand << endl;
-		//		cout << commComp->userCommands[2].mCommand << endl;
-		//		cout << commComp->userCommands[3].mCommand << endl;
-		//	}
-		//}
+			if (commComp != nullptr)
+			{
+				cout << commComp->userCommands[0].mCommand << endl;
+				cout << commComp->userCommands[1].mCommand << endl;
+				cout << commComp->userCommands[2].mCommand << endl;
+				cout << commComp->userCommands[3].mCommand << endl;
+			}
+		}
 		
 
 		//inpSys.updateMouse();
