@@ -50,6 +50,24 @@ void memory::MemoryManager::End()
 	}
 }
 
+void* memory::MemoryManager::Allocate(uint size)
+{
+	IF_NOT_INITIALIZED_RETURN(nullptr);
+
+	/*
+		Not need to sanity check allocation for nullptr,
+		since if the allocation wasn't succeeded we want
+		to return nullptr anyway.
+	*/
+	return mMemory.Allocate(size);
+}
+
+void memory::MemoryManager::Free(void* ptr)
+{
+	IF_NOT_INITIALIZED_RETURN();
+	mMemory.Free(ptr);
+}
+
 memory::allocators::Allocator* memory::MemoryManager::CreateAllocator(uint size)
 {
 	IF_NOT_INITIALIZED_RETURN(nullptr);

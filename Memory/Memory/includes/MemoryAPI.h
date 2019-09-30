@@ -16,6 +16,9 @@ namespace memory
 	static inline void End();
 	static inline allocators::Allocator* CreateAllocator(uint size);
 
+	static inline void* Allocate(size_t size);
+	static inline void Free(void* ptr);
+
 	/*
 		MemoryManager is a singleton class that handles the creation and
 		destruction of all primary memory domains.
@@ -49,6 +52,16 @@ namespace memory
 			Frees all allocated memory.
 		*/
 		static void End();
+
+		/*
+			Allocate directly on the main memory.
+		*/
+		void* Allocate(uint size);
+
+		/*
+			Free directly on main memory.
+		*/
+		void Free(void* ptr);
 
 		/*
 			!BETA METHOD, LATER IMPLEMENTATIONS WILL SPECIFY ALLOCATOR TYPE!
@@ -98,5 +111,16 @@ namespace memory
 	static inline allocators::Allocator* CreateAllocator(uint size)
 	{
 		return MemoryManager::Instance().CreateAllocator(size);
+	}
+
+	static inline void* Allocate(size_t size)
+	{
+		return MemoryManager::Instance().Allocate(size);
+	}
+
+
+	static inline void Free(void* ptr)
+	{
+		MemoryManager::Instance().Free(ptr);
 	}
 }
