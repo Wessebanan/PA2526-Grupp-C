@@ -162,6 +162,8 @@ private:
 	char* reciveMsg(SOCKET sock, char* recvbuf, int& Res);
 	// sends out a message to the user, default will print to 0.
 	void sendMsg(SOCKET sock, char* client_msg, int& Res);
+	// closes socket and hadels chages in the playersSockets
+	bool removeUserSocket(SOCKET sock, int error);
 
 	// Varible to see if system is still connected
 	bool connectionOK = true;

@@ -237,31 +237,12 @@ void WebConnection::playersJoin()
 
 					iResult = recv(sock, recvbuf, recvbuflen, 0);
 
-					if (iResult == 0)
+					if (iResult <= 0 || iResult == 8)
 					{
-						printf("Connection closing...\n");
-						// Drop the client
-						closesocket(sock);
-						FD_CLR(sock, &master);
+						this->removeUserSocket(sock, iResult);
+					}
 
-					}
-					else if (iResult < 0)
-					{
-						printf("recv failed with error < 0 : %d\n", WSAGetLastError());
-						closesocket(sock);
-						FD_CLR(sock, &master);
-					}
-					else if (iResult == 8)
-					{
-						printf("recv failed with error 8: %d\n", WSAGetLastError());
-						closesocket(sock);
-						FD_CLR(sock, &master);
-
-						cout << "---------------------" << endl;
-						cout << "__The client closed__" << endl;
-						cout << "---------------------" << endl;
-						break;
-					}
+					
 
 					recvbuf[iResult] = 0;
 
@@ -662,6 +643,37 @@ void WebConnection::sendMsg(SOCKET sock, char* client_msg, int& Res)
 
 	Res = send(sock, sendbuf, (int)sendbuf_size, 0);
 	//cout << sendbuf << endl;
+}
+
+bool WebConnection::removeUserSocket(SOCKET sock, int error)
+{
+	if (error == 0)
+	{
+		printf("Connection closing...\n");
+		// Drop the client
+		closesocket(sock);
+		FD_CLR(sock, &master);
+		return true;
+	}
+	else if (error < 0)
+	{
+		printf("recv failed with error < 0 : %d\n", WSAGetLastError());
+		closesocket(sock);
+		FD_CLR(sock, &master);
+		return true;
+	}
+	else if (error == 8)
+	{
+		printf("recv failed with error 8: %d\n", WSAGetLastError());
+		closesocket(sock);
+		FD_CLR(sock, &master);
+
+		cout << "---------------------" << endl;
+		cout << "__The client closed__" << endl;
+		cout << "---------------------" << endl;
+		return true;
+	}
+	return false;
 }
 
 void WebConnection::shutDownSocket(SOCKET sock)
