@@ -212,9 +212,6 @@ void WebConnection::playersJoin()
 			//cout << this->msgToClient << endl;
 
 			int socketCount = select(0, &copy, 0, 0, 0);
-			//cout << "-socketcount		" << socketCount << endl;
-			//cout << "-copy fd_count		" << copy.fd_count << endl;
-			//cout << "-master fd_count	" << master.fd_count << endl;
 
 			for (size_t i = 0; i < socketCount; i++)
 			{
@@ -236,10 +233,7 @@ void WebConnection::playersJoin()
 					if (iResult <= 0 || iResult == 8)
 					{
 						this->removeUserSocket(sock, iResult);
-						//if ()
-						//	break;
 					}
-
 					else
 					{
 						recvbuf[iResult] = 0;
@@ -250,18 +244,16 @@ void WebConnection::playersJoin()
 						// Connect if it hasnt
 						if (this->checkForKey(sock, recvbuf, iSendResult))
 						{
-
+							cout << "-A key was sent in joining phase" << endl;
 						}
-						else // else recive and send a msg back
+						// if the socket is the listener in the array
+						else
 						{
-							//cout << "-i " << i << endl;
-
 							cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
 
-							char* client_msg = this->reciveMsg(sock, recvbuf, iSendResult);
-							this->msgToClient = client_msg;
+							char* userMsg = reciveMsg(sock, recvbuf, iSendResult);
 
-							string str1 = client_msg;
+							string str1 = userMsg;
 
 							if (!str1.compare(string("start")))
 							{
@@ -271,11 +263,8 @@ void WebConnection::playersJoin()
 							//this->sendMsg(master.fd_array[1], (char*)this->msgToUsers, iSendResult);
 						}
 					}
-					
 				}
 			}
-
-
 		}
 
 
@@ -336,41 +325,46 @@ void WebConnection::gameLoop()
 			{
 				iResult = recv(sock, recvbuf, recvbuflen, 0);
 
-
 				if (iResult <= 0 || iResult == 8)
-					if (this->removeUserSocket(sock, iResult))
-						break;
-
-				recvbuf[iResult] = 0;
-
-				char sendbuf[1024];
-				size_t sendbuf_size = 0;
-
-				// Connect if it hasnt
-				if (this->checkForKey(sock, recvbuf, iSendResult))
 				{
-					cout << "-A key was sent midgame" << endl;
+					this->removeUserSocket(sock, iResult);
 				}
-				// if the socket is the listener in the array
 				else
 				{
-					char* userMsg = reciveMsg(sock, recvbuf, iSendResult);
+					recvbuf[iResult] = 0;
 
-					webMsgData wmd = parseMsg(userMsg);
-					if (wmd.player == -1)
+					char sendbuf[1024];
+					size_t sendbuf_size = 0;
+
+					// Connect if it hasnt
+					if (this->checkForKey(sock, recvbuf, iSendResult))
 					{
-						cout << "-Couldnt parse msg form user" << endl;
+						cout << "-A key was sent midgame" << endl;
 					}
+					// if the socket is the listener in the array
 					else
 					{
-						wmd.player = idUserSocket(sock);
+						cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
 
-						cout << "-From player " << wmd.player << endl
-							<< userMsg << endl;
+						char* userMsg = reciveMsg(sock, recvbuf, iSendResult);
 
-						executeUserAction(wmd);
+						webMsgData wmd = parseMsg(userMsg);
+						if (wmd.player == -1)
+						{
+							cout << "-Couldnt parse msg form user" << endl;
+						}
+						else
+						{
+							wmd.player = idUserSocket(sock);
+
+							cout << "-From player " << wmd.player << endl
+								<< userMsg << endl;
+
+							executeUserAction(wmd);
+						}
 					}
 				}
+				
 			}
 			
 			// 
@@ -383,11 +377,11 @@ void WebConnection::gameLoop()
 void WebConnection::broadcastMsg(string msg)
 {
 	int p = 0;
+	// Broadcast channel in the futore
+	string ss;
+	ss += "1. " + msg;
 	while (p < 4/* && p < this->nrOfPlayers*/)
 	{
-		// Broadcast channel in the futore
-		string ss;
-		ss += "1. " +msg;
 
 		if (this->userSockets[p] != INVALID_SOCKET)
 		{
@@ -395,7 +389,6 @@ void WebConnection::broadcastMsg(string msg)
 		}
 		//this->sendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
 		
-
 		p++;
 	}
 }
@@ -644,10 +637,23 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 		}
 		else if (error < 0)
 		{
-			int id = this->idUserSocket(sock);
+			int id = idUserSocket(sock);
 			printf("recv failed with error < 0 : %d\n", WSAGetLastError());
+			
+			// Failed with handshake
+
 			closesocket(sock);
 			FD_CLR(sock, &master);
+			this->userSockets[id] = INVALID_SOCKET;
+			for (size_t i = 1; i < mMaxUserSockets; i++)
+			{
+				if (master.fd_array[i] == 0)
+				{
+					this->master.fd_array[i - 1] = 0;
+					break;
+				}
+			}
+			cout << "--The client closed--" << endl;
 			return true;
 		}
 		else if (error == 8)
@@ -658,6 +664,14 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 			closesocket(sock);
 			FD_CLR(sock, &master);
 			this->userSockets[id] = INVALID_SOCKET;
+			for (size_t i = 1; i < mMaxUserSockets; i++)
+			{
+				if (master.fd_array[i] == 0)
+				{
+					this->master.fd_array[i-1] = 0;
+					break;
+				}
+			}
 			cout << "--The client closed--" << endl;
 			return true;
 		}
