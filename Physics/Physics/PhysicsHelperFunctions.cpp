@@ -40,6 +40,13 @@ void PhysicsHelpers::RotateAroundY(DirectX::XMFLOAT3& vec, int degrees)
 	}
 }
 
+int PhysicsHelpers::Sign(float f)
+{
+	if (f < 0) return -1;
+	if (f > 0) return 1;
+	return 0;
+}
+
 void PhysicsHelpers::CreateOBB(DirectX::XMFLOAT3(&vertices)[8], const DirectX::XMFLOAT3 &min_point, const DirectX::XMFLOAT3 &max_point)
 {
 	// Creating the vertices for the box with the min and max points.

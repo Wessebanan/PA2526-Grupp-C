@@ -107,25 +107,22 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(_entityInfo.entity->getID());
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
 
-	// Using THE FORCE, if any, to calculate acceleration --> velocity --> movement.
+	// Starting off with movement in the x-z-plane.
 
 	// a = F/m
 	movement_component->mAcceleration.x = movement_component->mForce.x / movement_component->mWeight;
-	//movement_component->mAcceleration.y = movement_component->mForce.y / movement_component->mWeight;
 	movement_component->mAcceleration.z = movement_component->mForce.z / movement_component->mWeight;
 	
-	// Applying deceleration if velocity and acceleration are greater than 0 in that axis.
+	// Applying deceleration if velocity is greater than 0 and acceleration works opposite or not at all.
 	if (fabs(movement_component->mVelocity.x) > 0.0f && movement_component->mAcceleration.x / movement_component->mVelocity.x <= 0.0f)
 	{
-		int sign = (int)(fabs(movement_component->mVelocity.x) / movement_component->mVelocity.x);
 		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
-		movement_component->mAcceleration.x -= sign * DEFAULT_DECELERATION;
+		movement_component->mAcceleration.x -= Sign(movement_component->mVelocity.x) * DEFAULT_DECELERATION;
 	}
 	if (fabs(movement_component->mVelocity.z) > 0.0f && movement_component->mAcceleration.z / movement_component->mVelocity.z <= 0.0f)
 	{
-		int sign = (int)(fabs(movement_component->mVelocity.z) / movement_component->mVelocity.z);
 		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
-		movement_component->mAcceleration.z -= sign * DEFAULT_DECELERATION;
+		movement_component->mAcceleration.z -= Sign(movement_component->mVelocity.z) * DEFAULT_DECELERATION;
 	}
 
 	// If the max velocity is not exceeded:
@@ -133,18 +130,30 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	{
 		// v = v_0 + a*delta_t
 		movement_component->mVelocity.x += movement_component->mAcceleration.x * _delta;
-		//movement_component->mVelocity.y += movement_component->mAcceleration.y * _delta;
 		movement_component->mVelocity.z += movement_component->mAcceleration.z * _delta;
 	}
 
 	// d = d_0 + v*delta_t
 	transform_component->position.x += movement_component->mVelocity.x * _delta;
-	//transform_component->position.y += movement_component->mVelocity.y * _delta;
 	transform_component->position.z += movement_component->mVelocity.z * _delta;
 
 	// Reset movement force to 0 after since it should be 0 if no further input.
 	movement_component->mForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
+	// GRAVITY
+	
+	movement_component->mAcceleration.y = -GRAVITY;
+	if (fabs(movement_component->mVelocity.y) < movement_component->mMaxVelocity)
+	{
+		movement_component->mVelocity.y += movement_component->mAcceleration.y * _delta;
+	}
+
+	// Separate if rather than else for the specific moment max velocity is passed.
+	if (fabs(movement_component->mVelocity.y) > movement_component->mMaxVelocity)
+	{
+		movement_component->mVelocity.y = Sign(movement_component->mVelocity.y) * movement_component->mMaxVelocity;
+	}
+	transform_component->position.y += movement_component->mVelocity.y * _delta;
 }
 
 void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)

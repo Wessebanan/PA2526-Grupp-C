@@ -183,7 +183,6 @@ namespace MovementLogic
 	TEST(DynamicMovementLogic, HandleInput)
 	{
 		ecs::EntityComponentSystem ecs;
-		//ecs.createSystem<ecs::systems::InputSystem>();
 		ecs.createSystem<ecs::systems::DynamicMovementSystem>();
 
 		DynamicMovementComponent movement;
@@ -220,29 +219,59 @@ namespace MovementLogic
 			}
 
 			ecs.update(0.1f);
-			std::cout << std::endl << "Update: " << i + 1 << std::endl;
-			std::cout << "Position: (" << p_transform->position.x << ", " << p_transform->position.y << ", " << p_transform->position.z << ")" << std::endl;
-			std::cout << "Acceleration: ("	<< p_movement->mAcceleration.x << ", " << p_movement->mAcceleration.y << ", " << p_movement->mAcceleration.z << ")" << std::endl;
-			std::cout << "Velocity: ("	<< p_movement->mVelocity.x << ", " << p_movement->mVelocity.y << ", " << p_movement->mVelocity.z << ")" << std::endl;
+			//std::cout << std::endl << "Update: " << i + 1 << std::endl;
+			//std::cout << "Position: (" << p_transform->position.x << ", " << p_transform->position.y << ", " << p_transform->position.z << ")" << std::endl;
+			//std::cout << "Acceleration: (" << p_movement->mAcceleration.x << ", " << p_movement->mAcceleration.y << ", " << p_movement->mAcceleration.z << ")" << std::endl;
+			//std::cout << "Velocity: (" << p_movement->mVelocity.x << ", " << p_movement->mVelocity.y << ", " << p_movement->mVelocity.z << ")" << std::endl;
 		}
 
 		// Instead of doing a boatload of math to check each step, I am content
 		// in knowing that the entity returns to its original position after taking a lap.
 		// If you (Mr. Reviewer) want to check the journey you can uncomment the couts.
 
-		const float ABS_ERROR = pow(10.0, -10.0);
+		const float ABS_ERROR = pow(10.0f, -5.0f);
 		EXPECT_NEAR(p_transform->position.x, 0.0f, ABS_ERROR);
-		EXPECT_NEAR(p_transform->position.y, 0.0f, ABS_ERROR);
 		EXPECT_NEAR(p_transform->position.z, 0.0f, ABS_ERROR);
 
 		// The entity should also be standing still at this point.
 		EXPECT_NEAR(p_movement->mAcceleration.x, 0.0f, ABS_ERROR);
-		EXPECT_NEAR(p_movement->mAcceleration.y, 0.0f, ABS_ERROR);
 		EXPECT_NEAR(p_movement->mAcceleration.z, 0.0f, ABS_ERROR);
 
 		EXPECT_NEAR(p_movement->mVelocity.x, 0.0f, ABS_ERROR);
-		EXPECT_NEAR(p_movement->mVelocity.y, 0.0f, ABS_ERROR);
 		EXPECT_NEAR(p_movement->mVelocity.z, 0.0f, ABS_ERROR);
+
+		// NOTE: Only care about x and z right now because the movement system only cares about those.
+		// Gravity handles the rest, and if jumping is added that's a separate thing.
+	}
+
+	TEST(DynamicMovementLogic, HandleGravity)
+	{
+		ecs::EntityComponentSystem ecs;
+		ecs.createSystem<ecs::systems::DynamicMovementSystem>();
+
+		DynamicMovementComponent movement;
+		TransformComponent transform;
+		transform.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+
+		ecs::Entity* movable_entity = ecs.createEntity(movement, transform);
+		DynamicMovementComponent* p_movement = dynamic_cast<DynamicMovementComponent*>(ecs.getComponentFromEntity(DynamicMovementComponent::typeID, movable_entity->getID()));
+		TransformComponent* p_transform = dynamic_cast<TransformComponent*>(ecs.getComponentFromEntity(TransformComponent::typeID, movable_entity->getID()));
+
+		// Object is in free fall for a solid minute as we observe 
+		// the position and velocity (not acceleration cause constant).		
+		float expected_position = 0.0f;
+		for (int i = 0; i < 60; i++)
+		{
+			// Peak velocity is 100.
+			float expected_velocity = min(i * 9.82f, p_movement->mMaxVelocity);
+			expected_velocity *= -1.0f;
+			expected_position += expected_velocity;
+			EXPECT_FLOAT_EQ(expected_velocity, p_movement->mVelocity.y);
+			EXPECT_FLOAT_EQ(expected_position, p_transform->position.y);
+			
+			ecs.update(1.f);
+		}
+
 	}
 #pragma endregion
 } // MovementLogic

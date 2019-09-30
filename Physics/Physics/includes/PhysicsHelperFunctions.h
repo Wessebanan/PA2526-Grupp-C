@@ -11,6 +11,9 @@ namespace PhysicsHelpers
 
 	void RotateAroundY(DirectX::XMFLOAT3 &vec, int degrees);
 
+	// Returns 1 for positive, -1 for negative and 0 for 0
+	int Sign(float f);
+
 	// Fills the vertices parameter with OBB vertices according to:
 	/*
 	   6-------7
