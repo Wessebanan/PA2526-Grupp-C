@@ -110,7 +110,7 @@ public:
 	string getUserCommand(int player);
 	
 	// returns hte number of players that have connected since the client started up
-	int getNrOfPlayers() { return this->nrOfPlayers; };
+	//int getNrOfPlayers() { return this->nrOfPlayers; };
 	
 	// Changes the gamestate for the users
 	bool setGamestate(int gamestate);
@@ -176,7 +176,7 @@ private:
 	// interpets the key and preformes handshake
 	bool checkForKey(SOCKET sock, char* recBuff, int& Res);
 
-	int nrOfPlayers;
+	//int nrOfPlayers;
 	const int mMaxUserSockets = 30;
 	SOCKET userSockets[30];
 	fd_set master; 
