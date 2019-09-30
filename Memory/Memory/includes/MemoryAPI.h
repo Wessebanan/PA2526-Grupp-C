@@ -3,21 +3,10 @@
 #include <unordered_map>
 #include "MemoryGlobals.h"
 
-#include "Heap.h"
-#include "LinearHeap.h"
-
-
+#include "LinearAllocator.h"
 
 namespace memory
 {
-	using AllocatorType = unsigned int;
-	enum AllocatorTypes
-	{
-		Linear,
-
-		Undefined
-	};
-
 	/*
 		MemoryManager is a singleton class that handles the creation and
 		destruction of all primary memory domains.
@@ -34,12 +23,31 @@ namespace memory
 		MemoryManager(const MemoryManager& other) = delete;
 		MemoryManager& operator=(const MemoryManager& other) = delete;
 
+		/*
+			Returns an instance to the Memory Manager. Use this instance
+			to create custom memory domains.
+		*/
 		static MemoryManager& Instance();
 
+		/*
+			Allocates main memory for the MemoryManager. This method has to
+			be called before using the manager to create allocators or allocate
+			memory.
+		*/
 		bool Initialize(uint size);
+
+		/*
+			Frees all allocated memory.
+		*/
 		static void End();
 
-		allocators::Allocator* CreateHeap(uint size);
+		/*
+			!BETA METHOD, LATER IMPLEMENTATIONS WILL SPECIFY ALLOCATOR TYPE!
+			Creates an allocator for a new memory domain that the user can use.
+			Memory domains are just different chunks in memory, reserved for
+			one area of the application; like graphics or ECS.
+		*/
+		allocators::Allocator* CreateAllocator(uint size);
 
 	private:
 

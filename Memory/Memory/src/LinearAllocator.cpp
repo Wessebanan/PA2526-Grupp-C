@@ -1,11 +1,8 @@
-#include "LinearHeap.h"
+#include "LinearAllocator.h"
 
 using namespace memory;
 
 allocators::LinearAllocator::LinearAllocator() : 
-	mMemoryStart(nullptr),
-	mUsedMemory(0),
-	mMemorySize(0),
 	mCurrent(nullptr)
 {
 	/*
@@ -31,11 +28,11 @@ bool allocators::LinearAllocator::Initialize(void* memoryStart, uint memorySize,
 
 	if (memoryIncludesAllocator)
 	{
-		mMemoryStart = mCurrent = (char*)memoryStart + sizeof(LinearAllocator);
+		mpMemoryStart = mCurrent = (char*)memoryStart + sizeof(LinearAllocator);
 	}
 	else
 	{
-		mMemoryStart = mCurrent = memoryStart;
+		mpMemoryStart = mCurrent = memoryStart;
 	}
 
 	mMemorySize = memorySize;
@@ -50,7 +47,7 @@ bool allocators::LinearAllocator::Initialize(void* memoryStart, uint memorySize,
 void* memory::allocators::LinearAllocator::Allocate(uint size)
 {
 	// Sanity check if allocation fits in free memory
-	if (mUsedMemory + size > mMemorySize)
+	if (mMemoryUsed + size > mMemorySize)
 	{
 		return nullptr;
 	}

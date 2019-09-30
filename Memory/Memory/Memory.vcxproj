@@ -72,7 +72,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\LinearHeap.cpp" />
+    <ClCompile Include="src\LinearAllocator.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MemoryAPI.cpp" />
   </ItemGroup>

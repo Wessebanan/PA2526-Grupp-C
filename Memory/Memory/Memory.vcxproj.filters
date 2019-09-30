@@ -33,7 +33,7 @@
     <ClCompile Include="src\MemoryAPI.cpp">
       <Filter>Source Files\API</Filter>
     </ClCompile>
-    <ClCompile Include="src\LinearHeap.cpp">
+    <ClCompile Include="src\LinearAllocator.cpp">
       <Filter>Source Files\Allocators</Filter>
     </ClCompile>
   </ItemGroup>

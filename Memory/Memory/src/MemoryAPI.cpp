@@ -46,7 +46,7 @@ void memory::MemoryManager::End()
 	}
 }
 
-memory::allocators::Allocator* memory::MemoryManager::CreateHeap(uint size)
+memory::allocators::Allocator* memory::MemoryManager::CreateAllocator(uint size)
 {
 	/*
 		Notation:

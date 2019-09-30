@@ -24,13 +24,19 @@ namespace memory
 			Allocator(const Allocator& other) = delete;
 			Allocator& operator=(const Allocator& other) = delete;
 
-			Allocator() :  {}
+			Allocator() : mMemorySize(0), mMemoryUsed(0), mpMemoryStart(nullptr) {}
 			virtual ~Allocator() {}
 
 			virtual bool Initialize(void* memoryStart, uint memorySize, bool memoryIncludesAllocator = false) = 0;
 
 			virtual void* Allocate(uint size) = 0;
 			virtual void Free(void* ptr) = 0;
+
+		protected:
+
+			uint mMemorySize;
+			uint mMemoryUsed;
+			void* mpMemoryStart;
 		};
 
 	} // allocators
