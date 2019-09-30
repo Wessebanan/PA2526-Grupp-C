@@ -57,6 +57,11 @@ WebConnection::WebConnection()
 	FD_ZERO(&master);
 	FD_SET(ListenSocket, &master);
 
+	for (size_t i = 0; i < mMaxUserSockets; i++)
+	{
+		userSockets[i] = INVALID_SOCKET;
+	}
+
 	this->initThread();
 }
 
@@ -147,7 +152,7 @@ void WebConnection::setName(webMsgData wmd)
 	mUsers[wmd.player].name = wmd.data;
 
 	int res = 0;
-	this->sendMsg(this->playerSockets[wmd.player],
+	this->sendMsg(this->userSockets[wmd.player],
 		(char*)string(
 			"2. Your name is now " + 
 			wmd.data
@@ -171,7 +176,7 @@ void WebConnection::setTile(webMsgData wmd)
 	mUsers[wmd.player].tile[1] = hun + ten + one;
 
 	int res = 0;
-	this->sendMsg(this->playerSockets[wmd.player], 
+	this->sendMsg(this->userSockets[wmd.player], 
 		(char*)string("3. Your tile is now " + 
 			to_string(mUsers[wmd.player].tile[0]) + 
 			"," +
@@ -219,17 +224,8 @@ void WebConnection::playersJoin()
 				// if the socket is the listener in the array
 				if (sock == ListenSocket)
 				{
-
 					//cout << "-Listener is socket " << i << endl;
-
-					// Add the connection to one of the new clients
-					this->playerSockets[this->nrOfPlayers] = accept(ListenSocket, nullptr, nullptr);
-
-					// Adds to the master
-					FD_SET(this->playerSockets[this->nrOfPlayers], &master);
-
-					this->nrOfPlayers++;
-
+					this->addUserSocket(sock);
 				}
 				else // its the cliet socket
 				{
@@ -238,11 +234,9 @@ void WebConnection::playersJoin()
 					iResult = recv(sock, recvbuf, recvbuflen, 0);
 
 					if (iResult <= 0 || iResult == 8)
-					{
-						this->removeUserSocket(sock, iResult);
-					}
+						if (this->removeUserSocket(sock, iResult))
+							break;
 
-					
 
 					recvbuf[iResult] = 0;
 
@@ -258,7 +252,7 @@ void WebConnection::playersJoin()
 					{
 						cout << "-i " << i << endl;
 
-						cout << endl << "___We just got a message from " << this->idPlayerSocket(sock) << endl;
+						cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
 
 						char* client_msg = this->reciveMsg(sock, recvbuf, iSendResult);
 						this->msgToClient = client_msg;
@@ -301,7 +295,7 @@ void WebConnection::gameLoop()
 		string ss;
 		ss += "4. PLAYER " + to_string(p);
 
-		this->sendMsg(this->playerSockets[p], (char*)ss.c_str(), iSendResult);
+		this->sendMsg(this->userSockets[p], (char*)ss.c_str(), iSendResult);
 		//this->sendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
 
 
@@ -327,51 +321,16 @@ void WebConnection::gameLoop()
 				// If the listener gets set in this we have a new player mid-game
 				cout << "-LISTENER got a player mid game" << i << endl;
 
-				// Add the connection to one of the new clients
-				this->playerSockets[this->nrOfPlayers] = accept(ListenSocket, nullptr, nullptr);
-
-				// Adds to the master
-				FD_SET(this->playerSockets[this->nrOfPlayers], &master);
-
-				this->nrOfPlayers++;
-
-				// set it to one of the players
-
+				this->addUserSocket(sock);
 			}
 			else // its the cliet socket
 			{
 				iResult = recv(sock, recvbuf, recvbuflen, 0);
 
-				if (iResult == 0)
-				{
-					printf("Connection closing...\n");
-					shutDownSocket(sock);
 
-					break;
-				}
-				else if (iResult < 0)
-				{
-					printf("recv failed with error: %d\n", WSAGetLastError());
-
-					cout << "---------------------" << endl;
-					cout << "___The user reload___" << endl;
-					cout << "---------------------" << endl;
-
-					shutDownSocket(sock);
-
-					break;
-				}
-				else if (iResult == 8)
-				{
-					printf("recv failed with error: %d\n", WSAGetLastError());
-					shutDownSocket(sock);
-
-					cout << "---------------------" << endl;
-					cout << "___The user closed___" << endl;
-					cout << "---------------------" << endl;
-
-					break;
-				}
+				if (iResult <= 0 || iResult == 8)
+					if (this->removeUserSocket(sock, iResult))
+						break;
 
 				recvbuf[iResult] = 0;
 
@@ -395,7 +354,7 @@ void WebConnection::gameLoop()
 					}
 					else
 					{
-						wmd.player = idPlayerSocket(sock);
+						wmd.player = idUserSocket(sock);
 
 						cout << "-From player " << wmd.player << endl
 							<< userMsg << endl;
@@ -421,7 +380,7 @@ void WebConnection::broadcastMsg(string msg)
 		string ss;
 		ss += "1. " +msg;
 
-		this->sendMsg(this->playerSockets[p], (char*)msg.c_str(), iSendResult);
+		this->sendMsg(this->userSockets[p], (char*)msg.c_str(), iSendResult);
 		//this->sendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
 		
 
@@ -479,16 +438,26 @@ DWORD WINAPI WebConnection::staticThreadStart(LPVOID lpParam)
 	return 0;
 }
 
-int WebConnection::idPlayerSocket(SOCKET sock)
+int WebConnection::idUserSocket(SOCKET sock)
 {
 	int player = -1;
-	for (size_t p = 0; p < this->nrOfPlayers; p++)
+	cout << "-Nr of Players getID: " << nrOfPlayers << endl;
+	if (sock == INVALID_SOCKET)
 	{
-		if (sock == this->playerSockets[p])
-		{
-			player = p;
-		}
+		cout << "-Asked for ID of invlaid_socket" << endl;
 	}
+	else if (sock == 0)
+	{
+		cout << "-Asked for ID of 0 socket" << endl;
+	}
+	else
+		for (size_t p = 0; p < this->nrOfPlayers; p++)
+		{
+			if (sock == this->userSockets[p])
+			{
+				player = p;
+			}
+		}
 	return player;
 }
 
@@ -649,30 +618,76 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 {
 	if (error == 0)
 	{
+		int id = this->idUserSocket(sock);
+
 		printf("Connection closing...\n");
 		// Drop the client
 		closesocket(sock);
 		FD_CLR(sock, &master);
+
+		master.fd_array[id] = 0;
+		this->userSockets[id] = INVALID_SOCKET;
+
+		this->nrOfPlayers--;
 		return true;
 	}
 	else if (error < 0)
 	{
+		int id = this->idUserSocket(sock);
 		printf("recv failed with error < 0 : %d\n", WSAGetLastError());
 		closesocket(sock);
 		FD_CLR(sock, &master);
+
+		master.fd_array[id] = INVALID_SOCKET;
+		this->userSockets[id] = INVALID_SOCKET;
+
+		this->nrOfPlayers--;
 		return true;
 	}
 	else if (error == 8)
 	{
+		// User Closed site
+		
+		int id = this->idUserSocket(sock);
+		
 		printf("recv failed with error 8: %d\n", WSAGetLastError());
 		closesocket(sock);
 		FD_CLR(sock, &master);
+
+		master.fd_array[id] = INVALID_SOCKET;
+		this->userSockets[id] = INVALID_SOCKET;
+
+		this->nrOfPlayers--;
 
 		cout << "---------------------" << endl;
 		cout << "__The client closed__" << endl;
 		cout << "---------------------" << endl;
 		return true;
 	}
+	return false;
+}
+
+bool WebConnection::addUserSocket(SOCKET sock)
+{
+	int firstEmpty = 0;
+	for (size_t i = 0; i < mMaxUserSockets; i++)
+	{
+		if (userSockets[i] == INVALID_SOCKET)
+		{
+			firstEmpty = i;
+			break;
+		}
+	}
+
+	cout << "-FIRST EMPTY: " << firstEmpty << endl;
+
+	// Add the connection to one of the new clients
+	this->userSockets[firstEmpty] = accept(ListenSocket, nullptr, nullptr);
+
+	// Adds to the master
+	FD_SET(this->userSockets[firstEmpty], &master);
+
+	this->nrOfPlayers++;
 	return false;
 }
 

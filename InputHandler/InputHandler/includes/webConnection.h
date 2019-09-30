@@ -157,13 +157,15 @@ private:
 	//Send out msg to all players
 	void broadcastMsg(string msg);
 	// Identifies what player the current socket is
-	int idPlayerSocket(SOCKET sock);
+	int idUserSocket(SOCKET sock);
 	// takes in the a new message
 	char* reciveMsg(SOCKET sock, char* recvbuf, int& Res);
 	// sends out a message to the user, default will print to 0.
 	void sendMsg(SOCKET sock, char* client_msg, int& Res);
 	// closes socket and hadels chages in the playersSockets
 	bool removeUserSocket(SOCKET sock, int error);
+	// adds the new socket to the UserSockets list
+	bool addUserSocket(SOCKET sock);
 
 	// Varible to see if system is still connected
 	bool connectionOK = true;
@@ -175,7 +177,8 @@ private:
 	bool checkForKey(SOCKET sock, char* recBuff, int& Res);
 
 	int nrOfPlayers;
-	SOCKET playerSockets[30];
+	const int mMaxUserSockets = 30;
+	SOCKET userSockets[30];
 	fd_set master; 
 
 	// BACKEND DEFENITIONS
