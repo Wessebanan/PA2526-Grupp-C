@@ -44,14 +44,11 @@
     <ClInclude Include="includes\MemoryGlobals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\LinearHeap.h">
+    <ClInclude Include="includes\Allocator.h">
       <Filter>Header Files\Allocators</Filter>
     </ClInclude>
-    <ClInclude Include="includes\Heap.h">
+    <ClInclude Include="includes\LinearAllocator.h">
       <Filter>Header Files\Allocators</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\MemoryDomains.h">
-      <Filter>Header Files\API</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

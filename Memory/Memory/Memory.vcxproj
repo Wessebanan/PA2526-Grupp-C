@@ -77,9 +77,8 @@
     <ClCompile Include="src\MemoryAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\Heap.h" />
-    <ClInclude Include="includes\MemoryDomains.h" />
-    <ClInclude Include="includes\LinearHeap.h" />
+    <ClInclude Include="includes\Allocator.h" />
+    <ClInclude Include="includes\LinearAllocator.h" />
     <ClInclude Include="includes\MemoryAPI.h" />
     <ClInclude Include="includes\MemoryGlobals.h" />
   </ItemGroup>

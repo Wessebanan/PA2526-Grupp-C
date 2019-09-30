@@ -1,24 +1,44 @@
 #include "MemoryAPI.h"
 
-#include <iostream>
-using namespace std;
-
-//Initialite instance at start
+/*
+	Initialite instance at start. Must be in cpp file as it will
+	be set multiple times otherwise.
+*/
 memory::MemoryManager* memory::MemoryManager::mInstance = nullptr;
 
-memory::MemoryManager& memory::MemoryManager::instance()
+memory::MemoryManager& memory::MemoryManager::Instance()
 {
 	if (!mInstance)
 	{
-		#ifdef _DEBUG
-			DEBUG_CONSOLE_LINE("Creating MemoryManager instance.")
-		#endif
 		mInstance = new MemoryManager();
 	}
 	return *mInstance;
 }
 
-void memory::MemoryManager::end()
+bool memory::MemoryManager::Initialize(uint size)
+{
+	mpHeapStart = malloc(size);
+
+	// Sanity check creation
+	if (!mpHeapStart)
+	{
+		return false;
+	}
+
+	mHeapSize = size;
+
+	// Sanity check heap initialization
+	if (!mHeap.Initialize(mpHeapStart, mHeapSize))
+	{
+		mHeapSize = 0;
+		free(mpHeapStart);
+		return false;
+	}
+
+	return true;
+}
+
+void memory::MemoryManager::End()
 {
 	if (mInstance)
 	{
@@ -26,89 +46,61 @@ void memory::MemoryManager::end()
 	}
 }
 
-memory::MemoryManager::MemoryManager() :
-	mHeapSize(sumAllDomainSizes())
+memory::allocators::Allocator* memory::MemoryManager::CreateHeap(uint size)
 {
-	#ifdef _DEBUG
-		DEBUG_CONSOLE_LINE("Allocating main heap of size " << mHeapSize << " bytes (" << ((float)mHeapSize / 1000000) << " MB).")
-	#endif
+	/*
+		Notation:
+		This function is in beta version. For now, all heap allocatiors are linear
+		allocators in disguise. In later versions of this API, there will be specific
+		functions for creating different allocator types, like linear and pool.
+	*/
 
-	mpHeapStart = malloc(mHeapSize);
-
-	if (!mHeap.initialize(mpHeapStart, mHeapSize))
+	void* p = mHeap.Allocate(size);
+	
+	// Sanity check allocation
+	if (!p)
 	{
-		// TODO: Handle or throw
-
-		#ifdef _DEBUG
-				DEBUG_CONSOLE_LINE("Error, could not initialize main heap!")
-		#endif
-
-		return;
+		return nullptr;
 	}
-
-
-	#ifdef _DEBUG
-		DEBUG_CONSOLE_LINE("Begin domain allocations:")
-		DEBUG_CONSOLE_LINE("\tDomain\t|\tSize\t|\tStatus")
-		DEBUG_CONSOLE_LINE("\t-----------------------------------------")
-	#endif
 
 	/*
-		Iterate through all defined custom heaps and allocate memory
-		for them in main heap.
+		Use the 'new placement operator' to allocate the new allocator. This operator
+		does not allocate new memory on the system heap. Instead, it takes a pointer
+		and places the new object at that memory address.
 	*/
-	using DomainPair = std::pair<MemoryDomain, DomainInfo>;
-	for (DomainPair domain : MEMORY_DOMAIN_SIZES)
+
+	allocators::LinearAllocator* pAllocator = new(p) allocators::LinearAllocator();
+
+	/*
+		Initialize the new allocator. By setting the last parameter to true, the allocator
+		will know it itself is included in the given memory start pointer. It will counter
+		this by offsetting the memory start by its own size before allocating objects.
+	*/
+
+	// Sanity check initialization
+	if (!pAllocator->Initialize(p, size, true))
 	{
-		#ifdef _DEBUG
-			DEBUG_CONSOLE("\t" << domain.second.domainString << "\t\t" << domain.second.size << "\t\t")
-		#endif
-
-		void* heap_memory = mHeap.allocate(domain.second.size);
-
-		if (!heap_memory)
-		{
-			// Could not allocate, handle error
-			#ifdef _DEBUG
-				DEBUG_CONSOLE_LINE("FAILED")
-			#endif
-			continue;
-		}
-
-		heaps::Heap* new_heap = nullptr;
-		switch (domain.second.type)
-		{
-		case HeapTypes::Linear:
-			new_heap = new heaps::LinearHeap();
-			break;
-
-		default:
-			#ifdef _DEBUG
-				DEBUG_CONSOLE_LINE("FAILED")
-			#endif
-			continue;
-		}
-
-		new_heap->initialize(heap_memory, domain.second.size);
-		new_heap->heapString = domain.second.domainString;
-		mDomains[domain.first] = new_heap;
-
-		#ifdef _DEBUG
-			DEBUG_CONSOLE_LINE("OK")
-		#endif
+		// Return memory chunk to main heap
+		mHeap.Free(p);
+		return nullptr;
 	}
+
+	return pAllocator;
+}
+
+memory::MemoryManager::MemoryManager() :
+	mHeapSize(0),
+	mpHeapStart(nullptr)
+{
+	/*
+		Set all member variables to default. Initialize() will
+		later set all member variables appropriately.
+	*/
 }
 
 memory::MemoryManager::~MemoryManager()
 {
-	cout << "Freeing main heap." << endl;
 	free(mpHeapStart);
-
-	for (std::pair<MemoryDomain, heaps::Heap*> d : mDomains)
-	{
-		cout << "Freeing domain heap " << d.second->heapString << endl;
-		delete d.second;
-	}
 }
 
 
