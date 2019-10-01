@@ -93,27 +93,27 @@ public:
 	WebConnection();
 	~WebConnection();
 	// retuns true when the thread was closed
-	bool shutDown();
+	bool ShutDown();
 
 	// Checks if the connection was successful
-	bool isConnected() { return this->mConnectionOK; };
+	bool IsConnected() { return this->mConnectionOK; };
 
 	// Returns the button index the player has selected
-	int getUserButton(int player);
+	int GetUserButton(int player);
 	// Returns the name of the set player (playres cant change this yet)
-	std::string getUserName(int player);
+	std::string GetUserName(int player);
 
 	// Returns the tile index of the axis (0 = X or 1 = Y)
-	int getUserTile(int player, int axis);
+	int GetUserTile(int player, int axis);
 
 	// Returns the command of the player
-	string getUserCommand(int player);
+	string GetUserCommand(int player);
 	
 	// returns hte number of players that have connected since the client started up
 	//int getNrOfPlayers() { return this->nrOfPlayers; };
 	
 	// Changes the gamestate for the users
-	bool setGamestate(int gamestate);
+	bool SetGamestate(int gamestate);
 
 
 private:
@@ -123,8 +123,8 @@ private:
 
 	//// THREAD VARIBLES
 	// starts the thread to run sockets on the side
-	void initThread(void);
-	static DWORD WINAPI staticThreadStart(LPVOID lpParam);
+	void InitThread(void);
+	static DWORD WINAPI StaticThreadStart(LPVOID lpParam);
 	// Handles to hold the thread
 	HANDLE t_update;
 	// id for thread,m isnt used
@@ -133,39 +133,39 @@ private:
 
 	//// EXECUTE AFTER GETTING MSG FROM USER
 	// parses the message inte a struct
-	webMsgData parseMsg(char* userMsg);
+	webMsgData ParseMsg(char* userMsg);
 	// Switchcase for the mesage
-	bool executeUserAction(webMsgData wmd);
+	bool ExecuteUserAction(webMsgData wmd);
 	// Saves and sends out a new name
-	void setName(webMsgData wmd);
+	void SetName(webMsgData wmd);
 	// Saves and sends out new tile
-	void setTile(webMsgData wmd);
+	void SetTile(webMsgData wmd);
 	// Saves new button
-	void setButton(webMsgData wmd);
+	void SetButton(webMsgData wmd);
 	// Saves new button
-	void setCommand(webMsgData wmd);
+	void SetCommand(webMsgData wmd);
 
 
 	//// BACKEND STATES
 	// Players joining the game
-	void playersJoin();
+	void PlayersJoin();
 	// Gameloop for getting controll information from web
-	void gameLoop();
+	void GameLoop();
 
 
 	// FUNCTIONS FOR INTERACTIONS
 	//Send out msg to all players
-	void broadcastMsg(string msg);
+	void BroadcastMsg(string msg);
 	// Identifies what player the current socket is
-	int idUserSocket(SOCKET sock);
+	int IdUserSocket(SOCKET sock);
 	// takes in the a new message
-	char* reciveMsg(SOCKET sock, char* recvbuf, int& Res);
+	char* ReciveMsg(SOCKET sock, char* recvbuf, int& Res);
 	// sends out a message to the user, default will print to 0.
-	void sendMsg(SOCKET sock, char* client_msg, int& Res);
+	void SendMsg(SOCKET sock, char* client_msg, int& Res);
 	// closes socket and hadels chages in the playersSockets
-	bool removeUserSocket(SOCKET sock, int error);
+	bool RemoveUserSocket(SOCKET sock, int error);
 	// adds the new socket to the mUserSockets list
-	bool addUserSocket(SOCKET sock);
+	bool AddUserSocket(SOCKET sock);
 
 
 
@@ -176,7 +176,7 @@ private:
 	// socket that looks for new connections
 	SOCKET mListenSocket;
 	// interpets the key and preformes handshake
-	bool checkForKey(SOCKET sock, char* recBuff, int& Res);
+	bool CheckForKey(SOCKET sock, char* recBuff, int& Res);
 
 	//int nrOfPlayers;
 	const int mMaxmUserSockets = 30;
@@ -193,8 +193,8 @@ private:
 	int recvbuflen = DEFAULT_BUFLEN;
 
 	// thread varibles and functions to handle sockets 
-	void shutDownSocket(SOCKET sock);
-	void shutDownThread();
+	void ShutDownSocket(SOCKET sock);
+	void ShutDownThread();
 	bool mRunThread = false;
 	bool mRunPlayerJoin = false;
 	bool mRunGameLoop = false;

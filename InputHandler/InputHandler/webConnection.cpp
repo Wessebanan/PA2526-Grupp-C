@@ -57,17 +57,17 @@ WebConnection::WebConnection()
 		mUserSockets[i] = INVALID_SOCKET;
 	}
 
-	this->initThread();
+	this->InitThread();
 }
 
 WebConnection::~WebConnection()
 {
-	this->shutDown();
+	this->ShutDown();
 }
 
-bool WebConnection::shutDown()
+bool WebConnection::ShutDown()
 {
-	this->shutDownThread();
+	this->ShutDownThread();
 
 	FD_CLR(mListenSocket, &mMaster);
 	closesocket(mListenSocket);
@@ -97,7 +97,7 @@ bool WebConnection::shutDown()
 	return true;
 }
 
-webMsgData WebConnection::parseMsg(char* userMsg)
+webMsgData WebConnection::ParseMsg(char* userMsg)
 {
 	webMsgData ret_val;
 
@@ -116,23 +116,23 @@ webMsgData WebConnection::parseMsg(char* userMsg)
 	return ret_val;
 }
 
-bool WebConnection::executeUserAction(webMsgData wmd)
+bool WebConnection::ExecuteUserAction(webMsgData wmd)
 {
 	if (wmd.player < 4)
 	{
 		switch (wmd.action)
 		{
 		case ActionType::NAME:
-			this->setName(wmd);
+			this->SetName(wmd);
 			break;
 		case ActionType::TILE:
-			this->setTile(wmd);
+			this->SetTile(wmd);
 			break;
 		case ActionType::BUTTON:
-			this->setButton(wmd);
+			this->SetButton(wmd);
 			break;
 		case ActionType::COMMAND:
-			this->setCommand(wmd);
+			this->SetCommand(wmd);
 			break;
 		default:
 			cout << "-Parsing error: Not a action" << endl;
@@ -149,12 +149,12 @@ bool WebConnection::executeUserAction(webMsgData wmd)
 
 }
 
-void WebConnection::setName(webMsgData wmd)
+void WebConnection::SetName(webMsgData wmd)
 {
 	mUsers[wmd.player].name = wmd.data;
 
 	int res = 0;
-	this->sendMsg(this->mUserSockets[wmd.player],
+	this->SendMsg(this->mUserSockets[wmd.player],
 		(char*)string(
 			"2. Your name is now " + 
 			wmd.data
@@ -162,7 +162,7 @@ void WebConnection::setName(webMsgData wmd)
 		, res);
 }
 
-void WebConnection::setTile(webMsgData wmd)
+void WebConnection::SetTile(webMsgData wmd)
 {
 
 	int hun = ((int)wmd.data[0] - 48) * 100;
@@ -178,7 +178,7 @@ void WebConnection::setTile(webMsgData wmd)
 	mUsers[wmd.player].tile[1] = hun + ten + one;
 
 	int res = 0;
-	this->sendMsg(this->mUserSockets[wmd.player], 
+	this->SendMsg(this->mUserSockets[wmd.player], 
 		(char*)string("3. Your tile is now " + 
 			to_string(mUsers[wmd.player].tile[0]) + 
 			"," +
@@ -187,7 +187,7 @@ void WebConnection::setTile(webMsgData wmd)
 		, res);
 }
 
-void WebConnection::setButton(webMsgData wmd)
+void WebConnection::SetButton(webMsgData wmd)
 {
 
 	int hun = ((int)wmd.data[0] - 48) * 100;
@@ -198,12 +198,12 @@ void WebConnection::setButton(webMsgData wmd)
 	mUsers[wmd.player].button = hun + ten + one;
 }
 
-void WebConnection::setCommand(webMsgData wmd)
+void WebConnection::SetCommand(webMsgData wmd)
 {
 	mUsers[wmd.player].command = wmd.data;
 }
 
-void WebConnection::playersJoin()
+void WebConnection::PlayersJoin()
 {
 	this->mRunPlayerJoin = true;
 
@@ -223,7 +223,7 @@ void WebConnection::playersJoin()
 				// if the socket is the listener in the array
 				if (sock == mListenSocket)
 				{
-					this->addUserSocket(sock);
+					this->AddUserSocket(sock);
 				}
 				else // its the cliet socket
 				{
@@ -231,7 +231,7 @@ void WebConnection::playersJoin()
 
 					if (iResult <= 0 || iResult == 8)
 					{
-						this->removeUserSocket(sock, iResult);
+						this->RemoveUserSocket(sock, iResult);
 					}
 					else
 					{
@@ -241,22 +241,22 @@ void WebConnection::playersJoin()
 						size_t sendbuf_size = 0;
 
 						// Connect if it hasnt
-						if (this->checkForKey(sock, recvbuf, iSendResult))
+						if (this->CheckForKey(sock, recvbuf, iSendResult))
 						{
 							cout << "-A key was sent in joining phase" << endl;
 						}
 						// if the socket is the listener in the array
 						else
 						{
-							//cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
+							//cout << endl << "___We just got a message from " << this->IdUserSocket(sock) << endl;
 
-							char* user_msg = reciveMsg(sock, recvbuf, iSendResult);
+							char* user_msg = ReciveMsg(sock, recvbuf, iSendResult);
 
 							string str1 = user_msg;
 
 							if (!str1.compare(string("start")))
 							{
-								this->gameLoop();
+								this->GameLoop();
 							}
 						}
 					}
@@ -268,7 +268,7 @@ void WebConnection::playersJoin()
 		printf("Closing playerJoin ...\n");
 }
 
-void WebConnection::gameLoop()
+void WebConnection::GameLoop()
 {
 	this->mRunGameLoop = true;
 	int startCount = mMaster.fd_count;
@@ -284,7 +284,7 @@ void WebConnection::gameLoop()
 		string ss;
 		ss += "3. PLAYER " + to_string(p);
 		if (this->mUserSockets[p] != INVALID_SOCKET)
-			this->sendMsg(this->mUserSockets[p], (char*)ss.c_str(), iSendResult);
+			this->SendMsg(this->mUserSockets[p], (char*)ss.c_str(), iSendResult);
 		p++;
 	}
 
@@ -305,7 +305,7 @@ void WebConnection::gameLoop()
 				// If the listener gets set in this we have a new player mid-game
 				cout << "-LISTENER got a player mid game" << i << endl;
 
-				this->addUserSocket(sock);
+				this->AddUserSocket(sock);
 			}
 			else // its the cliet socket
 			{
@@ -313,7 +313,7 @@ void WebConnection::gameLoop()
 
 				if (iResult <= 0 || iResult == 8)
 				{
-					this->removeUserSocket(sock, iResult);
+					this->RemoveUserSocket(sock, iResult);
 				}
 				else
 				{
@@ -323,34 +323,34 @@ void WebConnection::gameLoop()
 					size_t sendbuf_size = 0;
 
 					// Connect if it hasnt
-					if (this->checkForKey(sock, recvbuf, iSendResult))
+					if (this->CheckForKey(sock, recvbuf, iSendResult))
 					{
 						string ss;
-						ss += "3. PLAYER " + to_string(idUserSocket(sock));
-						this->sendMsg(sock, (char*)ss.c_str(), iSendResult);
+						ss += "3. PLAYER " + to_string(IdUserSocket(sock));
+						this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
 					}
 					// if the socket is the listener in the array
 					else
 					{
-						//cout << endl << "___We just got a message from " << this->idUserSocket(sock) << endl;
+						//cout << endl << "___We just got a message from " << this->IdUserSocket(sock) << endl;
 
-						char* user_msg = reciveMsg(sock, recvbuf, iSendResult);
+						char* user_msg = ReciveMsg(sock, recvbuf, iSendResult);
 
-						broadcastMsg("Recived mesages: " + to_string(nrMsg++));
+						BroadcastMsg("Recived mesages: " + to_string(nrMsg++));
 
-						webMsgData wmd = parseMsg(user_msg);
+						webMsgData wmd = ParseMsg(user_msg);
 						if (wmd.player == -1)
 						{
 							cout << "-Couldnt parse msg form user" << endl;
 						}
 						else
 						{
-							wmd.player = idUserSocket(sock);
+							wmd.player = IdUserSocket(sock);
 
 							cout << "-From player " << wmd.player << endl
 								<< user_msg << endl;
 
-							executeUserAction(wmd);
+							ExecuteUserAction(wmd);
 						}
 					}
 				}
@@ -362,7 +362,7 @@ void WebConnection::gameLoop()
 	printf("Closing gameloop\n");
 }
 
-void WebConnection::broadcastMsg(string msg)
+void WebConnection::BroadcastMsg(string msg)
 {
 	int p = 0;
 	// Broadcast channel in the futore
@@ -373,40 +373,40 @@ void WebConnection::broadcastMsg(string msg)
 
 		if (this->mUserSockets[p] != INVALID_SOCKET)
 		{
-			this->sendMsg(this->mUserSockets[p], (char*)msg.c_str(), iSendResult);
+			this->SendMsg(this->mUserSockets[p], (char*)msg.c_str(), iSendResult);
 		}
-		//this->sendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
+		//this->SendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
 		
 		p++;
 	}
 }
 
-int WebConnection::getUserButton(int player)
+int WebConnection::GetUserButton(int player)
 {
 	return mUsers[player].button;
 }
 
-std::string WebConnection::getUserName(int player)
+std::string WebConnection::GetUserName(int player)
 {
 	return mUsers[player].name;
 }
 
-int WebConnection::getUserTile(int player, int axis)
+int WebConnection::GetUserTile(int player, int axis)
 {
 	return mUsers[player].tile[axis];
 }
 
-string WebConnection::getUserCommand(int player)
+string WebConnection::GetUserCommand(int player)
 {
 	return mUsers[player].command;
 }
 
-bool WebConnection::setGamestate(int gamestate)
+bool WebConnection::SetGamestate(int gamestate)
 {
 	return true;
 }
 
-void WebConnection::initThread(void)
+void WebConnection::InitThread(void)
 {
 
 	this->mRunThread = true;
@@ -414,24 +414,24 @@ void WebConnection::initThread(void)
 	t_update = CreateThread(
 		nullptr,
 		0,
-		staticThreadStart,
+		StaticThreadStart,
 		(void*) this,
 		0,
 		&id_t_update);
 }
 
-DWORD WINAPI WebConnection::staticThreadStart(LPVOID lpParam)
+DWORD WINAPI WebConnection::StaticThreadStart(LPVOID lpParam)
 {
 	WebConnection* This = (WebConnection*)lpParam;
 
-	This->playersJoin();
+	This->PlayersJoin();
 
 
 	printf("Closing thread\n");
 	return 0;
 }
 
-int WebConnection::idUserSocket(SOCKET sock)
+int WebConnection::IdUserSocket(SOCKET sock)
 {
 	int player = -1;
 	//cout << "-Nr of Players getID: " << nrOfPlayers << endl;
@@ -454,7 +454,7 @@ int WebConnection::idUserSocket(SOCKET sock)
 	return player;
 }
 
-bool WebConnection::checkForKey(SOCKET sock, char* recBuff, int& Res)
+bool WebConnection::CheckForKey(SOCKET sock, char* recBuff, int& Res)
 {
 	char sendbuf[1024];
 	size_t sendbuf_size = 0;
@@ -504,7 +504,7 @@ bool WebConnection::checkForKey(SOCKET sock, char* recBuff, int& Res)
 	}
 }
 
-char* WebConnection::reciveMsg(SOCKET sock, char* recvbuf, int& Res)
+char* WebConnection::ReciveMsg(SOCKET sock, char* recvbuf, int& Res)
 {
 	
 	// else read, print the response, and echo it back to the server
@@ -547,7 +547,7 @@ char* WebConnection::reciveMsg(SOCKET sock, char* recvbuf, int& Res)
 	return client_msg;
 }
 
-void WebConnection::sendMsg(SOCKET sock, char* client_msg, int& Res)
+void WebConnection::SendMsg(SOCKET sock, char* client_msg, int& Res)
 {
 	char* pData;
 	char sendbuf[1024];
@@ -607,7 +607,7 @@ void WebConnection::sendMsg(SOCKET sock, char* client_msg, int& Res)
 	//cout << sendbuf << endl;
 }
 
-bool WebConnection::removeUserSocket(SOCKET sock, int error)
+bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 {
 	if (sock == INVALID_SOCKET || sock == 0)
 	{
@@ -625,7 +625,7 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 		}
 		else if (error < 0)
 		{
-			int id = idUserSocket(sock);
+			int id = IdUserSocket(sock);
 			printf("recv failed with error < 0 : %d\n", WSAGetLastError());
 			
 			// Failed with handshake
@@ -648,7 +648,7 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 		{
 			// User Closed site
 			printf("recv failed with error 8: %d\n", WSAGetLastError());
-			int id = idUserSocket(sock);
+			int id = IdUserSocket(sock);
 			closesocket(sock);
 			FD_CLR(sock, &mMaster);
 			this->mUserSockets[id] = INVALID_SOCKET;
@@ -668,7 +668,7 @@ bool WebConnection::removeUserSocket(SOCKET sock, int error)
 	return false;
 }
 
-bool WebConnection::addUserSocket(SOCKET sock)
+bool WebConnection::AddUserSocket(SOCKET sock)
 {
 	int first_empty = 0;
 	for (size_t i = 0; i < mMaxmUserSockets; i++)
@@ -692,7 +692,7 @@ bool WebConnection::addUserSocket(SOCKET sock)
 	return false;
 }
 
-void WebConnection::shutDownSocket(SOCKET sock)
+void WebConnection::ShutDownSocket(SOCKET sock)
 {
 	cout << "Closing dow a socket" << endl;
 	closesocket(sock);
@@ -703,10 +703,10 @@ void WebConnection::shutDownSocket(SOCKET sock)
 
 	this->mRunGameLoop = false;
 
-	this->shutDownThread();
+	this->ShutDownThread();
 }
 
-void WebConnection::shutDownThread()
+void WebConnection::ShutDownThread()
 {
 	this->mRunThread = false;
 	this->mConnectionOK = false;
