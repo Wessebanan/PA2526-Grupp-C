@@ -7,9 +7,11 @@
 
     <link rel="stylesheet" type="text/css" href="StyleSheet.css">
     <link rel="stylesheet" type="text/css" href="gridStyle.css">
+    <script src="scripts/buttons.js"></script>
+    <script src="scripts/script.js"></script>
 
     <script>
-
+   
     </script>
 </head>
 <body>
@@ -33,10 +35,10 @@
     </div>
 
     <div id='prepField' class='buttonField' style='display:none;background-color:gray;padding:3px'>
-        <button onclick="setButton(0)" id='b0'>0</button>
-        <button onclick="setButton(1)" id='b1'>1</button>
-        <button onclick="setButton(2)" id='b2'>2</button>
-        <button onclick="setButton(3)" id='b3'>3</button>
+        <button onclick="setButton(0)">0</button>
+        <button onclick="setButton(1)">1</button>
+        <button onclick="setButton(2)">2</button>
+        <button onclick="setButton(3)">3</button>
         </br>
         </br>
         </br>
@@ -236,15 +238,13 @@
 
 
     <div id='commandField' class='buttonField' style='display:none;background-color:green;padding:3px'>
-        <button id='CommandButton' onclick="setCommand('idel')">IDEL</button>
+            <button id='CommandButton'  onclick="setCommand('idel')">IDEL</button>
         </br>
-        <button id='CommandButton' onclick="setCommand('move')">MOVE</button>
+            <button id='CommandButton' onclick="setCommand('move')">MOVE</button>
     </div>
-    </br>
-    </br>
-    <button onclick="generateGrid(5,3)">Add Button game</button>
+</br>
+</br>
+            <button onclick="generateGrid(5,3)">Add Button game</button>
 
 </body>
-<script src="scripts/buttons.js"></script>
-<script src="scripts/script.js"></script>
 </html>
