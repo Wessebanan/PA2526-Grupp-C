@@ -218,23 +218,13 @@ void Sound::Engine::WorkerThreadUpdate(void* data)
 	}
 }
 
-inline Samples Sound::Engine::GetWorkerCurrentSampleCount()
+inline Sound::Samples Sound::Engine::GetWorkerCurrentSampleCount()
 {
 	// To get the desired precision, the duration is casted
 	// to nanoseconds and then converted back to seconds
 	float temp = std::chrono::duration_cast<std::chrono::nanoseconds>
 		(std::chrono::steady_clock::now() - mWorkThreadStartTime).count() * 0.000000001f;
-	return ToSamples(temp);
-}
-
-inline Samples Sound::Engine::ToSamples(const float Seconds)
-{
-	return (Samples)(Seconds * (float)SOUND_SAMPLE_RATE);
-}
-
-inline float Sound::Engine::ToSeconds(const Samples SampleCount)
-{
-	return (float)SampleCount / (float)SOUND_SAMPLE_RATE;
+	return Sound::ToSamples(temp);
 }
 
 void Sound::Engine::_FillWithSinus(Samples CurrSample, Samples SampleCount, float* Buffer)
@@ -243,6 +233,6 @@ void Sound::Engine::_FillWithSinus(Samples CurrSample, Samples SampleCount, floa
 	const float AMPLITUDE = 0.2f;	// To save people's ears; Low amplitude
 	for (Samples i = 0; i < SampleCount; i++)
 	{
-		Buffer[i] = std::sinf(FREQUENCY * ToSeconds(CurrSample + i) * 2.0f * (float)M_PI) * AMPLITUDE;
+		Buffer[i] = std::sinf(FREQUENCY * Sound::ToSeconds(CurrSample + i) * 2.0f * (float)M_PI) * AMPLITUDE;
 	}
 }
