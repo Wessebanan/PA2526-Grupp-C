@@ -8,7 +8,7 @@
 #include <DebugInfo.h>
 #include "Shaders.h"
 #include "Fbx_Loader.h"
-
+#include "UISystems.h"
 
 #include "initGameECS.h"
 
@@ -50,7 +50,7 @@ int main()
 
 	// Camera
 	CameraFunctions::CreateDevCamera(ecs);
-	//CameraFunctions::CreateCameraSystems(ecs);
+	//CameraFunctions::CreateDevCamera(ecs);
 
 
 	// ModelLoader
@@ -68,6 +68,10 @@ int main()
 	// GraphicsEngine
 	//initGraphicsEngine(ecs)
 
+
+	// UI
+	Direct2D* d2d = new Direct2D();
+	ecs::init::InitUISystems(ecs, &d2d);
 
 	// Pathfinding
 	//initPathfinding(ecs)

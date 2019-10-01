@@ -53,6 +53,7 @@
     <Import Project="..\..\InputHandler\ModelLoader_Release.props" />
     <Import Project="..\..\InputHandler\AI_Release.props" />
     <Import Project="..\..\InputHandler\GraphicsEngine_Release.props" />
+    <Import Project="UI_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
