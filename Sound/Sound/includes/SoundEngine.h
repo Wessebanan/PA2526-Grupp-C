@@ -1,11 +1,22 @@
 #pragma once
 #include <portaudio.h>
+#include <thread>
+#include "RingBuffer.h"
 
 // Constant defines that doesn't have to change
 #define SOUND_SAMPLE_RATE   (44100)
-#define SOUND_FRAMES_PER_BUFFER  (64)
+#define SOUND_BUFFER_SIZE  (512*4)
+#define SOUND_FRAMES_PER_BUFFER (64)
 #define SOUND_MAX_CHANNELS (2)
 #define SOUND_CHAIN_BUFFER_COUNT (2)
+#ifndef M_PI
+#define M_PI  (3.14159265)
+#endif
+
+typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
+typedef unsigned long long Samples;
+//typedef Ringbuffer<std::pair<float,float>, SOUND_BUFFER_SIZE> FrameBuffer;
+typedef Ringbuffer<std::pair<float,float>, SOUND_BUFFER_SIZE> FrameBuffer;
 
 namespace Sound
 {
@@ -20,7 +31,6 @@ namespace Sound
 		int channels;
 		int frames;
 		float* Data[SOUND_MAX_CHANNELS];
-
 		Buffer(int channels, int frames)
 		{
 			this->channels = channels;
@@ -58,6 +68,10 @@ namespace Sound
 		// finishes being called
 		bool StopStream();
 
+		// ########### NEW NEW NEW ####################
+		void StartWorkThread();
+		void JoinWorkThread();
+
 	protected:
 		// These functions are only for testing purposes
 		// and are only meant to be used by
@@ -91,11 +105,28 @@ namespace Sound
 
 		// PortAudio stream handler
 		PaStream* mpStream;
+
+		// ########### NEW NEW NEW ####################
+		FrameBuffer mBuffer;
+
+		void WorkerThreadUpdateMethod();
+		static void WorkerThreadUpdate(void* data);
+		std::atomic_bool mWorkerThreadRun;
+
+		std::thread* mpWorkerThread;
+		TimePoint mWorkThreadStartTime;
+		Samples mLastSampleCount;
+		inline Samples GetWorkerCurrentSampleCount();
+		inline Samples ToSamples(const double Seconds);
+		inline double ToSeconds(const Samples SampleCount);
+
+		void _FillWithSinus(Samples CurrSample, Samples SampleCount, float* Buffer);
+
 		// Chain buffers to be consumed and filled in
 		// a loop
-		Buffer* mpChainBuffers[SOUND_CHAIN_BUFFER_COUNT];
+		//Buffer* mpChainBuffers[SOUND_CHAIN_BUFFER_COUNT];
 		// Index of the chain buffer to be consumed
-		unsigned int mConsumeBufferIndex;
+		//unsigned int mConsumeBufferIndex;
 	};
 
 	// Sound::PaHandler class

@@ -29,16 +29,16 @@ TEST(SoundAPI, InitializePortAudio)
 
 	// Fill both channels of the buffer with one period of
 	// a sine wave
-	for (int i = 0; i < SOUND_FRAMES_PER_BUFFER; i++)
+	for (int i = 0; i < SOUND_BUFFER_SIZE; i++)
 	{
 		chain_buffer->Data[0][i] =
-			(float)sin(((double)i / (double)SOUND_FRAMES_PER_BUFFER) * M_PI * 2.);
+			(float)sin(((double)i / (double)SOUND_BUFFER_SIZE) * M_PI * 2.);
 		chain_buffer->Data[1][i] =
-			(float)sin(((double)i / (double)SOUND_FRAMES_PER_BUFFER) * M_PI * 2.);
+			(float)sin(((double)i / (double)SOUND_BUFFER_SIZE) * M_PI * 2.);
 	}
 
 	std::cout << "PortAudio Test: output sine wave. SR = " << SOUND_SAMPLE_RATE
-		<< ", BufSize = " << SOUND_FRAMES_PER_BUFFER << std::endl;
+		<< ", BufSize = " << SOUND_BUFFER_SIZE << std::endl;
 
 	// Instance PortAudio handler
 	Sound::PaHandler pa_init;
