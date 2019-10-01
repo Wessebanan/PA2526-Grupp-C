@@ -107,6 +107,9 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(_entityInfo.entity->getID());
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
 
+	// Saving the current position for comparison later.
+	DirectX::XMFLOAT3 position_pre_movement = transform_component->position;
+
 	// Starting off with movement in the x-z-plane.
 
 	// a = F/m
@@ -142,25 +145,38 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 
 	// GRAVITY
 	
-	// If the object is grounded right now, reset velocity and don't apply gravity (return).
-	if (movement_component->mOnGround)
+	// If the object is not grounded right now, apply gravity. Else reset velocity.
+	if (!movement_component->mOnGround)
 	{
-		movement_component->mVelocity.y	= 0.0f;
-		return;
+		movement_component->mAcceleration.y = -GRAVITY;
+		if (fabs(movement_component->mVelocity.y) < movement_component->mMaxVelocity)
+		{
+			movement_component->mVelocity.y += movement_component->mAcceleration.y * _delta;
+		}
+
+		// Separate if rather than else for the specific moment max velocity is passed.
+		if (fabs(movement_component->mVelocity.y) > movement_component->mMaxVelocity)
+		{
+			movement_component->mVelocity.y = Sign(movement_component->mVelocity.y) * movement_component->mMaxVelocity;
+		}
+		transform_component->position.y += movement_component->mVelocity.y * _delta;
+	}
+	else
+	{
+		movement_component->mVelocity.y = 0.0f;
 	}
 
-	movement_component->mAcceleration.y = -GRAVITY;
-	if (fabs(movement_component->mVelocity.y) < movement_component->mMaxVelocity)
+	// Potential collision if object moved.
+	const float ABS_ERROR = pow(10.0, -10.0);
+
+	// If the difference after movement is more than negligible make a potential collision event.
+	if (CalculateDistance(transform_component->position, position_pre_movement) > ABS_ERROR)
 	{
-		movement_component->mVelocity.y += movement_component->mAcceleration.y * _delta;
+		PotentialCollisionEvent potential_collision;
+		potential_collision.mEntityID = _entityInfo.entity->getID();
+		createEvent(potential_collision);
 	}
 
-	// Separate if rather than else for the specific moment max velocity is passed.
-	if (fabs(movement_component->mVelocity.y) > movement_component->mMaxVelocity)
-	{
-		movement_component->mVelocity.y = Sign(movement_component->mVelocity.y) * movement_component->mMaxVelocity;
-	}
-	transform_component->position.y += movement_component->mVelocity.y * _delta;
 }
 
 void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)

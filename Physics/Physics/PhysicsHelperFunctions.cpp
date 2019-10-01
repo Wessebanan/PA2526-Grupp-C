@@ -120,7 +120,28 @@ DirectX::XMFLOAT3 PhysicsHelpers::operator+(const DirectX::XMFLOAT3& p1, const D
 	return res;
 }
 
-void CreateBoundingSphere(const DirectX::XMFLOAT3* points, const unsigned int& n_points, const DirectX::XMFLOAT3& min_point, const DirectX::XMFLOAT3& max_point, float& radius, DirectX::XMFLOAT3& center)
+bool PhysicsHelpers::AABBIntersect(const DirectX::XMFLOAT3& min1, const DirectX::XMFLOAT3& max1, const DirectX::XMFLOAT3& min2, const DirectX::XMFLOAT3& max2)
+{
+	// Standard evaluation that two AABBs overlap.
+	// Exits early if one check fails due to &&.
+	return (
+		max1.x > min2.x &&
+		min1.x < max2.x &&
+		max1.y > min2.y &&
+		min1.y < max2.y &&
+		max1.z > min2.z &&
+		min1.z < max2.z);
+}
+
+bool PhysicsHelpers::SphereIntersect(const DirectX::XMFLOAT3& center1, const float& radius1, const DirectX::XMFLOAT3& center2, const float& radius2)
+{
+	// If the distance between the center points is greater than the sum of the radii, 
+	// the spheres intersect, with the difference being the overlap in the direction of
+	// the vector between the centers.
+	return CalculateDistance(center1, center2) < (radius1 + radius2);
+}
+
+void PhysicsHelpers::CreateBoundingSphere(const DirectX::XMFLOAT3* points, const unsigned int& n_points, const DirectX::XMFLOAT3& min_point, const DirectX::XMFLOAT3& max_point, float& radius, DirectX::XMFLOAT3& center)
 {
 	// min + max / 2 gives us the center.
 	center = DirectX::XMFLOAT3

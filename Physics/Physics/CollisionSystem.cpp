@@ -2,19 +2,29 @@
 
 // This hefty boy uses pragma regions to easily look at the system you want.
 
-#pragma region CollisionEventSystem
-ecs::systems::CollisionEventSystem::CollisionEventSystem()
+#pragma region ObjectCollisionSystem
+ecs::systems::ObjectCollisionSystem::ObjectCollisionSystem()
 {
 	updateType = ecs::EventListenerOnly;
-	typeFilter.addRequirement(PotentialCollisionEvent::typeID);
+	subscribeEventCreation(PotentialCollisionEvent::typeID);
 }
 
-ecs::systems::CollisionEventSystem::~CollisionEventSystem()
+ecs::systems::ObjectCollisionSystem::~ObjectCollisionSystem()
 {
 }
 
-void ecs::systems::CollisionEventSystem::readEvent(ecs::BaseEvent& _event, float _delta)
+void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
 {
+	PotentialCollisionEvent* p_event = dynamic_cast<PotentialCollisionEvent*>(_event);
+	
+	// Grabbing the entity that moved.
+	Entity* p_entity = getEntity(p_event->mEntityID);
+
+	// Grabbing the entities it could collide with.
+	TypeFilter filter;
+	filter.addRequirement(ObjectCollisionComponent::typeID);
+	EntityIterator it = getEntitiesByFilter(filter);
+
 
 }
 #pragma endregion
