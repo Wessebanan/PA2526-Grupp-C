@@ -13,8 +13,11 @@ namespace rendering
 		DrawManager();
 		~DrawManager();
 
-		void Clear();
+		void Start(graphics::RenderContext* pContext);
 
+		/*
+			For each technique draw all instances to render to screen
+		*/
 		void Draw(
 			RENDER_TECHNIQUES technique,
 			graphics::RenderContext* pContext);

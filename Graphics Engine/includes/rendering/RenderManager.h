@@ -3,7 +3,9 @@
 #include "RenderTechnique.h"
 
 #include "DefaultTechnique.h"
-#include "WaterTechnique.h"
+#include "SceenSpaceTechnique.h"
+
+#include <DirectXMath.h>
 
 namespace rendering
 {
@@ -13,7 +15,10 @@ namespace rendering
 		RenderManager();
 		~RenderManager();
 
-		void Initialize();
+		void Initialize(
+			const UINT clientWidth,
+			const UINT clientHeight,
+			const char* pTitle);
 
 		void Clear();
 		void Draw();
@@ -30,10 +35,9 @@ namespace rendering
 		void* GetTechniqueModelBuffer(
 			const RENDER_TECHNIQUES techniqueIndex);
 
-		graphics::PresentWindow* SetWndSettings(
-			const UINT width, 
-			const UINT height, 
-			const char* pTitle);
+		void SetViewMatrix(const DirectX::XMFLOAT4X4 viewMatrix);
+
+		graphics::PresentWindow* GetPresentWindow();
 
 		template<RENDER_TECHNIQUES T>
 		inline void* GetData()
@@ -54,7 +58,10 @@ namespace rendering
 		graphics::RenderTarget m_target;
 		graphics::DepthBuffer m_depthBuffer;
 
-		graphics::BufferRegion m_meshDataRegion;
+		graphics::BufferRegion m_modelDataRegion;
+
+		graphics::BufferRegion m_viewMatrixRegion;
+		graphics::BufferRegion m_projectionMatrixRegion;
 
 		char* m_pMemoryForTechniques;
 	};

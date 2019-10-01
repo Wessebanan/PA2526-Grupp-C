@@ -6,24 +6,31 @@
 #pragma comment(lib, "RenderEngine.lib")
 #endif // DEBUG
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 int main()
 {
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
 	using namespace rendering;
+	using namespace DirectX;
 
 	RenderManager mng;
-	mng.Initialize();
+	mng.Initialize(1280, 720, "D3D11");
 
 	struct float3
 	{
 		float x, y, z;
 	};
 
-	int meshIndex0;
+	int meshIndex0; // Triangle
 	{
 		float3 triangle[3] = {
-			-0.01f,  -0.01f, 0.0f,
-			  0.0f,   0.01f, 0.0f,
-			 0.01f,  -0.01f, 0.0f,
+			-0.1f,  -0.1f, 0.0f,
+			 0.0f,   0.1f, 0.0f,
+			 0.1f,  -0.1f, 0.0f,
 		};
 
 		VERTEX_BUFFER_DATA data = { NULL };
@@ -33,16 +40,16 @@ int main()
 		meshIndex0 = mng.CreateMesh(&data, nullptr);
 	}
 
-	int meshIndex1;
+	int meshIndex1; // Quad
 	{
 		float3 quad[6] = {
-		 -0.01f,  -0.01f, 0.0f,
-		 -0.01f,   0.01f, 0.0f,
-		  0.01f,  -0.01f, 0.0f,
+		 -0.1f,  -0.1f, 0.0f,
+		 -0.1f,   0.1f, 0.0f,
+		  0.1f,  -0.1f, 0.0f,
 
-		  0.01f,  -0.01f, 0.0f,
-		 -0.01f,   0.01f, 0.0f,
-		  0.01f,   0.01f, 0.0f,
+		  0.1f,  -0.1f, 0.0f,
+		 -0.1f,   0.1f, 0.0f,
+		  0.1f,   0.1f, 0.0f,
 		};
 
 		VERTEX_BUFFER_DATA data = { NULL };
@@ -57,10 +64,13 @@ int main()
 		float x, y, z, w;
 	};
 
-	UINT width = 100;
-	UINT height = 110;
+	UINT width = 2;
+	UINT height = 2;
 	UINT count = width * height;
 
+	TECHNIQUE_HEAP_LAYOUT_DESC desc[RENDER_TECHNIQUES_COUNT] = { 0 };
+
+	// Default Technique will render 'count' meshes in white
 	MODEL_LAYOUT_DESC m_desc[2];
 	m_desc[0].InstanceCount = count / 2;
 	m_desc[0].MeshIndex = meshIndex0;
@@ -68,23 +78,26 @@ int main()
 	m_desc[1].InstanceCount = count / 2;
 	m_desc[1].MeshIndex = meshIndex1;
 
+	desc[RENDER_DEFAULT].PerInstanceByteWidth = sizeof(float4);
+	desc[RENDER_DEFAULT].pModelLayout = m_desc;
+	desc[RENDER_DEFAULT].ModelLayoutCount = ARRAYSIZE(m_desc);
 
-	MODEL_LAYOUT_DESC m_desc0;
-	m_desc0.InstanceCount = 1;
-	m_desc0.MeshIndex = meshIndex1;
+	// SCREEN_SPACE will render 2 blue meshes (quad and triangle)
+	MODEL_LAYOUT_DESC m_desc0[2];
+	m_desc0[0].InstanceCount	= 1;
+	m_desc0[0].MeshIndex		= meshIndex1;
 
-	TECHNIQUE_HEAP_LAYOUT_DESC desc[RENDER_TECHNIQUES_COUNT] = { 0 };
-	desc[RENDER_DEFAULT].PerInstanceByteWidth	= sizeof(float4);
-	desc[RENDER_DEFAULT].pModelLayout			= m_desc;
-	desc[RENDER_DEFAULT].ModelLayoutCount		= ARRAYSIZE(m_desc);
+	m_desc0[1].InstanceCount	= 1;
+	m_desc0[1].MeshIndex		= meshIndex0;
 
-	desc[RENDER_WATER].PerInstanceByteWidth = sizeof(float4);
-	desc[RENDER_WATER].pModelLayout = &m_desc0;
-	desc[RENDER_WATER].ModelLayoutCount = 1;
+	desc[RENDER_SCREEN_SPACE].PerInstanceByteWidth		= sizeof(float4);
+	desc[RENDER_SCREEN_SPACE].pModelLayout				= m_desc0;
+	desc[RENDER_SCREEN_SPACE].ModelLayoutCount			= 2;
+
 
 	mng.CreateModelHeap(desc);
 
-	graphics::PresentWindow* pWnd = mng.SetWndSettings(1280, 720, "D3D11");
+	graphics::PresentWindow* pWnd = mng.GetPresentWindow();
 
 	float4* triArray = (float4*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
 
@@ -93,11 +106,28 @@ int main()
 		for (UINT y = 0; y < height; y++)
 		{
 			UINT index = x * height + y;
-			triArray[index].x = x * 0.02f - 0.99f;
-			triArray[index].y = y * 0.02f - 0.99f;
+			triArray[index].x = x * 0.5f - 0.99f;
+			triArray[index].y = y * 0.5f - 0.99f;
+
+			triArray[index].w = 1.0f;
 		}
 	}
 
+	float4* water = (float4*)mng.GetTechniqueModelBuffer(RENDER_SCREEN_SPACE);
+	water->x = -0.10f;
+	water->y =  0.70f;
+
+	float x = 2.0f;
+	float z = 1.0f;
+	XMFLOAT4X4 viewMatrix;
+	XMStoreFloat4x4(&viewMatrix,
+		XMMatrixLookToLH(
+			{ x, 2.0f, z },
+			{ 0.0f, 0.0f,  1.0f },
+			{ 0.0f, 1.0f,  0.0f }
+	));
+
+	mng.SetViewMatrix(viewMatrix);
 
 	pWnd->Show();
 	while (pWnd->IsOpen())
@@ -106,19 +136,47 @@ int main()
 		{
 			mng.Clear();
 
-			for (UINT x = 0; x < width; x++)
-			{
-				for (UINT y = 0; y < height; y++)
-				{
-					UINT index = x * height + y;
-					triArray[index].y -= 0.001f;
+			//for (UINT x = 0; x < width; x++)
+			//{
+			//	for (UINT y = 0; y < height; y++)
+			//	{
+			//		UINT index = x * height + y;
+			//		triArray[index].y -= 0.09f;
 
-					if (triArray[index].y < -1.1f)
-					{
-						triArray[index].y = 1.1f;
-					}
-				}
+			//		if (triArray[index].y < -10.01f)
+			//		{
+			//			triArray[index].y = 12.01f;
+			//		} 
+			//	}
+			//}
+
+			float moveSpeed = 0.01f;
+			if (GetAsyncKeyState(VK_UP))
+			{
+				z += moveSpeed;
 			}
+			if (GetAsyncKeyState(VK_DOWN))
+			{
+				z -= moveSpeed;
+			}
+
+			if (GetAsyncKeyState(VK_LEFT))
+			{
+				x -= moveSpeed;
+			}
+			if (GetAsyncKeyState(VK_RIGHT))
+			{
+				x += moveSpeed;
+			}
+
+			XMStoreFloat4x4(&viewMatrix,
+				XMMatrixLookToLH(
+					{ x, 0.0f, z },
+					{ 0.0f, 0.0f,  1.0f },
+					{ 0.0f, 1.0f,  0.0f }
+			));
+
+			mng.SetViewMatrix(viewMatrix);
 
 			mng.Draw();
 			pWnd->Present();

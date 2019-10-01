@@ -33,22 +33,63 @@ namespace rendering
 	{
 	}
 
-	void RenderManager::Initialize()
+	void RenderManager::Initialize(
+		const UINT clientWidth,
+		const UINT clientHeight,
+		const char* pTitle)
 	{
 		graphics::CreateDeviceInterface(&m_pDevice);
 		m_pContext = m_pDevice->GetRenderContext();
 
+		m_pDevice->CreateDynamicBufferRegion(
+			sizeof(DirectX::XMFLOAT4X4),
+			NULL,
+			&m_viewMatrixRegion);
+
+		DirectX::XMFLOAT4X4 projection;
+		XMStoreFloat4x4(&projection,
+			DirectX::XMMatrixPerspectiveFovLH(
+				3.14f / 2.0f, 
+				clientWidth / (float)clientHeight, 
+				0.1f, 
+				100.0f));
+
+		m_pDevice->CreateStaticBufferRegion(
+			sizeof(DirectX::XMFLOAT4X4),
+			&projection,
+			&m_projectionMatrixRegion);
+
+		m_pContext->VSSetConstantBuffer(1, m_viewMatrixRegion);
+		m_pContext->VSSetConstantBuffer(2, m_projectionMatrixRegion);
+
+		m_pContext->SetViewport(
+			0, 
+			0, 
+			clientWidth, 
+			clientHeight);
+
+		m_pDevice->CreatePresentWindow(
+			clientWidth,
+			clientHeight,
+			pTitle,
+			&m_target,
+			&m_wnd);
+
+		m_pDevice->CreateDepthBuffer(
+			clientWidth, 
+			clientHeight, 
+			&m_depthBuffer);
+
 		m_drawManager.m_pMeshManager	= &m_meshManager;
 
 		m_techniques.InitializeAll(m_pDevice);
-		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_STATIC_DATA);
-
 		m_techniques.SetDrawManager(&m_drawManager);
+
+		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_STATIC_DATA);
 	}
 
 	void RenderManager::Clear()
 	{
-		m_drawManager.Clear();
 		m_pContext->ClearDepth(m_depthBuffer);
 		m_pContext->ClearRenderTarget(m_target, 0.0f, 0.0f, 0.0f);
 	}
@@ -60,7 +101,7 @@ namespace rendering
 		m_pContext->CopyDataToRegion(
 			m_meshManager.m_pPerInstanceData,
 			m_meshManager.m_perInstanceDataSize,
-			m_meshDataRegion);
+			m_modelDataRegion);
 
 		m_techniques.UpdateAll(m_pContext);
 
@@ -91,16 +132,19 @@ namespace rendering
 	void RenderManager::CreateModelHeap(
 		const TECHNIQUE_HEAP_LAYOUT_DESC layoutDesc[RENDER_TECHNIQUES_COUNT])
 	{
+		// Since every mesh should be created at this moment upload all data
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_VERTEX_DATA);
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_INDEX_DATA);
 
+		// Create Model Heap
 		m_meshManager.CreateModelHeap(layoutDesc);
 
+		// Create Region on GPU for the model data
 		m_pDevice->CreateDynamicBufferRegion(
 			m_meshManager.m_perInstanceDataSize, 
 			NULL, 
-			&m_meshDataRegion);
-		m_drawManager.m_pBuffer = &m_meshDataRegion;
+			&m_modelDataRegion);
+		m_drawManager.m_pBuffer = &m_modelDataRegion;
 	}
 
 	void* RenderManager::GetTechniqueModelBuffer(
@@ -108,22 +152,17 @@ namespace rendering
 	{
 		return m_meshManager.GetTechniqueModelBuffer(techniqueIndex);
 	}
-	graphics::PresentWindow* RenderManager::SetWndSettings(
-		const UINT width, 
-		const UINT height, 
-		const char* pTitle)
+
+	void RenderManager::SetViewMatrix(const DirectX::XMFLOAT4X4 viewMatrix)
 	{
-		m_pContext->SetViewport(0, 0, width, height);
+		m_pContext->CopyDataToRegion(
+			&viewMatrix,
+			sizeof(DirectX::XMFLOAT4X4),
+			m_viewMatrixRegion);
+	}
 
-		m_pDevice->CreatePresentWindow(
-			width, 
-			height, 
-			pTitle, 
-			&m_target, 
-			&m_wnd);
-
-		m_pDevice->CreateDepthBuffer(width, height, &m_depthBuffer);
-
+	graphics::PresentWindow* RenderManager::GetPresentWindow()
+	{
 		return &m_wnd;
 	}
 }

@@ -50,6 +50,9 @@
     <ProjectReference Include="..\Graphics Engine\Graphics Engine.vcxproj">
       <Project>{7f491f33-3135-48b3-af3d-1f727dcb4d2f}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\Render Engine\Render Engine.vcxproj">
+      <Project>{bad21a01-ab3b-4995-b0f6-fc32ce716606}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

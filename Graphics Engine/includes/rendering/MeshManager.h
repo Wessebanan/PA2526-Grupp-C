@@ -67,8 +67,6 @@ namespace rendering
 		UINT ModelDataByteWidth;
 
 		UINT TotalModelCount;
-
-		std::vector<UINT> ModelCount;
 	};
 
 	struct MODEL_LAYOUT_DESC

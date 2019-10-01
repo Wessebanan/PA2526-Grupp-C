@@ -69,29 +69,35 @@ namespace rendering
 			// Per mesh inside technique
 			for (UINT m = 0; m < layoutDesc[t].ModelLayoutCount; m++)
 			{
+				// Store data for draw manager
 				ptd.MeshCount.push_back(layoutDesc[t].pModelLayout[m].InstanceCount);
 				ptd.MeshIndex.push_back(layoutDesc[t].pModelLayout[m].MeshIndex);
-				ptd.ModelCount.push_back(0);
 
 				modelCount += layoutDesc[t].pModelLayout[m].InstanceCount;
 			}
 
+			// Calculate the amount of memory needed for a technique
 			ptd.TotalModelCount = modelCount;
 			ptd.ModelDataByteWidth = ptd.PerInstanceByteWidth * modelCount;
 			totalByteWidth += (UINT)ceil(ptd.ModelDataByteWidth / 256.0f) * 256;
 		}
 
+		// Allocate data and zero memory
 		m_pPerInstanceData = (char*)malloc(totalByteWidth);
 		m_perInstanceDataSize = totalByteWidth;
-
 		ZeroMemory(m_pPerInstanceData, m_perInstanceDataSize);
 
+		// Set memory slot start per technique
 		char* pDataBegin = m_pPerInstanceData;
 		for (UINT i = 0; i < RENDER_TECHNIQUES_COUNT; i++)
 		{
 			PerTechniqueData& ptd = m_perTechniqueData[i];
 
-			ptd.pModelDataStart = pDataBegin;
+			if(ptd.ModelDataByteWidth > 0)
+				ptd.pModelDataStart = pDataBegin;
+			else
+				ptd.pModelDataStart = NULL;
+
 			pDataBegin += (UINT)(ceil(ptd.ModelDataByteWidth / 256.0f) * 256);
 		}
 

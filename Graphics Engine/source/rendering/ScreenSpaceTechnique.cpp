@@ -1,5 +1,5 @@
 #include "../..//includes/rendering/RenderTechnique.h"
-#include "../..//includes/rendering/WaterTechnique.h"
+#include "../..//includes/rendering/SceenSpaceTechnique.h"
 
 namespace rendering
 {
@@ -63,18 +63,18 @@ namespace rendering
 
 	)";
 
-	static WaterTechniqueData* gpData = NULL;
+	static ScreenSpaceTechniqueData* gpData = NULL;
 
 	template<>
-	void RenderTechnique::Construct<RENDER_WATER>(
+	void RenderTechnique::Construct<RENDER_SCREEN_SPACE>(
 		RENDER_TECHNIQUE_DESC& rDescription)
 	{
-		rDescription.ByteWidth = sizeof(WaterTechniqueData);
+		rDescription.ByteWidth = sizeof(ScreenSpaceTechniqueData);
 		rDescription.ppData = (void**)& gpData;
 	}
 
 	template<>
-	void RenderTechnique::Initialize<RENDER_WATER>(
+	void RenderTechnique::Initialize<RENDER_SCREEN_SPACE>(
 		graphics::DeviceInterface* pDevice)
 	{
 		pDevice->CreateGraphicsPipeline(
@@ -84,27 +84,27 @@ namespace rendering
 	}
 
 	template<>
-	void RenderTechnique::Update<RENDER_WATER>(
+	void RenderTechnique::Update<RENDER_SCREEN_SPACE>(
 		graphics::RenderContext* pContext)
 	{
 	}
 
 	template<>
-	void RenderTechnique::Set<RENDER_WATER>(
+	void RenderTechnique::Set<RENDER_SCREEN_SPACE>(
 		graphics::RenderContext* pContext)
 	{
 		pContext->SetGraphicsPipeline(gpData->pPipeline);
 	}
 
 	template<>
-	void RenderTechnique::Deconstruct<RENDER_WATER>(
+	void RenderTechnique::Deconstruct<RENDER_SCREEN_SPACE>(
 		graphics::DeviceInterface* pDevice)
 	{
 		pDevice->DeleteGraphicsPipeline(gpData->pPipeline);
 	}
 
 	template<>
-	void* RenderTechnique::GetData<RENDER_WATER>()
+	void* RenderTechnique::GetData<RENDER_SCREEN_SPACE>()
 	{
 		return gpData;
 	}

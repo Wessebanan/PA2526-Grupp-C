@@ -115,6 +115,7 @@ namespace rendering
 
 		void SetAndDrawAll(graphics::RenderContext* pContext)
 		{
+			m_pDrawManager->Start(pContext);
 			ClassMethodLoop<RENDER_TECHNIQUES_COUNT, SetTechniques>(this, pContext);
 		}
 

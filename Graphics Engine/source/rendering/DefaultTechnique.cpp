@@ -33,7 +33,8 @@ namespace rendering
 
 	struct VSOUT
 	{
-		float4 pos	: SV_POSITION;
+		float4 pos	   : SV_POSITION;
+		float contrast : COLOR0;
 	};
 
 	VSOUT main(
@@ -41,9 +42,12 @@ namespace rendering
 		uint instance : INDEX0)
 	{
 		VSOUT output;
+		
+		output.contrast = gMesh[instance].Pos.w;
 
 		output.pos	= float4(pos.xyz + gMesh[instance].Pos.xyz, 1.0f);
-	
+		output.pos	= mul(gPerspective, mul(gView, output.pos));
+
 		return output;
 	}	
 
@@ -53,12 +57,13 @@ namespace rendering
 
 	struct PSIN
 	{
-		float4 pos	: SV_POSITION;
+		float4 pos	   : SV_POSITION;
+		float contrast : COLOR0;
 	};
 
 	float4 main(PSIN input) : SV_TARGET
 	{ 
-		return float4(0.0f, 1.0f, 0.0f, 1.0f);
+		return float4(input.contrast.xxx, 1.0f);
 	}	
 
 	)";
