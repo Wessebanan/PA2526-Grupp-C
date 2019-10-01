@@ -20,6 +20,11 @@ h2
     height: 0px;
 }
 
+p
+{
+    margin-bottom: 40px;
+}
+
 #playerButton
 {
     margin-top: 10px;
@@ -32,9 +37,25 @@ h2
 {
     margin-left: auto;
     margin-right: auto;
-    height: 205px;
-    width: 305px;
+
     border-style: solid;
     border-width: 5px;
     border-color: #fff;
+}
+
+#commandField
+{
+    height: 205px;
+    width: 305px;
+}
+
+#prepField
+{
+    height: 655px;
+    width: 1000px;
+}
+#startfield
+{
+    height: 38px;
+    width: 100px;
 }

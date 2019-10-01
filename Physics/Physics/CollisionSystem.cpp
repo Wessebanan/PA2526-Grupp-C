@@ -108,10 +108,10 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	{
 		return;
 	}
-	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
+	TransformComponent* p_transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
 	
 	// Creating world matrix and transforming the ground collision component center position to world space.
-	DirectX::XMMATRIX ground_collision_world = UtilityFunctions::GetWorldMatrix(*transform_component);
+	DirectX::XMMATRIX ground_collision_world = UtilityFunctions::GetWorldMatrix(*p_transform_component);
 	DirectX::XMVECTOR ground_collision_center_position = DirectX::XMLoadFloat3(&ground_collision_component->mCenterPos);
 	ground_collision_center_position = DirectX::XMVector3Transform(ground_collision_center_position, ground_collision_world);
 
@@ -161,7 +161,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		ground_collision_component->mLastTileY = tile_height;
 	}
 	// If neither tile height nor y position changed, skip the rest.
-	else if (fabs(transform_component->position.y - ground_collision_component->mLastY) < ABS_ERROR)
+	else if (fabs(p_transform_component->position.y - ground_collision_component->mLastY) < ABS_ERROR)
 	{
 		return;
 	}
@@ -184,19 +184,19 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		}
 	}
 
-	bool onGround = false;
+	bool on_ground = false;
 	// If the biggest difference is negative, move the object above ground again.
 	if (biggest_diff < 0.0f)
 	{
 		// This should place the ground collision component so that no
 		// vertex intersects the ground level.
-		transform_component->position.y += -biggest_diff;
+		p_transform_component->position.y += -biggest_diff;
 
 		// Saving this adjusted height as the last y value.
-		ground_collision_component->mLastY = transform_component->position.y;
+		ground_collision_component->mLastY = p_transform_component->position.y;
 		
 		// If the object moved, it is now on the ground level.
-		onGround = true;
+		on_ground = true;
 	}
 
 	// Break if entity does not move dynamically.
@@ -205,9 +205,8 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		return;
 	}
 	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(_entityInfo.entity->getID());
-	movement_component->mOnGround = onGround;
+	movement_component->mOnGround = on_ground;
 	// If the biggest difference is close to 0, the object is grounded.
-	//movement_component->mOnGround = fabs(biggest_diff) < ABS_ERROR ? true : false;
 }
 #pragma endregion
 #pragma region ObjectBoundingVolumeInitSystem
