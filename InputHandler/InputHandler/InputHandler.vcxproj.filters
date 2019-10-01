@@ -15,61 +15,54 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\source\DeviceInterface.cpp">
+    <ClCompile Include="HandleInputBackend.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\GraphicsPipeline.cpp">
+    <ClCompile Include="includes\sha1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\PresentWindow.cpp">
+    <ClCompile Include="InputBackend.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\RenderContext.cpp">
+    <ClCompile Include="PingingWebsite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\Window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\BufferStorage.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\source\pch.cpp">
+    <ClCompile Include="webConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\includes\D3D11Header.h">
+    <ClInclude Include="includes\HandleInputBackend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\DeviceInterface.h">
+    <ClInclude Include="includes\InputBackendComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\GraphicsPipeline.h">
+    <ClInclude Include="includes\InputComponents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Info.h">
+    <ClInclude Include="includes\InputBackend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\Window.h">
+    <ClInclude Include="includes\sha1.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\PresentWindow.h">
+    <ClInclude Include="includes\webConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\GraphicsSystems.h">
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="includes\InitInputHandler.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\GraphicsComponents.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\BufferStorage.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\Renderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    </None>
+    <None Include="ccTest.html">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="gridStyle.css">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="StyleSheet.css">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
