@@ -8,11 +8,12 @@
 namespace GridFunctions
 {
 	//Calculates the centerposition of all the tiles in the grid and creates them.
-	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int rows, const int columns, const float radius);
+	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int Rows, const int Columns, const float Radius);
 	//Create a system for printing every tiles center position for debugging purposes.
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs);
-	void CreateHeightmap(float* arr);
+	void CreateHeightmap(float* Arr);
 	void CreatePotentialField(ecs::EntityComponentSystem& rEcs);
-	float CreateCharge(float startX, float startZ, float endX, float endZ, float charge);
-	DirectX::XMFLOAT2 FindStartingTile(PLAYER id);
+	float CreateCharge(float StartX, float StartZ, float EndX, float EndZ, float Charge);
+	//Returns the index of the starting tile for the given player.
+	int2 FindStartingTile(PLAYER Id);
 };
