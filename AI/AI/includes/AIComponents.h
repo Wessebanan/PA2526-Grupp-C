@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ecsComponentIncludes.h"
+#include <vector>
 #include "AIGlobals.h"
 
 namespace ecs
@@ -15,6 +16,7 @@ namespace ecs
 			*/
 			TileType tileType = GRASS;
 			bool impassable = false;
+			float niceness = 0.f;
 		};
 
 		struct PathfindingStateComponent : public ECSComponent<PathfindingStateComponent>
@@ -30,6 +32,16 @@ namespace ecs
 		struct MoveStateComponent : public ECSComponent<MoveStateComponent>
 		{
 			int data = 0;
+		};
+
+		struct UnitComponent : public ECSComponent<UnitComponent>
+		{
+			PLAYER playerID; //Holds an enum to know which player the unit belongs to.
+		};
+
+		struct ArmyComponent : public ECSComponent<ArmyComponent>
+		{
+			std::vector<int> unitIDs; //Holds the entity IDs of every unit in one players army.
 		};
 	}
 }
