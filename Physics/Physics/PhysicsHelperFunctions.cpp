@@ -11,6 +11,15 @@ float PhysicsHelpers::CalculateDistance(const DirectX::XMFLOAT3 &p1, const Direc
 	return sqrt(pow(x_diff, 2) + pow(y_diff, 2) + pow(z_diff, 2));
 }
 
+float PhysicsHelpers::CalculateDistance(const DirectX::XMVECTOR& p1, const DirectX::XMVECTOR& p2)
+{
+	DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(p1, p2);
+	DirectX::XMVECTOR diff_length = DirectX::XMVector3Length(diff);
+	float distance = 0.0f;
+	DirectX::XMStoreFloat(&distance, diff_length);
+	return distance;
+}
+
 float PhysicsHelpers::CalculateVectorLength(const DirectX::XMFLOAT3 vec)
 {
 	return sqrt(pow(vec.x,2)+pow(vec.y,2)+pow(vec.z,2));

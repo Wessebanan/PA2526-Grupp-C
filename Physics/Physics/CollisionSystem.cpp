@@ -123,8 +123,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	float closest_distance = INFINITY;
 
 	// For each tile, check which is closest to the ground collision component.
-	// This is bad, and will likely be optimized in the future.
-	
+	// This is bad, and will likely be optimized in the future.	
 	for (int i = 0; i < it.entities.size(); i++)
 	{		
 		TypeID current_tile = it.entities.at(i).entity->getID();
@@ -138,11 +137,12 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 
 		// Using XMVECTOR bs to get distance to tile. May change this in the future but just something that works for now.
 		DirectX::XMVECTOR tile_position = DirectX::XMLoadFloat3(&tile_transform->position);
-		DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(tile_position, ground_collision_center_position);
-		DirectX::XMVECTOR diff_length = DirectX::XMVector3Length(diff);
-		float distance_to_tile = 0.0f;
-		DirectX::XMStoreFloat(&distance_to_tile, diff_length);
+		//DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(tile_position, ground_collision_center_position);
+		//DirectX::XMVECTOR diff_length = DirectX::XMVector3Length(diff);
+		//float distance_to_tile = 0.0f;
+		//DirectX::XMStoreFloat(&distance_to_tile, diff_length);
 		
+		float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_position, ground_collision_center_position);
 		// Setting the ID to the closest tile.
 		if (closest_distance > distance_to_tile)
 		{
@@ -182,6 +182,18 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		// vertex intersects the ground level.
 		ground_collision_transform->position.y += -biggest_diff;
 	}
+
+	// Break if entity does not move dynamically.
+	if (!_entityInfo.entity->hasComponentOfType<DynamicMovementComponent>())
+	{
+		return;
+	}
+	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(_entityInfo.entity->getID());
+
+	// Should gravity affect the object right now?
+	const float ABS_ERROR = pow(10, -10);
+	// If the biggest difference is close to 0, the object is grounded.
+	movement_component->mOnGround = fabs(biggest_diff) < ABS_ERROR ? true : false;
 }
 #pragma endregion
 #pragma region ObjectBoundingVolumeInitSystem

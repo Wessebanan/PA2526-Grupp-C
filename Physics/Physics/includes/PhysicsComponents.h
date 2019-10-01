@@ -36,6 +36,9 @@ namespace ecs
 			// density all over.
 			DirectX::XMFLOAT3 mMassCenter;
 			float mWeight = 50.0f;
+
+			// If object is on ground.
+			bool mOnGround = false;
 		};
 
 		/*

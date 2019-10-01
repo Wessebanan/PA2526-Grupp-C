@@ -142,6 +142,13 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 
 	// GRAVITY
 	
+	// If the object is grounded right now, reset velocity and don't apply gravity (return).
+	if (movement_component->mOnGround)
+	{
+		movement_component->mVelocity.y	= 0.0f;
+		return;
+	}
+
 	movement_component->mAcceleration.y = -GRAVITY;
 	if (fabs(movement_component->mVelocity.y) < movement_component->mMaxVelocity)
 	{
