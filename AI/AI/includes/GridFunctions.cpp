@@ -11,16 +11,16 @@ using namespace DirectX;
 namespace GridFunctions
 {
 	//Calculates the centerposition of all the tiles in the grid.
-	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int rows, const int columns, const float radius)
+	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int Rows, const int Columns, const float Radius)
 	{
 		float pi = 3.1415f;
 		XMFLOAT3 starting_pos = { 0.0f, 0.0f, 0.0f };
 		XMFLOAT3 current_pos = { 0.0f, 0.0f, 0.0f };
-		float mid_to_side = cos(30 * pi / 180) * radius; //Calculate length between the center position and a side. 
+		float mid_to_side = cos(30 * pi / 180) * Radius; //Calculate length between the center position and a side. 
 		TransformComponent transform;
 		TileComponent tile;
 		ecs::Entity* current_tile;
-		float height_map[144];
+		float height_map[ARENA_COLUMNS*ARENA_ROWS];
 		CreateHeightmap(height_map);
 		//for (int i = 0; i < rows; i++)
 		//{
@@ -33,12 +33,12 @@ namespace GridFunctions
 		
 		GridProp* p_gp = GridProp::GetInstance();
 		//Calculate the position and create every tile.
-		for (int i = 0; i < rows; i++)
+		for (int i = 0; i < Rows; i++)
 		{
 			//Reset x-pos for every new row and set the starting z-pos for the new row.
 			current_pos.x = starting_pos.x;
 			current_pos.z = starting_pos.z + i * mid_to_side * 2;
-			for (int j = 0; j < columns; j++)
+			for (int j = 0; j < Columns; j++)
 			{
 				
 				//Save the calculated values into the PositionComponent.
@@ -68,7 +68,7 @@ namespace GridFunctions
 				current_tile = rEcs.createEntity(transform, tile);
 				p_gp->mGrid[i][j].Id = current_tile->getID();
 				//Update the x-position of the next tile in this row.
-				current_pos.x += 1.5f * radius;
+				current_pos.x += 1.5f * Radius;
 				//Update the z-position of the next tile depending on if it is in a 
 				//odd or even column.
 				if (j % 2 == 0)
@@ -89,7 +89,7 @@ namespace GridFunctions
 		rEcs.createSystem<systems::TilePrintSystem>();
 	}
 
-	void CreateHeightmap(float* arr) //Creates a fixed array that is used to change the hight for the map
+	void CreateHeightmap(float* Arr) //Creates a fixed array that is used to change the hight for the map
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
 		float height_values[144] =
@@ -108,7 +108,7 @@ namespace GridFunctions
 
 		for (int i = 0; i < 144; i++)
 		{
-			arr[i] = height_values[i];
+			Arr[i] = height_values[i];
 		}
 	}
 
@@ -160,29 +160,29 @@ namespace GridFunctions
 		}
 	}
 
-	float CreateCharge(float startX, float startZ, float endX, float endZ, float charge)
+	float CreateCharge(float StartX, float StartZ, float EndX, float EndZ, float Charge)
 	{
 		float to_return = 0.f;
-		float x = abs(endX - startX);
-		float z = abs(endZ - startZ);
+		float x = abs(EndX - StartX);
+		float z = abs(EndZ - StartZ);
 		float dist = sqrt(x * x + z * z);//get the distance from start to end
 		dist = dist / ((TILE_RADIUS) * 4);//scale the distance for better values
-		int sign = (int)(fabs(charge) / charge);//get the sign from charge variable "+" or "-"
-		to_return = sign*pow(fabs(charge), 1 / (dist + 1));//return a exponentially decreasing value depending on distance
+		int sign = (int)(fabs(Charge) / Charge);//get the sign from charge variable "+" or "-"
+		to_return = sign*pow(fabs(Charge), 1 / (dist + 1));//return a exponentially decreasing value depending on distance
 
 		return to_return;
 	}
 
-	int2 FindStartingTile(PLAYER id)
+	int2 FindStartingTile(PLAYER Id)
 	{
 		int rows = ARENA_ROWS;
 		int columns = ARENA_COLUMNS;
 		int2 index;
-		index.x = 0;
-		index.y = 0;
+		index.x = -1;
+		index.y = -1;
 		GridProp* p_gp = GridProp::GetInstance();
 		bool tile_found = false;
-		switch (id)
+		switch (Id)
 		{
 		case PLAYER1:
 			for (int y = 0; y < rows / 2; y++)
@@ -193,13 +193,8 @@ namespace GridFunctions
 					{
 						index.x = x;
 						index.y = y;
-						tile_found = true;
-						break;
+						return index;
 					}
-				}
-				if (tile_found)
-				{
-					break;
 				}
 			}
 			break;
@@ -212,13 +207,8 @@ namespace GridFunctions
 					{
 						index.x = x;
 						index.y = y;
-						tile_found = true;
-						break;
+						return index;
 					}
-				}
-				if (tile_found)
-				{
-					break;
 				}
 			}
 			break;
@@ -231,13 +221,8 @@ namespace GridFunctions
 					{
 						index.x = x;
 						index.y = y;
-						tile_found = true;
-						break;
+						return index;
 					}
-				}
-				if (tile_found)
-				{
-					break;
 				}
 			}
 			break;
@@ -250,13 +235,8 @@ namespace GridFunctions
 					{
 						index.x = x;
 						index.y = y;
-						tile_found = true;
-						break;
+						return index;
 					}
-				}
-				if (tile_found)
-				{
-					break;
 				}
 			}
 			break;
