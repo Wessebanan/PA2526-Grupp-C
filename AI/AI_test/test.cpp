@@ -1,13 +1,14 @@
 #include "pch.h"
 #include "AIGlobals.h"
+#include "GridProp.h"
 #include "GridFunctions.h"
 #include "AIFunctions.h"
 
 TEST(GridFunctions, InitGrid) {
 
-	int nr_of_rows = ArenaProperties::rows;
-	int nr_of_columns = ArenaProperties::columns;
-	float radius = ArenaProperties::tileRadius;
+	int nr_of_rows = ARENA_ROWS;
+	int nr_of_columns = ARENA_COLUMNS;
+	float radius = TILE_RADIUS;
 	unsigned int count = nr_of_columns * nr_of_rows;
 	//Define some ECS stuff to allow the ECS to create more than 100 of each component.
 	ecs::CompTypeMemDesc types[] = {
@@ -45,9 +46,9 @@ TEST(GridFunctions, CreateDebugSystems) {
 }
 
 TEST(GridFunctions, heightMapTest) {
-	int nr_of_rows = ArenaProperties::rows;
-	int nr_of_columns = ArenaProperties::columns;
-	float radius = ArenaProperties::tileRadius;
+	int nr_of_rows = ARENA_ROWS;
+	int nr_of_columns = ARENA_COLUMNS;
+	float radius = TILE_RADIUS;
 	unsigned int count = nr_of_columns * nr_of_rows;
 	//Define some ECS stuff to allow the ECS to create more than 100 of each component.
 	ecs::CompTypeMemDesc types[] = {
@@ -82,9 +83,9 @@ TEST(GridFunctions, heightMapTest) {
 }
 
 TEST(GridFunctions, differentTypes) {
-	int nr_of_rows = ArenaProperties::rows;
-	int nr_of_columns = ArenaProperties::columns;
-	float radius = ArenaProperties::tileRadius;
+	int nr_of_rows = ARENA_ROWS;
+	int nr_of_columns = ARENA_COLUMNS;
+	float radius = TILE_RADIUS;
 	unsigned int count = nr_of_columns * nr_of_rows;
 
 	//Define some ECS stuff to allow the ECS to create more than 100 of each component.
@@ -162,10 +163,10 @@ TEST(AI, CreateSystems) {
 }
 
 TEST(AIFunctions, CreatePlayerArmies) {
-	int nr_of_rows = ArenaProperties::rows;
-	int nr_of_columns = ArenaProperties::columns;
-	float radius = ArenaProperties::tileRadius;
-	unsigned int count = nr_of_columns * nr_of_rows;
+	int nr_of_rows = ARENA_ROWS;
+	int nr_of_columns = ARENA_COLUMNS;
+	float radius = TILE_RADIUS;
+	unsigned int count = nr_of_columns * nr_of_rows * 2;
 	ecs::CompTypeMemDesc types[] = {
 		{ TileComponent::typeID, TileComponent::size, count},
 		{ TransformComponent::typeID, TransformComponent::size, count},
@@ -177,18 +178,12 @@ TEST(AIFunctions, CreatePlayerArmies) {
 	ecs::EntityComponentSystem my_ecs;
 	my_ecs.initialize(desc);
 
+	//Create the grid so that we can find the starting positions for the army.
 	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius);
-	//for (int i = 0; i < ArenaProperties::rows; i++)
-	//{
-	//	std::cout << ArenaProperties::gridID[0][i] << std::endl;
-	//}
-	std::cout << ArenaProperties::test << std::endl;
-	ArenaProperties::gridPassable;
-	ArenaProperties::MackeID;
-	int testing = ArenaProperties::gridID[0][0];
+	//Create the user entities and all of their unit entities.
 	AIFunctions::CreatePlayerArmies(my_ecs);
 
-	int expected_number_of_components = 4 * PlayerProperties::numberOfUnits * 3 + 4;
+	int expected_number_of_components = 4 * PlayerProperties::numberOfUnits * 3 + 4 + 12*12*2;
 	size_t number_of_components = my_ecs.getTotalComponentCount();
 	
 	//Check so that the debug system was created.

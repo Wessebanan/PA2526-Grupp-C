@@ -36,6 +36,9 @@
     <ClInclude Include="includes\AIFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="includes\GridProp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -47,7 +50,7 @@
     <ClCompile Include="includes\AIFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="includes\AIGlobals.cpp">
+    <ClCompile Include="includes\GridProp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

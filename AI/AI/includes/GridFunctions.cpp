@@ -1,5 +1,6 @@
 #include "GridFunctions.h"
 #include "AIGlobals.h"
+#include "GridProp.h"
 #include "UtilityComponents.h"
 #include <DirectXMath.h>
 
@@ -30,6 +31,7 @@ namespace GridFunctions
 		//	std::cout << ArenaProperties::gridLogic[0][i].entityID << std::endl;
 		//}
 		
+		GridProp* p_gp = GridProp::GetInstance();
 		//Calculate the position and create every tile.
 		for (int i = 0; i < rows; i++)
 		{
@@ -47,31 +49,25 @@ namespace GridFunctions
 				{
 					tile.tileType = WATER;
 					tile.impassable = true;
-					ArenaProperties::gridPassable[i][j] = false;
+					p_gp->mGrid[i][j].isPassable = false;
 				}
 				else if (transform.position.y == 3)
 				{
 					tile.tileType = STONE;
 					tile.impassable = false;
-					ArenaProperties::gridPassable[i][j] = true;
+					p_gp->mGrid[i][j].isPassable = true;
 				}
 				else
 				{
 					tile.tileType = GRASS;
 					tile.impassable = false;
-					ArenaProperties::gridPassable[i][j] = ArenaProperties::gridID[i][j] = true;
+					p_gp->mGrid[i][j].isPassable = true;
 				}
 
 				//Create the new entity
 				currentTile = rEcs.createEntity(transform, tile);
-				ArenaProperties::test = 10;
-				ArenaProperties::MackeID[i][j] = 1337; // = currentTile->getID();
-				ArenaProperties::test = currentTile->getID();
-				int testing = ArenaProperties::gridID[i][j];
-				std::cout << ArenaProperties::gridID[i][j] << std::endl;
-				ArenaProperties::gridPassable;
-				ArenaProperties::gridID;
-				ArenaProperties::MackeID;
+				//ArenaProperties::tileEntityID[i][j] = currentTile->getID();
+				p_gp->mGrid[i][j].Id = currentTile->getID();
 				//Update the x-position of the next tile in this row.
 				current_pos.x += 1.5f * radius;
 				//Update the z-position of the next tile depending on if it is in a 
@@ -86,8 +82,6 @@ namespace GridFunctions
 				}
 			}
 		}
-		
-		int dank = 0;
 	}
 
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs)
@@ -120,70 +114,94 @@ namespace GridFunctions
 
 	int2 FindStartingTile(PLAYER id)
 	{
+		int rows = ARENA_ROWS;
+		int columns = ARENA_COLUMNS;
 		int2 index;
 		index.x = 0;
 		index.y = 0;
-		/*switch (id)
+		GridProp* p_gp = GridProp::GetInstance();
+		bool tile_found = false;
+		switch (id)
 		{
 		case PLAYER1:
-			for (int y = 0; y < ArenaProperties::rows / 2; y++)
+			for (int y = 0; y < rows / 2; y++)
 			{
-				for (int x = 0; x < ArenaProperties::columns / 2; x++)
+				for (int x = 0; x < columns / 2; x++)
 				{
-					if (ArenaProperties::gridLogic[y][x].isPassable)
+					if (p_gp->mGrid[y][x].isPassable)
 					{
 						index.x = x;
 						index.y = y;
+						tile_found = true;
 						break;
 					}
+				}
+				if (tile_found)
+				{
+					break;
 				}
 			}
 			break;
 		case PLAYER2:
-			for (int y = 0; y < ArenaProperties::rows / 2; y++)
+			for (int y = 0; y < rows / 2; y++)
 			{
-				for (int x = ArenaProperties::columns - 1; x > ArenaProperties::columns / 2; x--)
+				for (int x = columns - 1; x > columns / 2; x--)
 				{
-					if (ArenaProperties::gridLogic[y][x].isPassable)
+					if (p_gp->mGrid[y][x].isPassable)
 					{
 						index.x = x;
 						index.y = y;
+						tile_found = true;
 						break;
 					}
+				}
+				if (tile_found)
+				{
+					break;
 				}
 			}
 			break;
 		case PLAYER3:
-			for (int y = ArenaProperties::rows - 1; y > ArenaProperties::rows / 2; y--)
+			for (int y = rows - 1; y > rows / 2; y--)
 			{
-				for (int x = 0; x < ArenaProperties::columns / 2; x++)
+				for (int x = 0; x < columns / 2; x++)
 				{
-					if (ArenaProperties::gridLogic[y][x].isPassable)
+					if (p_gp->mGrid[y][x].isPassable)
 					{
 						index.x = x;
 						index.y = y;
+						tile_found = true;
 						break;
 					}
+				}
+				if (tile_found)
+				{
+					break;
 				}
 			}
 			break;
 		case PLAYER4:
-			for (int y = ArenaProperties::rows - 1; y > ArenaProperties::rows / 2; y--)
+			for (int y = rows - 1; y > rows / 2; y--)
 			{
-				for (int x = ArenaProperties::columns - 1; x > ArenaProperties::columns / 2; x--)
+				for (int x = columns - 1; x > columns / 2; x--)
 				{
-					if (ArenaProperties::gridLogic[y][x].isPassable)
+					if (p_gp->mGrid[y][x].isPassable)
 					{
 						index.x = x;
 						index.y = y;
+						tile_found = true;
 						break;
 					}
+				}
+				if (tile_found)
+				{
+					break;
 				}
 			}
 			break;
 		default:
 			break;
-		}*/
+		}
 		return index;
 	}
 };

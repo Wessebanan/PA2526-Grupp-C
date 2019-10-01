@@ -1,5 +1,9 @@
 #pragma once
 
+#define ARENA_ROWS 12
+#define ARENA_COLUMNS 12
+#define TILE_RADIUS 4
+
 using TileType = unsigned int;
 enum TileTypes //enum used in AIcomponents right now 
 {
@@ -21,37 +25,11 @@ enum PLAYER
 	PLAYER1, PLAYER2, PLAYER3, PLAYER4
 };
 
-struct TileData
-{
-	int entityID = 1;
-	bool isPassable;
-};
-
-struct TileTEST
-{
-	bool gridPassable[12][12];
-	unsigned int gridID[12][12];
-};
-
 struct int2
 {
 	int x; 
 	int y;
 };
-
-namespace ArenaProperties
-{
-	constexpr int rows = 12;
-	constexpr int columns = 12;
-	constexpr float tileRadius = 4.0f;
-	//static TileData gridLogic[rows][columns];
-	static bool gridID[rows][columns];
-	static unsigned int MackeID[rows][columns];
-	static bool gridPassable[rows][columns];
-	static int test;
-
-//	static TileTEST tileTest;
-}
 
 namespace PlayerProperties
 {

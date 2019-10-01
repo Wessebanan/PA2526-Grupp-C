@@ -152,11 +152,12 @@
     <ClInclude Include="includes\AIGlobals.h" />
     <ClInclude Include="includes\AISystems.h" />
     <ClInclude Include="includes\GridFunctions.h" />
+    <ClInclude Include="includes\GridProp.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="includes\AIFunctions.cpp" />
-    <ClCompile Include="includes\AIGlobals.cpp" />
     <ClCompile Include="includes\GridFunctions.cpp" />
+    <ClCompile Include="includes\GridProp.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">true</ExcludedFromBuild>
