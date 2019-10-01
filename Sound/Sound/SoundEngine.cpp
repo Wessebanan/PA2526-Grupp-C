@@ -8,12 +8,7 @@ Sound::Engine::Engine()
 	mpStream = nullptr;
 	mWorkerThreadRun = false;
 	mpWorkerThread = nullptr;
-	mLastSampleCount = 0;
-	//std::pair<float, float> temp_pair = { 0.0f, 0.0f };
-	//for (int i = 0; i < SOUND_FRAMES_PER_BUFFER; i++)
-	//{
-	//	mBuffer.insert(&temp_pair);
-	//}
+	mProducerLastSampleCount = 0;
 }
 
 bool Sound::Engine::OpenStream()
@@ -112,12 +107,6 @@ void Sound::Engine::JoinWorkThread()
 	mpWorkerThread->join();
 }
 
-Sound::Buffer* Sound::Engine::__GetChainBuffer(int index)
-{
-	//return mpChainBuffers[index];
-	return nullptr;
-}
-
 int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
 	unsigned long framesPerBuffer,
 	const PaStreamCallbackTimeInfo* pTimeInfo,
@@ -126,38 +115,25 @@ int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffe
 	float* out = (float*)pOutputBuffer;
 	unsigned long i;
 
-	(void)pTimeInfo;				// Are not used right now, this is to prevent
+	(void)pTimeInfo;			// Are not used right now, this is to prevent
 	(void)statusFlags;			// the unused warning
 	(void)pInputBuffer;
 
-	std::pair<float, float> temp_pair[512];
+	std::pair<float, float> temp_pair[SOUND_FRAMES_PER_BUFFER];
 
 	unsigned long available = (unsigned long)mBuffer.readAvailable();
-	//std::cout << available << " ";
-	unsigned long consume_count = std::min(
-		framesPerBuffer,
-		available
-	);
-	//if (consume_count == 0)
-	//{
-	//	std::cout << "MISS";
-	//	for (i = 0; i < framesPerBuffer; i++)
-	//	{
-	//		*out++ = 0.0f;
-	//		*out++ = 0.0f;
-	//	}
-	//}
-	//else
-	//{
-		mBuffer.readBuff(temp_pair, consume_count);
 
-		for (i = 0; i < consume_count; i++)
-		{
-			*out++ = temp_pair[i].first;  /* left */
-			*out++ = temp_pair[i].second;  /* right */
-		}
-	//}
-		return paContinue;
+	unsigned long consume_count = std::min(framesPerBuffer, available);
+
+	mBuffer.readBuff(temp_pair, consume_count);
+
+	for (i = 0; i < consume_count; i++)
+	{
+		*out++ = temp_pair[i].first;  /* left */
+		*out++ = temp_pair[i].second;  /* right */
+	}
+
+	return paContinue;
 }
 
 // This routine will be called by the PortAudio engine when audio is needed.
@@ -194,62 +170,78 @@ void Sound::Engine::PaStreamFinished(void* pUserData)
 
 void Sound::Engine::WorkerThreadUpdateMethod()
 {
+	// Get current sample count
 	Samples current_sample_count = GetWorkerCurrentSampleCount();
+	// Check how many frames should be processed
+	// until the buffer have caught up
 	Samples sample_count_since_last =
-		current_sample_count - mLastSampleCount;
-	//std::cout << sample_count_since_last << " ";
+		current_sample_count - mProducerLastSampleCount;
+	// Check available space in the buffer
 	size_t available_buffer_space = mBuffer.writeAvailable();
-	Samples samples_to_fill = std::min(sample_count_since_last, available_buffer_space);
-	if (available_buffer_space == 0)
-		std::cout << "N";
-	//std::cout << samples_to_fill << " ";
+	// Only fill what will fit, capped to SOUND_FRAMES_PER_BUFFER
+	Samples samples_to_fill = std::min((Samples)SOUND_FRAMES_PER_BUFFER,
+		std::min(sample_count_since_last, available_buffer_space));
+	//if (available_buffer_space == 0)
+	//	std::cout << "Overfilled ";
 
-	
-	float temp_float_array[SOUND_BUFFER_SIZE];
-	_FillWithSinus(mLastSampleCount, samples_to_fill, temp_float_array);
+	// TEMPORARY -----------------------------------------
+	// This will be removed once it's no longer needed for
+	// testing purposes. Produces a sine wave to fill the
+	// ring buffer with
+	float temp_float_array[SOUND_FRAMES_PER_BUFFER];
+	_FillWithSinus(mProducerLastSampleCount, samples_to_fill, temp_float_array);
 
-	std::pair<float, float> temp_pair[SOUND_BUFFER_SIZE];
+	// Take the signal and fill it on both channels
+	std::pair<float, float> temp_pair[SOUND_FRAMES_PER_BUFFER];
 	for (Samples i = 0; i < samples_to_fill; i++)
 	{
 		temp_pair[i].first = temp_float_array[i];
 		temp_pair[i].second = temp_float_array[i];
 	}
+	// TEMPORARY END -------------------------------------
+
+	// Write to the ring buffer
 	mBuffer.writeBuff(temp_pair, samples_to_fill);
 
-	mLastSampleCount = current_sample_count;
+	// Progress the last sample count by the amount
+	// of samples filled this iteration
+	mProducerLastSampleCount += samples_to_fill;
 }
 
 void Sound::Engine::WorkerThreadUpdate(void* data)
 {
 	while (((Engine*)data)->mWorkerThreadRun)
 	{
-		// SPEEEN
+		// SPEEEN (Temporary spin loop implementation)
 		((Engine*)data)->WorkerThreadUpdateMethod();
 	}
 }
 
 inline Samples Sound::Engine::GetWorkerCurrentSampleCount()
 {
-	double temp = std::chrono::duration_cast<std::chrono::nanoseconds>
-		(std::chrono::steady_clock::now() - mWorkThreadStartTime).count() * 0.000000001;
+	// To get the desired precision, the duration is casted
+	// to nanoseconds and then converted back to seconds
+	float temp = std::chrono::duration_cast<std::chrono::nanoseconds>
+		(std::chrono::steady_clock::now() - mWorkThreadStartTime).count() * 0.000000001f;
 	return ToSamples(temp);
 }
 
-inline Samples Sound::Engine::ToSamples(const double Seconds)
+inline Samples Sound::Engine::ToSamples(const float Seconds)
 {
-	return (Samples)(Seconds * (double)SOUND_SAMPLE_RATE);
+	return (Samples)(Seconds * (float)SOUND_SAMPLE_RATE);
 }
 
-inline double Sound::Engine::ToSeconds(const Samples SampleCount)
+inline float Sound::Engine::ToSeconds(const Samples SampleCount)
 {
-	return (double)SampleCount / (double)SOUND_SAMPLE_RATE;
+	return (float)SampleCount / (float)SOUND_SAMPLE_RATE;
 }
 
 void Sound::Engine::_FillWithSinus(Samples CurrSample, Samples SampleCount, float* Buffer)
 {
-	const double FREQUENCY = 440.0;
+	const float FREQUENCY = 440.0f;	// Frequency of the wave
+	const float AMPLITUDE = 0.2f;	// To save people's ears; Low amplitude
 	for (Samples i = 0; i < SampleCount; i++)
 	{
-		Buffer[i] = std::sinf(FREQUENCY * ToSeconds(CurrSample + i) * 2.0 * M_PI);
+		Buffer[i] = std::sinf(FREQUENCY * ToSeconds(CurrSample + i) * 2.0f * (float)M_PI) * AMPLITUDE;
 	}
 }
