@@ -104,7 +104,7 @@ function setTile(x,y)
 		lastTileColor = document.getElementById(id).style.backgroundColor;
 
 	document.getElementById(lastTileSelected).style.backgroundColor = lastTileColor;
-	document.getElementById(id).style.backgroundColor = "red";
+	document.getElementById(id).style.backgroundColor = "#c00";
 	lastTileSelected = id;
 }
 
