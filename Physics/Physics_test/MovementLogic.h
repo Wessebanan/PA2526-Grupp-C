@@ -1,7 +1,6 @@
 #pragma once
 #include "pch.h"
 #include "MovementSystem.h"
-#include "InputTest.h"
 
 namespace MovementLogic
 {
@@ -60,10 +59,6 @@ namespace MovementLogic
 	{
 		ecs::EntityComponentSystem ecs;
 
-		// Temporary system to see if movement systems handle inputs correctly.
-		// Layer 0 to ensure input is handled first.
-		ecs.createSystem<ecs::systems::InputSystem>(0);
-
 		ecs.createSystem<ecs::systems::StaticMovementUpdateSystem>();
 		ecs.createSystem<ecs::systems::StaticMovementSystem>();
 		
@@ -81,11 +76,13 @@ namespace MovementLogic
 		// Saving the previous position to check correct movement.
 		DirectX::XMFLOAT3 previous_position = p_transform->position;
 
-		// Each update gives a new input event with 
-		// the max velocity and a different direction each time
-		// in the order: [FORWARD, BACKWARD, RIGHT, LEFT].
+		// Creating input events with directions to test movement.
+		MovementInputEvent movement_event;
+		movement_event.mEntityID = movable_entity->getID();
 
 		// FORWARD
+		movement_event.mInput = FORWARD;
+		ecs.createEvent(movement_event);
 		ecs.update(DELTA);
 		
 		// Checking direction.
@@ -101,6 +98,8 @@ namespace MovementLogic
 		previous_position = p_transform->position;
 
 		// BACKWARD
+		movement_event.mInput = BACKWARD;
+		ecs.createEvent(movement_event);
 		ecs.update(DELTA);
 
 		// Checking direction.
@@ -116,6 +115,8 @@ namespace MovementLogic
 		previous_position = p_transform->position;
 
 		// RIGHT
+		movement_event.mInput = RIGHT;
+		ecs.createEvent(movement_event);
 		ecs.update(DELTA);
 
 		// Checking direction.
@@ -131,6 +132,8 @@ namespace MovementLogic
 		previous_position = p_transform->position;
 
 		// LEFT
+		movement_event.mInput = LEFT;
+		ecs.createEvent(movement_event);
 		ecs.update(DELTA);
 
 		// Checking direction.
