@@ -8,6 +8,14 @@
 #define M_PI  (3.14159265)
 #endif
 
+#include <crtdbg.h>
+int main(int argc, char** argv)
+{
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	::testing::InitGoogleTest(&argc, argv);
+	return RUN_ALL_TESTS();
+}
+
 // MOST TEST REQUIRES HEADPHONES OR LOUDSPEAKER TO BE PLUGGED IN!!!
 
 // Test based on the task:

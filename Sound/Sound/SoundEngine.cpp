@@ -105,6 +105,7 @@ void Sound::Engine::JoinWorkThread()
 {
 	mWorkerThreadRun = false;
 	mpWorkerThread->join();
+	delete mpWorkerThread;
 }
 
 int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
