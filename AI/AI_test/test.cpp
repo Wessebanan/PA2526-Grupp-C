@@ -3,6 +3,7 @@
 #include "GridProp.h"
 #include "GridFunctions.h"
 #include "AIFunctions.h"
+#include <iostream>
 
 TEST(GridFunctions, InitGrid) {
 
@@ -188,4 +189,44 @@ TEST(AIFunctions, CreatePlayerArmies) {
 	
 	//Check so that the debug system was created.
 	EXPECT_EQ(number_of_components, expected_number_of_components);
+}
+
+TEST(PotentialField, CreatePotentialField)
+{
+	int nr_of_rows = ArenaProperties::rows;
+	int nr_of_columns = ArenaProperties::columns;
+	float radius = ArenaProperties::tileRadius;
+	unsigned int count = nr_of_columns * nr_of_rows;
+	int nr_of_nice = 0;
+	int iterr = 0;
+
+	//Define some ECS stuff to allow the ECS to create more than 100 of each component.
+	ecs::CompTypeMemDesc types[] = {
+		{ TileComponent::typeID, TileComponent::size, count},
+		{ TransformComponent::typeID, TransformComponent::size, count},
+	};
+	ecs::ECSDesc desc;
+	desc.compTypeCount = 2;
+	desc.compTypeMemDescs = types;
+	desc.systemLayerCount = 10;
+	ecs::EntityComponentSystem my_ecs;
+	my_ecs.initialize(desc);
+	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius); //Create grid with potential field
+
+	ecs::ComponentIterator it = my_ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID); //iterator for all transform components
+	ecs::BaseComponent* p_base;
+	ecs::components::TileComponent* p_tile;
+	while (p_base = it.next()) //loop through all components and returns a base component
+	{
+		p_tile = (ecs::components::TileComponent*)p_base; //casts base component to tile component
+		std::cout << p_tile->niceness << " "; //print all charges
+		iterr++;
+		if (iterr % 12 == 0)
+			std::cout << endl;
+		if (p_tile->niceness == -5) 
+		{
+			nr_of_nice++;
+		}
+	}
+	EXPECT_EQ(nr_of_nice, 10); // test if there are 10 charges with -5 niceness as the predefined map is designed
 }

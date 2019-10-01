@@ -19,7 +19,7 @@ namespace GridFunctions
 		float mid_to_side = cos(30 * pi / 180) * radius; //Calculate length between the center position and a side. 
 		TransformComponent transform;
 		TileComponent tile;
-		ecs::Entity* currentTile;
+		ecs::Entity* current_tile;
 		float height_map[144];
 		CreateHeightmap(height_map);
 		//for (int i = 0; i < rows; i++)
@@ -82,6 +82,7 @@ namespace GridFunctions
 				}
 			}
 		}
+		CreatePotentialField(rEcs);
 	}
 
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs)
@@ -102,7 +103,7 @@ namespace GridFunctions
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f,
 		  0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f,
-		  0.f,1.f,2.f,3.f,2.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,
+		  0.f,1.f,2.f,3.f,2.f,1.f,0.f,0.f,5.f,0.f,0.f,0.f,
 		  0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f };
 
@@ -110,6 +111,67 @@ namespace GridFunctions
 		{
 			arr[i] = height_values[i];
 		}
+	}
+
+	void CreatePotentialField(ecs::EntityComponentSystem& rEcs)
+	{
+		//Create a filter to find entities with the given components
+		ecs::TypeFilter filter;
+		filter.addRequirement(ecs::components::TransformComponent::typeID);
+		filter.addRequirement(ecs::components::TileComponent::typeID);
+
+		//An interator that goes through all enities that can be found with the filter
+		ecs::EntityIterator entity_iterator = rEcs.getEntititesByFilter(filter);
+		float e_x, e_z, o_x, o_z;
+		int nr_of_obstacles = 0;
+		for (ecs::FilteredEntity entry : entity_iterator.entities)//loops through all tiles 
+		{
+			nr_of_obstacles = 0;
+			if (!entry.getComponent<ecs::components::TileComponent>()->impassable)//temp, checking if itself is -1(impassable)
+			{
+				e_x = entry.getComponent<ecs::components::TransformComponent>()->position.x; //get pos for tile to measure length to other tiles
+				e_z = entry.getComponent<ecs::components::TransformComponent>()->position.z;
+				for (ecs::FilteredEntity other : entity_iterator.entities)//loops through all tiles again 
+				{
+					if (entry.entity->getID() == other.entity->getID()) //Check to see if the tile is itself
+					{
+						continue;
+					}
+
+					if (other.getComponent<ecs::components::TileComponent>()->impassable)//temp because only looking for predefined -1 tiles right now 
+					{
+						//when obstacle found we see how far away the entry tile is from this tile and give that a charge base on distance
+						o_x = other.getComponent<ecs::components::TransformComponent>()->position.x;
+						o_z = other.getComponent<ecs::components::TransformComponent>()->position.z;
+						entry.getComponent<ecs::components::TileComponent>()->niceness += CreateCharge(e_x, e_z, o_x, o_z,-5);
+						nr_of_obstacles++;
+					}
+					if (other.getComponent<ecs::components::TransformComponent>()->position.y == 5)
+					{
+						//this is the tile with an attractive charge(goal node)
+						o_x = other.getComponent<ecs::components::TransformComponent>()->position.x;
+						o_z = other.getComponent<ecs::components::TransformComponent>()->position.z;
+						entry.getComponent<ecs::components::TileComponent>()->niceness += CreateCharge(e_x, e_z, o_x, o_z, 50);
+					}
+				}
+				entry.getComponent<ecs::components::TileComponent>()->niceness = entry.getComponent<ecs::components::TileComponent>()->niceness / nr_of_obstacles;
+			}
+			else
+				entry.getComponent<ecs::components::TileComponent>()->niceness = -5.0f;
+		}
+	}
+
+	float CreateCharge(float startX, float startZ, float endX, float endZ, float charge)
+	{
+		float to_return = 0.f;
+		float x = abs(endX - startX);
+		float z = abs(endZ - startZ);
+		float dist = sqrt(x * x + z * z);//get the distance from start to end
+		dist = dist / ((ArenaProperties::tileRadius) * 4);//scale the distance for better values
+		int sign = (int)(fabs(charge) / charge);//get the sign from charge variable "+" or "-"
+		to_return = sign*pow(fabs(charge), 1 / (dist + 1));//return a exponentially decreasing value depending on distance
+
+		return to_return;
 	}
 
 	int2 FindStartingTile(PLAYER id)
