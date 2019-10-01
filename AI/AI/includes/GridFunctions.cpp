@@ -65,9 +65,8 @@ namespace GridFunctions
 				}
 
 				//Create the new entity
-				currentTile = rEcs.createEntity(transform, tile);
-				//ArenaProperties::tileEntityID[i][j] = currentTile->getID();
-				p_gp->mGrid[i][j].Id = currentTile->getID();
+				current_tile = rEcs.createEntity(transform, tile);
+				p_gp->mGrid[i][j].Id = current_tile->getID();
 				//Update the x-position of the next tile in this row.
 				current_pos.x += 1.5f * radius;
 				//Update the z-position of the next tile depending on if it is in a 
@@ -167,7 +166,7 @@ namespace GridFunctions
 		float x = abs(endX - startX);
 		float z = abs(endZ - startZ);
 		float dist = sqrt(x * x + z * z);//get the distance from start to end
-		dist = dist / ((ArenaProperties::tileRadius) * 4);//scale the distance for better values
+		dist = dist / ((TILE_RADIUS) * 4);//scale the distance for better values
 		int sign = (int)(fabs(charge) / charge);//get the sign from charge variable "+" or "-"
 		to_return = sign*pow(fabs(charge), 1 / (dist + 1));//return a exponentially decreasing value depending on distance
 

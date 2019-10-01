@@ -193,9 +193,9 @@ TEST(AIFunctions, CreatePlayerArmies) {
 
 TEST(PotentialField, CreatePotentialField)
 {
-	int nr_of_rows = ArenaProperties::rows;
-	int nr_of_columns = ArenaProperties::columns;
-	float radius = ArenaProperties::tileRadius;
+	int nr_of_rows = ARENA_ROWS;
+	int nr_of_columns = ARENA_COLUMNS;
+	float radius = TILE_RADIUS;
 	unsigned int count = nr_of_columns * nr_of_rows;
 	int nr_of_nice = 0;
 	int iterr = 0;
