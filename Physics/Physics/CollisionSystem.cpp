@@ -20,12 +20,27 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	// Grabbing the entity that moved.
 	Entity* p_entity = getEntity(p_event->mEntityID);
 
+	// Grabbing the entity's object collision component 
+	// and transform component.
+	ObjectCollisionComponent* p_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(p_entity->getID());
+	TransformComponent* p_transform = getComponentFromKnownEntity<TransformComponent>(p_entity->getID());
+
+	// Applying the transform to the collision component.
+	DirectX::XMVECTOR collision_min = DirectX::XMLoadFloat3(&p_collision->mMin);
+	DirectX::XMVECTOR collision_max = DirectX::XMLoadFloat3(&p_collision->mMax);
+
+	collision_min = DirectX::XMVector3Transform(collision_min, UtilityFunctions::GetWorldMatrix(*p_transform));
+	collision_max = DirectX::XMVector3Transform(collision_max, UtilityFunctions::GetWorldMatrix(*p_transform));
+
 	// Grabbing the entities it could collide with.
 	TypeFilter filter;
 	filter.addRequirement(ObjectCollisionComponent::typeID);
 	EntityIterator it = getEntitiesByFilter(filter);
 
+	for (int i = 0; i < it.entities.size(); i++)
+	{
 
+	}
 }
 #pragma endregion
 #pragma region GroundCollisionComponentInitSystem

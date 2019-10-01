@@ -133,6 +133,20 @@ bool PhysicsHelpers::AABBIntersect(const DirectX::XMFLOAT3& min1, const DirectX:
 		min1.z < max2.z);
 }
 
+bool PhysicsHelpers::AABBIntersect(const DirectX::XMVECTOR& min1, const DirectX::XMVECTOR& max1, const DirectX::XMVECTOR& min2, const DirectX::XMVECTOR& max2)
+{
+	//// Standard evaluation that two AABBs overlap.
+	//// Exits early if one check fails due to &&.
+	//return (
+	//	max1.x > min2.x &&
+	//	min1.x < max2.x &&
+	//	max1.y > min2.y &&
+	//	min1.y < max2.y &&
+	//	max1.z > min2.z &&
+	//	min1.z < max2.z);
+	return true;
+}
+
 bool PhysicsHelpers::SphereIntersect(const DirectX::XMFLOAT3& center1, const float& radius1, const DirectX::XMFLOAT3& center2, const float& radius2)
 {
 	// If the distance between the center points is greater than the sum of the radii, 
