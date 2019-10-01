@@ -50,6 +50,7 @@
     <ClInclude Include="GroundCollision.h" />
     <ClInclude Include="InputTest.h" />
     <ClInclude Include="MovementLogic.h" />
+    <ClInclude Include="ObjectCollision.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>

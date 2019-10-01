@@ -77,7 +77,9 @@ namespace ecs
 			// Important to apply transform to this point as well.
 			DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);
 
-			
+			// Storing last y values to avoid unneccesary checks.
+			float mLastY = INFINITY;
+			float mLastTileY = INFINITY;
 		};
 		
 		/*

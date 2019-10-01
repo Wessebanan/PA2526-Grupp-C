@@ -1,5 +1,6 @@
 #pragma once
 #include "CollisionSystem.h"
+#include "MovementSystem.h"
 #include "GridFunctions.h"
 
 namespace GroundCollision
@@ -256,74 +257,108 @@ namespace GroundCollision
 		// to the base, plus the height of the specific tile.
 		EXPECT_FLOAT_EQ(p_transform_component->position.y, TILE_HEIGHT + fabs(p_ground_collision_component->mVertices[0].y));
 	}
-#pragma endregion
-#pragma region ObjectBoundingVolumes
-	TEST(ObjectBoundingVolumes, CreateInitSystem)
+	TEST(GroundCollision, RemoveGravityOnGround)
 	{
+		// Creating an ecsMemDesc to allow more entities and components
+		// of certain types.
+		ecs::CompTypeMemDesc ecsMemDesc[] = {
+		{ TileComponent::typeID, TileComponent::size, 1000 },
+		{ TransformComponent::typeID, TransformComponent::size, 1000 },
+		};
+
+		ecs::ECSDesc ecsDesc;
+		ecsDesc.compTypeCount = 2;
+		ecsDesc.compTypeMemDescs = ecsMemDesc;
+		ecsDesc.systemLayerCount = 10;
+
 		ecs::EntityComponentSystem ecs;
-		EXPECT_EQ(ecs.getTotalSystemCount(), 0);
+		ecs.initialize(ecsDesc);
 
-		ecs::systems::ObjectBoundingVolumeInitSystem* ground_collision_system = ecs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
-		EXPECT_EQ(ecs.getTotalSystemCount(), 1);
+		// Creating systems.
+		ecs::systems::GroundCollisionSystem* ground_collision_system = ecs.createSystem<ecs::systems::GroundCollisionSystem>();
+		ecs::systems::GroundCollisionComponentInitSystem* ground_collision_component_init_system = ecs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
+		ecs::systems::DynamicMovementSystem* dynamic_movement_system = ecs.createSystem<ecs::systems::DynamicMovementSystem>();
 
-		EXPECT_NE(ground_collision_system, nullptr);
-	}
-	TEST(ObjectBoundingVolumes, CreateObjectEntity)
-	{
-		ecs::EntityComponentSystem ecs;
+		// Creating a grid for the ecs. Choosing a radius 
+		// that kind of makes sense with the model size 
+		// with no scaling of the dude.
+		GridFunctions::CreateGrid(ecs, 12, 12, 10.0f);
 
-		// Making sure there are no entities or components.
-		EXPECT_EQ(ecs.getTotalEntityCount(), 0);
-		EXPECT_EQ(ecs.getTotalComponentCount(), 0);
-
-		// Creating the dude that is supposed to collide with objects.
+		// Creating the dude that is supposed to collide with ground.
 		MeshComponent mesh_component;
 		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
-		ObjectCollisionComponent object_collision_component;
+		GroundCollisionComponent ground_collision_component;
+		TransformComponent transform_component;
+		DynamicMovementComponent movement_component;
+		const float START_POSITION = 10.0f;
+		transform_component.position.y = START_POSITION;
+		transform_component.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 
-		ecs::Entity* object_collision_entity = ecs.createEntity(mesh_component, object_collision_component);
+		ecs::Entity* entity = ecs.createEntity(mesh_component, transform_component, ground_collision_component, movement_component);
 
-		// Checking that there is now one entity and two components.
-		EXPECT_EQ(ecs.getTotalEntityCount(), 1);
-		EXPECT_EQ(ecs.getTotalComponentCount(), 2);
+		// Grabbing relevant components.
+		DynamicMovementComponent* p_movement = dynamic_cast<DynamicMovementComponent*>(ecs.getComponentFromEntity(DynamicMovementComponent::typeID, entity->getID()));
+		TransformComponent* p_transform = dynamic_cast<TransformComponent*>(ecs.getComponentFromEntity(TransformComponent::typeID, entity->getID()));
+		GroundCollisionComponent* p_ground_collision = dynamic_cast<GroundCollisionComponent*>(ecs.getComponentFromEntity(GroundCollisionComponent::typeID, entity->getID()));
 
-		// Checking that the pointer received from getEntity matches
-		// the pointer to the entity.
-		EXPECT_EQ(ecs.getEntity(object_collision_entity->getID()), object_collision_entity);
+		const float DELTA = 1.0f;
 
-		EXPECT_NE(object_collision_entity, nullptr);
-	}
-	TEST(ObjectBoundingVolumes, TestBoundingVolume)
-	{
-		ecs::EntityComponentSystem ecs;
+		// Should start off as not on the ground.
+		EXPECT_FALSE(p_movement->mOnGround);
 
-		ecs::systems::ObjectBoundingVolumeInitSystem* ground_collision_component_init_system = ecs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
+		// y position should be 10 at this point, as it is not translated.
+		EXPECT_FLOAT_EQ(p_transform->position.y, START_POSITION);
 
-		MeshComponent mesh_component;
-		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
-		ObjectCollisionComponent object_collision_component;
+		ecs.update(DELTA);
 
-		ecs::Entity* object_collision_entity = ecs.createEntity(mesh_component, object_collision_component);
+		// Updating in 1 second intervals should set the y velocity to the acceleration of -gravity.
+		// (v = a*t = -GRAVITY*1)
+		EXPECT_FLOAT_EQ(p_movement->mVelocity.y, -GRAVITY);
 
-		// Getting a pointer to the ground collision component to check its values.
-		ObjectCollisionComponent* p_object_collision_component = dynamic_cast<ObjectCollisionComponent*>(ecs.getComponent(ObjectCollisionComponent::typeID, object_collision_entity->getComponentID(ObjectCollisionComponent::typeID)));
+		// And position to 0.18 (p = p_0 + v*t = 10 - GRAVITY*1).
+		EXPECT_FLOAT_EQ(p_transform->position.y, START_POSITION - GRAVITY);
 
-		// Checking that each vertex is inside the box.
-		std::vector<DirectX::XMFLOAT3>* vertices = mesh_component.mMesh.GetVertexPositionVector();
-		for (int i = 0; i < vertices->size(); i++)
-		{
-			EXPECT_TRUE(vertices->at(i).x >= p_object_collision_component->mMin.x);
-			EXPECT_TRUE(vertices->at(i).y >= p_object_collision_component->mMin.y);
-			EXPECT_TRUE(vertices->at(i).z >= p_object_collision_component->mMin.z);
-			EXPECT_TRUE(vertices->at(i).x <= p_object_collision_component->mMax.x);
-			EXPECT_TRUE(vertices->at(i).y <= p_object_collision_component->mMax.y);
-			EXPECT_TRUE(vertices->at(i).z <= p_object_collision_component->mMax.z);
-		}
+		// And we're still not on ground level.
+		EXPECT_FALSE(p_movement->mOnGround);
+		
+		ecs.update(DELTA);
 
-		// Test that the center of the bounding box is in the center.
-		EXPECT_FLOAT_EQ((p_object_collision_component->mMin.x + p_object_collision_component->mMax.x) / 2.0f, p_object_collision_component->mCenter.x);
-		EXPECT_FLOAT_EQ((p_object_collision_component->mMin.y + p_object_collision_component->mMax.y) / 2.0f, p_object_collision_component->mCenter.y);
-		EXPECT_FLOAT_EQ((p_object_collision_component->mMin.z + p_object_collision_component->mMax.z) / 2.0f, p_object_collision_component->mCenter.z);
+		// This update moves the entity below ground (0) which should set
+		// the y velocity to 0, y position to (tile height[0] + distance from 
+		// center to base of model) and the mOnGround bool to true.
+		EXPECT_FLOAT_EQ(p_movement->mVelocity.y, 0.0f);
+		EXPECT_FLOAT_EQ(p_transform->position.y, 0.0f + fabs(p_ground_collision->mVertices[0].y));
+		EXPECT_TRUE(p_movement->mOnGround);
+
+		// Grabbing all tiles.
+		ecs::TypeFilter filter;
+		filter.addRequirement(TileComponent::typeID);
+		ecs::EntityIterator it = ecs.getEntititesByFilter(filter);
+
+		const float TILE_HEIGHT = 3.0f;
+		const float SPECIFIC_TILE_INDEX = 33;
+
+		// Grabbing one specific tile.
+		ecs::Entity* specific_tile = it.entities.at(SPECIFIC_TILE_INDEX).entity;
+
+		// Setting that specific tile to a certain height.
+		TransformComponent* specific_tile_transform = dynamic_cast<TransformComponent*>(ecs.getComponentFromEntity(TransformComponent::typeID, specific_tile->getID()));
+		specific_tile_transform->position.y = TILE_HEIGHT;
+
+		// Changing the position of the ground collision entity to the tile
+		// where height is adjusted.
+		p_transform->position.x = specific_tile_transform->position.x;
+		p_transform->position.z = specific_tile_transform->position.z;
+
+		ecs.update(DELTA);
+
+		// This update expects the ground collision to work even
+		// if the entity is "on ground" since it moved horizontally
+		// into a tile that is higher.
+		EXPECT_FLOAT_EQ(p_movement->mVelocity.y, 0.0f);
+		EXPECT_FLOAT_EQ(p_transform->position.y, TILE_HEIGHT + fabs(p_ground_collision->mVertices[0].y));
+		EXPECT_TRUE(p_movement->mOnGround);
 	}
 #pragma endregion
+
 } // GroundCollision

@@ -108,13 +108,12 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	{
 		return;
 	}
-	TransformComponent* ground_collision_transform = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
+	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
 	
 	// Creating world matrix and transforming the ground collision component center position to world space.
-	DirectX::XMMATRIX ground_collision_world = UtilityFunctions::GetWorldMatrix(*ground_collision_transform);
+	DirectX::XMMATRIX ground_collision_world = UtilityFunctions::GetWorldMatrix(*transform_component);
 	DirectX::XMVECTOR ground_collision_center_position = DirectX::XMLoadFloat3(&ground_collision_component->mCenterPos);
 	ground_collision_center_position = DirectX::XMVector3Transform(ground_collision_center_position, ground_collision_world);
-
 
 	// Holds the index of the closest tile.
 	TypeID closest_tile_id = -1;
@@ -137,10 +136,6 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 
 		// Using XMVECTOR bs to get distance to tile. May change this in the future but just something that works for now.
 		DirectX::XMVECTOR tile_position = DirectX::XMLoadFloat3(&tile_transform->position);
-		//DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(tile_position, ground_collision_center_position);
-		//DirectX::XMVECTOR diff_length = DirectX::XMVector3Length(diff);
-		//float distance_to_tile = 0.0f;
-		//DirectX::XMStoreFloat(&distance_to_tile, diff_length);
 		
 		float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_position, ground_collision_center_position);
 		// Setting the ID to the closest tile.
@@ -156,6 +151,20 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 
 	// Grabbing the height (y value).
 	float tile_height = closest_tile->position.y;
+
+	// Saving this tile height as the last tile y value if it changed.
+	const float ABS_ERROR = pow(10, -10);
+	
+	// If the height of the nearest tile changed, update and move on.
+	if (fabs(tile_height - ground_collision_component->mLastTileY) > ABS_ERROR)
+	{
+		ground_collision_component->mLastTileY = tile_height;
+	}
+	// If neither tile height nor y position changed, skip the rest.
+	else if (fabs(transform_component->position.y - ground_collision_component->mLastY) < ABS_ERROR)
+	{
+		return;
+	}
 
 	// Find the vertex with highest negative difference to tile height.
 	// This is for movement out of the ground.
@@ -174,13 +183,20 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 			biggest_diff = diff;
 		}
 	}
-	
+
+	bool onGround = false;
 	// If the biggest difference is negative, move the object above ground again.
 	if (biggest_diff < 0.0f)
 	{
 		// This should place the ground collision component so that no
 		// vertex intersects the ground level.
-		ground_collision_transform->position.y += -biggest_diff;
+		transform_component->position.y += -biggest_diff;
+
+		// Saving this adjusted height as the last y value.
+		ground_collision_component->mLastY = transform_component->position.y;
+		
+		// If the object moved, it is now on the ground level.
+		onGround = true;
 	}
 
 	// Break if entity does not move dynamically.
@@ -189,11 +205,9 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		return;
 	}
 	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(_entityInfo.entity->getID());
-
-	// Should gravity affect the object right now?
-	const float ABS_ERROR = pow(10, -10);
+	movement_component->mOnGround = onGround;
 	// If the biggest difference is close to 0, the object is grounded.
-	movement_component->mOnGround = fabs(biggest_diff) < ABS_ERROR ? true : false;
+	//movement_component->mOnGround = fabs(biggest_diff) < ABS_ERROR ? true : false;
 }
 #pragma endregion
 #pragma region ObjectBoundingVolumeInitSystem
