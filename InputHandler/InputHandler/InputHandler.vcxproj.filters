@@ -64,5 +64,8 @@
     <None Include="StyleSheet.css">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="scripts\script.js">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -170,6 +170,7 @@
     <None Include="ccTest.html" />
     <None Include="gridStyle.css" />
     <None Include="includes\InitInputHandler.h" />
+    <None Include="scripts\script.js" />
     <None Include="StyleSheet.css" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
