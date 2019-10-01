@@ -1,5 +1,7 @@
-#include <GridFunctions.h>
-#include <UtilityComponents.h>
+#include "GridFunctions.h"
+#include "AIGlobals.h"
+#include "GridProp.h"
+#include "UtilityComponents.h"
 #include <DirectXMath.h>
 
 using namespace ecs;
@@ -9,24 +11,34 @@ using namespace DirectX;
 namespace GridFunctions
 {
 	//Calculates the centerposition of all the tiles in the grid.
-	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int rows, const int columns, const float radius)
+	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int Rows, const int Columns, const float Radius)
 	{
 		float pi = 3.1415f;
 		XMFLOAT3 starting_pos = { 0.0f, 0.0f, 0.0f };
 		XMFLOAT3 current_pos = { 0.0f, 0.0f, 0.0f };
-		float mid_to_side = cos(30 * pi / 180) * radius; //Calculate length between the center position and a side. 
+		float mid_to_side = cos(30 * pi / 180) * Radius; //Calculate length between the center position and a side. 
 		TransformComponent transform;
 		TileComponent tile;
 		ecs::Entity* current_tile;
-		float height_map[144];
+		float height_map[ARENA_COLUMNS*ARENA_ROWS];
 		CreateHeightmap(height_map);
+		//for (int i = 0; i < rows; i++)
+		//{
+		//	ArenaProperties::gridLogic[0][i].entityID = i;
+		//}
+		//for (int i = 0; i < rows; i++)
+		//{
+		//	std::cout << ArenaProperties::gridLogic[0][i].entityID << std::endl;
+		//}
+		
+		GridProp* p_gp = GridProp::GetInstance();
 		//Calculate the position and create every tile.
-		for (int i = 0; i < rows; i++)
+		for (int i = 0; i < Rows; i++)
 		{
 			//Reset x-pos for every new row and set the starting z-pos for the new row.
 			current_pos.x = starting_pos.x;
 			current_pos.z = starting_pos.z + i * mid_to_side * 2;
-			for (int j = 0; j < columns; j++)
+			for (int j = 0; j < Columns; j++)
 			{
 				
 				//Save the calculated values into the PositionComponent.
@@ -37,26 +49,26 @@ namespace GridFunctions
 				{
 					tile.tileType = WATER;
 					tile.impassable = true;
-					ArenaProperties::gridLogic[i][j].isPassable = false;
+					p_gp->mGrid[i][j].isPassable = false;
 				}
 				else if (transform.position.y == 3)
 				{
 					tile.tileType = STONE;
 					tile.impassable = false;
-					ArenaProperties::gridLogic[i][j].isPassable = true;
+					p_gp->mGrid[i][j].isPassable = true;
 				}
 				else
 				{
 					tile.tileType = GRASS;
 					tile.impassable = false;
-					ArenaProperties::gridLogic[i][j].isPassable = true;
+					p_gp->mGrid[i][j].isPassable = true;
 				}
 
 				//Create the new entity
 				current_tile = rEcs.createEntity(transform, tile);
-				ArenaProperties::gridLogic[i][j].entityID = current_tile->getID();
+				p_gp->mGrid[i][j].Id = current_tile->getID();
 				//Update the x-position of the next tile in this row.
-				current_pos.x += 1.5f * radius;
+				current_pos.x += 1.5f * Radius;
 				//Update the z-position of the next tile depending on if it is in a 
 				//odd or even column.
 				if (j % 2 == 0)
@@ -77,7 +89,7 @@ namespace GridFunctions
 		rEcs.createSystem<systems::TilePrintSystem>();
 	}
 
-	void CreateHeightmap(float* arr) //Creates a fixed array that is used to change the hight for the map
+	void CreateHeightmap(float* Arr) //Creates a fixed array that is used to change the hight for the map
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
 		float height_values[144] =
@@ -96,7 +108,7 @@ namespace GridFunctions
 
 		for (int i = 0; i < 144; i++)
 		{
-			arr[i] = height_values[i];
+			Arr[i] = height_values[i];
 		}
 	}
 
@@ -148,47 +160,89 @@ namespace GridFunctions
 		}
 	}
 
-	float CreateCharge(float startX, float startZ, float endX, float endZ, float charge)
+	float CreateCharge(float StartX, float StartZ, float EndX, float EndZ, float Charge)
 	{
 		float to_return = 0.f;
-		float x = abs(endX - startX);
-		float z = abs(endZ - startZ);
+		float x = abs(EndX - StartX);
+		float z = abs(EndZ - StartZ);
 		float dist = sqrt(x * x + z * z);//get the distance from start to end
-		dist = dist / ((ArenaProperties::tileRadius) * 4);//scale the distance for better values
-		int sign = (int)(fabs(charge) / charge);//get the sign from charge variable "+" or "-"
-		to_return = sign*pow(fabs(charge), 1 / (dist + 1));//return a exponentially decreasing value depending on distance
+		dist = dist / ((TILE_RADIUS) * 4);//scale the distance for better values
+		int sign = (int)(fabs(Charge) / Charge);//get the sign from charge variable "+" or "-"
+		to_return = sign*pow(fabs(Charge), 1 / (dist + 1));//return a exponentially decreasing value depending on distance
 
 		return to_return;
 	}
 
-	DirectX::XMFLOAT2 FindStartingTile(PLAYER id)
+	int2 FindStartingTile(PLAYER Id)
 	{
-		DirectX::XMFLOAT2 dank = { 0.0f, 0.0f };
-		int startTileX = -1;
-		int startTileY = -1;
-		switch (id)
+		int rows = ARENA_ROWS;
+		int columns = ARENA_COLUMNS;
+		int2 index;
+		index.x = -1;
+		index.y = -1;
+		GridProp* p_gp = GridProp::GetInstance();
+		bool tile_found = false;
+		switch (Id)
 		{
 		case PLAYER1:
-			for (int x = 0; x < ArenaProperties::columns / 2; x++)
+			for (int y = 0; y < rows / 2; y++)
 			{
-				for (int y = 0; y < ArenaProperties::rows / 2; y++)
+				for (int x = 0; x < columns / 2; x++)
 				{
-
+					if (p_gp->mGrid[y][x].isPassable)
+					{
+						index.x = x;
+						index.y = y;
+						return index;
+					}
 				}
 			}
 			break;
 		case PLAYER2:
-
+			for (int y = 0; y < rows / 2; y++)
+			{
+				for (int x = columns - 1; x > columns / 2; x--)
+				{
+					if (p_gp->mGrid[y][x].isPassable)
+					{
+						index.x = x;
+						index.y = y;
+						return index;
+					}
+				}
+			}
 			break;
 		case PLAYER3:
+			for (int y = rows - 1; y > rows / 2; y--)
+			{
+				for (int x = 0; x < columns / 2; x++)
+				{
+					if (p_gp->mGrid[y][x].isPassable)
+					{
+						index.x = x;
+						index.y = y;
+						return index;
+					}
+				}
+			}
 			break;
 		case PLAYER4:
+			for (int y = rows - 1; y > rows / 2; y--)
+			{
+				for (int x = columns - 1; x > columns / 2; x--)
+				{
+					if (p_gp->mGrid[y][x].isPassable)
+					{
+						index.x = x;
+						index.y = y;
+						return index;
+					}
+				}
+			}
 			break;
 		default:
 			break;
 		}
-
-
-		return dank;
+		return index;
 	}
 };
