@@ -85,7 +85,7 @@ namespace GridFunctions
 		  0.f,0.f,0.f,0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
-		  -1.f,-1.f,-1.f,-1.f,-1.f,0.f,0.f,-1.f,-1.f,-1.f,-1.f,-1.f, ////////////////////////////
+		  -1.f,-1.f,-1.f,-1.f,-1.f,0.f,0.f,-1.f,-1.f,-1.f,-1.f,-1.f,
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,
 		  0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f,
@@ -98,14 +98,6 @@ namespace GridFunctions
 		{
 			arr[i] = height_values[i];
 		}
-		/*for (int i = 0; i < 5; i++)
-		{
-			kek[i].x = i;
-		}
-		for (int i = 7; i < 12; i++)
-		{
-			kek[i].x = i;
-		}*/
 	}
 
 	void CreatePotentialField(ecs::EntityComponentSystem& rEcs)
