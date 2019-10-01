@@ -11,7 +11,7 @@ namespace ecs
 	namespace systems
 	{
 		/** CollisionEventSystem:
-		* Checks collision between bounding spheres 
+		* Checks collision between bounding spheres
 		* and creates a collision event for when
 		* a collision occurs.
 		*/
@@ -22,10 +22,21 @@ namespace ecs
 			void readEvent(ecs::BaseEvent & _event, float _delta) override;
 		};
 
+		SYSTEM(ObjectBoundingVolumeInitSystem)
+		{
+			ObjectBoundingVolumeInitSystem();
+			~ObjectBoundingVolumeInitSystem();
+			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
+		};
+
 		/** CollisionHandlingSystem:
 		* Receives collision events and... 
 		*/
-		SYSTEM(CollisionHandlingSystem) {};
+		SYSTEM(ObjectCollisionSystem) 
+		{
+			ObjectCollisionSystem();
+			~ObjectCollisionSystem();
+		};
 
 		/** GroundCollisionComponentInitSystem:
 		* Creates the OBB that is used for ground

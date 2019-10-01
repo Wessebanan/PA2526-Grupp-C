@@ -1,7 +1,9 @@
 #include "pch.h"
 #include "MovementLogic.h"
 #include "GroundCollision.h"
+#include "ObjectCollision.h"
 #include <crtdbg.h>
+#include "Mesh.h"
 
 int main(int argc, char** argv) {
 	

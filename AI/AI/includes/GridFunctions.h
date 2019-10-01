@@ -3,6 +3,7 @@
 #include "AIComponents.h"
 #include "AISystems.h"
 #include "AIEvents.h"
+#include <DirectXMath.h>
 
 namespace GridFunctions
 {
@@ -10,4 +11,8 @@ namespace GridFunctions
 	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int rows, const int columns, const float radius);
 	//Create a system for printing every tiles center position for debugging purposes.
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs);
+	void CreateHeightmap(float* arr);
+	void CreatePotentialField(ecs::EntityComponentSystem& rEcs);
+	float CreateCharge(float startX, float startZ, float endX, float endZ, float charge);
+	DirectX::XMFLOAT2 FindStartingTile(PLAYER id);
 };
