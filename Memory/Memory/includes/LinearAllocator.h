@@ -3,7 +3,24 @@
 #include "MemoryGlobals.h"
 #include "Allocator.h"
 
+/*
+										##################################
+									   #  HOW ALLOCATOR MEMORY IS STORED  #
+										##################################
 
+	+-------------------------------------------------------------------------------------------------------+
+	|  Header used to store   |                                                                             |
+	|  the allocator and all  |			Memory available for allocations, managed by the allocator.			|
+	|  data used to manage    |                                                                             |
+	|  its memory.            |                                                                             |
+	+-------------------------------------------------------------------------------------------------------+
+	\____________ ____________/\_______________________________________ _____________________________________/
+	             V                                                     V
+		  Allocator block								  Heap block (for allocations)
+	\___________________________________________________ ___________________________________________________/
+														V
+												   Memory Block (for allocator)
+*/
 
 namespace memory
 {
@@ -28,16 +45,22 @@ namespace memory
 			virtual ~LinearAllocator();
 
 			/*
-				Specifies the memory the allocator will manage. Set memoryIncludesAllocator to true
-				if the allocator itself is included in the given memory, as it will offset the memory
-				start with the size of the allocator.
+				Specifies the memory the allocator will manage. The allocator itself is stores as a header
+				at the beginning of the memory if mananges, so the actal memory start will be offset by
+				the size of the allocator.
 			*/
-			bool Initialize(void* memoryStart, uint memorySize, bool memoryIncludesAllocator = false) override;
+			bool Initialize(void* memoryStart, uint memorySize) override;
 
 			/*
-				Hard reset allocator
+				Clears all internal data in memory block. In order to use the allocator again,
+				Initialize() has to be called.
 			*/
-			void Wipe() override;
+			void Terminate() override;
+
+			/*
+				Clears all allocations in the heap block; freeing all allocated memory.
+			*/
+			void Clear() override;
 
 			/*
 				Reserves a chunk of memory and returns a pointer to it. Returns nullptr if allocation
@@ -50,6 +73,12 @@ namespace memory
 				in future allocations.
 			*/
 			void Free(void* ptr) override;
+
+			/*
+			
+			*/
+			template <typename T>
+			T* CreateSubAllocator(uint memorySize);
 
 		private:
 

@@ -19,7 +19,8 @@ bool memory::MemoryManager::Initialize(uint size)
 {
 	IF_INITIALIZED_RETURN(false);
 
-	mpMemoryStart = malloc(size);
+	const uint size_with_main_allocator = size + sizeof(allocators::LinearAllocator);
+	mpMemoryStart = malloc(size_with_main_allocator);
 
 	// Sanity check creation
 	if (!mpMemoryStart)
@@ -27,7 +28,7 @@ bool memory::MemoryManager::Initialize(uint size)
 		return false;
 	}
 
-	mMemorySize = size;
+	mMemorySize = size_with_main_allocator;
 
 	// Sanity check heap initialization
 	if (!mMemory.Initialize(mpMemoryStart, mMemorySize))
@@ -64,7 +65,7 @@ void* memory::MemoryManager::Allocate(uint size)
 
 void memory::MemoryManager::Free(void* ptr)
 {
-	IF_NOT_INITIALIZED_RETURN();
+	IF_NOT_INITIALIZED_RETURN_VOID;
 	mMemory.Free(ptr);
 }
 
@@ -111,7 +112,7 @@ memory::allocators::Allocator* memory::MemoryManager::CreateAllocator(uint size)
 	*/
 
 	// Sanity check initialization
-	if (!pAllocator->Initialize(p, size_with_allocator, true))
+	if (!pAllocator->Initialize(p, size_with_allocator))
 	{
 		// Return memory chunk to main heap
 		mMemory.Free(p);
@@ -120,6 +121,36 @@ memory::allocators::Allocator* memory::MemoryManager::CreateAllocator(uint size)
 
 	return pAllocator;
 }
+
+
+
+/*
+	Getters
+*/
+
+uint memory::MemoryManager::GetMainHeapSize()
+{
+	// TODO
+	return 0;
+}
+
+uint memory::MemoryManager::GetMainAllocatorSize()
+{
+	// TODO
+	return 0;
+}
+
+uint memory::MemoryManager::GetTotalAllocatedMemorySize()
+{
+	// TODO
+	return 0;
+}
+
+
+
+/*
+	Private constructor and destructor
+*/
 
 memory::MemoryManager::MemoryManager() :
 	mMemorySize(0),
@@ -133,7 +164,7 @@ memory::MemoryManager::MemoryManager() :
 
 memory::MemoryManager::~MemoryManager()
 {
-	mMemory.Wipe();
+	mMemory.Terminate();
 	free(mpMemoryStart);
 	mMemorySize = 0;
 	mpMemoryStart = nullptr;

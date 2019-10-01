@@ -71,6 +71,14 @@ namespace memory
 		*/
 		allocators::Allocator* CreateAllocator(uint size);
 
+		/*
+			Getters
+		*/
+
+		uint GetMainHeapSize();
+		uint GetMainAllocatorSize();
+		uint GetTotalAllocatedMemorySize();
+
 	private:
 
 		MemoryManager();
@@ -90,6 +98,7 @@ namespace memory
 
 		#define IF_INITIALIZED_RETURN(ret) if (mpMemoryStart) {return ret;}
 		#define IF_NOT_INITIALIZED_RETURN(ret) if (!mpMemoryStart) {return ret;}
+		#define IF_NOT_INITIALIZED_RETURN_VOID if (!mpMemoryStart) {return;}
 	};
 
 
@@ -115,7 +124,7 @@ namespace memory
 
 	static inline void* Allocate(size_t size)
 	{
-		return MemoryManager::Instance().Allocate(size);
+		return MemoryManager::Instance().Allocate((uint)size);
 	}
 
 
