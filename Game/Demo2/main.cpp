@@ -50,11 +50,11 @@ int main()
 	int mesh_tile; // tile
 	{
 		VERTEX_BUFFER_DATA vertex_data = { NULL };
-		vertex_data.VertexCount = tile.GetVertexPositionVector()->size();
+		vertex_data.VertexCount = tile.GetVertexPositionVector()->size() * 12;
 		vertex_data.pVertexData = tile.GetVertexPositionVector()->data();
 
 		INDEX_BUFFER_DATA index_data = { NULL };
-		index_data.IndexCount = tile.GetIndexVector()->size();
+		index_data.IndexCount = tile.GetIndexVector()->size() * 12;
 		index_data.pIndexData = tile.GetIndexVector()->data();
 
 		mesh_tile = mng.CreateMesh(
