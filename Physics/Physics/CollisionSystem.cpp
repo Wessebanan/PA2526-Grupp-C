@@ -38,8 +38,10 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	EntityIterator it = getEntitiesByFilter(filter);
 
 	bool intersect = false;
-	DirectX::XMFLOAT3 collided_center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
+	ObjectCollisionComponent* p_colliding_collision = nullptr;
+	TransformComponent*	p_colliding_transform		= nullptr;
+	
 	for (int i = 0; i < it.entities.size(); i++)
 	{
 		if (it.entities.at(i).entity->getID() == p_entity->getID())
@@ -63,6 +65,10 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			// Set the intersection bool and stop checking
 			// because any collision means the movement should revert.
 			intersect = true;
+
+			// Saving the collision and transform component from the collided entity.
+			p_colliding_collision = p_current_collision;
+			p_colliding_transform = p_current_transform;
 			break;
 		}
 	}
@@ -76,6 +82,45 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		// If the last movement action resulted in collsion, revert the movement and reset velocity.
 		DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
 		
+		// Getting and transforming the center positions of the colliding bounding volumes.
+		DirectX::XMVECTOR center = DirectX::XMLoadFloat3(&p_collision->mCenter);
+		DirectX::XMVECTOR colliding_center = DirectX::XMLoadFloat3(&p_colliding_collision->mCenter);
+
+		center = DirectX::XMVector3Transform(center, UtilityFunctions::GetWorldMatrix(*p_transform));
+		colliding_center = DirectX::XMVector3Transform(colliding_center, UtilityFunctions::GetWorldMatrix(*p_colliding_transform));
+
+		// Getting a vector between the centers of the bounding volumes.
+		DirectX::XMVECTOR v_diff = DirectX::XMVectorSubtract(center, colliding_center);
+		DirectX::XMFLOAT3 diff;
+		DirectX::XMStoreFloat3(&diff, v_diff);
+
+		// Saving a 1 in the direction of the largest component in the vector.
+		bool x = false;
+		bool y = false;
+		bool z = false;
+
+		if (fabs(diff.x) > fabs(diff.y) && fabs(diff.x) > fabs(diff.z))
+		{
+			x = true;
+		}
+		else if(fabs(diff.y) > fabs(diff.x) && fabs(diff.y) > fabs(diff.z))
+		{
+			y = true;
+		}
+		else
+		{
+			z = true;
+		}	
+
+		// Reverting the movement in that direction.
+		p_transform->position.x += p_movement->mVelocity.x * p_event->mDelta * x;
+		p_transform->position.y += p_movement->mVelocity.y * p_event->mDelta * y;
+		p_transform->position.z += p_movement->mVelocity.z * p_event->mDelta * z;
+
+		// Resetting the velocity in that direction.
+		p_movement->mVelocity.x *= !x;
+		p_movement->mVelocity.y *= !y;
+		p_movement->mVelocity.z *= !z;
 	}
 }
 #pragma endregion
