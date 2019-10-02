@@ -28,8 +28,9 @@ namespace rendering
 				pContext->DrawIndexedInstance(
 					count,
 					start,
-					m_meshRegion,
-					m_indexRegion);
+					m_indexRegion,
+					m_meshRegion
+					);
 				break;
 			}
 		}

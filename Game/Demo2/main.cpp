@@ -65,7 +65,7 @@ int main()
 	int mesh_tile; // tile
 	{
 		VERTEX_BUFFER_DATA vertex_data = { NULL };
-		vertex_data.VertexCount = tile2.GetVertexPositionVector()->size() * 4;
+		vertex_data.VertexCount = tile2.GetVertexPositionVector()->size();
 		vertex_data.pVertexData = tile2.GetVertexPositionVector()->data();
 
 		INDEX_BUFFER_DATA index_data = { NULL };
@@ -108,7 +108,7 @@ int main()
 		//	&index_data);
 
 		VERTEX_BUFFER_DATA vertex_data = { NULL };
-		vertex_data.VertexCount = dude.GetVertexPositionVector()->size() * 4;
+		vertex_data.VertexCount = dude.GetVertexPositionVector()->size();
 		vertex_data.pVertexData = dude.GetVertexPositionVector()->data();
 
 		INDEX_BUFFER_DATA index_data = { NULL };
