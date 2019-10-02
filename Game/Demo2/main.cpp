@@ -5,6 +5,7 @@
 #include "CameraFunctions.h"
 #include "InitInputHandler.h"
 #include "AIFunctions.h"
+#include "UISystems.h"
 
 
 int main()
@@ -44,7 +45,8 @@ int main()
 
 	AIFunctions::CreatePlayerArmies(ecs);
 
-
+	Direct2D* d2d = new Direct2D();
+	//init::InitUISystems(ecs, &d2d);
 
 
 	ecs.update(0.1f);
