@@ -73,8 +73,8 @@ void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event,
 
 	// Finding the entity that should move and grabbing its movement component.
 	Entity* entity_to_move = getEntity(input_event.mEntityID);
-	ID movement_component_id = entity_to_move->getComponentID(StaticMovementComponent::typeID);
-	StaticMovementComponent* movement_component = dynamic_cast<StaticMovementComponent*>(getComponent(StaticMovementComponent::typeID, movement_component_id));
+	ID movement_component_ID = entity_to_move->getComponentID(StaticMovementComponent::typeID);
+	StaticMovementComponent* movement_component = dynamic_cast<StaticMovementComponent*>(getComponent(StaticMovementComponent::typeID, movement_component_ID));
 
 	// Rotating its direction of movement based on current 
 	// direction and input direction.
