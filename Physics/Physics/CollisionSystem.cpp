@@ -41,13 +41,17 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	for (int i = 0; i < it.entities.size(); i++)
 	{
+		if (it.entities.at(i).entity->getID() == p_entity->getID())
+		{
+			continue;
+		}
 		// Grabbing the collision and transform component from the current entity.
 		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(it.entities.at(i).entity->getID());
 		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(it.entities.at(i).entity->getID());
 
 		// Applying the world transform to the current collision component min and max.
-		DirectX::XMVECTOR current_collision_min = DirectX::XMLoadFloat3(&p_current_collision->mMin);;
-		DirectX::XMVECTOR current_collision_max = DirectX::XMLoadFloat3(&p_current_collision->mMax);;
+		DirectX::XMVECTOR current_collision_min = DirectX::XMLoadFloat3(&p_current_collision->mMin);
+		DirectX::XMVECTOR current_collision_max = DirectX::XMLoadFloat3(&p_current_collision->mMax);
 
 		current_collision_min = DirectX::XMVector3Transform(current_collision_min, UtilityFunctions::GetWorldMatrix(*p_current_transform));
 		current_collision_max = DirectX::XMVector3Transform(current_collision_max, UtilityFunctions::GetWorldMatrix(*p_current_transform));

@@ -10,7 +10,9 @@ int main(int argc, char** argv) {
 }
 
 /*
-	
+												__MAIN HEAP STRUCTURE__
+
+
 	Allocator that manages                                           Memory Blocks (MB) that are allocated on the main heap. 
 	the main heap, onwed by                                        	 These can include dara like dynamic variables, or sub-
 	the memory manager                                               allocators with their own heap within the block.
@@ -19,9 +21,9 @@ int main(int argc, char** argv) {
 	+------------------+------------------------------------------------------------------------------------------+
 	| Allocator header |     MB    |              MB             |     MB     |      MB      |  MB  |       MB    |
 	+------------------+------------------------------------------------------------------------------------------+
-	                   \____________________________________________ ____________________________________________/
-	                                                                V
-	                                                            MAIN HEAP
+	\________ ________/\____________________________________________ ____________________________________________/
+	         V                                                      V
+	   Allocator Block                                          MAIN HEAP
 	                                       (managed by an allocator owned by the memory manager)
 
 	\_____________________________________________________ _______________________________________________________/
@@ -58,6 +60,25 @@ int main(int argc, char** argv) {
    END
 */
 
+/*
+										##################################
+									   #  HOW ALLOCATOR MEMORY IS STORED  #
+										##################################
+
+	+-------------------------------------------------------------------------------------------------------+
+	|  Header used to store   |                                                                             |
+	|  the allocator and all  |			Memory available for allocations, managed by the allocator.			|
+	|  data used to manage    |                                                                             |
+	|  its memory.            |                                                                             |
+	+-------------------------------------------------------------------------------------------------------+
+	\____________ ____________/\_______________________________________ _____________________________________/
+				 V                                                     V
+		  Allocator block								  Heap block (for allocations)
+	\___________________________________________________ ___________________________________________________/
+														V
+												   Memory Block (for allocator)
+*/
+
 
 /*
 	NOTATION FOR ALL MEMORY TESTS:
@@ -81,7 +102,31 @@ namespace API
 	const uint ALLOCATOR_SIZE = sizeof(memory::allocators::LinearAllocator);
 
 	// Let there be some data the user want to use
-	const uint user_data_size = 50;
+	const uint USER_DATA_SIZE = 50;
+
+	/*
+		In order to provide memory for a user's dynamic object, an allocator has to be able to
+		reserve some size of memory (memory block) in its memory heap and return a pointer to the
+		user.
+
+		This test try to allocate some memory through an allocator, that owns some memory.
+	*/
+	TEST(TestAPI, AllocateOnLinearAllocator)
+	{
+		// Allocate memory for some user data (play with the thought) and an allocator
+		const uint BLOCK_SIZE = USER_DATA_SIZE + sizeof(memory::allocators::LinearAllocator);
+		void* memory_block = malloc(BLOCK_SIZE);
+
+
+		// Create and initialize the allocator
+		memory::allocators::LinearAllocator linear_allocator;
+		linear_allocator.Initialize(memory_block, BLOCK_SIZE);
+
+		// This is the focus of the test
+		EXPECT_TRUE(linear_allocator.Allocate(USER_DATA_SIZE));
+
+		free(memory_block);
+	}
 
 	/*
 		Try to initialize memory.
@@ -105,10 +150,10 @@ namespace API
 	TEST(TestAPI, CreateAllocator)
 	{
 		// Request a heap that fits an allocator and user data
-		memory::Initialize(ALLOCATOR_SIZE + user_data_size);
+		memory::Initialize(ALLOCATOR_SIZE + USER_DATA_SIZE);
 
 		// Create an allocator that the user can use to allocate memory for their data
-		memory::allocators::Allocator* p_allocator = memory::CreateAllocator(user_data_size);
+		memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
 		ASSERT_NE(p_allocator, nullptr);
 
 		// Free allocated memory
@@ -129,14 +174,14 @@ namespace API
 		memory::Initialize
 		(
 			(ALLOCATOR_SIZE * domain_count) +
-			(user_data_size * domain_count)
+			(USER_DATA_SIZE * domain_count)
 		);
 
 
 		// Try to create each domain allocator, with their own heap size for user data
 		for (uint i = 0; i < domain_count; i++)
 		{
-			memory::allocators::Allocator* p_allocator = memory::CreateAllocator(user_data_size);
+			memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
 			ASSERT_NE(p_allocator, nullptr);
 		}
 
@@ -144,7 +189,7 @@ namespace API
 			Since we created allocators that fill the whole main heap, we should not be able to
 			create another allocator.
 		*/
-		memory::allocators::Allocator* p_allocator = memory::CreateAllocator(user_data_size);
+		memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
 		ASSERT_EQ(p_allocator, nullptr);
 
 		// Free allocated memory
@@ -157,13 +202,13 @@ namespace API
 	TEST(TestAPI, HandleOverflowAllocatorSize)
 	{
 		// Request a heap that fits an allocator and user data
-		memory::Initialize(ALLOCATOR_SIZE + user_data_size);
+		memory::Initialize(ALLOCATOR_SIZE + USER_DATA_SIZE);
 
 		/*
 			Try to create an allocator with a heap LARGER than we previously allocated memory for,
 			which should not be allowed.
 		*/
-		memory::allocators::Allocator* p_allocator = memory::CreateAllocator(user_data_size + 10);
+		memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE + 10);
 		ASSERT_EQ(p_allocator, nullptr);
 
 		// Free allocated memory
