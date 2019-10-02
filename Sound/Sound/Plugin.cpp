@@ -19,3 +19,13 @@ void Sound::Plugin::TestSineWave::Process(Samples Start, Samples Count, float* D
 		frames[i].right = sample;
 	}
 }
+
+Sound::Plugin::Passthrough::Passthrough(Plugin* pNext)
+{
+	mpNext = pNext;
+}
+
+void Sound::Plugin::Passthrough::Process(Samples Start, Samples Count, float* Data, int Channels)
+{
+	mpNext->Process(Start, Count, Data, Channels);
+}

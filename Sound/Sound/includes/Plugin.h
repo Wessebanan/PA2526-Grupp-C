@@ -9,7 +9,10 @@ namespace Sound
 		class Plugin
 		{
 		public:
-			virtual void Process(Samples Start, Samples Count, float* Data, int Channels) = 0;
+			Plugin()
+			{
+				mpNext = nullptr;
+			}
 			// Once one plugin gets deleted, the chain of
 			// plugins gets deleted
 			~Plugin() {
@@ -19,6 +22,7 @@ namespace Sound
 					mpNext = nullptr;
 				}
 			}
+			virtual void Process(Samples Start, Samples Count, float* Data, int Channels) = 0;
 		protected:
 			Plugin* mpNext;
 		};
@@ -31,6 +35,13 @@ namespace Sound
 			void Process(Samples Start, Samples Count, float* Data, int Channels);
 		private:
 			float mFrequency;
+		};
+
+		class Passthrough : public Plugin
+		{
+		public:
+			Passthrough(Plugin* pNext);
+			void Process(Samples Start, Samples Count, float* Data, int Channels);
 		};
 
 	}

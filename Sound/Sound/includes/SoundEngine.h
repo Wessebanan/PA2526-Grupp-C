@@ -34,6 +34,8 @@ namespace Sound
 		void StartWorkThread();
 		void JoinWorkThread();
 
+		void UseThisMixer(Mixer* pMixer);
+
 	protected:
 
 	private:
@@ -89,7 +91,7 @@ namespace Sound
 		// testing purposes. Produces a sine wave to fill the
 		// ring buffer with
 		//Plugin::Plugin* _mpTestPlugin;
-		Mixer mMixer;
+		Mixer* mpMixer;
 
 	};
 

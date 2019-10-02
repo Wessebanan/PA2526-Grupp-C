@@ -9,12 +9,6 @@ Sound::Engine::Engine()
 	mWorkerThreadRun = false;
 	mpWorkerThread = nullptr;
 	mProducerLastSampleCount = 0;
-	// TEMPORARY
-	// Voices should NOT be initialized within the
-	// sound engine itself!
-	mMixer.NewVoice(new Plugin::TestSineWave(440.f));
-	mMixer.NewVoice(new Plugin::TestSineWave(220.f));
-	mMixer.NewVoice(new Plugin::TestSineWave(110.f));
 }
 
 Sound::Engine::~Engine()
@@ -118,6 +112,11 @@ void Sound::Engine::JoinWorkThread()
 	delete mpWorkerThread;
 }
 
+void Sound::Engine::UseThisMixer(Mixer* pMixer)
+{
+	mpMixer = pMixer;
+}
+
 int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
 	unsigned long framesPerBuffer,
 	const PaStreamCallbackTimeInfo* pTimeInfo,
@@ -200,7 +199,7 @@ void Sound::Engine::WorkerThreadUpdateMethod()
 	// ring buffer with
 	Frame temp_frame_array[SOUND_FRAMES_PER_BUFFER] = { 0 };
 	//_mpTestPlugin->Process(mProducerLastSampleCount, samples_to_fill, (float*)temp_frame_array, 2);
-	mMixer.Fill(mProducerLastSampleCount, samples_to_fill, (float*)temp_frame_array);
+	mpMixer->Fill(mProducerLastSampleCount, samples_to_fill, (float*)temp_frame_array);
 
 
 	// TEMPORARY END -------------------------------------

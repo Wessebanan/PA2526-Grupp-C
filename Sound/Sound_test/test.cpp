@@ -31,6 +31,26 @@ TEST(SoundAPI, InitializePortAudio)
 {
 	// Initialize a Sound Engine
 	Sound::Engine engine;
+	Sound::Mixer mixer;
+
+	// Add voices to the mixer
+	{
+		using namespace Sound::Plugin;
+
+		// Test so that chained plugins doesn't cause trouble
+		mixer.NewVoice(
+			new Passthrough(
+				new Passthrough(
+					new Passthrough(
+						new Passthrough(
+							new Passthrough(
+								new TestSineWave(440.f)
+		))))));
+		mixer.NewVoice(new TestSineWave(220.f));
+		mixer.NewVoice(new TestSineWave(110.f));
+
+	}
+	engine.UseThisMixer(&mixer);
 
 	std::cout << "PortAudio Test: output sine wave. SR = " << SOUND_SAMPLE_RATE
 		<< ", RingBufSize = " << SOUND_BUFFER_SIZE << std::endl;
