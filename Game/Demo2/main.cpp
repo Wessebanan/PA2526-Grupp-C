@@ -3,7 +3,7 @@
 #include "Mesh.h"
 #include "GridFunctions.h"
 //#include "CameraFunctions.h"
-
+#include "InitInputHandler.h"
 
 
 int main()
@@ -14,24 +14,26 @@ int main()
 	UINT gridWidth = 12;
 	UINT gridHeight = 12;
 	
+	using namespace ecs;
 	ecs::EntityComponentSystem ecs;
 	{
 		ecs::ECSDesc ecsDesc;
 		ecs::CompTypeMemDesc ecsMemDesc[] =
 		{
-			{ components::WorldComponent::typeID, components::WorldComponent::size, systems::compCount},
-			{ components::MeshComponent::typeID, components::MeshComponent::size, systems::compCount},
+			{ components::TileComponent::typeID, components::TileComponent::size, gridHeight * gridWidth},
+			{ components::TransformComponent::typeID, components::TransformComponent::size, gridHeight * gridWidth},
 		};
 		ecsDesc.compTypeCount = 2;
 		ecsDesc.compTypeMemDescs = ecsMemDesc;
 		ecsDesc.systemLayerCount = 10;
-		myECS.initialize(ecsDesc);
+		ecs.initialize(ecsDesc);
 	}
 	//CameraFunctions::CreateDevCamera(ecs);
 
-	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 8);
+	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 1);
 
-
+	//InputBackend* inp = ;
+	initInputECS(ecs, new InputBackend());
 
 
 
@@ -118,24 +120,45 @@ int main()
 			mng.Clear();
 
 			float moveSpeed = 0.01f;
-			if (GetAsyncKeyState(VK_UP))
-			{
-				z += moveSpeed;
-			}
-			if (GetAsyncKeyState(VK_DOWN))
-			{
-				z -= moveSpeed;
-			}
+			//if (GetAsyncKeyState(VK_UP))
+			//{
+			//	z += moveSpeed;
+			//}
+			//if (GetAsyncKeyState(VK_DOWN))
+			//{
+			//	z -= moveSpeed;
+			//}
 
-			if (GetAsyncKeyState(VK_LEFT))
+			//if (GetAsyncKeyState(VK_LEFT))
+			//{
+			//	x -= moveSpeed;
+			//}
+			//if (GetAsyncKeyState(VK_RIGHT))
+			//{
+			//	x += moveSpeed;
+			//}
+			ecs::ComponentIterator ittKey = ecs.getAllComponentsOfType(ecs::components::KeyboardComponent::typeID);
+			components::KeyboardComponent* kbComp;
+			if (kbComp = (components::KeyboardComponent*)ittKey.next())//(inp->mpExitKey->key.pressed)//(kbComp->ECS)
 			{
-				x -= moveSpeed;
-			}
-			if (GetAsyncKeyState(VK_RIGHT))
-			{
-				x += moveSpeed;
-			}
+				if (kbComp->W)
+				{
+					z += moveSpeed;
+				}
+				if (kbComp->S)
+				{
+					z -= moveSpeed;
+				}
 
+				if (kbComp->A)
+				{
+					x -= moveSpeed;
+				}
+				if (kbComp->D)
+				{
+					x += moveSpeed;
+				}
+			}
 			XMStoreFloat4x4(&viewMatrix,
 				XMMatrixLookToLH(
 					{ x, 0.0f, z },
@@ -147,6 +170,12 @@ int main()
 
 			mng.Draw();
 			pWnd->Present();
+
+
+			ecs.update(0.1f);
+
+
+			
 		}
 	}
 
