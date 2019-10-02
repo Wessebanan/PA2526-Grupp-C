@@ -50,6 +50,7 @@ TEST(SoundAPI, InitializePortAudio)
 		mixer.NewVoice(new TestSineWave(110.f));
 
 	}
+	// Have the engine use this mixer
 	engine.UseThisMixer(&mixer);
 
 	std::cout << "PortAudio Test: output sine wave. SR = " << SOUND_SAMPLE_RATE

@@ -37,6 +37,7 @@ namespace Sound
 			float mFrequency;
 		};
 
+		// Does nothing and only calls the next plugin in the line
 		class Passthrough : public Plugin
 		{
 		public:

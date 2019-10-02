@@ -7,7 +7,10 @@ namespace Sound
 	public:
 		Voice();
 		~Voice();
+		// Starts from the first plugin and recursively
+		// process the data
 		void Fill(Samples Start, Samples Count, float* Data);
+		// Repurpose this voice to another task
 		void New(Plugin::Plugin* pEntryPlugin);
 		bool IsActive() const;
 	private:

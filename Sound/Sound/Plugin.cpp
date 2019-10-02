@@ -8,7 +8,6 @@ Sound::Plugin::TestSineWave::TestSineWave(float Frequency)
 
 void Sound::Plugin::TestSineWave::Process(Samples Start, Samples Count, float* Data, int Channels)
 {
-	//const float FREQUENCY = 440.0f;	// Frequency of the wave
 	const float AMPLITUDE = 0.2f;	// To save people's ears; Low amplitude
 	float sample;
 	Frame* frames = (Frame*)Data;

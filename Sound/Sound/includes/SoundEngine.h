@@ -34,6 +34,7 @@ namespace Sound
 		void StartWorkThread();
 		void JoinWorkThread();
 
+		// Sets a mixer to get frame data from
 		void UseThisMixer(Mixer* pMixer);
 
 	protected:
