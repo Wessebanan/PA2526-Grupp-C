@@ -11,6 +11,49 @@ float PhysicsHelpers::CalculateDistance(const DirectX::XMFLOAT3 &p1, const Direc
 	return sqrt(pow(x_diff, 2) + pow(y_diff, 2) + pow(z_diff, 2));
 }
 
+float PhysicsHelpers::CalculateDistance(const DirectX::XMVECTOR& p1, const DirectX::XMVECTOR& p2)
+{
+	DirectX::XMVECTOR diff = DirectX::XMVectorSubtract(p1, p2);
+	DirectX::XMVECTOR diff_length = DirectX::XMVector3Length(diff);
+	float distance = 0.0f;
+	DirectX::XMStoreFloat(&distance, diff_length);
+	return distance;
+}
+
+float PhysicsHelpers::CalculateVectorLength(const DirectX::XMFLOAT3 vec)
+{
+	return sqrt(pow(vec.x,2)+pow(vec.y,2)+pow(vec.z,2));
+}
+
+void PhysicsHelpers::RotateAroundY(DirectX::XMFLOAT3& vec, int degrees)
+{
+	float cos_rotation = (float)cos(degrees * PI / 180.0);
+	float sin_rotation = (float)sin(degrees * PI / 180.0);
+
+	// Takes a copy for the rotation calculation.
+	DirectX::XMFLOAT3 vec_copy = vec;
+
+	// Rotation application around y-axis using the forward vector of the movement component.
+	vec.x = vec_copy.x * cos_rotation - vec_copy.z * sin_rotation;
+	vec.z = vec_copy.x * sin_rotation + vec_copy.z * cos_rotation;
+	
+	// If either is very close to 0, just make it 0.
+	const float ABS_ERROR = pow(10, -10);
+	if (fabs(vec.x) < ABS_ERROR)
+	{
+		vec.x = 0.0f;
+	}
+	if (fabs(vec.z) < ABS_ERROR)
+	{
+		vec.z = 0.0f;
+	}
+}
+
+int PhysicsHelpers::Sign(float f)
+{
+	return (f > 0.0f) - (f < 0.0f);
+}
+
 void PhysicsHelpers::CreateOBB(DirectX::XMFLOAT3(&vertices)[8], const DirectX::XMFLOAT3 &min_point, const DirectX::XMFLOAT3 &max_point)
 {
 	// Creating the vertices for the box with the min and max points.
@@ -68,7 +111,58 @@ void PhysicsHelpers::GetExtremes(const DirectX::XMFLOAT3* points, const unsigned
 	}
 }
 
-void CreateBoundingSphere(const DirectX::XMFLOAT3* points, const unsigned int& n_points, const DirectX::XMFLOAT3& min_point, const DirectX::XMFLOAT3& max_point, float& radius, DirectX::XMFLOAT3& center)
+DirectX::XMFLOAT3 PhysicsHelpers::operator+(const DirectX::XMFLOAT3& p1, const DirectX::XMFLOAT3& p2)
+{
+	DirectX::XMFLOAT3 res;
+	res.x = p1.x + p2.x;
+	res.x = p1.y + p2.y;
+	res.x = p1.z + p2.z;
+	return res;
+}
+
+bool PhysicsHelpers::AABBIntersect(const DirectX::XMFLOAT3& min1, const DirectX::XMFLOAT3& max1, const DirectX::XMFLOAT3& min2, const DirectX::XMFLOAT3& max2)
+{
+	// Standard evaluation that two AABBs overlap.
+	// Exits early if one check fails due to &&.
+	return (
+		max1.x > min2.x &&
+		min1.x < max2.x &&
+		max1.y > min2.y &&
+		min1.y < max2.y &&
+		max1.z > min2.z &&
+		min1.z < max2.z);
+}
+
+bool PhysicsHelpers::AABBIntersect(const DirectX::XMVECTOR& v_min1, const DirectX::XMVECTOR& v_max1, const DirectX::XMVECTOR& v_min2, const DirectX::XMVECTOR& v_max2)
+{
+	// Standard evaluation that two AABBs overlap.
+	// Exits early if one check fails due to &&.
+	DirectX::XMFLOAT3 min1;
+	DirectX::XMStoreFloat3(&min1, v_min1);
+	DirectX::XMFLOAT3 max1;
+	DirectX::XMStoreFloat3(&max1, v_max1);
+	DirectX::XMFLOAT3 min2;
+	DirectX::XMStoreFloat3(&min2, v_min2);
+	DirectX::XMFLOAT3 max2;
+	DirectX::XMStoreFloat3(&max2, v_max2);
+	return (
+		max1.x > min2.x &&
+		min1.x < max2.x &&
+		max1.y > min2.y &&
+		min1.y < max2.y &&
+		max1.z > min2.z &&
+		min1.z < max2.z);
+}
+
+bool PhysicsHelpers::SphereIntersect(const DirectX::XMFLOAT3& center1, const float& radius1, const DirectX::XMFLOAT3& center2, const float& radius2)
+{
+	// If the distance between the center points is greater than the sum of the radii, 
+	// the spheres intersect, with the difference being the overlap in the direction of
+	// the vector between the centers.
+	return CalculateDistance(center1, center2) < (radius1 + radius2);
+}
+
+void PhysicsHelpers::CreateBoundingSphere(const DirectX::XMFLOAT3* points, const unsigned int& n_points, const DirectX::XMFLOAT3& min_point, const DirectX::XMFLOAT3& max_point, float& radius, DirectX::XMFLOAT3& center)
 {
 	// min + max / 2 gives us the center.
 	center = DirectX::XMFLOAT3

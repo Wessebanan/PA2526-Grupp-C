@@ -138,12 +138,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="SoundEngine.cpp" />
+    <ClCompile Include="SoundHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="includes\Plugin.h" />
     <ClInclude Include="includes\RingBuffer.h" />
     <ClInclude Include="includes\SoundEngine.h" />
+    <ClInclude Include="includes\SoundHelpers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

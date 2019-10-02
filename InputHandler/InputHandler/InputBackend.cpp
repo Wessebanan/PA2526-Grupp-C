@@ -152,8 +152,8 @@ void InputBackend::updateTiles()
 	// Checks and updates each players cords
 	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
 	{
-		mpUserTile[playerIndex]->mCordX = mpWebConn->getUserTile(playerIndex, 0);
-		mpUserTile[playerIndex]->mCordY = mpWebConn->getUserTile(playerIndex, 1);
+		mpUserTile[playerIndex]->mCordX = mpWebConn->GetUserTile(playerIndex, 0);
+		mpUserTile[playerIndex]->mCordY = mpWebConn->GetUserTile(playerIndex, 1);
 	}
 }
 
@@ -162,7 +162,7 @@ void InputBackend::updateButtons()
 	// Checks and updates each players UDLR movment keys
 	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
 	{
-		mpUserButton[playerIndex]->mButton = mpWebConn->getUserButton(playerIndex);
+		mpUserButton[playerIndex]->mButton = mpWebConn->GetUserButton(playerIndex);
 	}
 }
 
@@ -171,7 +171,7 @@ void InputBackend::updateCommands()
 	// Checks and updates each players current command
 	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
 	{
-		mpUserCommand[playerIndex]->mCommand = mpWebConn->getUserCommand(playerIndex);
+		mpUserCommand[playerIndex]->mCommand = mpWebConn->GetUserCommand(playerIndex);
 	}
 }
 
