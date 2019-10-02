@@ -14,6 +14,7 @@ int main()
 
 	UINT gridWidth = 12;
 	UINT gridHeight = 12;
+	UINT nrOfTiles = gridHeight * gridWidth;
 
 	using namespace ecs;
 	ecs::EntityComponentSystem ecs;
@@ -55,11 +56,9 @@ int main()
 	mng.Initialize(1280, 720, "D3D11");
 
 
-	ModelLoader::Mesh tile("../hexagon_tile2.fbx");
-
-
-
-	ModelLoader::Mesh dude("../hexagon_tile.fbx");
+	ModelLoader::Mesh tile2("../hexagon_tile2.fbx");
+	ModelLoader::Mesh tile("../hexagon_tile.fbx");
+	ModelLoader::Mesh dude("../dudeMesh0.fbx");
 
 	int mesh_dude; // dude
 	{
@@ -107,12 +106,12 @@ int main()
 	int mesh_tile; // tile
 	{
 		VERTEX_BUFFER_DATA vertex_data = { NULL };
-		vertex_data.VertexCount = tile.GetVertexPositionVector()->size() * 4;
-		vertex_data.pVertexData = tile.GetVertexPositionVector()->data();
+		vertex_data.VertexCount = tile2.GetVertexPositionVector()->size() * 4;
+		vertex_data.pVertexData = tile2.GetVertexPositionVector()->data();
 
 		INDEX_BUFFER_DATA index_data = { NULL };
-		index_data.IndexCount = tile.GetIndexVector()->size() * 4;
-		index_data.pIndexData = tile.GetIndexVector()->data();
+		index_data.IndexCount = tile2.GetIndexVector()->size() * 4;
+		index_data.pIndexData = tile2.GetIndexVector()->data();
 
 		mesh_tile = mng.CreateMesh(
 			&vertex_data,
@@ -168,6 +167,7 @@ int main()
 	ecs::components::ArmyComponent* armComp;
 	while (armComp = (ecs::components::ArmyComponent*)itt.next())
 	{
+		// over alla units in the army
 		for (size_t i = 0; i < 3; i++)
 		{
 			ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(armComp->unitIDs[i]);
@@ -175,7 +175,7 @@ int main()
 			pTilePosition[index].x = trComp->position.x;
 			pTilePosition[index].y = trComp->position.y;
 			pTilePosition[index].z = trComp->position.z;
-			pTilePosition[index].w = (1.0f / (armyIndex + 0.1f)) + 0.1f;
+			pTilePosition[index].w = (1.0f / (armyIndex + 0.000001f));
 
 			index++;
 		}
@@ -203,6 +203,11 @@ int main()
 	mng.SetViewMatrix(camComp->viewMatrix);
 
 
+	itt = ecs.getAllComponentsOfType(ecs::components::UserCommandComponent::typeID);
+	components::UserCommandComponent* commComp;
+	commComp = (components::UserCommandComponent*)itt.next();
+
+	float movement = 0.0f;
 	pWnd->Show();
 	while (pWnd->IsOpen())
 	{
@@ -211,6 +216,31 @@ int main()
 			mng.Clear();
 
 			float moveSpeed = 0.01f;
+
+			for (size_t i = 0; i < 4; i++)
+			{
+				if (commComp->userCommands[i].mCommand == "move")
+				{
+					int unitToMove = i*3;
+
+					movement = pTilePosition[nrOfTiles + (unitToMove)].y;
+					movement -= 0.1f;
+					if (movement <= 0.0f)
+						movement = 40.0f;
+
+
+					pTilePosition[nrOfTiles + unitToMove].y = movement;
+					pTilePosition[nrOfTiles + unitToMove+1].y = movement;
+					pTilePosition[nrOfTiles + unitToMove+2].y = movement;
+				}
+				
+
+				
+			}
+			
+
+			
+
 
 			mng.SetViewMatrix(camComp->viewMatrix);
 
