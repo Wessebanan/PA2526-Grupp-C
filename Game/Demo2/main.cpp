@@ -13,7 +13,7 @@ int main()
 
 	UINT gridWidth = 12;
 	UINT gridHeight = 12;
-	
+
 	using namespace ecs;
 	ecs::EntityComponentSystem ecs;
 	{
@@ -21,23 +21,51 @@ int main()
 		ecs::CompTypeMemDesc ecsMemDesc[] =
 		{
 			{ components::TileComponent::typeID, components::TileComponent::size, (gridHeight * gridWidth)},
-			{ components::TransformComponent::typeID, components::TransformComponent::size, 1 +(gridHeight * gridWidth)},
+			{ components::TransformComponent::typeID, components::TransformComponent::size, 1 + (gridHeight * gridWidth)},
 		};
 		ecsDesc.compTypeCount = 2;
 		ecsDesc.compTypeMemDescs = ecsMemDesc;
 		ecsDesc.systemLayerCount = 10;
 		ecs.initialize(ecsDesc);
 	}
+	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 4);
+
+
 	initInputECS(ecs, new InputBackend());
 
 
-	CameraFunctions::CreateDevCamera(ecs);
+	//{
+	//	//Initialize components
+	//	TransformComponent transform;
+	//	transform.position = CameraDefines::originalPosition;
+	//	transform.rotation = CameraDefines::originalRotation;
+	//	transform.scale = CameraDefines::originalScale;
+	//	CameraComponent camera;
+	//	camera.target = CameraDefines::originalTarget;
+	//	camera.up = CameraDefines::originalUp;
+	//	camera.forward = CameraDefines::originalForward;
+	//	camera.right = CameraDefines::originalRight;
+	//	XMVECTOR cam_pos = XMVectorSet(transform.position.x, transform.position.y, transform.position.z, 0.0f);
+	//	XMVECTOR target = XMLoadFloat4(&camera.target);
+	//	XMVECTOR up = XMLoadFloat4(&camera.up);
+	//	XMMATRIX view = XMLoadFloat4x4(&camera.viewMatrix);
+	//	XMMATRIX projection = XMLoadFloat4x4(&camera.projectionMatrix);
+
+	//	//Set the view and projection matrix in the CameraComponent.
+	//	view = XMMatrixLookAtLH(cam_pos, target, up);
+	//	projection = XMMatrixPerspectiveFovLH(CameraDefines::fovAngle, CameraDefines::aspectRatio, CameraDefines::nearPlane, CameraDefines::farPlane);
+
+	//	//Store the values in the component.
+	//	XMStoreFloat4(&camera.target, target);
+	//	XMStoreFloat4(&camera.up, up);
+	//	XMStoreFloat4x4(&camera.viewMatrix, view);
+	//	XMStoreFloat4x4(&camera.projectionMatrix, projection);
+
+	//	//Create the camera entity
+	//	ecs.createEntity(transform, camera);
+	//}
 	ecs.createSystem<ecs::systems::UpdateCameraSystem>();
-
-	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 4);
-
-	//InputBackend* inp = ;
-
+	ecs.update(0.01f);
 
 
 
@@ -61,7 +89,7 @@ int main()
 		index_data.pIndexData = tile.GetIndexVector()->data();
 
 		mesh_tile = mng.CreateMesh(
-			&vertex_data, 
+			&vertex_data,
 			&index_data);
 	}
 
@@ -101,24 +129,26 @@ int main()
 	}
 
 
-	pTilePosition->z = 10.0f;
-	pTilePosition->w = 1.0f;
+
+	CameraFunctions::CreateDevCamera(ecs);
+
 
 	float x = 2.0f;
 	float z = 1.0f;
-	XMFLOAT4X4 viewMatrix;
-	XMStoreFloat4x4(&viewMatrix,
-		XMMatrixLookToLH(
-			{ x, 2.0f, z },
-			{ 0.0f, 0.0f,  1.0f },
-			{ 0.0f, 1.0f,  0.0f }
-	));
-	//ecs::ComponentIterator itt2 = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
-	//components::CameraComponent* camComp;
-	//camComp = (components::CameraComponent*)itt2.next();
-	//ecs.update(0.1f);
-	//mng.SetViewMatrix(camComp->viewMatrix);
-	mng.SetViewMatrix(viewMatrix);
+	//XMFLOAT4X4 viewMatrix;
+	//XMStoreFloat4x4(&viewMatrix,
+	//	XMMatrixLookToLH(
+	//		{ x, 2.0f, z },
+	//		{ 0.0f, 0.0f,  1.0f },
+	//		{ 0.0f, 1.0f,  0.0f }
+	//));
+	//mng.SetViewMatrix(viewMatrix);
+	ecs::ComponentIterator itt2 = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+	components::CameraComponent* camComp;
+	camComp = (components::CameraComponent*)itt2.next();
+	ecs.update(0.1f);
+	mng.SetViewMatrix(camComp->viewMatrix);
+
 
 	pWnd->Show();
 	while (pWnd->IsOpen())
@@ -176,8 +206,8 @@ int main()
 			//itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
 			//components::CameraComponent* camComp;
 			//camComp = (components::CameraComponent*)itt.next();
-			//mng.SetViewMatrix(camComp->viewMatrix);
-			mng.SetViewMatrix(viewMatrix);
+			mng.SetViewMatrix(camComp->viewMatrix);
+			//mng.SetViewMatrix(viewMatrix);
 
 			mng.Draw();
 			pWnd->Present();
@@ -186,11 +216,12 @@ int main()
 			ecs.update(0.1f);
 
 
-			
+
 		}
 	}
 
 	mng.Destroy();
 
 	return 0;
+
 }
