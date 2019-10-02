@@ -25,7 +25,7 @@ int main()
 		float x, y, z;
 	};
 
-	int meshIndex0; // Triangle
+	int mesh_index0; // Triangle
 	{
 		float3 triangle[3] = {
 			-0.1f,  -0.1f, 0.0f,
@@ -37,10 +37,10 @@ int main()
 		data.VertexCount = 3;
 		data.pVertexData = triangle;
 
-		meshIndex0 = mng.CreateMesh(&data, nullptr);
+		mesh_index0 = mng.CreateMesh(&data, nullptr);
 	}
 
-	int meshIndex1; // Quad
+	int mesh_index1; // Quad
 	{
 		float3 quad[6] = {
 		 -0.1f,  -0.1f, 0.0f,
@@ -56,7 +56,7 @@ int main()
 		data.VertexCount = 6;
 		data.pVertexData = quad;
 
-		meshIndex1 = mng.CreateMesh(&data, nullptr);
+		mesh_index1 = mng.CreateMesh(&data, nullptr);
 	}
 
 	struct float4
@@ -73,10 +73,10 @@ int main()
 	// Default Technique will render 'count' meshes in white
 	MODEL_LAYOUT_DESC m_desc[2];
 	m_desc[0].InstanceCount = count / 2;
-	m_desc[0].MeshIndex = meshIndex0;
+	m_desc[0].MeshIndex = mesh_index0;
 
 	m_desc[1].InstanceCount = count / 2;
-	m_desc[1].MeshIndex = meshIndex1;
+	m_desc[1].MeshIndex = mesh_index1;
 
 	desc[RENDER_DEFAULT].PerInstanceByteWidth = sizeof(float4);
 	desc[RENDER_DEFAULT].pModelLayout = m_desc;
@@ -85,10 +85,10 @@ int main()
 	// SCREEN_SPACE will render 2 blue meshes (quad and triangle)
 	MODEL_LAYOUT_DESC m_desc0[2];
 	m_desc0[0].InstanceCount	= 1;
-	m_desc0[0].MeshIndex		= meshIndex1;
+	m_desc0[0].MeshIndex		= mesh_index1;
 
 	m_desc0[1].InstanceCount	= 1;
-	m_desc0[1].MeshIndex		= meshIndex0;
+	m_desc0[1].MeshIndex		= mesh_index0;
 
 	desc[RENDER_SCREEN_SPACE].PerInstanceByteWidth		= sizeof(float4);
 	desc[RENDER_SCREEN_SPACE].pModelLayout				= m_desc0;
@@ -99,17 +99,17 @@ int main()
 
 	graphics::PresentWindow* pWnd = mng.GetPresentWindow();
 
-	float4* triArray = (float4*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
+	float4* tri_array = (float4*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
 
 	for (UINT x = 0; x < width; x++)
 	{
 		for (UINT y = 0; y < height; y++)
 		{
 			UINT index = x * height + y;
-			triArray[index].x = x * 0.5f - 0.99f;
-			triArray[index].y = y * 0.5f - 0.99f;
+			tri_array[index].x = x * 0.5f - 0.99f;
+			tri_array[index].y = y * 0.5f - 0.99f;
 
-			triArray[index].w = 1.0f;
+			tri_array[index].w = 1.0f;
 		}
 	}
 
@@ -136,19 +136,19 @@ int main()
 		{
 			mng.Clear();
 
-			//for (UINT x = 0; x < width; x++)
-			//{
-			//	for (UINT y = 0; y < height; y++)
-			//	{
-			//		UINT index = x * height + y;
-			//		triArray[index].y -= 0.09f;
+			for (UINT x = 0; x < width; x++)
+			{
+				for (UINT y = 0; y < height; y++)
+				{
+					UINT index = x * height + y;
+					tri_array[index].y -= 0.01f;
 
-			//		if (triArray[index].y < -10.01f)
-			//		{
-			//			triArray[index].y = 12.01f;
-			//		} 
-			//	}
-			//}
+					if (tri_array[index].y < -10.01f)
+					{
+						tri_array[index].y = 12.01f;
+					} 
+				}
+			}
 
 			float moveSpeed = 0.01f;
 			if (GetAsyncKeyState(VK_UP))
