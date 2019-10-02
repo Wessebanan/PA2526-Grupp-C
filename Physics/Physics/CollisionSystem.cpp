@@ -140,14 +140,14 @@ ecs::systems::GroundCollisionComponentInitSystem::~GroundCollisionComponentInitS
 void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent *_event)
 {
 	// IMPORTANT: Made temporary mesh component in order to make progress.
+	CreateComponentEvent* create_component_event = dynamic_cast<CreateComponentEvent*>(_event);
 
 	// If the component created was any other than ground collision component, do nothing.
-	if (_event->getTypeID() != GroundCollisionComponent::typeID)
+	if (create_component_event->componentTypeID != GroundCollisionComponent::typeID)
 	{
 		return;
 	}
 
-	CreateComponentEvent* create_component_event = dynamic_cast<CreateComponentEvent*>(_event);
 	
 	// Assumes the entity has a mesh component, transform component and ground collision component.
 	// Check for ground collision component is already made.

@@ -255,6 +255,7 @@
 		// to the base, plus the height of the specific tile.
 		EXPECT_FLOAT_EQ(p_transform_component->position.y, TILE_HEIGHT + fabs(p_ground_collision_component->mVertices[0].y));
 	}
+	
 	TEST(GroundCollision, RemoveGravityOnGround)
 	{
 		// Creating an ecsMemDesc to allow more entities and components
