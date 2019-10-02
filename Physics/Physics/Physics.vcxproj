@@ -153,9 +153,11 @@
     <ClInclude Include="includes\PhysicsEvents.h" />
     <ClInclude Include="includes\MovementSystem.h" />
     <ClInclude Include="includes\PhysicsHelperFunctions.h" />
+    <ClInclude Include="includes\QuadTree.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CollisionSystem.cpp" />
+    <ClCompile Include="includes\QuadTree.cpp" />
     <ClCompile Include="MovementSystem.cpp" />
     <ClCompile Include="PhysicsHelperFunctions.cpp" />
   </ItemGroup>

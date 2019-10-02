@@ -2,6 +2,7 @@
 #include "ecs.h"
 #include <DirectXMath.h>
 #include "Mesh.h"
+#include "QuadTree.h"
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
 namespace ecs
@@ -106,6 +107,11 @@ namespace ecs
 		{
 			ModelLoader::Mesh mMesh;
 		};
+
+		//COMP(QuadTreeComponent)
+		//{
+		//	QuadTree* mTree;
+		//};
 	} // components
 } // ecs
 
