@@ -25,7 +25,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	ObjectCollisionComponent* p_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(p_entity->getID());
 	TransformComponent* p_transform = getComponentFromKnownEntity<TransformComponent>(p_entity->getID());
 
-	// Applying the transform to the collision component.
+	// Applying the world transform to the collision component min and max.
 	DirectX::XMVECTOR collision_min = DirectX::XMLoadFloat3(&p_collision->mMin);
 	DirectX::XMVECTOR collision_max = DirectX::XMLoadFloat3(&p_collision->mMax);
 
@@ -37,10 +37,31 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	filter.addRequirement(ObjectCollisionComponent::typeID);
 	EntityIterator it = getEntitiesByFilter(filter);
 
+	bool intersect = false;
+
 	for (int i = 0; i < it.entities.size(); i++)
 	{
+		// Grabbing the collision and transform component from the current entity.
+		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(it.entities.at(i).entity->getID());
+		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(it.entities.at(i).entity->getID());
 
+		// Applying the world transform to the current collision component min and max.
+		DirectX::XMVECTOR current_collision_min = DirectX::XMLoadFloat3(&p_current_collision->mMin);;
+		DirectX::XMVECTOR current_collision_max = DirectX::XMLoadFloat3(&p_current_collision->mMax);;
+
+		current_collision_min = DirectX::XMVector3Transform(current_collision_min, UtilityFunctions::GetWorldMatrix(*p_current_transform));
+		current_collision_max = DirectX::XMVector3Transform(current_collision_max, UtilityFunctions::GetWorldMatrix(*p_current_transform));
+
+		// If the objects' bounding volumes intersect.
+		if (PhysicsHelpers::AABBIntersect(collision_min, collision_max, current_collision_min, current_collision_max))
+		{
+			// Set the intersection bool and stop checking
+			// because any collision means the movement should revert.
+			intersect = true;
+			break;
+		}
 	}
+	p_collision->mIntersect = intersect;
 }
 #pragma endregion
 #pragma region GroundCollisionComponentInitSystem
