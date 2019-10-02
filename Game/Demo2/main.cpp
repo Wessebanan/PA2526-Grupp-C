@@ -1,11 +1,40 @@
 #include "ecs.h"
 #include "rendering/RenderManager.h"
 #include "Mesh.h"
+#include "GridFunctions.h"
+//#include "CameraFunctions.h"
+
 
 
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+
+
+	UINT gridWidth = 12;
+	UINT gridHeight = 12;
+	
+	ecs::EntityComponentSystem ecs;
+	{
+		ecs::ECSDesc ecsDesc;
+		ecs::CompTypeMemDesc ecsMemDesc[] =
+		{
+			{ components::WorldComponent::typeID, components::WorldComponent::size, systems::compCount},
+			{ components::MeshComponent::typeID, components::MeshComponent::size, systems::compCount},
+		};
+		ecsDesc.compTypeCount = 2;
+		ecsDesc.compTypeMemDescs = ecsMemDesc;
+		ecsDesc.systemLayerCount = 10;
+		myECS.initialize(ecsDesc);
+	}
+	//CameraFunctions::CreateDevCamera(ecs);
+
+	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 8);
+
+
+
+
+
 
 	using namespace rendering;
 	using namespace DirectX;
@@ -13,43 +42,21 @@ int main()
 	RenderManager mng;
 	mng.Initialize(1280, 720, "D3D11");
 
-	struct float3
+	ModelLoader::Mesh tile("../hexTile3.fbx");
+
+	int mesh_tile; // tile
 	{
-		float x, y, z;
-	};
+		VERTEX_BUFFER_DATA vertex_data = { NULL };
+		vertex_data.VertexCount = tile.GetVertexPositionVector()->size();
+		vertex_data.pVertexData = tile.GetVertexPositionVector()->data();
 
-	int mesh_index0; // Triangle
-	{
-		float3 triangle[3] = {
-			-0.1f,  -0.1f, 0.0f,
-			 0.0f,   0.1f, 0.0f,
-			 0.1f,  -0.1f, 0.0f,
-		};
+		INDEX_BUFFER_DATA index_data = { NULL };
+		index_data.IndexCount = tile.GetIndexVector()->size();
+		index_data.pIndexData = tile.GetIndexVector()->data();
 
-		VERTEX_BUFFER_DATA data = { NULL };
-		data.VertexCount = 3;
-		data.pVertexData = triangle;
-
-		mesh_index0 = mng.CreateMesh(&data, nullptr);
-	}
-
-	int mesh_index1; // Quad
-	{
-		float3 quad[6] = {
-		 -0.1f,  -0.1f, 0.0f,
-		 -0.1f,   0.1f, 0.0f,
-		  0.1f,  -0.1f, 0.0f,
-
-		  0.1f,  -0.1f, 0.0f,
-		 -0.1f,   0.1f, 0.0f,
-		  0.1f,   0.1f, 0.0f,
-		};
-
-		VERTEX_BUFFER_DATA data = { NULL };
-		data.VertexCount = 6;
-		data.pVertexData = quad;
-
-		mesh_index1 = mng.CreateMesh(&data, nullptr);
+		mesh_tile = mng.CreateMesh(
+			&vertex_data, 
+			&index_data);
 	}
 
 	struct float4
@@ -57,58 +64,39 @@ int main()
 		float x, y, z, w;
 	};
 
-	UINT width = 2;
-	UINT height = 2;
-	UINT count = width * height;
-
 	TECHNIQUE_HEAP_LAYOUT_DESC desc[RENDER_TECHNIQUES_COUNT] = { 0 };
 
 	// Default Technique will render 'count' meshes in white
-	MODEL_LAYOUT_DESC m_desc[2];
-	m_desc[0].InstanceCount = count / 2;
-	m_desc[0].MeshIndex = mesh_index0;
-
-	m_desc[1].InstanceCount = count / 2;
-	m_desc[1].MeshIndex = mesh_index1;
+	MODEL_LAYOUT_DESC m_desc;
+	m_desc.InstanceCount = gridWidth * gridHeight;
+	m_desc.MeshIndex = mesh_tile;
 
 	desc[RENDER_DEFAULT].PerInstanceByteWidth = sizeof(float4);
-	desc[RENDER_DEFAULT].pModelLayout = m_desc;
-	desc[RENDER_DEFAULT].ModelLayoutCount = ARRAYSIZE(m_desc);
-
-	// SCREEN_SPACE will render 2 blue meshes (quad and triangle)
-	MODEL_LAYOUT_DESC m_desc0[2];
-	m_desc0[0].InstanceCount = 1;
-	m_desc0[0].MeshIndex = mesh_index1;
-
-	m_desc0[1].InstanceCount = 1;
-	m_desc0[1].MeshIndex = mesh_index0;
-
-	desc[RENDER_SCREEN_SPACE].PerInstanceByteWidth = sizeof(float4);
-	desc[RENDER_SCREEN_SPACE].pModelLayout = m_desc0;
-	desc[RENDER_SCREEN_SPACE].ModelLayoutCount = 2;
-
+	desc[RENDER_DEFAULT].pModelLayout = &m_desc;
+	desc[RENDER_DEFAULT].ModelLayoutCount = 1;
 
 	mng.CreateModelHeap(desc);
 
 	graphics::PresentWindow* pWnd = mng.GetPresentWindow();
 
-	float4* tri_array = (float4*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
+	float4* pTilePosition = (float4*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
 
-	for (UINT x = 0; x < width; x++)
+	UINT index = 0;
+	ecs::ComponentIterator itt = ecs.getAllComponentsOfType(ecs::components::TransformComponent::typeID);
+	ecs::components::TransformComponent* trComp;
+	while (trComp = (ecs::components::TransformComponent*)itt.next())
 	{
-		for (UINT y = 0; y < height; y++)
-		{
-			UINT index = x * height + y;
-			tri_array[index].x = x * 0.5f - 0.99f;
-			tri_array[index].y = y * 0.5f - 0.99f;
+		pTilePosition[index].x = trComp->position.x;
+		pTilePosition[index].y = trComp->position.y;
+		pTilePosition[index].z = trComp->position.z;
+		pTilePosition[index].w = 1.0f;
 
-			tri_array[index].w = 1.0f;
-		}
+		index++;
 	}
 
-	float4* water = (float4*)mng.GetTechniqueModelBuffer(RENDER_SCREEN_SPACE);
-	water->x = -0.10f;
-	water->y = 0.70f;
+
+	pTilePosition->z = 10.0f;
+	pTilePosition->w = 1.0f;
 
 	float x = 2.0f;
 	float z = 1.0f;
@@ -128,20 +116,6 @@ int main()
 		if (!pWnd->Update())
 		{
 			mng.Clear();
-
-			for (UINT x = 0; x < width; x++)
-			{
-				for (UINT y = 0; y < height; y++)
-				{
-					UINT index = x * height + y;
-					tri_array[index].y -= 0.01f;
-
-					if (tri_array[index].y < -10.01f)
-					{
-						tri_array[index].y = 12.01f;
-					}
-				}
-			}
 
 			float moveSpeed = 0.01f;
 			if (GetAsyncKeyState(VK_UP))
