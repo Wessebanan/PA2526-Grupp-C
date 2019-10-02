@@ -1,8 +1,6 @@
 #include "pch.h"
-#include "CameraSystems.h"
-#include "ecs.h"
-#include "CameraFunctions.h"
-#include "UtilityFunctions.h"
+#include <CameraFunctions.h>
+#include <UtilityFunctions.h>
 #include "DebugInfoTestHeader.h"
 
 int main(int argc, char** argv)
@@ -22,7 +20,7 @@ TEST(UtilityFunctions, GetWorldMatrix) {
 	tc.rotation.x = 0.0f;
 	tc.rotation.y = 0.0f;
 	tc.rotation.z = DirectX::XM_PI / 2.0f;
-
+	
 	//Create the world matrix given the TransformComponent
 	DirectX::XMMATRIX world = UtilityFunctions::GetWorldMatrix(tc);
 	//Generate a test position which we will use with the world matrix
@@ -40,110 +38,24 @@ TEST(UtilityFunctions, GetWorldMatrix) {
 	EXPECT_TRUE((posResults.z > 0.999f) && (posResults.z < 1.001f));
 }
 
-TEST(CameraFunctions, CreateDevCamera) {
+TEST(CameraFunctions, InitDevCamera) {
 	ecs::EntityComponentSystem mEcs;
 	CameraFunctions::CreateDevCamera(mEcs);
-
-	size_t numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
-	size_t numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
+		
+	int numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
+	int numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
 
 	EXPECT_EQ(numberOfCc + numberOfTc, 2);
 	EXPECT_EQ(numberOfCc, 1);
 	EXPECT_EQ(numberOfTc, 1);
 }
 
-TEST(CameraFunctions, MoveCameraWithInput) {
-	//Create ECS and components needed for the test.
-	ecs::EntityComponentSystem temp_ecs;
-	ecs::components::MouseComponent mouse;
-	ecs::components::KeyboardComponent keyboard;
-	//Set a constant input on the mouse and keyboard to test against.
-	mouse.diffFloat2.x = 50.0f;
-	mouse.diffFloat2.y = 50.0f;
-	keyboard.A = true;
-	keyboard.W = true;
-	//Create the entity holding the mouse and keyboard components and create the camera and its system.
-	temp_ecs.createEntity(mouse, keyboard);
-	CameraFunctions::CreateDevCamera(temp_ecs);
-	temp_ecs.createSystem<ecs::systems::UpdateCameraSystem>();
-	//Update the system once.
-	temp_ecs.update(0.01f);
-	//Fetch the updated components of the camera.
-	TransformComponent* transform = (ecs::components::TransformComponent*)temp_ecs.getAllComponentsOfType(ecs::components::TransformComponent::typeID).next();
-	CameraComponent* camera = (ecs::components::CameraComponent*)temp_ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
+TEST(CameraFunctions, CreateCameraSystems) {
+	ecs::EntityComponentSystem mEcs;
+	CameraFunctions::CreateCameraSystems(mEcs);
 
-	//Test to see that the new values of the components are what we expect them to be with the given input.
-	EXPECT_NEAR(transform->position.x, -0.09f, 0.2f);
-	EXPECT_NEAR(transform->position.y, 9.9f, 0.2f);
-	EXPECT_NEAR(transform->position.z, 0.2f, 0.2f);
-	EXPECT_NEAR(transform->rotation.x, 0.5f, 0.2f);
-	EXPECT_NEAR(transform->rotation.y, 0.5f, 0.2f);
-	EXPECT_NEAR(transform->rotation.z, 0.0f, 0.2f);
-	EXPECT_NEAR(transform->scale.x, 1.0f, 0.2f);
-	EXPECT_NEAR(transform->scale.y, 1.0f, 0.2f);
-	EXPECT_NEAR(transform->scale.z, 1.0f, 0.2f);
-
-	EXPECT_NEAR(camera->target.x, 0.3f, 0.2f);
-	EXPECT_NEAR(camera->target.y, 9.4f, 0.2f);
-	EXPECT_NEAR(camera->target.z, 1.0f, 0.2f);
-	EXPECT_NEAR(camera->up.x, 0.2f, 0.2f);
-	EXPECT_NEAR(camera->up.y, 0.8f, 0.2f);
-	EXPECT_NEAR(camera->up.z, 0.4f, 0.2f);
-	EXPECT_NEAR(camera->forward.x, 0.4f, 0.2f);
-	EXPECT_NEAR(camera->forward.y, -0.4f, 0.2f);
-	EXPECT_NEAR(camera->forward.z, 0.7f, 0.2f);
-	EXPECT_NEAR(camera->right.x, 0.8f, 0.2f);
-	EXPECT_NEAR(camera->right.y, 0.0f, 0.2f);
-	EXPECT_NEAR(camera->right.z, -0.4f, 0.2f);
-}
-
-TEST(CameraFunctions, ResetCamera) {
-	//Create ECS and components needed for the test.
-	ecs::EntityComponentSystem temp_ecs;
-	ecs::components::MouseComponent mouse;
-	ecs::components::KeyboardComponent keyboard;
-	//Set a constant input on the mouse and keyboard to test against.
-	mouse.diffFloat2.x = 50.0f;
-	mouse.diffFloat2.y = 50.0f;
-	keyboard.A = true;
-	keyboard.W = true;
-	//Create the entity holding the mouse and keyboard components and create the camera and its system.
-	temp_ecs.createEntity(mouse, keyboard);
-	CameraFunctions::CreateDevCamera(temp_ecs);
-	temp_ecs.createSystem<ecs::systems::UpdateCameraSystem>();
-	//Update the system once to move the camera.
-	temp_ecs.update(0.01f);
-	//Fetch the updated components of the camera and the keyboard Component.
-	KeyboardComponent* p_keyboard = (ecs::components::KeyboardComponent*)temp_ecs.getAllComponentsOfType(ecs::components::KeyboardComponent::typeID).next();
-	TransformComponent* p_transform = (ecs::components::TransformComponent*)temp_ecs.getAllComponentsOfType(ecs::components::TransformComponent::typeID).next();
-	CameraComponent* p_camera = (ecs::components::CameraComponent*)temp_ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
-	//Set reset button to true and update the system again.
-	p_keyboard->R = true;
-	temp_ecs.update(0.01f);
-
-	//Test to see that the new values of the components are what we expect them to be after the reset.
-	EXPECT_NEAR(p_transform->position.x, CameraDefines::originalPosition.x, 0.1f);
-	EXPECT_NEAR(p_transform->position.y, CameraDefines::originalPosition.y, 0.1f);
-	EXPECT_NEAR(p_transform->position.z, CameraDefines::originalPosition.z, 0.1f);
-	EXPECT_NEAR(p_transform->rotation.x, CameraDefines::originalRotation.x, 0.1f);
-	EXPECT_NEAR(p_transform->rotation.y, CameraDefines::originalRotation.y, 0.1f);
-	EXPECT_NEAR(p_transform->rotation.z, CameraDefines::originalRotation.z, 0.1f);
-	EXPECT_NEAR(p_transform->scale.x, CameraDefines::originalScale.x, 0.1f);
-	EXPECT_NEAR(p_transform->scale.y, CameraDefines::originalScale.y, 0.1f);
-	EXPECT_NEAR(p_transform->scale.z, CameraDefines::originalScale.z, 0.1f);
-
-	EXPECT_NEAR(p_camera->target.x, CameraDefines::originalTarget.x, 0.1f);
-	EXPECT_NEAR(p_camera->target.y, CameraDefines::originalTarget.y, 0.1f);
-	EXPECT_NEAR(p_camera->target.z, CameraDefines::originalTarget.z, 0.1f);
-	EXPECT_NEAR(p_camera->forward.x, CameraDefines::originalForward.x, 0.1f);
-	EXPECT_NEAR(p_camera->forward.y, CameraDefines::originalForward.y, 0.1f);
-	EXPECT_NEAR(p_camera->forward.z, CameraDefines::originalForward.z, 0.1f);
-	EXPECT_NEAR(p_camera->up.x, CameraDefines::originalUp.x, 0.1f);
-	EXPECT_NEAR(p_camera->up.y, CameraDefines::originalUp.y, 0.1f);
-	EXPECT_NEAR(p_camera->up.z, CameraDefines::originalUp.z, 0.1f);
-	EXPECT_NEAR(p_camera->right.x, CameraDefines::originalRight.x, 0.1f);
-	EXPECT_NEAR(p_camera->right.y, CameraDefines::originalRight.y, 0.1f);
-	EXPECT_NEAR(p_camera->right.z, CameraDefines::originalRight.z, 0.1f);
+	int nrOfSystems = mEcs.getTotalSystemCount();
+	EXPECT_EQ(nrOfSystems, 1);
 }
 
 // Test if an int is initialized properly and that set/get and ToString

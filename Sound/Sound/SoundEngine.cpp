@@ -1,12 +1,28 @@
 #include "SoundEngine.h"
 #include <iostream>
+#include <cmath>
+#include <algorithm>
 
-Sound::Engine::Engine() : mpStream(0), mConsumeBufferIndex(0)
+Sound::Engine::Engine()
 {
-	// Initialize chain buffers
-	for (int i = 0; i < SOUND_CHAIN_BUFFER_COUNT; i++)
+	mpStream = nullptr;
+	mWorkerThreadRun = false;
+	mpWorkerThread = nullptr;
+	mProducerLastSampleCount = 0;
+	// TEMPORARY
+	// This is not the proper way of initializing
+	// plugins. It should go through a mixer instead
+	_mpTestPlugin = new Plugin::TestSineWave();
+}
+
+Sound::Engine::~Engine()
+{
+	// TEMPORARY
+	// Delete the test plugin to not have memory leaks
+	if (_mpTestPlugin != nullptr)
 	{
-		mpChainBuffers[i] = new Buffer(2, SOUND_FRAMES_PER_BUFFER);
+		delete _mpTestPlugin;
+		_mpTestPlugin = nullptr;
 	}
 }
 
@@ -36,7 +52,7 @@ bool Sound::Engine::OpenStream(PaDeviceIndex index)
 		NULL,						// We won't be using any input (Microphones etc)
 		&output_parameters,
 		SOUND_SAMPLE_RATE,			// Sample rate of 44100 hz (standard)
-		64,
+		SOUND_FRAMES_PER_BUFFER,
 		paClipOff,		// we won't output out of range samples so don't bother clipping them
 		&Sound::Engine::PaCallback,
 		this            // Using 'this' for userData so we can cast to Engine* in paCallback method
@@ -93,9 +109,18 @@ bool Sound::Engine::StopStream()
 	return (err == paNoError);
 }
 
-Sound::Buffer* Sound::Engine::__GetChainBuffer(int index)
+void Sound::Engine::StartWorkThread()
 {
-	return mpChainBuffers[index];
+	mWorkerThreadRun = true;
+	mWorkThreadStartTime = std::chrono::steady_clock::now();
+	mpWorkerThread = new std::thread(&WorkerThreadUpdate, this);
+}
+
+void Sound::Engine::JoinWorkThread()
+{
+	mWorkerThreadRun = false;
+	mpWorkerThread->join();
+	delete mpWorkerThread;
 }
 
 int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
@@ -103,21 +128,27 @@ int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffe
 	const PaStreamCallbackTimeInfo* pTimeInfo,
 	PaStreamCallbackFlags statusFlags)
 {
-	float* out = (float*)pOutputBuffer;
+	Frame* out = (Frame*)pOutputBuffer;
 	unsigned long i;
 
-	(void)pTimeInfo;				// Are not used right now, this is to prevent
+	(void)pTimeInfo;			// Are not used right now, this is to prevent
 	(void)statusFlags;			// the unused warning
 	(void)pInputBuffer;
 
-	for (i = 0; i < framesPerBuffer; i++)
+	Frame temp_frames[SOUND_FRAMES_PER_BUFFER];
+
+	unsigned long available = (unsigned long)mBuffer.readAvailable();
+
+	unsigned long consume_count = std::min(framesPerBuffer, available);
+
+	mBuffer.readBuff(temp_frames, consume_count);
+
+	for (i = 0; i < consume_count; i++)
 	{
-		*out++ = mpChainBuffers[mConsumeBufferIndex]->Data[0][i];  /* left */
-		*out++ = mpChainBuffers[mConsumeBufferIndex]->Data[1][i];  /* right */
+		*out++ = temp_frames[i];
 	}
 
 	return paContinue;
-
 }
 
 // This routine will be called by the PortAudio engine when audio is needed.
@@ -150,4 +181,55 @@ void Sound::Engine::PaStreamFinishedMethod()
 void Sound::Engine::PaStreamFinished(void* pUserData)
 {
 	return ((Engine*)pUserData)->PaStreamFinishedMethod();
+}
+
+void Sound::Engine::WorkerThreadUpdateMethod()
+{
+	// Get current sample count
+	Samples current_sample_count = GetWorkerCurrentSampleCount();
+	// Check how many frames should be processed
+	// until the buffer have caught up
+	Samples sample_count_since_last =
+		current_sample_count - mProducerLastSampleCount;
+	// Check available space in the buffer
+	size_t available_buffer_space = mBuffer.writeAvailable();
+	// Only fill what will fit, capped to SOUND_FRAMES_PER_BUFFER
+	Samples samples_to_fill = std::min((Samples)SOUND_FRAMES_PER_BUFFER,
+		std::min(sample_count_since_last, available_buffer_space));
+	//if (available_buffer_space == 0)
+	//	std::cout << "Overfilled ";
+
+	// TEMPORARY -----------------------------------------
+	// This will be removed once it's no longer needed for
+	// testing purposes. Produces a sine wave to fill the
+	// ring buffer with
+	Frame temp_frame_array[SOUND_FRAMES_PER_BUFFER];
+	_mpTestPlugin->Process(mProducerLastSampleCount, samples_to_fill, (float*)temp_frame_array, 2);
+
+	// TEMPORARY END -------------------------------------
+
+	// Write to the ring buffer
+	mBuffer.writeBuff(temp_frame_array, samples_to_fill);
+
+	// Progress the last sample count by the amount
+	// of samples filled this iteration
+	mProducerLastSampleCount += samples_to_fill;
+}
+
+void Sound::Engine::WorkerThreadUpdate(void* data)
+{
+	while (((Engine*)data)->mWorkerThreadRun)
+	{
+		// SPEEEN (Temporary spin loop implementation)
+		((Engine*)data)->WorkerThreadUpdateMethod();
+	}
+}
+
+inline Sound::Samples Sound::Engine::GetWorkerCurrentSampleCount()
+{
+	// To get the desired precision, the duration is casted
+	// to nanoseconds and then converted back to seconds
+	float temp = std::chrono::duration_cast<std::chrono::nanoseconds>
+		(std::chrono::steady_clock::now() - mWorkThreadStartTime).count() * 0.000000001f;
+	return Sound::ToSamples(temp);
 }

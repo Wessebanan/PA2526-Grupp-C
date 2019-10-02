@@ -33,6 +33,9 @@ ol.odd {
   color: #000;
 }
 
-li:hover{
+#prepField li:hover {
     background: #f00;
+}
+#prepField button:hover {
+    background: #0f0;
 }
