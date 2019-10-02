@@ -188,6 +188,7 @@ namespace GridFunctions
 
 	bool CheckIfValidNeighbour(int2 currentTile, int2 neighbourIndex)
 	{
+		GridProp* p_gp = GridProp::GetInstance();
 		bool returnValue = false;
 		//Check if the given index is a valid index and check so that the height difference between the tiles is not to large.
 		if (neighbourIndex.x >= 0 && neighbourIndex.x < ARENA_COLUMNS
@@ -199,66 +200,143 @@ namespace GridFunctions
 		return returnValue;
 	}
 
-	void StoreNeighbours()
+	void StoreNeighbours(ecs::EntityComponentSystem& rEcs)
 	{
-		int2 currentTile;
-		int2 neighbourTile;
+		GridProp* p_gp = GridProp::GetInstance();
+		int2 current_tile;
+		int2 neighbour_tile;
+		int neighbour_counter;
+		components::TileComponent* p_tile_component = nullptr;
 		for (int i = 0; i < ARENA_ROWS; i++)
 		{
 			for (int j = 0; j < ARENA_COLUMNS; j++)
 			{
-				currentTile = int2(i, j);
+				neighbour_counter = 0;
+				current_tile = int2(i, j);
 				if (j % 2 != 0)
 				{
-					neighbourTile = int2(i + 1, j - 1); //Top left neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile); // If everything is okey we push it into this tiles list of neighbours.
+					neighbour_tile = int2(i + 1, j - 1); //Top left neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{ 
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] = 
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id; // If everything is okey we push it into this id array of neighbours.
+						//find tilecomponent from entity with id from GridProp singelton 
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						//Update tile components neighbours
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 
-					neighbourTile = int2(i + 1, j); //Top neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+					neighbour_counter++;
+					neighbour_tile = int2(i + 1, j); //Top neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] =
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id;
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 
-					neighbourTile = int2(i + 1, j + 1); //Top right neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+					neighbour_counter++;
+					neighbour_tile = int2(i + 1, j + 1); //Top right neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] =
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id;
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 
-					neighbourTile = int2(i, j - 1); //Bottom left neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+					neighbour_counter++;
+					neighbour_tile = int2(i, j - 1); //Bottom left neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{ 
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] =
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id;
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 
-					neighbourTile = int2(i - 1, j); //Bottom neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+					neighbour_counter++;
+					neighbour_tile = int2(i - 1, j); //Bottom neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{ 
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] =
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id;
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 
-					neighbourTile = int2(i, j + 1); //Bottom right neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+					neighbour_counter++;
+					neighbour_tile = int2(i, j + 1); //Bottom right neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] =
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id;
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 				}
 				else
 				{
-					neighbourTile = int2(i, j - 1); //Top left neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+					neighbour_counter++;
+					neighbour_tile = int2(i, j - 1); //Top left neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] =
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id;
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 
-					neighbourTile = int2(i + 1, j); //Top neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+					neighbour_counter++;
+					neighbour_tile = int2(i + 1, j); //Top neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{ 
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] =
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id;
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 
-					neighbourTile = int2(i, j + 1); //Top right neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+					neighbour_counter++;
+					neighbour_tile = int2(i, j + 1); //Top right neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] =
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id;
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 
-					neighbourTile = int2(i - 1, j - 1); //Bottom left neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+					neighbour_counter++;
+					neighbour_tile = int2(i - 1, j - 1); //Bottom left neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] =
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id;
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 
-					neighbourTile = int2(i - 1, j); //Bottom neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+					neighbour_counter++;
+					neighbour_tile = int2(i - 1, j); //Bottom neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] =
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id;
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 
-					neighbourTile = int2(i - 1, j + 1); //Bottom right neighbor
-					if (CheckIfValidNeighbour(currentTile, neighbourTile))
-						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+					neighbour_counter++;
+					neighbour_tile = int2(i - 1, j + 1); //Bottom right neighbor
+					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
+					{
+						p_gp->mGrid[current_tile.x][current_tile.y].neighbourID[neighbour_counter] =
+						p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id;
+						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
+						p_tile_component->neighboursID[p_gp->mGrid[neighbour_tile.x, neighbour_tile.y]->Id];
+					}
 				}
 
 			}

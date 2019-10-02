@@ -6,6 +6,7 @@ struct TileData
 	unsigned int Id;
 	bool isPassable;
 	float height;
+	unsigned int neighbourID[6] = { 0 };
 };
 
 class GridProp

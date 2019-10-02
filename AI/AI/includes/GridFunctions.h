@@ -19,5 +19,5 @@ namespace GridFunctions
 	float CreateCharge(float startX, float startZ, float endX, float endZ, float charge);
 	float getDistance(float startX, float startZ, float endX, float endZ);
 	bool CheckIfValidNeighbour(int2 currentTile, int2 neighbourIndex);
-	void StoreNeighbours();
+	void StoreNeighbours(ecs::EntityComponentSystem& rEcs);
 };

@@ -17,6 +17,7 @@ namespace ecs
 			TileType tileType = GRASS;
 			bool impassable = false;
 			float niceness = 0.f;
+			unsigned int neighboursID[6] = { 0 };
 		};
 
 		struct PathfindingStateComponent : public ECSComponent<PathfindingStateComponent>
