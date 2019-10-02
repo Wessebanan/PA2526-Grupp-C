@@ -360,5 +360,4 @@ namespace GroundCollision
 		EXPECT_TRUE(p_movement->mOnGround);
 	}
 #pragma endregion
-
 } // GroundCollision

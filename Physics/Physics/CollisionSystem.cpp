@@ -38,6 +38,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	EntityIterator it = getEntitiesByFilter(filter);
 
 	bool intersect = false;
+	DirectX::XMFLOAT3 collided_center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	for (int i = 0; i < it.entities.size(); i++)
 	{
@@ -66,6 +67,16 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		}
 	}
 	p_collision->mIntersect = intersect;
+
+	// Since the event that triggers this system is created in
+	// DynamicMovementSystem, we can assume that the entity has a 
+	// DynamicMovementComponent.
+	if (intersect)
+	{
+		// If the last movement action resulted in collsion, revert the movement and reset velocity.
+		DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
+		
+	}
 }
 #pragma endregion
 #pragma region GroundCollisionComponentInitSystem
@@ -83,14 +94,15 @@ ecs::systems::GroundCollisionComponentInitSystem::~GroundCollisionComponentInitS
 void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent *_event)
 {
 	// IMPORTANT: Made temporary mesh component in order to make progress.
-	CreateComponentEvent *create_component_event = dynamic_cast<CreateComponentEvent*>(_event);
 
 	// If the component created was any other than ground collision component, do nothing.
-	if (create_component_event->componentTypeID != GroundCollisionComponent::typeID)
+	if (_event->getTypeID() != GroundCollisionComponent::typeID)
 	{
 		return;
 	}
 
+	CreateComponentEvent* create_component_event = dynamic_cast<CreateComponentEvent*>(_event);
+	
 	// Assumes the entity has a mesh component, transform component and ground collision component.
 	// Check for ground collision component is already made.
 	Entity* entity = getEntity(create_component_event->entityID);
