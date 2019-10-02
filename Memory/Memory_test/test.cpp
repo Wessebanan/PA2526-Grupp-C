@@ -10,7 +10,9 @@ int main(int argc, char** argv) {
 }
 
 /*
-	
+												__MAIN HEAP STRUCTURE__
+
+
 	Allocator that manages                                           Memory Blocks (MB) that are allocated on the main heap. 
 	the main heap, onwed by                                        	 These can include dara like dynamic variables, or sub-
 	the memory manager                                               allocators with their own heap within the block.
@@ -19,9 +21,9 @@ int main(int argc, char** argv) {
 	+------------------+------------------------------------------------------------------------------------------+
 	| Allocator header |     MB    |              MB             |     MB     |      MB      |  MB  |       MB    |
 	+------------------+------------------------------------------------------------------------------------------+
-	                   \____________________________________________ ____________________________________________/
-	                                                                V
-	                                                            MAIN HEAP
+	\________ ________/\____________________________________________ ____________________________________________/
+	         V                                                      V
+	   Allocator Block                                          MAIN HEAP
 	                                       (managed by an allocator owned by the memory manager)
 
 	\_____________________________________________________ _______________________________________________________/
@@ -56,6 +58,25 @@ int main(int argc, char** argv) {
 	|
 	V
    END
+*/
+
+/*
+										##################################
+									   #  HOW ALLOCATOR MEMORY IS STORED  #
+										##################################
+
+	+-------------------------------------------------------------------------------------------------------+
+	|  Header used to store   |                                                                             |
+	|  the allocator and all  |			Memory available for allocations, managed by the allocator.			|
+	|  data used to manage    |                                                                             |
+	|  its memory.            |                                                                             |
+	+-------------------------------------------------------------------------------------------------------+
+	\____________ ____________/\_______________________________________ _____________________________________/
+				 V                                                     V
+		  Allocator block								  Heap block (for allocations)
+	\___________________________________________________ ___________________________________________________/
+														V
+												   Memory Block (for allocator)
 */
 
 
