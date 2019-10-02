@@ -63,22 +63,22 @@ namespace memory
 			void Clear() override;
 
 			/*
-				Reserves a chunk of memory and returns a pointer to it. Returns nullptr if allocation
-				isn't possible.
+				Reserves a block of memory in the allocator's memory heap, and returns a pointer to it.
+				Returns nullptr if allocation failed.
 			*/
 			void* Allocate(uint size) override;
 
 			/*
-				Returns a chunk of reserved memory back to the allocator, so that the memory can be used
-				in future allocations.
+				Returns a block of reserved memory back to the allocator's memory heap, so that the memory
+				can be used for future allocations.
 			*/
 			void Free(void* ptr) override;
 
-			/*
-			
-			*/
-			template <typename T>
-			T* CreateSubAllocator(uint memorySize);
+			///*
+			//	Reserves 
+			//*/
+			//template <typename T>
+			//T* CreateSubAllocator(uint memorySize);
 
 		private:
 

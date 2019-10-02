@@ -59,7 +59,16 @@ namespace memory
 			*/
 			virtual void Clear() = 0;
 
+			/*
+				Reserves a block of memory in the allocator's memory heap, and returns a pointer to it.
+				Returns nullptr if allocation failed.
+			*/
 			virtual void* Allocate(uint size) = 0;
+
+			/*
+				Returns a block of reserved memory back to the allocator's memory heap, so that the memory
+				can be used for future allocations.
+			*/
 			virtual void Free(void* ptr) = 0;
 
 
