@@ -1,21 +1,8 @@
 #pragma once
 #include <portaudio.h>
 #include <thread>
-#include "RingBuffer.h"
-
-// Constant defines that doesn't have to change
-#define SOUND_SAMPLE_RATE   (44100)
-#define SOUND_BUFFER_SIZE  (512*2)	// Need to make this buffer
-#define SOUND_FRAMES_PER_BUFFER (64)// size tighter
-#define SOUND_MAX_CHANNELS (2)
-#define SOUND_CHAIN_BUFFER_COUNT (2)
-#ifndef M_PI
-#define M_PI  (3.14159265)
-#endif
-
-typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
-typedef unsigned long long Samples;
-typedef Ringbuffer<std::pair<float,float>, SOUND_BUFFER_SIZE> FrameBuffer;
+#include "SoundHelpers.h"
+#include "Plugin.h"
 
 namespace Sound
 {
@@ -28,6 +15,7 @@ namespace Sound
 	{
 	public:
 		Engine();
+		~Engine();
 
 		// Initializes a stream by targeting the default
 		// sound output
@@ -42,7 +30,6 @@ namespace Sound
 		// finishes being called
 		bool StopStream();
 
-		// ########### NEW NEW NEW ####################
 		void StartWorkThread();
 		void JoinWorkThread();
 
@@ -85,9 +72,6 @@ namespace Sound
 		// a proper thread-pool have been implemented
 		static void WorkerThreadUpdate(void* data);
 
-		// Helper functions to convert time to sample count
-		inline Samples ToSamples(const float Seconds);
-		inline float ToSeconds(const Samples SampleCount);
 		// To get current sample count
 		inline Samples GetWorkerCurrentSampleCount();
 
@@ -100,11 +84,10 @@ namespace Sound
 		Samples mProducerLastSampleCount;
 
 		// TEMPORARY
-		// This function are to be removed once it's
-		// not longer needed for testing purposes
-		// Returns a float array of a sine wave
-		// of varying length
-		void _FillWithSinus(Samples CurrSample, Samples SampleCount, float* Buffer);
+		// This will be removed once it's no longer needed for
+		// testing purposes. Produces a sine wave to fill the
+		// ring buffer with
+		Plugin::Plugin* _mpTestPlugin;
 	};
 
 	// Sound::PaHandler class
