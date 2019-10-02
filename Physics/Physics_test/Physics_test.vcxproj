@@ -51,6 +51,7 @@
     <ClInclude Include="MovementLogic.h" />
     <ClInclude Include="ObjectCollision.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="TestHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp" />
@@ -60,6 +61,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TestHelpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Physics\Physics.vcxproj">

@@ -3,8 +3,6 @@
 #include "MovementSystem.h"
 #include "GridFunctions.h"
 
-namespace GroundCollision
-{
 #pragma region FindLowestPointOfMesh
 	TEST(FindLowestPointOfMesh, CreateGroundCollisionComponentInitSystem)
 	{
@@ -360,4 +358,3 @@ namespace GroundCollision
 		EXPECT_TRUE(p_movement->mOnGround);
 	}
 #pragma endregion
-} // GroundCollision

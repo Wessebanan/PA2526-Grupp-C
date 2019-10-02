@@ -44,6 +44,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	
 	for (int i = 0; i < it.entities.size(); i++)
 	{
+		// Skip yourself.
 		if (it.entities.at(i).entity->getID() == p_entity->getID())
 		{
 			continue;
@@ -113,9 +114,9 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		}	
 
 		// Reverting the movement in that direction.
-		p_transform->position.x += p_movement->mVelocity.x * p_event->mDelta * x;
-		p_transform->position.y += p_movement->mVelocity.y * p_event->mDelta * y;
-		p_transform->position.z += p_movement->mVelocity.z * p_event->mDelta * z;
+		p_transform->position.x -= p_movement->mVelocity.x * p_event->mDelta * x;
+		p_transform->position.y -= p_movement->mVelocity.y * p_event->mDelta * y;
+		p_transform->position.z -= p_movement->mVelocity.z * p_event->mDelta * z;
 
 		// Resetting the velocity in that direction.
 		p_movement->mVelocity.x *= !x;
