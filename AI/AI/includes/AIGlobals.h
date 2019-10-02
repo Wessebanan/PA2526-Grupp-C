@@ -27,15 +27,6 @@ enum PLAYER
 
 struct int2
 {
-	int x; 
-	int y;
-	int entityID = 0;
-	bool isPassable = false;
-	float height = 0.f;
-};
-
-struct int2
-{
 	int x, y;
 	int2(int a = 0, int b = 0) { x = a; y = b; }
 };

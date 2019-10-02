@@ -67,8 +67,7 @@ namespace GridFunctions
 				//Create the new entity
 				current_tile = rEcs.createEntity(transform, tile);
 				p_gp->mGrid[i][j].Id = current_tile->getID();
-				ArenaProperties::gridLogic[i][j].entityID = current_tile->getID();
-				ArenaProperties::gridLogic[i][j].height = transform.position.y;
+				p_gp->mGrid[i][j].height = transform.position.y;
 				//Update the x-position of the next tile in this row.
 				current_pos.x += 1.5f * Radius;
 				//Update the z-position of the next tile depending on if it is in a 
@@ -125,6 +124,7 @@ namespace GridFunctions
 		ecs::EntityIterator entity_iterator = rEcs.getEntititesByFilter(filter);
 		float e_x, e_z, o_x, o_z;
 		int nr_of_obstacles = 0;
+		float dist = 0;
 		for (ecs::FilteredEntity entry : entity_iterator.entities)//loops through all tiles 
 		{
 			nr_of_obstacles = 0;
@@ -152,11 +152,11 @@ namespace GridFunctions
 						//this is the tile with an attractive charge(goal node)
 						o_x = other.getComponent<ecs::components::TransformComponent>()->position.x;
 						o_z = other.getComponent<ecs::components::TransformComponent>()->position.z;
-						test = getDistance(e_x, e_z, o_x, o_z);
+						dist = getDistance(e_x, e_z, o_x, o_z);
 					}
 				}
 				entry.getComponent<ecs::components::TileComponent>()->niceness = entry.getComponent<ecs::components::TileComponent>()->niceness / nr_of_obstacles;
-				entry.getComponent<ecs::components::TileComponent>()->niceness += test;
+				entry.getComponent<ecs::components::TileComponent>()->niceness += dist;
 			}
 			else
 				entry.getComponent<ecs::components::TileComponent>()->niceness = 10.0f;
@@ -182,18 +182,18 @@ namespace GridFunctions
 		float x = abs(endX - startX);
 		float z = abs(endZ - startZ);
 		float dist = sqrt(x * x + z * z);//get the distance from start to end
-		to_return = dist / ((ArenaProperties::tileRadius) * 4);//scale the distance for better values
+		to_return = dist / ((TILE_RADIUS) * 4);//scale the distance for better values
 		return to_return;
 	}
 
 	bool CheckIfValidNeighbour(int2 currentTile, int2 neighbourIndex)
 	{
 		bool returnValue = false;
-		//Check if the given index is a valid index.
-		if (neighbourIndex.x >= 0 && neighbourIndex.x < ArenaProperties::columns
-			&& neighbourIndex.y >= 0 && neighbourIndex.y < ArenaProperties::rows
-			&& ArenaProperties::gridLogic[currentTile.x][currentTile.y].height - 
-			ArenaProperties::gridLogic[neighbourIndex.x][neighbourIndex.y].height >= -1)
+		//Check if the given index is a valid index and check so that the height difference between the tiles is not to large.
+		if (neighbourIndex.x >= 0 && neighbourIndex.x < ARENA_COLUMNS
+			&& neighbourIndex.y >= 0 && neighbourIndex.y < ARENA_ROWS
+			&& p_gp->mGrid[currentTile.x][currentTile.y].height -
+			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1)
 			returnValue = true;
 
 		return returnValue;
@@ -201,9 +201,71 @@ namespace GridFunctions
 
 	void StoreNeighbours()
 	{
+		int2 currentTile;
+		int2 neighbourTile;
+		for (int i = 0; i < ARENA_ROWS; i++)
+		{
+			for (int j = 0; j < ARENA_COLUMNS; j++)
+			{
+				currentTile = int2(i, j);
+				if (j % 2 != 0)
+				{
+					neighbourTile = int2(i + 1, j - 1); //Top left neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile); // If everything is okey we push it into this tiles list of neighbours.
+
+					neighbourTile = int2(i + 1, j); //Top neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+
+					neighbourTile = int2(i + 1, j + 1); //Top right neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+
+					neighbourTile = int2(i, j - 1); //Bottom left neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+
+					neighbourTile = int2(i - 1, j); //Bottom neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+
+					neighbourTile = int2(i, j + 1); //Bottom right neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+				}
+				else
+				{
+					neighbourTile = int2(i, j - 1); //Top left neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+
+					neighbourTile = int2(i + 1, j); //Top neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+
+					neighbourTile = int2(i, j + 1); //Top right neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+
+					neighbourTile = int2(i - 1, j - 1); //Bottom left neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+
+					neighbourTile = int2(i - 1, j); //Bottom neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+
+					neighbourTile = int2(i - 1, j + 1); //Bottom right neighbor
+					if (CheckIfValidNeighbour(currentTile, neighbourTile))
+						mGrid[i][j].NeighbourIndexes.push_back(neighbourTile);
+				}
+
+			}
+		}
 	}
 
-	DirectX::XMFLOAT2 FindStartingTile(PLAYER id)
+
 	int2 FindStartingTile(PLAYER Id)
 	{
 		int rows = ARENA_ROWS;

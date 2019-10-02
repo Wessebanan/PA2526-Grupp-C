@@ -20,5 +20,4 @@ namespace GridFunctions
 	float getDistance(float startX, float startZ, float endX, float endZ);
 	bool CheckIfValidNeighbour(int2 currentTile, int2 neighbourIndex);
 	void StoreNeighbours();
-	DirectX::XMFLOAT2 FindStartingTile(PLAYER id);
 };
