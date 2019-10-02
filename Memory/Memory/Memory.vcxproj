@@ -20,8 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{191F096A-C3F8-43B3-8DB8-421D450A02CE}</ProjectGuid>
-    <RootNamespace>Sound</RootNamespace>
+    <ProjectGuid>{8B412D83-5CDD-49B9-88EC-9C7FEA45C219}</ProjectGuid>
+    <RootNamespace>Memory</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -58,32 +58,26 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\props\IncludesDirectory.props" />
-    <Import Project="..\props\ExePath.props" />
-    <Import Project="..\props\AdditionalLibsDebug.props" />
-    <Import Project="..\props\LibSoundIO.props" />
+    <Import Project="..\props\Memory_Debug.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\props\IncludesDirectory.props" />
+    <Import Project="..\props\Memory_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\props\ExePath.props" />
-    <Import Project="..\props\IncludesDirectory.props" />
-    <Import Project="..\props\AdditionalLibsRelease.props" />
-    <Import Project="..\props\LibSoundIO.props" />
+    <Import Project="..\props\Memory_Release.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\props\IncludesDirectory.props" />
+    <Import Project="..\props\Memory_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">
-    <OutDir>$(SolutionDir)..\$(Configuration)</OutDir>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">
-    <OutDir>$(SolutionDir)..\$(Configuration)</OutDir>
+    <OutDir>$(SolutionDir)..\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">
+    <OutDir>$(SolutionDir)..\$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -138,17 +132,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="SoundEngine.cpp" />
+    <ClCompile Include="src\LinearAllocator.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\MemoryAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\RingBuffer.h" />
-    <ClInclude Include="includes\SoundEngine.h" />
+    <ClInclude Include="includes\Allocator.h" />
+    <ClInclude Include="includes\LinearAllocator.h" />
+    <ClInclude Include="includes\MemoryAPI.h" />
+    <ClInclude Include="includes\MemoryGlobals.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
