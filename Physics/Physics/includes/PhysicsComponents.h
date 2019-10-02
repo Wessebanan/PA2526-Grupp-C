@@ -9,18 +9,38 @@ namespace ecs
 	namespace components
 	{
 		/*
-		* MovementComponent holds velocity
+		* StaticMovementComponent holds velocity
 		* and direction which are needed to
 		* change the position of an entity.
 		*/
-		COMP(MovementComponent)
+		COMP(StaticMovementComponent)
 		{
 			float mMaxVelocity = 100.0f;
 			float mVelocity = 0.0f;
 			DirectX::XMFLOAT3 mForward = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);
-			DirectX::XMFLOAT3 mDirection = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);	
+			DirectX::XMFLOAT3 mDirection = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 		};
 		
+		COMP(DynamicMovementComponent)
+		{
+			float mMaxVelocity = 100.0f;
+			float mMaxAcceleration = 10.0f;
+
+			DirectX::XMFLOAT3 mDirection = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mAcceleration = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mVelocity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mForward = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);
+
+			// Assuming objects are equal in
+			// density all over.
+			DirectX::XMFLOAT3 mMassCenter;
+			float mWeight = 50.0f;
+
+			// If object is on ground.
+			bool mOnGround = false;
+		};
+
 		/*
 		* BoundingSphereComponent holds a description
 		* of a bounding sphere, which is necessary
@@ -32,17 +52,6 @@ namespace ecs
 			DirectX::XMFLOAT3 mCenter;
 			float mRadius;
 		};
-		
-		/*
-		* ForceComponent holds the center of mass
-		* and weight of an entity to calculate
-		* the acceleration of said entity.
-		*/
-		COMP(ForceComponent)
-		{
-			DirectX::XMFLOAT3 mMassCenter;
-			float mWeight;
-		};	
 
 		/*
 		* GroundCollisionComponent is an OBB which only checks
@@ -66,7 +75,11 @@ namespace ecs
 			
 			// Center Position is the middle of the box, for distance calculation.
 			// Important to apply transform to this point as well.
-			DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);		
+			DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);
+
+			// Storing last y values to avoid unneccesary checks.
+			float mLastY = INFINITY;
+			float mLastTileY = INFINITY;
 		};
 		
 		/*

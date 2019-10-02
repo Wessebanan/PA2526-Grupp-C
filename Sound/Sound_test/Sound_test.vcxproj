@@ -35,7 +35,6 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="SoundEngineTester.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp" />
