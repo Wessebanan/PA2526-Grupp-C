@@ -2,7 +2,7 @@
 #include "rendering/RenderManager.h"
 #include "Mesh.h"
 #include "GridFunctions.h"
-//#include "CameraFunctions.h"
+#include "CameraFunctions.h"
 #include "InitInputHandler.h"
 
 
@@ -20,20 +20,23 @@ int main()
 		ecs::ECSDesc ecsDesc;
 		ecs::CompTypeMemDesc ecsMemDesc[] =
 		{
-			{ components::TileComponent::typeID, components::TileComponent::size, gridHeight * gridWidth},
-			{ components::TransformComponent::typeID, components::TransformComponent::size, gridHeight * gridWidth},
+			{ components::TileComponent::typeID, components::TileComponent::size, (gridHeight * gridWidth)},
+			{ components::TransformComponent::typeID, components::TransformComponent::size, 1 +(gridHeight * gridWidth)},
 		};
 		ecsDesc.compTypeCount = 2;
 		ecsDesc.compTypeMemDescs = ecsMemDesc;
 		ecsDesc.systemLayerCount = 10;
 		ecs.initialize(ecsDesc);
 	}
-	//CameraFunctions::CreateDevCamera(ecs);
+	initInputECS(ecs, new InputBackend());
+
+
+	CameraFunctions::CreateDevCamera(ecs);
+	ecs.createSystem<ecs::systems::UpdateCameraSystem>();
 
 	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 4);
 
 	//InputBackend* inp = ;
-	initInputECS(ecs, new InputBackend());
 
 
 
@@ -110,7 +113,11 @@ int main()
 			{ 0.0f, 0.0f,  1.0f },
 			{ 0.0f, 1.0f,  0.0f }
 	));
-
+	//ecs::ComponentIterator itt2 = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+	//components::CameraComponent* camComp;
+	//camComp = (components::CameraComponent*)itt2.next();
+	//ecs.update(0.1f);
+	//mng.SetViewMatrix(camComp->viewMatrix);
 	mng.SetViewMatrix(viewMatrix);
 
 	pWnd->Show();
@@ -138,35 +145,38 @@ int main()
 			//{
 			//	x += moveSpeed;
 			//}
-			ecs::ComponentIterator ittKey = ecs.getAllComponentsOfType(ecs::components::KeyboardComponent::typeID);
-			components::KeyboardComponent* kbComp;
-			if (kbComp = (components::KeyboardComponent*)ittKey.next())//(inp->mpExitKey->key.pressed)//(kbComp->ECS)
-			{
-				if (kbComp->W)
-				{
-					z += moveSpeed;
-				}
-				if (kbComp->S)
-				{
-					z -= moveSpeed;
-				}
+			//ecs::ComponentIterator ittKey = ecs.getAllComponentsOfType(ecs::components::KeyboardComponent::typeID);
+			//components::KeyboardComponent* kbComp;
+			//if (kbComp = (components::KeyboardComponent*)ittKey.next())//(inp->mpExitKey->key.pressed)//(kbComp->ECS)
+			//{
+			//	if (kbComp->W)
+			//	{
+			//		z += moveSpeed;
+			//	}
+			//	if (kbComp->S)
+			//	{
+			//		z -= moveSpeed;
+			//	}
 
-				if (kbComp->A)
-				{
-					x -= moveSpeed;
-				}
-				if (kbComp->D)
-				{
-					x += moveSpeed;
-				}
-			}
-			XMStoreFloat4x4(&viewMatrix,
-				XMMatrixLookToLH(
-					{ x, 0.0f, z },
-					{ 0.0f, 0.0f,  1.0f },
-					{ 0.0f, 1.0f,  0.0f }
-			));
-
+			//	if (kbComp->A)
+			//	{
+			//		x -= moveSpeed;
+			//	}
+			//	if (kbComp->D)
+			//	{
+			//		x += moveSpeed;
+			//	}
+			//}
+			//XMStoreFloat4x4(&viewMatrix,
+			//	XMMatrixLookToLH(
+			//		{ x, 0.0f, z },
+			//		{ 0.0f, 0.0f,  1.0f },
+			//		{ 0.0f, 1.0f,  0.0f }
+			//));
+			//itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+			//components::CameraComponent* camComp;
+			//camComp = (components::CameraComponent*)itt.next();
+			//mng.SetViewMatrix(camComp->viewMatrix);
 			mng.SetViewMatrix(viewMatrix);
 
 			mng.Draw();
