@@ -30,7 +30,7 @@ int main()
 	}
 	//CameraFunctions::CreateDevCamera(ecs);
 
-	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 1);
+	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 4);
 
 	//InputBackend* inp = ;
 	initInputECS(ecs, new InputBackend());
@@ -44,7 +44,8 @@ int main()
 	RenderManager mng;
 	mng.Initialize(1280, 720, "D3D11");
 
-	ModelLoader::Mesh tile("../hexTile3.fbx");
+	ModelLoader::Mesh tile("../hexagon_tile.fbx");
+	//ModelLoader::Mesh tile("../hexTile3.fbx");
 
 	int mesh_tile; // tile
 	{
