@@ -144,15 +144,19 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Mixer.cpp" />
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="SoundEngine.cpp" />
     <ClCompile Include="SoundHelpers.cpp" />
+    <ClCompile Include="Voice.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="includes\Mixer.h" />
     <ClInclude Include="includes\Plugin.h" />
     <ClInclude Include="includes\RingBuffer.h" />
     <ClInclude Include="includes\SoundEngine.h" />
     <ClInclude Include="includes\SoundHelpers.h" />
+    <ClInclude Include="includes\Voice.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

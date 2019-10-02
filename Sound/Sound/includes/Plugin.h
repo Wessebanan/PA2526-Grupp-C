@@ -27,8 +27,10 @@ namespace Sound
 		class TestSineWave : public Plugin
 		{
 		public:
-			TestSineWave() {};
+			TestSineWave(float Frequency);
 			void Process(Samples Start, Samples Count, float* Data, int Channels);
+		private:
+			float mFrequency;
 		};
 
 	}
