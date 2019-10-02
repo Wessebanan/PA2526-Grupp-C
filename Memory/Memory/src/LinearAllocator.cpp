@@ -19,27 +19,17 @@ allocators::LinearAllocator::~LinearAllocator()
 	*/
 }
 
-bool allocators::LinearAllocator::Initialize(void* memoryStart, uint memorySize, bool memoryIncludesAllocator)
+bool allocators::LinearAllocator::Initialize(void* memoryStart, uint memorySize)
 {
 	/*
-		If the allocator ifself is included in its manageable memory, offset memory start by the size
-		of the allocator.
+		TODO: Calculate and add offset for free memory data structure.
+		TODO: Check if size of allocator is larger than memorySize, and handle it.
 	*/
 
-	if (memoryIncludesAllocator)
-	{
-		/*
-			TODO: Calculate and add offset for free memory data structure.
-			TODO: Check if size of allocator is larger than memorySize, and handle it.
-		*/
-		mpMemoryStart = mpCurrent = (char*)memoryStart + sizeof(LinearAllocator);
-	}
-	else
-	{
-		mpMemoryStart = mpCurrent = memoryStart;
-	}
-
-	mMemorySize = memorySize;
+	mpMemoryBlockStart = memoryStart;
+	mpMemoryHeapStart = mpCurrent = (char*)memoryStart + sizeof(LinearAllocator);
+	mMemoryBlockSize = memorySize;
+	mMemoryHeapSize = mMemoryBlockSize - sizeof(LinearAllocator);
 
 	/*
 		TODO: Set up data structure for free memory
@@ -48,16 +38,30 @@ bool allocators::LinearAllocator::Initialize(void* memoryStart, uint memorySize,
 	return true;
 }
 
-void memory::allocators::LinearAllocator::Wipe()
+void memory::allocators::LinearAllocator::Terminate()
 {
 	mpCurrent = nullptr;
-	Allocator::Wipe();
+	Allocator::Terminate();
+}
+
+void memory::allocators::LinearAllocator::Clear()
+{
+	/*
+		TODO: Reset data structure for free memory
+	*/
+
+	/*
+		or now, reset next free memory ptr at the beginning
+		f the heap start.
+	*/
+	mpCurrent = mpMemoryHeapStart;
+	mMemoryUsed = 0;
 }
 
 void* memory::allocators::LinearAllocator::Allocate(uint size)
 {
 	// Sanity check if allocation fits in free memory
-	if (mMemoryUsed + size > mMemorySize)
+	if (mMemoryUsed + size > mMemoryHeapSize)
 	{
 		return nullptr;
 	}

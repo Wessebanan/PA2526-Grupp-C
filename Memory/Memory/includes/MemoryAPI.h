@@ -16,6 +16,9 @@ namespace memory
 	static inline void End();
 	static inline allocators::Allocator* CreateAllocator(uint size);
 
+	static inline void* Allocate(size_t size);
+	static inline void Free(void* ptr);
+
 	/*
 		MemoryManager is a singleton class that handles the creation and
 		destruction of all primary memory domains.
@@ -51,12 +54,30 @@ namespace memory
 		static void End();
 
 		/*
+			Allocate directly on the main memory.
+		*/
+		void* Allocate(uint size);
+
+		/*
+			Free directly on main memory.
+		*/
+		void Free(void* ptr);
+
+		/*
 			!BETA METHOD, LATER IMPLEMENTATIONS WILL SPECIFY ALLOCATOR TYPE!
 			Creates an allocator for a new memory domain that the user can use.
 			Memory domains are just different chunks in memory, reserved for
 			one area of the application; like graphics or ECS.
 		*/
 		allocators::Allocator* CreateAllocator(uint size);
+
+		/*
+			Getters
+		*/
+
+		uint GetMainHeapSize();
+		uint GetMainAllocatorSize();
+		uint GetTotalAllocatedMemorySize();
 
 	private:
 
@@ -77,6 +98,7 @@ namespace memory
 
 		#define IF_INITIALIZED_RETURN(ret) if (mpMemoryStart) {return ret;}
 		#define IF_NOT_INITIALIZED_RETURN(ret) if (!mpMemoryStart) {return ret;}
+		#define IF_NOT_INITIALIZED_RETURN_VOID if (!mpMemoryStart) {return;}
 	};
 
 
@@ -98,5 +120,16 @@ namespace memory
 	static inline allocators::Allocator* CreateAllocator(uint size)
 	{
 		return MemoryManager::Instance().CreateAllocator(size);
+	}
+
+	static inline void* Allocate(size_t size)
+	{
+		return MemoryManager::Instance().Allocate((uint)size);
+	}
+
+
+	static inline void Free(void* ptr)
+	{
+		MemoryManager::Instance().Free(ptr);
 	}
 }
