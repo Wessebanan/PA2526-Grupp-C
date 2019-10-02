@@ -129,23 +129,11 @@ int main()
 	}
 
 
-
 	CameraFunctions::CreateDevCamera(ecs);
 
-
-	float x = 2.0f;
-	float z = 1.0f;
-	//XMFLOAT4X4 viewMatrix;
-	//XMStoreFloat4x4(&viewMatrix,
-	//	XMMatrixLookToLH(
-	//		{ x, 2.0f, z },
-	//		{ 0.0f, 0.0f,  1.0f },
-	//		{ 0.0f, 1.0f,  0.0f }
-	//));
-	//mng.SetViewMatrix(viewMatrix);
-	ecs::ComponentIterator itt2 = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+	itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
 	components::CameraComponent* camComp;
-	camComp = (components::CameraComponent*)itt2.next();
+	camComp = (components::CameraComponent*)itt.next();
 	ecs.update(0.1f);
 	mng.SetViewMatrix(camComp->viewMatrix);
 
@@ -158,56 +146,9 @@ int main()
 			mng.Clear();
 
 			float moveSpeed = 0.01f;
-			//if (GetAsyncKeyState(VK_UP))
-			//{
-			//	z += moveSpeed;
-			//}
-			//if (GetAsyncKeyState(VK_DOWN))
-			//{
-			//	z -= moveSpeed;
-			//}
 
-			//if (GetAsyncKeyState(VK_LEFT))
-			//{
-			//	x -= moveSpeed;
-			//}
-			//if (GetAsyncKeyState(VK_RIGHT))
-			//{
-			//	x += moveSpeed;
-			//}
-			//ecs::ComponentIterator ittKey = ecs.getAllComponentsOfType(ecs::components::KeyboardComponent::typeID);
-			//components::KeyboardComponent* kbComp;
-			//if (kbComp = (components::KeyboardComponent*)ittKey.next())//(inp->mpExitKey->key.pressed)//(kbComp->ECS)
-			//{
-			//	if (kbComp->W)
-			//	{
-			//		z += moveSpeed;
-			//	}
-			//	if (kbComp->S)
-			//	{
-			//		z -= moveSpeed;
-			//	}
-
-			//	if (kbComp->A)
-			//	{
-			//		x -= moveSpeed;
-			//	}
-			//	if (kbComp->D)
-			//	{
-			//		x += moveSpeed;
-			//	}
-			//}
-			//XMStoreFloat4x4(&viewMatrix,
-			//	XMMatrixLookToLH(
-			//		{ x, 0.0f, z },
-			//		{ 0.0f, 0.0f,  1.0f },
-			//		{ 0.0f, 1.0f,  0.0f }
-			//));
-			//itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
-			//components::CameraComponent* camComp;
-			//camComp = (components::CameraComponent*)itt.next();
 			mng.SetViewMatrix(camComp->viewMatrix);
-			//mng.SetViewMatrix(viewMatrix);
+
 
 			mng.Draw();
 			pWnd->Present();
