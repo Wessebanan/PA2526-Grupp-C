@@ -28,44 +28,14 @@ int main()
 		ecsDesc.systemLayerCount = 10;
 		ecs.initialize(ecsDesc);
 	}
-	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 4);
+	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 1.1f);
 
 
 	initInputECS(ecs, new InputBackend());
 
 
-	//{
-	//	//Initialize components
-	//	TransformComponent transform;
-	//	transform.position = CameraDefines::originalPosition;
-	//	transform.rotation = CameraDefines::originalRotation;
-	//	transform.scale = CameraDefines::originalScale;
-	//	CameraComponent camera;
-	//	camera.target = CameraDefines::originalTarget;
-	//	camera.up = CameraDefines::originalUp;
-	//	camera.forward = CameraDefines::originalForward;
-	//	camera.right = CameraDefines::originalRight;
-	//	XMVECTOR cam_pos = XMVectorSet(transform.position.x, transform.position.y, transform.position.z, 0.0f);
-	//	XMVECTOR target = XMLoadFloat4(&camera.target);
-	//	XMVECTOR up = XMLoadFloat4(&camera.up);
-	//	XMMATRIX view = XMLoadFloat4x4(&camera.viewMatrix);
-	//	XMMATRIX projection = XMLoadFloat4x4(&camera.projectionMatrix);
-
-	//	//Set the view and projection matrix in the CameraComponent.
-	//	view = XMMatrixLookAtLH(cam_pos, target, up);
-	//	projection = XMMatrixPerspectiveFovLH(CameraDefines::fovAngle, CameraDefines::aspectRatio, CameraDefines::nearPlane, CameraDefines::farPlane);
-
-	//	//Store the values in the component.
-	//	XMStoreFloat4(&camera.target, target);
-	//	XMStoreFloat4(&camera.up, up);
-	//	XMStoreFloat4x4(&camera.viewMatrix, view);
-	//	XMStoreFloat4x4(&camera.projectionMatrix, projection);
-
-	//	//Create the camera entity
-	//	ecs.createEntity(transform, camera);
-	//}
 	ecs.createSystem<ecs::systems::UpdateCameraSystem>();
-	ecs.update(0.01f);
+	//ecs.update(0.01f);
 
 
 
@@ -76,7 +46,6 @@ int main()
 	mng.Initialize(1280, 720, "D3D11");
 
 	ModelLoader::Mesh tile("../hexagon_tile.fbx");
-	//ModelLoader::Mesh tile("../hexTile3.fbx");
 
 	int mesh_tile; // tile
 	{
@@ -123,7 +92,7 @@ int main()
 		pTilePosition[index].x = trComp->position.x;
 		pTilePosition[index].y = trComp->position.y;
 		pTilePosition[index].z = trComp->position.z;
-		pTilePosition[index].w = 1.0f;
+		pTilePosition[index].w = index / (float)(gridHeight*gridWidth);
 
 		index++;
 	}
@@ -155,9 +124,6 @@ int main()
 
 
 			ecs.update(0.1f);
-
-
-
 		}
 	}
 
