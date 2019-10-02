@@ -9,11 +9,16 @@ Sound::Engine::Engine()
 	mWorkerThreadRun = false;
 	mpWorkerThread = nullptr;
 	mProducerLastSampleCount = 0;
+	// TEMPORARY
+	// This is not the proper way of initializing
+	// plugins. It should go through a mixer instead
 	_mpTestPlugin = new Plugin::TestSineWave();
 }
 
 Sound::Engine::~Engine()
 {
+	// TEMPORARY
+	// Delete the test plugin to not have memory leaks
 	if (_mpTestPlugin != nullptr)
 	{
 		delete _mpTestPlugin;
