@@ -60,6 +60,21 @@ int main()
 	ModelLoader::Mesh tile("../hexagon_tile.fbx");
 	ModelLoader::Mesh dude("../dudeMesh0.fbx");
 
+	int mesh_tile; // tile
+	{
+		VERTEX_BUFFER_DATA vertex_data = { NULL };
+		vertex_data.VertexCount = tile2.GetVertexPositionVector()->size() * 4;
+		vertex_data.pVertexData = tile2.GetVertexPositionVector()->data();
+
+		INDEX_BUFFER_DATA index_data = { NULL };
+		index_data.IndexCount = tile2.GetIndexVector()->size() * 4;
+		index_data.pIndexData = tile2.GetIndexVector()->data();
+
+		mesh_tile = mng.CreateMesh(
+			&vertex_data,
+			&index_data);
+	}
+
 	int mesh_dude; // dude
 	{
 		//struct float3
@@ -103,20 +118,6 @@ int main()
 			&index_data);
 	}
 
-	int mesh_tile; // tile
-	{
-		VERTEX_BUFFER_DATA vertex_data = { NULL };
-		vertex_data.VertexCount = tile2.GetVertexPositionVector()->size() * 4;
-		vertex_data.pVertexData = tile2.GetVertexPositionVector()->data();
-
-		INDEX_BUFFER_DATA index_data = { NULL };
-		index_data.IndexCount = tile2.GetIndexVector()->size() * 4;
-		index_data.pIndexData = tile2.GetIndexVector()->data();
-
-		mesh_tile = mng.CreateMesh(
-			&vertex_data,
-			&index_data);
-	}
 
 	struct float4
 	{
