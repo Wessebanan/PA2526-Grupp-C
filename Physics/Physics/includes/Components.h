@@ -93,6 +93,10 @@ namespace ecs
 			DirectX::XMFLOAT3 mMin		= DirectX::XMFLOAT3(0, 0, 0);
 			DirectX::XMFLOAT3 mMax		= DirectX::XMFLOAT3(0, 0, 0);
 			DirectX::XMFLOAT3 mCenter	= DirectX::XMFLOAT3(0, 0, 0);
+
+			// States if the last movement resulted in collision
+			// and needs to be reverted.
+			bool mIntersect = false;
 		};
 
 		/*

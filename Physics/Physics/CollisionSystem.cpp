@@ -2,20 +2,66 @@
 
 // This hefty boy uses pragma regions to easily look at the system you want.
 
-#pragma region CollisionEventSystem
-ecs::systems::CollisionEventSystem::CollisionEventSystem()
+#pragma region ObjectCollisionSystem
+ecs::systems::ObjectCollisionSystem::ObjectCollisionSystem()
 {
 	updateType = ecs::EventListenerOnly;
-	typeFilter.addRequirement(PotentialCollisionEvent::typeID);
+	subscribeEventCreation(PotentialCollisionEvent::typeID);
 }
 
-ecs::systems::CollisionEventSystem::~CollisionEventSystem()
+ecs::systems::ObjectCollisionSystem::~ObjectCollisionSystem()
 {
 }
 
-void ecs::systems::CollisionEventSystem::readEvent(ecs::BaseEvent& _event, float _delta)
+void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
 {
+	PotentialCollisionEvent* p_event = dynamic_cast<PotentialCollisionEvent*>(_event);
+	
+	// Grabbing the entity that moved.
+	Entity* p_entity = getEntity(p_event->mEntityID);
 
+	// Grabbing the entity's object collision component 
+	// and transform component.
+	ObjectCollisionComponent* p_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(p_entity->getID());
+	TransformComponent* p_transform = getComponentFromKnownEntity<TransformComponent>(p_entity->getID());
+
+	// Applying the world transform to the collision component min and max.
+	DirectX::XMVECTOR collision_min = DirectX::XMLoadFloat3(&p_collision->mMin);
+	DirectX::XMVECTOR collision_max = DirectX::XMLoadFloat3(&p_collision->mMax);
+
+	collision_min = DirectX::XMVector3Transform(collision_min, UtilityFunctions::GetWorldMatrix(*p_transform));
+	collision_max = DirectX::XMVector3Transform(collision_max, UtilityFunctions::GetWorldMatrix(*p_transform));
+
+	// Grabbing the entities it could collide with.
+	TypeFilter filter;
+	filter.addRequirement(ObjectCollisionComponent::typeID);
+	EntityIterator it = getEntitiesByFilter(filter);
+
+	bool intersect = false;
+
+	for (int i = 0; i < it.entities.size(); i++)
+	{
+		// Grabbing the collision and transform component from the current entity.
+		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(it.entities.at(i).entity->getID());
+		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(it.entities.at(i).entity->getID());
+
+		// Applying the world transform to the current collision component min and max.
+		DirectX::XMVECTOR current_collision_min = DirectX::XMLoadFloat3(&p_current_collision->mMin);;
+		DirectX::XMVECTOR current_collision_max = DirectX::XMLoadFloat3(&p_current_collision->mMax);;
+
+		current_collision_min = DirectX::XMVector3Transform(current_collision_min, UtilityFunctions::GetWorldMatrix(*p_current_transform));
+		current_collision_max = DirectX::XMVector3Transform(current_collision_max, UtilityFunctions::GetWorldMatrix(*p_current_transform));
+
+		// If the objects' bounding volumes intersect.
+		if (PhysicsHelpers::AABBIntersect(collision_min, collision_max, current_collision_min, current_collision_max))
+		{
+			// Set the intersection bool and stop checking
+			// because any collision means the movement should revert.
+			intersect = true;
+			break;
+		}
+	}
+	p_collision->mIntersect = intersect;
 }
 #pragma endregion
 #pragma region GroundCollisionComponentInitSystem
