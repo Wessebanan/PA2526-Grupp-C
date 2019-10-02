@@ -176,11 +176,22 @@ TEST(ObjectCollisionCheck, CheckCollision)
 	const float DELTA = 0.1f;
 	ecs.update(DELTA);
 
+	// Entity1 now moves into entity2 which should set the intersection bool.
 	EXPECT_TRUE(p_object_collision_component1->mIntersect);
 
 	ecs.update(DELTA);
 
-	// Resetting the position and moving another direction
-	//EXPECT_FALSE(p_object_collision_component1->mIntersect);
+	// Resetting the position and moving another direction.
+	// (easier than trying to move out with an event because 
+	// of acceleration and shit).
+	TransformComponent* p_transform_component1 = dynamic_cast<TransformComponent*>(ecs.getComponent(TransformComponent::typeID, entity1->getComponentID(TransformComponent::typeID)));
+	p_transform_component1->position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	movement_event.mInput = BACKWARD;
+	ecs.createEvent(movement_event);
+
+	ecs.update(DELTA);
+	
+	// Entity1 now moves away from entity2 which should not set the intersection bool.
+	EXPECT_FALSE(p_object_collision_component1->mIntersect);
 }
 #pragma endregion
