@@ -1,16 +1,20 @@
 #pragma once
 #include "ecs.h"
-#include "PhysicsComponents.h"
-#include "PhysicsEvents.h"
+#include "Components.h"
+#include "Events.h"
 #include "UtilityComponents.h"
 #include <math.h>
+#include "PhysicsHelperFunctions.h"
 
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
+#define DEFAULT_MOVEMENT_FORCE 500.0f
 #define DEFAULT_DECELERATION 10.0f
 #define DEFAULT_VELOCITY 100.0f
 #define PI 3.14159265358979323846
+#define GRAVITY 9.82f
 
+using namespace PhysicsHelpers;
 
 namespace ecs
 {
@@ -43,7 +47,10 @@ namespace ecs
 
 		SYSTEM(DynamicMovementSystem)
 		{
-			// This one is going to be fucking crazy.
+			DynamicMovementSystem();
+			~DynamicMovementSystem();
+			void updateEntity(ecs::FilteredEntity & _entityInfo, float _delta) override;
+			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
 		};
 
 	} // systems

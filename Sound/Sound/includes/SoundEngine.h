@@ -1,40 +1,24 @@
 #pragma once
 #include <portaudio.h>
+#include <thread>
+#include "RingBuffer.h"
 
 // Constant defines that doesn't have to change
 #define SOUND_SAMPLE_RATE   (44100)
-#define SOUND_FRAMES_PER_BUFFER  (64)
+#define SOUND_BUFFER_SIZE  (512*2)	// Need to make this buffer
+#define SOUND_FRAMES_PER_BUFFER (64)// size tighter
 #define SOUND_MAX_CHANNELS (2)
 #define SOUND_CHAIN_BUFFER_COUNT (2)
+#ifndef M_PI
+#define M_PI  (3.14159265)
+#endif
+
+typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
+typedef unsigned long long Samples;
+typedef Ringbuffer<std::pair<float,float>, SOUND_BUFFER_SIZE> FrameBuffer;
 
 namespace Sound
 {
-	// Sound::Buffer struct
-	// All sample data are stored in float arrays,
-	// one array per channel (e.g. 2 channels for stereo).
-	// This struct dynamically allocates the approproite
-	// amount of float arrays depending on channels and
-	// frames.
-	struct Buffer
-	{
-		int channels;
-		int frames;
-		float* Data[SOUND_MAX_CHANNELS];
-
-		Buffer(int channels, int frames)
-		{
-			this->channels = channels;
-			this->frames = frames;
-
-			// Initialize a float array for every channel
-			for (int i = 0; i < channels; i++)
-			{
-				this->Data[i] = new float[(long long)channels * frames];
-			}
-		}
-	};
-
-
 	// Sound::Engine class 
 	// The engine class is responsible for initializing
 	// a sound stream and holds all functionallity needed
@@ -58,12 +42,11 @@ namespace Sound
 		// finishes being called
 		bool StopStream();
 
+		// ########### NEW NEW NEW ####################
+		void StartWorkThread();
+		void JoinWorkThread();
+
 	protected:
-		// These functions are only for testing purposes
-		// and are only meant to be used by
-		// SoundEngineTester. If someone can come up with
-		// a better way of doing this, please do tell me :)
-		Buffer* __GetChainBuffer(int index);
 
 	private:
 		// This is the function that are called everytime
@@ -91,11 +74,37 @@ namespace Sound
 
 		// PortAudio stream handler
 		PaStream* mpStream;
-		// Chain buffers to be consumed and filled in
-		// a loop
-		Buffer* mpChainBuffers[SOUND_CHAIN_BUFFER_COUNT];
-		// Index of the chain buffer to be consumed
-		unsigned int mConsumeBufferIndex;
+
+		// The function to refill the ring buffer
+		// with new data for the callback function
+		// to consume
+		void WorkerThreadUpdateMethod();
+		// This function redirects the callback function
+		// to the member function above
+		// Temporarily doubles-up as a spin loop until
+		// a proper thread-pool have been implemented
+		static void WorkerThreadUpdate(void* data);
+
+		// Helper functions to convert time to sample count
+		inline Samples ToSamples(const float Seconds);
+		inline float ToSeconds(const Samples SampleCount);
+		// To get current sample count
+		inline Samples GetWorkerCurrentSampleCount();
+
+
+		std::thread* mpWorkerThread;
+		TimePoint mWorkThreadStartTime;
+		std::atomic_bool mWorkerThreadRun;
+
+		FrameBuffer mBuffer;
+		Samples mProducerLastSampleCount;
+
+		// TEMPORARY
+		// This function are to be removed once it's
+		// not longer needed for testing purposes
+		// Returns a float array of a sine wave
+		// of varying length
+		void _FillWithSinus(Samples CurrSample, Samples SampleCount, float* Buffer);
 	};
 
 	// Sound::PaHandler class
