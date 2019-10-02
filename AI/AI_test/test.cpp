@@ -197,6 +197,9 @@ TEST(PotentialField, CreatePotentialField)
 	ecs::ComponentIterator it = my_ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID); //iterator for all transform components
 	ecs::BaseComponent* p_base;
 	ecs::components::TileComponent* p_tile;
+	std::cout << std::fixed;
+	std::cout << std::setprecision(4);
+	std::cout << "   ";
 	while (p_base = it.next()) //loop through all components and returns a base component
 	{
 		p_tile = (ecs::components::TileComponent*)p_base; //casts base component to tile component
@@ -204,6 +207,8 @@ TEST(PotentialField, CreatePotentialField)
 		iterr++;
 		if (iterr % 12 == 0)
 			std::cout << endl;
+		if (iterr % 24 == 0)
+			std::cout << "   ";
 		if (p_tile->niceness == -5) 
 		{
 			nr_of_nice++;

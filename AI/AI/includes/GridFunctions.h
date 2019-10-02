@@ -14,5 +14,8 @@ namespace GridFunctions
 	void CreateHeightmap(float* arr);
 	void CreatePotentialField(ecs::EntityComponentSystem& rEcs);
 	float CreateCharge(float startX, float startZ, float endX, float endZ, float charge);
+	float getDistance(float startX, float startZ, float endX, float endZ);
+	bool CheckIfValidNeighbour(int2 currentTile, int2 neighbourIndex);
+	void StoreNeighbours();
 	DirectX::XMFLOAT2 FindStartingTile(PLAYER id);
 };

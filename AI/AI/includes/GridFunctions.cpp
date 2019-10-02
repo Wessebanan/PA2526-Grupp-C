@@ -55,6 +55,7 @@ namespace GridFunctions
 				//Create the new entity
 				current_tile = rEcs.createEntity(transform, tile);
 				ArenaProperties::gridLogic[i][j].entityID = current_tile->getID();
+				ArenaProperties::gridLogic[i][j].height = transform.position.y;
 				//Update the x-position of the next tile in this row.
 				current_pos.x += 1.5f * radius;
 				//Update the z-position of the next tile depending on if it is in a 
@@ -111,9 +112,11 @@ namespace GridFunctions
 		ecs::EntityIterator entity_iterator = rEcs.getEntititesByFilter(filter);
 		float e_x, e_z, o_x, o_z;
 		int nr_of_obstacles = 0;
+		float test = 0;
 		for (ecs::FilteredEntity entry : entity_iterator.entities)//loops through all tiles 
 		{
 			nr_of_obstacles = 0;
+			test = 0;
 			if (!entry.getComponent<ecs::components::TileComponent>()->impassable)//temp, checking if itself is -1(impassable)
 			{
 				e_x = entry.getComponent<ecs::components::TransformComponent>()->position.x; //get pos for tile to measure length to other tiles
@@ -130,7 +133,7 @@ namespace GridFunctions
 						//when obstacle found we see how far away the entry tile is from this tile and give that a charge base on distance
 						o_x = other.getComponent<ecs::components::TransformComponent>()->position.x;
 						o_z = other.getComponent<ecs::components::TransformComponent>()->position.z;
-						entry.getComponent<ecs::components::TileComponent>()->niceness += CreateCharge(e_x, e_z, o_x, o_z,-5);
+						entry.getComponent<ecs::components::TileComponent>()->niceness += CreateCharge(e_x, e_z, o_x, o_z,10);
 						nr_of_obstacles++;
 					}
 					if (other.getComponent<ecs::components::TransformComponent>()->position.y == 5)
@@ -138,13 +141,14 @@ namespace GridFunctions
 						//this is the tile with an attractive charge(goal node)
 						o_x = other.getComponent<ecs::components::TransformComponent>()->position.x;
 						o_z = other.getComponent<ecs::components::TransformComponent>()->position.z;
-						entry.getComponent<ecs::components::TileComponent>()->niceness += CreateCharge(e_x, e_z, o_x, o_z, 50);
+						test = getDistance(e_x, e_z, o_x, o_z);
 					}
 				}
 				entry.getComponent<ecs::components::TileComponent>()->niceness = entry.getComponent<ecs::components::TileComponent>()->niceness / nr_of_obstacles;
+				entry.getComponent<ecs::components::TileComponent>()->niceness += test;
 			}
 			else
-				entry.getComponent<ecs::components::TileComponent>()->niceness = -5.0f;
+				entry.getComponent<ecs::components::TileComponent>()->niceness = 10.0f;
 		}
 	}
 
@@ -159,6 +163,33 @@ namespace GridFunctions
 		to_return = sign*pow(fabs(charge), 1 / (dist + 1));//return a exponentially decreasing value depending on distance
 
 		return to_return;
+	}
+
+	float getDistance(float startX, float startZ, float endX, float endZ)
+	{
+		float to_return = 0.f;
+		float x = abs(endX - startX);
+		float z = abs(endZ - startZ);
+		float dist = sqrt(x * x + z * z);//get the distance from start to end
+		to_return = dist / ((ArenaProperties::tileRadius) * 4);//scale the distance for better values
+		return to_return;
+	}
+
+	bool CheckIfValidNeighbour(int2 currentTile, int2 neighbourIndex)
+	{
+		bool returnValue = false;
+		//Check if the given index is a valid index.
+		if (neighbourIndex.x >= 0 && neighbourIndex.x < ArenaProperties::columns
+			&& neighbourIndex.y >= 0 && neighbourIndex.y < ArenaProperties::rows
+			&& ArenaProperties::gridLogic[currentTile.x][currentTile.y].height - 
+			ArenaProperties::gridLogic[neighbourIndex.x][neighbourIndex.y].height >= -1)
+			returnValue = true;
+
+		return returnValue;
+	}
+
+	void StoreNeighbours()
+	{
 	}
 
 	DirectX::XMFLOAT2 FindStartingTile(PLAYER id)
