@@ -16,7 +16,7 @@ namespace ecs
 			*/
 			TileType tileType = GRASS;
 			bool impassable = false;
-			float niceness = 0.f;
+			float niceness = 999.f;
 			unsigned int neighboursID[6] = { 0 };
 		};
 

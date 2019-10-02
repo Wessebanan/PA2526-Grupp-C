@@ -228,10 +228,61 @@ TEST(PotentialField, CreatePotentialField)
 			std::cout << endl;
 		if (iterr % 24 == 0)
 			std::cout << "   ";
-		if (p_tile->niceness == -5) 
+		if (p_tile->niceness == 10) 
 		{
 			nr_of_nice++;
 		}
 	}
+	EXPECT_EQ(nr_of_nice, 10); // test if there are 10 charges with -5 niceness as the predefined map is designed
+}
+
+TEST(Pathfinding, FindPath)
+{
+	int nr_of_rows = ARENA_ROWS;
+	int nr_of_columns = ARENA_COLUMNS;
+	float radius = TILE_RADIUS;
+	unsigned int count = nr_of_columns * nr_of_rows;
+	int nr_of_nice = 0;
+	int iterr = 0;
+	std::vector<unsigned int> path;
+	std::vector<unsigned int>::iterator it_path;
+
+	//Define some ECS stuff to allow the ECS to create more than 100 of each component.
+	ecs::CompTypeMemDesc types[] = {
+		{ TileComponent::typeID, TileComponent::size, count},
+		{ TransformComponent::typeID, TransformComponent::size, count},
+	};
+	ecs::ECSDesc desc;
+	desc.compTypeCount = 2;
+	desc.compTypeMemDescs = types;
+	desc.systemLayerCount = 10;
+	ecs::EntityComponentSystem my_ecs;
+	my_ecs.initialize(desc);
+	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius); //Create grid with potential field
+
+	ecs::ComponentIterator it = my_ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID); //iterator for all transform components
+	ecs::BaseComponent* p_base;
+	ecs::components::TileComponent* p_tile;
+	std::cout << std::fixed;
+	std::cout << std::setprecision(4);
+	std::cout << "  ";
+	while (p_base = it.next()) //loop through all components and returns a base component
+	{
+		p_tile = (ecs::components::TileComponent*)p_base; //casts base component to tile component
+		std::cout << p_tile->getEntityID() << " "; //print all charges
+		iterr++;
+		if (iterr % 12 == 0)
+			std::cout << endl;
+		if (iterr % 24 == 0)
+			std::cout << "  ";
+	}
+	path = GridFunctions::FindPath(my_ecs, 1, 117);
+	std::cout << endl << endl;
+	for (it_path = path.begin(); it_path != path.end(); it_path++)
+	{
+		std::cout << path.at((*it_path)) << "  ";
+	}
+
+	
 	EXPECT_EQ(nr_of_nice, 10); // test if there are 10 charges with -5 niceness as the predefined map is designed
 }
