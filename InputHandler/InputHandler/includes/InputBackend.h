@@ -1,12 +1,13 @@
 #pragma once
 #include <DirectXMath.h>
-//#define WIN32_LEAN_AND_MEAN
-//#include <winsock2.h>
-//#include <windows.h>
-//#include <WinUser.h>
+#define WIN32_LEAN_AND_MEAN
+#include <winsock2.h>
+#include <windows.h>
+#include <WinUser.h>
+
 
 #include "webConnection.h"
-
+#include "ecs.h"
 
 // combines the key with the index and if it is pressed
 struct key
