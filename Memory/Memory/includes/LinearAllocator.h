@@ -3,6 +3,9 @@
 #include "MemoryGlobals.h"
 #include "Allocator.h"
 
+// Notation: Vector is used as a temporary freed memory data structure. Will be removed when backend is implemented.
+#include <vector>
+
 /*
 										##################################
 									   #  HOW ALLOCATOR MEMORY IS STORED  #
@@ -83,6 +86,24 @@ namespace memory
 		private:
 
 			void* mpCurrent;
+
+
+			/*
+				Notation, this is a temporary implementation to store freed memory blocks. This will
+				be refactored in the backend implementation.
+
+				For now, we use a linked list for both free and allocated blocks; one list for each.
+			*/
+			struct MemBlock
+			{
+				MemBlock(void* memoryStart, uint memorySize) : start(memoryStart), size(memorySize), prev(nullptr), next(nullptr) {}
+				void* start;
+				uint size;
+				MemBlock* prev;
+				MemBlock* next;
+			};
+			MemBlock* mFreeMemBlocks_temp; // Sorted by MemBlock::start address
+			MemBlock* mUsedMemBlocks_temp; // Unsorted
 		};
 	}
 }
