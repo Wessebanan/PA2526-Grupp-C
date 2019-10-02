@@ -9,6 +9,16 @@ Sound::Engine::Engine()
 	mWorkerThreadRun = false;
 	mpWorkerThread = nullptr;
 	mProducerLastSampleCount = 0;
+	_mpTestPlugin = new Plugin::TestSineWave();
+}
+
+Sound::Engine::~Engine()
+{
+	if (_mpTestPlugin != nullptr)
+	{
+		delete _mpTestPlugin;
+		_mpTestPlugin = nullptr;
+	}
 }
 
 bool Sound::Engine::OpenStream()
@@ -113,25 +123,24 @@ int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffe
 	const PaStreamCallbackTimeInfo* pTimeInfo,
 	PaStreamCallbackFlags statusFlags)
 {
-	float* out = (float*)pOutputBuffer;
+	Frame* out = (Frame*)pOutputBuffer;
 	unsigned long i;
 
 	(void)pTimeInfo;			// Are not used right now, this is to prevent
 	(void)statusFlags;			// the unused warning
 	(void)pInputBuffer;
 
-	std::pair<float, float> temp_pair[SOUND_FRAMES_PER_BUFFER];
+	Frame temp_frames[SOUND_FRAMES_PER_BUFFER];
 
 	unsigned long available = (unsigned long)mBuffer.readAvailable();
 
 	unsigned long consume_count = std::min(framesPerBuffer, available);
 
-	mBuffer.readBuff(temp_pair, consume_count);
+	mBuffer.readBuff(temp_frames, consume_count);
 
 	for (i = 0; i < consume_count; i++)
 	{
-		*out++ = temp_pair[i].first;  /* left */
-		*out++ = temp_pair[i].second;  /* right */
+		*out++ = temp_frames[i];
 	}
 
 	return paContinue;
@@ -189,20 +198,13 @@ void Sound::Engine::WorkerThreadUpdateMethod()
 	// This will be removed once it's no longer needed for
 	// testing purposes. Produces a sine wave to fill the
 	// ring buffer with
-	float temp_float_array[SOUND_FRAMES_PER_BUFFER];
-	_FillWithSinus(mProducerLastSampleCount, samples_to_fill, temp_float_array);
+	Frame temp_frame_array[SOUND_FRAMES_PER_BUFFER];
+	_mpTestPlugin->Process(mProducerLastSampleCount, samples_to_fill, (float*)temp_frame_array, 2);
 
-	// Take the signal and fill it on both channels
-	std::pair<float, float> temp_pair[SOUND_FRAMES_PER_BUFFER];
-	for (Samples i = 0; i < samples_to_fill; i++)
-	{
-		temp_pair[i].first = temp_float_array[i];
-		temp_pair[i].second = temp_float_array[i];
-	}
 	// TEMPORARY END -------------------------------------
 
 	// Write to the ring buffer
-	mBuffer.writeBuff(temp_pair, samples_to_fill);
+	mBuffer.writeBuff(temp_frame_array, samples_to_fill);
 
 	// Progress the last sample count by the amount
 	// of samples filled this iteration
@@ -225,14 +227,4 @@ inline Sound::Samples Sound::Engine::GetWorkerCurrentSampleCount()
 	float temp = std::chrono::duration_cast<std::chrono::nanoseconds>
 		(std::chrono::steady_clock::now() - mWorkThreadStartTime).count() * 0.000000001f;
 	return Sound::ToSamples(temp);
-}
-
-void Sound::Engine::_FillWithSinus(Samples CurrSample, Samples SampleCount, float* Buffer)
-{
-	const float FREQUENCY = 440.0f;	// Frequency of the wave
-	const float AMPLITUDE = 0.2f;	// To save people's ears; Low amplitude
-	for (Samples i = 0; i < SampleCount; i++)
-	{
-		Buffer[i] = std::sinf(FREQUENCY * Sound::ToSeconds(CurrSample + i) * 2.0f * (float)M_PI) * AMPLITUDE;
-	}
 }

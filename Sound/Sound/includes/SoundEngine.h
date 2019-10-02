@@ -15,6 +15,7 @@ namespace Sound
 	{
 	public:
 		Engine();
+		~Engine();
 
 		// Initializes a stream by targeting the default
 		// sound output
@@ -83,11 +84,10 @@ namespace Sound
 		Samples mProducerLastSampleCount;
 
 		// TEMPORARY
-		// This function are to be removed once it's
-		// not longer needed for testing purposes
-		// Returns a float array of a sine wave
-		// of varying length
-		void _FillWithSinus(Samples CurrSample, Samples SampleCount, float* Buffer);
+		// This will be removed once it's no longer needed for
+		// testing purposes. Produces a sine wave to fill the
+		// ring buffer with
+		Plugin::Plugin* _mpTestPlugin;
 	};
 
 	// Sound::PaHandler class
