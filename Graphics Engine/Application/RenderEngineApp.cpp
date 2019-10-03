@@ -140,7 +140,7 @@ int main()
 	{
 		if (!pWnd->Update())
 		{
-			mng.Clear();
+			mng.Clear(1.0f, 0.0f, 0.0f);
 
 			//for (UINT x = 0; x < width; x++)
 			//{
