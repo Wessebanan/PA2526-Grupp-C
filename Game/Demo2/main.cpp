@@ -75,9 +75,9 @@ int main()
 		for (int u = 0; u < PlayerProperties::numberOfUnits; u++)
 		{
 			//Set starting position of the unit.
-			transform.position.x = p_transform->position.x + u * 2.2f;
+			transform.position.x = p_transform->position.x + u * 0.2f;
 			transform.position.y = p_transform->position.y + 2.0f;
-			transform.position.z = p_transform->position.z + u * 2.3f;
+			transform.position.z = p_transform->position.z + u * 0.3f;
 
 			// set scale to fit on tile
 			transform.scale.x = 0.1f;
@@ -303,26 +303,26 @@ int main()
 	mesh_component.mMesh = dude;
 	GroundCollisionComponent ground_collision_component;
 	DynamicMovementComponent movement_component;
-
+	
 	int army_index = 0;
 	ecs::ComponentIterator it = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
 	ecs::components::ArmyComponent* army_comp;
 
 	ID current;
 	// Create components for entities.
-	/*while */(army_comp = (ecs::components::ArmyComponent*)it.next());
+	while (army_comp = (ecs::components::ArmyComponent*)it.next())
 	{
-		for (size_t i = 0; i < 2; i++)
+		for (size_t i = 0; i < 3; i++)
 		{
 			current = army_comp->unitIDs[i];
 			ecs.createComponent<MeshComponent>(current, mesh_component);
 			ecs.createComponent<GroundCollisionComponent>(current, ground_collision_component);
 			ecs.createComponent<DynamicMovementComponent>(current, movement_component);
 
-			events::MovementInputEvent move_ev;
-			move_ev.mEntityID = current;
-			move_ev.mInput = FORWARD;
-			ecs.createEvent(move_ev);
+			//events::MovementInputEvent move_ev;
+			//move_ev.mEntityID = current;
+			//move_ev.mInput = FORWARD;
+			//ecs.createEvent(move_ev);
 		}
 	}
 	
