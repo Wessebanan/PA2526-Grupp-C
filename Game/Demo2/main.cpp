@@ -13,9 +13,10 @@ int main()
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 
-	UINT gridWidth = 12;
-	UINT gridHeight = 12;
-	UINT nrOfTiles = gridHeight * gridWidth;
+	UINT grid_width = 12;
+	UINT grid_height = 12;
+	UINT nr_tiles = grid_height * grid_width;
+	UINT transf_comp_count = nr_tiles + 1 + 12;
 
 	using namespace ecs;
 	ecs::EntityComponentSystem ecs;
@@ -23,15 +24,15 @@ int main()
 		ecs::ECSDesc ecsDesc;
 		ecs::CompTypeMemDesc ecsMemDesc[] =
 		{
-			{ components::TileComponent::typeID, components::TileComponent::size, (gridHeight * gridWidth)},
-			{ components::TransformComponent::typeID, components::TransformComponent::size, 1 + (gridHeight * gridWidth) + 12},
+			{ components::TileComponent::typeID, components::TileComponent::size, (nr_tiles)},
+			{ components::TransformComponent::typeID, components::TransformComponent::size, transf_comp_count},
 		};
 		ecsDesc.compTypeCount = 2;
 		ecsDesc.compTypeMemDescs = ecsMemDesc;
 		ecsDesc.systemLayerCount = 10;
 		ecs.initialize(ecsDesc);
 	}
-	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 1.0f);
+	GridFunctions::CreateGrid(ecs, grid_width, grid_height, 1.0f);
 
 
 	initInputECS(ecs, new InputBackend());
@@ -132,7 +133,7 @@ int main()
 
 	// Default Technique will render 'count' meshes in white
 	MODEL_LAYOUT_DESC m_desc[2];
-	m_desc[0].InstanceCount = gridWidth * gridHeight;
+	m_desc[0].InstanceCount = nr_tiles;
 	m_desc[0].MeshIndex = mesh_tile;
 
 	m_desc[1].InstanceCount = 12;
@@ -160,7 +161,7 @@ int main()
 		pTilePosition[index].x = trComp->position.x;
 		pTilePosition[index].y = trComp->position.y;
 		pTilePosition[index].z = trComp->position.z;
-		pTilePosition[index].w = index / (float)(gridHeight*gridWidth);
+		pTilePosition[index].w = index / (float)(nr_tiles);
 
 		index++;
 	}
@@ -226,15 +227,15 @@ int main()
 				{
 					int unitToMove = i*3;
 
-					movement = pTilePosition[nrOfTiles + (unitToMove)].y;
+					movement = pTilePosition[nr_tiles + (unitToMove)].y;
 					movement -= 0.1f;
 					if (movement <= 0.0f)
 						movement = 40.0f;
 
 
-					pTilePosition[nrOfTiles + unitToMove].y = movement;
-					pTilePosition[nrOfTiles + unitToMove+1].y = movement;
-					pTilePosition[nrOfTiles + unitToMove+2].y = movement;
+					pTilePosition[nr_tiles + unitToMove].y = movement;
+					pTilePosition[nr_tiles + unitToMove+1].y = movement;
+					pTilePosition[nr_tiles + unitToMove+2].y = movement;
 				}
 				
 
