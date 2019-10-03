@@ -201,7 +201,7 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 
 	mng.SetViewMatrix(viewMatrix);
 
-	mng.Clear();
+	mng.Clear(0.0f, 0.0f, 0.0f);
 
 	XMStoreFloat4x4(&viewMatrix,
 		XMMatrixLookToLH(

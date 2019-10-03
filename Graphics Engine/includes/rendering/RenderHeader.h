@@ -17,4 +17,4 @@ namespace rendering
 
 		RENDER_TECHNIQUES_COUNT,
 	};
-}
+} 
