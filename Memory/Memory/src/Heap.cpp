@@ -1,16 +1,16 @@
 #include "Heap.h"
 
-void* memory::heaps::Heap::Allocate(uint size)
+void* memory::Heap::Allocate(uint size)
 {
 	return mpAllocator->Allocate(size);
 }
 
-void memory::heaps::Heap::Free(void* ptr)
+void memory::Heap::Free(void* ptr)
 {
 	mpAllocator->Free(ptr);
 }
 
-memory::heaps::Heap* memory::heaps::Heap::CreateHeap(uint size)
+memory::Heap* memory::Heap::CreateHeap(uint size)
 {
 	//// TEMPORARY BACKEND START ////
 	const uint heap_object_size = sizeof(Heap);
@@ -25,7 +25,7 @@ memory::heaps::Heap* memory::heaps::Heap::CreateHeap(uint size)
 		return nullptr;
 	}
 
-	heaps::Heap* p_heap = new(p_reserved_mem) heaps::Heap();
+	Heap* p_heap = new(p_reserved_mem) Heap();
 
 	/*
 		The heap itself does not know where it is placed. The heap only want to
@@ -45,7 +45,7 @@ memory::heaps::Heap* memory::heaps::Heap::CreateHeap(uint size)
 	return p_heap;
 }
 
-memory::heaps::Heap::Heap() :
+memory::Heap::Heap() :
 	mpAllocationBlockStart(nullptr),
 	mpMemoryStart(nullptr),
 	mpAllocator(nullptr)
@@ -53,7 +53,7 @@ memory::heaps::Heap::Heap() :
 	//
 }
 
-memory::heaps::Heap::~Heap()
+memory::Heap::~Heap()
 {
 	//// TEMPORARY BACKEND START ////
 
@@ -62,7 +62,7 @@ memory::heaps::Heap::~Heap()
 	///// TEMPORARY BACKEND END /////
 }
 
-bool memory::heaps::Heap::Initialize(void* memoryStart, uint memorySize)
+bool memory::Heap::Initialize(void* memoryStart, uint memorySize)
 {
 	//// TEMPORARY BACKEND START ////
 	

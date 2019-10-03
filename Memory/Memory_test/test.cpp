@@ -147,18 +147,18 @@ namespace API
 		Try to create an allocator that lives on the main heap and manages a memory
 		block on the main heap.
 	*/
-	TEST(TestAPI, CreateAllocator)
-	{
-		// Request a heap that fits an allocator and user data
-		memory::Initialize(ALLOCATOR_SIZE + USER_DATA_SIZE);
+	//TEST(TestAPI, CreateAllocator)
+	//{
+	//	// Request a heap that fits an allocator and user data
+	//	memory::Initialize(ALLOCATOR_SIZE + USER_DATA_SIZE);
 
-		// Create an allocator that the user can use to allocate memory for their data
-		memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
-		ASSERT_NE(p_allocator, nullptr);
+	//	// Create an allocator that the user can use to allocate memory for their data
+	//	memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
+	//	ASSERT_NE(p_allocator, nullptr);
 
-		// Free allocated memory
-		memory::End();
-	}
+	//	// Free allocated memory
+	//	memory::End();
+	//}
 
 	/*
 		In an application, there will probably exist multiple allocators on the main heap
@@ -166,52 +166,52 @@ namespace API
 		own block of data for memory allocations. These will recieve their own allocator for
 		that purpose.
 	*/
-	TEST(TestAPI, CreateMultipleAllocators)
-	{
-		const uint domain_count = 10;
+	//TEST(TestAPI, CreateMultipleAllocators)
+	//{
+	//	const uint domain_count = 10;
 
-		// Request a heap that fits ten allocator and user data for each of them
-		memory::Initialize
-		(
-			(ALLOCATOR_SIZE * domain_count) +
-			(USER_DATA_SIZE * domain_count)
-		);
+	//	// Request a heap that fits ten allocator and user data for each of them
+	//	memory::Initialize
+	//	(
+	//		(ALLOCATOR_SIZE * domain_count) +
+	//		(USER_DATA_SIZE * domain_count)
+	//	);
 
 
-		// Try to create each domain allocator, with their own heap size for user data
-		for (uint i = 0; i < domain_count; i++)
-		{
-			memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
-			ASSERT_NE(p_allocator, nullptr);
-		}
+	//	// Try to create each domain allocator, with their own heap size for user data
+	//	for (uint i = 0; i < domain_count; i++)
+	//	{
+	//		memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
+	//		ASSERT_NE(p_allocator, nullptr);
+	//	}
 
-		/*
-			Since we created allocators that fill the whole main heap, we should not be able to
-			create another allocator.
-		*/
-		memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
-		ASSERT_EQ(p_allocator, nullptr);
+	//	/*
+	//		Since we created allocators that fill the whole main heap, we should not be able to
+	//		create another allocator.
+	//	*/
+	//	memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
+	//	ASSERT_EQ(p_allocator, nullptr);
 
-		// Free allocated memory
-		memory::End();
-	}
+	//	// Free allocated memory
+	//	memory::End();
+	//}
 
 	/*
 		Each allocator is responsible for not allocating memory outside of their own heap.
 	*/
-	TEST(TestAPI, HandleOverflowAllocatorSize)
-	{
-		// Request a heap that fits an allocator and user data
-		memory::Initialize(ALLOCATOR_SIZE + USER_DATA_SIZE);
+	//TEST(TestAPI, HandleOverflowAllocatorSize)
+	//{
+	//	// Request a heap that fits an allocator and user data
+	//	memory::Initialize(ALLOCATOR_SIZE + USER_DATA_SIZE);
 
-		/*
-			Try to create an allocator with a heap LARGER than we previously allocated memory for,
-			which should not be allowed.
-		*/
-		memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE + 10);
-		ASSERT_EQ(p_allocator, nullptr);
+	//	/*
+	//		Try to create an allocator with a heap LARGER than we previously allocated memory for,
+	//		which should not be allowed.
+	//	*/
+	//	memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE + 10);
+	//	ASSERT_EQ(p_allocator, nullptr);
 
-		// Free allocated memory
-		memory::End();
-	}
+	//	// Free allocated memory
+	//	memory::End();
+	//}
 }

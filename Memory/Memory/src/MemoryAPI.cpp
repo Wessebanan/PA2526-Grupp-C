@@ -30,8 +30,10 @@ bool memory::MemoryManager::Initialize(uint size)
 
 	mMemorySize = size_with_main_allocator;
 
+	
+
 	// Sanity check heap initialization
-	if (!mMemory.Initialize(mpMemoryStart, mMemorySize))
+	if (!mMainHeap.Initialize(mpMemoryStart, mMemorySize))
 	{
 		mMemorySize = 0;
 		free(mpMemoryStart);
@@ -69,36 +71,10 @@ void memory::MemoryManager::Free(void* ptr)
 	mMainHeap.Free(ptr);
 }
 
-memory::heaps::Heap* memory::MemoryManager::CreateHeap(uint size)
+memory::Heap* memory::MemoryManager::CreateHeap(uint size)
 {
 	IF_NOT_INITIALIZED_RETURN(nullptr);
-
-	/*
-		A user wants an allocator that manage a memory chunk of 'size' bytes.
-		MemoryManager will put the allocator at the beginning of this memory
-		chunk, hince we need to allocate for 'size' AND the size of the
-		allocator.
-	*/
-	uint size_with_header = size + sizeof(allocators::LinearAllocator);
-
-	/*
-		Notation:
-		This function is in beta version. For now, all heap allocatiors are linear
-		allocators in disguise. In later versions of this API, there will be specific
-		functions for creating different allocator types, like linear and pool.
-	*/
-
-	void* p_heap_mem = mMainHeap.Allocate(size_with_header);
-	
-	// Sanity check allocation
-	if (!p_heap_mem)
-	{
-		return nullptr;
-	}
-
-	
-
-	return p;
+	return mMainHeap.CreateHeap(size);
 }
 
 
@@ -143,7 +119,6 @@ memory::MemoryManager::MemoryManager() :
 
 memory::MemoryManager::~MemoryManager()
 {
-	mMemory.Terminate();
 	free(mpMemoryStart);
 	mMemorySize = 0;
 	mpMemoryStart = nullptr;

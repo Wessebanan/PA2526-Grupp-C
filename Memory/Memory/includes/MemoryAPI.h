@@ -16,7 +16,7 @@ namespace memory
 	*/
 	static inline bool Initialize(uint size);
 	static inline void End();
-	static inline heaps::Heap* CreateHeap(uint size);
+	static inline Heap* CreateHeap(uint size);
 
 	static inline void* Allocate(size_t size);
 	static inline void Free(void* ptr);
@@ -70,7 +70,7 @@ namespace memory
 			Creates a heap for a new memory domain (graphics, ECS etc.) that the
 			user can use.
 		*/
-		heaps::Heap* CreateHeap(uint size);
+		Heap* CreateHeap(uint size);
 
 		/*
 			Getters
@@ -89,7 +89,7 @@ namespace memory
 
 		uint mMemorySize;
 		void *mpMemoryStart;
-		heaps::Heap mMainHeap;
+		Heap mMainHeap;
 
 
 		inline bool IsInitialized()
@@ -118,7 +118,7 @@ namespace memory
 		MemoryManager::Instance().End();
 	}
 
-	static inline heaps::Heap* CreateHeap(uint size)
+	static inline Heap* CreateHeap(uint size)
 	{
 		return MemoryManager::Instance().CreateHeap(size);
 	}

@@ -30,7 +30,8 @@
 	allocations. Memory can only be freed by the heap that allocated it.
 
 	Memory blocks can contain anything, it's not up to the heap to fill the block with data; it only provides memory
-	blocks for the user. A memory block can for example contain another heap, that only manage memory within that block.
+	blocks for the user (an exception for this is creating another heap, as they has to be created from a heap).
+	A memory block can for example contain another heap, that only manage memory within that block.
 	(insert inception meme; brain explosions etc.)
 
 	-- Notations
@@ -69,31 +70,26 @@
 
 namespace memory
 {
-	namespace heaps
+	class Heap
 	{
-		class Heap
-		{
-		public:
-			DENY_COPY(Heap)
+	public:
+		DENY_COPY(Heap)
 
-			void* Allocate(uint size);
-			void Free(void* ptr);
+		void* Allocate(uint size);
+		void Free(void* ptr);
 
-			heaps::Heap* CreateHeap(uint size);
+		Heap* CreateHeap(uint size);
 
-			// TODO: Create heap
+	private:
+		Heap();
+		~Heap();
 
-		private:
-			Heap();
-			~Heap();
+		bool Initialize(void* memoryStart, uint memorySize);
 
-			bool Initialize(void* memoryStart, uint memorySize);
+		void* mpAllocationBlockStart;
+		void* mpMemoryStart;
+		allocators::LinearAllocator* mpAllocator;
 
-			void* mpAllocationBlockStart;
-			void* mpMemoryStart;
-			allocators::LinearAllocator* mpAllocator;
-
-			friend class MemoryManager;
-		};
-	}
+		friend class MemoryManager;
+	};
 }

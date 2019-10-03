@@ -82,7 +82,7 @@ void* memory::allocators::LinearAllocator::Allocate(uint size)
 	mMemoryUsed += size;
 
 	// Store pointer in order to avoid memory leaks, free them in Free() and destructor
-	mAllocations.push_back(p);
+	mAllocations.push_back(std::pair<void*,uint>(p, size));
 
 	///// TEMPORARY BACKEND END /////
 
