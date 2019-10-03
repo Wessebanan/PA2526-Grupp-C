@@ -150,7 +150,6 @@
     <ClCompile Include="Plugin.cpp" />
     <ClCompile Include="SoundEngine.cpp" />
     <ClCompile Include="SoundHelpers.cpp" />
-    <ClCompile Include="tinywav.c" />
     <ClCompile Include="Voice.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -162,6 +161,7 @@
     <ClInclude Include="includes\SoundFile.h" />
     <ClInclude Include="includes\SoundHelpers.h" />
     <ClInclude Include="includes\Voice.h" />
+    <ClInclude Include="WavReader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

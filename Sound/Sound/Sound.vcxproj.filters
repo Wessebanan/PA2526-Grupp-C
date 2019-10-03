@@ -39,9 +39,6 @@
     <ClCompile Include="includes\SoundBank.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tinywav.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\SoundEngine.h">
@@ -66,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\SoundFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WavReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

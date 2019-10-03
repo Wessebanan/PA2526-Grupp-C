@@ -215,8 +215,22 @@ TEST(Utility, RingBufferThreaded)
 	std::cout << "\nTotal floats processed: " << number << std::endl;
 }
 
+
+// Tests based on the task:
+// "Load sound data"
+// Definition of Done:
+// "A number of WAV files will be read from disk and placed
+// in memory"
 TEST(SoundAPI, LoadSoundData)
 {
+	// Initialize a new sound bank
 	Sound::Bank bank;
-	EXPECT_EQ(bank.GetFile("Hello!"), nullptr);
+	// Loading a non existing file should result in a nullptr (0)
+	EXPECT_FALSE(bank.GetFile("non_existing_file"));
+	// Check if sine.wav only has one channel
+	Sound::File* sine_file = bank.GetFile("sine.wav");
+	EXPECT_EQ(sine_file->GetNumChannels(), 1);
+	// Check if sine2.wav has two channels
+	Sound::File* sine_file2 = bank.GetFile("sine2.wav");
+	EXPECT_EQ(sine_file2->GetNumChannels(), 2);
 }

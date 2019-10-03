@@ -26,7 +26,7 @@ Sound::File* Sound::Bank::GetFile(std::string Path)
 	{
 		if (mpFiles[i] != nullptr)
 		{
-			if (mpFiles[i]->StringCompare(Path))
+			if (mpFiles[i]->StringIsEqual(Path))
 			{
 				return mpFiles[i];
 			}
@@ -37,7 +37,7 @@ Sound::File* Sound::Bank::GetFile(std::string Path)
 		if (mpFiles[i] == nullptr)
 		{
 			mpFiles[i] = new File();
-			if (mpFiles[i]->Load(Path))
+			if (mpFiles[i]->LoadAll(Path))
 			{
 				return mpFiles[i];
 			}
