@@ -45,6 +45,9 @@
     <ClCompile Include="includes\SoundBank.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="includes\EcsSoundSystems.cpp">
+      <Filter>Source Files\ECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\SoundEngine.h">

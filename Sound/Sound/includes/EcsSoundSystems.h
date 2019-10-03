@@ -13,41 +13,13 @@ namespace ecs
 {
 	namespace systems
 	{
-		class SoundSystem : ecs::ECSSystem<SoundSystem>
+		class SoundSystem : public ecs::ECSSystem<SoundSystem>
 		{
 		public:
-			SoundSystem()
-			{
-				updateType = SystemUpdateType::EventReader;
-				typeFilter.addRequirement(events::CreateComponentEvent::typeID);
-				
-				mEngine.UseThisMixer(&mMixer);
-				mEngine.OpenStream();
-				mEngine.StartStream();
-				mEngine.StartWorkThread();
-			}
-			~SoundSystem()
-			{
-				mEngine.JoinWorkThread();
-				mEngine.StopStream();
-				mEngine.CloseStream();
-			}
+			SoundSystem();
+			~SoundSystem();
 
-			void readEvent(BaseEvent& _event, float _delta) override
-			{
-				events::TriggerSoundEvent* sound_event = static_cast<events::TriggerSoundEvent*>(&_event);
-
-				//sound_event->filePath;
-				Sound::FileData* file_data = mBank.GetFile(sound_event->filePath);
-				if (file_data == nullptr)
-				{
-					return;
-				}
-				mMixer.NewVoice(new Sound::Plugin::Sampler(file_data));
-				//ECSUser::createEvent();
-			}
-
-
+			void readEvent(BaseEvent& _event, float _delta) override;
 		private:
 			Sound::PaHandler mPaInit;
 			Sound::Engine mEngine;

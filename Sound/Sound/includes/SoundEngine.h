@@ -7,6 +7,9 @@
 
 namespace Sound
 {
+	typedef Ringbuffer<Frame, SOUND_BUFFER_SIZE> FrameBuffer;
+	typedef Ringbuffer<Plugin::Plugin*, 8> EventBuffer;
+
 	// Sound::Engine class 
 	// The engine class is responsible for initializing
 	// a sound stream and holds all functionallity needed
@@ -37,6 +40,7 @@ namespace Sound
 		// Sets a mixer to get frame data from
 		void UseThisMixer(Mixer* pMixer);
 
+		void AddEvent(Plugin::Plugin* pPlugin);
 	protected:
 
 	private:
@@ -87,12 +91,9 @@ namespace Sound
 		FrameBuffer mBuffer;
 		Samples mProducerLastSampleCount;
 
-		// TEMPORARY
-		// This will be removed once it's no longer needed for
-		// testing purposes. Produces a sine wave to fill the
-		// ring buffer with
 		Mixer* mpMixer;
 
+		EventBuffer mEventBuffer;
 	};
 
 	// Sound::PaHandler class

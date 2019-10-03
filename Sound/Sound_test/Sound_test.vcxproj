@@ -26,11 +26,13 @@
     <Import Project="..\props\IncludesDirectory.props" />
     <Import Project="..\props\AdditionalLibsDebug.props" />
     <Import Project="..\props\LibSoundIO.props" />
+    <Import Project="..\..\Physics\props\ECS_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="..\props\IncludesDirectory.props" />
     <Import Project="..\props\AdditionalLibsRelease.props" />
     <Import Project="..\props\LibSoundIO.props" />
+    <Import Project="..\..\Physics\props\ECS_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>

@@ -117,6 +117,11 @@ void Sound::Engine::UseThisMixer(Mixer* pMixer)
 	mpMixer = pMixer;
 }
 
+void Sound::Engine::AddEvent(Plugin::Plugin* pPlugin)
+{
+	mEventBuffer.insert(pPlugin);
+}
+
 int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
 	unsigned long framesPerBuffer,
 	const PaStreamCallbackTimeInfo* pTimeInfo,
@@ -179,6 +184,20 @@ void Sound::Engine::PaStreamFinished(void* pUserData)
 
 void Sound::Engine::WorkerThreadUpdateMethod()
 {
+	// TEMPORARY
+	// Read through the "events"
+	while (!mEventBuffer.isEmpty())
+	{
+		Plugin::Plugin* temp_plugin;
+		mEventBuffer.readBuff(&temp_plugin, 1);
+		if (!mpMixer->NewVoice(temp_plugin))
+		{
+			delete temp_plugin;
+		}
+	}
+
+
+
 	// Get current sample count
 	Samples current_sample_count = GetWorkerCurrentSampleCount();
 	// Check how many frames should be processed

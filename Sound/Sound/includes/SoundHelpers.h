@@ -26,7 +26,6 @@ namespace Sound
 	};
 	// typedef commonly used types to simplify
 	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
-	typedef Ringbuffer<Frame, SOUND_BUFFER_SIZE> FrameBuffer;
 	typedef unsigned long long Samples;
 
 	// Helper functions to convert time to sample count

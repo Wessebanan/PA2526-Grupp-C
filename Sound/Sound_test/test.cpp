@@ -1,9 +1,11 @@
 #include "pch.h"
 
+
 #include "SoundEngine.h"
 #include "RingBuffer.h"
 #include "TestPlugins.h"
 #include "SoundBank.h"
+#include "EcsSoundSystems.h"
 #include <thread>
 #include <cmath>
 
@@ -296,4 +298,13 @@ TEST(SoundAPI, PlaySoundWithSampler)
 	engine.CloseStream();
 
 	std::cout << "Test finished.\n";
+}
+
+TEST(SoundAPI, EcsSoundEvents)
+{
+	ecs::events::TriggerSoundEvent sound_event;
+	sound_event.filePath = "square.wav";
+	ecs::systems::SoundSystem sound_system;
+	sound_system.readEvent(sound_event, 0.0f);
+	Pa_Sleep(2000);
 }
