@@ -123,6 +123,8 @@ namespace graphics
 			internal_UploadBufferToGPU(BUFFER_VERTEX_POSITION);
 			internal_UploadBufferToGPU(BUFFER_VERTEX_NORMAL);
 			internal_UploadBufferToGPU(BUFFER_VERTEX_UV);
+			internal_UploadBufferToGPU(BUFFER_VERTEX_BLEND_WEIGHT);
+			internal_UploadBufferToGPU(BUFFER_VERTEX_BLEND_INDICES);
 			break;
 		default:
 			break;

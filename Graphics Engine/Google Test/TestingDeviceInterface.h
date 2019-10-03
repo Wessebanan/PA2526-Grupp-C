@@ -190,7 +190,7 @@ TEST(TestingDeviceInterface, CreateVertexBufferRegion)
 	graphics::BufferRegion region;
 	{
 		int result =
-			pDevice->CreateVertexBufferRegion(3, t, NULL, uv, &region);
+			pDevice->CreateVertexBufferRegion(3, t, NULL, uv, NULL, NULL, &region);
 
 		EXPECT_TRUE(result);
 	}
@@ -318,8 +318,8 @@ TEST(TestingGraphicsEngine, InitializeAndRunFrame)
 
 	BufferRegion meshes[2];	// mesh
 
-	pDevice->CreateVertexBufferRegion(3, t, NULL, uv, &meshes[0]);
-	pDevice->CreateVertexBufferRegion(6, q, NULL, NULL, &meshes[1]);
+	pDevice->CreateVertexBufferRegion(3, t, NULL, uv, NULL, NULL, &meshes[0]);
+	pDevice->CreateVertexBufferRegion(6, q, NULL, NULL, NULL, NULL, &meshes[1]);
 
 	pContext->UploadBufferToGPU(BUFFER_UPLOAD_VERTEX_DATA);
 
