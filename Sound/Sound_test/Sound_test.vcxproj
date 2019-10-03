@@ -56,6 +56,7 @@
   <ItemGroup>
     <Media Include="sine.wav" />
     <Media Include="sine2.wav" />
+    <Media Include="square.wav" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
