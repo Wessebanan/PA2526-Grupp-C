@@ -2,7 +2,7 @@
 
 #include <map>
 #include "ecsSystemIncludes.h"
-#include "InterpretWebEvents.h"
+#include "..//..//InputInterpreter/includes/InterpretWebEvents.h"
 #include "AIComponents.h"
 #include "UtilityComponents.h"
 #include <iostream>
@@ -87,6 +87,7 @@ namespace ecs
 			{
 				updateType = EntityUpdate;
 				typeFilter.addRequirement(components::MoveStateComponent::typeID);
+				typeFilter.addRequirement(components::TransformComponent::typeID);
 			}
 			virtual ~MoveStateSystem() {}
 

@@ -42,7 +42,6 @@ int main()
 	CameraFunctions::CreateDevCamera(ecs);
 
 	ecs.createSystem<ecs::systems::UpdateCameraSystem>();
-	//ecs.update(0.01f);
 
 
 	AIFunctions::CreatePlayerArmies(ecs);
@@ -57,9 +56,6 @@ int main()
 
 	Direct2D* d2d = new Direct2D();
 	//init::InitUISystems(ecs, &d2d);
-
-
-	ecs.update(0.1f);
 
 	using namespace rendering;
 	using namespace DirectX;
@@ -226,6 +222,8 @@ int main()
 
 	float movement = 0.0f;
 	pWnd->Show();
+
+	ecs.update(0.1f);
 	while (pWnd->IsOpen())
 	{
 		if (!pWnd->Update())
