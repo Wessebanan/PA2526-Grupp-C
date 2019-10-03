@@ -87,6 +87,7 @@ namespace ecs
 			{
 				updateType = EntityUpdate;
 				typeFilter.addRequirement(components::MoveStateComponent::typeID);
+				typeFilter.addRequirement(components::TransformComponent::typeID);
 			}
 			virtual ~MoveStateSystem() {}
 
