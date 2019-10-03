@@ -11,6 +11,10 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)..\InputHandler\InputInterpreter\includes;$(ProjectDir)includes</AdditionalIncludeDirectories>
     </ClCompile>
+    <Lib>
+      <AdditionalDependencies>InputInterpreter.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)..\Lib</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
