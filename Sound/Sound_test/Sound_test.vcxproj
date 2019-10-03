@@ -35,6 +35,7 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="TestPlugins.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp" />
@@ -42,6 +43,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="TestPlugins.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Sound\Sound.vcxproj">

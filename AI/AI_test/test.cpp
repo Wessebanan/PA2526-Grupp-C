@@ -192,6 +192,54 @@ TEST(AIFunctions, CreatePlayerArmies) {
 	EXPECT_EQ(number_of_components, expected_number_of_components);
 }
 
+TEST(AIFunctions, SwitchStatesOfArmy) {
+	int nr_of_rows = ARENA_ROWS;
+	int nr_of_columns = ARENA_COLUMNS;
+	float radius = TILE_RADIUS;
+	unsigned int count = nr_of_columns * nr_of_rows * 2;
+	ecs::CompTypeMemDesc types[] = {
+		{ TileComponent::typeID, TileComponent::size, count},
+		{ TransformComponent::typeID, TransformComponent::size, count},
+	};
+	ecs::ECSDesc desc;
+	desc.compTypeCount = 2;
+	desc.compTypeMemDescs = types;
+	desc.systemLayerCount = 10;
+	ecs::EntityComponentSystem my_ecs;
+	my_ecs.initialize(desc);
+
+	//Create the grid so that we can find the starting positions for the army.
+	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius);
+	//Create the user entities and all of their unit entities.
+	AIFunctions::CreatePlayerArmies(my_ecs);
+	my_ecs.createSystem<ecs::systems::SwitchStateSystem>();
+
+	int expected_number_of_idle_components = 12;
+	size_t number_of_idle_components = my_ecs.getComponentCountOfType(ecs::components::IdleStateComponent::typeID);
+	//Check so that the debug system was created.
+	EXPECT_EQ(number_of_idle_components, expected_number_of_idle_components);
+	int expected_number_of_move_components = 0;
+	size_t number_of_move_components = my_ecs.getComponentCountOfType(ecs::components::MoveStateComponent::typeID);
+	//Check the number of move components.
+	EXPECT_EQ(number_of_move_components, expected_number_of_move_components);
+
+	//Create an event and update the ecs
+	ecs::events::ChangeUserStateEvent test_event;
+	test_event.playerId = PLAYER::PLAYER1;
+	test_event.newState = STATE::MOVE;
+	my_ecs.createEvent(test_event);
+	my_ecs.update(0.1f);
+
+	expected_number_of_idle_components = 9;
+	number_of_idle_components = my_ecs.getComponentCountOfType(ecs::components::IdleStateComponent::typeID);
+	//Check the number of idle components.
+	EXPECT_EQ(number_of_idle_components, expected_number_of_idle_components);
+	expected_number_of_move_components = 3;
+	number_of_move_components = my_ecs.getComponentCountOfType(ecs::components::MoveStateComponent::typeID);
+	//Check the number of move components.
+	EXPECT_EQ(number_of_move_components, expected_number_of_move_components);
+}
+
 TEST(PotentialField, CreatePotentialField)
 {
 	int nr_of_rows = ARENA_ROWS;
