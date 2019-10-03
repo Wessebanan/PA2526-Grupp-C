@@ -120,12 +120,12 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	if (fabs(movement_component->mVelocity.x) > 0.0f && movement_component->mAcceleration.x / movement_component->mVelocity.x <= 0.0f)
 	{
 		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
-		movement_component->mAcceleration.x -= Sign(movement_component->mVelocity.x) * DEFAULT_DECELERATION;
+		movement_component->mAcceleration.x -= Sign(movement_component->mVelocity.x) * movement_component->mDeceleration;
 	}
 	if (fabs(movement_component->mVelocity.z) > 0.0f && movement_component->mAcceleration.z / movement_component->mVelocity.z <= 0.0f)
 	{
 		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
-		movement_component->mAcceleration.z -= Sign(movement_component->mVelocity.z) * DEFAULT_DECELERATION;
+		movement_component->mAcceleration.z -= Sign(movement_component->mVelocity.z) * movement_component->mDeceleration;
 	}
 
 	// If the max velocity is not exceeded:
@@ -205,7 +205,7 @@ void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	movement_component->mDirection.z = direction.z;
 
 	// Applying force in the direction of the movement.
-	movement_component->mForce.x = direction.x * DEFAULT_MOVEMENT_FORCE;
-	movement_component->mForce.z = direction.z * DEFAULT_MOVEMENT_FORCE;
+	movement_component->mForce.x = direction.x * movement_component->mMovementForce;
+	movement_component->mForce.z = direction.z * movement_component->mMovementForce;
 }
 #pragma endregion
