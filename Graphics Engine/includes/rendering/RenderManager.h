@@ -4,6 +4,7 @@
 
 #include "DefaultTechnique.h"
 #include "SceenSpaceTechnique.h"
+#include "TransformationTechnique.h"
 
 #include <DirectXMath.h>
 

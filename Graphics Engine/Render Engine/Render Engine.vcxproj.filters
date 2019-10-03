@@ -36,6 +36,9 @@
     <ClInclude Include="..\includes\rendering\SceenSpaceTechnique.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\includes\rendering\TransformationTechnique.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\rendering\Renderer.cpp">
@@ -57,6 +60,9 @@
       <Filter>Header Files</Filter>
     </ClCompile>
     <ClCompile Include="..\source\rendering\ScreenSpaceTechnique.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\rendering\TransformationTechnique.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -89,6 +89,7 @@
     <ClInclude Include="..\includes\rendering\RenderManager.h" />
     <ClInclude Include="..\includes\rendering\RenderTechnique.h" />
     <ClInclude Include="..\includes\rendering\SceenSpaceTechnique.h" />
+    <ClInclude Include="..\includes\rendering\TransformationTechnique.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\includes\rendering\RenderHeader.h" />
@@ -98,6 +99,7 @@
     <ClCompile Include="..\source\rendering\Renderer.cpp" />
     <ClCompile Include="..\source\rendering\RenderManager.cpp" />
     <ClCompile Include="..\source\rendering\ScreenSpaceTechnique.cpp" />
+    <ClCompile Include="..\source\rendering\TransformationTechnique.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

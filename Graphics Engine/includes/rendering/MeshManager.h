@@ -29,8 +29,7 @@ namespace rendering
 					count,
 					start,
 					m_indexRegion,
-					m_meshRegion
-					);
+					m_meshRegion);
 				break;
 			}
 		}
