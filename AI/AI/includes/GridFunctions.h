@@ -16,4 +16,9 @@ namespace GridFunctions
 	float CreateCharge(float StartX, float StartZ, float EndX, float EndZ, float Charge);
 	//Returns the index of the starting tile for the given player.
 	int2 FindStartingTile(PLAYER Id);
+	float CreateCharge(float startX, float startZ, float endX, float endZ, float charge);
+	float GetDistance(float startX, float startZ, float endX, float endZ);
+	bool CheckIfValidNeighbour(int2 currentTile, int2 neighbourIndex);
+	std::vector<unsigned int> FindPath(ecs::EntityComponentSystem& rEcs, unsigned int startID, unsigned int endID);
+	void StoreNeighbours(ecs::EntityComponentSystem& rEcs);
 };
