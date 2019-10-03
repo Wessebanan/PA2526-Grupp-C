@@ -40,10 +40,9 @@ namespace memory
 		class Allocator
 		{
 		public:
-			Allocator(const Allocator& other) = delete;
-			Allocator& operator=(const Allocator& other) = delete;
+			DENY_COPY(Allocator)
 
-			Allocator() : mMemoryBlockSize(0), mMemoryHeapSize(0), mMemoryUsed(0), mpMemoryHeapStart(nullptr), mpMemoryBlockStart(nullptr) {}
+			Allocator() : mMemorySize(0), mMemoryUsed(0), mpMemoryStart(nullptr) {}
 			virtual ~Allocator() {}
 
 			virtual bool Initialize(void* memoryStart, uint memorySize) = 0;
@@ -52,7 +51,7 @@ namespace memory
 				Clears all internal data in memory block. In order to use the allocator again,
 				Initialize() has to be called.
 			*/
-			virtual void Terminate() { mMemoryBlockSize = 0; mMemoryHeapSize = 0; mMemoryUsed = 0; mpMemoryHeapStart = nullptr; }
+			virtual void Terminate() { mMemorySize = 0; mMemoryUsed = 0; mpMemoryStart = nullptr; }
 
 			/*
 				Clears all allocations in the heap block; freeing all allocated memory.
@@ -75,22 +74,13 @@ namespace memory
 		protected:
 
 			// Total size of the memory block
-			uint mMemoryBlockSize;
-			uint mMemoryHeapSize;
+			uint mMemorySize;
 			uint mMemoryUsed;
 
 			/*
-				Where the memory block for allocations start.
-				(which is right after where the allocator for this block is stored)
+				Pointer to the first address of the ALLOCATION BLOCK
 			*/
-			void* mpMemoryHeapStart;			
-
-			/*
-				Start of the given memory block the allocator manages. The allocator is
-				stored at the beginning of this memory, followed by the memory block
-				available for allocations.
-			*/
-			void* mpMemoryBlockStart;	
+			void* mpMemoryStart;
 		};
 
 	} // allocators

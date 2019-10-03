@@ -132,17 +132,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Heap.cpp" />
     <ClCompile Include="src\LinearAllocator.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MemoryAPI.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Heap.h" />
     <ClInclude Include="includes\Allocator.h" />
+    <ClInclude Include="includes\Heap.h" />
     <ClInclude Include="includes\LinearAllocator.h" />
     <ClInclude Include="includes\MemoryAPI.h" />
     <ClInclude Include="includes\MemoryGlobals.h" />
-    <ClInclude Include="LinearHeap.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -86,7 +86,8 @@ namespace memory
 				and free them in the free function and destructor.
 			*/
 
-			std::vector<void*> mAllocations;
+			// pair<ptr,size>
+			std::vector<std::pair<void*, uint>> mAllocations;
 
 			///// TEMPORARY BACKEND END /////
 		};

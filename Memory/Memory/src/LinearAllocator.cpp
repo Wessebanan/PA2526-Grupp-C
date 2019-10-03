@@ -26,10 +26,8 @@ bool allocators::LinearAllocator::Initialize(void* memoryStart, uint memorySize)
 		TODO: Check if size of allocator is larger than memorySize, and handle it.
 	*/
 
-	mpMemoryBlockStart = memoryStart;
-	mpMemoryHeapStart = mpCurrent = (char*)memoryStart + sizeof(LinearAllocator);
-	mMemoryBlockSize = memorySize;
-	mMemoryHeapSize = mMemoryBlockSize - sizeof(LinearAllocator);
+	mpMemoryStart = memoryStart;
+	mMemorySize = memorySize;
 
 	/*
 		TODO: Set up data structure for free memory
@@ -55,9 +53,9 @@ void memory::allocators::LinearAllocator::Clear()
 	*/
 	
 	//// TEMPORARY BACKEND START ////
-	for (void* p : mAllocations)
+	for (std::pair<void*,uint> p : mAllocations)
 	{
-		free(p);
+		free(p.first);
 	}
 	mAllocations.clear();
 	///// TEMPORARY BACKEND END /////
@@ -68,7 +66,7 @@ void memory::allocators::LinearAllocator::Clear()
 void* memory::allocators::LinearAllocator::Allocate(uint size)
 {
 	// Sanity check if allocation fits in free memory
-	if (mMemoryUsed + size > mMemoryHeapSize)
+	if (mMemoryUsed + size > mMemorySize)
 	{
 		return nullptr;
 	}
@@ -108,11 +106,13 @@ void memory::allocators::LinearAllocator::Free(void* ptr)
 		as it's not this allocator's responsibility.
 		(since the ptr is not allocated from this allocator)
 	*/
+
 	for (size_t i = 0; i < mAllocations.size(); i++)
 	{
-		if (mAllocations[i] == ptr)
+		if (mAllocations[i].first == ptr)
 		{
 			free(ptr);
+			mMemoryUsed -= mAllocations[i].second;
 			mAllocations.erase(mAllocations.begin() + i);
 		}
 	}
