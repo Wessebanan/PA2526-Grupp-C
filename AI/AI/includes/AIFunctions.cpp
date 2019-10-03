@@ -36,9 +36,9 @@ namespace AIFunctions
 			for (int u = 0; u < PlayerProperties::numberOfUnits; u++)
 			{
 				//Set starting position of the unit.
-				transform.position.x = p_transform->position.x + u * 10.0f;
+				transform.position.x = p_transform->position.x + u * 1.0f;
 				transform.position.y = p_transform->position.y + 50;
-				transform.position.z = p_transform->position.z + u * 10.0f;
+				transform.position.z = p_transform->position.z + u * 1.0f;
 				temp_entity = rEcs.createEntity(transform, unit, idle_state); //
 				army.unitIDs.push_back(temp_entity->getID());
 			}
