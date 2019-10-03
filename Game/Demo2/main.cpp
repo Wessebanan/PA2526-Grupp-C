@@ -4,7 +4,7 @@
 #include "GridFunctions.h"
 #include "CameraFunctions.h"
 #include "InitInputHandler.h"
-#include "..//..//InputInterpreter/includes/InterpretWebSystems.h"
+#include "..//..//InputInterpreter/includes/InterpretWebEvents.h"
 #include "AIFunctions.h"
 #include "UISystems.h"
 
@@ -49,7 +49,7 @@ int main()
 	ecs.createSystem<systems::IdleStateSystem>();
 	ecs.createSystem<systems::MoveStateSystem>();
 
-	ecs.createSystem<systems::ChangeFSMSystem>();
+	//ecs.createSystem<systems::ChangeFSMSystem>();
 
 	//events::ChangeUserStateEvent preset_move_event;
 	//preset_move_event.playerId = PLAYER1;
@@ -233,6 +233,40 @@ int main()
 			mng.Clear(0.2f,0.1f,0.1f);
 
 			float moveSpeed = 0.01f;
+
+			{
+				itt = ecs.getAllComponentsOfType(ecs::components::UserCommandComponent::typeID);
+				UserCommandComponent* ucComp = (ecs::components::UserCommandComponent*)itt.next();
+
+				if (ucComp)
+				{
+					for (size_t i = 0; i < 4; i++)
+					{
+						if (ucComp->userCommands[i].mCommand == "move"/* && mCurrStates[i] != STATE::MOVE*/)
+						{
+							// change state component
+							events::ChangeUserStateEvent cus_event;
+							cus_event.newState = STATE::MOVE;
+							cus_event.playerId = (PLAYER)i;
+
+							//mCurrStates[i] = STATE::MOVE;
+
+							ecs.createEvent(cus_event);
+						}
+						else if (ucComp->userCommands[i].mCommand == "idel"/* && mCurrStates[i] != STATE::IDLE*/)
+						{
+							// change state component
+							events::ChangeUserStateEvent cus_event;
+							cus_event.newState = STATE::IDLE;
+							cus_event.playerId = (PLAYER)i;
+
+							//mCurrStates[i] = STATE::IDLE;
+
+							ecs.createEvent(cus_event);
+						}
+					}
+				}
+			}
 
 			//for (size_t i = 0; i < 4; i++)
 			//{
