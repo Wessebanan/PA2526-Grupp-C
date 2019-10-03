@@ -5,6 +5,7 @@
 #include "AIFunctions.h"
 #include <iostream>
 
+
 TEST(GridFunctions, InitGrid) {
 
 	int nr_of_rows = ARENA_ROWS;
@@ -130,7 +131,7 @@ TEST(GridFunctions, differentTypes) {
 	EXPECT_EQ(stone_found, true);
 	EXPECT_EQ(water_found, true);
 	EXPECT_EQ(nr_of_stone, 1); //the map is predifined so expectation for how many tile of a type can be tested 
-	EXPECT_EQ(nr_of_water, 10);
+	EXPECT_EQ(nr_of_water, 11);
 }
 
 TEST(AI, CreateComponents) {
@@ -244,8 +245,8 @@ TEST(Pathfinding, FindPath)
 	unsigned int count = nr_of_columns * nr_of_rows;
 	int nr_of_nice = 0;
 	int iterr = 0;
+
 	std::vector<unsigned int> path;
-	std::vector<unsigned int>::iterator it_path;
 
 	//Define some ECS stuff to allow the ECS to create more than 100 of each component.
 	ecs::CompTypeMemDesc types[] = {
@@ -265,24 +266,25 @@ TEST(Pathfinding, FindPath)
 	ecs::components::TileComponent* p_tile;
 	std::cout << std::fixed;
 	std::cout << std::setprecision(4);
-	std::cout << "  ";
+	std::cout << " ";
 	while (p_base = it.next()) //loop through all components and returns a base component
 	{
 		p_tile = (ecs::components::TileComponent*)p_base; //casts base component to tile component
-		std::cout << p_tile->getEntityID() << " "; //print all charges
+		std::cout << p_tile->getEntityID() << "  "; //print all charges
 		iterr++;
 		if (iterr % 12 == 0)
-			std::cout << endl;
+			std::cout << "\n";
 		if (iterr % 24 == 0)
-			std::cout << "  ";
+			std::cout << " ";
 	}
 	path = GridFunctions::FindPath(my_ecs, 1, 117);
-	std::cout << endl << endl;
-	for (it_path = path.begin(); it_path != path.end(); it_path++)
+	std::cout << "\n\n ";
+
+	for (unsigned int i : path)
 	{
-		std::cout << path.at((*it_path)) << "  ";
+		std::cout << i << " ";
 	}
 
-	
-	EXPECT_EQ(nr_of_nice, 10); // test if there are 10 charges with -5 niceness as the predefined map is designed
+	EXPECT_EQ(path.back(), 117); // test if there are 10 charges with -5 niceness as the predefined map is designed
 }
+
