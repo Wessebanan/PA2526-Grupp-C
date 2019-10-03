@@ -4,6 +4,7 @@
 #include "GridFunctions.h"
 #include "CameraFunctions.h"
 #include "InitInputHandler.h"
+//#include "InterpretWebEvents.h"
 #include "AIFunctions.h"
 #include "UISystems.h"
 
@@ -45,6 +46,14 @@ int main()
 
 
 	AIFunctions::CreatePlayerArmies(ecs);
+	ecs.createSystem<systems::SwitchStateSystem>();
+	ecs.createSystem<systems::IdleStateSystem>();
+	ecs.createSystem<systems::MoveStateSystem>();
+
+	//events::ChangeUserStateEvent preset_move_event;
+	//preset_move_event.playerId = PLAYER1;
+	//preset_move_event.newState = STATE::MOVE;
+	//ecs.createEvent(preset_move_event);
 
 	Direct2D* d2d = new Direct2D();
 	//init::InitUISystems(ecs, &d2d);
@@ -225,27 +234,48 @@ int main()
 
 			float moveSpeed = 0.01f;
 
-			for (size_t i = 0; i < 4; i++)
+			//for (size_t i = 0; i < 4; i++)
+			//{
+			//	if (commComp->userCommands[i].mCommand == "move")
+			//	{
+			//		int unitToMove = i*3;
+
+			//		movement = pTilePosition[nr_tiles + (unitToMove)].y;
+			//		movement -= 0.1f;
+			//		if (movement <= 0.0f)
+			//			movement = 40.0f;
+
+
+			//		pTilePosition[nr_tiles + unitToMove].y = movement;
+			//		pTilePosition[nr_tiles + unitToMove+1].y = movement;
+			//		pTilePosition[nr_tiles + unitToMove+2].y = movement;
+			//	}
+			//	
+
+			//	
+			//}
+
+			armyIndex = 0;
+			itt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
+			while (armComp = (ecs::components::ArmyComponent*)itt.next())
 			{
-				if (commComp->userCommands[i].mCommand == "move")
+				// over alla units in the army
+				for (size_t i = 0; i < 3; i++)
 				{
-					int unitToMove = i*3;
+					ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(armComp->unitIDs[i]);
 
-					movement = pTilePosition[nr_tiles + (unitToMove)].y;
-					movement -= 0.1f;
-					if (movement <= 0.0f)
-						movement = 40.0f;
+					XMMATRIX world = XMMatrixIdentity();
+					world *= XMMatrixScaling(trComp->scale.x, trComp->scale.y, trComp->scale.z);
+					world *= XMMatrixRotationRollPitchYaw(trComp->rotation.x, trComp->rotation.y, trComp->rotation.z);
+					world *= XMMatrixTranslation(trComp->position.x, trComp->position.y, trComp->position.z);
 
 
-					pTilePosition[nr_tiles + unitToMove].y = movement;
-					pTilePosition[nr_tiles + unitToMove+1].y = movement;
-					pTilePosition[nr_tiles + unitToMove+2].y = movement;
+
+					XMStoreFloat4x4(&p_unit_pos[armyIndex], world);
+
+					armyIndex++;
 				}
-				
-
-				
 			}
-			
 
 			
 
