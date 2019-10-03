@@ -244,6 +244,21 @@ namespace GridFunctions
 		return to_return;
 	}
 
+	unsigned int FindGoalTile(ecs::EntityComponentSystem& rEcs)
+	{
+		bool to_return = 0;
+		ecs::ComponentIterator it = rEcs.getAllComponentsOfType(ecs::components::TileComponent::typeID); //iterator for all transform components
+		ecs::BaseComponent* p_base;
+		ecs::components::TileComponent* p_tile;
+		while (p_base = it.next()) //loop through all components and returns a base component
+		{
+			p_tile = (ecs::components::TileComponent*)p_base; //casts base component to tile component
+			if (p_tile->goal)
+				to_return = p_tile->getEntityID();
+		}
+		return to_return;
+	}
+
 	void StoreNeighbours(ecs::EntityComponentSystem& rEcs)
 	{
 		GridProp* p_gp = GridProp::GetInstance();

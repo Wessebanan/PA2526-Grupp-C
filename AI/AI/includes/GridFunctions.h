@@ -20,5 +20,6 @@ namespace GridFunctions
 	float GetDistance(float startX, float startZ, float endX, float endZ);
 	bool CheckIfValidNeighbour(int2 currentTile, int2 neighbourIndex);
 	std::vector<unsigned int> FindPath(ecs::EntityComponentSystem& rEcs, unsigned int startID, unsigned int endID);
+	unsigned int FindGoalTile(ecs::EntityComponentSystem& rEcs);
 	void StoreNeighbours(ecs::EntityComponentSystem& rEcs);
 };
