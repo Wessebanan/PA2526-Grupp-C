@@ -36,13 +36,13 @@ namespace AIFunctions
 			for (int u = 0; u < PlayerProperties::numberOfUnits; u++)
 			{
 				//Set starting position of the unit.
-				transform.position.x = p_transform->position.x + u * 0.2f;
-				transform.position.y = p_transform->position.y + 2.0f;
-				transform.position.z = p_transform->position.z + u * 0.3f;
+				transform.position.x = p_transform->position.x + u * 2.2f;
+				transform.position.y = p_transform->position.y + 20.0f;
+				transform.position.z = p_transform->position.z + u * 2.3f;
 
 				// set scale to fit on tile
 				transform.scale.x = 0.1f;
-				transform.scale.y = 0.1f;
+				transform.scale.y = 1.1f;
 				transform.scale.z = 0.1f;
 
 				// roate them 90deg
