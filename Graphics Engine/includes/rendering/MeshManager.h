@@ -90,7 +90,9 @@ namespace rendering
 		void
 			*pVertexData,
 			*pNormalsData,
-			*pTextureCoordData;
+			*pTextureCoordData,
+			*pBlendWeight,
+			*pBlendIndices;
 	};
 	
 	struct INDEX_BUFFER_DATA

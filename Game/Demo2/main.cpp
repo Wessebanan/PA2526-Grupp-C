@@ -222,6 +222,8 @@ int main()
 	components::UserCommandComponent* commComp;
 	commComp = (components::UserCommandComponent*)itt.next();
 
+
+
 	float movement = 0.0f;
 	pWnd->Show();
 

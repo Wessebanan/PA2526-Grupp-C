@@ -142,25 +142,12 @@ int main()
 		{
 			mng.Clear(1.0f, 0.0f, 0.0f);
 
-			//for (UINT x = 0; x < width; x++)
-			//{
-			//	for (UINT y = 0; y < height; y++)
-			//	{
-			//		UINT index = x * height + y;
-			//		tri_array[index].y -= 0.01f;
-
-			//		if (tri_array[index].y < -10.01f)
-			//		{
-			//			tri_array[index].y = 12.01f;
-			//		} 
-			//	}
-			//}
-
 			float moveSpeed = 0.01f;
 			if (GetAsyncKeyState(VK_UP))
 			{
 				z += moveSpeed;
 			}
+
 			if (GetAsyncKeyState(VK_DOWN))
 			{
 				z -= moveSpeed;
@@ -170,6 +157,7 @@ int main()
 			{
 				x -= moveSpeed;
 			}
+
 			if (GetAsyncKeyState(VK_RIGHT))
 			{
 				x += moveSpeed;

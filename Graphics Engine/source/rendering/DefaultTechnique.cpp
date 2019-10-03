@@ -51,7 +51,7 @@ namespace rendering
 		uint blue  = (color & 0x0000ff00) >>  8;
 		uint alpha = (color & 0x000000ff);
 
-		output.color = float4(red, green, blue, alpha);
+		output.color = uint4(red, green, blue, alpha);
 
 		output.pos	= float4(pos.xyz + gMesh[instance].Pos.xyz, 1.0f);
 		output.pos	= mul(gPerspective, mul(gView, output.pos));
