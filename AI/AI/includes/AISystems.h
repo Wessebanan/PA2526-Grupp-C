@@ -99,7 +99,7 @@ namespace ecs
 				if (transform->position.y <= 5.0f)
 					transform->position.y = 20.0f;
 				else
-					transform->position.y -= 1.0f;
+					transform->position.y -= 0.1f;
 			}
 		};
 

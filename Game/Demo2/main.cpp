@@ -2,6 +2,7 @@
 #include "rendering/RenderManager.h"
 #include "Mesh.h"
 #include "GridFunctions.h"
+#include "GridProp.h"
 #include "CameraFunctions.h"
 #include "InitInputHandler.h"
 #include "..//..//InputInterpreter/includes/InterpretWebEvents.h"
@@ -45,7 +46,78 @@ int main()
 	ecs.createSystem<ecs::systems::UpdateCameraSystem>();
 
 
-	AIFunctions::CreatePlayerArmies(ecs);
+	//AIFunctions::CreatePlayerArmies(ecs);
+
+	//Create Components for a "User" entity.
+	ecs::components::ArmyComponent army;
+	//Create Components for a "Unit" entity.
+	ecs::components::TransformComponent transform;
+	ecs::components::UnitComponent unit;
+	ecs::components::IdleStateComponent idle_state;
+	//Temporary entity pointer so that we can fetch the units IDs so that we can store
+	//them in the army component.
+	ecs::Entity* temp_entity;
+	int2 starting_tile_index;
+	ID temp_id;
+	ecs::components::TransformComponent* p_transform;
+	GridProp* p_gp = GridProp::GetInstance();
+	//Loop for every player.
+	for (int i = 0; i < 4; i++)
+	{
+		////Fetch the index of the starting tile for this player.
+		starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i);
+		temp_id = p_gp->mGrid[starting_tile_index.y][starting_tile_index.x].Id;
+		p_transform = ecs.getComponentFromEntity<ecs::components::TransformComponent>(temp_id);
+		//Set current players enum ID for this armies units.
+		unit.playerID = (PLAYER)i;
+
+		for (int u = 0; u < PlayerProperties::numberOfUnits; u++)
+		{
+			//Set starting position of the unit.
+			transform.position.x = p_transform->position.x + u * 2.2f;
+			transform.position.y = p_transform->position.y + 2.0f;
+			transform.position.z = p_transform->position.z + u * 2.3f;
+
+			// set scale to fit on tile
+			transform.scale.x = 0.1f;
+			transform.scale.y = 0.1f;
+			transform.scale.z = 0.1f;
+
+			// roate them 90deg
+			transform.rotation.x = -1.57079633f;
+			switch (i)
+			{
+			case 0:
+				transform.rotation.y = (1.57079633f / 2.0f);
+				break;
+			case 1:
+				transform.rotation.y = (-1.57079633f * 1) + (1.57079633f / 2.0f);
+				break;
+			case 2:
+				transform.rotation.y = (1.57079633f * 1) + (1.57079633f / 2.0f);
+				break;
+			case 3:
+				transform.rotation.y = (1.57079633f * 2) + (1.57079633f / 2.0f);
+				break;
+			default:
+				transform.rotation.y = (1.57079633f * i) + (1.57079633f / 2.0f);
+				break;
+			}
+
+
+			temp_entity = ecs.createEntity(transform, unit, idle_state); //
+			army.unitIDs.push_back(temp_entity->getID());
+		}
+		//Create the user entity
+		ecs.createEntity(army);
+		//Clear the army vector before we start creating the next players army.
+		army.unitIDs.clear();
+	}
+
+
+
+
+
 	ecs.createSystem<systems::SwitchStateSystem>();
 	ecs.createSystem<systems::IdleStateSystem>();
 	ecs.createSystem<systems::MoveStateSystem>();
@@ -144,32 +216,7 @@ int main()
 	UINT index = 0;
 	ecs::ComponentIterator itt;
 
-	//// Create systems.
-	//ecs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
-	//ecs.createSystem<ecs::systems::GroundCollisionSystem>();
-	//ecs.createSystem<ecs::systems::DynamicMovementSystem>();
-
-	//// Declare components.
-	//MeshComponent mesh_component;
-	//mesh_component.mMesh = dude;
-	//GroundCollisionComponent ground_collision_component;
-	//DynamicMovementComponent movement_component;
-
-	//int army_index = 0;
-	//ecs::ComponentIterator it = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
-	//ecs::components::ArmyComponent* army_comp;
-
-	//// Create components for entities.
-	//while (army_comp = (ecs::components::ArmyComponent*)it.next())
-	//{
-	//	for (size_t i = 0; i < 3; i++)
-	//	{
-	//		ID current = army_comp->unitIDs[i];
-	//		ecs.createComponent<MeshComponent>(current, mesh_component);
-	//		ecs.createComponent<GroundCollisionComponent>(current, ground_collision_component);
-	//		ecs.createComponent<DynamicMovementComponent>(current, movement_component);
-	//	}
-	//}
+	//InitGravityOnUnits(ecs, dude);
 
 	
 	itt = ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID);
