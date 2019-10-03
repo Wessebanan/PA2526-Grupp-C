@@ -9,21 +9,10 @@ Sound::Engine::Engine()
 	mWorkerThreadRun = false;
 	mpWorkerThread = nullptr;
 	mProducerLastSampleCount = 0;
-	// TEMPORARY
-	// This is not the proper way of initializing
-	// plugins. It should go through a mixer instead
-	_mpTestPlugin = new Plugin::TestSineWave();
 }
 
 Sound::Engine::~Engine()
 {
-	// TEMPORARY
-	// Delete the test plugin to not have memory leaks
-	if (_mpTestPlugin != nullptr)
-	{
-		delete _mpTestPlugin;
-		_mpTestPlugin = nullptr;
-	}
 }
 
 bool Sound::Engine::OpenStream()
@@ -123,6 +112,11 @@ void Sound::Engine::JoinWorkThread()
 	delete mpWorkerThread;
 }
 
+void Sound::Engine::UseThisMixer(Mixer* pMixer)
+{
+	mpMixer = pMixer;
+}
+
 int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
 	unsigned long framesPerBuffer,
 	const PaStreamCallbackTimeInfo* pTimeInfo,
@@ -203,8 +197,9 @@ void Sound::Engine::WorkerThreadUpdateMethod()
 	// This will be removed once it's no longer needed for
 	// testing purposes. Produces a sine wave to fill the
 	// ring buffer with
-	Frame temp_frame_array[SOUND_FRAMES_PER_BUFFER];
-	_mpTestPlugin->Process(mProducerLastSampleCount, samples_to_fill, (float*)temp_frame_array, 2);
+	Frame temp_frame_array[SOUND_FRAMES_PER_BUFFER] = { 0 };
+	mpMixer->Fill(mProducerLastSampleCount, samples_to_fill, (float*)temp_frame_array);
+
 
 	// TEMPORARY END -------------------------------------
 
