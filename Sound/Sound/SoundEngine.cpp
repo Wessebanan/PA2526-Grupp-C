@@ -198,7 +198,6 @@ void Sound::Engine::WorkerThreadUpdateMethod()
 	// testing purposes. Produces a sine wave to fill the
 	// ring buffer with
 	Frame temp_frame_array[SOUND_FRAMES_PER_BUFFER] = { 0 };
-	//_mpTestPlugin->Process(mProducerLastSampleCount, samples_to_fill, (float*)temp_frame_array, 2);
 	mpMixer->Fill(mProducerLastSampleCount, samples_to_fill, (float*)temp_frame_array);
 
 

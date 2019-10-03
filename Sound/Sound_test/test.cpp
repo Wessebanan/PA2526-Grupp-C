@@ -1,6 +1,8 @@
 #include "pch.h"
+
 #include "SoundEngine.h"
 #include "RingBuffer.h"
+#include "TestPlugins.h"
 #include <thread>
 #include <cmath>
 

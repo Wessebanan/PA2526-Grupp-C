@@ -91,7 +91,6 @@ namespace Sound
 		// This will be removed once it's no longer needed for
 		// testing purposes. Produces a sine wave to fill the
 		// ring buffer with
-		//Plugin::Plugin* _mpTestPlugin;
 		Mixer* mpMixer;
 
 	};
