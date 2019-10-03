@@ -559,5 +559,6 @@ namespace GridFunctions
 				}
 			}
 		}
+		return index;
 	}
 };
