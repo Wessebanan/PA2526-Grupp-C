@@ -9,6 +9,7 @@
 #include "AIFunctions.h"
 #include "UISystems.h"
 #include "InitPhysics.h"
+#include "PhysicsEvents.h"
 
 
 int main()
@@ -218,6 +219,8 @@ int main()
 
 	//InitGravityOnUnits(ecs, dude);
 
+
+
 	
 	itt = ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID);
 	ecs::components::TileComponent* tileComp;
@@ -276,20 +279,6 @@ int main()
 		}
 	}
 
-	//for (size_t i = 0; i < 4; i++)
-	//{
-	//	for (size_t j = 0; j < 3; j++)
-	//	{
-	//		pTilePosition[index].x = (i % 2) * gridWidth + j;
-	//		pTilePosition[index].y = 10;
-	//		pTilePosition[index].z = ((i % 2)) * gridHeight + j;
-	//		pTilePosition[index].w = 1.0f / i;
-
-	//		index++;
-	//	}
-
-	//}
-
 
 	itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
 	components::CameraComponent* camComp;
@@ -302,6 +291,43 @@ int main()
 	commComp = (components::UserCommandComponent*)itt.next();
 
 
+
+
+	// Create systems.
+	ecs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
+	ecs.createSystem<ecs::systems::GroundCollisionSystem>();
+	ecs.createSystem<ecs::systems::DynamicMovementSystem>();
+
+	// Declare components.
+	MeshComponent mesh_component;
+	mesh_component.mMesh = dude;
+	GroundCollisionComponent ground_collision_component;
+	DynamicMovementComponent movement_component;
+
+	int army_index = 0;
+	ecs::ComponentIterator it = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
+	ecs::components::ArmyComponent* army_comp;
+
+	ID current;
+	// Create components for entities.
+	/*while */(army_comp = (ecs::components::ArmyComponent*)it.next());
+	{
+		for (size_t i = 0; i < 2; i++)
+		{
+			current = army_comp->unitIDs[i];
+			ecs.createComponent<MeshComponent>(current, mesh_component);
+			ecs.createComponent<GroundCollisionComponent>(current, ground_collision_component);
+			ecs.createComponent<DynamicMovementComponent>(current, movement_component);
+
+			events::MovementInputEvent move_ev;
+			move_ev.mEntityID = current;
+			move_ev.mInput = FORWARD;
+			ecs.createEvent(move_ev);
+		}
+	}
+	
+
+	
 
 	float movement = 0.0f;
 	pWnd->Show();
@@ -325,6 +351,10 @@ int main()
 					{
 						if (ucComp->userCommands[i].mCommand == "move"/* && mCurrStates[i] != STATE::MOVE*/)
 						{
+							//events::MovementInputEvent move_ev;
+							//move_ev.mEntityID = current;
+							//move_ev.mInput = FORWARD;
+							//ecs.createEvent(move_ev);
 							// change state component
 							events::ChangeUserStateEvent cus_event;
 							cus_event.newState = STATE::MOVE;
