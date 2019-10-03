@@ -97,7 +97,7 @@ namespace ecs
 			{
 				ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
 				if (transform->position.y <= 0.0f)
-					transform->position.y = 50.0f;
+					transform->position.y = 2.0f;
 				else
 					transform->position.y -= 1.0f;
 			}

@@ -4,7 +4,7 @@
 #include "GridFunctions.h"
 #include "CameraFunctions.h"
 #include "InitInputHandler.h"
-#include "..//..//InputInterpreter/includes/InterpretWebEvents.h"
+#include "..//..//InputInterpreter/includes/InterpretWebSystems.h"
 #include "AIFunctions.h"
 #include "UISystems.h"
 
@@ -49,10 +49,12 @@ int main()
 	ecs.createSystem<systems::IdleStateSystem>();
 	ecs.createSystem<systems::MoveStateSystem>();
 
-	events::ChangeUserStateEvent preset_move_event;
-	preset_move_event.playerId = PLAYER1;
-	preset_move_event.newState = STATE::MOVE;
-	ecs.createEvent(preset_move_event);
+	ecs.createSystem<systems::ChangeFSMSystem>();
+
+	//events::ChangeUserStateEvent preset_move_event;
+	//preset_move_event.playerId = PLAYER1;
+	//preset_move_event.newState = STATE::MOVE;
+	//ecs.createEvent(preset_move_event);
 
 	Direct2D* d2d = new Direct2D();
 	//init::InitUISystems(ecs, &d2d);
