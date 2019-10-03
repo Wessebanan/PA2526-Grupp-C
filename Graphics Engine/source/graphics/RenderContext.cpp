@@ -43,7 +43,7 @@ namespace graphics
 			sizeof(UINT)	* 1,
 
 			sizeof(float)	* 3,
-			sizeof(int)		* 4
+			sizeof(int)		* 4,
 		};
 
 		UINT offsets[6] = {
