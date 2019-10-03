@@ -33,6 +33,7 @@ namespace ecs
 		EVENT(PotentialCollisionEvent)
 		{
 			ID mEntityID;
+			float mDelta;
 		};
 
 	} // events

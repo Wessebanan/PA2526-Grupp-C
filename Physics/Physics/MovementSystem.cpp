@@ -174,6 +174,7 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	{
 		PotentialCollisionEvent potential_collision;
 		potential_collision.mEntityID = _entityInfo.entity->getID();
+		potential_collision.mDelta = _delta;
 		createEvent(potential_collision);
 	}
 

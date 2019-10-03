@@ -39,8 +39,12 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	bool intersect = false;
 
+	ObjectCollisionComponent* p_colliding_collision = nullptr;
+	TransformComponent*	p_colliding_transform		= nullptr;
+	
 	for (int i = 0; i < it.entities.size(); i++)
 	{
+		// Skip yourself.
 		if (it.entities.at(i).entity->getID() == p_entity->getID())
 		{
 			continue;
@@ -62,10 +66,63 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			// Set the intersection bool and stop checking
 			// because any collision means the movement should revert.
 			intersect = true;
+
+			// Saving the collision and transform component from the collided entity.
+			p_colliding_collision = p_current_collision;
+			p_colliding_transform = p_current_transform;
 			break;
 		}
 	}
 	p_collision->mIntersect = intersect;
+
+	// Since the event that triggers this system is created in
+	// DynamicMovementSystem, we can assume that the entity has a 
+	// DynamicMovementComponent.
+	if (intersect)
+	{
+		// If the last movement action resulted in collsion, revert the movement and reset velocity.
+		DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
+		
+		// Getting and transforming the center positions of the colliding bounding volumes.
+		DirectX::XMVECTOR center = DirectX::XMLoadFloat3(&p_collision->mCenter);
+		DirectX::XMVECTOR colliding_center = DirectX::XMLoadFloat3(&p_colliding_collision->mCenter);
+
+		center = DirectX::XMVector3Transform(center, UtilityFunctions::GetWorldMatrix(*p_transform));
+		colliding_center = DirectX::XMVector3Transform(colliding_center, UtilityFunctions::GetWorldMatrix(*p_colliding_transform));
+
+		// Getting a vector between the centers of the bounding volumes.
+		DirectX::XMVECTOR v_diff = DirectX::XMVectorSubtract(center, colliding_center);
+		DirectX::XMFLOAT3 diff;
+		DirectX::XMStoreFloat3(&diff, v_diff);
+
+		// Saving a 1 in the direction of the largest component in the vector.
+		bool x = false;
+		bool y = false;
+		bool z = false;
+
+		if (fabs(diff.x) > fabs(diff.y) && fabs(diff.x) > fabs(diff.z))
+		{
+			x = true;
+		}
+		else if(fabs(diff.y) > fabs(diff.x) && fabs(diff.y) > fabs(diff.z))
+		{
+			y = true;
+		}
+		else
+		{
+			z = true;
+		}	
+
+		// Reverting the movement in that direction.
+		p_transform->position.x -= p_movement->mVelocity.x * p_event->mDelta * x;
+		p_transform->position.y -= p_movement->mVelocity.y * p_event->mDelta * y;
+		p_transform->position.z -= p_movement->mVelocity.z * p_event->mDelta * z;
+
+		// Resetting the velocity in that direction.
+		p_movement->mVelocity.x *= !x;
+		p_movement->mVelocity.y *= !y;
+		p_movement->mVelocity.z *= !z;
+	}
 }
 #pragma endregion
 #pragma region GroundCollisionComponentInitSystem
@@ -83,7 +140,7 @@ ecs::systems::GroundCollisionComponentInitSystem::~GroundCollisionComponentInitS
 void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent *_event)
 {
 	// IMPORTANT: Made temporary mesh component in order to make progress.
-	CreateComponentEvent *create_component_event = dynamic_cast<CreateComponentEvent*>(_event);
+	CreateComponentEvent* create_component_event = dynamic_cast<CreateComponentEvent*>(_event);
 
 	// If the component created was any other than ground collision component, do nothing.
 	if (create_component_event->componentTypeID != GroundCollisionComponent::typeID)
@@ -91,6 +148,7 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 		return;
 	}
 
+	
 	// Assumes the entity has a mesh component, transform component and ground collision component.
 	// Check for ground collision component is already made.
 	Entity* entity = getEntity(create_component_event->entityID);
