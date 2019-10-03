@@ -85,6 +85,7 @@ namespace memory
 		~Heap();
 
 		bool Initialize(void* memoryStart, uint memorySize);
+		void Terminate();
 
 		void* mpAllocationBlockStart;
 		void* mpMemoryStart;

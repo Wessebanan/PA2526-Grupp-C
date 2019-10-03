@@ -9,6 +9,7 @@ allocators::LinearAllocator::LinearAllocator() :
 		Set all member variables to default. Initialize() will
 		later set all member variables appropriately.
 	*/
+	//mAllocations;
 }
 
 allocators::LinearAllocator::~LinearAllocator()

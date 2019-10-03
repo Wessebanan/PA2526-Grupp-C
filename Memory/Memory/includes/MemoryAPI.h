@@ -32,10 +32,7 @@ namespace memory
 	class MemoryManager
 	{
 	public:
-
-		// Delete copy constructor and copy operator
-		MemoryManager(const MemoryManager& other) = delete;
-		MemoryManager& operator=(const MemoryManager& other) = delete;
+		DENY_COPY(MemoryManager)
 
 		/*
 			Returns an instance to the Memory Manager. Use this instance
@@ -95,6 +92,11 @@ namespace memory
 		inline bool IsInitialized()
 		{
 			return mpMemoryStart;
+		}
+
+		void EndInternal()
+		{
+			mMainHeap.Terminate();
 		}
 
 		#define IF_INITIALIZED_RETURN(ret) if (mpMemoryStart) {return ret;}

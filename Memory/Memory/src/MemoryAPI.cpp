@@ -48,6 +48,7 @@ void memory::MemoryManager::End()
 {
 	if (mInstance)
 	{
+		mInstance->EndInternal();
 		delete mInstance;
 		mInstance = nullptr;
 	}

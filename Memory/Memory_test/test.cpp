@@ -3,6 +3,8 @@
 
 #include <crtdbg.h> // For checking memory leaks
 
+//#pragma warning(disable:)
+
 int main(int argc, char** argv) {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	::testing::InitGoogleTest(&argc, argv);
@@ -94,124 +96,48 @@ int main(int argc, char** argv) {
 
 namespace API
 {
-	/*
-		TESTING API
-
-	*/
-
-	const uint ALLOCATOR_SIZE = sizeof(memory::allocators::LinearAllocator);
-
-	// Let there be some data the user want to use
-	const uint USER_DATA_SIZE = 50;
-
-	/*
-		In order to provide memory for a user's dynamic object, an allocator has to be able to
-		reserve some size of memory (memory block) in its memory heap and return a pointer to the
-		user.
-
-		This test try to allocate some memory through an allocator, that owns some memory.
-	*/
-	TEST(TestAPI, AllocateOnLinearAllocator)
+	TEST(MemoryAPI, InitMemoryManager)
 	{
-		// Allocate memory for some user data (play with the thought) and an allocator
-		const uint BLOCK_SIZE = USER_DATA_SIZE + sizeof(memory::allocators::LinearAllocator);
-		void* memory_block = malloc(BLOCK_SIZE);
+		memory::MemoryManager& r_mgr = memory::MemoryManager::Instance();
+		//memory::MemoryManager::Instance().Initialize(100);
 
+		/*
+			Initialize the manager with some memory size requirement,
+			this will allocate memory using malloc.
+			If failed, we don't want to free the memory; hince ASSERT
+		*/
+		ASSERT_TRUE(r_mgr.Initialize(100));
 
-		// Create and initialize the allocator
-		memory::allocators::LinearAllocator linear_allocator;
-		linear_allocator.Initialize(memory_block, BLOCK_SIZE);
-
-		// This is the focus of the test
-		EXPECT_TRUE(linear_allocator.Allocate(USER_DATA_SIZE));
-
-		free(memory_block);
+		// Frees memory
+		r_mgr.End();
 	}
 
-	/*
-		Try to initialize memory.
-		This will create an instance of memory manager and initialize it with the
-		wanted heap size. The memory manager will use malloc for the wanted heap
-		size plus the size of the allocator that manages the main heap.
-
-		Initialize() returns true if malloc returns null, or the main allocator
-		failed to initialize.
-	*/
-	TEST(TestAPI, Init)
-	{
-		ASSERT_TRUE(memory::Initialize(100));
-		memory::End();
-	}
-
-	/*
-		Try to create an allocator that lives on the main heap and manages a memory
-		block on the main heap.
-	*/
-	//TEST(TestAPI, CreateAllocator)
+	//TEST(MemoryAPI, CreateHeap)
 	//{
-	//	// Request a heap that fits an allocator and user data
-	//	memory::Initialize(ALLOCATOR_SIZE + USER_DATA_SIZE);
+	//	const uint MAIN_HEAP_SIZE = 500;
+	//	const uint SUB_HEAP_SIZE = 100;
 
-	//	// Create an allocator that the user can use to allocate memory for their data
-	//	memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
-	//	ASSERT_NE(p_allocator, nullptr);
+	//	memory::Initialize(MAIN_HEAP_SIZE);
 
-	//	// Free allocated memory
+	//	memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
+
+	//	ASSERT_NE(p_heap, nullptr);
+
+	//	memory::Free(p_heap);
 	//	memory::End();
 	//}
 
-	/*
-		In an application, there will probably exist multiple allocators on the main heap
-		that each manage a block of memory separately. Graphics, ECS, Sound etc. want their
-		own block of data for memory allocations. These will recieve their own allocator for
-		that purpose.
-	*/
-	//TEST(TestAPI, CreateMultipleAllocators)
+	//TEST(MemoryAPI, Allocate)
 	//{
-	//	const uint domain_count = 10;
 
-	//	// Request a heap that fits ten allocator and user data for each of them
-	//	memory::Initialize
-	//	(
-	//		(ALLOCATOR_SIZE * domain_count) +
-	//		(USER_DATA_SIZE * domain_count)
-	//	);
-
-
-	//	// Try to create each domain allocator, with their own heap size for user data
-	//	for (uint i = 0; i < domain_count; i++)
-	//	{
-	//		memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
-	//		ASSERT_NE(p_allocator, nullptr);
-	//	}
-
-	//	/*
-	//		Since we created allocators that fill the whole main heap, we should not be able to
-	//		create another allocator.
-	//	*/
-	//	memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE);
-	//	ASSERT_EQ(p_allocator, nullptr);
-
-	//	// Free allocated memory
-	//	memory::End();
 	//}
 
-	/*
-		Each allocator is responsible for not allocating memory outside of their own heap.
-	*/
-	//TEST(TestAPI, HandleOverflowAllocatorSize)
+	//TEST(MemoryAPI, Free)
 	//{
-	//	// Request a heap that fits an allocator and user data
-	//	memory::Initialize(ALLOCATOR_SIZE + USER_DATA_SIZE);
 
-	//	/*
-	//		Try to create an allocator with a heap LARGER than we previously allocated memory for,
-	//		which should not be allowed.
-	//	*/
-	//	memory::allocators::Allocator* p_allocator = memory::CreateAllocator(USER_DATA_SIZE + 10);
-	//	ASSERT_EQ(p_allocator, nullptr);
-
-	//	// Free allocated memory
-	//	memory::End();
 	//}
 }
+
+/*
+	TODO: Backend testing
+*/

@@ -57,7 +57,12 @@ memory::Heap::~Heap()
 {
 	//// TEMPORARY BACKEND START ////
 
-	mpAllocator->Terminate();
+	if (mpAllocator)
+	{
+		mpAllocator->Terminate();
+		mpAllocator = nullptr;
+	}
+		
 
 	///// TEMPORARY BACKEND END /////
 }
@@ -77,3 +82,11 @@ bool memory::Heap::Initialize(void* memoryStart, uint memorySize)
 	return true;
 }
 
+void memory::Heap::Terminate()
+{
+	if (mpAllocator)
+	{
+		mpAllocator->Terminate();
+		mpAllocator = nullptr;
+	}
+}
