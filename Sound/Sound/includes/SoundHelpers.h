@@ -10,6 +10,7 @@
 #define SOUND_CHAIN_BUFFER_COUNT (2)
 #define SOUND_LEFT (0)
 #define SOUND_RIGHT (1)
+#define SOUND_MAX_VOICES (12)
 #ifndef M_PI
 #define M_PI  (3.14159265)
 #endif
