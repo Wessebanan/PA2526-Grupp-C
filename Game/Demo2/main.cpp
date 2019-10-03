@@ -310,11 +310,12 @@ int main()
 
 	ID current;
 	// Create components for entities.
-	/*while */(army_comp = (ecs::components::ArmyComponent*)it.next());
+	while(army_comp = (ecs::components::ArmyComponent*)it.next())
 	{
-		for (size_t i = 0; i < 2; i++)
-		{
-			current = army_comp->unitIDs[i];
+		//for (size_t i = 0; i < 3; i++)
+		//{
+			//current = army_comp->unitIDs[i];
+			current = army_comp->unitIDs[0];
 			ecs.createComponent<MeshComponent>(current, mesh_component);
 			ecs.createComponent<GroundCollisionComponent>(current, ground_collision_component);
 			ecs.createComponent<DynamicMovementComponent>(current, movement_component);
@@ -323,7 +324,7 @@ int main()
 			move_ev.mEntityID = current;
 			move_ev.mInput = FORWARD;
 			ecs.createEvent(move_ev);
-		}
+		//}
 	}
 	
 
