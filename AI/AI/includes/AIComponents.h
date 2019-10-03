@@ -15,8 +15,10 @@ namespace ecs
 			  It will be expanded on when pathfinding and other systems is implemented.
 			*/
 			TileType tileType = GRASS;
-			bool impassable = false;
+			bool impassable = true;
 			float niceness = 0.f;
+			bool goal = false;
+			unsigned int neighboursIDArray[6] = { 0 };
 		};
 
 		struct PathfindingStateComponent : public ECSComponent<PathfindingStateComponent>
