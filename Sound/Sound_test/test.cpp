@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "SoundEngine.h"
 #include "RingBuffer.h"
+#include "SoundBank.h"
 #include <thread>
 #include <cmath>
 
@@ -210,4 +211,10 @@ TEST(Utility, RingBufferThreaded)
 	}
 	work_thread.join();	// wait for worker thread to finish
 	std::cout << "\nTotal floats processed: " << number << std::endl;
+}
+
+TEST(SoundAPI, LoadSoundData)
+{
+	Sound::Bank bank;
+	EXPECT_EQ(bank.GetFile("Hello!"), nullptr);
 }
