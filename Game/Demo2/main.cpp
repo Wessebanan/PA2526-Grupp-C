@@ -7,6 +7,7 @@
 #include "..//..//InputInterpreter/includes/InterpretWebEvents.h"
 #include "AIFunctions.h"
 #include "UISystems.h"
+#include "InitPhysics.h"
 
 
 int main()
@@ -55,6 +56,9 @@ int main()
 	//preset_move_event.playerId = PLAYER1;
 	//preset_move_event.newState = STATE::MOVE;
 	//ecs.createEvent(preset_move_event);
+
+	
+
 
 	Direct2D* d2d = new Direct2D();
 	//init::InitUISystems(ecs, &d2d);
@@ -139,6 +143,34 @@ int main()
 
 	UINT index = 0;
 	ecs::ComponentIterator itt;
+
+	// Create systems.
+	ecs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
+	ecs.createSystem<ecs::systems::GroundCollisionSystem>();
+	ecs.createSystem<ecs::systems::DynamicMovementSystem>();
+
+	// Declare components.
+	MeshComponent mesh_component;
+	mesh_component.mMesh = dude;
+	GroundCollisionComponent ground_collision_component;
+	DynamicMovementComponent movement_component;
+
+	int army_index = 0;
+	ecs::ComponentIterator it = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
+	ecs::components::ArmyComponent* army_comp;
+
+	// Create components for entities.
+	while (army_comp = (ecs::components::ArmyComponent*)it.next())
+	{
+		for (size_t i = 0; i < 3; i++)
+		{
+			ID current = army_comp->unitIDs[i];
+			ecs.createComponent<MeshComponent>(current, mesh_component);
+			ecs.createComponent<GroundCollisionComponent>(current, ground_collision_component);
+			ecs.createComponent<DynamicMovementComponent>(current, movement_component);
+		}
+	}
+
 	
 	itt = ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID);
 	ecs::components::TileComponent* tileComp;
