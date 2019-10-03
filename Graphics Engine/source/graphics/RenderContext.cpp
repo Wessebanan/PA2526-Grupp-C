@@ -24,21 +24,31 @@ namespace graphics
 
 		// Set Vertex Buffers
 
-		ID3D11Buffer* pVertexBuffers[4] = {
+		ID3D11Buffer* pVertexBuffers[6] = {
 			m_pStorage->GetBufferHeapGPU(BUFFER_VERTEX_POSITION),
 			m_pStorage->GetBufferHeapGPU(BUFFER_VERTEX_NORMAL),
 			m_pStorage->GetBufferHeapGPU(BUFFER_VERTEX_UV),
+
 			m_pStorage->GetBufferHeapGPU(BUFFER_VERTEX_ARRAY_INDEX),
+
+			m_pStorage->GetBufferHeapGPU(BUFFER_VERTEX_BLEND_WEIGHT),
+			m_pStorage->GetBufferHeapGPU(BUFFER_VERTEX_BLEND_INDICES),
 		};
 
-		UINT strides[4] = {
-			sizeof(float) * 3,
-			sizeof(float) * 3,
-			sizeof(float) * 2,
-			sizeof(UINT) * 1,
+		UINT strides[6] = {
+			sizeof(float)	* 3,
+			sizeof(float)	* 3,
+			sizeof(float)	* 2,
+
+			sizeof(UINT)	* 1,
+
+			sizeof(float)	* 3,
+			sizeof(int)		* 4
 		};
 
-		UINT offsets[4] = {
+		UINT offsets[6] = {
+			0,
+			0,
 			0,
 			0,
 			0,
