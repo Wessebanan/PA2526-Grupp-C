@@ -3,6 +3,8 @@
 #include "MemoryGlobals.h"
 #include "Allocator.h"
 
+#include <vector>
+
 /*
 										##################################
 									   #  HOW ALLOCATOR MEMORY IS STORED  #
@@ -74,15 +76,19 @@ namespace memory
 			*/
 			void Free(void* ptr) override;
 
-			///*
-			//	Reserves 
-			//*/
-			//template <typename T>
-			//T* CreateSubAllocator(uint memorySize);
-
 		private:
 
 			void* mpCurrent;
+
+			//// TEMPORARY BACKEND START ////
+			/*
+				In order to avoid memory leaks. Store all allocations
+				and free them in the free function and destructor.
+			*/
+
+			std::vector<void*> mAllocations;
+
+			///// TEMPORARY BACKEND END /////
 		};
 	}
 }

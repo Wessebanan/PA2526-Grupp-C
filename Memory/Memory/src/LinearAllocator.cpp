@@ -40,6 +40,10 @@ bool allocators::LinearAllocator::Initialize(void* memoryStart, uint memorySize)
 
 void memory::allocators::LinearAllocator::Terminate()
 {
+	//// TEMPORARY BACKEND START ////
+	Clear();
+	///// TEMPORARY BACKEND END /////
+
 	mpCurrent = nullptr;
 	Allocator::Terminate();
 }
@@ -49,12 +53,15 @@ void memory::allocators::LinearAllocator::Clear()
 	/*
 		TODO: Reset data structure for free memory
 	*/
+	
+	//// TEMPORARY BACKEND START ////
+	for (void* p : mAllocations)
+	{
+		free(p);
+	}
+	mAllocations.clear();
+	///// TEMPORARY BACKEND END /////
 
-	/*
-		or now, reset next free memory ptr at the beginning
-		f the heap start.
-	*/
-	mpCurrent = mpMemoryHeapStart;
 	mMemoryUsed = 0;
 }
 
@@ -66,13 +73,20 @@ void* memory::allocators::LinearAllocator::Allocate(uint size)
 		return nullptr;
 	}
 
-	void* p = mpCurrent;
-	mpCurrent = (char*)mpCurrent + size;
-	mMemoryUsed += size;
-
 	/*
 		TODO: Update free memory data structure
 	*/
+
+
+	//// TEMPORARY BACKEND START ////
+
+	void* p = malloc(size);
+	mMemoryUsed += size;
+
+	// Store pointer in order to avoid memory leaks, free them in Free() and destructor
+	mAllocations.push_back(p);
+
+	///// TEMPORARY BACKEND END /////
 
 	return p;
 }
@@ -83,4 +97,24 @@ void memory::allocators::LinearAllocator::Free(void* ptr)
 		TODO: Santiy check if ptr belongs to this memory.
 		TODO: Update free memory data structure.
 	*/
+
+	//// TEMPORARY BACKEND START ////
+	/*
+		Iterate through all existing allocations and find the
+		given ptr. If found, free its memory and remove it
+		from the allocation list.
+
+		If not found, nothing has to be done with the ptr
+		as it's not this allocator's responsibility.
+		(since the ptr is not allocated from this allocator)
+	*/
+	for (size_t i = 0; i < mAllocations.size(); i++)
+	{
+		if (mAllocations[i] == ptr)
+		{
+			free(ptr);
+			mAllocations.erase(mAllocations.begin() + i);
+		}
+	}
+	///// TEMPORARY BACKEND END /////
 }
