@@ -79,6 +79,8 @@ namespace memory
 			void* Allocate(uint size);
 			void Free(void* ptr);
 
+			heaps::Heap* CreateHeap(uint size);
+
 			// TODO: Create heap
 
 		private:

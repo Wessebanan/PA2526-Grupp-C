@@ -3,7 +3,9 @@
 #include <unordered_map>
 #include "MemoryGlobals.h"
 
-#include "LinearAllocator.h"
+#include "Heap.h"
+
+
 
 namespace memory
 {
@@ -14,7 +16,7 @@ namespace memory
 	*/
 	static inline bool Initialize(uint size);
 	static inline void End();
-	static inline allocators::Allocator* CreateAllocator(uint size);
+	static inline heaps::Heap* CreateHeap(uint size);
 
 	static inline void* Allocate(size_t size);
 	static inline void Free(void* ptr);
@@ -65,11 +67,10 @@ namespace memory
 
 		/*
 			!BETA METHOD, LATER IMPLEMENTATIONS WILL SPECIFY ALLOCATOR TYPE!
-			Creates an allocator for a new memory domain that the user can use.
-			Memory domains are just different chunks in memory, reserved for
-			one area of the application; like graphics or ECS.
+			Creates a heap for a new memory domain (graphics, ECS etc.) that the
+			user can use.
 		*/
-		allocators::Allocator* CreateAllocator(uint size);
+		heaps::Heap* CreateHeap(uint size);
 
 		/*
 			Getters
@@ -88,7 +89,7 @@ namespace memory
 
 		uint mMemorySize;
 		void *mpMemoryStart;
-		allocators::LinearAllocator mMemory;
+		heaps::Heap mMainHeap;
 
 
 		inline bool IsInitialized()
@@ -117,9 +118,9 @@ namespace memory
 		MemoryManager::Instance().End();
 	}
 
-	static inline allocators::Allocator* CreateAllocator(uint size)
+	static inline heaps::Heap* CreateHeap(uint size)
 	{
-		return MemoryManager::Instance().CreateAllocator(size);
+		return MemoryManager::Instance().CreateHeap(size);
 	}
 
 	static inline void* Allocate(size_t size)
