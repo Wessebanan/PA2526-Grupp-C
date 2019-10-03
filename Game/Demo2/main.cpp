@@ -31,7 +31,7 @@ int main()
 		ecsDesc.systemLayerCount = 10;
 		ecs.initialize(ecsDesc);
 	}
-	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 1.1f);
+	GridFunctions::CreateGrid(ecs, gridWidth, gridHeight, 1.0f);
 
 
 	initInputECS(ecs, new InputBackend());
