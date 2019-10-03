@@ -80,37 +80,11 @@ int main()
 
 	int mesh_dude; // dude
 	{
-		//struct float3
-		//{
-		//	float x, y, z;
-		//};
-
-		//float3 triangle[3] = {
-		//	-0.1f,  -0.1f, 0.0f,
-		//	 0.0f,   0.1f, 0.0f,
-		//	 0.1f,  -0.1f, 0.0f,
-		//};
-
-		//int indexBuffer[3] = {
-		//	0, 1, 2
-		//};
-
-		//VERTEX_BUFFER_DATA vertex_data = { NULL };
-		//vertex_data.VertexCount = 3;
-		//vertex_data.pVertexData = triangle;
-
-		//INDEX_BUFFER_DATA index_data = { NULL };
-		//index_data.IndexCount = 3 * sizeof(int);
-		//index_data.pIndexData = indexBuffer;
-
-		//mesh_dude = mng.CreateMesh(
-		//	&vertex_data,
-		//	//NULL);
-		//	&index_data);
-
 		VERTEX_BUFFER_DATA vertex_data = { NULL };
 		vertex_data.VertexCount = dude.GetVertexPositionVector()->size();
+
 		vertex_data.pVertexData = dude.GetVertexPositionVector()->data();
+		vertex_data.pTextureCoordData = dude.GetUVVector()->data();
 
 		INDEX_BUFFER_DATA index_data = { NULL };
 		index_data.IndexCount = dude.GetIndexVector()->size() * 4;
@@ -140,14 +114,19 @@ int main()
 	m_desc[1].MeshIndex = mesh_dude;
 
 	desc[RENDER_DEFAULT].PerInstanceByteWidth = sizeof(float4);
-	desc[RENDER_DEFAULT].pModelLayout = m_desc;
-	desc[RENDER_DEFAULT].ModelLayoutCount = 2;
+	desc[RENDER_DEFAULT].pModelLayout = &m_desc[0];
+	desc[RENDER_DEFAULT].ModelLayoutCount = 1;
+
+	desc[RENDER_TRANSFORMATION].PerInstanceByteWidth = sizeof(float4) * 4;
+	desc[RENDER_TRANSFORMATION].pModelLayout = &m_desc[1];
+	desc[RENDER_TRANSFORMATION].ModelLayoutCount = 1;
 
 	mng.CreateModelHeap(desc);
 
 	graphics::PresentWindow* pWnd = mng.GetPresentWindow();
 
 	float4* pTilePosition = (float4*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
+	XMFLOAT4X4* p_unit_pos = (XMFLOAT4X4*)mng.GetTechniqueModelBuffer(RENDER_TRANSFORMATION);
 
 	UINT index = 0;
 	ecs::ComponentIterator itt;
@@ -176,14 +155,21 @@ int main()
 		{
 			ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(armComp->unitIDs[i]);
 
-			pTilePosition[index].x = trComp->position.x;
-			pTilePosition[index].y = trComp->position.y;
-			pTilePosition[index].z = trComp->position.z;
-			pTilePosition[index].w = (1.0f / (armyIndex + 0.000001f));
+			XMMATRIX world = XMMatrixIdentity();
+			world *= XMMatrixScaling(trComp->scale.x, trComp->scale.y, trComp->scale.z);
+			world *= XMMatrixRotationRollPitchYaw(trComp->rotation.x, trComp->rotation.y, trComp->rotation.z);
+			world *= XMMatrixTranslation(trComp->position.x, trComp->position.y, trComp->position.z);
+			
+			XMStoreFloat4x4(&p_unit_pos[armyIndex], world);
 
-			index++;
+			//p_unit_pos[armyIndex].x = trComp->position.x;
+			//p_unit_pos[armyIndex].y = trComp->position.y;
+			//p_unit_pos[armyIndex].z = trComp->position.z;
+			//p_unit_pos[armyIndex].w = (1.0f / (armyIndex + 0.000001f));
+
+			armyIndex++;
 		}
-		armyIndex++;
+		//armyIndex++;
 	}
 
 	//for (size_t i = 0; i < 4; i++)
