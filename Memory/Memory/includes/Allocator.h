@@ -16,18 +16,20 @@
 									   #  HOW ALLOCATOR MEMORY IS STORED  #
 										##################################
 
-	+-------------------------------------------------------------------------------------------------------+
-	|  Header used to store   |                                                                             |
-	|  the allocator and all  |			Memory available for allocations, managed by the allocator.			|
-	|  data used to manage    |                                                                             |
-	|  its memory.            |                                                                             |
-	+-------------------------------------------------------------------------------------------------------+
-	\____________ ____________/\_______________________________________ _____________________________________/
-				 V                                                     V
-		  Allocator block								  Heap block (for allocations)
-	\___________________________________________________ ___________________________________________________/
-														V
-												   Memory Block (for allocator)
+	TODO: Describe how allocators work internally.
+
+																				MB: Memory Block (aka. allocations)
+	+------------------+------------------------------------------------------------------------------------------+
+	|    Allocator     |     MB    |              MB             |     MB     |      MB      |  MB  |       MB    |
+	+------------------+------------------------------------------------------------------------------------------+
+	\________ ________/\____________________________________________ ____________________________________________/
+			 V                                                      V
+	   HEADER BLOCK                                         ALLOCATION BLOCK
+(where allocator is stored)                            (managed by the allocator)
+
+	\_____________________________________________________ _______________________________________________________/
+														  V
+														 HEAP
 */
 
 namespace memory
@@ -77,9 +79,7 @@ namespace memory
 			uint mMemorySize;
 			uint mMemoryUsed;
 
-			/*
-				Pointer to the first address of the ALLOCATION BLOCK
-			*/
+			// Pointer to the first address of the ALLOCATION BLOCK
 			void* mpMemoryStart;
 		};
 
