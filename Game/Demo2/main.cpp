@@ -60,18 +60,19 @@ int main()
 
 
 	ModelLoader::Mesh tile2("../hexagon_tile2.fbx");
+	ModelLoader::Mesh tile3("../hexagon_tile3.fbx");
 	ModelLoader::Mesh tile("../hexagon_tile.fbx");
 	ModelLoader::Mesh dude("../dudeMesh0.fbx");
 
 	int mesh_tile; // tile
 	{
 		VERTEX_BUFFER_DATA vertex_data = { NULL };
-		vertex_data.VertexCount = tile2.GetVertexPositionVector()->size();
-		vertex_data.pVertexData = tile2.GetVertexPositionVector()->data();
+		vertex_data.VertexCount = tile3.GetVertexPositionVector()->size();
+		vertex_data.pVertexData = tile3.GetVertexPositionVector()->data();
 
 		INDEX_BUFFER_DATA index_data = { NULL };
-		index_data.IndexCount = tile2.GetIndexVector()->size() * 4;
-		index_data.pIndexData = tile2.GetIndexVector()->data();
+		index_data.IndexCount = tile3.GetIndexVector()->size() * 4;
+		index_data.pIndexData = tile3.GetIndexVector()->data();
 
 		mesh_tile = mng.CreateMesh(
 			&vertex_data,
@@ -98,7 +99,8 @@ int main()
 
 	struct float4
 	{
-		float x, y, z, w;
+		float x, y, z;
+		uint32_t color;
 	};
 
 
@@ -140,7 +142,27 @@ int main()
 		pTilePosition[index].x = trComp->position.x;
 		pTilePosition[index].y = trComp->position.y;
 		pTilePosition[index].z = trComp->position.z;
-		pTilePosition[index].w = index / (float)(nr_tiles);
+
+		int random = rand() % 101;
+		int color_offset = -50 + random;
+		switch (tileComp->tileType)
+		{
+		case TileTypes::GRASS:
+			pTilePosition[index].color = PACK(0, 150 + color_offset, 0, 0);
+			break;
+		case TileTypes::STONE:
+			pTilePosition[index].color = PACK(50 + color_offset, 50 + color_offset, 50 + color_offset, 0);
+			break;
+		case TileTypes::WATER:
+			pTilePosition[index].color = PACK(0, 0, 200 + color_offset, 0);
+			break;
+		case TileTypes::UNDEFINED:
+			pTilePosition[index].color = PACK(0, 0, 0, 255);
+			break;
+		default:
+			pTilePosition[index].color = PACK(255, 255, 255, 255);
+			break;
+		}
 
 		index++;
 	}
@@ -160,6 +182,8 @@ int main()
 			world *= XMMatrixRotationRollPitchYaw(trComp->rotation.x, trComp->rotation.y, trComp->rotation.z);
 			world *= XMMatrixTranslation(trComp->position.x, trComp->position.y, trComp->position.z);
 			
+
+
 			XMStoreFloat4x4(&p_unit_pos[armyIndex], world);
 
 			armyIndex++;
@@ -197,7 +221,7 @@ int main()
 	{
 		if (!pWnd->Update())
 		{
-			mng.Clear();
+			mng.Clear(0.2f,0.1f,0.1f);
 
 			float moveSpeed = 0.01f;
 
