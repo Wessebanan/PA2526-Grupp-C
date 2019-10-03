@@ -62,10 +62,12 @@
     <Import Project="..\props\ExePath.props" />
     <Import Project="..\props\AdditionalLibsDebug.props" />
     <Import Project="..\props\LibSoundIO.props" />
+    <Import Project="..\..\Physics\props\ECS_Debug.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\props\IncludesDirectory.props" />
+    <Import Project="..\..\Physics\props\ECS_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -73,10 +75,12 @@
     <Import Project="..\props\IncludesDirectory.props" />
     <Import Project="..\props\AdditionalLibsRelease.props" />
     <Import Project="..\props\LibSoundIO.props" />
+    <Import Project="..\..\Physics\props\ECS_Release.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\props\IncludesDirectory.props" />
+    <Import Project="..\..\Physics\props\ECS_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">
@@ -153,6 +157,9 @@
     <ClCompile Include="Voice.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="includes\EcsSoundComponents.h" />
+    <ClInclude Include="includes\EcsSoundEvents.h" />
+    <ClInclude Include="includes\EcsSoundSystems.h" />
     <ClInclude Include="includes\Mixer.h" />
     <ClInclude Include="includes\Plugin.h" />
     <ClInclude Include="includes\RingBuffer.h" />
