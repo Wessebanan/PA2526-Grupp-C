@@ -27,8 +27,8 @@ enum PLAYER
 
 struct int2
 {
-	int x; 
-	int y;
+	int x, y;
+	int2(int a = 0, int b = 0) { x = a; y = b; }
 };
 
 namespace PlayerProperties
