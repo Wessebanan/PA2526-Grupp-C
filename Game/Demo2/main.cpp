@@ -162,14 +162,8 @@ int main()
 			
 			XMStoreFloat4x4(&p_unit_pos[armyIndex], world);
 
-			//p_unit_pos[armyIndex].x = trComp->position.x;
-			//p_unit_pos[armyIndex].y = trComp->position.y;
-			//p_unit_pos[armyIndex].z = trComp->position.z;
-			//p_unit_pos[armyIndex].w = (1.0f / (armyIndex + 0.000001f));
-
 			armyIndex++;
 		}
-		//armyIndex++;
 	}
 
 	//for (size_t i = 0; i < 4; i++)
