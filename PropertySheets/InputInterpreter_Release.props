@@ -9,7 +9,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)..\Lib</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\InputHandler\InputInterpreter\includes;$(ProjectDir)includes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\InputHandler\InputInterpreter\includes;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
     </ClCompile>
     <Lib>
       <AdditionalDependencies>InputInterpreter.lib;</AdditionalDependencies>
