@@ -13,7 +13,8 @@ namespace rendering
 
 	struct PerObjectData
 	{
-		float4 Pos;
+		float3 Pos;
+		uint   color;
 	}; 
 
 	cbuffer gTransformation : register (b0)
@@ -33,8 +34,8 @@ namespace rendering
 
 	struct VSOUT
 	{
-		float4 pos	   : SV_POSITION;
-		float contrast : COLOR0;
+		float4 pos	    : SV_POSITION;
+		uint4 color		: COLOR0;
 	};
 
 	VSOUT main(
@@ -43,7 +44,14 @@ namespace rendering
 	{
 		VSOUT output;
 		
-		output.contrast = gMesh[instance].Pos.w;
+		uint color = gMesh[instance].color;
+	
+		uint red   =  color               >> 24;
+		uint green = (color & 0x00ff0000) >> 16;
+		uint blue  = (color & 0x0000ff00) >>  8;
+		uint alpha = (color & 0x000000ff);
+
+		output.color = uint4(red, green, blue, alpha);
 
 		output.pos	= float4(pos.xyz + gMesh[instance].Pos.xyz, 1.0f);
 		output.pos	= mul(gPerspective, mul(gView, output.pos));
@@ -57,13 +65,13 @@ namespace rendering
 
 	struct PSIN
 	{
-		float4 pos	   : SV_POSITION;
-		float contrast : COLOR0;
+		float4 pos			: SV_POSITION;
+		uint4 color			: COLOR0;
 	};
 
 	float4 main(PSIN input) : SV_TARGET
 	{ 
-		return float4(input.contrast.xxx, 1.0f);
+		return float4(input.color / 256.0f);
 	}	
 
 	)";
