@@ -64,6 +64,12 @@ int main()
 		float x, y, z, w;
 	};
 
+	struct Default
+	{
+		float x, y, z;
+		uint32_t color;
+	};
+
 	UINT width = 2;
 	UINT height = 2;
 	UINT count = width * height;
@@ -99,7 +105,7 @@ int main()
 
 	graphics::PresentWindow* pWnd = mng.GetPresentWindow();
 
-	float4* tri_array = (float4*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
+	Default* tri_array = (Default*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
 
 	for (UINT x = 0; x < width; x++)
 	{
@@ -109,7 +115,7 @@ int main()
 			tri_array[index].x = x * 0.5f - 0.99f;
 			tri_array[index].y = y * 0.5f - 0.99f;
 
-			tri_array[index].w = 1.0f;
+			tri_array[index].color = PACK(5, 50, 240, 0);
 		}
 	}
 
@@ -134,27 +140,14 @@ int main()
 	{
 		if (!pWnd->Update())
 		{
-			mng.Clear();
-
-			for (UINT x = 0; x < width; x++)
-			{
-				for (UINT y = 0; y < height; y++)
-				{
-					UINT index = x * height + y;
-					tri_array[index].y -= 0.01f;
-
-					if (tri_array[index].y < -10.01f)
-					{
-						tri_array[index].y = 12.01f;
-					} 
-				}
-			}
+			mng.Clear(1.0f, 0.0f, 0.0f);
 
 			float moveSpeed = 0.01f;
 			if (GetAsyncKeyState(VK_UP))
 			{
 				z += moveSpeed;
 			}
+
 			if (GetAsyncKeyState(VK_DOWN))
 			{
 				z -= moveSpeed;
@@ -164,6 +157,7 @@ int main()
 			{
 				x -= moveSpeed;
 			}
+
 			if (GetAsyncKeyState(VK_RIGHT))
 			{
 				x += moveSpeed;

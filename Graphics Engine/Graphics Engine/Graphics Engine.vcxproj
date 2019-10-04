@@ -10,6 +10,23 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\source\graphics\BufferStorage.cpp" />
+    <ClCompile Include="..\source\graphics\DeviceInterface.cpp" />
+    <ClCompile Include="..\source\graphics\GraphicsPipeline.cpp" />
+    <ClCompile Include="..\source\graphics\PresentWindow.cpp" />
+    <ClCompile Include="..\source\graphics\RenderContext.cpp" />
+    <ClCompile Include="..\source\graphics\Window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\includes\graphics\BufferStorage.h" />
+    <ClInclude Include="..\includes\graphics\D3D11Header.h" />
+    <ClInclude Include="..\includes\graphics\DeviceInterface.h" />
+    <ClInclude Include="..\includes\graphics\GraphicsPipeline.h" />
+    <ClInclude Include="..\includes\graphics\Info.h" />
+    <ClInclude Include="..\includes\graphics\PresentWindow.h" />
+    <ClInclude Include="..\includes\graphics\Window.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{7F491F33-3135-48B3-AF3D-1F727DCB4D2F}</ProjectGuid>
@@ -91,31 +108,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\includes\graphics\BufferStorage.h" />
-    <ClInclude Include="..\includes\graphics\D3D11Header.h" />
-    <ClInclude Include="..\includes\graphics\DeviceInterface.h" />
-    <ClInclude Include="..\includes\graphics\GraphicsComponents.h" />
-    <ClInclude Include="..\includes\graphics\GraphicsPipeline.h" />
-    <ClInclude Include="..\includes\graphics\GraphicsSystems.h" />
-    <ClInclude Include="..\includes\graphics\Header.h" />
-    <ClInclude Include="..\includes\graphics\Info.h" />
-    <ClInclude Include="..\includes\graphics\pch.h" />
-    <ClInclude Include="..\includes\graphics\PresentWindow.h" />
-    <ClInclude Include="..\includes\graphics\Window.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\source\graphics\BufferStorage.cpp" />
-    <ClCompile Include="..\source\graphics\DeviceInterface.cpp" />
-    <ClCompile Include="..\source\graphics\GraphicsPipeline.cpp" />
-    <ClCompile Include="..\source\graphics\pch.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\source\graphics\PresentWindow.cpp" />
-    <ClCompile Include="..\source\graphics\RenderContext.cpp" />
-    <ClCompile Include="..\source\graphics\Window.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -107,6 +107,24 @@ namespace graphics
 			m_size = ALLOCATED_BUFFER_SIZE;
 			break;
 
+		case BUFFER_VERTEX_BLEND_WEIGHT:
+			desc.BindFlags = m_bindType = D3D11_BIND_VERTEX_BUFFER;
+			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
+			desc.Usage = D3D11_USAGE_DEFAULT;
+			desc.MiscFlags = 0;
+
+			m_size = ALLOCATED_BUFFER_SIZE;
+			break;
+
+		case BUFFER_VERTEX_BLEND_INDICES:
+			desc.BindFlags = m_bindType = D3D11_BIND_VERTEX_BUFFER;
+			desc.ByteWidth = ALLOCATED_BUFFER_SIZE;
+			desc.Usage = D3D11_USAGE_DEFAULT;
+			desc.MiscFlags = 0;
+
+			m_size = ALLOCATED_BUFFER_SIZE;
+			break;
+
 		case BUFFER_VERTEX_ARRAY_INDEX:
 			desc.BindFlags	= m_bindType = D3D11_BIND_VERTEX_BUFFER;
 			desc.ByteWidth	= BUFFER_VERTEX_ARRAY_INDEX_LENGTH * sizeof(UINT);
