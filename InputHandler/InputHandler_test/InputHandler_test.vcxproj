@@ -31,16 +31,14 @@
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="..\InputInterpreter\InputInterpreter_Release.props" />
-    <Import Project="..\..\Physics\props\ECS_Debug.props" />
-    <Import Project="..\InputHandler_Debug.props" />
-    <Import Project="..\AI_Debug.props" />
+    <Import Project="..\..\PropertySheets\ECS_Debug.props" />
+    <Import Project="..\..\PropertySheets\InputInterpreter_Debug.props" />
+    <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="..\InputInterpreter\InputInterpreter_Release.props" />
-    <Import Project="..\..\Physics\props\ECS_Release.props" />
-    <Import Project="..\InputHandler_Release.props" />
-    <Import Project="..\AI_Release.props" />
+    <Import Project="..\..\PropertySheets\ECS_Debug.props" />
+    <Import Project="..\..\PropertySheets\InputInterpreter_Release.props" />
+    <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
