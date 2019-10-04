@@ -23,12 +23,11 @@
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="..\props\Memory_Debug.props" />
-    <Import Project="..\props\Memory_Lib_d.props" />
+    <Import Project="..\..\PropertySheets\Memory_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="..\props\Memory_Release.props" />
     <Import Project="Memroy_Lib.props" />
+    <Import Project="..\..\PropertySheets\Memory_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
