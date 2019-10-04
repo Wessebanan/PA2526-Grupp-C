@@ -71,11 +71,14 @@ bool memory::Heap::Initialize(void* memoryStart, uint memorySize)
 {
 	//// TEMPORARY BACKEND START ////
 	
+	// TEST MULTIPLE OF 64
+	memorySize += 28;
+
 	mpMemoryStart = memoryStart;
 	mpAllocationBlockStart = (void*)((char*)mpMemoryStart + sizeof(allocators::LinearAllocator));
 
-	mpAllocator = new(mpMemoryStart) allocators::LinearAllocator();
-	mpAllocator->Initialize(mpAllocationBlockStart, memorySize);
+	mpAllocator = new(TEST_MEM) allocators::LinearAllocator();
+	//mpAllocator->Initialize(mpAllocationBlockStart, memorySize);
 
 	///// TEMPORARY BACKEND END /////
 

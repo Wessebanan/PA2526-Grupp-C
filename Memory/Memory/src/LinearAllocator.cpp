@@ -66,56 +66,58 @@ void memory::allocators::LinearAllocator::Clear()
 
 void* memory::allocators::LinearAllocator::Allocate(uint size)
 {
-	// Sanity check if allocation fits in free memory
-	if (mMemoryUsed + size > mMemorySize)
-	{
-		return nullptr;
-	}
+	return nullptr;
 
-	/*
-		TODO: Update free memory data structure
-	*/
+	//// Sanity check if allocation fits in free memory
+	//if (mMemoryUsed + size > mMemorySize)
+	//{
+	//	return nullptr;
+	//}
+
+	///*
+	//	TODO: Update free memory data structure
+	//*/
 
 
-	//// TEMPORARY BACKEND START ////
+	////// TEMPORARY BACKEND START ////
 
-	void* p = malloc(size);
-	mMemoryUsed += size;
+	//void* p = malloc(size);
+	//mMemoryUsed += size;
 
-	// Store pointer in order to avoid memory leaks, free them in Free() and destructor
-	mAllocations.push_back(std::pair<void*,uint>(p, size));
+	//// Store pointer in order to avoid memory leaks, free them in Free() and destructor
+	//mAllocations.push_back(std::pair<void*,uint>(p, size));
 
-	///// TEMPORARY BACKEND END /////
+	/////// TEMPORARY BACKEND END /////
 
-	return p;
+	//return p;
 }
 
 void memory::allocators::LinearAllocator::Free(void* ptr)
 {
-	/*
-		TODO: Santiy check if ptr belongs to this memory.
-		TODO: Update free memory data structure.
-	*/
+	///*
+	//	TODO: Santiy check if ptr belongs to this memory.
+	//	TODO: Update free memory data structure.
+	//*/
 
-	//// TEMPORARY BACKEND START ////
-	/*
-		Iterate through all existing allocations and find the
-		given ptr. If found, free its memory and remove it
-		from the allocation list.
+	////// TEMPORARY BACKEND START ////
+	///*
+	//	Iterate through all existing allocations and find the
+	//	given ptr. If found, free its memory and remove it
+	//	from the allocation list.
 
-		If not found, nothing has to be done with the ptr
-		as it's not this allocator's responsibility.
-		(since the ptr is not allocated from this allocator)
-	*/
+	//	If not found, nothing has to be done with the ptr
+	//	as it's not this allocator's responsibility.
+	//	(since the ptr is not allocated from this allocator)
+	//*/
 
-	for (size_t i = 0; i < mAllocations.size(); i++)
-	{
-		if (mAllocations[i].first == ptr)
-		{
-			free(ptr);
-			mMemoryUsed -= mAllocations[i].second;
-			mAllocations.erase(mAllocations.begin() + i);
-		}
-	}
-	///// TEMPORARY BACKEND END /////
+	//for (size_t i = 0; i < mAllocations.size(); i++)
+	//{
+	//	if (mAllocations[i].first == ptr)
+	//	{
+	//		free(ptr);
+	//		mMemoryUsed -= mAllocations[i].second;
+	//		mAllocations.erase(mAllocations.begin() + i);
+	//	}
+	//}
+	/////// TEMPORARY BACKEND END /////
 }
