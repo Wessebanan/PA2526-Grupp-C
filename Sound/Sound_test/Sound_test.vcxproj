@@ -23,14 +23,10 @@
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <Import Project="..\props\IncludesDirectory.props" />
-    <Import Project="..\props\AdditionalLibsDebug.props" />
-    <Import Project="..\props\LibSoundIO.props" />
+    <Import Project="..\..\PropertySheets\Sound_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="..\props\IncludesDirectory.props" />
-    <Import Project="..\props\AdditionalLibsRelease.props" />
-    <Import Project="..\props\LibSoundIO.props" />
+    <Import Project="..\..\PropertySheets\Sound_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
