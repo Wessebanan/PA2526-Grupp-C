@@ -59,6 +59,9 @@ namespace ecs
 		//			- This will also happen if a component type is not specified in the ECSDesc.
 		bool initialize(ECSDesc &_desc);
 
+		template <typename T>
+		void reserveComponentCount(unsigned int _count);
+
 		// Creates an entity with given components. Components are created in component memory using the initial information from input.
 		// Will create a CreateEntityEvent and a CreateComponentEvent automatically.
 		//		Notation: the input component will only be used to set initial values of the new component, thus changing
@@ -228,6 +231,12 @@ namespace ecs
 	/*
 	*	Templated functions (has to be in header)
 	*/
+
+	template <typename T>
+	void EntityComponentSystem::reserveComponentCount(unsigned int _count)
+	{
+		componentMgr.initPoolType(T::typeID, T::size, _count);
+	}
 
 	template<typename T>
 	T* EntityComponentSystem::createComponent(ID _entityID, T& _component)

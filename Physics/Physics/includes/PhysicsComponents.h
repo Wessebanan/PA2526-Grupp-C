@@ -4,6 +4,11 @@
 #include "Mesh.h"
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
+#define DEFAULT_MOVEMENT_FORCE 500.0f
+#define DEFAULT_DECELERATION 10.0f
+#define DEFAULT_MAX_VELOCITY 100.0f
+#define DEFAULT_WEIGHT 50.0f
+
 namespace ecs
 {
 	namespace components
@@ -23,19 +28,20 @@ namespace ecs
 		
 		COMP(DynamicMovementComponent)
 		{
-			float mMaxVelocity = 100.0f;
-			float mMaxAcceleration = 10.0f;
+			float mMaxVelocity		= DEFAULT_MAX_VELOCITY;
+			float mMovementForce	= DEFAULT_MOVEMENT_FORCE;
+			float mDeceleration		= DEFAULT_DECELERATION;
+			float mWeight			= DEFAULT_WEIGHT;
 
-			DirectX::XMFLOAT3 mDirection = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-			DirectX::XMFLOAT3 mForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mDirection	= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mForce		= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mAcceleration = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-			DirectX::XMFLOAT3 mVelocity = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-			DirectX::XMFLOAT3 mForward = DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mVelocity		= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mForward		= DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);
 
 			// Assuming objects are equal in
 			// density all over.
 			DirectX::XMFLOAT3 mMassCenter;
-			float mWeight = 50.0f;
 
 			// If object is on ground.
 			bool mOnGround = false;
