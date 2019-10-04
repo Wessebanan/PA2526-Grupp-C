@@ -30,13 +30,8 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="..\..\InputHandler\InputHandler_Debug.props" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Import Project="..\..\InputHandler\InputHandler_Release.props" />
-    <Import Project="..\..\InputHandler\InputInterpreter\InputInterpreter_Release.props" />
-  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -87,13 +82,14 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\InputHandler\InputInterpreter\includes;$(SolutionDir)..\Utility\Utility\includes;$(SolutionDir)..\ECS\plainECS\includes;$(ProjectDir)..\AI\includes;$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\Lib_d</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Utility.lib;AI.lib;plainECS.lib;$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Debug\gtest_maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Debug\gtest_maind.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -120,15 +116,16 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\Utility\Utility\includes;$(SolutionDir)..\ECS\plainECS\includes;$(ProjectDir)..\AI\includes;$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalLibraryDirectories>$(SolutionDir)..\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Utility.lib;AI.lib;plainECS.lib;$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Release\gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(SolutionDir)\packages\Microsoft.googletest.v140.windesktop.msvcstl.static.rt-dyn.1.8.1\lib\native\v140\windesktop\msvcstl\static\rt-dyn\x64\Release\gtest_main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
