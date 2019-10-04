@@ -1,5 +1,5 @@
 #include "ecs.h"
-
+#include "InitInput.h"
 
 using namespace ecs;
 
@@ -7,7 +7,7 @@ int main()
 {
 	EntityComponentSystem ecs;
 
-
+	initInput(ecs);
 
 
 
