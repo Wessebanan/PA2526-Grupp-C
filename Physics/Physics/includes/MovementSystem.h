@@ -8,9 +8,6 @@
 
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
-#define DEFAULT_MOVEMENT_FORCE 500.0f
-#define DEFAULT_DECELERATION 10.0f
-#define DEFAULT_VELOCITY 100.0f
 #define PI 3.14159265358979323846
 #define GRAVITY 9.82f
 

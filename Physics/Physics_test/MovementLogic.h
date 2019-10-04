@@ -1,8 +1,6 @@
 #pragma once
 #include "MovementSystem.h"
 
-namespace MovementLogic
-{
 #pragma region StaticMovementLogic
 	TEST(StaticMovementLogic, CreateStaticMovementSystem)
 	{
@@ -276,4 +274,3 @@ namespace MovementLogic
 
 	}
 #pragma endregion
-} // MovementLogic
