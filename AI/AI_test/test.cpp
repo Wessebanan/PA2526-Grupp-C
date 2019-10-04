@@ -267,7 +267,7 @@ TEST(PotentialField, CreatePotentialField)
 	ecs::components::TileComponent* p_tile;
 	std::cout << std::fixed;
 	std::cout << std::setprecision(4);
-	std::cout << "   ";
+	std::cout << "\n";
 	while (p_base = it.next()) //loop through all components and returns a base component
 	{
 		p_tile = (ecs::components::TileComponent*)p_base; //casts base component to tile component
@@ -275,13 +275,12 @@ TEST(PotentialField, CreatePotentialField)
 		iterr++;
 		if (iterr % 12 == 0)
 			std::cout << endl;
-		if (iterr % 24 == 0)
-			std::cout << "   ";
 		if (p_tile->niceness == 10) 
 		{
 			nr_of_nice++;
 		}
 	}
+	std::cout << "\n";
 	EXPECT_EQ(nr_of_nice, 10); // test if there are 10 charges with -5 niceness as the predefined map is designed
 }
 
@@ -314,6 +313,7 @@ TEST(Pathfinding, FindPath)
 	ecs::components::TileComponent* p_tile;
 	std::cout << std::fixed;
 	std::cout << std::setprecision(4);
+	std::cout << "\n";
 	std::cout << " ";
 	while (p_base = it.next()) //loop through all components and returns a base component
 	{
@@ -322,16 +322,19 @@ TEST(Pathfinding, FindPath)
 		iterr++;
 		if (iterr % 12 == 0)
 			std::cout << "\n";
-		if (iterr % 24 == 0)
+		if (iterr < 10)
+			std::cout << " ";
+		if (iterr < 100)
 			std::cout << " ";
 	}
 	path = GridFunctions::FindPath(my_ecs, 1, 117);
 	std::cout << "\n\n ";
 
 	for (unsigned int i : path)
-	{
-		std::cout << i << " ";
+	{	
+		std::cout << i << "   ";
 	}
+	std::cout << "\n";
 
 	EXPECT_EQ(path.back(), 117); // test if there are 10 charges with -5 niceness as the predefined map is designed
 }

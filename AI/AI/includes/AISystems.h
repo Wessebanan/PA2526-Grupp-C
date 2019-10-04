@@ -53,13 +53,13 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
-				int2 start_tile = 0;
-				std::vector<unsigned int> path;
-				GridProp* g_prop = GridProp::GetInstance();
-				components::TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
-				start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
-				unsigned int start_tile_id = g_prop->mGrid[start_tile.x][start_tile.y].Id;
-				path = GetPath(start_tile_id);
+				//int2 start_tile = 0;
+				//std::vector<unsigned int> path;
+				//GridProp* g_prop = GridProp::GetInstance();
+				//components::TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
+				//start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
+				//unsigned int start_tile_id = g_prop->mGrid[start_tile.x][start_tile.y].Id;
+				//path = GetPath(start_tile_id);
 			}
 			std::vector<unsigned int> GetPath(unsigned int startID)
 			{
