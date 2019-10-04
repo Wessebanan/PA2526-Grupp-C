@@ -137,6 +137,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="includes\SoundBank.cpp" />
+    <ClCompile Include="includes\SoundFile.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">true</ExcludedFromBuild>
@@ -153,9 +155,12 @@
     <ClInclude Include="includes\Mixer.h" />
     <ClInclude Include="includes\Plugin.h" />
     <ClInclude Include="includes\RingBuffer.h" />
+    <ClInclude Include="includes\SoundBank.h" />
     <ClInclude Include="includes\SoundEngine.h" />
+    <ClInclude Include="includes\SoundFile.h" />
     <ClInclude Include="includes\SoundHelpers.h" />
     <ClInclude Include="includes\Voice.h" />
+    <ClInclude Include="WavReader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
