@@ -61,20 +61,20 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\props\ECS_Debug.props" />
-    <Import Project="..\props\ModelLoader_Debug.props" />
-    <Import Project="..\props\Utility_Debug.props" />
-    <Import Project="..\props\AI_Debug.props" />
+    <Import Project="..\..\PropertySheets\AI_Debug.props" />
+    <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
+    <Import Project="..\..\PropertySheets\Utility_Debug.props" />
+    <Import Project="..\..\PropertySheets\ECS_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\props\ECS_Release.props" />
-    <Import Project="..\props\ModelLoader_Release.props" />
-    <Import Project="..\props\Utility_Release.props" />
-    <Import Project="..\props\AI_Release.props" />
+    <Import Project="..\..\PropertySheets\AI_Release.props" />
+    <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
+    <Import Project="..\..\PropertySheets\ECS_Release.props" />
+    <Import Project="..\..\PropertySheets\Utility_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">
