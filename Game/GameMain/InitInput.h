@@ -23,24 +23,23 @@ void initInput(ecs::EntityComponentSystem& rECS)
 	//backend.backend = new InputBackend();
 
 	// Keyboard Components
-	ecs::components::KeyboardComponent kbComp = ecs::components::KeyboardComponent();
+	ecs::components::KeyboardComponent kb_comp = ecs::components::KeyboardComponent();
 
 	// Mouse Components
-	ecs::components::MouseComponent mouseComp = ecs::components::MouseComponent();
+	ecs::components::MouseComponent mouse_comp = ecs::components::MouseComponent();
 
 	// Web Components
-	ecs::components::UserButtonComponent userButtonComp = ecs::components::UserButtonComponent();
-	ecs::components::UserTileComponent userTileComp = ecs::components::UserTileComponent();
-	ecs::components::UserCommandComponent userCommandComp = ecs::components::UserCommandComponent();
-	//ecs::components::UserNameComponent userNameComp = ecs::components::UserNameComponent();
-
+	ecs::components::UserButtonComponent user_buttonComp = ecs::components::UserButtonComponent();
+	ecs::components::UserTileComponent user_tileComp = ecs::components::UserTileComponent();
+	ecs::components::UserCommandComponent user_commandComp = ecs::components::UserCommandComponent();
+	
 	ecs::BaseComponent* components[] =
 	{
-		&userButtonComp,
-		&userTileComp,
-		&userCommandComp,
-		&mouseComp,
-		&kbComp,
+		&user_buttonComp,
+		& user_tileComp,
+		& user_commandComp,
+		&mouse_comp,
+		&kb_comp,
 		&backend
 	};
 
