@@ -1,5 +1,5 @@
 #include "ecs.h"
-#include "InitInput.h"
+#include "Input/InitInput.h"
 
 using namespace ecs;
 
