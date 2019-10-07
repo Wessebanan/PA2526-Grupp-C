@@ -112,30 +112,40 @@ namespace API
 		r_mgr.End();
 	}
 
-	//TEST(MemoryAPI, CreateHeap)
-	//{
-	//	const uint MAIN_HEAP_SIZE = 500;
-	//	const uint SUB_HEAP_SIZE = 100;
+	TEST(MemoryAPI, CreateAndFreeHeap)
+	{
+		const uint MAIN_HEAP_SIZE = 500;
+		const uint SUB_HEAP_SIZE = 100;
 
-	//	memory::Initialize(MAIN_HEAP_SIZE);
+		memory::Initialize(MAIN_HEAP_SIZE);
 
-	//	memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
+		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
 
-	//	ASSERT_NE(p_heap, nullptr);
+		ASSERT_NE(p_heap, nullptr);
 
-	//	memory::Free(p_heap);
-	//	memory::End();
-	//}
+		memory::Free(p_heap);
+		memory::End();
+	}
 
-	//TEST(MemoryAPI, Allocate)
-	//{
+	TEST(MemoryAPI, AllocateAndFreeOnHeap)
+	{
+		const uint MAIN_HEAP_SIZE = 500;
+		const uint SUB_HEAP_SIZE = 100;
+		const uint OBJ_SIZE = 10;
 
-	//}
+		memory::Initialize(MAIN_HEAP_SIZE);
 
-	//TEST(MemoryAPI, Free)
-	//{
+		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
 
-	//}
+		void* ptr = p_heap->Allocate(OBJ_SIZE);
+
+		ASSERT_NE(ptr, nullptr);
+
+		p_heap->Free(ptr);
+
+		memory::Free(p_heap);
+		memory::End();
+	}
 }
 
 /*

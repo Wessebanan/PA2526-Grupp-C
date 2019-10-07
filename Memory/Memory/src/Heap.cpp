@@ -60,6 +60,7 @@ memory::Heap::~Heap()
 	if (mpAllocator)
 	{
 		mpAllocator->Terminate();
+		mpAllocator->~Allocator();
 		mpAllocator = nullptr;
 	}
 		
@@ -70,15 +71,11 @@ memory::Heap::~Heap()
 bool memory::Heap::Initialize(void* memoryStart, uint memorySize)
 {
 	//// TEMPORARY BACKEND START ////
-	
-	// TEST MULTIPLE OF 64
-	memorySize += 28;
-
 	mpMemoryStart = memoryStart;
 	mpAllocationBlockStart = (void*)((char*)mpMemoryStart + sizeof(allocators::LinearAllocator));
 
-	mpAllocator = new(TEST_MEM) allocators::LinearAllocator();
-	//mpAllocator->Initialize(mpAllocationBlockStart, memorySize);
+	mpAllocator = new(mpMemoryStart) allocators::LinearAllocator();
+	mpAllocator->Initialize(mpAllocationBlockStart, memorySize);
 
 	///// TEMPORARY BACKEND END /////
 
@@ -90,6 +87,7 @@ void memory::Heap::Terminate()
 	if (mpAllocator)
 	{
 		mpAllocator->Terminate();
+		mpAllocator->~Allocator();
 		mpAllocator = nullptr;
 	}
 }

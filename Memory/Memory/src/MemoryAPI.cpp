@@ -66,11 +66,11 @@ void* memory::MemoryManager::Allocate(uint size)
 	return mMainHeap.Allocate(size);
 }
 
-void memory::MemoryManager::Free(void* ptr)
-{
-	IF_NOT_INITIALIZED_RETURN_VOID;
-	mMainHeap.Free(ptr);
-}
+//void memory::MemoryManager::Free(void* ptr)
+//{
+//	IF_NOT_INITIALIZED_RETURN_VOID;
+//	mMainHeap.Free(ptr);
+//}
 
 memory::Heap* memory::MemoryManager::CreateHeap(uint size)
 {

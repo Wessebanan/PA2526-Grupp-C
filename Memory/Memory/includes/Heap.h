@@ -89,8 +89,9 @@ namespace memory
 
 		void* mpAllocationBlockStart;
 		void* mpMemoryStart;
-		allocators::LinearAllocator* mpAllocator;
+		allocators::Allocator* mpAllocator;
 
 		friend class MemoryManager;
+		friend class Heap;
 	};
 }

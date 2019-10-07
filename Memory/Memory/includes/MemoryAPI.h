@@ -19,7 +19,9 @@ namespace memory
 	static inline Heap* CreateHeap(uint size);
 
 	static inline void* Allocate(size_t size);
-	static inline void Free(void* ptr);
+
+	template <typename T>
+	static inline void Free(T* ptr);
 
 	/*
 		MemoryManager is a singleton class that handles the creation and
@@ -60,7 +62,13 @@ namespace memory
 		/*
 			Free directly on main memory.
 		*/
-		void Free(void* ptr);
+		template <typename T>
+		void Free(T* ptr)
+		{
+			if (!mpMemoryStart) { return; }
+			ptr->~T();
+			mMainHeap.Free(ptr);
+		}
 
 		/*
 			!BETA METHOD, LATER IMPLEMENTATIONS WILL SPECIFY ALLOCATOR TYPE!
@@ -130,8 +138,8 @@ namespace memory
 		return MemoryManager::Instance().Allocate((uint)size);
 	}
 
-
-	static inline void Free(void* ptr)
+	template <typename T>
+	static inline void Free(T* ptr)
 	{
 		MemoryManager::Instance().Free(ptr);
 	}
