@@ -147,7 +147,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="HandleInputBackend.cpp" />
     <ClCompile Include="includes\sha1.cpp" />
     <ClCompile Include="InputBackend.cpp" />
     <ClCompile Include="PingingWebsite.cpp">
@@ -157,9 +156,6 @@
     <ClCompile Include="webConnection.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\HandleInputBackend.h" />
-    <ClInclude Include="includes\InputBackendComponent.h" />
-    <ClInclude Include="includes\InputComponents.h" />
     <ClInclude Include="includes\InputBackend.h" />
     <ClInclude Include="includes\sha1.h" />
     <ClInclude Include="includes\webConnection.h" />
@@ -167,7 +163,6 @@
   <ItemGroup>
     <None Include="ccTest.html" />
     <None Include="gridStyle.css" />
-    <None Include="includes\InitInputHandler.h" />
     <None Include="scripts\script.js" />
     <None Include="StyleSheet.css" />
   </ItemGroup>
