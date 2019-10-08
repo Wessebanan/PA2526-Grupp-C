@@ -63,12 +63,12 @@ namespace memory
 			Free directly on main memory.
 		*/
 		template <typename T>
-		void Free(T* ptr)
-		{
-			if (!mpMemoryStart) { return; }
-			ptr->~T();
-			mMainHeap.Free(ptr);
-		}
+		void Free(T* ptr);
+		//{
+		//	if (!mpMemoryStart) { return; }
+		//	ptr->~T();
+		//	mMainHeap.Free(ptr);
+		//}
 
 		/*
 			!BETA METHOD, LATER IMPLEMENTATIONS WILL SPECIFY ALLOCATOR TYPE!
@@ -111,6 +111,20 @@ namespace memory
 		#define IF_NOT_INITIALIZED_RETURN(ret) if (!mpMemoryStart) {return ret;}
 		#define IF_NOT_INITIALIZED_RETURN_VOID if (!mpMemoryStart) {return;}
 	};
+
+	/*
+		Templated methods for memory manager, must be in header as types are not
+		known at compile time.
+	*/
+
+	template <typename T>
+	void MemoryManager::Free(T* ptr)
+	{
+		if (!mpMemoryStart) { return; }
+		ptr->~T();
+		mMainHeap.Free(ptr);
+	}
+
 
 
 
