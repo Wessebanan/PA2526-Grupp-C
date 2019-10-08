@@ -11,9 +11,6 @@
 */
 
 #include "../includes/graphics/DeviceInterface.h"
-#include "../../ECS/plainECS/includes/ecs.h"
-
-#pragma comment(lib, "plainECS.lib")   
 
 #ifdef _DEBUG
 	#pragma comment(lib, "GraphicsEngine_d.lib")
@@ -28,9 +25,6 @@
 #include <string>
 #include <vector>
 #include <DirectXMath.h>
-
-#include "../includes/graphics/GraphicsSystems.h"
-#include "../includes/graphics/GraphicsComponents.h"
 
 #define MESHES_X_AXIS (120)
 #define MESHES_Y_AXIS (32)
@@ -116,25 +110,6 @@ int main()
 
 	using namespace DirectX;
 	using namespace graphics;
-	using namespace ecs;
-
-	systems::MeshRenderSystemData mrData = { 0 };
-	EntityComponentSystem myECS;
-	{
-		ecs::ECSDesc ecsDesc;
-		ecs::CompTypeMemDesc ecsMemDesc[] =
-		{
-			{ components::WorldComponent::typeID, components::WorldComponent::size, systems::compCount},
-			{ components::MeshComponent::typeID, components::MeshComponent::size, systems::compCount},
-		};
-		ecsDesc.compTypeCount = 2;
-		ecsDesc.compTypeMemDescs = ecsMemDesc;
-		ecsDesc.systemLayerCount = 10;
-		myECS.initialize(ecsDesc);
-	}
-
-	systems::MeshRenderSystem* sys = myECS.createSystem<systems::MeshRenderSystem>();
-	sys->m_pData = &mrData;
 
 	UINT 
 		clientWidth		= 1280, 
@@ -207,8 +182,8 @@ int main()
 
 	BufferRegion meshes[2];	// mesh
 
-	pDevice->CreateVertexBufferRegion(3, t, NULL, uv, &meshes[0]);
-	pDevice->CreateVertexBufferRegion(6, q, NULL, NULL, &meshes[1]);
+	pDevice->CreateVertexBufferRegion(3, t, NULL, uv, NULL, NULL,  &meshes[0]);
+	pDevice->CreateVertexBufferRegion(6, q, NULL, NULL, NULL, NULL, &meshes[1]);
 
 	pContext->UploadBufferToGPU(BUFFER_UPLOAD_VERTEX_DATA);
 
@@ -226,31 +201,6 @@ int main()
 				0);
 		}
 	}
-
-	components::WorldComponent wc[MAXIMUM_MESHES_TO_DRAW];
-	components::MeshComponent mc[2];
-
-	mc[0].MeshLocation = meshes[0];
-	mc[1].MeshLocation = meshes[1];
-
-	for (UINT i = 0; i < MAXIMUM_MESHES_TO_DRAW; i++)
-	{
-		wc[i].WorldMatrix = transformation[i];
-	}
-
-	UINT half = MAXIMUM_MESHES_TO_DRAW / 2;
-	for (UINT i = 0; i < MAXIMUM_MESHES_TO_DRAW; i++)
-	{
-		myECS.createEntity(wc[i], mc[0]);
-	}
-
-	//for (UINT i = 0; i < half; i++)
-	//{
-	//	UINT index = i + half;
-	//	myECS.createEntity(wc[index], mc[1]);
-	//}
-
-	myECS.update(0); 
 
 
 	XMFLOAT4X4 view;
@@ -315,7 +265,7 @@ int main()
 
 			// Copy Data to CPU Buffer (World Matrices)
 			pContext->CopyDataToRegion(
-				mrData.m_matrices,
+				transformation.data(),
 				MAXIMUM_MESHES_TO_DRAW * sizeof(XMFLOAT4X4),
 				buffer0);
 			 
@@ -330,36 +280,36 @@ int main()
 
 
 			// --- DRAW MANAGER ---
-			UINT meshIndex = 0;
-			std::map<UINT, UINT> meshCount = mrData.m_meshCount;
-			while (at < end && meshIndex < 2)
-			{
-				r.DataLocation = at;							// Set active region (65536 bytes per draw)
-				pContext->VSSetConstantBuffer(0, r);			// Apply active Region
-				
-				UINT drawn = 0;
-				while (drawn < 1024 && meshIndex < meshCount.size())
-				{
-					UINT count = meshCount[meshIndex];
+			//UINT meshIndex = 0;
+			//std::map<UINT, UINT> meshCount = transformation.size();
+			//while (at < end && meshIndex < 2)
+			//{
+			//	r.DataLocation = at;							// Set active region (65536 bytes per draw)
+			//	pContext->VSSetConstantBuffer(0, r);			// Apply active Region
+			//	
+			//	UINT drawn = 0;
+			//	while (drawn < 1024 && meshIndex < meshCount.size())
+			//	{
+			//		UINT count = meshCount[meshIndex];
 
-					if (count + drawn > 1024)
-					{
-						count = 1024 - drawn;
-					}
+			//		if (count + drawn > 1024)
+			//		{
+			//			count = 1024 - drawn;
+			//		}
 
-					meshCount[meshIndex] -= count;
+			//		meshCount[meshIndex] -= count;
 
-					pContext->DrawInstanced(count, drawn, meshes[meshIndex]);		// Draw (with mesh[1])
-					drawn += count;
+			//		pContext->DrawInstanced(count, drawn, meshes[meshIndex]);		// Draw (with mesh[1])
+			//		drawn += count;
 
-					if (meshCount[meshIndex] == 0)
-					{
-						meshIndex++;
-					}
-				}
-				
-				at += RenderContext::CB_MAX_BYTES_PER_BIND;									// Increment active region
-			}
+			//		if (meshCount[meshIndex] == 0)
+			//		{
+			//			meshIndex++;
+			//		}
+			//	}
+			//	
+			//	at += RenderContext::CB_MAX_BYTES_PER_BIND;									// Increment active region
+			//}
 
 			// Present
 			wnd.Present();

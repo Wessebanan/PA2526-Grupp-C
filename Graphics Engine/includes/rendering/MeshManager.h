@@ -28,8 +28,8 @@ namespace rendering
 				pContext->DrawIndexedInstance(
 					count,
 					start,
-					m_meshRegion,
-					m_indexRegion);
+					m_indexRegion,
+					m_meshRegion);
 				break;
 			}
 		}
@@ -90,7 +90,9 @@ namespace rendering
 		void
 			*pVertexData,
 			*pNormalsData,
-			*pTextureCoordData;
+			*pTextureCoordData,
+			*pBlendWeight,
+			*pBlendIndices;
 	};
 	
 	struct INDEX_BUFFER_DATA

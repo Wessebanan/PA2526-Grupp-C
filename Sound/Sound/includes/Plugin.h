@@ -1,5 +1,6 @@
 #pragma once
 #include "SoundHelpers.h"
+#include "SoundFile.h"
 
 namespace Sound
 {
@@ -9,7 +10,10 @@ namespace Sound
 		class Plugin
 		{
 		public:
-			virtual void Process(Samples Start, Samples Count, float* Data, int Channels) = 0;
+			Plugin()
+			{
+				mpNext = nullptr;
+			}
 			// Once one plugin gets deleted, the chain of
 			// plugins gets deleted
 			~Plugin() {
@@ -19,17 +23,19 @@ namespace Sound
 					mpNext = nullptr;
 				}
 			}
+			virtual void Process(Samples Start, Samples Count, float* pData, int Channels) = 0;
 		protected:
 			Plugin* mpNext;
 		};
 
-		// Generates a test sine wave and fills two channels
-		class TestSineWave : public Plugin
+		class Sampler : public Plugin
 		{
 		public:
-			TestSineWave() {};
-			void Process(Samples Start, Samples Count, float* Data, int Channels);
+			Sampler(FileData* pFile);
+			virtual void Process(Samples Start, Samples Count, float* pData, int Channels);
+		private:
+			FileData* mpFile;
+			Samples mReadPointer;
 		};
-
 	}
 }

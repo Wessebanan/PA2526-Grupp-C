@@ -2,9 +2,9 @@
 
 #include <map>
 #include "ecsSystemIncludes.h"
-
+#include "InterpretWebEvents.h"
 #include "AIComponents.h"
-#include <UtilityComponents.h>
+#include "UtilityComponents.h"
 #include <iostream>
 
 namespace ecs
@@ -94,7 +94,11 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
-				/* FILL OUT WITH LOGIC IN ANOTHER TASK */
+				ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
+				if (transform->position.y <= 0.0f)
+					transform->position.y = 50.0f;
+				else
+					transform->position.y -= 1.0f;
 			}
 		};
 
@@ -108,14 +112,62 @@ namespace ecs
 			SwitchStateSystem()
 			{
 				updateType = EventReader;
-				//typeFilter.addRequirement(); //Needs to be added when the input event is merged into master.
+				typeFilter.addRequirement(ecs::events::ChangeUserStateEvent::typeID); //Needs to be added when the input event is merged into master.
 			}
 			virtual ~SwitchStateSystem() {}
 			void readEvent(BaseEvent& event, float delta) override
 			{
-				/*
-					Add logic when the input event is merged into master.
-				*/
+				//Save values for easier use.
+				int player = static_cast<ecs::events::ChangeUserStateEvent*>(&event)->playerId;
+				int state = static_cast<ecs::events::ChangeUserStateEvent*>(&event)->newState;
+				//Find the correct player for the event.
+				int i = 0;
+				ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::ArmyComponent::typeID);
+				ecs::components::ArmyComponent* p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
+				while (i < player)
+				{
+					p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
+					i++;
+				}
+				//Loop through the players units and remove their old state component.
+				ecs::Entity* unit;
+				for (int u = 0; u < p_army->unitIDs.size(); u++)
+				{
+					ID entity_id = p_army->unitIDs[u];
+					unit = ecs::ECSUser::getEntity(entity_id);
+					if (unit->hasComponentOfType(ecs::components::MoveStateComponent::typeID))
+					{
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::MoveStateComponent::typeID);
+					}
+					else if (unit->hasComponentOfType(ecs::components::IdleStateComponent::typeID))
+					{
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::IdleStateComponent::typeID);
+					}
+					else if (unit->hasComponentOfType(ecs::components::PathfindingStateComponent::typeID))
+					{
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::PathfindingStateComponent::typeID);
+					}
+
+					//Create one instance of each possible component to use in the switch case (Ugly will have to find a better way later).
+					ecs::components::MoveStateComponent move;
+					ecs::components::IdleStateComponent idle;
+					//Give the unit the new state component.
+					switch (state)
+					{
+					case STATE::MOVE:
+						ecs::ECSUser::createComponent(entity_id, move);
+						break;
+					case STATE::IDLE:
+						ecs::ECSUser::createComponent(entity_id, idle);
+						break;
+					case STATE::ATTACK:
+						break;
+					default:
+						break;
+					}
+					/*Used for debugging*/
+					//std::cout << "Changing state of player: " << player << " which has the entityID: " << p_army->getEntityID() << std::endl;
+				}
 			}
 		};
 	}

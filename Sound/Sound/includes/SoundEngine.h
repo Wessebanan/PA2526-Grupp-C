@@ -3,6 +3,7 @@
 #include <thread>
 #include "SoundHelpers.h"
 #include "Plugin.h"
+#include "Mixer.h"
 
 namespace Sound
 {
@@ -32,6 +33,9 @@ namespace Sound
 
 		void StartWorkThread();
 		void JoinWorkThread();
+
+		// Sets a mixer to get frame data from
+		void UseThisMixer(Mixer* pMixer);
 
 	protected:
 
@@ -87,7 +91,8 @@ namespace Sound
 		// This will be removed once it's no longer needed for
 		// testing purposes. Produces a sine wave to fill the
 		// ring buffer with
-		Plugin::Plugin* _mpTestPlugin;
+		Mixer* mpMixer;
+
 	};
 
 	// Sound::PaHandler class

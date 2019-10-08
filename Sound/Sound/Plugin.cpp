@@ -1,16 +1,32 @@
 #include "Plugin.h"
 #include <cmath>
 
-void Sound::Plugin::TestSineWave::Process(Samples Start, Samples Count, float* Data, int Channels)
+Sound::Plugin::Sampler::Sampler(FileData* pFile)
 {
-	const float FREQUENCY = 440.0f;	// Frequency of the wave
-	const float AMPLITUDE = 0.2f;	// To save people's ears; Low amplitude
-	float sample;
-	Frame* frames = (Frame*)Data;
-	for (Samples i = 0; i < Count; i++)
+	mpFile = pFile;
+	mReadPointer = 0;
+}
+
+// TODO: This sampler does not support mono wav files!
+void Sound::Plugin::Sampler::Process(Samples Start, Samples Count, float* pData, int Channels)
+{
+	// Get pointer to the data and amount of samples
+	float* data_pointer = mpFile->GetDataPointer();
+	Samples sample_count = mpFile->GetSampleCount();
+	// For all frames that needs to be added...
+	for (int i = 0; i < Count; i++)
 	{
-		sample = std::sinf(FREQUENCY * Sound::ToSeconds(Start + i) * 2.0f * (float)M_PI) * AMPLITUDE;
-		frames[i].left = sample;
-		frames[i].right = sample;
+		// For both channels...
+		for (int j = 0; j < Channels; j++)
+		{
+			// Read the data from the file
+			*(pData++) = data_pointer[mReadPointer++];
+			// If we've reached the end of the file
+			if (mReadPointer >= sample_count)
+			{
+				// Go back to the start
+				mReadPointer = 0;
+			}
+		}
 	}
 }

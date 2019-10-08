@@ -4,6 +4,7 @@
 
 #include "DefaultTechnique.h"
 #include "SceenSpaceTechnique.h"
+#include "TransformationTechnique.h"
 
 #include <DirectXMath.h>
 
@@ -20,7 +21,7 @@ namespace rendering
 			const UINT clientHeight,
 			const char* pTitle);
 
-		void Clear();
+		void Clear(const float red, const float green, const float blue);
 		void Draw();
 
 		void Destroy();

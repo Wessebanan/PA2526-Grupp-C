@@ -296,6 +296,8 @@ namespace graphics
 		const void* pVertices,
 		const void* pNormals,
 		const void* pUVs,
+		const void* pBlendWeights,
+		const void* pBlendIndices,
 		BufferRegion* pRegion)
 	{
 		// Vertex buffer is a bit different since it 
@@ -317,11 +319,19 @@ namespace graphics
 			float x, y;
 		};
 
+		struct int4
+		{
+			int x, y, z, w;
+		};
+
 		if (!pVertices) return FALSE;
 
 		BufferRegion Vertices;
 		BufferRegion Normals;
 		BufferRegion UVs;
+
+		BufferRegion BlendWeights;
+		BufferRegion BlendIndices;
 
 		int result;
 		{
@@ -346,6 +356,22 @@ namespace graphics
 				sizeof(float2) * vertexCount,
 				pUVs,
 				&UVs);
+
+			if (!result) return FALSE;
+
+			result = CreateBufferRegion(
+				BUFFER_VERTEX_BLEND_WEIGHT,
+				sizeof(float3) * vertexCount,
+				pBlendWeights,
+				&BlendWeights);
+
+			if (!result) return FALSE;
+
+			result = CreateBufferRegion(
+				BUFFER_VERTEX_BLEND_INDICES,
+				sizeof(int4) * vertexCount,
+				pBlendIndices,
+				&BlendIndices);
 
 			if (!result) return FALSE;
 		}

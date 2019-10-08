@@ -158,6 +158,8 @@ namespace graphics
 			const void* pVertices,
 			const void* pNormals,
 			const void* pUVs,
+			const void* pBlendWeights,
+			const void* pBlendIndices,
 			BufferRegion* pRegion);
 
 		void DeleteGraphicsPipeline(GraphicsPipeline* pPipeline);
