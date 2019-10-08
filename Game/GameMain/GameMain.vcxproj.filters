@@ -18,22 +18,85 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Input\InitInputSystems.cpp">
-      <Filter>Header Files</Filter>
+    <ClCompile Include="gameAI\AIFunctions.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gameAI\GridFunctions.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gameAI\GridProp.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gameUtility\CameraFunctions.cpp">
+      <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Input\InitInputComponents.h">
+    <ClInclude Include="gameRendering\InitMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Input\InitInput.h">
+    <ClInclude Include="gameRendering\PlaceMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Input\InitInputSystems.h">
+    <ClInclude Include="gameAI\InitArmy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Input\InitInputBackendComponent.h">
+    <ClInclude Include="gameAI\InitGrid.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\AIComponents.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\AIEvents.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\AIFunctions.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\AIGlobals.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\AISystems.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\GridFunctions.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\GridProp.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\CameraComponents.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\CameraEvents.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\CameraFunctions.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\CameraSystems.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\DebugInfo.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\GlobalsCamera.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilityComponents.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilityEvents.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilityFunctions.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilitySystems.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InterpretWebEvents.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

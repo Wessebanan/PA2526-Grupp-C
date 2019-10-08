@@ -37,8 +37,9 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
     <Import Project="..\..\PropertySheets\ECS_Debug.props" />
+    <Import Project="..\..\PropertySheets\GraphicsEngine_Debug.props" />
+    <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -74,14 +75,35 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Input\InitInputSystems.cpp" />
+    <ClCompile Include="gameAI\AIFunctions.cpp" />
+    <ClCompile Include="gameAI\GridFunctions.cpp" />
+    <ClCompile Include="gameAI\GridProp.cpp" />
+    <ClCompile Include="gameUtility\CameraFunctions.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Input\InitInput.h" />
-    <ClInclude Include="Input\InitInputBackendComponent.h" />
-    <ClInclude Include="Input\InitInputComponents.h" />
-    <ClInclude Include="Input\InitInputSystems.h" />
+    <ClInclude Include="gameAI\AIComponents.h" />
+    <ClInclude Include="gameAI\AIEvents.h" />
+    <ClInclude Include="gameAI\AIFunctions.h" />
+    <ClInclude Include="gameAI\AIGlobals.h" />
+    <ClInclude Include="gameAI\AISystems.h" />
+    <ClInclude Include="gameAI\GridFunctions.h" />
+    <ClInclude Include="gameAI\GridProp.h" />
+    <ClInclude Include="gameAI\InitArmy.h" />
+    <ClInclude Include="gameAI\InitGrid.h" />
+    <ClInclude Include="gameRendering\InitMesh.h" />
+    <ClInclude Include="gameRendering\PlaceMesh.h" />
+    <ClInclude Include="gameUtility\CameraComponents.h" />
+    <ClInclude Include="gameUtility\CameraEvents.h" />
+    <ClInclude Include="gameUtility\CameraFunctions.h" />
+    <ClInclude Include="gameUtility\CameraSystems.h" />
+    <ClInclude Include="gameUtility\DebugInfo.h" />
+    <ClInclude Include="gameUtility\GlobalsCamera.h" />
+    <ClInclude Include="gameUtility\UtilityComponents.h" />
+    <ClInclude Include="gameUtility\UtilityEvents.h" />
+    <ClInclude Include="gameUtility\UtilityFunctions.h" />
+    <ClInclude Include="gameUtility\UtilitySystems.h" />
+    <ClInclude Include="Input\InterpretWebEvents.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
