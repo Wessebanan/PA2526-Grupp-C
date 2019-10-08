@@ -54,41 +54,76 @@
 		- Free()		:	Takes a pointer and releases its memory reservation.
 							The pointer must come from the same heap.
 
-																				MB: Memory Block (aka. allocations)
-	+------------------+------------------------------------------------------------------------------------------+
-	|    Allocator     |     MB    |              MB             |     MB     |      MB      |  MB  |       MB    |
-	+------------------+------------------------------------------------------------------------------------------+
-	\________ ________/\____________________________________________ ____________________________________________/
-	         V                                                      V
-	   HEADER BLOCK                                         ALLOCATION BLOCK
-(where allocator is stored)                            (managed by the allocator)
+																				      MB: Memory Block (aka. allocations)
+	+------------------------+------------------------------------------------------------------------------------------+
+	|   Heap   |  Allocator  |  MB    |              MB             |     MB     |      MB      |     MB    |     MB    |
+	+------------------------+------------------------------------------------------------------------------------------+
+	\___________ ___________/\____________________________________________ _____________________________________________/
+	            V                                                         V
+	      HEADER BLOCK                                           ALLOCATION BLOCK
+                                                            (managed by the allocator)
 
-	\_____________________________________________________ _______________________________________________________/
-	                                                      V
-                                                         HEAP
+	\________________________________________________________ __________________________________________________________/
+	                                                         V
+                                                           HEAP
 */
 
 namespace memory
 {
+	/*
+		A heap is the custom memory interface for a user. On a heap, a user can reserve memory by using Allocate(),
+		and free it through Free(). A heap can also contain a sub-heap, which is created by using CreateHeap().
+		A heap will automatically keep track of free and used memory for the user.
+	*/
 	class Heap
 	{
 	public:
 		DENY_COPY(Heap)
 
+		/*
+			Reserves memory of given size on the heap, and returns a pointer to it.
+		*/
 		void* Allocate(uint size);
+
+		/*
+			Frees reserved memory on the heap. The parameter pointer has to be previously
+			allocated on the same heap Free() are called on.
+		*/
 		void Free(void* ptr);
 
+		/*
+			Reserves memory for a sub-heap within the heap. The size of the reserved memory
+			is the given size plus the size of the heap's header (size of Heap and its allocator).
+			In memory, this will look like:
+			|///////| Sub-Heap | Allocator | The heaps allocatable memory |//////////////////////|
+
+			(/// = other memory allocations.)
+		*/
 		Heap* CreateHeap(uint size);
 
 	private:
 		Heap();
 		~Heap();
 
+		/*
+			A heap can't be used before it's initialized, which is done by giving
+			it a pointer to the memory it will work with and the size of that memory.
+		*/
 		bool Initialize(void* memoryStart, uint memorySize);
+
+		/*
+			Clears all internal data in the heap.
+		*/
 		void Terminate();
 
 		void* mpAllocationBlockStart;
 		void* mpMemoryStart;
+
+		/*
+			Since heaps will use a different types of allocator depending of how the user want
+			to work with the memorys (fixed size objects, varying size objects, no fragmentation etc.)
+			the allocator is stored as a parent pointer.
+		*/
 		allocators::Allocator* mpAllocator;
 
 		friend class MemoryManager;

@@ -55,20 +55,15 @@ namespace memory
 		static void End();
 
 		/*
-			Allocate directly on the main memory.
+			Allocate directly on the main heap.
 		*/
 		void* Allocate(uint size);
 
 		/*
-			Free directly on main memory.
+			Free directly on main heap.
 		*/
 		template <typename T>
 		void Free(T* ptr);
-		//{
-		//	if (!mpMemoryStart) { return; }
-		//	ptr->~T();
-		//	mMainHeap.Free(ptr);
-		//}
 
 		/*
 			!BETA METHOD, LATER IMPLEMENTATIONS WILL SPECIFY ALLOCATOR TYPE!
@@ -78,7 +73,7 @@ namespace memory
 		Heap* CreateHeap(uint size);
 
 		/*
-			Getters
+			Getters (TODO)
 		*/
 
 		uint GetMainHeapSize();

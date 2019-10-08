@@ -37,7 +37,8 @@ namespace memory
 	namespace allocators
 	{
 		/*
-			Allocator is a generic handle for all types of allocators.
+			Allocator is a generic handle for all types of allocators. Allocators handles reservations
+			in memory blocks.
 		*/
 		class Allocator
 		{
