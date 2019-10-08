@@ -145,7 +145,7 @@
     <ClInclude Include="includes\PhysicsHelperFunctions.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="includes\CollisionFunctions.cpp" />
+    <ClCompile Include="CollisionFunctions.cpp" />
     <ClCompile Include="MovementFunctions.cpp" />
     <ClCompile Include="PhysicsHelperFunctions.cpp" />
   </ItemGroup>
