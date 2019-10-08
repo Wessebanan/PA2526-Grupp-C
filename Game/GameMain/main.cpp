@@ -35,7 +35,6 @@ int main()
 
 	InitGrid(ecs);
 	InitArmy(ecs);
-	CameraFunctions::CreateDevCamera(ecs);
 
 	
 	rendering::RenderManager mng;
@@ -47,14 +46,10 @@ int main()
 	graphics::PresentWindow* pWnd = mng.GetPresentWindow();
 
 	PlaceMesh(ecs, mng);
-	ecs::ComponentIterator itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
-	components::CameraComponent* camComp;
-	camComp = (components::CameraComponent*)itt.next();
-	mng.SetViewMatrix(camComp->viewMatrix);
 
-	float x = 10.0f;
-	float y = 13.0f;
-	float z = 1.0f;
+	float x = 6.0f;
+	float y = 5.0f;
+	float z = -10.0f;
 	XMFLOAT4X4 viewMatrix;
 	
 	TransformViewMatrix(viewMatrix, x, y, z);
@@ -96,7 +91,6 @@ int main()
 			TransformViewMatrix(viewMatrix, x, y, z);
 
 			mng.SetViewMatrix(viewMatrix);
-			//mng.SetViewMatrix(camComp->viewMatrix);
 			
 			mng.Draw();
 			pWnd->Present();
