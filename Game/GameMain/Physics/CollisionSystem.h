@@ -1,13 +1,15 @@
 #pragma once
 #include "ecs.h"
+
 #include "PhysicsComponents.h"
 #include "PhysicsEvents.h"
-#include "ecsEvent.h"
-#include "AIComponents.h"
-#include "UtilityComponents.h"
-#include "UtilityFunctions.h"
 #include "PhysicsHelperFunctions.h"
 #include "CollisionFunctions.h"
+
+#include "AIComponents.h"
+
+#include "UtilityComponents.h"
+#include "UtilityFunctions.h"
 
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 

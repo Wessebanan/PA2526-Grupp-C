@@ -61,20 +61,12 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheets\AI_Debug.props" />
-    <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
-    <Import Project="..\..\PropertySheets\Utility_Debug.props" />
-    <Import Project="..\..\PropertySheets\ECS_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheets\AI_Release.props" />
-    <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
-    <Import Project="..\..\PropertySheets\ECS_Release.props" />
-    <Import Project="..\..\PropertySheets\Utility_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">
@@ -149,18 +141,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="includes\CollisionFunctions.h" />
-    <ClInclude Include="includes\CollisionSystem.h" />
     <ClInclude Include="includes\MovementFunctions.h" />
-    <ClInclude Include="includes\PhysicsComponents.h" />
-    <ClInclude Include="includes\PhysicsEvents.h" />
-    <ClInclude Include="includes\MovementSystem.h" />
     <ClInclude Include="includes\PhysicsHelperFunctions.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CollisionSystem.cpp" />
     <ClCompile Include="includes\CollisionFunctions.cpp" />
     <ClCompile Include="MovementFunctions.cpp" />
-    <ClCompile Include="MovementSystem.cpp" />
     <ClCompile Include="PhysicsHelperFunctions.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
