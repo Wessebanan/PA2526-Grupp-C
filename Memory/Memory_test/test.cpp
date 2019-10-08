@@ -161,6 +161,54 @@ namespace API
 		memory::Free(p_heap);
 		memory::End();
 	}
+
+	/*
+		Check if an allocation that is larger than the heap is handled correctly
+		and does not break.
+	*/
+	TEST(MemoryAPI, AllocateToMuch)
+	{
+		const uint MAIN_HEAP_SIZE = 500;
+		const uint SUB_HEAP_SIZE = 100;
+		const uint OBJ_SIZE = 300;
+
+		memory::Initialize(MAIN_HEAP_SIZE);
+
+		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
+
+		// Try to allocate on the sub-heap.
+		void* ptr = p_heap->Allocate(OBJ_SIZE);
+		EXPECT_EQ(ptr, nullptr);
+
+		// Free all memory to avoid memory leaks.
+		memory::Free(p_heap);
+		memory::End();
+	}
+
+	/*
+		Check if possible to free an already freed pointer
+	*/
+	TEST(MemoryAPI, FreeTwice)
+	{
+		const uint MAIN_HEAP_SIZE = 500;
+		const uint SUB_HEAP_SIZE = 100;
+		const uint OBJ_SIZE = 10;
+
+		memory::Initialize(MAIN_HEAP_SIZE);
+
+		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
+		void* ptr = p_heap->Allocate(OBJ_SIZE);
+
+		// Free pointer
+		p_heap->Free(ptr);
+
+		// Try to free pointer again
+		EXPECT_NO_THROW(p_heap->Free(ptr));
+
+		// Free all memory to avoid memory leaks.
+		memory::Free(p_heap);
+		memory::End();
+	}
 }
 
 /*
