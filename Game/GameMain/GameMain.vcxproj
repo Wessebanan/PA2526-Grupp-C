@@ -39,6 +39,8 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
     <Import Project="..\..\PropertySheets\ECS_Debug.props" />
+    <Import Project="..\..\PropertySheets\GraphicsEngine_Debug.props" />
+    <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -46,8 +48,6 @@
     <Import Project="..\..\PropertySheets\ECS_Release.props" />
     <Import Project="..\..\PropertySheets\GraphicsEngine_Release.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
-    <Import Project="..\..\PropertySheets\Utility_Release.props" />
-    <Import Project="..\..\PropertySheets\AI_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -78,15 +78,37 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AI\AIFunctions.cpp" />
+    <ClCompile Include="AI\GridFunctions.cpp" />
+    <ClCompile Include="AI\GridProp.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Utility\CameraFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AI\AIComponents.h" />
+    <ClInclude Include="AI\AIEvents.h" />
+    <ClInclude Include="AI\AIFunctions.h" />
+    <ClInclude Include="AI\AIGlobals.h" />
+    <ClInclude Include="AI\AISystems.h" />
+    <ClInclude Include="AI\GridFunctions.h" />
+    <ClInclude Include="AI\GridProp.h" />
+    <ClInclude Include="AI\InitAI.h" />
     <ClInclude Include="Input\InitInput.h" />
     <ClInclude Include="Input\InitInputBackendComponent.h" />
     <ClInclude Include="Input\InitInputComponents.h" />
     <ClInclude Include="Input\InitInputSystems.h" />
     <ClInclude Include="Rendering\InitMeshes.h" />
+    <ClInclude Include="Utility\CameraComponents.h" />
+    <ClInclude Include="Utility\CameraEvents.h" />
+    <ClInclude Include="Utility\CameraFunctions.h" />
+    <ClInclude Include="Utility\CameraSystems.h" />
+    <ClInclude Include="Utility\DebugInfo.h" />
+    <ClInclude Include="Utility\GlobalsCamera.h" />
+    <ClInclude Include="Utility\UtilityComponents.h" />
+    <ClInclude Include="Utility\UtilityEvents.h" />
+    <ClInclude Include="Utility\UtilityFunctions.h" />
+    <ClInclude Include="Utility\UtilitySystems.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

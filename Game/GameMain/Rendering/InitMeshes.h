@@ -2,7 +2,8 @@
 
 #include "rendering/RenderManager.h"
 #include "Mesh.h"
-#include "GridFunctions.h"
+#include "..//AI/GridFunctions.h"
+#include "..//Utility/UtilityComponents.h"
 
 #include "ecs.h"
 
@@ -11,9 +12,9 @@ using namespace DirectX;
 
 void InitMeshes(ecs::EntityComponentSystem& rECS, RenderManager& mng)
 {
+	ModelLoader::Mesh tile("../hexagon_tile.fbx");
 	ModelLoader::Mesh tile2("../hexagon_tile2.fbx");
 	ModelLoader::Mesh tile3("../hexagon_tile3.fbx");
-	ModelLoader::Mesh tile("../hexagon_tile.fbx");
 	ModelLoader::Mesh dude("../dudeMesh0.fbx");
 
 	int mesh_tile; // tile
@@ -26,7 +27,7 @@ void InitMeshes(ecs::EntityComponentSystem& rECS, RenderManager& mng)
 		index_data.IndexCount = tile3.GetIndexVector()->size() * 4;
 		index_data.pIndexData = tile3.GetIndexVector()->data();
 
-		mesh_tile = mng.CreateMesh(
+ 		mesh_tile = mng.CreateMesh(
 			&vertex_data,
 			&index_data);
 	}
@@ -83,7 +84,7 @@ void InitMeshes(ecs::EntityComponentSystem& rECS, RenderManager& mng)
 
 	//Place tiles by TransformeComponents
 	UINT index = 0;
-	ComponentIterator itt = rECS.getAllComponentsOfType(TileComponent::typeID);
+	ecs::ComponentIterator itt = rECS.getAllComponentsOfType(TileComponent::typeID);
 	ecs::components::TileComponent* tileComp;
 	while (tileComp = (ecs::components::TileComponent*)itt.next())
 	{

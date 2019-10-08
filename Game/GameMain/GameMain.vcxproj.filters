@@ -16,6 +16,12 @@
     <Filter Include="Header Files\Rendering">
       <UniqueIdentifier>{19ea1d1e-35e2-477e-b9d3-16adcb7e5949}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\AI">
+      <UniqueIdentifier>{25a83e36-9ce1-426c-bd35-f2e2a58c6a84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Utility">
+      <UniqueIdentifier>{269e81ba-cea5-48d0-b185-08591240199f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -23,6 +29,18 @@
     </ClCompile>
     <ClCompile Include="Input\InitInputSystems.cpp">
       <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AI\AIFunctions.cpp">
+      <Filter>Header Files\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="AI\GridFunctions.cpp">
+      <Filter>Header Files\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="AI\GridProp.cpp">
+      <Filter>Header Files\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\CameraFunctions.cpp">
+      <Filter>Header Files\Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -40,6 +58,60 @@
     </ClInclude>
     <ClInclude Include="Rendering\InitMeshes.h">
       <Filter>Header Files\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\AIComponents.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\AIEvents.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\AIFunctions.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\AIGlobals.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\AISystems.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\GridFunctions.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\GridProp.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="AI\InitAI.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\CameraComponents.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\CameraEvents.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\CameraFunctions.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\CameraSystems.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\DebugInfo.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\GlobalsCamera.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\UtilityComponents.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\UtilityEvents.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\UtilityFunctions.h">
+      <Filter>Header Files\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Utility\UtilitySystems.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
