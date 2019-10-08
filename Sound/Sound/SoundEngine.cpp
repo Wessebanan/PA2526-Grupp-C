@@ -214,12 +214,12 @@ void Sound::Engine::WorkerThreadUpdateMethod()
 	mProducerLastSampleCount += samples_to_fill;
 }
 
-void Sound::Engine::WorkerThreadUpdate(void* data)
+void Sound::Engine::WorkerThreadUpdate(void* pData)
 {
-	while (((Engine*)data)->mWorkerThreadRun)
+	while (((Engine*)pData)->mWorkerThreadRun)
 	{
 		// SPEEEN (Temporary spin loop implementation)
-		((Engine*)data)->WorkerThreadUpdateMethod();
+		((Engine*)pData)->WorkerThreadUpdateMethod();
 	}
 }
 

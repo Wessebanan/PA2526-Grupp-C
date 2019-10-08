@@ -20,13 +20,13 @@ Sound::Bank::~Bank()
 	}
 }
 
-Sound::FileData* Sound::Bank::GetFile(std::string Path)
+Sound::FileData* Sound::Bank::GetFile(std::string path)
 {
 	for (int i = 0; i < SOUND_MAX_BANK_FILES; i++)
 	{
 		if (mpFiles[i] != nullptr)
 		{
-			if (mpFiles[i]->StringIsEqual(Path))
+			if (mpFiles[i]->StringIsEqual(path))
 			{
 				return mpFiles[i];
 			}
@@ -37,7 +37,7 @@ Sound::FileData* Sound::Bank::GetFile(std::string Path)
 		if (mpFiles[i] == nullptr)
 		{
 			mpFiles[i] = new FileData();
-			if (mpFiles[i]->LoadAll(Path))
+			if (mpFiles[i]->LoadAll(path))
 			{
 				return mpFiles[i];
 			}
@@ -51,10 +51,10 @@ Sound::FileData* Sound::Bank::GetFile(std::string Path)
 	}
 }
 
-bool Sound::Bank::LoadMultipleFiles(const std::string* pPathArray, int Count)
+bool Sound::Bank::LoadMultipleFiles(const std::string* pPathArray, int count)
 {
 	bool return_value = true;
-	for (int i = 0; i < Count; i++)
+	for (int i = 0; i < count; i++)
 	{
 		if (i >= SOUND_MAX_BANK_FILES)
 		{
@@ -73,28 +73,28 @@ bool Sound::Bank::LoadMultipleFiles(const std::string* pPathArray, int Count)
 	return return_value;
 }
 
-Sound::FileData* Sound::Bank::operator[](int Index)
+Sound::FileData* Sound::Bank::operator[](int index)
 {
-	if (Index >= SOUND_MAX_BANK_FILES)
+	if (index >= SOUND_MAX_BANK_FILES)
 	{
 		return nullptr;
 	}
-	return mpFiles[Index];
+	return mpFiles[index];
 }
 
-Sound::FileData* Sound::Bank::SetFileAtIndex(std::string Path, int Index)
+Sound::FileData* Sound::Bank::SetFileAtIndex(std::string path, int index)
 {
-	if (mpFiles[Index] == nullptr)
+	if (mpFiles[index] == nullptr)
 	{
-		mpFiles[Index] = new FileData();
-		if (mpFiles[Index]->LoadAll(Path))
+		mpFiles[index] = new FileData();
+		if (mpFiles[index]->LoadAll(path))
 		{
-			return mpFiles[Index];
+			return mpFiles[index];
 		}
 		else
 		{
-			delete mpFiles[Index];
-			mpFiles[Index] = nullptr;
+			delete mpFiles[index];
+			mpFiles[index] = nullptr;
 			return nullptr;
 		}
 	}

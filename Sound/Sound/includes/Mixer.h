@@ -15,7 +15,7 @@ namespace Sound
 	{
 	public:
 		// Fills the frame data with the total of all active voices
-		void Fill(Samples Start, Samples Count, float* Data);
+		void Fill(Samples start, Samples count, float * pData);
 
 		void AddSoundMessage(SoundMessage rMessage);
 

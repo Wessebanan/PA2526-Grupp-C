@@ -74,7 +74,7 @@ namespace Sound
 		// to the member function above
 		// Temporarily doubles-up as a spin loop until
 		// a proper thread-pool have been implemented
-		static void WorkerThreadUpdate(void* data);
+		static void WorkerThreadUpdate(void* pData);
 
 		// To get current sample count
 		inline Samples GetWorkerCurrentSampleCount();

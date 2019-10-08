@@ -32,6 +32,6 @@ namespace Sound
 	typedef unsigned long long Samples;
 
 	// Helper functions to convert time to sample count
-	Samples ToSamples(const float Seconds);
-	float ToSeconds(const Samples SampleCount);
+	Samples ToSamples(const float seconds);
+	float ToSeconds(const Samples sampleCount);
 }
