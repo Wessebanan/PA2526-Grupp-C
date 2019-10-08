@@ -78,6 +78,7 @@ namespace memory
 	class Heap
 	{
 	public:
+		// Delete default copy constructor and copy operator.
 		DENY_COPY(Heap)
 
 		/*

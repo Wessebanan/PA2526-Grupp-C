@@ -34,6 +34,7 @@ namespace memory
 	class MemoryManager
 	{
 	public:
+		// Delete default copy constructor and copy operator.
 		DENY_COPY(MemoryManager)
 
 		/*

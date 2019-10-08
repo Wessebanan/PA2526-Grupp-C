@@ -43,6 +43,7 @@ namespace memory
 		class Allocator
 		{
 		public:
+			// Delete default copy constructor and copy operator.
 			DENY_COPY(Allocator)
 
 			Allocator() : mMemorySize(0), mMemoryUsed(0), mpMemoryStart(nullptr) {}
