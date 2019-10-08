@@ -31,6 +31,8 @@ namespace rendering
 			pVertexData->pVertexData,
 			pVertexData->pNormalsData,
 			pVertexData->pTextureCoordData,
+			pVertexData->pBlendWeight,
+			pVertexData->pBlendIndices,
 			&meshRegion);
 		
 		if (!result) return -1;

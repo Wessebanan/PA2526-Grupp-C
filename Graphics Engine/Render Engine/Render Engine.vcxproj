@@ -10,6 +10,24 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\source\rendering\DefaultTechnique.cpp" />
+    <ClCompile Include="..\source\rendering\DrawManager.cpp" />
+    <ClCompile Include="..\source\rendering\MeshManager.cpp" />
+    <ClCompile Include="..\source\rendering\RenderManager.cpp" />
+    <ClCompile Include="..\source\rendering\ScreenSpaceTechnique.cpp" />
+    <ClCompile Include="..\source\rendering\TransformationTechnique.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\includes\rendering\DefaultTechnique.h" />
+    <ClInclude Include="..\includes\rendering\DrawManager.h" />
+    <ClInclude Include="..\includes\rendering\MeshManager.h" />
+    <ClInclude Include="..\includes\rendering\RenderHeader.h" />
+    <ClInclude Include="..\includes\rendering\RenderManager.h" />
+    <ClInclude Include="..\includes\rendering\RenderTechnique.h" />
+    <ClInclude Include="..\includes\rendering\SceenSpaceTechnique.h" />
+    <ClInclude Include="..\includes\rendering\TransformationTechnique.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{BAD21A01-AB3B-4995-B0F6-FC32CE716606}</ProjectGuid>
@@ -37,8 +55,6 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\InputHandler\InputHandler\incLibs.props" />
-    <Import Project="..\..\InputHandler\InputHandler\absoluteFilepath.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -81,24 +97,6 @@
       <AdditionalLibraryDirectories>C:\Users\Filip\Desktop\PA2526 Project\Lib_d;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\includes\rendering\DefaultTechnique.h" />
-    <ClInclude Include="..\includes\rendering\DrawManager.h" />
-    <ClInclude Include="..\includes\rendering\MeshManager.h" />
-    <ClInclude Include="..\includes\rendering\Renderer.h" />
-    <ClInclude Include="..\includes\rendering\RenderManager.h" />
-    <ClInclude Include="..\includes\rendering\RenderTechnique.h" />
-    <ClInclude Include="..\includes\rendering\SceenSpaceTechnique.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\includes\rendering\RenderHeader.h" />
-    <ClCompile Include="..\source\rendering\DefaultTechnique.cpp" />
-    <ClCompile Include="..\source\rendering\DrawManager.cpp" />
-    <ClCompile Include="..\source\rendering\MeshManager.cpp" />
-    <ClCompile Include="..\source\rendering\Renderer.cpp" />
-    <ClCompile Include="..\source\rendering\RenderManager.cpp" />
-    <ClCompile Include="..\source\rendering\ScreenSpaceTechnique.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

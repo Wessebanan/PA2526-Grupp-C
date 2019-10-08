@@ -88,10 +88,10 @@ namespace rendering
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_STATIC_DATA);
 	}
 
-	void RenderManager::Clear()
+	void RenderManager::Clear(const float red, const float green, const float blue)
 	{
 		m_pContext->ClearDepth(m_depthBuffer);
-		m_pContext->ClearRenderTarget(m_target, 0.0f, 0.0f, 0.0f);
+		m_pContext->ClearRenderTarget(m_target, red, green, blue);
 	}
 
 	void RenderManager::Draw()

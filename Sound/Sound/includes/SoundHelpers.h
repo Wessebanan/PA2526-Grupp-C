@@ -11,6 +11,7 @@
 #define SOUND_LEFT (0)
 #define SOUND_RIGHT (1)
 #define SOUND_MAX_VOICES (12)
+#define SOUND_MAX_BANK_FILES (10)
 #ifndef M_PI
 #define M_PI  (3.14159265)
 #endif

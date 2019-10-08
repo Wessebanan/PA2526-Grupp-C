@@ -10,6 +10,20 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
+void TransformViewMatrix(
+	DirectX::XMFLOAT4X4& rViewMatrix, 
+	const float x, 
+	const float y, 
+	const float z)
+{
+	DirectX::XMStoreFloat4x4(&rViewMatrix,
+		DirectX::XMMatrixLookToLH(
+			{ x, y, z },
+			{ 0.0f, 0.0f,  1.0f },
+			{ 0.0f, 1.0f,  0.0f }
+	));
+}
+
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -18,7 +32,7 @@ int main()
 	using namespace DirectX;
 
 	RenderManager mng;
-	mng.Initialize(1280, 720, "D3D11");
+	mng.Initialize(1600, 900, "D3D11");
 
 	struct float3
 	{
@@ -64,8 +78,14 @@ int main()
 		float x, y, z, w;
 	};
 
-	UINT width = 2;
-	UINT height = 2;
+	struct Default
+	{
+		float x, y, z;
+		uint32_t color;
+	};
+
+	UINT width = 160;
+	UINT height = 100;
 	UINT count = width * height;
 
 	TECHNIQUE_HEAP_LAYOUT_DESC desc[RENDER_TECHNIQUES_COUNT] = { 0 };
@@ -99,7 +119,7 @@ int main()
 
 	graphics::PresentWindow* pWnd = mng.GetPresentWindow();
 
-	float4* tri_array = (float4*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
+	Default* tri_array = (Default*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
 
 	for (UINT x = 0; x < width; x++)
 	{
@@ -109,7 +129,7 @@ int main()
 			tri_array[index].x = x * 0.5f - 0.99f;
 			tri_array[index].y = y * 0.5f - 0.99f;
 
-			tri_array[index].w = 1.0f;
+			tri_array[index].color = PACK(5, 50, 240, 0);
 		}
 	}
 
@@ -117,15 +137,11 @@ int main()
 	water->x = -0.10f;
 	water->y =  0.70f;
 
-	float x = 2.0f;
+	float x = 10.0f;
+	float y = 23.0f;
 	float z = 1.0f;
 	XMFLOAT4X4 viewMatrix;
-	XMStoreFloat4x4(&viewMatrix,
-		XMMatrixLookToLH(
-			{ x, 2.0f, z },
-			{ 0.0f, 0.0f,  1.0f },
-			{ 0.0f, 1.0f,  0.0f }
-	));
+	TransformViewMatrix(viewMatrix, x, y, z);
 
 	mng.SetViewMatrix(viewMatrix);
 
@@ -134,27 +150,14 @@ int main()
 	{
 		if (!pWnd->Update())
 		{
-			mng.Clear();
-
-			for (UINT x = 0; x < width; x++)
-			{
-				for (UINT y = 0; y < height; y++)
-				{
-					UINT index = x * height + y;
-					tri_array[index].y -= 0.01f;
-
-					if (tri_array[index].y < -10.01f)
-					{
-						tri_array[index].y = 12.01f;
-					} 
-				}
-			}
+			mng.Clear(0.1f, 0.1f, 0.1f);
 
 			float moveSpeed = 0.01f;
 			if (GetAsyncKeyState(VK_UP))
 			{
 				z += moveSpeed;
 			}
+
 			if (GetAsyncKeyState(VK_DOWN))
 			{
 				z -= moveSpeed;
@@ -164,17 +167,13 @@ int main()
 			{
 				x -= moveSpeed;
 			}
+
 			if (GetAsyncKeyState(VK_RIGHT))
 			{
 				x += moveSpeed;
 			}
 
-			XMStoreFloat4x4(&viewMatrix,
-				XMMatrixLookToLH(
-					{ x, 0.0f, z },
-					{ 0.0f, 0.0f,  1.0f },
-					{ 0.0f, 1.0f,  0.0f }
-			));
+			TransformViewMatrix(viewMatrix, x, y, z);
 
 			mng.SetViewMatrix(viewMatrix);
 

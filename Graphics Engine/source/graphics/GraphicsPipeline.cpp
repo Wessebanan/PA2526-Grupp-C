@@ -38,12 +38,16 @@ namespace graphics
 		ID3DBlob* pVertexShader,
 		ID3D11InputLayout** ppLayout)
 	{
-		D3D11_INPUT_ELEMENT_DESC desc[4];
+		D3D11_INPUT_ELEMENT_DESC desc[6];
 
 		desc[0].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 		desc[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 		desc[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 		desc[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		desc[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+		desc[5].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+
+		// ---
 
 		desc[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 		desc[0].InputSlot = 0;
@@ -66,12 +70,30 @@ namespace graphics
 		desc[2].SemanticIndex = 0;
 		desc[2].SemanticName = "UV";
 
+		// ---
+
 		desc[3].Format = DXGI_FORMAT_R16_UINT;
 		desc[3].InputSlot = 3;
 		desc[3].InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
 		desc[3].InstanceDataStepRate = 1;
 		desc[3].SemanticIndex = 0;
 		desc[3].SemanticName = "INDEX";
+
+		// ---
+
+		desc[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+		desc[4].InputSlot = 4;
+		desc[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+		desc[4].InstanceDataStepRate = 0;
+		desc[4].SemanticIndex = 0;
+		desc[4].SemanticName = "BLENDWEIGHT";
+
+		desc[5].Format = DXGI_FORMAT_R32G32B32A32_SINT;
+		desc[5].InputSlot = 5;
+		desc[5].InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
+		desc[5].InstanceDataStepRate = 0;
+		desc[5].SemanticIndex = 0;
+		desc[5].SemanticName = "BLENDINDICES";
 
 		HRESULT hr = pDevice4->CreateInputLayout(
 			desc,
