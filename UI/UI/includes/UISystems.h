@@ -1,7 +1,6 @@
 #pragma once
-#include "InputComponents.h"
-
 #include "ecsSystemIncludes.h"
+#include "InputComponents.h"
 #include "UIComponents.h"
 #include "UIEvents.h"
 #include "Direct2D.h"
@@ -133,10 +132,6 @@ namespace ecs
 			Direct2D* mpD2D;
 		};
 
-	}
-	namespace init
-	{
-		void InitUISystems(EntityComponentSystem& ECS, Direct2D** D2D);//inits ECS systems and takes D2D** to create new D2D
 	}
 
 }

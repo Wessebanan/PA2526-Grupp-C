@@ -1,6 +1,7 @@
 #include "pch.h"
 //#include "InitInputHandler.h"
 #include"Direct2D.h"
+#include "ecs.h"
 #include "UISystems.h"
 #include<Windows.h>
 #pragma comment (lib, "plainECS")
@@ -56,20 +57,20 @@ TEST(ExpectedTrue, LoadImageToBitmap)
 	EXPECT_EQ(hr, S_OK);
 }
 
-TEST(ExpectedTrue, GetBitmapIDFromName) 
-{
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
-	ID myID;
-	RECT rectTest = { 0,0,800,600 };
-	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	Dtest.LoadImageToBitmap("PepeLaugh.jfif", hehe);
-	myID = Dtest.GetBitmapIDFromName(hehe); //returns the id that the bitmap has from its name, 
-											//its easier for humans to remember names than ID numbers
-
-	EXPECT_NE(myID, 0);
-}
+//TEST(ExpectedTrue, GetBitmapIDFromName) 
+//{
+//	HWND windowHandle = CreateHwndWindow();
+//	Direct2D Dtest;
+//	ID myID;
+//	RECT rectTest = { 0,0,800,600 };
+//	char hehe[10] = "pepe";
+//	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
+//	Dtest.LoadImageToBitmap("PepeLaugh.jfif", hehe);
+//	myID = Dtest.GetBitmapIDFromName(hehe); //returns the id that the bitmap has from its name, 
+//											//its easier for humans to remember names than ID numbers
+//
+//	EXPECT_NE(myID, 0);
+//}
 
 TEST(ExpectedTrue, GetBitmap) 
 {
@@ -81,8 +82,7 @@ TEST(ExpectedTrue, GetBitmap)
 	char hehe[10] = "pepe";
 	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
 	hr = Dtest.LoadImageToBitmap("PepeLaugh.jfif", hehe);
-	myID = Dtest.GetBitmapIDFromName(hehe);
-	void* jej = Dtest.GetBitmap(myID); //Using the ID to get the bitmap
+	void* jej = Dtest.GetBitmap(hehe); //Using the ID to get the bitmap
 
 	EXPECT_EQ(hr, S_OK);
 	EXPECT_NE(jej, nullptr);
@@ -173,19 +173,19 @@ TEST(Expectedfalse, FailLoadImageToBitmap)
 	EXPECT_NE(hr, S_OK);
 }
 
-TEST(Expectedfalse, FailGetBitmapIDFromName)
-{
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
-	ID myID;
-	RECT rectTest = { 0,0,800,600 };
-	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	myID = Dtest.GetBitmapIDFromName(hehe);
-
-
-	EXPECT_EQ(myID, 0);
-}
+//TEST(Expectedfalse, FailGetBitmapIDFromName)
+//{
+//	HWND windowHandle = CreateHwndWindow();
+//	Direct2D Dtest;
+//	ID myID;
+//	RECT rectTest = { 0,0,800,600 };
+//	char hehe[10] = "pepe";
+//	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
+//	myID = Dtest.GetBitmapIDFromName(hehe);
+//
+//
+//	EXPECT_EQ(myID, 0);
+//}
 
 TEST(Expectedfalse, FailGetBitmap)
 {
@@ -197,8 +197,7 @@ TEST(Expectedfalse, FailGetBitmap)
 	char hehe[10] = "pepe";
 	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
 	hr = Dtest.LoadImageToBitmap("fdjak", hehe);
-	myID = Dtest.GetBitmapIDFromName(hehe);
-	void* jej = Dtest.GetBitmap(myID);
+	void* jej = Dtest.GetBitmap(hehe);
 
 	EXPECT_NE(hr, S_OK);
 	EXPECT_EQ(jej, nullptr);

@@ -1,9 +1,7 @@
 #pragma once
 
-#include <map>
-#include<unordered_map>
-#include<ecs.h>
-#include<d2d1_3.h>
+#include <unordered_map>
+#include <d2d1_3.h>
 #include <wincodec.h>
 #include <dwrite_3.h>
 #include <string>
@@ -33,7 +31,7 @@ enum brushColors
 	Green = 4,
 	Purple = 5
 };
-static IDGenerator<ID> idGen(0);
+
 struct cmp_str
 {
 	bool operator()(char const* s1, char const* s2) const
@@ -68,9 +66,11 @@ public:
 	void InitDeviceAndContext(IDXGIDevice* dxgiDevice); //Takes dxgidevice from dx11 and creates d2d device and device context
 	ID2D1DeviceContext* GetpContext();
 	HRESULT LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
-	ID GetBitmapIDFromName(char* bitmapName); //returns bitmap ID
-	ID2D1Bitmap* GetBitmap(ID bitmapID); //returns bitmap
-	ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS
+	//ID GetBitmapIDFromName(char* bitmapName); //returns bitmap ID
+	//ID2D1Bitmap* GetBitmap(ID bitmapID);//returns bitmap
+	ID2D1Bitmap* GetBitmap(char* bitmapName);//returns bitmap
+	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);
+	//ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS
 	bool DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect);
 
 	//ID2D1Bitmap* GetBitmapByName(std::string bitmapName); //used to draw all bitmaps, uses the BitmapInfo struct
@@ -118,21 +118,21 @@ private:
 	bool mHwndRenderTargetCreated = false;
 	//std::vector<BitmapInfo> mBitmapVector;
 
-	using BitmapMap = std::unordered_map<ID, ID2D1Bitmap*>; //unordered map of bitmaps
-	using BitmapPair = std::pair<ID, ID2D1Bitmap*>;
+	using BitmapMap = std::unordered_map<char*, ID2D1Bitmap*>; //unordered map of bitmaps
+	using BitmapPair = std::pair<char*, ID2D1Bitmap*>;
 	BitmapMap mBitmapList;
 
-	using BitmapNameToID = std::unordered_map<char*, ID>; //unordered map of bitmap names
-	using BitmapNameIDPair = std::pair<char*, ID>;
-	BitmapNameToID mBitmapNameID;
+	//using BitmapNameToID = std::unordered_map<char*, ID>; //unordered map of bitmap names
+	//using BitmapNameIDPair = std::pair<char*, ID>;
+	//BitmapNameToID mBitmapNameID;
 
-	using BrushMap = std::unordered_map<ID, ID2D1SolidColorBrush*>; //unordered map of brushes (not in use now)
-	using BrushMapPair = std::pair<ID, ID2D1SolidColorBrush*>;
+	using BrushMap = std::unordered_map<char*, ID2D1SolidColorBrush*>; //unordered map of brushes (not in use now)
+	using BrushMapPair = std::pair<char*, ID2D1SolidColorBrush*>;
 	BrushMap mBrushMap;
 
-	using BrushMapName = std::unordered_map<char*, ID>; //corresponding brush name map
-	using BrushMapNamePair = std::pair<char*, ID>;
-	BrushMapName mBrushMapName;
+	//using BrushMapName = std::unordered_map<char*, ID>; //corresponding brush name map
+	//using BrushMapNamePair = std::pair<char*, ID>;
+	//BrushMapName mBrushMapName;
 
 
 	ID2D1SolidColorBrush* mColorBrushes[COLOR_BRUSHES]; //array of brushes we use now

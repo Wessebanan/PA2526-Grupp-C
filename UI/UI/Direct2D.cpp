@@ -95,7 +95,7 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a re
 		hr = this->mCreateColorDraw();
 		hr = this->mCreateTextFormat(this->mfont,this->mfontSize,&this->mpTextFormat);
 		this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
-		hr = this->mCreateTextFormat(L"Times New Roman",20,&this->mpDebugTextFormat);
+		hr = this->mCreateTextFormat(L"Times New Roman",20,&this->mpDebugTextFormat);//textformat for debug
 		this->mpDebugTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 		hr = this->mCreateColorBrushes();
 		this->LoadImageToBitmap("fail.png");
@@ -141,11 +141,8 @@ HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[B
 					{
 						if (SUCCEEDED(hr = this->mpHwndRenderTarget->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
 						{
-							ID newID = idGen.generateID();
-
-							this->mBitmapList[newID] = new_bitmap;
-							this->mBitmapNameID[bitmapName] = newID;
-							
+							this->mBitmapList[bitmapName] = new_bitmap;
+							//this->mBitmapNameID[bitmapName] = newID;
 						}
 					}
 				}
@@ -197,39 +194,61 @@ HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[B
 //	return to_return;
 //}
 
-ID Direct2D::GetBitmapIDFromName(char* bitmapName)
-{
-	ID toReturn = 0;
-	for (BitmapNameIDPair pair : this->mBitmapNameID)
-	{
-		if(this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
-			return pair.second;
-	}
-	return toReturn;
-}
+//ID Direct2D::GetBitmapIDFromName(char* bitmapName)
+//{
+//	ID toReturn = 0;
+//	for (BitmapNameIDPair pair : this->mBitmapNameID)
+//	{
+//		if(this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
+//			return pair.second;
+//	}
+//	return toReturn;
+//}
+//
+//ID2D1Bitmap* Direct2D::GetBitmap(ID bitmapID)
+//{
+//	if (bitmapID != 0)
+//	{
+//		return this->mBitmapList.at(bitmapID);
+//	}
+//	else
+//	{
+//		return nullptr;
+//	}
+//}
 
-ID2D1Bitmap* Direct2D::GetBitmap(ID bitmapID)
+ID2D1Bitmap* Direct2D::GetBitmap(char* bitmapName)
 {
-	if (bitmapID != 0)
-	{
-		return this->mBitmapList.at(bitmapID);
-	}
-	else
-	{
-		return nullptr;
-	}
-}
-
-ID Direct2D::GetBrushIDFromName(char* bitmapName)
-{
-	ID toReturn = 0;
-	for (BrushMapNamePair pair : this->mBrushMapName)
+	ID2D1Bitmap* to_return = nullptr;
+	for (BitmapPair pair : this->mBitmapList)
 	{
 		if (this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
 			return pair.second;
 	}
-	return toReturn;
+	return to_return;
 }
+
+ID2D1SolidColorBrush* Direct2D::GetBrushFromName(char* brushName)
+{
+	ID2D1SolidColorBrush* to_return = nullptr;
+	for (BrushMapPair pair : this->mBrushMap)
+	{
+		if (this->charArrayCompare(pair.first, brushName, BITMAP_NAME_LENGTH))
+			return pair.second;
+	}
+	return to_return;
+}
+
+//ID Direct2D::GetBrushIDFromName(char* bitmapName)
+//{
+//	ID toReturn = 0;
+//	for (BrushMapNamePair pair : this->mBrushMapName)
+//	{
+//		if (this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
+//			return pair.second;
+//	}
+//	return toReturn;
+//}
 
 bool Direct2D::DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect)
 {
@@ -315,8 +334,7 @@ void Direct2D::setDrawColor(float r, float g, float b, float a)
 
 void Direct2D::setBrushColor(char* name, float r, float g, float b, float a)
 {
-	ID searchID = this->GetBrushIDFromName(name);
-	this->mBrushMap.at(searchID)->SetColor(D2D1::ColorF(r, g, b, a));
+	this->mBrushMap.at(name)->SetColor(D2D1::ColorF(r, g, b, a));
 }
 
 HRESULT Direct2D::setTextSize(unsigned int size)//updates the text format
@@ -449,10 +467,8 @@ HRESULT Direct2D::mCreateColorText()
 		D2D1::ColorF(D2D1::ColorF::DarkGoldenrod),
 		&this->mpColorText);
 	}
-	ID newID = idGen.generateID();
 	char name[10] = "text";
-	this->mBrushMap[newID] = this->mpColorText;
-	this->mBrushMapName[name] = newID;
+	this->mBrushMap[name] = this->mpColorText;
 	return hr;
 }
 
@@ -465,10 +481,8 @@ HRESULT Direct2D::mCreateColorDraw()
 		D2D1::ColorF(D2D1::ColorF::Gray,0.5),
 		&this->mpColorDraw);
 	}
-	ID newID = idGen.generateID();
 	char name[10] = "draw";
-	this->mBrushMap[newID] = this->mpColorDraw;
-	this->mBrushMapName[name] = newID;
+	this->mBrushMap[name] = this->mpColorDraw;
 	return hr;
 }
 
