@@ -1,5 +1,6 @@
 #include "ecs.h"
 #include "InitInput.h"
+#include "InitSound.h"
 
 using namespace ecs;
 
@@ -9,7 +10,7 @@ int main()
 
 	initInput(ecs);
 
-
+	InitSound(ecs);
 
 	ecs.update(0.0f);
 
