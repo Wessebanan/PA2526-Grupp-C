@@ -228,9 +228,72 @@ TEST(SoundAPI, LoadSoundData)
 	// Loading a non existing file should result in a nullptr (0)
 	EXPECT_FALSE(bank.GetFile("non_existing_file"));
 	// Check if sine.wav only has one channel
-	Sound::File* sine_file = bank.GetFile("sine.wav");
-	EXPECT_EQ(sine_file->GetNumChannels(), 1);
+	Sound::FileData* p_sine_file = bank.GetFile("sine.wav");
+	EXPECT_EQ(p_sine_file->GetNumChannels(), 1);
 	// Check if sine2.wav has two channels
-	Sound::File* sine_file2 = bank.GetFile("sine2.wav");
-	EXPECT_EQ(sine_file2->GetNumChannels(), 2);
+	Sound::FileData* p_sine_file2 = bank.GetFile("sine2.wav");
+	EXPECT_EQ(p_sine_file2->GetNumChannels(), 2);
+}
+
+// Tests based on the task:
+// "Create sampler plugin"
+// Definition of Done:
+// "The sampler will read the correct amount of sound data
+// and forward it (To test: Play a looped sound from the
+// sound data)"
+TEST(SoundAPI, PlaySoundWithSampler)
+{
+	// Initialize a Sound engine, mixer and bank
+	Sound::Engine engine;
+	Sound::Mixer mixer;
+	Sound::Bank bank;
+
+	// Add voice to the mixer
+	{
+		using namespace Sound::Plugin;
+
+		// Load "square.wav"
+		Sound::FileData* p_file = bank.GetFile("square.wav");
+		EXPECT_NE(p_file, nullptr);
+
+		std::cout << "The file is "
+			<< ((float)p_file->GetFrameCount() / (float)SOUND_SAMPLE_RATE)
+			<< " seconds long\n";
+
+		mixer.NewVoice(new Sampler(p_file));
+
+	}
+	// Have the engine use this mixer
+	engine.UseThisMixer(&mixer);
+
+	std::cout << "PortAudio Test: output sine wave. SR = " << SOUND_SAMPLE_RATE
+		<< ", RingBufSize = " << SOUND_BUFFER_SIZE << std::endl;
+
+	// Instance PortAudio handler
+	Sound::PaHandler pa_init;
+
+	ASSERT_EQ(pa_init.result(), paNoError)
+		<< "An error occured while using the portaudio stream"
+		<< "\nError number: " << pa_init.result()
+		<< "\nError message: " << Pa_GetErrorText(pa_init.result());
+
+	// Open stream
+	ASSERT_TRUE(engine.OpenStream());
+	// Start feeding the sound card using the callback function
+	ASSERT_TRUE(engine.StartStream());
+
+	engine.StartWorkThread();	// Start the work thread
+								// to fill the ringbuffer
+
+	std::cout << "Play for 2.5 seconds.\n";
+	Pa_Sleep(2500);
+
+	// Tear-down
+	engine.JoinWorkThread();	// End the work thread
+
+	engine.StopStream();
+
+	engine.CloseStream();
+
+	std::cout << "Test finished.\n";
 }

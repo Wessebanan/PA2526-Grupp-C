@@ -20,7 +20,7 @@ Sound::Bank::~Bank()
 	}
 }
 
-Sound::File* Sound::Bank::GetFile(std::string Path)
+Sound::FileData* Sound::Bank::GetFile(std::string Path)
 {
 	for (int i = 0; i < SOUND_MAX_BANK_FILES; i++)
 	{
@@ -36,7 +36,7 @@ Sound::File* Sound::Bank::GetFile(std::string Path)
 	{
 		if (mpFiles[i] == nullptr)
 		{
-			mpFiles[i] = new File();
+			mpFiles[i] = new FileData();
 			if (mpFiles[i]->LoadAll(Path))
 			{
 				return mpFiles[i];
