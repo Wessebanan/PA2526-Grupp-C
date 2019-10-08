@@ -40,12 +40,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="..\GameMain\Physics\CollisionSystem.h" />
+    <ClInclude Include="..\GameMain\Physics\MovementSystem.h" />
+    <ClInclude Include="..\GameMain\Physics\PhysicsComponents.h" />
+    <ClInclude Include="..\GameMain\Physics\PhysicsEvents.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Physics\GroundCollision.h" />
     <ClInclude Include="Physics\MovementLogic.h" />
     <ClInclude Include="Physics\ObjectCollision.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\GameMain\Physics\CollisionSystem.cpp" />
+    <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -67,7 +73,7 @@
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>X64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -83,7 +89,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PreprocessorDefinitions>X64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>

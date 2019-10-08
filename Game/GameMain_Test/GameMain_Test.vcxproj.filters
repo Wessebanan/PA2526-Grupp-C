@@ -3,6 +3,12 @@
   <ItemGroup>
     <ClCompile Include="test.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="..\GameMain\Physics\CollisionSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -13,6 +19,18 @@
       <Filter>Physics</Filter>
     </ClInclude>
     <ClInclude Include="Physics\ObjectCollision.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\CollisionSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\MovementSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\PhysicsComponents.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\PhysicsEvents.h">
       <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
