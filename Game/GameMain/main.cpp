@@ -50,11 +50,11 @@ int main()
 	float x = 6.0f;
 	float y = 5.0f;
 	float z = -10.0f;
-	XMFLOAT4X4 viewMatrix;
+	XMFLOAT4X4 view_matrix;
 	
-	TransformViewMatrix(viewMatrix, x, y, z);
+	TransformViewMatrix(view_matrix, x, y, z);
 
-	mng.SetViewMatrix(viewMatrix);
+	mng.SetViewMatrix(view_matrix);
 
 
 
@@ -67,30 +67,30 @@ int main()
 		{
 			mng.Clear(0.2f, 0.1f, 0.1f);
 				
-			float moveSpeed = 0.01f;
+			float move_speed = 0.01f;
 			if (GetAsyncKeyState(VK_UP))
 			{
-				z += moveSpeed;
+				z += move_speed;
 			}
 
 			if (GetAsyncKeyState(VK_DOWN))
 			{
-				z -= moveSpeed;
+				z -= move_speed;
 			}
 
 			if (GetAsyncKeyState(VK_LEFT))
 			{
-				x -= moveSpeed;
+				x -= move_speed;
 			}
 
 			if (GetAsyncKeyState(VK_RIGHT))
 			{
-				x += moveSpeed;
+				x += move_speed;
 			}
 
-			TransformViewMatrix(viewMatrix, x, y, z);
+			TransformViewMatrix(view_matrix, x, y, z);
 
-			mng.SetViewMatrix(viewMatrix);
+			mng.SetViewMatrix(view_matrix);
 			
 			mng.Draw();
 			pWnd->Present();
