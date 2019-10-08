@@ -1,8 +1,7 @@
 #pragma once
 #include "ecsSystemIncludes.h"
-#include "InputBackend.h"
-#include "InputComponents.h"
-#include "InputBackendComponent.h"
+#include "InitInputComponents.h"
+#include "InitInputBackendComponent.h"
 
 namespace ecs
 {

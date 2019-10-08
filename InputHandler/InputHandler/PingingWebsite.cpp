@@ -9,49 +9,23 @@
 //#include "ecs.h"
 //#include "HandleInputBackend.h"
 
-#include "InitInputHandler.h"
+#include "InputBackend.h"
  
 int main()
 {
-	ecs::EntityComponentSystem mecs;
-
-	int size = mecs.getTotalSystemCount();
-
 	InputBackend* inp = new InputBackend;
 
-	initInputECS(mecs,inp);
 
 	//InputBackend inpSys;
 	
 	
 	while (true)
 	{
-		mecs.update(0.2f);
+		inp->updateKeyboard();
+		inp->updateMouse();
+		inp->updateWeb();
 
-
-		ecs::ComponentIterator itt = mecs.getAllComponentsOfType(ecs::components::UserCommandComponent::typeID);
-
-		ecs::BaseComponent* base;
-		while (base = itt.next())
-		{
-			ecs::components::UserCommandComponent* commComp = dynamic_cast<ecs::components::UserCommandComponent*>(base);
-
-			if (commComp != nullptr)
-			{
-				cout << commComp->userCommands[0].mCommand << endl;
-				cout << commComp->userCommands[1].mCommand << endl;
-				cout << commComp->userCommands[2].mCommand << endl;
-				cout << commComp->userCommands[3].mCommand << endl;
-			}
-		}
-		
-
-		//inpSys.updateMouse();
-		//inpSys.updateKeyboard();
-		//inpSys.updateWeb();
-		//cout << inpSys.players[0]->currButton0 << " I shte players X tile" << endl;
-
-		this_thread::sleep_for(chrono::seconds(2));
+		cout << "w = " << inp->mpWsad->keyU.pressed << endl;
 	}
 
 	////WebConnection conn;
