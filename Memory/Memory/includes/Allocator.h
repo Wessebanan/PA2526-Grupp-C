@@ -71,7 +71,7 @@ namespace memory
 				Returns a block of reserved memory back to the allocator's memory heap, so that the memory
 				can be used for future allocations.
 			*/
-			virtual void Free(void* ptr) = 0;
+			virtual void Free(void * pObject) = 0;
 
 
 		protected:

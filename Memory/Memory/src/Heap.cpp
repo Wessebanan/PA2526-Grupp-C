@@ -5,11 +5,6 @@ void* memory::Heap::Allocate(uint size)
 	return mpAllocator->Allocate(size);
 }
 
-void memory::Heap::Free(void* ptr)
-{
-	mpAllocator->Free(ptr);
-}
-
 memory::Heap* memory::Heap::CreateHeap(uint size)
 {
 	//// TEMPORARY BACKEND START ////

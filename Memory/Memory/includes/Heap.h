@@ -89,7 +89,8 @@ namespace memory
 			Frees reserved memory on the heap. The parameter pointer has to be previously
 			allocated on the same heap Free() are called on.
 		*/
-		void Free(void* ptr);
+		template <typename T>
+		void Free(T* pObject);
 
 		/*
 			Reserves memory for a sub-heap within the heap. The size of the reserved memory
@@ -129,4 +130,14 @@ namespace memory
 		friend class MemoryManager;
 		friend class Heap;
 	};
+
+
+	/*
+		Templated heap methods. Must be in header, as templated types isn't known at compile time.
+	*/
+	template <typename T>
+	void memory::Heap::Free(T* pObject)
+	{
+		mpAllocator->Free(pObject);
+	}
 }
