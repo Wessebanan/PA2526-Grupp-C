@@ -1,5 +1,5 @@
 #include "SoundBank.h"
-
+#include <iostream>
 Sound::Bank::Bank()
 {
 	for (int i = 0; i < SOUND_MAX_BANK_FILES; i++)
@@ -49,4 +49,54 @@ Sound::FileData* Sound::Bank::GetFile(std::string Path)
 			}
 		}
 	}
+}
+
+bool Sound::Bank::LoadMultipleFiles(const std::string* pPathArray, int Count)
+{
+	bool return_value = true;
+	for (int i = 0; i < Count; i++)
+	{
+		if (i >= SOUND_MAX_BANK_FILES)
+		{
+			std::cerr << "Sound bank reached maximum file capacity\n";
+			return_value = false;
+			break;
+		}
+		if (SetFileAtIndex(pPathArray[i], i) == nullptr)
+		{
+			std::cerr << pPathArray[i] << " could not be loaded\n";
+			return_value = false;
+		}
+	}
+
+
+	return return_value;
+}
+
+Sound::FileData* Sound::Bank::operator[](int Index)
+{
+	if (Index >= SOUND_MAX_BANK_FILES)
+	{
+		return nullptr;
+	}
+	return mpFiles[Index];
+}
+
+Sound::FileData* Sound::Bank::SetFileAtIndex(std::string Path, int Index)
+{
+	if (mpFiles[Index] == nullptr)
+	{
+		mpFiles[Index] = new FileData();
+		if (mpFiles[Index]->LoadAll(Path))
+		{
+			return mpFiles[Index];
+		}
+		else
+		{
+			delete mpFiles[Index];
+			mpFiles[Index] = nullptr;
+			return nullptr;
+		}
+	}
+	return nullptr;
 }
