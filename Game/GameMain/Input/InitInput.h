@@ -5,6 +5,13 @@
 
 void initInput(ecs::EntityComponentSystem& rECS)
 {
+	rECS.reserveComponentCount<InputBackendComp>(1);
+	rECS.reserveComponentCount<KeyboardComponent>(1);
+	rECS.reserveComponentCount<MouseComponent>(1);
+	rECS.reserveComponentCount<UserButtonComponent>(1);
+	rECS.reserveComponentCount<UserTileComponent>(1);
+	rECS.reserveComponentCount<UserCommandComponent>(1);
+
 	InputBackend* inp = new InputBackend();
 
 	//// SYSTEMS
