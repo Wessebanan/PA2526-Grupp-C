@@ -29,3 +29,41 @@ bool Sound::Mixer::NewVoice(Plugin::Plugin* pEntryPlugin)
 	}
 	return false;
 }
+
+void Sound::Mixer::AddSoundMessage(SoundMessage rMessage)
+{
+	mSoundMessageBuffer.insert(&rMessage);
+}
+
+void Sound::Mixer::ProcessMessages()
+{
+	if (!mSoundMessageBuffer.isEmpty())
+	{
+		ProcessSoundMessages();
+	}
+	if (!mMusicMessageBuffer.isEmpty())
+	{
+		ProcessMusicMessages();
+	}
+}
+
+void Sound::Mixer::ProcessSoundMessages()
+{
+	SoundMessage temp_message;
+	while (mSoundMessageBuffer.remove(&temp_message))
+	{
+		NewVoice(temp_message.pEntry);
+	}
+}
+
+void Sound::Mixer::ProcessMusicMessages()
+{
+	// Music messages are currently nothing different
+	// from sound messages.
+	// Will be changed in a future task
+	MusicMessage temp_message;
+	while (mMusicMessageBuffer.remove(&temp_message))
+	{
+		NewVoice(temp_message.pEntry);
+	}
+}

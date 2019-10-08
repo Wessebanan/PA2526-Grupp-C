@@ -41,16 +41,18 @@ TEST(SoundAPI, InitializePortAudio)
 		using namespace Sound::Plugin;
 
 		// Test so that chained plugins doesn't cause trouble
-		mixer.NewVoice(
+		mixer.AddSoundMessage(
+			{
 			new Passthrough(
 				new Passthrough(
 					new Passthrough(
 						new Passthrough(
 							new Passthrough(
 								new TestSineWave(440.f)
-		))))));
-		mixer.NewVoice(new TestSineWave(220.f));
-		mixer.NewVoice(new TestSineWave(110.f));
+			)))))
+			});
+		mixer.AddSoundMessage({ new TestSineWave(220.f) });
+		mixer.AddSoundMessage({ new TestSineWave(110.f) });
 
 	}
 	// Have the engine use this mixer
@@ -260,7 +262,7 @@ TEST(SoundAPI, PlaySoundWithSampler)
 			<< ((float)p_file->GetFrameCount() / (float)SOUND_SAMPLE_RATE)
 			<< " seconds long\n";
 
-		mixer.NewVoice(new Sampler(p_file));
+		mixer.AddSoundMessage({ new Sampler(p_file) });
 
 	}
 	// Have the engine use this mixer

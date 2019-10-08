@@ -87,12 +87,7 @@ namespace Sound
 		FrameBuffer mBuffer;
 		Samples mProducerLastSampleCount;
 
-		// TEMPORARY
-		// This will be removed once it's no longer needed for
-		// testing purposes. Produces a sine wave to fill the
-		// ring buffer with
 		Mixer* mpMixer;
-
 	};
 
 	// Sound::PaHandler class
