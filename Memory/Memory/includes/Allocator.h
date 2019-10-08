@@ -16,18 +16,20 @@
 									   #  HOW ALLOCATOR MEMORY IS STORED  #
 										##################################
 
-	+-------------------------------------------------------------------------------------------------------+
-	|  Header used to store   |                                                                             |
-	|  the allocator and all  |			Memory available for allocations, managed by the allocator.			|
-	|  data used to manage    |                                                                             |
-	|  its memory.            |                                                                             |
-	+-------------------------------------------------------------------------------------------------------+
-	\____________ ____________/\_______________________________________ _____________________________________/
-				 V                                                     V
-		  Allocator block								  Heap block (for allocations)
-	\___________________________________________________ ___________________________________________________/
-														V
-												   Memory Block (for allocator)
+	TODO: Describe how allocators work internally.
+
+																				MB: Memory Block (aka. allocations)
+	+------------------+------------------------------------------------------------------------------------------+
+	|    Allocator     |     MB    |              MB             |     MB     |      MB      |  MB  |       MB    |
+	+------------------+------------------------------------------------------------------------------------------+
+	\________ ________/\____________________________________________ ____________________________________________/
+			 V                                                      V
+	   HEADER BLOCK                                         ALLOCATION BLOCK
+(where allocator is stored)                            (managed by the allocator)
+
+	\_____________________________________________________ _______________________________________________________/
+														  V
+														 HEAP
 */
 
 namespace memory
@@ -35,15 +37,16 @@ namespace memory
 	namespace allocators
 	{
 		/*
-			Allocator is a generic handle for all types of allocators.
+			Allocator is a generic handle for all types of allocators. Allocators handles reservations
+			in memory blocks.
 		*/
 		class Allocator
 		{
 		public:
-			Allocator(const Allocator& other) = delete;
-			Allocator& operator=(const Allocator& other) = delete;
+			// Delete default copy constructor and copy operator.
+			DENY_COPY(Allocator)
 
-			Allocator() : mMemoryBlockSize(0), mMemoryHeapSize(0), mMemoryUsed(0), mpMemoryHeapStart(nullptr), mpMemoryBlockStart(nullptr) {}
+			Allocator() : mMemorySize(0), mMemoryUsed(0), mpMemoryStart(nullptr) {}
 			virtual ~Allocator() {}
 
 			virtual bool Initialize(void* memoryStart, uint memorySize) = 0;
@@ -52,7 +55,7 @@ namespace memory
 				Clears all internal data in memory block. In order to use the allocator again,
 				Initialize() has to be called.
 			*/
-			virtual void Terminate() { mMemoryBlockSize = 0; mMemoryHeapSize = 0; mMemoryUsed = 0; mpMemoryHeapStart = nullptr; }
+			virtual void Terminate() { mMemorySize = 0; mMemoryUsed = 0; mpMemoryStart = nullptr; }
 
 			/*
 				Clears all allocations in the heap block; freeing all allocated memory.
@@ -69,28 +72,17 @@ namespace memory
 				Returns a block of reserved memory back to the allocator's memory heap, so that the memory
 				can be used for future allocations.
 			*/
-			virtual void Free(void* ptr) = 0;
+			virtual void Free(void * pObject) = 0;
 
 
 		protected:
 
 			// Total size of the memory block
-			uint mMemoryBlockSize;
-			uint mMemoryHeapSize;
+			uint mMemorySize;
 			uint mMemoryUsed;
 
-			/*
-				Where the memory block for allocations start.
-				(which is right after where the allocator for this block is stored)
-			*/
-			void* mpMemoryHeapStart;			
-
-			/*
-				Start of the given memory block the allocator manages. The allocator is
-				stored at the beginning of this memory, followed by the memory block
-				available for allocations.
-			*/
-			void* mpMemoryBlockStart;	
+			// Pointer to the first address of the ALLOCATION BLOCK
+			void* mpMemoryStart;
 		};
 
 	} // allocators

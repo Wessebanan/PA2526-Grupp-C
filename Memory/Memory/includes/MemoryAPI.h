@@ -3,7 +3,9 @@
 #include <unordered_map>
 #include "MemoryGlobals.h"
 
-#include "LinearAllocator.h"
+#include "Heap.h"
+
+
 
 namespace memory
 {
@@ -14,10 +16,12 @@ namespace memory
 	*/
 	static inline bool Initialize(uint size);
 	static inline void End();
-	static inline allocators::Allocator* CreateAllocator(uint size);
+	static inline Heap* CreateHeap(uint size);
 
 	static inline void* Allocate(size_t size);
-	static inline void Free(void* ptr);
+
+	template <typename T>
+	static inline void Free(T* pObject);
 
 	/*
 		MemoryManager is a singleton class that handles the creation and
@@ -30,10 +34,8 @@ namespace memory
 	class MemoryManager
 	{
 	public:
-
-		// Delete copy constructor and copy operator
-		MemoryManager(const MemoryManager& other) = delete;
-		MemoryManager& operator=(const MemoryManager& other) = delete;
+		// Delete default copy constructor and copy operator.
+		DENY_COPY(MemoryManager)
 
 		/*
 			Returns an instance to the Memory Manager. Use this instance
@@ -54,25 +56,25 @@ namespace memory
 		static void End();
 
 		/*
-			Allocate directly on the main memory.
+			Allocate directly on the main heap.
 		*/
 		void* Allocate(uint size);
 
 		/*
-			Free directly on main memory.
+			Free directly on main heap.
 		*/
-		void Free(void* ptr);
+		template <typename T>
+		void Free(T* pObject);
 
 		/*
 			!BETA METHOD, LATER IMPLEMENTATIONS WILL SPECIFY ALLOCATOR TYPE!
-			Creates an allocator for a new memory domain that the user can use.
-			Memory domains are just different chunks in memory, reserved for
-			one area of the application; like graphics or ECS.
+			Creates a heap for a new memory domain (graphics, ECS etc.) that the
+			user can use.
 		*/
-		allocators::Allocator* CreateAllocator(uint size);
+		Heap* CreateHeap(uint size);
 
 		/*
-			Getters
+			Getters (TODO)
 		*/
 
 		uint GetMainHeapSize();
@@ -88,7 +90,7 @@ namespace memory
 
 		uint mMemorySize;
 		void *mpMemoryStart;
-		allocators::LinearAllocator mMemory;
+		Heap mMainHeap;
 
 
 		inline bool IsInitialized()
@@ -96,10 +98,29 @@ namespace memory
 			return mpMemoryStart;
 		}
 
+		void EndInternal()
+		{
+			mMainHeap.Terminate();
+		}
+
 		#define IF_INITIALIZED_RETURN(ret) if (mpMemoryStart) {return ret;}
 		#define IF_NOT_INITIALIZED_RETURN(ret) if (!mpMemoryStart) {return ret;}
 		#define IF_NOT_INITIALIZED_RETURN_VOID if (!mpMemoryStart) {return;}
 	};
+
+	/*
+		Templated methods for memory manager, must be in header as types are not
+		known at compile time.
+	*/
+
+	template <typename T>
+	void MemoryManager::Free(T* pObject)
+	{
+		if (!mpMemoryStart) { return; }
+		pObject->~T();
+		mMainHeap.Free(pObject);
+	}
+
 
 
 
@@ -117,9 +138,9 @@ namespace memory
 		MemoryManager::Instance().End();
 	}
 
-	static inline allocators::Allocator* CreateAllocator(uint size)
+	static inline Heap* CreateHeap(uint size)
 	{
-		return MemoryManager::Instance().CreateAllocator(size);
+		return MemoryManager::Instance().CreateHeap(size);
 	}
 
 	static inline void* Allocate(size_t size)
@@ -127,9 +148,9 @@ namespace memory
 		return MemoryManager::Instance().Allocate((uint)size);
 	}
 
-
-	static inline void Free(void* ptr)
+	template <typename T>
+	static inline void Free(T* pObject)
 	{
-		MemoryManager::Instance().Free(ptr);
+		MemoryManager::Instance().Free(pObject);
 	}
 }
