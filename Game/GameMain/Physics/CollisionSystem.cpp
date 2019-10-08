@@ -301,7 +301,7 @@ ecs::systems::ObjectBoundingVolumeInitSystem::~ObjectBoundingVolumeInitSystem()
 void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
 {
 	CreateComponentEvent* create_component_event = dynamic_cast<CreateComponentEvent*>(_event);
-	
+
 	// If the component created was any other than object collision component, do nothing.
 	if (create_component_event->componentTypeID != ObjectCollisionComponent::typeID)
 	{
