@@ -76,16 +76,16 @@ bool InputBackend::updateKeyboard()
 
 void InputBackend::modyfiByMouse()
 {
-	DirectX::XMFLOAT2 diff(
-		  mpMouse->mNewPos.x - mpMouse->mOldPos.x
-		, mpMouse->mNewPos.y - mpMouse->mOldPos.y
-	);
-
-	mpMouse->mDiffLength = sqrt((diff.x * diff.x) + (diff.y * diff.y));
-
-	mpMouse->mDiffFloat2 = diff;
-
-	mpMouse->mOldPos = mpMouse->mNewPos;
+//	DirectX::XMFLOAT2 diff(
+//		  mpMouse->mNewPos.x - mpMouse->mOldPos.x
+//		, mpMouse->mNewPos.y - mpMouse->mOldPos.y
+//	);
+//
+//	mpMouse->mDiffLength = sqrt((diff.x * diff.x) + (diff.y * diff.y));
+//
+//	mpMouse->mDiffFloat2 = diff;
+//
+//	mpMouse->mOldPos = mpMouse->mNewPos;
 }
 
 bool InputBackend::updateMouse()
@@ -95,22 +95,22 @@ bool InputBackend::updateMouse()
 
 	GetCursorPos(&temp);
 
-	// checks if it any of the cords was changed
-	if (mpMouse->mOldPos.x != temp.x || mpMouse->mOldPos.y != temp.y)
-	{
-		// saves and updates members
-		ret_val = true;
-		mpMouse->mNewPos.x = temp.x;
-		mpMouse->mNewPos.y = temp.y;
+	//// checks if it any of the cords was changed
+	//if (mpMouse->mOldPos.x != temp.x || mpMouse->mOldPos.y != temp.y)
+	//{
+	//	// saves and updates members
+	//	ret_val = true;
+	//	//mpMouse->mNewPos.x = temp.x;
+	//	//mpMouse->mNewPos.y = temp.y;
 
-		this->modyfiByMouse();
-	}
-	else // else resets 
-	{
-		mpMouse->mDiffFloat2.x = 0.0f;
-		mpMouse->mDiffFloat2.y = 0.0f;
-		mpMouse->mDiffLength = 0.0f;
-	}
+	//	this->modyfiByMouse();
+	//}
+	//else // else resets 
+	//{
+	//	//mpMouse->mDiffFloat2.x = 0.0f;
+	//	//mpMouse->mDiffFloat2.y = 0.0f;
+	//	//mpMouse->mDiffLength = 0.0f;
+	//}
 	return ret_val;
 }
 

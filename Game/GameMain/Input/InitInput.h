@@ -1,22 +1,21 @@
 #pragma once
-#include "InitInputSystems.h"
+#include "../Input/InitInputSystems.h"
 
 #include "ecs.h"
 
 void initInput(ecs::EntityComponentSystem& rECS)
 {
-	rECS.reserveComponentCount<InputBackendComp>(1);
+	//rECS.reserveComponentCount<InputBackendComp>(1);
 	rECS.reserveComponentCount<KeyboardComponent>(1);
 	rECS.reserveComponentCount<MouseComponent>(1);
 	rECS.reserveComponentCount<UserButtonComponent>(1);
 	rECS.reserveComponentCount<UserTileComponent>(1);
 	rECS.reserveComponentCount<UserCommandComponent>(1);
 
-	InputBackend* inp = new InputBackend();
 
 	//// SYSTEMS
-	TypeID var = ecs::systems::HandleInputBackend::typeID;
-	ecs::systems::HandleInputBackend* psys = rECS.createSystem<ecs::systems::HandleInputBackend>(0);// parameter är layer
+	//TypeID var = ecs::systems::HandleInputBackend::typeID;
+	//ecs::systems::HandleInputBackend* psys = rECS.createSystem<ecs::systems::HandleInputBackend>(0);// parameter är layer
 
 	rECS.createSystem<ecs::systems::HandleKeyboardSystem>(1);
 	rECS.createSystem<ecs::systems::HandleMouseSystem>(1);
@@ -25,8 +24,9 @@ void initInput(ecs::EntityComponentSystem& rECS)
 	//// COMPONENTS
 
 	// Backend Components
-	ecs::components::InputBackendComp backend = ecs::components::InputBackendComp();
-	backend.backend = inp;
+	//InputBackend* inp = new InputBackend();
+	//ecs::components::InputBackendComp backend = ecs::components::InputBackendComp();
+	//backend.backend = inp;
 	//backend.backend = new InputBackend();
 
 	// Keyboard Components
@@ -46,8 +46,8 @@ void initInput(ecs::EntityComponentSystem& rECS)
 		& user_tileComp,
 		& user_commandComp,
 		&mouse_comp,
-		&kb_comp,
-		&backend
+		&kb_comp//,
+		//&backend
 	};
 
 	ecs::ComponentList list;

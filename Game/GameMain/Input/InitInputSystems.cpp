@@ -54,17 +54,17 @@ void ecs::systems::HandleMouseSystem::updateEntity(FilteredEntity& _entityInfo, 
 	InputBackendComp* backend_comp = _entityInfo.getComponent<components::InputBackendComp>();
 
 
-	// the mouse buttons
-	mouse->LMB = backend_comp->backend->mpMouseLKey->key.pressed;
-	mouse->RMB = backend_comp->backend->mpMouseRKey->key.pressed;
+	//// the mouse buttons
+	//mouse->LMB = backend_comp->backend->mpMouseLKey->key.pressed;
+	//mouse->RMB = backend_comp->backend->mpMouseRKey->key.pressed;
 
-	// the current position
-	mouse->pos = backend_comp->backend->mpMouse->mNewPos;
+	//// the current position
+	//mouse->pos = backend_comp->backend->mpMouse->mNewPos;
 
 
-	// the delta values
-	mouse->diffFloat2 = backend_comp->backend->mpMouse->mDiffFloat2;
-	mouse->diffLength = backend_comp->backend->mpMouse->mDiffLength;
+	//// the delta values
+	//mouse->diffFloat2 = backend_comp->backend->mpMouse->mDiffFloat2;
+	//mouse->diffLength = backend_comp->backend->mpMouse->mDiffLength;
 
 }
 

@@ -1,10 +1,10 @@
 #pragma once
-#include <DirectXMath.h>
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
-#include <windows.h>
 #include <WinUser.h>
+#include <windows.h>
 
+#include <DirectXMath.h>
 
 #include "webConnection.h"
 
@@ -54,12 +54,12 @@ struct SingleKey
 // Holds the varibles that calculates the mouse movment
 struct MouseBehavior
 {
-	// The new pos of the mouse this frame
-	DirectX::XMFLOAT2 mNewPos;
-	// the pos the last frame
-	DirectX::XMFLOAT2 mOldPos;
-	// A vector describing the movment since last frame
-	DirectX::XMFLOAT2 mDiffFloat2;
+	//// The new pos of the mouse this frame
+	//DirectX::XMFLOAT2 mNewPos;
+	//// the pos the last frame
+	//DirectX::XMFLOAT2 mOldPos;
+	//// A vector describing the movment since last frame
+	//DirectX::XMFLOAT2 mDiffFloat2;
 	// the length of hte diff vector
 	float mDiffLength = 0.0f;
 };
