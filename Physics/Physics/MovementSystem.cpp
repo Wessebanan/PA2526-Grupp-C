@@ -21,14 +21,7 @@ void ecs::systems::StaticMovementSystem::updateEntity(ecs::FilteredEntity& _enti
 		// Grabbing the transform component in order to modify the position of the entity.
 		TransformComponent* transform = _entityInfo.getComponent<TransformComponent>();
 
-		// The position is modified by the velocity multiplied by 
-		// the update time and the direction in 3D. Assumes	that the 
-		// direction vector is normalized. 
-		// XMFLOAT3 has no operators besides = :joy: :gun:
-		transform->position =  DirectX::XMFLOAT3(
-			transform->position.x + movement->mVelocity * _delta * movement->mDirection.x,
-			transform->position.y + movement->mVelocity * _delta * movement->mDirection.y,
-			transform->position.z + movement->mVelocity * _delta * movement->mDirection.z);
+		StaticMove(transform->position, movement->mDirection, movement->mVelocity, _delta);
 
 		// If the moved entity has a bounding sphere, the 
 		// collision system is notified with a potential
@@ -78,11 +71,7 @@ void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event,
 
 	// Rotating its direction of movement based on current 
 	// direction and input direction.
-	DirectX::XMFLOAT3 direction = movement_component->mForward;
-	RotateAroundY(direction, input_event.mInput);
-
-	movement_component->mDirection.x = direction.x;
-	movement_component->mDirection.z = direction.z;
+	SetDirection(movement_component->mDirection, movement_component->mForward, input_event.mInput);
 
 	// Setting velocity to the max velocity.
 	movement_component->mVelocity = movement_component->mMaxVelocity;
@@ -112,21 +101,7 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 
 	// Starting off with movement in the x-z-plane.
 
-	// a = F/m
-	movement_component->mAcceleration.x = movement_component->mForce.x / movement_component->mWeight;
-	movement_component->mAcceleration.z = movement_component->mForce.z / movement_component->mWeight;
-	
-	// Applying deceleration if velocity is greater than 0 and acceleration works opposite or not at all.
-	if (fabs(movement_component->mVelocity.x) > 0.0f && movement_component->mAcceleration.x / movement_component->mVelocity.x <= 0.0f)
-	{
-		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
-		movement_component->mAcceleration.x -= Sign(movement_component->mVelocity.x) * movement_component->mDeceleration;
-	}
-	if (fabs(movement_component->mVelocity.z) > 0.0f && movement_component->mAcceleration.z / movement_component->mVelocity.z <= 0.0f)
-	{
-		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
-		movement_component->mAcceleration.z -= Sign(movement_component->mVelocity.z) * movement_component->mDeceleration;
-	}
+	UpdateAcceleration(movement_component->mAcceleration, movement_component->mForce, movement_component->mWeight, movement_component->mVelocity, movement_component->mDeceleration);
 
 	// If the max velocity is not exceeded:
 	if (CalculateVectorLength(movement_component->mVelocity) < movement_component->mMaxVelocity)
@@ -148,18 +123,7 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	// If the object is not grounded right now, apply gravity. Else reset velocity.
 	if (!movement_component->mOnGround)
 	{
-		movement_component->mAcceleration.y = -GRAVITY;
-		if (fabs(movement_component->mVelocity.y) < movement_component->mMaxVelocity)
-		{
-			movement_component->mVelocity.y += movement_component->mAcceleration.y * _delta;
-		}
-
-		// Separate if rather than else for the specific moment max velocity is passed.
-		if (fabs(movement_component->mVelocity.y) > movement_component->mMaxVelocity)
-		{
-			movement_component->mVelocity.y = Sign(movement_component->mVelocity.y) * movement_component->mMaxVelocity;
-		}
-		transform_component->position.y += movement_component->mVelocity.y * _delta;
+		HandleGravity(movement_component->mAcceleration.y, movement_component->mVelocity.y, transform_component->position.y, movement_component->mGravity, movement_component->mMaxVelocity, _delta);
 	}
 	else
 	{
@@ -196,16 +160,10 @@ void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(entity->getID());
 
-	// Rotating direction of movement around the y axis.
-	DirectX::XMFLOAT3 direction = movement_component->mForward;
-	RotateAroundY(direction, input_event.mInput);
-
-	// Updating direction according to the direction of movement.
-	movement_component->mDirection.x = direction.x;
-	movement_component->mDirection.z = direction.z;
+	SetDirection(movement_component->mDirection, movement_component->mForward, input_event.mInput);
 
 	// Applying force in the direction of the movement.
-	movement_component->mForce.x = direction.x * movement_component->mMovementForce;
-	movement_component->mForce.z = direction.z * movement_component->mMovementForce;
+	movement_component->mForce.x = movement_component->mDirection.x * movement_component->mMovementForce;
+	movement_component->mForce.z = movement_component->mDirection.z * movement_component->mMovementForce;
 }
 #pragma endregion

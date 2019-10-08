@@ -7,6 +7,7 @@
 #include "UtilityComponents.h"
 #include "UtilityFunctions.h"
 #include "PhysicsHelperFunctions.h"
+#include "CollisionFunctions.h"
 
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 

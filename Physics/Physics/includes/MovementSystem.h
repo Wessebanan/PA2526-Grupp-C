@@ -6,10 +6,11 @@
 #include <math.h>
 #include "PhysicsHelperFunctions.h"
 
+#include "MovementFunctions.h"
+
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
 #define PI 3.14159265358979323846
-#define GRAVITY 9.82f
 
 using namespace PhysicsHelpers;
 

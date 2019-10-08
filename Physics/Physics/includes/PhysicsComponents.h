@@ -8,6 +8,7 @@
 #define DEFAULT_DECELERATION 10.0f
 #define DEFAULT_MAX_VELOCITY 100.0f
 #define DEFAULT_WEIGHT 50.0f
+#define DEFAULT_GRAVITY 9.82f
 
 namespace ecs
 {
@@ -32,6 +33,7 @@ namespace ecs
 			float mMovementForce	= DEFAULT_MOVEMENT_FORCE;
 			float mDeceleration		= DEFAULT_DECELERATION;
 			float mWeight			= DEFAULT_WEIGHT;
+			float mGravity			= DEFAULT_GRAVITY;
 
 			DirectX::XMFLOAT3 mDirection	= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mForce		= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);

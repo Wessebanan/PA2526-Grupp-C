@@ -61,7 +61,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		current_collision_max = DirectX::XMVector3Transform(current_collision_max, UtilityFunctions::GetWorldMatrix(*p_current_transform));
 
 		// If the objects' bounding volumes intersect.
-		if (PhysicsHelpers::AABBIntersect(collision_min, collision_max, current_collision_min, current_collision_max))
+		if (AABBIntersect(collision_min, collision_max, current_collision_min, current_collision_max))
 		{
 			// Set the intersection bool and stop checking
 			// because any collision means the movement should revert.
@@ -90,38 +90,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		center = DirectX::XMVector3Transform(center, UtilityFunctions::GetWorldMatrix(*p_transform));
 		colliding_center = DirectX::XMVector3Transform(colliding_center, UtilityFunctions::GetWorldMatrix(*p_colliding_transform));
 
-		// Getting a vector between the centers of the bounding volumes.
-		DirectX::XMVECTOR v_diff = DirectX::XMVectorSubtract(center, colliding_center);
-		DirectX::XMFLOAT3 diff;
-		DirectX::XMStoreFloat3(&diff, v_diff);
-
-		// Saving a 1 in the direction of the largest component in the vector.
-		bool x = false;
-		bool y = false;
-		bool z = false;
-
-		if (fabs(diff.x) > fabs(diff.y) && fabs(diff.x) > fabs(diff.z))
-		{
-			x = true;
-		}
-		else if(fabs(diff.y) > fabs(diff.x) && fabs(diff.y) > fabs(diff.z))
-		{
-			y = true;
-		}
-		else
-		{
-			z = true;
-		}	
-
-		// Reverting the movement in that direction.
-		p_transform->position.x -= p_movement->mVelocity.x * p_event->mDelta * x;
-		p_transform->position.y -= p_movement->mVelocity.y * p_event->mDelta * y;
-		p_transform->position.z -= p_movement->mVelocity.z * p_event->mDelta * z;
-
-		// Resetting the velocity in that direction.
-		p_movement->mVelocity.x *= !x;
-		p_movement->mVelocity.y *= !y;
-		p_movement->mVelocity.z *= !z;
+		RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
 	}
 }
 #pragma endregion
@@ -167,11 +136,11 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 	// Getting the extreme points of the vertex group.
 	DirectX::XMFLOAT3 min_point;
 	DirectX::XMFLOAT3 max_point;
-	PhysicsHelpers::GetExtremes(vertex_vector->data(), vertex_vector->size(), min_point, max_point);
+	GetExtremes(vertex_vector->data(), vertex_vector->size(), min_point, max_point);
 
 	// Creating the OBB holding the model.
 	DirectX::XMFLOAT3 vertices[8];
-	PhysicsHelpers::CreateOBB(vertices, min_point, max_point);
+	CreateOBB(vertices, min_point, max_point);
 
 	// Calculating the average position while setting
 	// the vertices array of GroundCollisionComponent
@@ -353,7 +322,7 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 
 	// Getting the extreme values of the vertex list.
 	DirectX::XMFLOAT3 min_point, max_point;
-	PhysicsHelpers::GetExtremes(vertex_list->data(), vertex_list->size(), min_point, max_point);
+	GetExtremes(vertex_list->data(), vertex_list->size(), min_point, max_point);
 
 	// Grabbing the object collision component to fill it up.
 	ObjectCollisionComponent* object_collision_component = getComponentFromKnownEntity<ObjectCollisionComponent>(entity->getID());

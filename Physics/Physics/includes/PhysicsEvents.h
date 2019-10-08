@@ -1,6 +1,6 @@
 #pragma once
 #include "ecs.h"
-
+#include "MovementFunctions.h"
 #define EVENT(name) struct name : public ecs::ECSEvent<name>
 
 namespace ecs
@@ -8,13 +8,13 @@ namespace ecs
 	namespace events
 	{
 		// MovementInputs are used to move entities in various directions.
-		enum MovementInputs
-		{
-			FORWARD		= 0, 
-			RIGHT		= 90, 
-			LEFT		= -90, 
-			BACKWARD	= 180
-		};
+		//enum MovementInputs
+		//{
+		//	FORWARD		= 0, 
+		//	RIGHT		= 90, 
+		//	LEFT		= -90, 
+		//	BACKWARD	= 180
+		//};
 		
 		// This event should be created
 		// whenever a movement action is performed
