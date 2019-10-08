@@ -141,17 +141,14 @@ namespace memory
 
 
 	/*
-		Templated heap methods. Must be in header, as templated types isn't known at compile time.
+		Templated methods for Heap. Has do be in header as templated types can't be predicted at compile type.
 	*/
+
 	template <typename T>
 	void memory::Heap::Free(T* pObject)
 	{
 		mpAllocator->Free(pObject);
 	}
-
-	/*
-		Templated methods for Heap. Has do be in header as templated types can't be predicted at compile type.
-	*/
 
 	template <typename T>
 	T* Heap::AllocateArray(uint count)
