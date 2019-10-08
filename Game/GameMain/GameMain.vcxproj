@@ -75,6 +75,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Input\InitInputSystems.cpp" />
+    <ClCompile Include="Interpreter\InterpretWebSystems.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -82,6 +83,9 @@
     <ClInclude Include="Input\InitInputBackendComponent.h" />
     <ClInclude Include="Input\InitInputComponents.h" />
     <ClInclude Include="Input\InitInputSystems.h" />
+    <ClInclude Include="Interpreter\InitInterpreter.h" />
+    <ClInclude Include="Interpreter\InterpretWebEvents.h" />
+    <ClInclude Include="Interpreter\InterpretWebSystems.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

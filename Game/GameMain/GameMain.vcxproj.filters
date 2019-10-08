@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\interpreter">
+      <UniqueIdentifier>{297021bc-e68a-47ca-b21f-26a66582e91e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -20,6 +23,9 @@
     </ClCompile>
     <ClCompile Include="Input\InitInputSystems.cpp">
       <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Interpreter\InterpretWebSystems.cpp">
+      <Filter>Header Files\interpreter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +40,15 @@
     </ClInclude>
     <ClInclude Include="Input\InitInputBackendComponent.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Interpreter\InitInterpreter.h">
+      <Filter>Header Files\interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="Interpreter\InterpretWebEvents.h">
+      <Filter>Header Files\interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="Interpreter\InterpretWebSystems.h">
+      <Filter>Header Files\interpreter</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
