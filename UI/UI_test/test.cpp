@@ -4,6 +4,7 @@
 #include "ecs.h"
 #include "UISystems.h"
 #include<Windows.h>
+#include"..//..//Game/GameMain/InitUI.h"
 #pragma comment (lib, "plainECS")
 
 
