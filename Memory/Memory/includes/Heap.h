@@ -92,6 +92,13 @@ namespace memory
 		void Free(void* ptr);
 
 		/*
+			Allocates memory for a number of objects placed after each other in memory as an array.
+			Returns pointer to the first object int the array.
+		*/
+		template <typename T>
+		T* AllocateArray(uint count);
+
+		/*
 			Reserves memory for a sub-heap within the heap. The size of the reserved memory
 			is the given size plus the size of the heap's header (size of Heap and its allocator).
 			In memory, this will look like:
@@ -129,4 +136,17 @@ namespace memory
 		friend class MemoryManager;
 		friend class Heap;
 	};
+
+	/*
+		Templated methods for Heap. Has do be in header as templated types can't be predicted at compile type.
+	*/
+
+	template <typename T>
+	T* Heap::AllocateArray(uint count)
+	{
+		const uint object_size = sizeof(T);
+		T* array_ptr = (T*)mpAllocator->Allocate(object_size * count);
+		array_ptr = new(array_ptr) T[count];
+		return array_ptr;
+	}
 }
