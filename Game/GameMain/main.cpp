@@ -6,6 +6,20 @@
 #include "gameUtility/CameraFunctions.h"
 
 
+void TransformViewMatrix(
+	DirectX::XMFLOAT4X4& rViewMatrix,
+	const float x,
+	const float y,
+	const float z)
+{
+	DirectX::XMStoreFloat4x4(&rViewMatrix,
+		DirectX::XMMatrixLookToLH(
+			{ x, y, z },
+			{ 0.0f, 0.0f,  1.0f },
+			{ 0.0f, 1.0f,  0.0f }
+	));
+}
+
 using namespace ecs;
 
 int main()
@@ -37,8 +51,20 @@ int main()
 	components::CameraComponent* camComp;
 	camComp = (components::CameraComponent*)itt.next();
 	mng.SetViewMatrix(camComp->viewMatrix);
-	pWnd->Show();
 
+	float x = 10.0f;
+	float y = 13.0f;
+	float z = 1.0f;
+	XMFLOAT4X4 viewMatrix;
+	
+	TransformViewMatrix(viewMatrix, x, y, z);
+
+	mng.SetViewMatrix(viewMatrix);
+
+
+
+
+	pWnd->Show();
 	ecs.update(0.1f);
 	while (pWnd->IsOpen())
 	{
@@ -46,8 +72,31 @@ int main()
 		{
 			mng.Clear(0.2f, 0.1f, 0.1f);
 				
-			
-			mng.SetViewMatrix(camComp->viewMatrix);
+			float moveSpeed = 0.01f;
+			if (GetAsyncKeyState(VK_UP))
+			{
+				z += moveSpeed;
+			}
+
+			if (GetAsyncKeyState(VK_DOWN))
+			{
+				z -= moveSpeed;
+			}
+
+			if (GetAsyncKeyState(VK_LEFT))
+			{
+				x -= moveSpeed;
+			}
+
+			if (GetAsyncKeyState(VK_RIGHT))
+			{
+				x += moveSpeed;
+			}
+
+			TransformViewMatrix(viewMatrix, x, y, z);
+
+			mng.SetViewMatrix(viewMatrix);
+			//mng.SetViewMatrix(camComp->viewMatrix);
 			
 			mng.Draw();
 			pWnd->Present();
