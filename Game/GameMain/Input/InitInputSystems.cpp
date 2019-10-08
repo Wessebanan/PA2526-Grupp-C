@@ -18,20 +18,20 @@ ecs::systems::HandleKeyboardSystem::~HandleKeyboardSystem()
 
 void ecs::systems::HandleKeyboardSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	KeyboardComponent* kb = _entityInfo.getComponent<components::KeyboardComponent>();
-	InputBackendComp* backend_comp = _entityInfo.getComponent<components::InputBackendComp>();
+	KeyboardComponent* p_kb = _entityInfo.getComponent<components::KeyboardComponent>();
+	InputBackendComp* p_backend_comp = _entityInfo.getComponent<components::InputBackendComp>();
 
 	// saves all keyboard keys, the mouse keys are done in mouse system
-	kb->W = backend_comp->backend->mpWsad->keyU.pressed;
-	kb->S = backend_comp->backend->mpWsad->keyD.pressed;
-	kb->A = backend_comp->backend->mpWsad->keyL.pressed;
-	kb->D = backend_comp->backend->mpWsad->keyR.pressed;
+	p_kb->W = p_backend_comp->backend->mpWsad->keyU.pressed;
+	p_kb->S = p_backend_comp->backend->mpWsad->keyD.pressed;
+	p_kb->A = p_backend_comp->backend->mpWsad->keyL.pressed;
+	p_kb->D = p_backend_comp->backend->mpWsad->keyR.pressed;
 
-	kb->R = backend_comp->backend->mpRessetKey->key.pressed;
-	kb->ECS = backend_comp->backend->mpExitKey->key.pressed;
+	p_kb->R = p_backend_comp->backend->mpRessetKey->key.pressed;
+	p_kb->ECS = p_backend_comp->backend->mpExitKey->key.pressed;
 
-	kb->Q = false;
-	kb->E = false;
+	p_kb->Q = false;
+	p_kb->E = false;
 
 }
 
@@ -50,21 +50,20 @@ ecs::systems::HandleMouseSystem::~HandleMouseSystem()
 
 void ecs::systems::HandleMouseSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	MouseComponent* mouse = _entityInfo.getComponent<components::MouseComponent>();
-	InputBackendComp* backend_comp = _entityInfo.getComponent<components::InputBackendComp>();
+	MouseComponent* p_mouse = _entityInfo.getComponent<components::MouseComponent>();
+	InputBackendComp* p_backend_comp = _entityInfo.getComponent<components::InputBackendComp>();
 
 
 	// the mouse buttons
-	mouse->LMB = backend_comp->backend->mpMouseLKey->key.pressed;
-	mouse->RMB = backend_comp->backend->mpMouseRKey->key.pressed;
-
+	p_mouse->RMB = p_backend_comp->backend->mpMouseRKey->key.pressed;
+	p_mouse->LMB = p_backend_comp->backend->mpMouseLKey->key.pressed;
+	
 	// the current position
-	mouse->pos = backend_comp->backend->mpMouse->mNewPos;
-
-
+	p_mouse->pos = p_backend_comp->backend->mpMouse->mNewPos;
+	
 	// the delta values
-	mouse->diffFloat2 = backend_comp->backend->mpMouse->mDiffFloat2;
-	mouse->diffLength = backend_comp->backend->mpMouse->mDiffLength;
+	p_mouse->diffFloat2 = p_backend_comp->backend->mpMouse->mDiffFloat2;
+	p_mouse->diffLength = p_backend_comp->backend->mpMouse->mDiffLength;
 
 }
 
@@ -86,19 +85,19 @@ ecs::systems::HandleWebSystem::~HandleWebSystem()
 void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	// Each diffrent button
-	InputBackendComp* backend_comp = _entityInfo.getComponent<components::InputBackendComp>();
-	UserButtonComponent* button_comp = _entityInfo.getComponent<components::UserButtonComponent>();
-	UserTileComponent* tile_comp = _entityInfo.getComponent<components::UserTileComponent>();
-	UserCommandComponent* command_comp = _entityInfo.getComponent<components::UserCommandComponent>();
+	InputBackendComp* p_backend_comp = _entityInfo.getComponent<components::InputBackendComp>();
+	UserButtonComponent* p_button_comp = _entityInfo.getComponent<components::UserButtonComponent>();
+	UserTileComponent* p_tile_comp = _entityInfo.getComponent<components::UserTileComponent>();
+	UserCommandComponent* p_command_comp = _entityInfo.getComponent<components::UserCommandComponent>();
 
 	for (int i = 0; i < 4; i++)
 	{
-		button_comp->userButtons[i].mButton = backend_comp->backend->mpUserButton[i]->mButton;
+		p_button_comp->userButtons[i].mButton = p_backend_comp->backend->mpUserButton[i]->mButton;
 
-		tile_comp->userTiles[i].mCordX = backend_comp->backend->mpUserTile[i]->mCordX;
-		tile_comp->userTiles[i].mCordY = backend_comp->backend->mpUserTile[i]->mCordY;
+		p_tile_comp->userTiles[i].mCordX = p_backend_comp->backend->mpUserTile[i]->mCordX;
+		p_tile_comp->userTiles[i].mCordY = p_backend_comp->backend->mpUserTile[i]->mCordY;
 
-		command_comp->userCommands[i].mCommand = backend_comp->backend->mpUserCommand[i]->mCommand;
+		p_command_comp->userCommands[i].mCommand = p_backend_comp->backend->mpUserCommand[i]->mCommand;
 	}
 }
 
@@ -120,13 +119,13 @@ void ecs::systems::HandleInputBackend::updateEntity(FilteredEntity& _entityInfo,
 {
 	// updates the components with the data from the backend
 
-	InputBackendComp* backend_comp = _entityInfo.getComponent<components::InputBackendComp>();
+	InputBackendComp* p_backend_comp = _entityInfo.getComponent<components::InputBackendComp>();
 
 	// keyboard input 
-	backend_comp->backend->updateKeyboard();
+	p_backend_comp->backend->updateKeyboard();
 	// mouse input
-	backend_comp->backend->updateMouse();
+	p_backend_comp->backend->updateMouse();
 	// web input from users
-	backend_comp->backend->updateWeb();
+	p_backend_comp->backend->updateWeb();
 
 }
