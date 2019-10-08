@@ -78,6 +78,7 @@ namespace memory
 	class Heap
 	{
 	public:
+		// Delete default copy constructor and copy operator.
 		DENY_COPY(Heap)
 
 		/*
@@ -89,7 +90,8 @@ namespace memory
 			Frees reserved memory on the heap. The parameter pointer has to be previously
 			allocated on the same heap Free() are called on.
 		*/
-		void Free(void* ptr);
+		template <typename T>
+		void Free(T* pObject);
 
 		/*
 			Allocates memory for a number of objects placed after each other in memory as an array.
@@ -136,6 +138,16 @@ namespace memory
 		friend class MemoryManager;
 		friend class Heap;
 	};
+
+
+	/*
+		Templated heap methods. Must be in header, as templated types isn't known at compile time.
+	*/
+	template <typename T>
+	void memory::Heap::Free(T* pObject)
+	{
+		mpAllocator->Free(pObject);
+	}
 
 	/*
 		Templated methods for Heap. Has do be in header as templated types can't be predicted at compile type.

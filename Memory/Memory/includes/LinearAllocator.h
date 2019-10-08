@@ -75,7 +75,7 @@ namespace memory
 				Returns a block of reserved memory back to the allocator's memory heap, so that the memory
 				can be used for future allocations.
 			*/
-			void Free(void* ptr) override;
+			void Free(void* pObject) override;
 
 		private:
 

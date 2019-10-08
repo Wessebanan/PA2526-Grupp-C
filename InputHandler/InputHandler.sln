@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InputHandler", "InputHandle
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InputHandler_test", "InputHandler_test\InputHandler_test.vcxproj", "{9FB1D90C-658D-44FF-8156-6CBA21E38301}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InputInterpreter", "InputInterpreter\InputInterpreter.vcxproj", "{3E4EE2F7-A3BF-4518-BEEE-6C4F37598D7E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,14 +29,6 @@ Global
 		{9FB1D90C-658D-44FF-8156-6CBA21E38301}.Lib|x64.ActiveCfg = Release|x64
 		{9FB1D90C-658D-44FF-8156-6CBA21E38301}.Release|x64.ActiveCfg = Release|x64
 		{9FB1D90C-658D-44FF-8156-6CBA21E38301}.Release|x64.Build.0 = Release|x64
-		{3E4EE2F7-A3BF-4518-BEEE-6C4F37598D7E}.Debug|x64.ActiveCfg = Debug|x64
-		{3E4EE2F7-A3BF-4518-BEEE-6C4F37598D7E}.Debug|x64.Build.0 = Debug|x64
-		{3E4EE2F7-A3BF-4518-BEEE-6C4F37598D7E}.Lib_d|x64.ActiveCfg = Lib_d|x64
-		{3E4EE2F7-A3BF-4518-BEEE-6C4F37598D7E}.Lib_d|x64.Build.0 = Lib_d|x64
-		{3E4EE2F7-A3BF-4518-BEEE-6C4F37598D7E}.Lib|x64.ActiveCfg = Lib|x64
-		{3E4EE2F7-A3BF-4518-BEEE-6C4F37598D7E}.Lib|x64.Build.0 = Lib|x64
-		{3E4EE2F7-A3BF-4518-BEEE-6C4F37598D7E}.Release|x64.ActiveCfg = Release|x64
-		{3E4EE2F7-A3BF-4518-BEEE-6C4F37598D7E}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

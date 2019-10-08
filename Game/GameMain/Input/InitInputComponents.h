@@ -42,7 +42,7 @@ struct WebCommandCopy
 };
 /// ^^^^^ THESE ARE PASTED FROM INPUTBACKEND.H  ^^^^
 
-namespace ecs 
+namespace ecs
 {
 	namespace components
 	{

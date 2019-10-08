@@ -21,7 +21,7 @@ namespace memory
 	static inline void* Allocate(size_t size);
 
 	template <typename T>
-	static inline void Free(T* ptr);
+	static inline void Free(T* pObject);
 
 	/*
 		MemoryManager is a singleton class that handles the creation and
@@ -34,6 +34,7 @@ namespace memory
 	class MemoryManager
 	{
 	public:
+		// Delete default copy constructor and copy operator.
 		DENY_COPY(MemoryManager)
 
 		/*
@@ -63,7 +64,7 @@ namespace memory
 			Free directly on main heap.
 		*/
 		template <typename T>
-		void Free(T* ptr);
+		void Free(T* pObject);
 
 		/*
 			!BETA METHOD, LATER IMPLEMENTATIONS WILL SPECIFY ALLOCATOR TYPE!
@@ -113,11 +114,11 @@ namespace memory
 	*/
 
 	template <typename T>
-	void MemoryManager::Free(T* ptr)
+	void MemoryManager::Free(T* pObject)
 	{
 		if (!mpMemoryStart) { return; }
-		ptr->~T();
-		mMainHeap.Free(ptr);
+		pObject->~T();
+		mMainHeap.Free(pObject);
 	}
 
 
@@ -148,8 +149,8 @@ namespace memory
 	}
 
 	template <typename T>
-	static inline void Free(T* ptr)
+	static inline void Free(T* pObject)
 	{
-		MemoryManager::Instance().Free(ptr);
+		MemoryManager::Instance().Free(pObject);
 	}
 }

@@ -90,7 +90,7 @@ void* memory::allocators::LinearAllocator::Allocate(uint size)
 	return p;
 }
 
-void memory::allocators::LinearAllocator::Free(void* ptr)
+void memory::allocators::LinearAllocator::Free(void* pObject)
 {
 	/*
 		TODO: Santiy check if ptr belongs to this memory.
@@ -110,9 +110,9 @@ void memory::allocators::LinearAllocator::Free(void* ptr)
 
 	for (size_t i = 0; i < mAllocations.size(); i++)
 	{
-		if (mAllocations[i].first == ptr)
+		if (mAllocations[i].first == pObject)
 		{
-			free(ptr);
+			free(pObject);
 			mMemoryUsed -= mAllocations[i].second;
 			mAllocations.erase(mAllocations.begin() + i);
 		}

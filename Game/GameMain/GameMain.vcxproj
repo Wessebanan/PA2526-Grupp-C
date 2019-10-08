@@ -74,10 +74,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Input\InitInputSystems.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="InitInput.h" />
+    <ClInclude Include="Input\InitInput.h" />
+    <ClInclude Include="Input\InitInputBackendComponent.h" />
+    <ClInclude Include="Input\InitInputComponents.h" />
+    <ClInclude Include="Input\InitInputSystems.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
