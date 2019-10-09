@@ -74,7 +74,7 @@ namespace Sound
 		// to the member function above
 		// Temporarily doubles-up as a spin loop until
 		// a proper thread-pool have been implemented
-		static void WorkerThreadUpdate(void* data);
+		static void WorkerThreadUpdate(void* pData);
 
 		// To get current sample count
 		inline Samples GetWorkerCurrentSampleCount();
@@ -87,12 +87,7 @@ namespace Sound
 		FrameBuffer mBuffer;
 		Samples mProducerLastSampleCount;
 
-		// TEMPORARY
-		// This will be removed once it's no longer needed for
-		// testing purposes. Produces a sine wave to fill the
-		// ring buffer with
 		Mixer* mpMixer;
-
 	};
 
 	// Sound::PaHandler class

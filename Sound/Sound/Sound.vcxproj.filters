@@ -65,8 +65,5 @@
     <ClInclude Include="includes\SoundFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WavReader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,10 +1,14 @@
 #include "ecs.h"
 #include "gameRendering/InitMesh.h"
 #include "gameRendering/PlaceMesh.h"
+
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
+
 #include "gameUtility/CameraFunctions.h"
 
+#include "Input/InitInput.h"
+#include "Input/InitInterpreter.h"
 
 void TransformViewMatrix(
 	DirectX::XMFLOAT4X4& rViewMatrix,
@@ -26,11 +30,13 @@ int main()
 {
 	EntityComponentSystem ecs;
 
+	// Tiles + units + camera
 	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 1);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
 
-	
-
+	InitInput(ecs);
+	InitInterpreter(ecs);
+	//CameraFunctions::CreateDevCamera(ecs);
 
 
 	InitGrid(ecs);
@@ -57,8 +63,8 @@ int main()
 	mng.SetViewMatrix(view_matrix);
 
 
-
-
+	// to get components in the loop
+	ecs::ComponentIterator itt;
 	pWnd->Show();
 	ecs.update(0.1f);
 	while (pWnd->IsOpen())
@@ -66,24 +72,29 @@ int main()
 		if (!pWnd->Update())
 		{
 			mng.Clear(0.2f, 0.1f, 0.1f);
-				
+			
+
+			// Moves the camera wiht input, should be removed when camera gets implemented
+			itt = ecs.getAllComponentsOfType(ecs::components::KeyboardComponent::typeID);
+			ecs::components::KeyboardComponent* p_kb = (ecs::components::KeyboardComponent*)itt.next();
+
 			float move_speed = 0.01f;
-			if (GetAsyncKeyState(VK_UP))
+			if (p_kb->W)
 			{
 				z += move_speed;
 			}
 
-			if (GetAsyncKeyState(VK_DOWN))
+			if (p_kb->S)
 			{
 				z -= move_speed;
 			}
 
-			if (GetAsyncKeyState(VK_LEFT))
+			if (p_kb->A)
 			{
 				x -= move_speed;
 			}
 
-			if (GetAsyncKeyState(VK_RIGHT))
+			if (p_kb->D)
 			{
 				x += move_speed;
 			}

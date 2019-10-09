@@ -9,6 +9,24 @@
     <ClCompile Include="Physics\CollisionSystem.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp" />
     <ClCompile Include="gameUtility\UtilityFunctions.cpp" />
+    <ClCompile Include="Input\InterpretWebSystems.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gameAI\AIFunctions.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gameAI\GridFunctions.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gameAI\GridProp.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gameUtility\CameraFunctions.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gameAI\AIComponents.h" />
@@ -32,7 +50,9 @@
     <ClInclude Include="gameUtility\UtilityEvents.h" />
     <ClInclude Include="gameUtility\UtilityFunctions.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
+    <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
+    <ClInclude Include="Input\InterpretWebSystems.h" />
     <ClInclude Include="Physics\CollisionSystem.h" />
     <ClInclude Include="Physics\MovementSystem.h" />
     <ClInclude Include="Physics\PhysicsComponents.h" />

@@ -41,16 +41,18 @@ TEST(SoundAPI, InitializePortAudio)
 		using namespace Sound::Plugin;
 
 		// Test so that chained plugins doesn't cause trouble
-		mixer.NewVoice(
+		mixer.AddSoundMessage(
+			{
 			new Passthrough(
 				new Passthrough(
 					new Passthrough(
 						new Passthrough(
 							new Passthrough(
 								new TestSineWave(440.f)
-		))))));
-		mixer.NewVoice(new TestSineWave(220.f));
-		mixer.NewVoice(new TestSineWave(110.f));
+			)))))
+			});
+		mixer.AddSoundMessage({ new TestSineWave(220.f) });
+		mixer.AddSoundMessage({ new TestSineWave(110.f) });
 
 	}
 	// Have the engine use this mixer
@@ -260,7 +262,7 @@ TEST(SoundAPI, PlaySoundWithSampler)
 			<< ((float)p_file->GetFrameCount() / (float)SOUND_SAMPLE_RATE)
 			<< " seconds long\n";
 
-		mixer.NewVoice(new Sampler(p_file));
+		mixer.AddSoundMessage({ new Sampler(p_file) });
 
 	}
 	// Have the engine use this mixer
@@ -296,4 +298,57 @@ TEST(SoundAPI, PlaySoundWithSampler)
 	engine.CloseStream();
 
 	std::cout << "Test finished.\n";
+}
+
+TEST(SoundAPI, SoundBankReadMany)
+{
+	// Load three sound files that does exist
+	const std::string FILE_NAMES[] =
+	{
+		"sine.wav",
+		"sine2.wav",
+		"square.wav"
+	};
+	Sound::Bank bank;
+	// Should be successful
+	EXPECT_TRUE(bank.LoadMultipleFiles(FILE_NAMES, 3));
+
+	// Bank should have the three filedatas
+	for (int i = 0; i < 3; i++)
+	{
+		EXPECT_NE(bank[i], nullptr);
+	}
+	// This is nonsense and should return nullptr
+	EXPECT_EQ(bank[100000], nullptr);
+
+	// Load four, which one does not exist
+	const std::string FILE_NAMES_2[] =
+	{
+		"sine.wav",
+		"thisdoesnotexist.wav",
+		"sine2.wav",
+		"square.wav"
+	};
+	Sound::Bank bank_2;
+	// Should fail
+	EXPECT_FALSE(bank_2.LoadMultipleFiles(FILE_NAMES_2, 4));
+	// The sound file that does not exist should be nullptr
+	EXPECT_EQ(bank_2[1], nullptr);
+
+	// Read too many sound files into the bank
+	const std::string FILE_NAMES_3[] =
+	{
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav"
+	};
+	Sound::Bank bank_3;
+	// Should fail
+	EXPECT_FALSE(bank_3.LoadMultipleFiles(FILE_NAMES_3, 27));
 }

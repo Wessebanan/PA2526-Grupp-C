@@ -1,5 +1,5 @@
 #include "SoundBank.h"
-
+#include <iostream>
 Sound::Bank::Bank()
 {
 	for (int i = 0; i < SOUND_MAX_BANK_FILES; i++)
@@ -20,13 +20,13 @@ Sound::Bank::~Bank()
 	}
 }
 
-Sound::FileData* Sound::Bank::GetFile(std::string Path)
+Sound::FileData* Sound::Bank::GetFile(std::string path)
 {
 	for (int i = 0; i < SOUND_MAX_BANK_FILES; i++)
 	{
 		if (mpFiles[i] != nullptr)
 		{
-			if (mpFiles[i]->StringIsEqual(Path))
+			if (mpFiles[i]->StringIsEqual(path))
 			{
 				return mpFiles[i];
 			}
@@ -37,7 +37,7 @@ Sound::FileData* Sound::Bank::GetFile(std::string Path)
 		if (mpFiles[i] == nullptr)
 		{
 			mpFiles[i] = new FileData();
-			if (mpFiles[i]->LoadAll(Path))
+			if (mpFiles[i]->LoadAll(path))
 			{
 				return mpFiles[i];
 			}
@@ -49,4 +49,54 @@ Sound::FileData* Sound::Bank::GetFile(std::string Path)
 			}
 		}
 	}
+}
+
+bool Sound::Bank::LoadMultipleFiles(const std::string* pPathArray, int count)
+{
+	bool return_value = true;
+	for (int i = 0; i < count; i++)
+	{
+		if (i >= SOUND_MAX_BANK_FILES)
+		{
+			std::cerr << "Sound bank reached maximum file capacity\n";
+			return_value = false;
+			break;
+		}
+		if (SetFileAtIndex(pPathArray[i], i) == nullptr)
+		{
+			std::cerr << pPathArray[i] << " could not be loaded\n";
+			return_value = false;
+		}
+	}
+
+
+	return return_value;
+}
+
+Sound::FileData* Sound::Bank::operator[](int index)
+{
+	if (index >= SOUND_MAX_BANK_FILES)
+	{
+		return nullptr;
+	}
+	return mpFiles[index];
+}
+
+Sound::FileData* Sound::Bank::SetFileAtIndex(std::string path, int index)
+{
+	if (mpFiles[index] == nullptr)
+	{
+		mpFiles[index] = new FileData();
+		if (mpFiles[index]->LoadAll(path))
+		{
+			return mpFiles[index];
+		}
+		else
+		{
+			delete mpFiles[index];
+			mpFiles[index] = nullptr;
+			return nullptr;
+		}
+	}
+	return nullptr;
 }

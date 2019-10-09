@@ -179,6 +179,9 @@ void Sound::Engine::PaStreamFinished(void* pUserData)
 
 void Sound::Engine::WorkerThreadUpdateMethod()
 {
+	// Process any messages recieved before filling
+	mpMixer->ProcessMessages();
+
 	// Get current sample count
 	Samples current_sample_count = GetWorkerCurrentSampleCount();
 	// Check how many frames should be processed
@@ -211,12 +214,12 @@ void Sound::Engine::WorkerThreadUpdateMethod()
 	mProducerLastSampleCount += samples_to_fill;
 }
 
-void Sound::Engine::WorkerThreadUpdate(void* data)
+void Sound::Engine::WorkerThreadUpdate(void* pData)
 {
-	while (((Engine*)data)->mWorkerThreadRun)
+	while (((Engine*)pData)->mWorkerThreadRun)
 	{
 		// SPEEEN (Temporary spin loop implementation)
-		((Engine*)data)->WorkerThreadUpdateMethod();
+		((Engine*)pData)->WorkerThreadUpdateMethod();
 	}
 }
 
