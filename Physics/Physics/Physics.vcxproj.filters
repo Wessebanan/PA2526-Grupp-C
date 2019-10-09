@@ -30,6 +30,9 @@
     <ClInclude Include="includes\PhysicsEvents.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="includes\BoundingVolume.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MovementSystem.cpp">

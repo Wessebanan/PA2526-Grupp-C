@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="includes\BoundingVolume.h" />
     <ClInclude Include="includes\CollisionSystem.h" />
     <ClInclude Include="includes\PhysicsComponents.h" />
     <ClInclude Include="includes\PhysicsEvents.h" />
