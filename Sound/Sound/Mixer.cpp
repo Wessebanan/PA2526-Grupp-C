@@ -4,12 +4,23 @@ void Sound::Mixer::Fill(Samples start, Samples count, float * pData)
 {
 	int i, j;
 	float voice_data[SOUND_FRAMES_PER_BUFFER*2];
-	for (i = 0; i < SOUND_MAX_VOICES; i++)
+	for (i = 0; i < SOUND_MAX_SOUND_VOICES; i++)
 	{
-		if (mVoices[i].IsActive())
+		if (mSoundVoices[i].IsActive())
 		{
-			mVoices[i].Fill(start, count, voice_data);
+			mSoundVoices[i].Fill(start, count, voice_data);
 			for (j = 0; j < count*2; j++)
+			{
+				pData[j] += voice_data[j];
+			}
+		}
+	}
+	for (i = 0; i < SOUND_MAX_MUSIC_VOICES; i++)
+	{
+		if (mMusicVoices[i].IsActive())
+		{
+			mMusicVoices[i].Fill(start, count, voice_data);
+			for (j = 0; j < count * 2; j++)
 			{
 				pData[j] += voice_data[j];
 			}
@@ -17,15 +28,25 @@ void Sound::Mixer::Fill(Samples start, Samples count, float * pData)
 	}
 }
 
-bool Sound::Mixer::NewVoice(Plugin::Plugin* pEntryPlugin)
+bool Sound::Mixer::NewSoundVoice(Plugin::Plugin* pEntryPlugin)
 {
-	for (int i = 0; i < SOUND_MAX_VOICES; i++)
+	for (int i = 0; i < SOUND_MAX_SOUND_VOICES; i++)
 	{
-		if (!mVoices[i].IsActive())
+		if (!mSoundVoices[i].IsActive())
 		{
-			mVoices[i].New(pEntryPlugin);
+			mSoundVoices[i].New(pEntryPlugin);
 			return true;
 		}
+	}
+	return false;
+}
+
+bool Sound::Mixer::NewMusicVoice(Plugin::Plugin* pEntryPlugin)
+{
+	if (!mMusicVoices[0].IsActive())
+	{
+		mMusicVoices[0].New(pEntryPlugin);
+		return true;
 	}
 	return false;
 }
@@ -52,7 +73,7 @@ void Sound::Mixer::ProcessSoundMessages()
 	SoundMessage temp_message;
 	while (mSoundMessageBuffer.remove(&temp_message))
 	{
-		NewVoice(temp_message.pEntry);
+		NewSoundVoice(temp_message.pEntry);
 	}
 }
 
@@ -64,6 +85,6 @@ void Sound::Mixer::ProcessMusicMessages()
 	MusicMessage temp_message;
 	while (mMusicMessageBuffer.remove(&temp_message))
 	{
-		NewVoice(temp_message.pEntry);
+		NewMusicVoice(temp_message.pEntry);
 	}
 }

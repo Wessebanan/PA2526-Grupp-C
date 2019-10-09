@@ -6,7 +6,7 @@ Sound::Plugin::TestSineWave::TestSineWave(float Frequency)
 	mFrequency = Frequency;
 }
 
-void Sound::Plugin::TestSineWave::Process(Samples Start, Samples Count, float* Data, int Channels)
+Sound::Plugin::Status Sound::Plugin::TestSineWave::Process(Samples Start, Samples Count, float* Data, int Channels)
 {
 	const float AMPLITUDE = 0.2f;	// To save people's ears; Low amplitude
 	float sample;
@@ -17,6 +17,7 @@ void Sound::Plugin::TestSineWave::Process(Samples Start, Samples Count, float* D
 		frames[i].left = sample;
 		frames[i].right = sample;
 	}
+	return STATUS_OK;
 }
 
 Sound::Plugin::Passthrough::Passthrough(Plugin* pNext)
@@ -24,7 +25,8 @@ Sound::Plugin::Passthrough::Passthrough(Plugin* pNext)
 	mpNext = pNext;
 }
 
-void Sound::Plugin::Passthrough::Process(Samples Start, Samples Count, float* Data, int Channels)
+Sound::Plugin::Status Sound::Plugin::Passthrough::Process(Samples Start, Samples Count, float* Data, int Channels)
 {
 	mpNext->Process(Start, Count, Data, Channels);
+	return STATUS_OK;
 }

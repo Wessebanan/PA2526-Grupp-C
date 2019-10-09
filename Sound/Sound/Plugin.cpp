@@ -1,23 +1,25 @@
 #include "Plugin.h"
 #include <cmath>
 
-Sound::Plugin::Sampler::Sampler(FileData* pFile)
+Sound::Plugin::Sampler::Sampler(FileData* pFile, int repeatAmount)
 {
 	mpFile = pFile;
+	mRepeatAmount = repeatAmount;
 	mReadPointer = 0;
 }
 
 // TODO: This sampler does not support mono wav files!
-void Sound::Plugin::Sampler::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
+Sound::Plugin::Status Sound::Plugin::Sampler::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
 {
+	int i, j;
 	// Get pointer to the data and amount of samples
 	float* data_pointer = mpFile->GetDataPointer();
 	Samples sample_count = mpFile->GetSampleCount();
 	// For all frames that needs to be added...
-	for (int i = 0; i < sampleCount; i++)
+	for (i = 0; i < sampleCount; i++)
 	{
 		// For both channels...
-		for (int j = 0; j < channelCount; j++)
+		for (j = 0; j < channelCount; j++)
 		{
 			// Read the data from the file
 			*(pData++) = data_pointer[mReadPointer++];
@@ -26,7 +28,26 @@ void Sound::Plugin::Sampler::Process(Samples start, Samples sampleCount, float* 
 			{
 				// Go back to the start
 				mReadPointer = 0;
+				// Signal to finish this voice if done
+				// repeating
+				if (mRepeatAmount == 1)
+				{
+					goto LabelFinished;
+				}
+				mRepeatAmount--;
 			}
 		}
 	}
+	return STATUS_OK;
+	// Fill the rest of the buffer with 0 and signal
+	// that the plugin is finished and inactive
+LabelFinished:
+	for (; i < sampleCount; i++)
+	{
+		for (; j < channelCount; j++)
+		{
+			*(pData++) = 0.f;
+		}
+	}
+	return STATUS_FINISHED;
 }

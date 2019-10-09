@@ -24,8 +24,10 @@ namespace Sound
 		void ProcessSoundMessages();
 		void ProcessMusicMessages();
 		// Adds a new voice if there's one available
-		bool NewVoice(Plugin::Plugin* pEntryPlugin);
-		Voice mVoices[SOUND_MAX_VOICES];
+		bool NewSoundVoice(Plugin::Plugin* pEntryPlugin);
+		bool NewMusicVoice(Plugin::Plugin* pEntryPlugin);
+		Voice mSoundVoices[SOUND_MAX_SOUND_VOICES];
+		Voice mMusicVoices[SOUND_MAX_MUSIC_VOICES];
 		Ringbuffer<SoundMessage, SOUND_MAX_SOUND_MESSAGES> mSoundMessageBuffer;
 		Ringbuffer<MusicMessage, SOUND_MAX_MUSIC_MESSAGES> mMusicMessageBuffer;
 	};

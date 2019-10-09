@@ -13,7 +13,11 @@ Sound::Voice::~Voice()
 
 void Sound::Voice::Fill(Samples start, Samples count, float* pData)
 {
-	mpEntryPlugin->Process(start, count, pData, 2);
+	if (mpEntryPlugin->Process(start, count, pData, 2)
+		== Sound::Plugin::Status::STATUS_FINISHED)
+	{
+		Delete();
+	}
 }
 
 void Sound::Voice::New(Plugin::Plugin* pEntryPlugin)
@@ -35,4 +39,5 @@ void Sound::Voice::Delete()
 		delete mpEntryPlugin;
 		mpEntryPlugin = nullptr;
 	}
+	mActive = false;
 }

@@ -6,6 +6,11 @@ namespace Sound
 {
 	namespace Plugin
 	{
+		enum Status
+		{
+			STATUS_OK,
+			STATUS_FINISHED
+		};
 		// Base plugin structure
 		class Plugin
 		{
@@ -23,7 +28,7 @@ namespace Sound
 					mpNext = nullptr;
 				}
 			}
-			virtual void Process(Samples start, Samples sampleCount, float* pData, int channelCount) = 0;
+			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount) = 0;
 		protected:
 			Plugin* mpNext;
 		};
@@ -31,11 +36,12 @@ namespace Sound
 		class Sampler : public Plugin
 		{
 		public:
-			Sampler(FileData* pFile);
-			virtual void Process(Samples start, Samples sampleCount, float* pData, int channelCount);
+			Sampler(FileData* pFile, int repeatAmount);
+			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount);
 		private:
 			FileData* mpFile;
 			Samples mReadPointer;
+			int mRepeatAmount;
 		};
 	}
 }

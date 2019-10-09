@@ -91,7 +91,7 @@ void ecs::systems::SoundMessageSystem::readEvent(BaseEvent& rEvent, float delta)
 		return;
 	}
 	bool temp_loop_bool = p_event->soundFlags & SoundFlags::REPEAT;
-	Sound::Plugin::Plugin* temp_plugin = new Sound::Plugin::Sampler(temp_data);
+	Sound::Plugin::Plugin* temp_plugin = new Sound::Plugin::Sampler(temp_data, (temp_loop_bool ? 0 : 1));
 	mSoundMixer->AddSoundMessage({ temp_plugin });
 }
 

@@ -262,7 +262,7 @@ TEST(SoundAPI, PlaySoundWithSampler)
 			<< ((float)p_file->GetFrameCount() / (float)SOUND_SAMPLE_RATE)
 			<< " seconds long\n";
 
-		mixer.AddSoundMessage({ new Sampler(p_file) });
+		mixer.AddSoundMessage({ new Sampler(p_file, 0) });
 
 	}
 	// Have the engine use this mixer
