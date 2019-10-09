@@ -66,8 +66,6 @@ public:
 	void InitDeviceAndContext(IDXGIDevice* dxgiDevice); //Takes dxgidevice from dx11 and creates d2d device and device context
 	ID2D1DeviceContext* GetpContext();
 	HRESULT LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
-	//ID GetBitmapIDFromName(char* bitmapName); //returns bitmap ID
-	//ID2D1Bitmap* GetBitmap(ID bitmapID);//returns bitmap
 	ID2D1Bitmap* GetBitmap(char* bitmapName);//returns bitmap
 	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);
 	//ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS
@@ -122,18 +120,9 @@ private:
 	using BitmapPair = std::pair<char*, ID2D1Bitmap*>;
 	BitmapMap mBitmapList;
 
-	//using BitmapNameToID = std::unordered_map<char*, ID>; //unordered map of bitmap names
-	//using BitmapNameIDPair = std::pair<char*, ID>;
-	//BitmapNameToID mBitmapNameID;
-
 	using BrushMap = std::unordered_map<char*, ID2D1SolidColorBrush*>; //unordered map of brushes (not in use now)
 	using BrushMapPair = std::pair<char*, ID2D1SolidColorBrush*>;
 	BrushMap mBrushMap;
-
-	//using BrushMapName = std::unordered_map<char*, ID>; //corresponding brush name map
-	//using BrushMapNamePair = std::pair<char*, ID>;
-	//BrushMapName mBrushMapName;
-
 
 	ID2D1SolidColorBrush* mColorBrushes[COLOR_BRUSHES]; //array of brushes we use now
 

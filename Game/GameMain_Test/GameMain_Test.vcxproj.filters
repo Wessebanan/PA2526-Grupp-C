@@ -9,6 +9,9 @@
     <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
+    <ClCompile Include="..\GameMain\UI\UISystems.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -32,6 +35,21 @@
     </ClInclude>
     <ClInclude Include="..\GameMain\Physics\PhysicsEvents.h">
       <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIEcsTest.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\UI\InitUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\UI\UIComponents.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\UI\UIEvents.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\UI\UISystems.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

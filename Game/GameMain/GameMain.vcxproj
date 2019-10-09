@@ -106,7 +106,7 @@
     <ClInclude Include="Input\InitInputBackendComponent.h" />
     <ClInclude Include="Input\InitInputComponents.h" />
     <ClInclude Include="Input\InitInputSystems.h" />
-    <ClInclude Include="InitUI.h" />
+    <ClInclude Include="UI\InitUI.h" />
     <ClInclude Include="UI\UIComponents.h" />
     <ClInclude Include="UI\UIEvents.h" />
     <ClInclude Include="UI\UISystems.h" />

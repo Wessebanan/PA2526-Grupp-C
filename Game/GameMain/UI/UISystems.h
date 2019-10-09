@@ -1,6 +1,6 @@
 #pragma once
 #include "ecsSystemIncludes.h"
-#include "InputComponents.h"
+#include "../Input/InitInputComponents.h"
 #include "UIComponents.h"
 #include "UIEvents.h"
 #include "Direct2D.h"

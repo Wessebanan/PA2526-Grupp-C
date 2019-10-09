@@ -153,70 +153,6 @@ HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[B
 	//this->mBitmapVector.push_back(new_bitmap_struct);
 }
 
-//ID2D1Bitmap* Direct2D::GetBitmapByName(std::string bitmapName)//-----
-//{
-//	ID2D1Bitmap* to_return = nullptr; // Default return is nullptr
-//	std::vector<BitmapInfo>::iterator it;
-//
-//
-//	IDGenerator<ID> idGen(0);
-//	ID newID = idGen.generateID();
-//	mBitMapList_ksjdhfsd[newID] = BitmapInfo();
-//
-//	//std::map<char[10], ID> nameToIDAccess;
-//
-//	// Check if NOT exist already
-//	if (!mBitMapList_ksjdhfsd.count(newID))
-//	{
-//		// return 
-//	}
-//
-//	for (BitMapPair pair : mBitMapList_ksjdhfsd)
-//	{
-//		pair.first; // ID
-//		pair.second; // BitmapInfo
-//	}
-//
-//
-//
-//	for (it = this->mBitmapVector.begin();
-//		it != this->mBitmapVector.end();
-//		++it)
-//	{
-//		if (bitmapName.compare((*it).name) == 0) // Bitmap with correct name found
-//		{
-//			to_return = (*it).bitmap; // Return pointer to button
-//			it = this->mBitmapVector.end() - 1; // Set iterator to end
-//												// -1 because incrementation is performed after this.
-//												// Incrementing on .end() is a baaad idea.
-//		}
-//	}
-//	return to_return;
-//}
-
-//ID Direct2D::GetBitmapIDFromName(char* bitmapName)
-//{
-//	ID toReturn = 0;
-//	for (BitmapNameIDPair pair : this->mBitmapNameID)
-//	{
-//		if(this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
-//			return pair.second;
-//	}
-//	return toReturn;
-//}
-//
-//ID2D1Bitmap* Direct2D::GetBitmap(ID bitmapID)
-//{
-//	if (bitmapID != 0)
-//	{
-//		return this->mBitmapList.at(bitmapID);
-//	}
-//	else
-//	{
-//		return nullptr;
-//	}
-//}
-
 ID2D1Bitmap* Direct2D::GetBitmap(char* bitmapName)
 {
 	ID2D1Bitmap* to_return = nullptr;
@@ -238,17 +174,6 @@ ID2D1SolidColorBrush* Direct2D::GetBrushFromName(char* brushName)
 	}
 	return to_return;
 }
-
-//ID Direct2D::GetBrushIDFromName(char* bitmapName)
-//{
-//	ID toReturn = 0;
-//	for (BrushMapNamePair pair : this->mBrushMapName)
-//	{
-//		if (this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
-//			return pair.second;
-//	}
-//	return toReturn;
-//}
 
 bool Direct2D::DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect)
 {
