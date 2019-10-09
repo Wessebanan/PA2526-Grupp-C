@@ -6,10 +6,10 @@
 #include "PhysicsHelperFunctions.h"
 #include "CollisionFunctions.h"
 
-#include "AIComponents.h"
+#include "../gameAI/AIComponents.h"
 
-#include "UtilityComponents.h"
-#include "UtilityFunctions.h"
+#include "../gameUtility/UtilityComponents.h"
+#include "../gameUtility/UtilityFunctions.h"
 
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 

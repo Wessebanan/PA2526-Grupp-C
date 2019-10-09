@@ -88,6 +88,7 @@
     <ClCompile Include="gameAI\GridFunctions.cpp" />
     <ClCompile Include="gameAI\GridProp.cpp" />
     <ClCompile Include="gameUtility\CameraFunctions.cpp" />
+    <ClCompile Include="gameUtility\UtilityFunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Physics\CollisionSystem.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp" />
