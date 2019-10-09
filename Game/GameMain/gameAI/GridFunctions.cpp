@@ -54,7 +54,7 @@ namespace GridFunctions
 				}
 				else if (transform.position.y == 3)
 				{
-					tile.tileType = STONE;
+					tile.tileType = GAMEFIELD;
 					tile.impassable = false;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = true;
@@ -68,7 +68,7 @@ namespace GridFunctions
 				}
 				else
 				{
-					tile.tileType = GRASS;
+					tile.tileType = GAMEFIELD;
 					tile.impassable = false;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = true;

@@ -108,6 +108,10 @@
     <ClInclude Include="gameAI\InitGrid.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
+    <ClInclude Include="gameSceneObjects\InitBiomes.h" />
+    <ClInclude Include="gameSceneObjects\InitSceneObjectsh.h" />
+    <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />
+    <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
     <ClInclude Include="gameUtility\CameraEvents.h" />
     <ClInclude Include="gameUtility\CameraFunctions.h" />

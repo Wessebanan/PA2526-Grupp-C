@@ -10,6 +10,9 @@
 #include "Input/InitInput.h"
 #include "Input/InitInterpreter.h"
 
+#include "gameSceneObjects/InitSceneObjectsh.h"
+#include "gameSceneObjects/InitBiomes.h"
+
 void TransformViewMatrix(
 	DirectX::XMFLOAT4X4& rViewMatrix,
 	const float x,
@@ -30,8 +33,8 @@ int main()
 {
 	EntityComponentSystem ecs;
 
-	// Tiles + units + camera
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 1);
+	// Tiles + sceneobjects + units + camera
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
 
 	InitInput(ecs);
@@ -40,18 +43,22 @@ int main()
 
 
 	InitGrid(ecs);
+	InitBiomes(ecs);
 	InitArmy(ecs);
 
 	
 	rendering::RenderManager mng;
 	mng.Initialize(1600, 900, "D3D11");
 
-
-	InitMesh(mng);
+	
+	InitSceneObjects(ecs, mng);
+	InitMesh(ecs, mng);
 
 	graphics::PresentWindow* pWnd = mng.GetPresentWindow();
 
 	PlaceMesh(ecs, mng);
+
+
 
 	float x = 6.0f;
 	float y = 5.0f;

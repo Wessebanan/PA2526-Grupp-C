@@ -2,11 +2,11 @@
 
 #include "rendering/RenderManager.h"
 #include "Mesh.h"
+#include "ecs.h"
 
 
 
-
-void InitMesh(rendering::RenderManager& mng)
+void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 {
 	using namespace rendering;
 	using namespace DirectX;
@@ -49,6 +49,7 @@ void InitMesh(rendering::RenderManager& mng)
 			&index_data);
 	}
 
+
 	struct float4
 	{
 		float x, y, z;
@@ -56,11 +57,55 @@ void InitMesh(rendering::RenderManager& mng)
 	};
 
 
-
 	TECHNIQUE_HEAP_LAYOUT_DESC desc[RENDER_TECHNIQUES_COUNT] = { 0 };
-
 	// Default Technique will render 'count' meshes in white
-	MODEL_LAYOUT_DESC m_desc[2];
+	MODEL_LAYOUT_DESC m_desc[14];
+	// first 2 are tile and dude, then 12 sceneobjects
+
+	ecs::ComponentIterator itt2;
+	itt2 = rECS.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
+	ecs::components::SceneObjectComponent* scene_comp;
+	int index = 0;
+	ecs::BaseComponent* p_base;
+	while (p_base = itt2.next())
+	{
+		scene_comp = (ecs::components::SceneObjectComponent*)p_base;
+
+		ModelLoader::Mesh mesh(scene_comp->GetFilepath());
+
+		using namespace rendering;
+		int mesh_index;
+		{
+			VERTEX_BUFFER_DATA vertex_data = { NULL };
+			vertex_data.VertexCount = mesh.GetVertexPositionVector()->size();
+
+			vertex_data.pVertexData = mesh.GetVertexPositionVector()->data();
+			vertex_data.pTextureCoordData = mesh.GetUVVector()->data();
+
+			INDEX_BUFFER_DATA index_data = { NULL };
+			index_data.IndexCount = mesh.GetIndexVector()->size() * 4;
+			index_data.pIndexData = mesh.GetIndexVector()->data();
+
+			mesh_index = mng.CreateMesh(
+				&vertex_data,
+				&index_data);
+		}
+
+
+		m_desc[index+2].InstanceCount = 1;
+		m_desc[index +2].MeshIndex = mesh_index;
+
+		desc[RENDER_DEFAULT].PerInstanceByteWidth = sizeof(float4);
+		desc[RENDER_DEFAULT].pModelLayout = &m_desc[index +2];
+		desc[RENDER_DEFAULT].ModelLayoutCount = 1;
+
+		index++;
+	}
+	
+
+
+
+
 	m_desc[0].InstanceCount = 12*12;
 	m_desc[0].MeshIndex = mesh_tile;
 

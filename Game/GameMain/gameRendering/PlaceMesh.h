@@ -4,6 +4,7 @@
 #include "ecs.h"
 #include "../gameAI/AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
+#include "../gameSceneObjects/SceneObjectGlobals.h"
 
 void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 {
@@ -39,11 +40,24 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 		int color_offset = -50 + random;
 		switch (tileComp->tileType)
 		{
-		case TileTypes::GRASS:
-			pTilePosition[index].color = PACK(0, 150 + color_offset, 0, 0);
-			break;
-		case TileTypes::STONE:
-			pTilePosition[index].color = PACK(50 + color_offset, 50 + color_offset, 50 + color_offset, 0);
+		case TileTypes::GAMEFIELD:
+			switch (tileComp->biome)
+			{
+			case SWAMP:
+				pTilePosition[index].color = PACK(0, 30 + color_offset, 30 + color_offset, 0);
+				break;
+			case MOUNTAIN:
+				pTilePosition[index].color = PACK(50 + color_offset, 50 + color_offset, 50 + color_offset, 0);
+				break;
+			case FIELD:
+				pTilePosition[index].color = PACK(0, 150 + color_offset, 0, 0);
+				break;
+			case DESERT:
+				pTilePosition[index].color = PACK(150 + color_offset, 150 + color_offset, 0, 0);
+				break;
+			default:
+				break;
+			}
 			break;
 		case TileTypes::WATER:
 			pTilePosition[index].color = PACK(0, 0, 200 + color_offset, 0);

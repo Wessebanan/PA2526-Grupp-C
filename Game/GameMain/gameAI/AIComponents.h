@@ -3,6 +3,7 @@
 #include "ecsComponentIncludes.h"
 #include <vector>
 #include "AIGlobals.h"
+#include "..//gameSceneObjects/SceneObjectGlobals.h"
 
 namespace ecs
 {
@@ -14,11 +15,13 @@ namespace ecs
 			  This component is used to help filter for tile entities in systems.
 			  It will be expanded on when pathfinding and other systems is implemented.
 			*/
-			TileType tileType = GRASS;
+			TileType tileType = TileTypes::UNDEFINED;
 			bool impassable = true;
 			float niceness = 0.f;
 			bool goal = false;
 			unsigned int neighboursIDArray[6] = { 0 };
+
+			BIOME biome;
 		};
 
 		struct PathfindingStateComponent : public ECSComponent<PathfindingStateComponent>

@@ -61,5 +61,25 @@
     <ClInclude Include="Input\InitInputBackendComponent.h" />
     <ClInclude Include="Input\InitInputComponents.h" />
     <ClInclude Include="Input\InitInputSystems.h" />
+    <ClInclude Include="gameSceneObjects\SceneObjectComponents.h">
+      <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h">
+      <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="gameSceneObjects\InitSceneObjectsh.h">
+      <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="gameSceneObjects\InitBiomes.h">
+      <Filter>Biomes</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="SceneObjects">
+      <UniqueIdentifier>{f9869bdd-eb32-41ae-94a1-28c0a5280104}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Biomes">
+      <UniqueIdentifier>{f368533f-c702-46d5-8541-7f0346618310}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
