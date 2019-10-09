@@ -37,13 +37,17 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
     <Import Project="..\..\PropertySheets\ECS_Debug.props" />
+    <Import Project="..\..\PropertySheets\GraphicsEngine_Debug.props" />
+    <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
+    <Import Project="..\..\PropertySheets\Physics_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
     <Import Project="..\..\PropertySheets\ECS_Release.props" />
+    <Import Project="..\..\PropertySheets\GraphicsEngine_Release.props" />
+    <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
+    <Import Project="..\..\PropertySheets\Physics_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -53,9 +57,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies);</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -66,18 +73,53 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>%(AdditionalDependencies);</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Input\InitInputSystems.cpp" />
+    <ClCompile Include="gameAI\AIFunctions.cpp" />
+    <ClCompile Include="gameAI\GridFunctions.cpp" />
+    <ClCompile Include="gameAI\GridProp.cpp" />
+    <ClCompile Include="gameUtility\CameraFunctions.cpp" />
+    <ClCompile Include="gameUtility\UtilityFunctions.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Physics\CollisionSystem.cpp" />
+    <ClCompile Include="Physics\MovementSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="gameAI\AIComponents.h" />
+    <ClInclude Include="gameAI\AIEvents.h" />
+    <ClInclude Include="gameAI\AIFunctions.h" />
+    <ClInclude Include="gameAI\AIGlobals.h" />
+    <ClInclude Include="gameAI\AISystems.h" />
+    <ClInclude Include="gameAI\GridFunctions.h" />
+    <ClInclude Include="gameAI\GridProp.h" />
+    <ClInclude Include="gameAI\InitArmy.h" />
+    <ClInclude Include="gameAI\InitGrid.h" />
+    <ClInclude Include="gameRendering\InitMesh.h" />
+    <ClInclude Include="gameRendering\PlaceMesh.h" />
+    <ClInclude Include="gameUtility\CameraComponents.h" />
+    <ClInclude Include="gameUtility\CameraEvents.h" />
+    <ClInclude Include="gameUtility\CameraFunctions.h" />
+    <ClInclude Include="gameUtility\CameraSystems.h" />
+    <ClInclude Include="gameUtility\DebugInfo.h" />
+    <ClInclude Include="gameUtility\GlobalsCamera.h" />
+    <ClInclude Include="gameUtility\UtilityComponents.h" />
+    <ClInclude Include="gameUtility\UtilityEvents.h" />
+    <ClInclude Include="gameUtility\UtilityFunctions.h" />
+    <ClInclude Include="gameUtility\UtilitySystems.h" />
+    <ClInclude Include="Input\InterpretWebEvents.h" />
+    <ClInclude Include="Physics\CollisionSystem.h" />
+    <ClInclude Include="Physics\MovementSystem.h" />
+    <ClInclude Include="Physics\PhysicsComponents.h" />
+    <ClInclude Include="Physics\PhysicsEvents.h" />
     <ClInclude Include="Input\InitInput.h" />
     <ClInclude Include="Input\InitInputBackendComponent.h" />
     <ClInclude Include="Input\InitInputComponents.h" />
