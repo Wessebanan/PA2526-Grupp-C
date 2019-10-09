@@ -38,5 +38,11 @@
     <Filter Include="Physics">
       <UniqueIdentifier>{c289c533-cb9b-45b0-abc2-a28e2e2fc071}</UniqueIdentifier>
     </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{715b9bde-568d-4ee5-81c7-32635a37e315}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
