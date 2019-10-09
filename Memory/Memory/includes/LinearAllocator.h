@@ -3,25 +3,28 @@
 #include "MemoryGlobals.h"
 #include "Allocator.h"
 
+#include <vector>
+
 /*
 										##################################
 									   #  HOW ALLOCATOR MEMORY IS STORED  #
 										##################################
 
-	+-------------------------------------------------------------------------------------------------------+
-	|  Header used to store   |                                                                             |
-	|  the allocator and all  |			Memory available for allocations, managed by the allocator.			|
-	|  data used to manage    |                                                                             |
-	|  its memory.            |                                                                             |
-	+-------------------------------------------------------------------------------------------------------+
-	\____________ ____________/\_______________________________________ _____________________________________/
-	             V                                                     V
-		  Allocator block								  Heap block (for allocations)
-	\___________________________________________________ ___________________________________________________/
-														V
-												   Memory Block (for allocator)
-*/
+	TODO: Describe how allocators work internally.
 
+																				MB: Memory Block (aka. allocations)
+	+------------------+------------------------------------------------------------------------------------------+
+	|    Allocator     |     MB    |              MB             |     MB     |      MB      |  MB  |       MB    |
+	+------------------+------------------------------------------------------------------------------------------+
+	\________ ________/\____________________________________________ ____________________________________________/
+			 V                                                      V
+	   HEADER BLOCK                                         ALLOCATION BLOCK
+(where allocator is stored)                            (managed by the allocator)
+
+	\_____________________________________________________ _______________________________________________________/
+														  V
+
+*/
 namespace memory
 {
 	namespace allocators
@@ -72,17 +75,22 @@ namespace memory
 				Returns a block of reserved memory back to the allocator's memory heap, so that the memory
 				can be used for future allocations.
 			*/
-			void Free(void* ptr) override;
-
-			///*
-			//	Reserves 
-			//*/
-			//template <typename T>
-			//T* CreateSubAllocator(uint memorySize);
+			void Free(void* pObject) override;
 
 		private:
 
 			void* mpCurrent;
+
+			//// TEMPORARY BACKEND START ////
+			/*
+				In order to avoid memory leaks. Store all allocations
+				and free them in the free function and destructor.
+			*/
+
+			// pair<ptr,size>
+			std::vector<std::pair<void*, uint>> mAllocations;
+
+			///// TEMPORARY BACKEND END /////
 		};
 	}
 }

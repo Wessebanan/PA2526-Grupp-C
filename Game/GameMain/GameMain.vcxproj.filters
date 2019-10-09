@@ -27,9 +27,21 @@
     <ClCompile Include="Physics\MovementSystem.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
+    <ClCompile Include="Input\InitInputSystems.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="InitInput.h">
+    <ClInclude Include="Input\InitInputComponents.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InitInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InitInputSystems.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InitInputBackendComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Physics\CollisionSystem.h">

@@ -88,6 +88,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Input\InitInputSystems.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Physics\CollisionSystem.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp" />
@@ -98,6 +99,10 @@
     <ClInclude Include="Physics\MovementSystem.h" />
     <ClInclude Include="Physics\PhysicsComponents.h" />
     <ClInclude Include="Physics\PhysicsEvents.h" />
+    <ClInclude Include="Input\InitInput.h" />
+    <ClInclude Include="Input\InitInputBackendComponent.h" />
+    <ClInclude Include="Input\InitInputComponents.h" />
+    <ClInclude Include="Input\InitInputSystems.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

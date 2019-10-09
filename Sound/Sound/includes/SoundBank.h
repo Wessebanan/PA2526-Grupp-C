@@ -7,8 +7,8 @@ namespace Sound
 	public:
 		Bank();
 		~Bank();
-		File* GetFile(std::string Path);
+		FileData* GetFile(std::string Path);
 	private:
-		File* mpFiles[SOUND_MAX_BANK_FILES];
+		FileData* mpFiles[SOUND_MAX_BANK_FILES];
 	};
 }

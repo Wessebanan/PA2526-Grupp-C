@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="HandleInputBackend.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="includes\sha1.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -32,15 +29,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\HandleInputBackend.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\InputBackendComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\InputComponents.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\InputBackend.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -52,9 +40,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="includes\InitInputHandler.h">
-      <Filter>Header Files</Filter>
-    </None>
     <None Include="ccTest.html">
       <Filter>Resource Files</Filter>
     </None>
