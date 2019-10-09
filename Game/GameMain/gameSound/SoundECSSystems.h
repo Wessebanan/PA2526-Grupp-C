@@ -19,10 +19,10 @@ namespace ecs
 			bool SetupEngine();
 			bool SetupBank();
 
-			Sound::PaHandler mSoundPaHandler;
-			Sound::Engine mSoundEngine;
-			Sound::Mixer mSoundMixer;
-			Sound::Bank mSoundBank;
+			Sound::PaHandler* mSoundPaHandler;
+			Sound::Engine* mSoundEngine;
+			Sound::Mixer* mSoundMixer;
+			Sound::Bank* mSoundBank;
 		};
 	}
 }

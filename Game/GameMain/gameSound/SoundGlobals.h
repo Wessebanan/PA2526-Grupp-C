@@ -6,6 +6,7 @@
 
 enum SoundFlags
 {
+	NONE = 0x0,
 	REPEAT = 0x1
 };
 
