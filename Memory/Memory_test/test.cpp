@@ -256,11 +256,16 @@ namespace API
 
 		memory::Initialize(MAIN_HEAP_SIZE);
 		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
-
-		// Allocate array and check returning pointer
 		int* p_array = p_heap->AllocateArray<int>(OBJ_COUNT);
 
-		p_heap->Free(p_array);
+		for (int i = 0; i < OBJ_COUNT; i++)
+		{
+			p_array[i] = i;
+		}
+
+		// Try to free array from heap
+		EXPECT_NO_THROW(p_heap->Free(p_array));
+
 		memory::Free(p_heap);
 		memory::End();
 	}
