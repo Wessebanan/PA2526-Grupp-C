@@ -1,7 +1,6 @@
 #pragma once
 #include "CollisionSystem.h"
 #include "MovementSystem.h"
-#include "TestHelpers.h"
 
 #pragma region ObjectBoundingVolumes
 TEST(ObjectBoundingVolumes, CreateInitSystem)
