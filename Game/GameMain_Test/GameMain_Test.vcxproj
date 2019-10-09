@@ -34,10 +34,11 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
     <Import Project="..\..\PropertySheets\ECS_Release.props" />
-    <Import Project="..\..\PropertySheets\Utility_Release.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
-    <Import Project="..\..\PropertySheets\AI_Release.props" />
     <Import Project="..\..\PropertySheets\Physics_Release.props" />
+    <Import Project="AI_Game.props" />
+    <Import Project="Input_Game.props" />
+    <Import Project="Utility_Game.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
