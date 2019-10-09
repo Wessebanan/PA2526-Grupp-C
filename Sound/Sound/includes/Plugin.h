@@ -23,7 +23,7 @@ namespace Sound
 					mpNext = nullptr;
 				}
 			}
-			virtual void Process(Samples start, Samples count, float* pData, int channels) = 0;
+			virtual void Process(Samples start, Samples sampleCount, float* pData, int channelCount) = 0;
 		protected:
 			Plugin* mpNext;
 		};
@@ -32,7 +32,7 @@ namespace Sound
 		{
 		public:
 			Sampler(FileData* pFile);
-			virtual void Process(Samples start, Samples count, float* pData, int channels);
+			virtual void Process(Samples start, Samples sampleCount, float* pData, int channelCount);
 		private:
 			FileData* mpFile;
 			Samples mReadPointer;

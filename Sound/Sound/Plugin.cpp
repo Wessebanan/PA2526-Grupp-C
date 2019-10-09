@@ -8,16 +8,16 @@ Sound::Plugin::Sampler::Sampler(FileData* pFile)
 }
 
 // TODO: This sampler does not support mono wav files!
-void Sound::Plugin::Sampler::Process(Samples start, Samples count, float* pData, int channels)
+void Sound::Plugin::Sampler::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
 {
 	// Get pointer to the data and amount of samples
 	float* data_pointer = mpFile->GetDataPointer();
 	Samples sample_count = mpFile->GetSampleCount();
 	// For all frames that needs to be added...
-	for (int i = 0; i < count; i++)
+	for (int i = 0; i < sampleCount; i++)
 	{
 		// For both channels...
-		for (int j = 0; j < channels; j++)
+		for (int j = 0; j < channelCount; j++)
 		{
 			// Read the data from the file
 			*(pData++) = data_pointer[mReadPointer++];
