@@ -1,7 +1,7 @@
 #pragma once
 #include "ecsSystemIncludes.h"
-#include "InputComponents.h"
-#include "InterpretWebEvents.h"
+#include "../Input/InitInputComponents.h"
+#include "../Input/InterpretWebEvents.h"
 
 namespace ecs
 {

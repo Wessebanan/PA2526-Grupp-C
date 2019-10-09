@@ -81,6 +81,7 @@
     <ClCompile Include="gameAI\GridFunctions.cpp" />
     <ClCompile Include="gameAI\GridProp.cpp" />
     <ClCompile Include="gameUtility\CameraFunctions.cpp" />
+    <ClCompile Include="Input\InterpretWebSystems.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -106,7 +107,9 @@
     <ClInclude Include="gameUtility\UtilityFunctions.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
     <ClInclude Include="Input\InitInput.h" />
+    <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
+    <ClInclude Include="Input\InterpretWebSystems.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

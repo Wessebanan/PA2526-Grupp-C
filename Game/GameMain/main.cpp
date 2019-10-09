@@ -8,6 +8,7 @@
 #include "gameUtility/CameraFunctions.h"
 
 #include "Input/InitInput.h"
+#include "Input/InitInterpreter.h"
 
 void TransformViewMatrix(
 	DirectX::XMFLOAT4X4& rViewMatrix,
@@ -33,8 +34,10 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 1);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
 
-	initInput(ecs);
+	InitInput(ecs);
+	InitInterpreter(ecs);
 	//CameraFunctions::CreateDevCamera(ecs);
+
 
 	InitGrid(ecs);
 	InitArmy(ecs);
