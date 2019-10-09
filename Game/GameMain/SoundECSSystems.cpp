@@ -11,6 +11,9 @@ ecs::systems::SoundMessageSystem::SoundMessageSystem()
 
 ecs::systems::SoundMessageSystem::~SoundMessageSystem()
 {
+	mSoundEngine.JoinWorkThread();
+	mSoundEngine.StopStream();
+	mSoundEngine.CloseStream();
 }
 
 bool ecs::systems::SoundMessageSystem::Init()
