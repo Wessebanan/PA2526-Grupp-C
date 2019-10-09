@@ -154,18 +154,6 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 	desc[RENDER_DEFAULT].pModelLayout = m_desc;
 	desc[RENDER_DEFAULT].ModelLayoutCount = ARRAYSIZE(m_desc);
 
-	// SCREEN_SPACE will render 2 blue meshes (quad and triangle)
-	MODEL_LAYOUT_DESC m_desc0[2];
-	m_desc0[0].InstanceCount = 1;
-	m_desc0[0].MeshIndex = mesh_index1;
-
-	m_desc0[1].InstanceCount = 1;
-	m_desc0[1].MeshIndex = mesh_index0;
-
-	desc[RENDER_SCREEN_SPACE].PerInstanceByteWidth = sizeof(float4);
-	desc[RENDER_SCREEN_SPACE].pModelLayout = m_desc0;
-	desc[RENDER_SCREEN_SPACE].ModelLayoutCount = 2;
-
 
 	mng.CreateModelHeap(desc);
 
@@ -184,10 +172,6 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 			tri_array[index].w = 1.0f;
 		}
 	}
-
-	float4* water = (float4*)mng.GetTechniqueModelBuffer(RENDER_SCREEN_SPACE);
-	water->x = -0.10f;
-	water->y = 0.70f;
 
 	float x = 2.0f;
 	float z = 1.0f;

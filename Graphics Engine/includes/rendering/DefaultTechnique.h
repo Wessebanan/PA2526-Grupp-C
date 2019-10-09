@@ -10,6 +10,6 @@ namespace rendering
 {
 	struct DefaultTechniqueData
 	{
-		graphics::GraphicsPipeline* pPipeline;
+		graphics::GraphicsPipeline pipeline;
 	};
 }

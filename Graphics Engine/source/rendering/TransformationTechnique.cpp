@@ -86,7 +86,7 @@ namespace rendering
 		pDevice->CreateGraphicsPipeline(
 			gVertexShader,
 			gPixelShader,
-			&gpData->pPipeline);
+			&gpData->pipeline);
 	}
 
 	template<>
@@ -99,14 +99,14 @@ namespace rendering
 	void RenderTechnique::Set<RENDER_TRANSFORMATION>(
 		graphics::RenderContext* pContext)
 	{
-		pContext->SetGraphicsPipeline(gpData->pPipeline);
+		pContext->SetGraphicsPipeline(&gpData->pipeline);
 	}
 
 	template<>
 	void RenderTechnique::Deconstruct<RENDER_TRANSFORMATION>(
 		graphics::DeviceInterface* pDevice)
 	{
-		pDevice->DeleteGraphicsPipeline(gpData->pPipeline);
+		pDevice->DeleteGraphicsPipeline(&gpData->pipeline);
 	}
 
 	template<>

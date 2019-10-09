@@ -1,5 +1,6 @@
 #include "../..//includes/rendering/RenderTechnique.h"
 #include "../..//includes/rendering/DefaultTechnique.h"
+#include "../..//includes/rendering/HLSLFunctions.h"
 
 namespace rendering
 {
@@ -9,7 +10,7 @@ namespace rendering
 		set & draw	(set state)			-(Is followed by a draw)
 	*/
 
-	const std::string gVertexShader = R"(
+	const char* gVertexShader = R"(
 
 	struct PerObjectData
 	{
@@ -32,46 +33,72 @@ namespace rendering
 		float4x4 gPerspective;
 	};
 
+	cbuffer gSunCam : register (b3)
+	{
+		float4x4 gViewSun;
+	};
+
+	cbuffer gSunOrto : register (b4)
+	{
+		float4x4 gOrtographicsSun;
+	};
+
+	cbuffer SunData : register (b5)
+	{
+		float3 gSunDirection;
+		uint gSunData;
+	}
+
 	struct VSOUT
 	{
-		float4 pos	    : SV_POSITION;
-		uint4 color		: COLOR0;
+		float4 pos			: SV_POSITION;
+		float4 sunPos		: POSITION1;
+		float4 nor			: NORMAL0;
+		float4 finalColor	: COLOR0;
 	};
 
 	VSOUT main(
-		float3 pos : POSITION0, 
-		uint instance : INDEX0)
+		float3 pos		: POSITION0, 
+		float3 normal	: NORMAL0,
+		uint instance	: INDEX0)
 	{
 		VSOUT output;
+
+		float4 mesh_color = unpack(gMesh[instance].color) / 256.0f;		
+
+		float4 worldPos	= float4(pos.xyz + gMesh[instance].Pos.xyz, 1.0f);
+
+		output.pos		= mul(gPerspective, mul(gView, worldPos));
+		output.sunPos	= mul(gOrtographicsSun, mul(gViewSun, worldPos));
+
+		output.nor	= float4(normal.xyz, 0.0f);
 		
-		uint color = gMesh[instance].color;
-	
-		uint red   =  color               >> 24;
-		uint green = (color & 0x00ff0000) >> 16;
-		uint blue  = (color & 0x0000ff00) >>  8;
-		uint alpha = (color & 0x000000ff);
+		float illu = dot(gSunDirection, normal);
 
-		output.color = uint4(red, green, blue, alpha);
+		float4 sun_color = unpack(gSunData) / 256.0f;
 
-		output.pos	= float4(pos.xyz + gMesh[instance].Pos.xyz, 1.0f);
-		output.pos	= mul(gPerspective, mul(gView, output.pos));
+		output.finalColor = mesh_color * illu * sun_color * sun_color.a;
+
 
 		return output;
 	}	
 
 	)";
 
-	const std::string gPixelShader = R"(
+	const char* gPixelShader = R"(
 
 	struct PSIN
 	{
 		float4 pos			: SV_POSITION;
-		uint4 color			: COLOR0;
+		float4 sunPos		: POSITION1;
+		float4 nor			: NORMAL0;
+		float4 finalColor	: COLOR0;
 	};
 
 	float4 main(PSIN input) : SV_TARGET
-	{ 
-		return float4(input.color / 256.0f);
+	{
+		float in_shadow = shadow(input.sunPos.xy, input.sunPos.z);
+		return float4(input.finalColor * in_shadow);
 	}	
 
 	)";
@@ -90,10 +117,18 @@ namespace rendering
 	void RenderTechnique::Initialize<RENDER_DEFAULT>(
 		graphics::DeviceInterface* pDevice)
 	{
+		std::string vertex_shader;
+		vertex_shader.append(hlsl_functions::gUnpack);
+		vertex_shader.append(gVertexShader);
+
+		std::string pixel_shader;
+		pixel_shader.append(hlsl_functions::gShadow);
+		pixel_shader.append(gPixelShader);
+
 		pDevice->CreateGraphicsPipeline(
-			gVertexShader, 
-			gPixelShader, 
-			&gpData->pPipeline);
+			vertex_shader,
+			pixel_shader,
+			&gpData->pipeline);
 	}
 
 	template<>
@@ -106,14 +141,14 @@ namespace rendering
 	void RenderTechnique::Set<RENDER_DEFAULT>(
 		graphics::RenderContext* pContext)
 	{
-		pContext->SetGraphicsPipeline(gpData->pPipeline);
+		pContext->SetGraphicsPipeline(&gpData->pipeline);
 	}
 
 	template<>
 	void RenderTechnique::Deconstruct<RENDER_DEFAULT>(
 		graphics::DeviceInterface* pDevice)
 	{
-		pDevice->DeleteGraphicsPipeline(gpData->pPipeline);
+		pDevice->DeleteGraphicsPipeline(&gpData->pipeline);
 	}
 
 	template<>

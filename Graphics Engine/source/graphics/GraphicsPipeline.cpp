@@ -10,6 +10,15 @@ namespace graphics
 	{
 		ID3DBlob* pErrorBlob = NULL;
 
+		UINT compile_flag = 0;
+
+#ifdef _DEBUG
+		compile_flag = D3DCOMPILE_DEBUG;
+
+#else // _RELEASE
+		compile_flag = D3DCOMPILE_OPTIMIZATION_LEVEL3;
+#endif
+
 		D3DCompile(
 			pShaderCode,
 			length,
@@ -18,7 +27,7 @@ namespace graphics
 			NULL, 
 			"main",
 			pTarget,
-			0,
+			compile_flag,
 			0,
 			ppBlob,
 			&pErrorBlob);
@@ -33,10 +42,9 @@ namespace graphics
 		return TRUE;
 	}
 
-	int CreateInputLayout(
+	int GraphicsPipeline::CreateInputLayout(
 		ID3D11Device4* pDevice4,
-		ID3DBlob* pVertexShader,
-		ID3D11InputLayout** ppLayout)
+		ID3DBlob* pVertexShader)
 	{
 		D3D11_INPUT_ELEMENT_DESC desc[6];
 
@@ -100,22 +108,21 @@ namespace graphics
 			ARRAYSIZE(desc),
 			pVertexShader->GetBufferPointer(),
 			pVertexShader->GetBufferSize(),
-			ppLayout);
+			&m_pLayout);
 
 		if (FAILED(hr))	return FALSE;
 
 		return TRUE;
 	}
 
-	bool CreateVertexShader(
+	bool GraphicsPipeline::CreateVertexShader(
 		ID3D11Device4* pDevice4,
-		const std::string& shaderCode,
-		ID3D11VertexShader** ppVertexShader,
-		ID3D11InputLayout** ppInputLayout)
+		const std::string& shaderCode)
 	{
 		int result;
 		HRESULT hr;
 
+		// Compile Shader
 		ID3DBlob* pShader = NULL;
 		result = CompileShader(
 			shaderCode.c_str(),
@@ -124,12 +131,13 @@ namespace graphics
 			&pShader);
 
 		if (!result) return FALSE;
-
+		
+		// Create Vertex Shader With Compiled Code
 		hr = pDevice4->CreateVertexShader(
 			pShader->GetBufferPointer(),
 			pShader->GetBufferSize(),
 			NULL,
-			ppVertexShader);
+			&m_pVertexShader);
 
 		if (FAILED(hr))
 		{
@@ -137,24 +145,21 @@ namespace graphics
 			return FALSE;
 		}
 
-		result = CreateInputLayout(
-			pDevice4,
-			pShader,
-			ppInputLayout);
-
+		// Create Input Layout
+		result = CreateInputLayout(pDevice4, pShader);
 		if (!result) return FALSE;
 
 		return TRUE;
 	}
 
-	bool CreatePixelShader(
+	bool GraphicsPipeline::CreatePixelShader(
 		ID3D11Device4* pDevice4,
-		const std::string& shaderCode,
-		ID3D11PixelShader** ppPixelShader)
+		const std::string& shaderCode)
 	{
 		int result;
 		HRESULT hr;
 
+		// Compile Shader
 		ID3DBlob* pShader = NULL;
 		result = CompileShader(
 			shaderCode.c_str(),
@@ -164,26 +169,23 @@ namespace graphics
 
 		if (!result) return FALSE;
 
+		// Create Pixel Shader With Compiled Code
 		hr = pDevice4->CreatePixelShader(
 			pShader->GetBufferPointer(),
 			pShader->GetBufferSize(),
 			NULL,
-			ppPixelShader);
+			&m_pPixelShader);
 
 		if (FAILED(hr)) return FALSE;
 
 		return TRUE;
 	}
 
-	UINT GraphicsPipeline::NUM_ALLOCATED = 0;
-
 	GraphicsPipeline::GraphicsPipeline()
 	{
 		m_pLayout		= NULL;
 		m_pVertexShader = NULL;
 		m_pPixelShader	= NULL;
-
-		m_id = NUM_ALLOCATED++;
 	}
 
 	GraphicsPipeline::~GraphicsPipeline()
@@ -197,19 +199,10 @@ namespace graphics
 	{
 		int result;
 
-		result = CreateVertexShader(
-			pDevice4,
-			vertexShader,
-			&m_pVertexShader,
-			&m_pLayout);
-
+		result = CreateVertexShader(pDevice4, vertexShader);
 		if (!result) return FALSE;
 
-		result = CreatePixelShader(
-			pDevice4,
-			pixelShader,
-			&m_pPixelShader);
-
+		result = CreatePixelShader(pDevice4, pixelShader);
 		if (!result) return FALSE;
 
 		return TRUE;
@@ -220,96 +213,5 @@ namespace graphics
 		m_pLayout->Release();
 		m_pVertexShader->Release();
 		m_pPixelShader->Release();
-	}
-
-	GraphicsPipelineArray::GraphicsPipelineArray()
-	{
-		m_capacity	= 0;
-		m_count		= 0;
-		m_start		= 0;
-
-		m_pPipelines = NULL;
-		m_pIsAvailableArray = NULL;
-		m_pData = NULL;
-	}
-
-	GraphicsPipelineArray::~GraphicsPipelineArray()
-	{
-		free(m_pPipelines);
-	}
-
-	int GraphicsPipelineArray::Initialize(
-		ID3D11Device4* pDevice4, 
-		const UINT capacity)
-	{
-		m_capacity = capacity;
-
-		// Allocate Space
-		{
-			const size_t allocationSize =
-				sizeof(UINT) +
-				sizeof(GraphicsPipeline);
-
-			// Allocate a chunk for everyone to use
-			m_pData = (char*)malloc(allocationSize * m_capacity);
-
-			// Set pipelines as first in array
-			m_pPipelines = (GraphicsPipeline*)m_pData;
-
-			// set available as second in array
-			UINT offset = sizeof(GraphicsPipeline) * m_capacity;
-			m_pIsAvailableArray = (UINT*)(m_pData + offset);
-		}
-
-		for (UINT i = 0; i < m_capacity; i++)
-		{
-			m_pIsAvailableArray[i] = TRUE;
-			m_pPipelines[i] = GraphicsPipeline();
-		}
-
-		m_start = m_pPipelines[0].m_id;
-
-		return TRUE;
-	}
-
-	void GraphicsPipelineArray::Release()
-	{
-	}
-
-	int GraphicsPipelineArray::CreateGraphicsPipeline(
-		ID3D11Device4* pDevice4, 
-		const std::string& vertexShader, 
-		const std::string& pixelShader,
-		GraphicsPipeline** ppPipeline)
-	{
-		if (m_count >= m_capacity) return FALSE;
-
-		// Find the first available one (can be improved if needed)
-		UINT i = 0;
-		while (!m_pIsAvailableArray[i]) { i++; }
-
-		int result = 
-			m_pPipelines[i].Initialize(pDevice4, vertexShader, pixelShader);
-
-		if (!result) return FALSE;
-
-		(*ppPipeline) = &m_pPipelines[i];
-
-		m_pIsAvailableArray[i] = FALSE;
-		m_count++;
-
-		return TRUE;
-	}
-
-	bool GraphicsPipelineArray::DeleteGraphicsPipeline(GraphicsPipeline* pPipeline)
-	{
-		const UINT index = pPipeline->m_id - m_start;
-
-		m_pIsAvailableArray[index] = TRUE;
-		m_count--;
-
-		pPipeline->Release();
-
-		return true;
 	}
 }

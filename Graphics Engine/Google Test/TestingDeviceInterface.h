@@ -83,25 +83,24 @@ void AddTransformation(
 // --- Tests ---
 TEST(TestingDeviceInterface, CreationAndDeletion)
 {
-	graphics::DeviceInterface* pDevice;
+	graphics::DeviceInterface device;
 
-	int result = graphics::CreateDeviceInterface(&pDevice);
+	int result = device.Initialize();
 
-	EXPECT_TRUE(pDevice);
 	EXPECT_TRUE(result);
 
-	graphics::DeleteDeviceInterface(pDevice);
+	device.Release();
 }
 
 TEST(TestingDeviceInterface, CreatePresentWindow)
 {
-	graphics::DeviceInterface* pDevice;
-	graphics::CreateDeviceInterface(&pDevice);
+	graphics::DeviceInterface device;
+	device.Initialize();
 
 	graphics::RenderTarget target;
 	graphics::PresentWindow wnd;
 	{
-		int result = pDevice->CreatePresentWindow(
+		int result = device.CreatePresentWindow(
 			800,
 			600,
 			"Test",
@@ -112,52 +111,54 @@ TEST(TestingDeviceInterface, CreatePresentWindow)
 
 		if (result)
 		{
-			pDevice->DeleteRenderTarget(target);
-			pDevice->DeletePresentWindow(wnd);
+			device.DeleteRenderTarget(target);
+			device.DeletePresentWindow(wnd);
 		}
 	}
-	graphics::DeleteDeviceInterface(pDevice);
+
+	device.Release();
 }
 
 TEST(TestingDeviceInterface, CreateDepthBuffer)
 {
-	graphics::DeviceInterface* pDevice;
-	graphics::CreateDeviceInterface(&pDevice);
+	graphics::DeviceInterface device;
+	device.Initialize();
 
 	graphics::DepthBuffer depthBuffer;
 	{
-		int result = pDevice->CreateDepthBuffer(800, 600, &depthBuffer);
+		int result = device.CreateDepthBuffer(800, 600, &depthBuffer, false);
 
 		EXPECT_TRUE(result);
 
 		if (result)
 		{
-			pDevice->DeleteDepthBuffer(depthBuffer);
+			device.DeleteDepthBuffer(depthBuffer);
 		}
 	}
-	graphics::DeleteDeviceInterface(pDevice);
+
+	device.Release();
 }
 
 TEST(TestingDeviceInterface, CreateGraphicsPipeline)
 {
-	graphics::DeviceInterface* pDevice;
-	graphics::CreateDeviceInterface(&pDevice);
+	graphics::DeviceInterface device;
+	device.Initialize();
 
-	graphics::GraphicsPipeline* pPipeline;
+	graphics::GraphicsPipeline pipeline;
 	{
-		int result = pDevice->CreateGraphicsPipeline(
+		int result = device.CreateGraphicsPipeline(
 			gVertexShader,
 			gPixelShader,
-			&pPipeline);
+			&pipeline);
 
 		EXPECT_TRUE(result);
 
 		if (result)
 		{
-			pDevice->DeleteGraphicsPipeline(pPipeline);
+			device.DeleteGraphicsPipeline(&pipeline);
 		}
 	}
-	graphics::DeleteDeviceInterface(pDevice);
+	device.Release();
 }
 
 TEST(TestingDeviceInterface, CreateVertexBufferRegion)
@@ -184,62 +185,65 @@ TEST(TestingDeviceInterface, CreateVertexBufferRegion)
 		1.0f, 1.0f,
 	};
 
-	graphics::DeviceInterface* pDevice;
-	graphics::CreateDeviceInterface(&pDevice);
+	graphics::DeviceInterface device;
+	device.Initialize();
 
 	graphics::BufferRegion region;
 	{
 		int result =
-			pDevice->CreateVertexBufferRegion(3, t, NULL, uv, NULL, NULL, &region);
+			device.CreateVertexBufferRegion(3, t, NULL, uv, NULL, NULL, &region);
 
 		EXPECT_TRUE(result);
 	}
-	graphics::DeleteDeviceInterface(pDevice);
+	device.Release();
 }
 
 TEST(TestingDeviceInterface, CreateDynamicBufferRegion)
 {
-	graphics::DeviceInterface* pDevice;
-	graphics::CreateDeviceInterface(&pDevice);
+	graphics::DeviceInterface device;
+	device.Initialize();
 
 	graphics::BufferRegion region;
 	{
 		int result =
-			pDevice->CreateDynamicBufferRegion(56, NULL, &region);
+			device.CreateDynamicBufferRegion(56, NULL, &region);
 
 		EXPECT_TRUE(result);
 	}
-	graphics::DeleteDeviceInterface(pDevice);
+
+	device.Release();
 }
 
 TEST(TestingDeviceInterface, CreateStaticBufferRegion)
 {
-	graphics::DeviceInterface* pDevice;
-	graphics::CreateDeviceInterface(&pDevice);
+	graphics::DeviceInterface device;
+	device.Initialize();
 
 	graphics::BufferRegion region;
 	{
 		int result =
-			pDevice->CreateStaticBufferRegion(56, NULL, &region);
+			device.CreateStaticBufferRegion(56, NULL, &region);
 
 		EXPECT_TRUE(result);
 	}
-	graphics::DeleteDeviceInterface(pDevice);
+
+	device.Release();
 }
 
 TEST(TestingDeviceInterface, CreateIndexBufferRegion)
 {
-	graphics::DeviceInterface* pDevice;
-	graphics::CreateDeviceInterface(&pDevice);
+	graphics::DeviceInterface device;
+	device.Initialize();
 
 	graphics::BufferRegion region;
 	{
 		int result =
-			pDevice->CreateIndexBufferRegion(56, NULL, &region);
+			device.CreateIndexBufferRegion(56, NULL, &region);
 
 		EXPECT_TRUE(result);
 	}
-	graphics::DeleteDeviceInterface(pDevice);
+
+	device.Release();
 }
 
 TEST(TestingGraphicsEngine, InitializeAndRunFrame)
@@ -251,35 +255,36 @@ TEST(TestingGraphicsEngine, InitializeAndRunFrame)
 		clientWidth = 1280,
 		clientHeight = 720;
 
-	DeviceInterface* pDevice = NULL;
-	GraphicsPipeline* pPipeline = NULL;
+	GraphicsPipeline pipeline;
 
-	CreateDeviceInterface(&pDevice);
-	RenderContext* pContext = pDevice->GetRenderContext();
+	graphics::DeviceInterface device;
+	device.Initialize();
+	RenderContext* pContext = device.GetRenderContext();
 
 	RenderTarget backBuffer;
 	DepthBuffer depthBuffer;
 	PresentWindow wnd;
 
-	pDevice->CreatePresentWindow(
+	device.CreatePresentWindow(
 		clientWidth,
 		clientHeight,
 		"D3D11",
 		&backBuffer,
 		&wnd);
 
-	pDevice->CreateDepthBuffer(
+	device.CreateDepthBuffer(
 		clientWidth,
 		clientHeight,
-		&depthBuffer);
+		&depthBuffer,
+		false);
 
-	pDevice->CreateGraphicsPipeline(
+	device.CreateGraphicsPipeline(
 		gVertexShader,
 		gPixelShader,
-		&pPipeline);
+		&pipeline);
 
 	pContext->SetViewport(0, 0, clientWidth, clientHeight);
-	pContext->SetGraphicsPipeline(pPipeline);
+	pContext->SetGraphicsPipeline(&pipeline);
 
 
 	// Create Mesh
@@ -318,8 +323,8 @@ TEST(TestingGraphicsEngine, InitializeAndRunFrame)
 
 	BufferRegion meshes[2];	// mesh
 
-	pDevice->CreateVertexBufferRegion(3, t, NULL, uv, NULL, NULL, &meshes[0]);
-	pDevice->CreateVertexBufferRegion(6, q, NULL, NULL, NULL, NULL, &meshes[1]);
+	device.CreateVertexBufferRegion(3, t, NULL, uv, NULL, NULL, &meshes[0]);
+	device.CreateVertexBufferRegion(6, q, NULL, NULL, NULL, NULL, &meshes[1]);
 
 	pContext->UploadBufferToGPU(BUFFER_UPLOAD_VERTEX_DATA);
 
@@ -356,17 +361,17 @@ TEST(TestingGraphicsEngine, InitializeAndRunFrame)
 	BufferRegion buffer0;
 
 	// Per Frame Heap
-	pDevice->CreateDynamicBufferRegion(
+	device.CreateDynamicBufferRegion(
 		sizeof(view),
 		NULL,
 		&viewRegion);
 
-	pDevice->CreateDynamicBufferRegion(
+	device.CreateDynamicBufferRegion(
 		sizeof(XMFLOAT4X4) * MAXIMUM_MESHES_TO_DRAW,
 		NULL,
 		&buffer0);
 
-	pDevice->CreateStaticBufferRegion(
+	device.CreateStaticBufferRegion(
 		sizeof(projection),
 		NULL,
 		&projRegion);
@@ -386,7 +391,7 @@ TEST(TestingGraphicsEngine, InitializeAndRunFrame)
 	pContext->ClearDepth(depthBuffer);
 	pContext->ClearRenderTarget(backBuffer, 0.0f, 0.0f, 0.0f);
 
-	pContext->SetRenderTarget(backBuffer, depthBuffer);
+	pContext->SetRenderTarget(&backBuffer, &depthBuffer);
 
 	// Copy Data to CPU Buffer (View Matrix)
 	pContext->CopyDataToRegion(
@@ -422,69 +427,69 @@ TEST(TestingGraphicsEngine, InitializeAndRunFrame)
 	// Present
 	wnd.Present();
 
-	pDevice->DeleteRenderTarget(backBuffer);
-	pDevice->DeleteDepthBuffer(depthBuffer);
-	pDevice->DeleteGraphicsPipeline(pPipeline);
-	pDevice->DeletePresentWindow(wnd);
+	device.DeleteRenderTarget(backBuffer);
+	device.DeleteDepthBuffer(depthBuffer);
+	device.DeleteGraphicsPipeline(&pipeline);
+	device.DeletePresentWindow(wnd);
 
-	graphics::DeleteDeviceInterface(pDevice);
+	device.Release();
 }
 
 TEST(TestingDeviceInterface, CreatingAndDeletingGraphicsPipelines)
 {
-	int result;
+	//int result;
 
-	graphics::DeviceInterface* pDevice;
-	graphics::CreateDeviceInterface(&pDevice);
+	//graphics::DeviceInterface device;
+	//device.Initialize();
 
-	const UINT maxPipelines = graphics::DeviceInterface::MAXIMUM_GRAPHICS_PIPELINES;
+	//const UINT maxPipelines = graphics::DeviceInterface::MAXIMUM_GRAPHICS_PIPELINES;
 
-	graphics::GraphicsPipeline* pPipeline[maxPipelines];
-	{
-		// Create maximum allowed pipelines
-		for (unsigned int i = 0; i < maxPipelines; i++)
-		{
-			result = pDevice->CreateGraphicsPipeline(
-				gVertexShader,
-				gPixelShader,
-				&pPipeline[i]);
+	//graphics::GraphicsPipeline* pipeline[maxPipelines];
+	//{
+	//	// Create maximum allowed pipelines
+	//	for (unsigned int i = 0; i < maxPipelines; i++)
+	//	{
+	//		result = device.CreateGraphicsPipeline(
+	//			gVertexShader,
+	//			gPixelShader,
+	//			&pPipeline[i]);
 
-			EXPECT_TRUE(result);
-		}
+	//		EXPECT_TRUE(result);
+	//	}
 
-		// Delete a pipeline and create a new one at the same index
-		// to see if it works correctly
-		pDevice->DeleteGraphicsPipeline(pPipeline[5]);
+	//	// Delete a pipeline and create a new one at the same index
+	//	// to see if it works correctly
+	//	device.DeleteGraphicsPipeline(pPipeline[5]);
 
-		result = pDevice->CreateGraphicsPipeline(
-			gVertexShader,
-			gPixelShader,
-			&pPipeline[5]);
+	//	result = device.CreateGraphicsPipeline(
+	//		gVertexShader,
+	//		gPixelShader,
+	//		&pipeline[5]);
 
-		EXPECT_TRUE(result);
+	//	EXPECT_TRUE(result);
 
-		// Create one extra to see if it fails
-		graphics::GraphicsPipeline* pExtraPipeline = NULL;
-		result = pDevice->CreateGraphicsPipeline(
-			gVertexShader,
-			gPixelShader,
-			&pExtraPipeline);
+	//	// Create one extra to see if it fails
+	//	graphics::GraphicsPipeline* pExtraPipeline = NULL;
+	//	result = device.CreateGraphicsPipeline(
+	//		gVertexShader,
+	//		gPixelShader,
+	//		&pExtraPipeline);
 
-		EXPECT_FALSE(result);
+	//	EXPECT_FALSE(result);
 
 
-		for (unsigned int i = 0; i < maxPipelines; i++)
-		{
-			pDevice->DeleteGraphicsPipeline(pPipeline[i]);
-		}
-	}
-	graphics::DeleteDeviceInterface(pDevice);
+	//	for (unsigned int i = 0; i < maxPipelines; i++)
+	//	{
+	//		device.DeleteGraphicsPipeline(pPipeline[i]);
+	//	}
+	//}
+	//device.Release();
 }
 
 TEST(TestingDeviceInterface, CorrectConstantBufferRegionSizeAndLocation)
 {
-	graphics::DeviceInterface* pDevice;
-	graphics::CreateDeviceInterface(&pDevice);
+	graphics::DeviceInterface device;
+	device.Initialize();
 
 	graphics::BufferRegion regions[10];
 	{
@@ -493,7 +498,7 @@ TEST(TestingDeviceInterface, CorrectConstantBufferRegionSizeAndLocation)
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			int result =
-				pDevice->CreateDynamicBufferRegion(56, NULL, &regions[i]);
+				device.CreateDynamicBufferRegion(56, NULL, &regions[i]);
 
 			EXPECT_TRUE(result);
 		}
@@ -505,13 +510,14 @@ TEST(TestingDeviceInterface, CorrectConstantBufferRegionSizeAndLocation)
 			EXPECT_EQ(regions[i].DataLocation, i * 256);
 		}
 	}
-	graphics::DeleteDeviceInterface(pDevice);
+
+	device.Release();
 }
 
 TEST(TestingDeviceInterface, CorrectBufferRegionSizeAndLocation)
 {
-	graphics::DeviceInterface* pDevice;
-	graphics::CreateDeviceInterface(&pDevice);
+	graphics::DeviceInterface device;
+	device.Initialize();
 
 	graphics::BufferRegion regions[10];
 	{
@@ -520,7 +526,7 @@ TEST(TestingDeviceInterface, CorrectBufferRegionSizeAndLocation)
 		for (unsigned int i = 0; i < 10; i++)
 		{
 			int result =
-				pDevice->CreateIndexBufferRegion(56, NULL, &regions[i]);
+				device.CreateIndexBufferRegion(56, NULL, &regions[i]);
 
 			EXPECT_TRUE(result);
 		}
@@ -532,5 +538,5 @@ TEST(TestingDeviceInterface, CorrectBufferRegionSizeAndLocation)
 			EXPECT_EQ(regions[i].DataLocation, i * 56);
 		}
 	}
-	graphics::DeleteDeviceInterface(pDevice);
+	device.Release();
 }

@@ -6,12 +6,13 @@ namespace rendering
 
 	RenderManager::RenderManager()
 	{
-		m_pDevice	= NULL;
 		m_pContext	= NULL;
 
+		m_clientWidth = 0;
+		m_clientHeight = 0;
 
 		RENDER_TECHNIQUE_DESC arr[RENDER_TECHNIQUES_COUNT];
-		m_techniques.ConstructAll(arr);
+		m_geometry.ConstructAll(arr);
 
 		size_t totalByteWidth = 0;
 		for (unsigned int i = 0; i < RENDER_TECHNIQUES_COUNT; i++)
@@ -38,10 +39,15 @@ namespace rendering
 		const UINT clientHeight,
 		const char* pTitle)
 	{
-		graphics::CreateDeviceInterface(&m_pDevice);
-		m_pContext = m_pDevice->GetRenderContext();
+		m_device.Initialize();
+		m_pContext = m_device.GetRenderContext();
 
-		m_pDevice->CreateDynamicBufferRegion(
+		m_clientWidth  = clientWidth;
+		m_clientHeight = clientHeight;
+
+		// --- Main Camera ---
+
+		m_device.CreateDynamicBufferRegion(
 			sizeof(DirectX::XMFLOAT4X4),
 			NULL,
 			&m_viewMatrixRegion);
@@ -50,83 +56,120 @@ namespace rendering
 		XMStoreFloat4x4(&projection,
 			DirectX::XMMatrixPerspectiveFovLH(
 				3.14f / 2.0f, 
-				clientWidth / (float)clientHeight, 
+				m_clientWidth / (float)m_clientHeight,
 				0.1f, 
 				100.0f));
 
-		m_pDevice->CreateStaticBufferRegion(
+		m_device.CreateStaticBufferRegion(
 			sizeof(DirectX::XMFLOAT4X4),
 			&projection,
 			&m_projectionMatrixRegion);
 
-		m_pContext->VSSetConstantBuffer(1, m_viewMatrixRegion);
-		m_pContext->VSSetConstantBuffer(2, m_projectionMatrixRegion);
+		m_device.CreateDepthBuffer(
+			m_clientWidth,
+			m_clientHeight,
+			&m_depthBuffer,
+			false);
 
-		m_pContext->SetViewport(
-			0, 
-			0, 
-			clientWidth, 
-			clientHeight);
+		// --- Window (With Back Buffer) ---
 
-		m_pDevice->CreatePresentWindow(
-			clientWidth,
-			clientHeight,
+		m_device.CreatePresentWindow(
+			m_clientWidth,
+			m_clientHeight,
 			pTitle,
 			&m_target,
 			&m_wnd);
 
-		m_pDevice->CreateDepthBuffer(
-			clientWidth, 
-			clientHeight, 
-			&m_depthBuffer);
+		// --- Sun / Shadow Map Camera ---
 
-		m_drawManager.m_pMeshManager	= &m_meshManager;
+		DirectX::XMFLOAT4X4 sun_view_matrix;
+		DirectX::XMStoreFloat4x4(&sun_view_matrix,
+			DirectX::XMMatrixLookToLH(
+				{ 2.0f, 2.0f, -10.0f },
+				{ 0.0f, 0.0f,  1.0f },
+				{ 0.0f, 1.0f,  0.0f }
+		));
 
-		m_techniques.InitializeAll(m_pDevice);
-		m_techniques.SetDrawManager(&m_drawManager);
+		DirectX::XMFLOAT4X4 sun_proj_matrix;
+		XMStoreFloat4x4(&sun_proj_matrix,
+			DirectX::XMMatrixOrthographicLH(
+				100.0f, 100.0f, 0.1f, 300.0f));
+
+		m_device.CreateStaticBufferRegion(
+			sizeof(DirectX::XMFLOAT4X4),
+			&sun_view_matrix,
+			&m_sunViewMatrix);
+
+		m_device.CreateStaticBufferRegion(
+			sizeof(DirectX::XMFLOAT4X4),
+			&sun_proj_matrix,
+			&m_sunProjMatrix);
+
+		m_device.CreateDepthBuffer(
+			1024,
+			1024,
+			&m_shadowMap,
+			true);
+
+		// --- Sun / Shading Data (Directional Light Shading) ---
+
+		m_sunData.Direction  = DirectX::XMFLOAT3(0.0f, 0.0f, -1.0f);
+		m_sunData.packedData = PACK(255, 255, 255, 255);
+
+		m_device.CreateStaticBufferRegion(
+			sizeof(Sun),
+			&m_sunData,
+			&m_sunDataRegion);
+
+		// --- END ---
+
+		m_geometry.InitializeAll(&m_device);
+		m_geometry.SetDrawManager(&m_drawManager);
 
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_STATIC_DATA);
+
+		// Static Binds
+		m_pContext->VSSetConstantBuffer(5, m_sunDataRegion);
 	}
 
 	void RenderManager::Clear(const float red, const float green, const float blue)
 	{
 		m_pContext->ClearDepth(m_depthBuffer);
+		m_pContext->ClearDepth(m_shadowMap);
 		m_pContext->ClearRenderTarget(m_target, red, green, blue);
 	}
 
 	void RenderManager::Draw()
 	{
-		m_pContext->SetRenderTarget(m_target, m_depthBuffer);
-
-		m_pContext->CopyDataToRegion(
-			m_meshManager.m_pPerInstanceData,
-			m_meshManager.m_perInstanceDataSize,
-			m_modelDataRegion);
-
-		m_techniques.UpdateAll(m_pContext);
-
+		// Upload Necessary Data To Render Geometry
+		m_drawManager.Begin(m_pContext);
+		m_geometry.UpdateAll(m_pContext);
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_DYNAMIC_DATA);
 
-		m_techniques.SetAndDrawAll(m_pContext);
+		DrawShadowMap();
+
+		DrawGeometry();
 	}
 
 	void RenderManager::Destroy()
 	{
-		m_techniques.DeconstructAll(m_pDevice);
+		m_geometry.DeconstructAll(&m_device);
 
-		m_pDevice->DeleteRenderTarget(m_target);
-		m_pDevice->DeleteDepthBuffer(m_depthBuffer);
-		m_pDevice->DeletePresentWindow(m_wnd);
+		m_device.DeleteRenderTarget(m_target);
+		m_device.DeleteDepthBuffer(m_depthBuffer);
+		m_device.DeletePresentWindow(m_wnd);
 
-		free(m_pMemoryForTechniques);
-		graphics::DeleteDeviceInterface(m_pDevice);
+		m_device.DeleteDepthBuffer(m_shadowMap);
+
+		free(m_pMemoryForTechniques); 
+		m_device.Release();
 	}
 
 	int RenderManager::CreateMesh(
 		const VERTEX_BUFFER_DATA* pVertexData, 
 		const INDEX_BUFFER_DATA* pIndexData)
 	{
-		return m_meshManager.CreateMesh(pVertexData, pIndexData, m_pDevice);
+		return m_drawManager.CreateMesh(pVertexData, pIndexData, &m_device);
 	}
 
 	void RenderManager::CreateModelHeap(
@@ -137,20 +180,13 @@ namespace rendering
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_INDEX_DATA);
 
 		// Create Model Heap
-		m_meshManager.CreateModelHeap(layoutDesc);
-
-		// Create Region on GPU for the model data
-		m_pDevice->CreateDynamicBufferRegion(
-			m_meshManager.m_perInstanceDataSize, 
-			NULL, 
-			&m_modelDataRegion);
-		m_drawManager.m_pBuffer = &m_modelDataRegion;
+		m_drawManager.CreateModelHeap(layoutDesc, &m_device);
 	}
 
 	void* RenderManager::GetTechniqueModelBuffer(
 		const RENDER_TECHNIQUES techniqueIndex)
 	{
-		return m_meshManager.GetTechniqueModelBuffer(techniqueIndex);
+		return m_drawManager.GetTechniqueModelBuffer(techniqueIndex);
 	}
 
 	void RenderManager::SetViewMatrix(const DirectX::XMFLOAT4X4 viewMatrix)
@@ -164,5 +200,62 @@ namespace rendering
 	graphics::PresentWindow* RenderManager::GetPresentWindow()
 	{
 		return &m_wnd;
+	}
+
+	// Render Shadow Map
+	void RenderManager::DrawShadowMap()
+	{
+		// Where To Draw
+		m_pContext->SetRenderTarget(NULL, &m_shadowMap);
+
+		// Set Camera Data
+		m_pContext->VSSetConstantBuffer(1, m_sunViewMatrix);
+		m_pContext->VSSetConstantBuffer(2, m_sunProjMatrix);
+
+		// Set Size To Draw
+		m_pContext->SetViewport(
+			0,
+			0,
+			1024,
+			1024);
+
+		// Draw All
+		m_geometry.SetAndDrawAllWithoutPS(m_pContext);
+	}
+
+	// Render Geometry
+	void RenderManager::DrawGeometry()
+	{
+		ID3D11DeviceContext4* pInternal = m_pContext->GetInternalContext();
+
+		// Where To Draw
+		m_pContext->SetRenderTarget(&m_target, &m_depthBuffer);
+
+		graphics::BufferRegion regions[4];
+		// Set Camera Data
+		regions[0] = m_viewMatrixRegion;
+		regions[1] = m_projectionMatrixRegion;
+
+		// Set Light Data
+		regions[2] = m_sunViewMatrix;
+		regions[3] = m_sunProjMatrix;
+
+		m_pContext->VSSetConstantBuffers<4>(1, regions);
+
+		// Set Shadow Map
+		pInternal->PSSetShaderResources(0, 1, &m_shadowMap.pResource);
+
+		// Set Size To Draw
+		m_pContext->SetViewport(
+			0,
+			0,
+			m_clientWidth,
+			m_clientHeight);
+
+		// Draw All
+		m_geometry.SetAndDrawAll(m_pContext);
+
+		ID3D11ShaderResourceView* pView = NULL;
+		pInternal->PSSetShaderResources(0, 1, &pView);
 	}
 }
