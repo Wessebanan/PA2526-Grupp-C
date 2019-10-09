@@ -49,6 +49,7 @@
     <Import Project="..\..\PropertySheets\GraphicsEngine_Release.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
     <Import Project="..\..\PropertySheets\Physics_Release.props" />
+    <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -117,7 +118,6 @@
     <ClInclude Include="gameUtility\UtilityEvents.h" />
     <ClInclude Include="gameUtility\UtilityFunctions.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
-    <ClInclude Include="Input\InitInput.h" />
     <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />
