@@ -1,6 +1,6 @@
 #pragma once
 #include "ecsEventIncludes.h"
-#include "AIGlobals.h"
+#include "..//gameAI/AIGlobals.h"
 
 
 namespace ecs
