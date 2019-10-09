@@ -1,6 +1,9 @@
 #pragma once
 #include <DirectXMath.h>
 #include "PhysicsHelperFunctions.h"
+//#include "AABB.h"
+//#include "OBB.h"
+//#include "BoundingSphere.h"
 
 using namespace DirectX;
 using namespace PhysicsHelpers;

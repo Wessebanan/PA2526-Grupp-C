@@ -2,6 +2,7 @@
 #include "ecs.h"
 #include <DirectXMath.h>
 #include "Mesh.h"
+
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
 #define DEFAULT_MOVEMENT_FORCE 500.0f
