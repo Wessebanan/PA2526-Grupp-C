@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="..\GameMain\Physics\CollisionSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Physics\GroundCollision.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\MovementLogic.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\ObjectCollision.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\CollisionSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\MovementSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\PhysicsComponents.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\PhysicsEvents.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{c289c533-cb9b-45b0-abc2-a28e2e2fc071}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
