@@ -1,15 +1,28 @@
 #pragma once
 #include "ecs.h"
-#include "UISystems.h"
 #include "Direct2D.h"
+#include "UI/UISystems.h"
 
-void InitUI(ecs::EntityComponentSystem& rECS, Direct2D** D2D)
+struct TempUISystemPtrs
 {
-	ecs::systems::UIPreRenderSystem* UIpreSys = rECS.createSystem<ecs::systems::UIPreRenderSystem>(0);
-	ecs::systems::UIBitmapSystem* UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>();
-	ecs::systems::UITextSystem* UITextSys = rECS.createSystem<ecs::systems::UITextSystem>();
-	ecs::systems::UIDebugSystem* UIDebugSys = rECS.createSystem<ecs::systems::UIDebugSystem>(9);
-	ecs::systems::UIPostRenderSystem* UIpostSys = rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
+	ecs::systems::UIPreRenderSystem* UIpreSys;
+	ecs::systems::UIBitmapSystem* UIBitmapSys;
+	ecs::systems::UITextSystem* UITextSys;
+	ecs::systems::UIDebugSystem* UIDebugSys;
+	ecs::systems::UIPostRenderSystem* UIpostSys;
+};
+
+void InitUI(ecs::EntityComponentSystem& rECS, Direct2D** D2D, TempUISystemPtrs& rSystemPointers)
+{
+	rSystemPointers.UIpreSys	= rECS.createSystem<ecs::systems::UIPreRenderSystem>(0);
+	rSystemPointers.UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>();
+	rSystemPointers.UITextSys	= rECS.createSystem<ecs::systems::UITextSystem>();
+	rSystemPointers.UIDebugSys	= rECS.createSystem<ecs::systems::UIDebugSystem>(9);
+	rSystemPointers.UIpostSys	= rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
 	*D2D = new Direct2D;
-	UIpreSys->mpD2D = UITextSys->mpD2D = UIpostSys->mpD2D = UIBitmapSys->mpD2D = UIDebugSys->mpD2D = *D2D;
+	rSystemPointers.UIpreSys->mpD2D			= 
+		rSystemPointers.UITextSys->mpD2D	= 
+		rSystemPointers.UIpostSys->mpD2D	= 
+		rSystemPointers.UIBitmapSys->mpD2D  = 
+		rSystemPointers.UIDebugSys->mpD2D	= *D2D;
 }

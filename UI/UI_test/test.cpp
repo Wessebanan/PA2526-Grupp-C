@@ -1,8 +1,8 @@
 #include "pch.h"
 //#include "InitInputHandler.h"
 #include"Direct2D.h"
-#include "ecs.h"
-#include "UISystems.h"
+//#include "ecs.h"
+//#include "UISystems.h"
 #include<Windows.h>
 #include"..//..//Game/GameMain/InitUI.h"
 #pragma comment (lib, "plainECS")
@@ -93,19 +93,19 @@ TEST(ExpectedTrue, GetBitmap)
 TEST(ExpectedTrue, DebugWindow)
 {
 	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
+	Direct2D* p_dtest;
 	RECT rectTest = { 0,0,800,600 };
-	HRESULT hr = Dtest.CreateHwndRenderTarget(windowHandle, &rectTest); 
+	HRESULT hr = p_dtest->CreateHwndRenderTarget(windowHandle, &rectTest);
 	
 	using namespace ecs;
 	EntityComponentSystem myECS;
-
-	
-	systems::UIPreRenderSystem* UIpreSys = myECS.createSystem<systems::UIPreRenderSystem>(0); //Create systems that are needed for ecs debug print
-	systems::UIDebugSystem* UIDebugSys = myECS.createSystem<systems::UIDebugSystem>(9);
-	systems::UIPostRenderSystem* UIpostSys = myECS.createSystem<systems::UIPostRenderSystem>(9);
-	UIpreSys->mpD2D = UIpostSys->mpD2D = UIDebugSys->mpD2D = &Dtest; // Give ECS d2d with render target
-	components::UITextComponent UIText;
+	TempUISystemPtrs my_UI_systems;
+	InitUI(myECS, &p_dtest, my_UI_systems);
+	//systems::UIPreRenderSystem* UIpreSys = myECS.createSystem<systems::UIPreRenderSystem>(0); //Create systems that are needed for ecs debug print
+	//systems::UIDebugSystem* UIDebugSys = myECS.createSystem<systems::UIDebugSystem>(9);
+	//systems::UIPostRenderSystem* UIpostSys = myECS.createSystem<systems::UIPostRenderSystem>(9);
+	//UIpreSys->mpD2D = UIpostSys->mpD2D = UIDebugSys->mpD2D = &Dtest; // Give ECS d2d with render target
+	ecs::components::UITextComponent UIText;
 	UIText.mStrText = "hehehheehtest";  
 
 
@@ -116,25 +116,25 @@ TEST(ExpectedTrue, DebugWindow)
 	Entity* e2 = myECS.createEntity(keyboard);
 	myECS.update(0);
 
-	EXPECT_EQ(UIDebugSys->toRender, true); // check if bool required to print becomes true because of true keyboard
+	
+	EXPECT_EQ(my_UI_systems.UIDebugSys->toRender, true); // check if bool required to print becomes true because of true keyboard
 
+	delete p_dtest;
 }
 
 TEST(ExpectedFail, DebugWindow)
 {
 	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
+	Direct2D* p_dtest;
 	RECT rectTest = { 0,0,800,600 };
-	HRESULT hr = Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
+	HRESULT hr = p_dtest->CreateHwndRenderTarget(windowHandle, &rectTest);
 
 	using namespace ecs;
 	EntityComponentSystem myECS;
 
+	TempUISystemPtrs my_UI_systems;
+	InitUI(myECS, &p_dtest, my_UI_systems);
 
-	systems::UIPreRenderSystem* UIpreSys = myECS.createSystem<systems::UIPreRenderSystem>(0); //Create systems that are needed for ecs debug print
-	systems::UIDebugSystem* UIDebugSys = myECS.createSystem<systems::UIDebugSystem>(9);
-	systems::UIPostRenderSystem* UIpostSys = myECS.createSystem<systems::UIPostRenderSystem>(9);
-	UIpreSys->mpD2D = UIpostSys->mpD2D = UIDebugSys->mpD2D = &Dtest; // Give ECS d2d with render target
 	components::UITextComponent UIText;
 	UIText.mStrText = "hehehheehtest";
 
@@ -145,7 +145,7 @@ TEST(ExpectedFail, DebugWindow)
 	Entity* e2 = myECS.createEntity(keyboard);
 	myECS.update(0);
 
-	EXPECT_EQ(UIDebugSys->toRender, false); // check if bool required to print becomes true because of true keyboard
+	EXPECT_EQ(my_UI_systems.UIDebugSys->toRender, false); // check if bool required to print becomes true because of true keyboard
 
 }
 
