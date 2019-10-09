@@ -18,8 +18,3 @@ const std::string SOUND_NAME_PATHS[] =
 {
 	"coin.wav"
 };
-
-Sound::PaHandler soundPaHandler;
-Sound::Engine soundEngine;
-Sound::Mixer soundMixer;
-Sound::Bank soundBank;
