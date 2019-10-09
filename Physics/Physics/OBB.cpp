@@ -10,7 +10,7 @@ OBB::~OBB()
 	delete[] mpVertices;
 }
 
-void OBB::Generate(XMFLOAT3* points, const unsigned int size)
+void OBB::Generate(const XMFLOAT3* points, const unsigned int size)
 {
 	XMFLOAT3 min, max;
 	GetExtremes(points, size, min, max);

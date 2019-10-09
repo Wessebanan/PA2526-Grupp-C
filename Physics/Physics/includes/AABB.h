@@ -8,7 +8,7 @@ class AABB : public BoundingVolume
 public:
 	AABB();
 	~AABB();
-	void Generate(XMFLOAT3* points, const unsigned int size);
+	void Generate(const XMFLOAT3* points, const unsigned int size);
 
 	bool Intersect(const BoundingVolume* volume);
 

@@ -26,8 +26,8 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	TransformComponent* p_transform = getComponentFromKnownEntity<TransformComponent>(p_entity->getID());
 
 	// Applying the world transform to the collision component min and max.
-	DirectX::XMVECTOR collision_min = DirectX::XMLoadFloat3(&p_collision->mMin);
-	DirectX::XMVECTOR collision_max = DirectX::XMLoadFloat3(&p_collision->mMax);
+	DirectX::XMVECTOR collision_min = DirectX::XMLoadFloat3(p_collision->mAABB.GetMin());
+	DirectX::XMVECTOR collision_max = DirectX::XMLoadFloat3(p_collision->mAABB.GetMax());
 
 	collision_min = DirectX::XMVector3Transform(collision_min, UtilityFunctions::GetWorldMatrix(*p_transform));
 	collision_max = DirectX::XMVector3Transform(collision_max, UtilityFunctions::GetWorldMatrix(*p_transform));
@@ -54,8 +54,8 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(it.entities.at(i).entity->getID());
 
 		// Applying the world transform to the current collision component min and max.
-		DirectX::XMVECTOR current_collision_min = DirectX::XMLoadFloat3(&p_current_collision->mMin);
-		DirectX::XMVECTOR current_collision_max = DirectX::XMLoadFloat3(&p_current_collision->mMax);
+		DirectX::XMVECTOR current_collision_min = DirectX::XMLoadFloat3(p_current_collision->mAABB.GetMin());
+		DirectX::XMVECTOR current_collision_max = DirectX::XMLoadFloat3(p_current_collision->mAABB.GetMax());
 
 		current_collision_min = DirectX::XMVector3Transform(current_collision_min, UtilityFunctions::GetWorldMatrix(*p_current_transform));
 		current_collision_max = DirectX::XMVector3Transform(current_collision_max, UtilityFunctions::GetWorldMatrix(*p_current_transform));
@@ -84,8 +84,8 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
 		
 		// Getting and transforming the center positions of the colliding bounding volumes.
-		DirectX::XMVECTOR center = DirectX::XMLoadFloat3(&p_collision->mCenter);
-		DirectX::XMVECTOR colliding_center = DirectX::XMLoadFloat3(&p_colliding_collision->mCenter);
+		DirectX::XMVECTOR center = DirectX::XMLoadFloat3(p_collision->mAABB.GetCenter());
+		DirectX::XMVECTOR colliding_center = DirectX::XMLoadFloat3(p_colliding_collision->mAABB.GetCenter());
 
 		center = DirectX::XMVector3Transform(center, UtilityFunctions::GetWorldMatrix(*p_transform));
 		colliding_center = DirectX::XMVector3Transform(colliding_center, UtilityFunctions::GetWorldMatrix(*p_colliding_transform));
@@ -133,30 +133,25 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 
 	std::vector<DirectX::XMFLOAT3> *vertex_vector = mesh_component->mMesh.GetVertexPositionVector();
 
-	// Getting the extreme points of the vertex group.
-	DirectX::XMFLOAT3 min_point;
-	DirectX::XMFLOAT3 max_point;
-	GetExtremes(vertex_vector->data(), vertex_vector->size(), min_point, max_point);
+	ground_collision_component->mOBB.Generate(vertex_vector->data(), vertex_vector->size());
 
-	// Creating the OBB holding the model.
-	DirectX::XMFLOAT3 vertices[8];
-	CreateOBB(vertices, min_point, max_point);
-
-	// Calculating the average position while setting
-	// the vertices array of GroundCollisionComponent
-	// for the center position.
-	DirectX::XMFLOAT3 average(0, 0, 0);
-	for (int i = 0; i < 8; i++)
-	{
-		ground_collision_component->mVertices[i] = vertices[i];
-	}
-	
-	ground_collision_component->mCenterPos = DirectX::XMFLOAT3
-	(
-		(min_point.x + max_point.x) / 2.0f,
-		(min_point.y + max_point.y) / 2.0f,
-		(min_point.z + max_point.z) / 2.0f
-	);
+	//// Getting the extreme points of the vertex group.
+	//DirectX::XMFLOAT3 min_point;
+	//DirectX::XMFLOAT3 max_point;
+	//GetExtremes(vertex_vector->data(), vertex_vector->size(), min_point, max_point);
+	//
+	//// Creating the OBB holding the model.
+	//DirectX::XMFLOAT3 vertices[8];
+	//CreateOBB(vertices, min_point, max_point);
+	//
+	//// Calculating the average position while setting
+	//// the vertices array of GroundCollisionComponent
+	//// for the center position.
+	//DirectX::XMFLOAT3 average(0, 0, 0);
+	//for (int i = 0; i < 8; i++)
+	//{
+	//	ground_collision_component->mVertices[i] = vertices[i];
+	//}
 }
 #pragma endregion
 #pragma region GroundCollisionSystem
@@ -320,23 +315,24 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 	MeshComponent* mesh_component = getComponentFromKnownEntity<MeshComponent>(entity->getID());
 	std::vector<DirectX::XMFLOAT3> *vertex_list = mesh_component->mMesh.GetVertexPositionVector();
 
-	// Getting the extreme values of the vertex list.
-	DirectX::XMFLOAT3 min_point, max_point;
-	GetExtremes(vertex_list->data(), vertex_list->size(), min_point, max_point);
+	//// Getting the extreme values of the vertex list.
+	//DirectX::XMFLOAT3 min_point, max_point;
+	//GetExtremes(vertex_list->data(), vertex_list->size(), min_point, max_point);
 
 	// Grabbing the object collision component to fill it up.
 	ObjectCollisionComponent* object_collision_component = getComponentFromKnownEntity<ObjectCollisionComponent>(entity->getID());
+	object_collision_component->mAABB.Generate(vertex_list->data(), vertex_list->size());
 
-	object_collision_component->mMin = min_point;
-	object_collision_component->mMax = max_point;
-
-	// min + max / 2 gives us the center.
-	object_collision_component->mCenter = DirectX::XMFLOAT3
-	(
-		(min_point.x + max_point.x) / 2.0f,
-		(min_point.y + max_point.y) / 2.0f,
-		(min_point.z + max_point.z) / 2.0f
-	);
+	//object_collision_component->mMin = min_point;
+	//object_collision_component->mMax = max_point;
+	//
+	//// min + max / 2 gives us the center.
+	//object_collision_component->mCenter = DirectX::XMFLOAT3
+	//(
+	//	(min_point.x + max_point.x) / 2.0f,
+	//	(min_point.y + max_point.y) / 2.0f,
+	//	(min_point.z + max_point.z) / 2.0f
+	//);
 
 }
 #pragma endregion

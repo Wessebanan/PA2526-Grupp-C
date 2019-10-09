@@ -23,7 +23,7 @@ public:
 	| /     | /
 	0-------1		|: y, -: x /: z
 	*/
-	void Generate(XMFLOAT3* points, const unsigned int size);
+	void Generate(const XMFLOAT3* points, const unsigned int size);
 
 	bool Intersect(const BoundingVolume* volume);
 

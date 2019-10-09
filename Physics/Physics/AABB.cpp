@@ -11,7 +11,7 @@ AABB::~AABB()
 {
 }
 
-void AABB::Generate(XMFLOAT3* points, const unsigned int size)
+void AABB::Generate(const XMFLOAT3* points, const unsigned int size)
 {
 	GetExtremes(points, size, mMin, mMax);
 

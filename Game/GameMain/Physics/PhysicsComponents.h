@@ -2,6 +2,9 @@
 #include "ecs.h"
 #include <DirectXMath.h>
 #include "Mesh.h"
+#include "AABB.h"
+#include "BoundingSphere.h"
+#include "OBB.h"
 
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
@@ -80,11 +83,11 @@ namespace ecs
 			| /     | /
 			0-------1		|: y, -: x /: z
 			*/
-			DirectX::XMFLOAT3 mVertices[8] = { DirectX::XMFLOAT3(0, 0, 0) };
-			
+			//DirectX::XMFLOAT3 mVertices[8] = { DirectX::XMFLOAT3(0, 0, 0) };
+			OBB mOBB;
 			// Center Position is the middle of the box, for distance calculation.
 			// Important to apply transform to this point as well.
-			DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);
+			//DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);
 
 			// Storing last y values to avoid unneccesary checks.
 			float mLastY = INFINITY;
@@ -99,9 +102,10 @@ namespace ecs
 		*/
 		COMP(ObjectCollisionComponent)
 		{
-			DirectX::XMFLOAT3 mMin		= DirectX::XMFLOAT3(0, 0, 0);
-			DirectX::XMFLOAT3 mMax		= DirectX::XMFLOAT3(0, 0, 0);
-			DirectX::XMFLOAT3 mCenter	= DirectX::XMFLOAT3(0, 0, 0);
+			AABB mAABB;
+			//DirectX::XMFLOAT3 mMin		= DirectX::XMFLOAT3(0, 0, 0);
+			//DirectX::XMFLOAT3 mMax		= DirectX::XMFLOAT3(0, 0, 0);
+			//DirectX::XMFLOAT3 mCenter	= DirectX::XMFLOAT3(0, 0, 0);
 
 			// States if the last movement resulted in collision
 			// and needs to be reverted.
