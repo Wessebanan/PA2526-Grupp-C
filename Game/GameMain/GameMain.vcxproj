@@ -40,6 +40,7 @@
     <Import Project="..\..\PropertySheets\ECS_Debug.props" />
     <Import Project="..\..\PropertySheets\GraphicsEngine_Debug.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
+    <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
     <Import Project="..\..\PropertySheets\Physics_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -48,6 +49,7 @@
     <Import Project="..\..\PropertySheets\GraphicsEngine_Release.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
     <Import Project="..\..\PropertySheets\Physics_Release.props" />
+    <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -88,6 +90,7 @@
     <ClCompile Include="gameAI\GridFunctions.cpp" />
     <ClCompile Include="gameAI\GridProp.cpp" />
     <ClCompile Include="gameUtility\CameraFunctions.cpp" />
+    <ClCompile Include="Input\InterpretWebSystems.cpp" />
     <ClCompile Include="gameUtility\UtilityFunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Physics\CollisionSystem.cpp" />
@@ -115,7 +118,9 @@
     <ClInclude Include="gameUtility\UtilityEvents.h" />
     <ClInclude Include="gameUtility\UtilityFunctions.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
+    <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
+    <ClInclude Include="Input\InterpretWebSystems.h" />
     <ClInclude Include="Physics\CollisionSystem.h" />
     <ClInclude Include="Physics\MovementSystem.h" />
     <ClInclude Include="Physics\PhysicsComponents.h" />

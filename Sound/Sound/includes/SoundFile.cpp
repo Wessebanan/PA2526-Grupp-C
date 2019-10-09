@@ -12,13 +12,13 @@ Sound::FileData::~FileData()
 }
 
 
-bool Sound::FileData::LoadAll(std::string& Path)
+bool Sound::FileData::LoadAll(std::string& rPath)
 {
 	FILE* file;
 	int subchunk_search_tries = 16;
-	mPath = Path;
+	mPath = rPath;
 	// Open the file and check if it exists/can be opened
-	fopen_s(&file, Path.c_str(), "rb");
+	fopen_s(&file, rPath.c_str(), "rb");
 	if (file == nullptr)
 		return false;
 	// Read the Wave header
@@ -83,7 +83,7 @@ float* Sound::FileData::GetDataPointer()
 	return mpData;
 }
 
-bool Sound::FileData::StringIsEqual(std::string& Path)
+bool Sound::FileData::StringIsEqual(std::string& rPath)
 {
-	return (Path.compare(mPath) == 0);
+	return (rPath.compare(mPath) == 0);
 }

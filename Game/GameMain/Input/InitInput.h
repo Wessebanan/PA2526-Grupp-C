@@ -3,7 +3,7 @@
 
 #include "ecs.h"
 
-void initInput(ecs::EntityComponentSystem& rECS)
+void InitInput(ecs::EntityComponentSystem& rECS)
 {
 	rECS.reserveComponentCount<InputBackendComp>(1);
 	rECS.reserveComponentCount<KeyboardComponent>(1);
