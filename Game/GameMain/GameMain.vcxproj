@@ -40,6 +40,7 @@
     <Import Project="..\..\PropertySheets\ECS_Debug.props" />
     <Import Project="..\..\PropertySheets\GraphicsEngine_Debug.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
+    <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -104,6 +105,7 @@
     <ClInclude Include="gameUtility\UtilityEvents.h" />
     <ClInclude Include="gameUtility\UtilityFunctions.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
+    <ClInclude Include="Input\InitInput.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
