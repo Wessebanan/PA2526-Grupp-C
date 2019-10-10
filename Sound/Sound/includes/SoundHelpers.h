@@ -4,7 +4,7 @@
 
 // Constant defines that doesn't have to change
 #define SOUND_SAMPLE_RATE   (44100)
-#define SOUND_BUFFER_SIZE  (512*2)	// TODO: make this buffer
+#define SOUND_BUFFER_SIZE  (512*4)	// TODO: make this buffer
 #define SOUND_FRAMES_PER_BUFFER (64)// size tighter (=less latency)
 #define SOUND_MAX_CHANNELS (2)
 #define SOUND_CHAIN_BUFFER_COUNT (2)

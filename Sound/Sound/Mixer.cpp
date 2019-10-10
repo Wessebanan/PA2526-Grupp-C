@@ -28,27 +28,29 @@ void Audio::Mixer::Fill(Samples start, Samples count, float* pData)
 	}
 }
 
-bool Audio::Mixer::NewSoundVoice(Plugin::Plugin* pEntryPlugin)
+void Audio::Mixer::NewSoundVoice(Plugin::Plugin* pEntryPlugin)
 {
 	for (int i = 0; i < SOUND_MAX_SOUND_VOICES; i++)
 	{
 		if (!mSoundVoices[i].IsActive())
 		{
 			mSoundVoices[i].New(pEntryPlugin);
-			return true;
+			return;
 		}
 	}
-	return false;
+	// Failed to find space for the sound, delete
+	delete pEntryPlugin;
 }
 
-bool Audio::Mixer::NewMusicVoice(Plugin::Plugin* pEntryPlugin)
+void Audio::Mixer::NewMusicVoice(Plugin::Plugin* pEntryPlugin, bool replace)
 {
-	if (!mMusicVoices[0].IsActive())
+	if (replace || !mMusicVoices[0].IsActive())
 	{
 		mMusicVoices[0].New(pEntryPlugin);
-		return true;
+		return;
 	}
-	return false;
+	// Failed to find space for the music, delete
+	delete pEntryPlugin;
 }
 
 void Audio::Mixer::AddSoundMessage(Sound::Message message)
@@ -87,6 +89,7 @@ void Audio::Mixer::ProcessMusicMessages()
 	Music::Message temp_message;
 	while (mMusicMessageBuffer.remove(&temp_message))
 	{
-		NewMusicVoice(temp_message.pEntry);
+		NewMusicVoice(temp_message.pEntry,
+			temp_message.flags & Music::M_REPLACE);
 	}
 }

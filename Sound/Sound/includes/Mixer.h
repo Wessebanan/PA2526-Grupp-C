@@ -5,7 +5,6 @@ namespace Audio
 {
 	namespace Sound
 	{
-
 		struct Message
 		{
 			Plugin::Plugin* pEntry;
@@ -13,9 +12,15 @@ namespace Audio
 	}
 	namespace Music
 	{
+		enum MessageFlags
+		{
+			M_NONE = 0x0,
+			M_REPLACE = 0x1
+		};
 		struct Message
 		{
 			Plugin::Plugin* pEntry;
+			MessageFlags flags;
 		};
 	}
 	class Mixer
@@ -32,8 +37,8 @@ namespace Audio
 		void ProcessSoundMessages();
 		void ProcessMusicMessages();
 		// Adds a new voice if there's one available
-		bool NewSoundVoice(Plugin::Plugin* pEntryPlugin);
-		bool NewMusicVoice(Plugin::Plugin* pEntryPlugin);
+		void NewSoundVoice(Plugin::Plugin* pEntryPlugin);
+		void NewMusicVoice(Plugin::Plugin* pEntryPlugin, bool replace);
 		Voice mSoundVoices[SOUND_MAX_SOUND_VOICES];
 		Voice mMusicVoices[SOUND_MAX_MUSIC_VOICES];
 		Ringbuffer<Sound::Message, SOUND_MAX_SOUND_MESSAGES> mSoundMessageBuffer;
