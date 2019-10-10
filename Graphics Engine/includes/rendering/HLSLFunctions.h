@@ -14,7 +14,7 @@ namespace hlsl_functions
 				x: HO bit
 				w: LO bit
 	*/
-	const char* gUnpack = R"(
+	const std::string gUnpack = R"(
 		uint4 unpack(const uint packedData)
 		{
 			uint4 unpacked_data;
@@ -40,7 +40,7 @@ namespace hlsl_functions
 				1 -> In Light
 	
 	*/
-	const char* gShadow = R"(
+	const std::string gShadow = R"(
 
 	Texture2D<float> gShadowMap			: register (t0);
 	SamplerComparisonState gSmpCmp		: register (s0);

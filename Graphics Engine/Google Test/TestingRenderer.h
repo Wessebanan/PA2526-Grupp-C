@@ -25,8 +25,10 @@ TEST(TestingRenderer, CreatingDefaultMesh)
 		 1.0f, -1.0f, 0.0f,
 	};
 
+	rendering::SUN_DESC sunDesc;
+
 	rendering::RenderManager renderer;
-	renderer.Initialize(800, 600, "Testing renderer");
+	renderer.Initialize(sunDesc, 800, 600, "Testing renderer");
 
 	// assign vertex data
 	rendering::VERTEX_BUFFER_DATA vb = { 0 };
@@ -62,8 +64,9 @@ TEST(TestingRenderer, CreatingIndexedMesh)
 		1, 2, 3
 	};
 
+	rendering::SUN_DESC sunDesc;
 	rendering::RenderManager renderer;
-	renderer.Initialize(800, 600, "Testing renderer");
+	renderer.Initialize(sunDesc, 800, 600, "Testing renderer");
 
 	// Assign vertex data
 	rendering::VERTEX_BUFFER_DATA vb = { 0 };
@@ -89,8 +92,9 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 	using namespace rendering;
 	using namespace DirectX;
 
+	rendering::SUN_DESC sunDesc;
 	RenderManager mng;
-	mng.Initialize(1280, 720, "D3D11");
+	mng.Initialize(sunDesc, 1280, 720, "D3D11");
 
 	struct float3
 	{

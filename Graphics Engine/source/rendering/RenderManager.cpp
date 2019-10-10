@@ -35,6 +35,7 @@ namespace rendering
 	}
 
 	void RenderManager::Initialize(
+		const SUN_DESC& sunDesc,
 		const UINT clientWidth,
 		const UINT clientHeight,
 		const char* pTitle)
@@ -80,20 +81,44 @@ namespace rendering
 			&m_target,
 			&m_wnd);
 
+		// --- Sun / Shading Data (Directional Light Shading) ---
+
+
+		DirectX::XMVECTOR sunDir = DirectX::XMVectorSet(
+			sunDesc.Direction.x * -1.0f, 
+			sunDesc.Direction.y * -1.0f, 
+			sunDesc.Direction.z * -1.0f,
+			0.0f
+			);
+
+		sunDir = DirectX::XMVector3Normalize(sunDir);
+
+		DirectX::XMStoreFloat3(&m_sunData.Direction, sunDir);
+		m_sunData.packedData = PACK(
+			sunDesc.Red, 
+			sunDesc.Green, 
+			sunDesc.Blue, 
+			255);
+
+		m_device.CreateStaticBufferRegion(
+			sizeof(DirectionalLight),
+			&m_sunData,
+			&m_sunDataRegion);
+
 		// --- Sun / Shadow Map Camera ---
 
 		DirectX::XMFLOAT4X4 sun_view_matrix;
 		DirectX::XMStoreFloat4x4(&sun_view_matrix,
 			DirectX::XMMatrixLookToLH(
-				{ 2.0f, 2.0f, -10.0f },
-				{ 0.0f, 0.0f,  1.0f },
+				{ sunDesc.Position.x, sunDesc.Position.y, sunDesc.Position.z },
+				{ sunDesc.Direction.x, sunDesc.Direction.y, sunDesc.Direction.z },
 				{ 0.0f, 1.0f,  0.0f }
 		));
 
 		DirectX::XMFLOAT4X4 sun_proj_matrix;
 		XMStoreFloat4x4(&sun_proj_matrix,
 			DirectX::XMMatrixOrthographicLH(
-				100.0f, 100.0f, 0.1f, 300.0f));
+				sunDesc.Width, sunDesc.Height, sunDesc.NearPlane, sunDesc.FarPlane));
 
 		m_device.CreateStaticBufferRegion(
 			sizeof(DirectX::XMFLOAT4X4),
@@ -106,20 +131,10 @@ namespace rendering
 			&m_sunProjMatrix);
 
 		m_device.CreateDepthBuffer(
-			1024,
-			1024,
+			sunDesc.Resolution,
+			sunDesc.Resolution,
 			&m_shadowMap,
 			true);
-
-		// --- Sun / Shading Data (Directional Light Shading) ---
-
-		m_sunData.Direction  = DirectX::XMFLOAT3(0.0f, 0.0f, -1.0f);
-		m_sunData.packedData = PACK(255, 255, 255, 255);
-
-		m_device.CreateStaticBufferRegion(
-			sizeof(Sun),
-			&m_sunData,
-			&m_sunDataRegion);
 
 		// --- END ---
 
@@ -220,7 +235,7 @@ namespace rendering
 			1024);
 
 		// Draw All
-		m_geometry.SetAndDrawAllWithoutPS(m_pContext);
+		m_geometry.DrawAllWithoutPS(m_pContext);
 	}
 
 	// Render Geometry
@@ -253,7 +268,7 @@ namespace rendering
 			m_clientHeight);
 
 		// Draw All
-		m_geometry.SetAndDrawAll(m_pContext);
+		m_geometry.DrawAll(m_pContext);
 
 		ID3D11ShaderResourceView* pView = NULL;
 		pInternal->PSSetShaderResources(0, 1, &pView);

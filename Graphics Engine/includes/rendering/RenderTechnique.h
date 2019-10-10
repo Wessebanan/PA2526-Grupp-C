@@ -89,7 +89,7 @@ namespace rendering
 		ClassMethodLooper::Loop<N, Wrapper, Parent, Args ...>::impl(parent, args...);
 	}
 
-	// Used for inverting to (0 - 10) instead of (10 - 0)
+	// Used for inverting to (0 -> 10) instead of (10 -> 0)
 #define INDEX (RENDER_TECHNIQUES_COUNT - N)
 
 	class RenderTechniques {
@@ -114,13 +114,13 @@ namespace rendering
 			ClassMethodLoop<RENDER_TECHNIQUES_COUNT, UpdateTechniques>(this, pContext);
 		}
 
-		void SetAndDrawAll(graphics::RenderContext* pContext)
+		void DrawAll(graphics::RenderContext* pContext)
 		{
 			m_pDrawManager->Reset(pContext);
 			ClassMethodLoop<RENDER_TECHNIQUES_COUNT, SetTechniques>(this, pContext);
 		}
 
-		void SetAndDrawAllWithoutPS(graphics::RenderContext* pContext)
+		void DrawAllWithoutPS(graphics::RenderContext* pContext)
 		{
 			m_pDrawManager->Reset(pContext);
 			ClassMethodLoop<RENDER_TECHNIQUES_COUNT, SetTechniquesWithoutPS>(this, pContext);
@@ -134,11 +134,10 @@ namespace rendering
 		template<RENDER_TECHNIQUES T>
 		void* GetData()
 		{
-			return m_technique.GetData<T>();
+			return RenderTechnique::GetData<T>();
 		}
 
 	private:
-		RenderTechnique m_technique;
 		DrawManager* m_pDrawManager;
 
 		template<int N>
@@ -198,7 +197,7 @@ namespace rendering
 
 		template<int N>
 		struct DeconstructTechniques
-		{
+		{ 
 			void operator()(
 				RenderTechniques* parent,
 				graphics::DeviceInterface* pDevice) const

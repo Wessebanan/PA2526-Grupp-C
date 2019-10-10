@@ -10,7 +10,7 @@ namespace rendering
 		set & draw	(set state)			-(Is followed by a draw)
 	*/
 
-	const char* gVertexShader = R"(
+	const std::string gVertexShader = R"(
 
 	struct PerObjectData
 	{
@@ -53,7 +53,6 @@ namespace rendering
 	{
 		float4 pos			: SV_POSITION;
 		float4 sunPos		: POSITION1;
-		float4 nor			: NORMAL0;
 		float4 finalColor	: COLOR0;
 	};
 
@@ -70,8 +69,6 @@ namespace rendering
 
 		output.pos		= mul(gPerspective, mul(gView, worldPos));
 		output.sunPos	= mul(gOrtographicsSun, mul(gViewSun, worldPos));
-
-		output.nor	= float4(normal.xyz, 0.0f);
 		
 		float illu = dot(gSunDirection, normal);
 
@@ -79,25 +76,23 @@ namespace rendering
 
 		output.finalColor = mesh_color * illu * sun_color * sun_color.a;
 
-
 		return output;
 	}	
 
 	)";
 
-	const char* gPixelShader = R"(
+	const std::string gPixelShader = R"(
 
 	struct PSIN
 	{
 		float4 pos			: SV_POSITION;
 		float4 sunPos		: POSITION1;
-		float4 nor			: NORMAL0;
 		float4 finalColor	: COLOR0;
 	};
 
 	float4 main(PSIN input) : SV_TARGET
 	{
-		float in_shadow = shadow(input.sunPos.xy, input.sunPos.z);
+		float in_shadow = shadow(input.sunPos.xy, input.sunPos.z - 0.001f);
 		return float4(input.finalColor * in_shadow);
 	}	
 

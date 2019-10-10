@@ -31,8 +31,24 @@ int main()
 	using namespace rendering;
 	using namespace DirectX;
 
+	SUN_DESC sunDesc = {};
+	sunDesc.Red = 200;
+	sunDesc.Green = 200;
+	sunDesc.Blue = 200;
+	
+	sunDesc.Direction = { -0.2f, 0.0f, 1.0f };
+	sunDesc.Position = { 35.0f, 0.0f, -2.0f };
+	
+	sunDesc.FarPlane = 100.0f;
+	sunDesc.NearPlane = 0.1f;
+
+	sunDesc.Height	= 100.0f;
+	sunDesc.Width	= 100.0f;
+
+	sunDesc.Resolution = 1024;
+
 	RenderManager* pMng = new RenderManager;
-	pMng->Initialize(1600, 900, "D3D11");
+	pMng->Initialize(sunDesc, 1600, 900, "D3D11");
 
 	struct float3
 	{

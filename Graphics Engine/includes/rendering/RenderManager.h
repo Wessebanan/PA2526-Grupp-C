@@ -12,18 +12,25 @@
 
 namespace rendering
 {
-	struct ShadowMap
+	struct SUN_DESC
 	{
-		DirectX::XMFLOAT3 Position;
-		DirectX::XMFLOAT2 Resolution;
-		DirectX::XMFLOAT2 Size;
-		float Near, Far;
+		DirectX::XMFLOAT3 Direction = { 0.0f, 0.0f, -1.0f };
+		DirectX::XMFLOAT3 Position = { 0.0f, 0.0f, 0.0f };
+
+		float
+			Width = 1.0f,
+			Height = 1.0f,
+			NearPlane = 0.1f,
+			FarPlane = 1.0f;
+
+		UINT Resolution = 1;
+
+		char Red, Green, Blue;
 	};
 
-	struct Sun
+	struct DirectionalLight
 	{
 		DirectX::XMFLOAT3 Direction;
-
 		// Red Green Blue Illumination (1 Byte each)
 		uint32_t packedData;
 	};
@@ -35,6 +42,7 @@ namespace rendering
 		~RenderManager();
 
 		void Initialize(
+			const SUN_DESC& sunDesc,
 			const UINT clientWidth,
 			const UINT clientHeight,
 			const char* pTitle);
@@ -87,7 +95,7 @@ namespace rendering
 		graphics::DepthBuffer m_depthBuffer;
 
 		// Sun
-		Sun m_sunData;
+		DirectionalLight m_sunData;
 		graphics::BufferRegion m_sunDataRegion;
 
 		graphics::BufferRegion m_sunViewMatrix;

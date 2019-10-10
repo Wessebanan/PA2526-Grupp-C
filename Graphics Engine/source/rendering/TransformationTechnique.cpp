@@ -1,5 +1,6 @@
 #include "../..//includes/rendering/RenderTechnique.h"
 #include "../..//includes/rendering/TransformationTechnique.h"
+#include "../..//includes/rendering/HLSLFunctions.h"
 
 namespace rendering
 {
@@ -31,23 +32,46 @@ namespace rendering
 		float4x4 gPerspective;
 	};
 
+	cbuffer gSunCam : register (b3)
+	{
+		float4x4 gViewSun;
+	};
+
+	cbuffer gSunOrto : register (b4)
+	{
+		float4x4 gOrtographicsSun;
+	};
+
+	cbuffer SunData : register (b5)
+	{
+		float3 gSunDirection;
+		uint gSunData;
+	};
+
 	struct VSOUT
 	{
-		float4 pos	    : SV_POSITION;
-		float2 uv		: UV0;
+		float4 pos			: SV_POSITION;
+		float4 sunPos		: POSITION1;
+		float4 finalColor	: COLOR0;
 	};
 
 	VSOUT main(
 		float3 pos		: POSITION0, 
+		float3 normal	: NORMAL0,
 		float2 uv		: UV0,
 		uint instance	: INDEX0)
 	{
 		VSOUT output;
 
-		float4x4 wvp = mul(gPerspective, mul(gView, gMesh[instance].World));
+		float4x4 wvpCam = mul(gPerspective, mul(gView, gMesh[instance].World));
+		float4x4 wvpSun	= mul(gOrtographicsSun, mul(gViewSun, gMesh[instance].World));
 
-		output.pos	= mul(wvp, float4(pos, 1.0f));
-		output.uv	= uv;
+		output.pos		= mul(wvpCam, float4(pos, 1.0f));
+		output.sunPos	= mul(wvpSun, float4(pos, 1.0f));
+
+		float3 nor = mul(gMesh[instance].World, float4(normal, 0.0f)).xyz;
+		float illu = dot(gSunDirection, normalize(nor));
+		output.finalColor = illu;
 	
 		return output;
 	}	
@@ -58,13 +82,15 @@ namespace rendering
 
 	struct PSIN
 	{
-		float4 pos	    : SV_POSITION;
-		float2 uv		: UV0;
+		float4 pos			: SV_POSITION;
+		float4 sunPos		: POSITION1;
+		float4 finalColor	: COLOR0;
 	};
 
 	float4 main(PSIN input) : SV_TARGET
 	{ 
-		return float4(input.uv.xy, 1.0f, 1.0f);
+		float in_shadow = shadow(input.sunPos.xy, input.sunPos.z - 0.001f);
+		return float4(input.finalColor.xyz * in_shadow, 1.0f);
 	}	
 
 	)";
@@ -83,9 +109,13 @@ namespace rendering
 	void RenderTechnique::Initialize<RENDER_TRANSFORMATION>(
 		graphics::DeviceInterface* pDevice)
 	{
+		std::string pixel_shader;
+		pixel_shader.append(hlsl_functions::gShadow);
+		pixel_shader.append(gPixelShader);
+
 		pDevice->CreateGraphicsPipeline(
 			gVertexShader,
-			gPixelShader,
+			pixel_shader,
 			&gpData->pipeline);
 	}
 

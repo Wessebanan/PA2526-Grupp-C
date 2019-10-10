@@ -34,6 +34,9 @@ namespace graphics
 
 		if (pErrorBlob)
 		{
+			OutputDebugStringA("COMPILING SHADER ERROR: ");
+			OutputDebugStringA(pTarget);
+			OutputDebugStringA(" : ");
 			OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
 			pErrorBlob->Release();
 			return FALSE;
