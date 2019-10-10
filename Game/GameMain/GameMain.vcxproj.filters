@@ -10,6 +10,7 @@
     <ClCompile Include="Physics\MovementSystem.cpp" />
     <ClCompile Include="gameUtility\UtilityFunctions.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
+    <ClCompile Include="gameSound\SoundECSSystems.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -61,6 +62,10 @@
     <ClInclude Include="Input\InitInputBackendComponent.h" />
     <ClInclude Include="Input\InitInputComponents.h" />
     <ClInclude Include="Input\InitInputSystems.h" />
+    <ClInclude Include="gameSound\InitSound.h" />
+    <ClInclude Include="gameSound\SoundECSEvents.h" />
+    <ClInclude Include="gameSound\SoundECSSystems.h" />
+    <ClInclude Include="gameSound\SoundGlobals.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h">
       <Filter>SceneObjects</Filter>
     </ClInclude>
