@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="..\..\Game\GameMain\gameUtility\CameraEcsFunctions.cpp">
+      <Filter>External Files in Game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Game\GameMain\gameUtility\UtilityEcsFunctions.cpp">
+      <Filter>External Files in Game</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DebugInfoTestHeader.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\CameraComponents.h">
+      <Filter>External Files in Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\CameraEcsFunctions.h">
+      <Filter>External Files in Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\CameraEvents.h">
+      <Filter>External Files in Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\CameraSystems.h">
+      <Filter>External Files in Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\DebugInfo.h">
+      <Filter>External Files in Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\GlobalsCamera.h">
+      <Filter>External Files in Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\UtilityComponents.h">
+      <Filter>External Files in Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\UtilityEcsFunctions.h">
+      <Filter>External Files in Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\UtilityEvents.h">
+      <Filter>External Files in Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\UtilitySystems.h">
+      <Filter>External Files in Game</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="External Files in Game">
+      <UniqueIdentifier>{b436de79-0328-4b7a-b199-1b7e31771cf9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

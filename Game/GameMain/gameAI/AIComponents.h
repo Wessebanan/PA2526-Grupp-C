@@ -2,8 +2,8 @@
 
 #include "ecsComponentIncludes.h"
 #include <vector>
-#include "AIGlobals.h"
 #include "..//gameSceneObjects/SceneObjectGlobals.h"
+#include "../../AI/includes/AIGlobals.h"
 
 namespace ecs
 {

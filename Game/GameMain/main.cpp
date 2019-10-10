@@ -5,7 +5,7 @@
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
 
-#include "gameUtility/CameraFunctions.h"
+#include "gameUtility/CameraEcsFunctions.h"
 
 #include "Input/InitInput.h"
 #include "Input/InitInterpreter.h"
