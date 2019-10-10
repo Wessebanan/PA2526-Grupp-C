@@ -7,8 +7,7 @@
 using TileType = unsigned int;
 enum TileTypes //enum used in AIcomponents right now 
 {
-	GRASS,
-	STONE,
+	GAMEFIELD,
 	WATER,
 
 	TILETYPECOUNT,

@@ -58,6 +58,8 @@ int main()
 	InitArmy(ecs);
 	InitSceneObjects(ecs);
 
+	CameraEcsFunctions::CreateDevCamera(ecs);
+	ecs.createSystem<ecs::systems::UpdateCameraSystem>();
 	
 	rendering::RenderManager mng;
 	mng.Initialize(1600, 900, "D3D11");
@@ -78,11 +80,19 @@ int main()
 	
 	TransformViewMatrix(view_matrix, x, y, z);
 
-	mng.SetViewMatrix(view_matrix);
+
+	
 
 
 	// to get components in the loop
 	ecs::ComponentIterator itt;
+
+	itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
+
+
+	mng.SetViewMatrix(p_cam_comp->viewMatrix);
+	//mng.SetViewMatrix(view_matrix);
 	pWnd->Show();
 	ecs.update(0.1f);
 	while (pWnd->IsOpen())
@@ -93,11 +103,18 @@ int main()
 			
 
 			// Moves the camera wiht input, should be removed when camera gets implemented
-			itt = ecs.getAllComponentsOfType(ecs::components::KeyboardComponent::typeID);
-			ecs::components::KeyboardComponent* p_kb = (ecs::components::KeyboardComponent*)itt.next();
+			itt = ecs.getAllComponentsOfType(ecs::components::MouseComponent::typeID);
+			ecs::components::MouseComponent* p_kb = (ecs::components::MouseComponent*)itt.next();
+
+
+
+			cout << p_kb->diffFloat2.x << " " << p_kb->diffFloat2.y << endl;
+
+			//cout << p_kb->diffLength << endl;
+
 
 			float move_speed = 0.01f;
-			if (p_kb->W)
+			/*if (p_kb->W)
 			{
 				z += move_speed;
 			}
@@ -115,11 +132,12 @@ int main()
 			if (p_kb->D)
 			{
 				x += move_speed;
-			}
+			}*/
 
-			TransformViewMatrix(view_matrix, x, y, z);
+			//TransformViewMatrix(view_matrix, x, y, z);
 
-			mng.SetViewMatrix(view_matrix);
+			mng.SetViewMatrix(p_cam_comp->viewMatrix);
+			//mng.SetViewMatrix(view_matrix);
 			
 			mng.Draw();
 			pWnd->Present();
