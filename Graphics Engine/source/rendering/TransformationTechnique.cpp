@@ -42,17 +42,13 @@ namespace rendering
 		float4x4 gOrtographicsSun;
 	};
 
-	cbuffer SunData : register (b5)
-	{
-		float3 gSunDirection;
-		uint gSunData;
-	};
-
 	struct VSOUT
 	{
 		float4 pos			: SV_POSITION;
 		float4 sunPos		: POSITION1;
-		float4 finalColor	: COLOR0;
+
+		float3 color		: COLOR0;
+		float3 normal		: NORMAL0;
 	};
 
 	VSOUT main(
@@ -69,9 +65,8 @@ namespace rendering
 		output.pos		= mul(wvpCam, float4(pos, 1.0f));
 		output.sunPos	= mul(wvpSun, float4(pos, 1.0f));
 
-		float3 nor = mul(gMesh[instance].World, float4(normal, 0.0f)).xyz;
-		float illu = dot(gSunDirection, normalize(nor));
-		output.finalColor = illu;
+		output.normal	= mul(gMesh[instance].World, float4(normal, 0.0f)).xyz;
+		output.color	= float3(1.0f, 1.0f, 1.0f);
 	
 		return output;
 	}	
@@ -80,17 +75,31 @@ namespace rendering
 
 	const std::string gPixelShader = R"(
 
+	cbuffer SunData : register (b0)
+	{
+		float3 gSunDirection;
+		uint gSunData;
+	};
+
 	struct PSIN
 	{
 		float4 pos			: SV_POSITION;
 		float4 sunPos		: POSITION1;
-		float4 finalColor	: COLOR0;
+
+		float3 color		: COLOR0;
+		float3 normal		: NORMAL0;
 	};
 
 	float4 main(PSIN input) : SV_TARGET
 	{ 
-		float in_shadow = shadow(input.sunPos.xy, input.sunPos.z - 0.001f);
-		return float4(input.finalColor.xyz * in_shadow, 1.0f);
+		float4 sun_color = unpack(gSunData) / 256.0f;
+		float illu = dot(gSunDirection, normalize(input.normal));
+
+		float3 finalColor = input.color * sun_color.rgb * sun_color.a;
+
+		float in_shadow = shadow(input.sunPos.xy, input.sunPos.z);
+		//return float4(input.normal, 1.0f);
+		return float4(finalColor.xyz * in_shadow + finalColor.xyz * 0.1f, 1.0f);
 	}	
 
 	)";
@@ -110,6 +119,7 @@ namespace rendering
 		graphics::DeviceInterface* pDevice)
 	{
 		std::string pixel_shader;
+		pixel_shader.append(hlsl_functions::gUnpack);
 		pixel_shader.append(hlsl_functions::gShadow);
 		pixel_shader.append(gPixelShader);
 

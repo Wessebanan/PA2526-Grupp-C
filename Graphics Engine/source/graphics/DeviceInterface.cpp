@@ -426,9 +426,7 @@ namespace graphics
 	}
 
 	void DeviceInterface::DeleteGraphicsPipeline(GraphicsPipeline* pPipeline)
-	{/*
-		m_pipelineArray.DeleteGraphicsPipeline(pPipeline);*/
-
+	{
 		pPipeline->Release();
 	}
 

@@ -5,7 +5,7 @@
 #include "../gameAI/AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
 
-void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
+void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* mng)
 {
 	using namespace rendering;
 	using namespace DirectX;
@@ -14,8 +14,8 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 		float x, y, z;
 		uint32_t color;
 	};
-	float4* pTilePosition = (float4*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
-	XMFLOAT4X4* p_unit_pos = (XMFLOAT4X4*)mng.GetTechniqueModelBuffer(RENDER_TRANSFORMATION);
+	float4* pTilePosition = (float4*)mng->GetTechniqueModelBuffer(RENDER_DEFAULT);
+	XMFLOAT4X4* p_unit_pos = (XMFLOAT4X4*)mng->GetTechniqueModelBuffer(RENDER_TRANSFORMATION);
 
 	UINT index = 0;
 	ecs::ComponentIterator itt;

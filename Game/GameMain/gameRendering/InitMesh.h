@@ -6,7 +6,7 @@
 
 
 
-void InitMesh(rendering::RenderManager& mng)
+void InitMesh(rendering::RenderManager* mng)
 {
 	using namespace rendering;
 	using namespace DirectX;
@@ -14,7 +14,7 @@ void InitMesh(rendering::RenderManager& mng)
 
 	//ModelLoader::Mesh tile("../hexagon_tile.fbx");
 	//ModelLoader::Mesh tile2("../hexagon_tile2.fbx");
-	ModelLoader::Mesh tile3("../hexagon_tile3.fbx");
+	ModelLoader::Mesh tile3("../hexagon.fbx");
 	ModelLoader::Mesh dude("../dudeMesh0.fbx");
 
 	int mesh_tile; // tile
@@ -22,12 +22,13 @@ void InitMesh(rendering::RenderManager& mng)
 		VERTEX_BUFFER_DATA vertex_data = { NULL };
 		vertex_data.VertexCount = tile3.GetVertexPositionVector()->size();
 		vertex_data.pVertexData = tile3.GetVertexPositionVector()->data();
+		vertex_data.pNormalsData = tile3.GetNormalVector()->data();
 
 		INDEX_BUFFER_DATA index_data = { NULL };
-		index_data.IndexCount = tile3.GetIndexVector()->size() * 4;
+		index_data.IndexCount = tile3.GetIndexVector()->size();
 		index_data.pIndexData = tile3.GetIndexVector()->data();
 
-		mesh_tile = mng.CreateMesh(
+		mesh_tile = mng->CreateMesh(
 			&vertex_data,
 			&index_data);
 	}
@@ -38,13 +39,14 @@ void InitMesh(rendering::RenderManager& mng)
 		vertex_data.VertexCount = dude.GetVertexPositionVector()->size();
 
 		vertex_data.pVertexData = dude.GetVertexPositionVector()->data();
+		vertex_data.pNormalsData = dude.GetVertexPositionVector()->data();
 		vertex_data.pTextureCoordData = dude.GetUVVector()->data();
 
 		INDEX_BUFFER_DATA index_data = { NULL };
-		index_data.IndexCount = dude.GetIndexVector()->size() * 4;
+		index_data.IndexCount = dude.GetIndexVector()->size();
 		index_data.pIndexData = dude.GetIndexVector()->data();
 
-		mesh_dude = mng.CreateMesh(
+		mesh_dude = mng->CreateMesh(
 			&vertex_data,
 			&index_data);
 	}
@@ -75,6 +77,5 @@ void InitMesh(rendering::RenderManager& mng)
 	desc[RENDER_TRANSFORMATION].pModelLayout = &m_desc[1];
 	desc[RENDER_TRANSFORMATION].ModelLayoutCount = 1;
 
-	mng.CreateModelHeap(desc);
-
+	mng->CreateModelHeap(desc);
 }

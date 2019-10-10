@@ -101,7 +101,7 @@ namespace rendering
 		graphics::BufferRegion m_sunViewMatrix;
 		graphics::BufferRegion m_sunProjMatrix;
 		graphics::DepthBuffer m_shadowMap;
-
+		UINT m_shadowMapResolution;
 
 		char* m_pMemoryForTechniques;
 	};

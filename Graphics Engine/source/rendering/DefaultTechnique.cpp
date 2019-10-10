@@ -43,17 +43,13 @@ namespace rendering
 		float4x4 gOrtographicsSun;
 	};
 
-	cbuffer SunData : register (b5)
-	{
-		float3 gSunDirection;
-		uint gSunData;
-	}
-
 	struct VSOUT
 	{
 		float4 pos			: SV_POSITION;
 		float4 sunPos		: POSITION1;
-		float4 finalColor	: COLOR0;
+
+		float3 color		: COLOR0;
+		float3 normal		: NORMAL0;
 	};
 
 	VSOUT main(
@@ -62,19 +58,15 @@ namespace rendering
 		uint instance	: INDEX0)
 	{
 		VSOUT output;
-
-		float4 mesh_color = unpack(gMesh[instance].color) / 256.0f;		
-
+	
 		float4 worldPos	= float4(pos.xyz + gMesh[instance].Pos.xyz, 1.0f);
 
 		output.pos		= mul(gPerspective, mul(gView, worldPos));
 		output.sunPos	= mul(gOrtographicsSun, mul(gViewSun, worldPos));
-		
-		float illu = dot(gSunDirection, normal);
 
-		float4 sun_color = unpack(gSunData) / 256.0f;
-
-		output.finalColor = mesh_color * illu * sun_color * sun_color.a;
+		float4 clr		= unpack(gMesh[instance].color) / 256.0f;
+		output.color	= clr.rgb;
+		output.normal	= normal;
 
 		return output;
 	}	
@@ -83,17 +75,32 @@ namespace rendering
 
 	const std::string gPixelShader = R"(
 
+	cbuffer SunData : register (b0)
+	{
+		float3 gSunDirection;
+		uint gSunData;
+	}
+
 	struct PSIN
 	{
 		float4 pos			: SV_POSITION;
 		float4 sunPos		: POSITION1;
-		float4 finalColor	: COLOR0;
+
+		float3 color		: COLOR0;
+		float3 normal		: NORMAL0;
 	};
 
 	float4 main(PSIN input) : SV_TARGET
 	{
-		float in_shadow = shadow(input.sunPos.xy, input.sunPos.z - 0.001f);
-		return float4(input.finalColor * in_shadow);
+		float4 sun_color = unpack(gSunData) / 256.0f;
+		float illu = dot(gSunDirection, normalize(input.normal));
+
+		float in_shadow = shadow(input.sunPos.xy, input.sunPos.z);
+
+		float3 finalColor = input.color * sun_color.rgb * sun_color.a;
+
+		//return float4(input.normal, 1.0f);
+		return float4(finalColor.xyz * in_shadow + finalColor.xyz * 0.1f, 1.0f);
 	}	
 
 	)";
@@ -117,6 +124,7 @@ namespace rendering
 		vertex_shader.append(gVertexShader);
 
 		std::string pixel_shader;
+		pixel_shader.append(hlsl_functions::gUnpack);
 		pixel_shader.append(hlsl_functions::gShadow);
 		pixel_shader.append(gPixelShader);
 

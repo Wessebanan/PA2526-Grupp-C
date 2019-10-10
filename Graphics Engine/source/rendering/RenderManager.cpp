@@ -130,9 +130,10 @@ namespace rendering
 			&sun_proj_matrix,
 			&m_sunProjMatrix);
 
+		m_shadowMapResolution = sunDesc.Resolution;
 		m_device.CreateDepthBuffer(
-			sunDesc.Resolution,
-			sunDesc.Resolution,
+			m_shadowMapResolution,
+			m_shadowMapResolution,
 			&m_shadowMap,
 			true);
 
@@ -144,7 +145,7 @@ namespace rendering
 		m_pContext->UploadBufferToGPU(graphics::BUFFER_UPLOAD_STATIC_DATA);
 
 		// Static Binds
-		m_pContext->VSSetConstantBuffer(5, m_sunDataRegion);
+		m_pContext->PSSetConstantBuffer(0, m_sunDataRegion);
 	}
 
 	void RenderManager::Clear(const float red, const float green, const float blue)
@@ -231,8 +232,8 @@ namespace rendering
 		m_pContext->SetViewport(
 			0,
 			0,
-			1024,
-			1024);
+			m_shadowMapResolution,
+			m_shadowMapResolution);
 
 		// Draw All
 		m_geometry.DrawAllWithoutPS(m_pContext);

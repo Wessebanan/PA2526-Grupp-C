@@ -55,7 +55,7 @@ namespace hlsl_functions
 		return gShadowMap.SampleCmpLevelZero(
 					gSmpCmp, 
 					shadowMapUV, 
-					depth);
+					depth - 0.0025f);
 	}
 
 	)";
