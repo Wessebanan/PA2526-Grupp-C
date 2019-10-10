@@ -97,6 +97,8 @@ TEST(TestingDeviceInterface, CreatePresentWindow)
 	graphics::DeviceInterface device;
 	device.Initialize();
 
+	sizeof(graphics::DeviceInterface);
+
 	graphics::RenderTarget target;
 	graphics::PresentWindow wnd;
 	{
@@ -534,9 +536,10 @@ TEST(TestingDeviceInterface, CorrectBufferRegionSizeAndLocation)
 		// check that they are correct size and on correct location
 		for (unsigned int i = 0; i < 10; i++)
 		{
-			EXPECT_EQ(regions[i].DataCount, 56);
-			EXPECT_EQ(regions[i].DataLocation, i * 56);
+			EXPECT_EQ(regions[i].DataCount, 56 * sizeof(int));
+			EXPECT_EQ(regions[i].DataLocation, i * 56 * sizeof(int));
 		}
 	}
+
 	device.Release();
 }

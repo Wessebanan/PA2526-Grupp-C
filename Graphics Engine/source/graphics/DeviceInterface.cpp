@@ -235,6 +235,10 @@ namespace graphics
 						&srv_desc,
 						&pDepthBuffer->pResource);
 				}
+				else
+				{
+					pDepthBuffer->pResource = NULL;
+				}
 
 				D3D11_DEPTH_STENCIL_VIEW_DESC desc = {};
 				desc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -261,12 +265,6 @@ namespace graphics
 		GraphicsPipeline* pPipeline)
 	{
 		return pPipeline->Initialize(m_pDevice4, vertexShader, pixelShader);
-
-		//return m_pipelineArray.CreateGraphicsPipeline(
-		//	m_pDevice4,
-		//	vertexShader,
-		//	pixelShader,
-		//	ppPipeline);
 	}
 
 	int DeviceInterface::CreateBufferRegion(

@@ -27,8 +27,8 @@ TEST(TestingRenderer, CreatingDefaultMesh)
 
 	rendering::SUN_DESC sunDesc;
 
-	rendering::RenderManager renderer;
-	renderer.Initialize(sunDesc, 800, 600, "Testing renderer");
+	rendering::RenderManager *renderer = new rendering::RenderManager;
+	renderer->Initialize(sunDesc, 800, 600, "Testing renderer");
 
 	// assign vertex data
 	rendering::VERTEX_BUFFER_DATA vb = { 0 };
@@ -36,12 +36,12 @@ TEST(TestingRenderer, CreatingDefaultMesh)
 	vb.pVertexData = vertex_data;
 
 	// create mesh with specified data
-	int meshIndex = renderer.CreateMesh(&vb, NULL);
+	int meshIndex = renderer->CreateMesh(&vb, NULL);
 	
 	// check return values
 	EXPECT_GE(meshIndex, 0);
 
-	renderer.Destroy();
+	renderer->Destroy();
 }
 
 TEST(TestingRenderer, CreatingIndexedMesh)
@@ -65,8 +65,8 @@ TEST(TestingRenderer, CreatingIndexedMesh)
 	};
 
 	rendering::SUN_DESC sunDesc;
-	rendering::RenderManager renderer;
-	renderer.Initialize(sunDesc, 800, 600, "Testing renderer");
+	rendering::RenderManager* renderer = new rendering::RenderManager;
+	renderer->Initialize(sunDesc, 800, 600, "Testing renderer");
 
 	// Assign vertex data
 	rendering::VERTEX_BUFFER_DATA vb = { 0 };
@@ -79,12 +79,12 @@ TEST(TestingRenderer, CreatingIndexedMesh)
 	ib.pIndexData = indices;
 
 	// Create mesh with specified data
-	int meshIndex = renderer.CreateMesh(&vb, &ib);
+	int meshIndex = renderer->CreateMesh(&vb, &ib);
 
 	// check return values
 	EXPECT_GE(meshIndex, 0);
 
-	renderer.Destroy();
+	renderer->Destroy();
 }
 
 TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
@@ -93,8 +93,8 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 	using namespace DirectX;
 
 	rendering::SUN_DESC sunDesc;
-	RenderManager mng;
-	mng.Initialize(sunDesc, 1280, 720, "D3D11");
+	RenderManager* mng = new RenderManager;
+	mng->Initialize(sunDesc, 1280, 720, "D3D11");
 
 	struct float3
 	{
@@ -113,7 +113,7 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 		data.VertexCount = 3;
 		data.pVertexData = triangle;
 
-		mesh_index0 = mng.CreateMesh(&data, nullptr);
+		mesh_index0 = mng->CreateMesh(&data, nullptr);
 	}
 
 	int mesh_index1; // Quad
@@ -132,7 +132,7 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 		data.VertexCount = 6;
 		data.pVertexData = quad;
 
-		mesh_index1 = mng.CreateMesh(&data, nullptr);
+		mesh_index1 = mng->CreateMesh(&data, nullptr);
 	}
 
 	struct float4
@@ -159,11 +159,11 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 	desc[RENDER_DEFAULT].ModelLayoutCount = ARRAYSIZE(m_desc);
 
 
-	mng.CreateModelHeap(desc);
+	mng->CreateModelHeap(desc);
 
-	graphics::PresentWindow* pWnd = mng.GetPresentWindow();
+	graphics::PresentWindow* pWnd = mng->GetPresentWindow();
 
-	float4* tri_array = (float4*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
+	float4* tri_array = (float4*)mng->GetTechniqueModelBuffer(RENDER_DEFAULT);
 
 	for (UINT x = 0; x < width; x++)
 	{
@@ -187,9 +187,9 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 			{ 0.0f, 1.0f,  0.0f }
 	));
 
-	mng.SetViewMatrix(viewMatrix);
+	mng->SetViewMatrix(viewMatrix);
 
-	mng.Clear(0.0f, 0.0f, 0.0f);
+	mng->Clear(0.0f, 0.0f, 0.0f);
 
 	XMStoreFloat4x4(&viewMatrix,
 		XMMatrixLookToLH(
@@ -198,10 +198,10 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 			{ 0.0f, 1.0f,  0.0f }
 	));
 
-	mng.SetViewMatrix(viewMatrix);
+	mng->SetViewMatrix(viewMatrix);
 
-	mng.Draw();
+	mng->Draw();
 	pWnd->Present();
 
-	mng.Destroy();
+	mng->Destroy();
 }
