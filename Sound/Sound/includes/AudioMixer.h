@@ -1,6 +1,6 @@
 #pragma once
-#include "Plugin.h"
-#include "Voice.h"
+#include "AudioPlugin.h"
+#include "AudioVoice.h"
 namespace Audio
 {
 	namespace Sound

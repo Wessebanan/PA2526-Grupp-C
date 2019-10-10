@@ -1,6 +1,6 @@
 #pragma once
-#include "SoundHelpers.h"
-#include "SoundFile.h"
+#include "AudioHelpers.h"
+#include "AudioFile.h"
 
 namespace Audio
 {

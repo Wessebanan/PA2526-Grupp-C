@@ -1,4 +1,4 @@
-#include "Plugin.h"
+#include "AudioPlugin.h"
 #include <cmath>
 
 Audio::Plugin::Sampler::Sampler(FileData* pFile, int repeatAmount)

@@ -1,4 +1,4 @@
-#include "SoundHelpers.h"
+#include "AudioHelpers.h"
 
 Audio::Samples Audio::ToSamples(const float seconds)
 {

@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
-#include "SoundEngine.h"
-#include "Mixer.h"
-#include "SoundBank.h"
+#include "AudioEngine.h"
+#include "AudioMixer.h"
+#include "AudioBank.h"
 
 enum SoundFlags
 {

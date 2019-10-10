@@ -1,9 +1,9 @@
 #pragma once
 #include <portaudio.h>
 #include <thread>
-#include "SoundHelpers.h"
-#include "Plugin.h"
-#include "Mixer.h"
+#include "AudioHelpers.h"
+#include "AudioPlugin.h"
+#include "AudioMixer.h"
 
 namespace Audio
 {

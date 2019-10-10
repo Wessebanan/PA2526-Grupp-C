@@ -15,54 +15,54 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SoundEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Plugin.cpp">
+    <ClCompile Include="AudioMixer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SoundHelpers.cpp">
+    <ClCompile Include="AudioPlugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Voice.cpp">
+    <ClCompile Include="AudioEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Mixer.cpp">
+    <ClCompile Include="AudioHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="includes\SoundFile.cpp">
+    <ClCompile Include="AudioVoice.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="includes\SoundBank.cpp">
+    <ClCompile Include="AudioBank.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\SoundEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\RingBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\Plugin.h">
+    <ClInclude Include="includes\AudioMixer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\SoundHelpers.h">
+    <ClInclude Include="includes\AudioPlugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\Mixer.h">
+    <ClInclude Include="includes\AudioBank.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\Voice.h">
+    <ClInclude Include="includes\AudioEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\SoundBank.h">
+    <ClInclude Include="includes\AudioFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\SoundFile.h">
+    <ClInclude Include="includes\AudioHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\AudioVoice.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,5 @@
 #pragma once
-#include "Plugin.h"
+#include "AudioPlugin.h"
 
 namespace Audio
 {

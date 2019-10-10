@@ -1,5 +1,5 @@
 #pragma once
-#include "SoundFile.h"
+#include "AudioFile.h"
 namespace Audio
 {
 	class Bank
