@@ -12,12 +12,6 @@
     <ClCompile Include="..\GameMain\UI\UISystems.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameMain\gameUtility\CameraFunctions.cpp">
-      <Filter>Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameMain\gameUtility\UtilityFunctions.cpp">
-      <Filter>Utility</Filter>
-    </ClCompile>
     <ClCompile Include="..\GameMain\gameAI\AIEcsFunctions.cpp">
       <Filter>AI</Filter>
     </ClCompile>
@@ -29,6 +23,12 @@
     </ClCompile>
     <ClCompile Include="..\..\AI\AI\includes\GridProp.cpp">
       <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\gameUtility\CameraEcsFunctions.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\gameUtility\UtilityEcsFunctions.cpp">
+      <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -60,9 +60,6 @@
     <ClInclude Include="..\GameMain\gameUtility\CameraEvents.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\gameUtility\CameraFunctions.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\GameMain\gameUtility\CameraSystems.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -76,9 +73,6 @@
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\GameMain\gameUtility\UtilityEvents.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameMain\gameUtility\UtilityFunctions.h">
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="..\GameMain\gameUtility\UtilitySystems.h">
@@ -128,6 +122,12 @@
     </ClInclude>
     <ClInclude Include="..\GameMain\UI\UISystems.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\CameraEcsFunctions.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\UtilityEcsFunctions.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
