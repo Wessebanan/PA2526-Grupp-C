@@ -41,7 +41,7 @@ ecs::systems::SoundMessageSystem::~SoundMessageSystem()
 bool ecs::systems::SoundMessageSystem::Init()
 {
 	// Initialize portaudio
-	mSoundPaHandler = new Sound::PaHandler();
+	mSoundPaHandler = new Audio::PaHandler();
 	if (mSoundPaHandler->result() != paNoError)
 	{
 		std::cerr << "An error occured while using the portaudio stream"
@@ -52,7 +52,7 @@ bool ecs::systems::SoundMessageSystem::Init()
 	}
 
 	// Create a new mixer
-	mSoundMixer = new Sound::Mixer();
+	mSoundMixer = new Audio::Mixer();
 
 	if (!SetupEngine())
 	{
@@ -84,21 +84,21 @@ void ecs::systems::SoundMessageSystem::readEvent(BaseEvent& rEvent, float delta)
 	
 	// TEMPORARY: PlaySound and PlayMusic is the same for now
 	ecs::events::PlaySound* p_event = static_cast<ecs::events::PlaySound*>(&rEvent);
-	Sound::FileData* temp_data = (*mSoundBank)[p_event->soundName];
+	Audio::FileData* temp_data = (*mSoundBank)[p_event->soundName];
 	if (temp_data == nullptr)
 	{
 		// No point in playing nothing
 		return;
 	}
 	bool temp_loop_bool = p_event->soundFlags & SoundFlags::REPEAT;
-	Sound::Plugin::Plugin* temp_plugin = new Sound::Plugin::Sampler(temp_data, (temp_loop_bool ? 0 : 1));
+	Audio::Plugin::Plugin* temp_plugin = new Audio::Plugin::Sampler(temp_data, (temp_loop_bool ? 0 : 1));
 	mSoundMixer->AddSoundMessage({ temp_plugin });
 }
 
 bool ecs::systems::SoundMessageSystem::SetupEngine()
 {
 	// Create a new engine
-	mSoundEngine = new Sound::Engine();
+	mSoundEngine = new Audio::Engine();
 	// Use the mixer as the engines mixer
 	mSoundEngine->UseThisMixer(mSoundMixer);
 
@@ -125,6 +125,6 @@ bool ecs::systems::SoundMessageSystem::SetupEngine()
 bool ecs::systems::SoundMessageSystem::SetupBank()
 {
 	// Create a new bank and load all sound effects
-	mSoundBank = new Sound::Bank();
+	mSoundBank = new Audio::Bank();
 	return mSoundBank->LoadMultipleFiles(SOUND_NAME_PATHS, sizeof(SOUND_NAME_PATHS) / sizeof(std::string));
 }
