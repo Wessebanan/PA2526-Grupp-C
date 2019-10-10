@@ -96,6 +96,7 @@
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameSound\SoundECSSystems.cpp" />
+    <ClCompile Include="Input\InitInputSystems.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
     <ClCompile Include="gameUtility\UtilityEcsFunctions.cpp" />
     <ClCompile Include="main.cpp" />
@@ -126,6 +127,7 @@
     <ClInclude Include="gameUtility\CameraSystems.h" />
     <ClInclude Include="gameUtility\DebugInfo.h" />
     <ClInclude Include="gameUtility\GlobalsCamera.h" />
+    <ClInclude Include="gameUtility\InitCamera.h" />
     <ClInclude Include="gameUtility\UtilityComponents.h" />
     <ClInclude Include="gameUtility\UtilityEvents.h" />
     <ClInclude Include="gameUtility\UtilityEcsFunctions.h" />

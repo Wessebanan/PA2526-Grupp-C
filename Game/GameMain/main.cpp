@@ -5,29 +5,16 @@
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
 
-#include "gameUtility/CameraEcsFunctions.h"
-
 #include "Input/InitInput.h"
 #include "Input/InitInterpreter.h"
+
+#include "gameUtility/InitCamera.h"
 
 #include "gameSceneObjects/InitSceneObjectsh.h"
 #include "gameSceneObjects/InitBiomes.h"
 
 #include "gameSound/InitSound.h"
 
-void TransformViewMatrix(
-	DirectX::XMFLOAT4X4& rViewMatrix,
-	const float x,
-	const float y,
-	const float z)
-{
-	DirectX::XMStoreFloat4x4(&rViewMatrix,
-		DirectX::XMMatrixLookToLH(
-			{ x, y, z },
-			{ 0.0f, 0.0f,  1.0f },
-			{ 0.0f, 1.0f,  0.0f }
-	));
-}
 
 using namespace ecs;
 
@@ -58,9 +45,8 @@ int main()
 	InitArmy(ecs);
 	InitSceneObjects(ecs);
 
-	CameraEcsFunctions::CreateDevCamera(ecs);
-	ecs.createSystem<ecs::systems::UpdateCameraSystem>();
-	
+	InitCamera(ecs);
+
 	rendering::RenderManager mng;
 	mng.Initialize(1600, 900, "D3D11");
 
@@ -72,18 +58,6 @@ int main()
 	PlaceMesh(ecs, mng);
 
 
-
-	float x = 6.0f;
-	float y = 5.0f;
-	float z = -10.0f;
-	XMFLOAT4X4 view_matrix;
-	
-	TransformViewMatrix(view_matrix, x, y, z);
-
-
-	
-
-
 	// to get components in the loop
 	ecs::ComponentIterator itt;
 
@@ -92,7 +66,6 @@ int main()
 
 
 	mng.SetViewMatrix(p_cam_comp->viewMatrix);
-	//mng.SetViewMatrix(view_matrix);
 	pWnd->Show();
 	ecs.update(0.1f);
 	while (pWnd->IsOpen())
@@ -102,42 +75,7 @@ int main()
 			mng.Clear(0.2f, 0.1f, 0.1f);
 			
 
-			// Moves the camera wiht input, should be removed when camera gets implemented
-			itt = ecs.getAllComponentsOfType(ecs::components::MouseComponent::typeID);
-			ecs::components::MouseComponent* p_kb = (ecs::components::MouseComponent*)itt.next();
-
-
-
-			cout << p_kb->diffFloat2.x << " " << p_kb->diffFloat2.y << endl;
-
-			//cout << p_kb->diffLength << endl;
-
-
-			float move_speed = 0.01f;
-			/*if (p_kb->W)
-			{
-				z += move_speed;
-			}
-
-			if (p_kb->S)
-			{
-				z -= move_speed;
-			}
-
-			if (p_kb->A)
-			{
-				x -= move_speed;
-			}
-
-			if (p_kb->D)
-			{
-				x += move_speed;
-			}*/
-
-			//TransformViewMatrix(view_matrix, x, y, z);
-
 			mng.SetViewMatrix(p_cam_comp->viewMatrix);
-			//mng.SetViewMatrix(view_matrix);
 			
 			mng.Draw();
 			pWnd->Present();

@@ -18,6 +18,7 @@
       <Filter>Camera</Filter>
     </ClCompile>
     <ClCompile Include="gameSound\SoundECSSystems.cpp" />
+    <ClCompile Include="Input\InitInputSystems.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -81,6 +82,9 @@
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="gameUtility\CameraEcsFunctions.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\InitCamera.h">
       <Filter>Camera</Filter>
     </ClInclude>
   </ItemGroup>
