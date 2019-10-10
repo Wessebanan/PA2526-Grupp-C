@@ -347,6 +347,7 @@ TEST(SoundAPI, SoundBankReadMany)
 	EXPECT_FALSE(bank_3.LoadMultipleFiles(FILE_NAMES_3, 27));
 }
 
+
 TEST(SoundAPI, MusicThroughMessaging)
 {
 	// Initialize a Audio engine, mixer and bank
@@ -355,12 +356,14 @@ TEST(SoundAPI, MusicThroughMessaging)
 	Audio::Bank bank;
 	Audio::PaHandler pa_init;
 
+	// Read song into bank
 	std::string file_paths[] =
 	{
 		"cc_song.wav"
 	};
 	ASSERT_TRUE(bank.LoadMultipleFiles(file_paths, 1));
 
+	// Start engine
 	SetupEngine(engine, mixer, pa_init);
 	
 	std::cout << "Add music..." << std::endl;
@@ -397,6 +400,7 @@ TEST(SoundAPI, MusicAndSoundMessaging)
 	Audio::Bank bank;
 	Audio::PaHandler pa_init;
 
+	// Read both music and sound effect
 	std::string file_paths[] =
 	{
 		"cc_song.wav",
@@ -404,10 +408,11 @@ TEST(SoundAPI, MusicAndSoundMessaging)
 	};
 	ASSERT_TRUE(bank.LoadMultipleFiles(file_paths, 2));
 
+	// Setup engine
 	SetupEngine(engine, mixer, pa_init);
 
 	std::cout << "Adds music every second (shouldn't interrupt song)" << std::endl;
-	std::cout << "Adds sound every 1/5 second" << std::endl;
+	std::cout << "Adds sound 20 times a second" << std::endl;
 	for (int i = 0; i < 3; i++)
 	{
 		mixer.AddMusicMessage({
