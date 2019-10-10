@@ -1,5 +1,5 @@
-#include "SoundECSSystems.h"
-#include "SoundGlobals.h"
+#include "AudioECSSystems.h"
+#include "AudioGlobals.h"
 #include <iostream>
 
 ecs::systems::SoundMessageSystem::SoundMessageSystem()

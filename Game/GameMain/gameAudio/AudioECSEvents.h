@@ -1,6 +1,6 @@
 #pragma once
 #include "ecsEventIncludes.h"
-#include "SoundGlobals.h"
+#include "AudioGlobals.h"
 
 namespace ecs
 {

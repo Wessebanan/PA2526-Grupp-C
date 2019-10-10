@@ -91,7 +91,7 @@
     <ClCompile Include="gameAI\AIFunctions.cpp" />
     <ClCompile Include="gameAI\GridFunctions.cpp" />
     <ClCompile Include="gameAI\GridProp.cpp" />
-    <ClCompile Include="gameSound\SoundECSSystems.cpp" />
+    <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
     <ClCompile Include="gameUtility\CameraFunctions.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
     <ClCompile Include="gameUtility\UtilityFunctions.cpp" />
@@ -109,12 +109,12 @@
     <ClInclude Include="gameAI\GridProp.h" />
     <ClInclude Include="gameAI\InitArmy.h" />
     <ClInclude Include="gameAI\InitGrid.h" />
+    <ClInclude Include="gameAudio\AudioECSEvents.h" />
+    <ClInclude Include="gameAudio\AudioECSSystems.h" />
+    <ClInclude Include="gameAudio\AudioGlobals.h" />
+    <ClInclude Include="gameAudio\InitAudio.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
-    <ClInclude Include="gameSound\InitSound.h" />
-    <ClInclude Include="gameSound\SoundECSEvents.h" />
-    <ClInclude Include="gameSound\SoundECSSystems.h" />
-    <ClInclude Include="gameSound\SoundGlobals.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
     <ClInclude Include="gameUtility\CameraEvents.h" />
     <ClInclude Include="gameUtility\CameraFunctions.h" />

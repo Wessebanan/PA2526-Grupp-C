@@ -10,7 +10,7 @@
 #include "Input/InitInput.h"
 #include "Input/InitInterpreter.h"
 
-#include "gameSound/InitSound.h"
+#include "gameAudio/InitAudio.h"
 
 void TransformViewMatrix(
 	DirectX::XMFLOAT4X4& rViewMatrix,

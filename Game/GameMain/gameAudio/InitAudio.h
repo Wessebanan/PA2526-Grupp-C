@@ -1,7 +1,7 @@
 #pragma once
 #include "ecs.h"
-#include "SoundGlobals.h"
-#include "SoundECSSystems.h"
+#include "AudioGlobals.h"
+#include "AudioECSSystems.h"
 
 // Creates the sound message system and init it
 bool InitSound(ecs::EntityComponentSystem& rECS)
