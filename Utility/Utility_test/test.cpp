@@ -1,4 +1,4 @@
-#include "pch.h"
+#include "gtest/gtest.h"
 #include "ecs.h"
 #include "../../Game/GameMain/gameUtility/UtilityEcsFunctions.h"
 #include "../../Game/GameMain/gameUtility/CameraEcsFunctions.h"
