@@ -15,13 +15,16 @@
     <ClCompile Include="..\GameMain\gameUtility\UtilityFunctions.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameMain\gameAI\AIFunctions.cpp">
+    <ClCompile Include="..\GameMain\gameAI\AIEcsFunctions.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameMain\gameAI\GridFunctions.cpp">
+    <ClCompile Include="..\GameMain\gameAI\GridEcsFunctions.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameMain\gameAI\GridProp.cpp">
+    <ClCompile Include="..\..\AI\AI\includes\GridFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\AI\AI\includes\GridProp.cpp">
       <Filter>AI</Filter>
     </ClCompile>
   </ItemGroup>
@@ -84,25 +87,28 @@
     <ClInclude Include="..\GameMain\gameAI\AIEvents.h">
       <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\AIFunctions.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\AIGlobals.h">
-      <Filter>AI</Filter>
-    </ClInclude>
     <ClInclude Include="..\GameMain\gameAI\AISystems.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\GridFunctions.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\GridProp.h">
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="..\GameMain\gameAI\InitArmy.h">
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="..\GameMain\gameAI\InitGrid.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\AIEcsFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\GridEcsFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AI\AI\includes\AIGlobals.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AI\AI\includes\GridFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AI\AI\includes\GridProp.h">
       <Filter>AI</Filter>
     </ClInclude>
   </ItemGroup>
