@@ -38,22 +38,22 @@ namespace ecs
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::ROCKS:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/rock.fbx";
 					break;
 				case SCENEOBJECT::CAMP:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::TREES:
-					this->mFilepath = "gameSceneObjects/models/rock.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::FLOWERS:
-					this->mFilepath = "gameSceneObjects/models/rock.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::VILAGE:
-					this->mFilepath = "gameSceneObjects/models/rock.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::SANDSTONE:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/rock.fbx";
 					break;
 				case SCENEOBJECT::PALMS:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
