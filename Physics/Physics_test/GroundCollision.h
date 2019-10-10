@@ -312,10 +312,10 @@
 
 		// Updating in 1 second intervals should set the y velocity to the acceleration of -gravity.
 		// (v = a*t = -GRAVITY*1)
-		EXPECT_FLOAT_EQ(p_movement->mVelocity.y, -GRAVITY);
+		EXPECT_FLOAT_EQ(p_movement->mVelocity.y, -p_movement->mGravity);
 
 		// And position to 0.18 (p = p_0 + v*t = 10 - GRAVITY*1).
-		EXPECT_FLOAT_EQ(p_transform->position.y, START_POSITION - GRAVITY);
+		EXPECT_FLOAT_EQ(p_transform->position.y, START_POSITION - p_movement->mGravity);
 
 		// And we're still not on ground level.
 		EXPECT_FALSE(p_movement->mOnGround);

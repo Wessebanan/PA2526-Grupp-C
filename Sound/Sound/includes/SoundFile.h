@@ -1,11 +1,11 @@
-#pragma onc
+#pragma once
 #include "SoundHelpers.h"
 //#include "tinywav.h"
 #include <string>
 
 namespace Sound
 {
-	class File
+	class FileData
 	{
 		// Following the canonical wave format header
 		// http://soundfile.sapp.org/doc/WaveFormat/
@@ -25,25 +25,27 @@ namespace Sound
 			uint32_t Subchunk2Size;
 		} WavHeader;
 	public:
-		File();
-		~File();
+		FileData();
+		~FileData();
 		// This load ALL the sample data into memory
 		// at once. In future implementations, this is 
 		// NOT a good idea for large files, since we
 		// have a limited memory budget
-		bool LoadAll(std::string& Path);
+		bool LoadAll(std::string& rPath);
 		// Deletes all loaded sample data
 		void Unload();
 		// Get the amount of frames loaded
 		// This takes into consideration amount of channels
 		Samples GetFrameCount() const;
+		// Get the amount of samples loaded
+		Samples GetSampleCount() const;
 		// Get the number of channels interleaved into
 		// the sample data
 		int GetNumChannels() const;
 		// Get a pointer to the sample data
 		float* GetDataPointer();
 		// Compare two strings and return if equal
-		bool StringIsEqual(std::string& Path);
+		bool StringIsEqual(std::string& rPath);
 	private:
 		WavHeader mHeader;
 		std::string mPath;

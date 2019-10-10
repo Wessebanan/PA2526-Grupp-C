@@ -12,6 +12,8 @@
 #define SOUND_RIGHT (1)
 #define SOUND_MAX_VOICES (12)
 #define SOUND_MAX_BANK_FILES (10)
+#define SOUND_MAX_SOUND_MESSAGES (16)
+#define SOUND_MAX_MUSIC_MESSAGES (4)
 #ifndef M_PI
 #define M_PI  (3.14159265)
 #endif
@@ -30,6 +32,6 @@ namespace Sound
 	typedef unsigned long long Samples;
 
 	// Helper functions to convert time to sample count
-	Samples ToSamples(const float Seconds);
-	float ToSeconds(const Samples SampleCount);
+	Samples ToSamples(const float seconds);
+	float ToSeconds(const Samples sampleCount);
 }

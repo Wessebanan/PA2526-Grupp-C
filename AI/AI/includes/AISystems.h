@@ -2,9 +2,9 @@
 
 #include <map>
 #include "ecsSystemIncludes.h"
-#include "InterpretWebEvents.h"
-#include "AIComponents.h"
-#include "UtilityComponents.h"
+#include "../Input/InterpretWebEvents.h"
+#include "../gameAI/AIComponents.h"
+#include "../gameUtility/UtilityComponents.h"
 #include <iostream>
 
 namespace ecs

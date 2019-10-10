@@ -1,5 +1,6 @@
 #pragma once
 #include "SoundHelpers.h"
+#include "SoundFile.h"
 
 namespace Sound
 {
@@ -22,9 +23,19 @@ namespace Sound
 					mpNext = nullptr;
 				}
 			}
-			virtual void Process(Samples Start, Samples Count, float* Data, int Channels) = 0;
+			virtual void Process(Samples start, Samples sampleCount, float* pData, int channelCount) = 0;
 		protected:
 			Plugin* mpNext;
+		};
+
+		class Sampler : public Plugin
+		{
+		public:
+			Sampler(FileData* pFile);
+			virtual void Process(Samples start, Samples sampleCount, float* pData, int channelCount);
+		private:
+			FileData* mpFile;
+			Samples mReadPointer;
 		};
 	}
 }
