@@ -269,7 +269,6 @@ namespace ecs
 		*		- EventSubscriptions (added to list, read later when ECS calls for it
 		*		- Component/Event filter
 		*/
-		size_t hello = sizeof(T);
 		T* newSystem = new T;
 
 		// Make ECS listen on ECSUser functionality. This makes ECS responsible for
