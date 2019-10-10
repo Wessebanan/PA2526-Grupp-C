@@ -46,12 +46,14 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="..\..\AI\AI\includes\AIGlobals.h" />
+    <ClInclude Include="..\..\AI\AI\includes\GridFunctions.h" />
+    <ClInclude Include="..\..\AI\AI\includes\GridProp.h" />
     <ClInclude Include="..\GameMain\gameAI\AIComponents.h" />
+    <ClInclude Include="..\GameMain\gameAI\AIEcsFunctions.h" />
     <ClInclude Include="..\GameMain\gameAI\AIEvents.h" />
-    <ClInclude Include="..\GameMain\gameAI\AIFunctions.h" />
     <ClInclude Include="..\GameMain\gameAI\AISystems.h" />
-    <ClInclude Include="..\GameMain\gameAI\GridFunctions.h" />
-    <ClInclude Include="..\GameMain\gameAI\GridProp.h" />
+    <ClInclude Include="..\GameMain\gameAI\GridEcsFunctions.h" />
     <ClInclude Include="..\GameMain\gameAI\InitArmy.h" />
     <ClInclude Include="..\GameMain\gameAI\InitGrid.h" />
     <ClInclude Include="..\GameMain\gameUtility\CameraComponents.h" />
@@ -74,9 +76,10 @@
     <ClInclude Include="Physics\ObjectCollision.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\GameMain\gameAI\AIFunctions.cpp" />
-    <ClCompile Include="..\GameMain\gameAI\GridFunctions.cpp" />
-    <ClCompile Include="..\GameMain\gameAI\GridProp.cpp" />
+    <ClCompile Include="..\..\AI\AI\includes\GridFunctions.cpp" />
+    <ClCompile Include="..\..\AI\AI\includes\GridProp.cpp" />
+    <ClCompile Include="..\GameMain\gameAI\AIEcsFunctions.cpp" />
+    <ClCompile Include="..\GameMain\gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="..\GameMain\gameUtility\CameraFunctions.cpp" />
     <ClCompile Include="..\GameMain\gameUtility\UtilityFunctions.cpp" />
     <ClCompile Include="..\GameMain\Physics\CollisionSystem.cpp" />

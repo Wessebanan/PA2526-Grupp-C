@@ -95,11 +95,7 @@
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
-    <ClCompile Include="gameAI\AIFunctions.cpp" />
-    <ClCompile Include="gameAI\GridFunctions.cpp" />
-    <ClCompile Include="gameAI\GridProp.cpp" />
     <ClCompile Include="gameSound\SoundECSSystems.cpp" />
-    <ClCompile Include="gameUtility\CameraFunctions.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
     <ClCompile Include="gameUtility\UtilityEcsFunctions.cpp" />
     <ClCompile Include="main.cpp" />
