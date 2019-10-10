@@ -199,8 +199,7 @@ namespace GridEcsFunctions
 			{
 				temp_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[i][j].Id);
 				for (int k = 0; k < 6; k++)
-				{
-					
+				{					
 					temp_component->neighboursIDArray[k] = p_gp->mGrid[i][j].neighbourIDArray[k];
 				}
 			}

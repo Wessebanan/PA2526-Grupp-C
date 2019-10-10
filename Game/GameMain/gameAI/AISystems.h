@@ -5,6 +5,7 @@
 #include "../Input/InterpretWebEvents.h"
 #include "AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
+#include "..//..//AI/includes/GridFunctions.h"
 #include <iostream>
 
 namespace ecs
@@ -52,7 +53,49 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
-				/* FILL OUT WITH LOGIC IN ANOTHER TASK */
+				int2 start_tile = 0;
+				std::vector<unsigned int> path;
+				GridProp* g_prop = GridProp::GetInstance();
+				components::TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
+				start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
+				unsigned int start_tile_id = g_prop->mGrid[start_tile.x][start_tile.y].Id;
+				path = GetPath(start_tile_id);
+			}
+			std::vector<unsigned int> GetPath(unsigned int startID)
+			{
+				std::vector<unsigned int> to_return;
+				components::TileComponent* current_tile = nullptr;
+				unsigned int next_tile_id = 0;
+				unsigned int current_tile_id = startID;
+				unsigned int last_tile_id = 0;
+				float niceTry = 999.f;
+				float lastNice = 500.f;
+				current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(startID);
+				while (/*current_tile_id != endID*/lastNice != niceTry)
+				{
+					lastNice = niceTry;
+					//niceTry = 999.f;
+					for (int i = 0; i < 6; i++)
+					{	//check if neighbour is not 0 or was the last visited tile
+						if (current_tile->neighboursIDArray[i] != 0 && current_tile->neighboursIDArray[i] != last_tile_id)
+						{	//check for the lowest niceness then that is the next tile
+
+							if (ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness < niceTry)
+							{
+								niceTry = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness;
+								next_tile_id = current_tile->neighboursIDArray[i];
+							}
+						}
+					}
+					if (lastNice != niceTry)
+					{
+						current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
+						to_return.push_back(next_tile_id);
+						last_tile_id = current_tile_id;
+						current_tile_id = next_tile_id;
+					}
+				}
+				return to_return;
 			}
 		};
 
