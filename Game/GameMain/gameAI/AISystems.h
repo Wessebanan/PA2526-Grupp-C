@@ -6,6 +6,7 @@
 #include "AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
 #include "..//..//AI/includes/GridFunctions.h"
+#include "..//..//AI/includes/GridProp.h"
 #include <iostream>
 
 namespace ecs
