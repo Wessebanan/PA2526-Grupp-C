@@ -12,6 +12,7 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 	
 	ecs::components::SceneObjectComponent scene_obj;
 	ecs::components::TransformComponent transf_comp;
+	ecs::components::ColorComponent	color_comp;
 	for (size_t i = 0; i < OBJECTCOUNT; i++)
 	{
 		// Simplefier to handle what object it is
@@ -22,7 +23,7 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 		scene_obj.AssignModel();
 
 
-		rECS.createEntity(scene_obj, transf_comp);
+		rECS.createEntity(scene_obj, transf_comp, color_comp);
 	}
 
 
@@ -37,10 +38,6 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 
 		tile_comp->biome = (BIOME)(i / 36);
 
-		ecs::components::TransformComponent* tile_transf_comp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(tile_comp->getEntityID());
-
-
-
 		
 		if (
 			i == 1 || i == 15 || i == 115
@@ -49,13 +46,22 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 			|| i == 45 || i == 55 || i == 105
 			)
 		{
+			ecs::components::TransformComponent* tile_transf_comp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(tile_comp->getEntityID());
+			ecs::components::ColorComponent* tile_color_comp = rECS.getComponentFromEntity<ecs::components::ColorComponent>(tile_comp->getEntityID());
 
 			ecs::components::SceneObjectComponent* scene_comp = (ecs::components::SceneObjectComponent*)itt2.next();
 			ecs::components::TransformComponent* scene_tranf_comp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(scene_comp->getEntityID());
+			ecs::components::ColorComponent* scene_color_comp = rECS.getComponentFromEntity<ecs::components::ColorComponent>(scene_comp->getEntityID());
 
 			scene_tranf_comp->position.x = tile_transf_comp->position.x;
 			scene_tranf_comp->position.y = tile_transf_comp->position.y;
 			scene_tranf_comp->position.z = tile_transf_comp->position.z;
+
+
+			scene_color_comp->color.x = tile_color_comp->color.x *0.8f;
+			scene_color_comp->color.y = tile_color_comp->color.y *0.8f;
+			scene_color_comp->color.z = tile_color_comp->color.z *0.8f;
+
 
 
 			scene_comp->ChangeModelByBiome(tile_comp->biome);

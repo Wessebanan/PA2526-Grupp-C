@@ -31,6 +31,7 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 	while (tileComp = (ecs::components::TileComponent*)itt.next())
 	{
 		ecs::components::TransformComponent* trComp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(tileComp->getEntityID());
+		ecs::components::ColorComponent* color_comp = rECS.getComponentFromEntity<ecs::components::ColorComponent>(tileComp->getEntityID());
 
 		pTilePosition[index].x = trComp->position.x;
 		pTilePosition[index].y = trComp->position.y;
@@ -44,16 +45,16 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 			switch (tileComp->biome)
 			{
 			case SWAMP:
-				pTilePosition[index].color = PACK(0, 30 + color_offset, 30 + color_offset, 0);
+				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
 				break;
 			case MOUNTAIN:
-				pTilePosition[index].color = PACK(50 + color_offset, 50 + color_offset, 50 + color_offset, 0);
+				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
 				break;
 			case FIELD:
-				pTilePosition[index].color = PACK(0, 150 + color_offset, 0, 0);
+				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
 				break;
 			case DESERT:
-				pTilePosition[index].color = PACK(150 + color_offset, 150 + color_offset, 0, 0);
+				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
 				break;
 			default:
 				break;
@@ -78,12 +79,13 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 	while (scene_comp = (ecs::components::SceneObjectComponent*)itt.next())
 	{
 		ecs::components::TransformComponent* trComp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(scene_comp->getEntityID());
+		ecs::components::ColorComponent* color_comp = rECS.getComponentFromEntity<ecs::components::ColorComponent>(scene_comp->getEntityID());
 
 		pTilePosition[index].x = trComp->position.x;
 		pTilePosition[index].y = trComp->position.y;
 		pTilePosition[index].z = trComp->position.z;
 
-		pTilePosition[index].color = PACK(0, 50, 0, 0);
+		pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
 		
 
 		index++;

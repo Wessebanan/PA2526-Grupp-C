@@ -35,6 +35,7 @@ int main()
 
 	// Tiles + sceneobjects + units + camera
 	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
 
 	InitInput(ecs);

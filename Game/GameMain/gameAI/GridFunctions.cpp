@@ -41,6 +41,7 @@ namespace GridFunctions
 			current_pos.z = starting_pos.z + i * mid_to_side * 2;
 			for (int j = 0; j < Columns; j++)
 			{
+				color.color = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 				
 				//Save the calculated values into the PositionComponent.
 				transform.position.x = current_pos.x;
