@@ -25,7 +25,10 @@ int main()
 		inp->updateMouse();
 		inp->updateWeb();
 
-		cout << "w = " << inp->mpWsad->keyU.pressed << endl;
+		cout << "mouse: x = " << inp->mpMouse->mDiffFloat2.x;
+		cout << "| y = " << inp->mpMouse->mDiffFloat2.y << endl;
+
+		this_thread::sleep_for(chrono::seconds(1));
 	}
 
 	////WebConnection conn;
