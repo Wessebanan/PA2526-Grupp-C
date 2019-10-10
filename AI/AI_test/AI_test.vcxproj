@@ -41,9 +41,19 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="..\..\Game\GameMain\gameAI\AIComponents.h" />
+    <ClInclude Include="..\..\Game\GameMain\gameAI\AIEcsFunctions.h" />
+    <ClInclude Include="..\..\Game\GameMain\gameAI\AIEvents.h" />
+    <ClInclude Include="..\..\Game\GameMain\gameAI\AISystems.h" />
+    <ClInclude Include="..\..\Game\GameMain\gameAI\GridEcsFunctions.h" />
+    <ClInclude Include="..\..\Game\GameMain\gameAI\InitArmy.h" />
+    <ClInclude Include="..\..\Game\GameMain\gameAI\InitGrid.h" />
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\UtilityComponents.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Game\GameMain\gameAI\AIEcsFunctions.cpp" />
+    <ClCompile Include="..\..\Game\GameMain\gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -65,7 +75,7 @@
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>X64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>

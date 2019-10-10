@@ -1,8 +1,14 @@
-#include "pch.h"
+#include "gtest/gtest.h"
 #include "ecs.h"
 #include "AIGlobals.h"
 #include "GridProp.h"
 #include "GridFunctions.h"
+#include "../../Game/GameMain/gameAI/GridEcsFunctions.h"
+#include "../../Game/GameMain/gameUtility/UtilityEcsFunctions.h"
+#include "../../Game/GameMain/gameUtility/UtilityComponents.h"
+#include "../../Game/GameMain/gameAI/AIEcsFunctions.h"
+#include "../../Game/GameMain/gameAI/AISystems.h"
+#include "../../Game/GameMain/gameAI/AIComponents.h"
 #include <iostream>
 
 
@@ -26,7 +32,7 @@ TEST(GridFunctions, InitGrid) {
 
 
 	//Call function that will create the components of the grid.
-	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius);
+	GridEcsFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius);
 	//Fetch the number of components created of each type.
 	int number_of_tile_components = my_ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
 	int number_of_transform_componenets = my_ecs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
@@ -39,7 +45,7 @@ TEST(GridFunctions, InitGrid) {
 
 TEST(GridFunctions, CreateDebugSystems) {
 	ecs::EntityComponentSystem my_ecs;
-	GridFunctions::CreateDebugSystems(my_ecs);
+	GridEcsFunctions::CreateDebugSystems(my_ecs);
 
 	int number_of_systems = my_ecs.getTotalSystemCount();
 
@@ -66,7 +72,7 @@ TEST(GridFunctions, heightMapTest) {
 
 	bool found = false;
 	int nr_of_components = 0;
-	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius); //Create grid with diffrent height
+	GridEcsFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius); //Create grid with diffrent height
 	ecs::ComponentIterator it = my_ecs.getAllComponentsOfType(ecs::components::TransformComponent::typeID); //iterator for all transform components
 	ecs::BaseComponent *p_base;
 	ecs::components::TransformComponent *p_transform;
@@ -108,7 +114,7 @@ TEST(GridFunctions, differentTypes) {
 	int nr_of_water = 0;
 	int nr_of_components = 0;
 
-	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius); //Create grid with diffrent height
+	GridEcsFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius); //Create grid with diffrent height
 	ecs::ComponentIterator it = my_ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID); //iterator for all transform components
 	ecs::BaseComponent* p_base;
 	ecs::components::TileComponent* p_tile;
@@ -181,9 +187,9 @@ TEST(AIFunctions, CreatePlayerArmies) {
 	my_ecs.initialize(desc);
 
 	//Create the grid so that we can find the starting positions for the army.
-	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius);
+	GridEcsFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius);
 	//Create the user entities and all of their unit entities.
-	AIFunctions::CreatePlayerArmies(my_ecs);
+	AIEcsFunctions::CreatePlayerArmies(my_ecs);
 
 	int expected_number_of_components = 4 * PlayerProperties::numberOfUnits * 3 + 4 + 12*12*2;
 	size_t number_of_components = my_ecs.getTotalComponentCount();
@@ -209,9 +215,9 @@ TEST(AIFunctions, SwitchStatesOfArmy) {
 	my_ecs.initialize(desc);
 
 	//Create the grid so that we can find the starting positions for the army.
-	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius);
+	GridEcsFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius);
 	//Create the user entities and all of their unit entities.
-	AIFunctions::CreatePlayerArmies(my_ecs);
+	AIEcsFunctions::CreatePlayerArmies(my_ecs);
 	my_ecs.createSystem<ecs::systems::SwitchStateSystem>();
 
 	int expected_number_of_idle_components = 12;
@@ -260,7 +266,7 @@ TEST(PotentialField, CreatePotentialField)
 	desc.systemLayerCount = 10;
 	ecs::EntityComponentSystem my_ecs;
 	my_ecs.initialize(desc);
-	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius); //Create grid with potential field
+	GridEcsFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius); //Create grid with potential field
 
 	ecs::ComponentIterator it = my_ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID); //iterator for all transform components
 	ecs::BaseComponent* p_base;
@@ -307,7 +313,7 @@ TEST(Pathfinding, FindPath)
 	desc.systemLayerCount = 10;
 	ecs::EntityComponentSystem my_ecs;
 	my_ecs.initialize(desc);
-	GridFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius); //Create grid with potential field
+	GridEcsFunctions::CreateGrid(my_ecs, nr_of_rows, nr_of_columns, radius); //Create grid with potential field
 
 	ecs::ComponentIterator it = my_ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID); //iterator for all transform components
 	ecs::BaseComponent* p_base;
@@ -325,7 +331,7 @@ TEST(Pathfinding, FindPath)
 		if (iterr % 24 == 0)
 			std::cout << " ";
 	}
-	path = GridFunctions::FindPath(my_ecs, 1, 117);
+	path = GridEcsFunctions::FindPath(my_ecs, 1, 117);
 	std::cout << "\n\n ";
 
 	for (unsigned int i : path)

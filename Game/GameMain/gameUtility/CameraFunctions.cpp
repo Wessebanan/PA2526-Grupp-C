@@ -6,7 +6,7 @@ using namespace DirectX;
 using namespace ecs;
 using namespace ecs::components;
 
-namespace CameraFunctions
+namespace CameraEcsFunctions
 {
 	void CreateDevCamera(ecs::EntityComponentSystem& rEcs)
 	{

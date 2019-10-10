@@ -1,9 +1,9 @@
 #include "AIEcsFunctions.h"
-#include "../../AI/AI/includes/GridProp.h"
+#include "../../AI/includes/GridProp.h"
 #include "AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
 #include "GridEcsFunctions.h"
-#include "../../AI/AI/includes/GridFunctions.h"
+#include "../../AI/includes/GridFunctions.h"
 
 namespace AIEcsFunctions
 {

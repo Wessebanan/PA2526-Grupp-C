@@ -43,6 +43,7 @@
     <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
     <Import Project="..\..\PropertySheets\Physics_Debug.props" />
     <Import Project="..\..\PropertySheets\AI_Debug.props" />
+    <Import Project="..\..\PropertySheets\Utility_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -52,6 +53,7 @@
     <Import Project="..\..\PropertySheets\Physics_Release.props" />
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
     <Import Project="..\..\PropertySheets\AI_Release.props" />
+    <Import Project="..\..\PropertySheets\Utility_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -90,9 +92,9 @@
   <ItemGroup>
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
-    <ClCompile Include="gameUtility\CameraFunctions.cpp" />
+    <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
-    <ClCompile Include="gameUtility\UtilityFunctions.cpp" />
+    <ClCompile Include="gameUtility\UtilityEcsFunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Physics\CollisionSystem.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp" />
@@ -109,13 +111,13 @@
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
     <ClInclude Include="gameUtility\CameraEvents.h" />
-    <ClInclude Include="gameUtility\CameraFunctions.h" />
+    <ClInclude Include="gameUtility\CameraEcsFunctions.h" />
     <ClInclude Include="gameUtility\CameraSystems.h" />
     <ClInclude Include="gameUtility\DebugInfo.h" />
     <ClInclude Include="gameUtility\GlobalsCamera.h" />
     <ClInclude Include="gameUtility\UtilityComponents.h" />
     <ClInclude Include="gameUtility\UtilityEvents.h" />
-    <ClInclude Include="gameUtility\UtilityFunctions.h" />
+    <ClInclude Include="gameUtility\UtilityEcsFunctions.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
     <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />

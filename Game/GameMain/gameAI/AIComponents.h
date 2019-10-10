@@ -2,7 +2,7 @@
 
 #include "ecsComponentIncludes.h"
 #include <vector>
-#include "../../AI/AI/includes/AIGlobals.h"
+#include "../../AI/includes/AIGlobals.h"
 
 namespace ecs
 {

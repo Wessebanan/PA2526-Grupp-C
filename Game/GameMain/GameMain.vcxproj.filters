@@ -5,28 +5,22 @@
     <ClCompile Include="Physics\CollisionSystem.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
-    <ClCompile Include="gameUtility\CameraFunctions.cpp">
-      <Filter>Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="gameUtility\UtilityFunctions.cpp">
-      <Filter>Utility</Filter>
-    </ClCompile>
     <ClCompile Include="gameAI\AIEcsFunctions.cpp">
       <Filter>AI</Filter>
     </ClCompile>
     <ClCompile Include="gameAI\GridEcsFunctions.cpp">
       <Filter>AI</Filter>
     </ClCompile>
+    <ClCompile Include="gameUtility\UtilityEcsFunctions.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="gameUtility\CameraEcsFunctions.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gameAI\GridProp.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gameUtility\CameraFunctions.cpp">
-      <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,19 +50,22 @@
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="gameUtility\GlobalsCamera.h">
-      <Filter>Utility</Filter>
+      <Filter>Camera</Filter>
     </ClInclude>
     <ClInclude Include="gameUtility\CameraSystems.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="gameUtility\CameraFunctions.h">
-      <Filter>Utility</Filter>
+      <Filter>Camera</Filter>
     </ClInclude>
     <ClInclude Include="gameUtility\CameraEvents.h">
-      <Filter>Utility</Filter>
+      <Filter>Camera</Filter>
     </ClInclude>
     <ClInclude Include="gameUtility\CameraComponents.h">
-      <Filter>Utility</Filter>
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\AIEcsFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\GridEcsFunctions.h">
+      <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="gameUtility\UtilitySystems.h">
       <Filter>Utility</Filter>
@@ -79,22 +76,22 @@
     <ClInclude Include="gameUtility\UtilityEvents.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="gameUtility\UtilityFunctions.h">
+    <ClInclude Include="gameUtility\UtilityEcsFunctions.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="gameAI\AIEcsFunctions.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="gameAI\GridEcsFunctions.h">
-      <Filter>AI</Filter>
+    <ClInclude Include="gameUtility\CameraEcsFunctions.h">
+      <Filter>Camera</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
       <UniqueIdentifier>{65a8c983-0abb-4a12-ad33-78f1fc7d42a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Utility">
+    <Filter Include="Camera">
       <UniqueIdentifier>{5d3031d0-e8a2-43d1-8a52-a4c17bec5c9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{fac0e431-ff16-4165-b6f3-ebcc4bbb4013}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

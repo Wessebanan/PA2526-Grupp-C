@@ -1,6 +1,6 @@
 #pragma once
 #include "ecsEventIncludes.h"
-#include "../../AI/AI/includes/AIGlobals.h"
+#include "../../AI/includes/AIGlobals.h"
 
 
 namespace ecs

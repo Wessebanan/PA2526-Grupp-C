@@ -1,8 +1,8 @@
 #include "pch.h"
-#include "CameraSystems.h"
 #include "ecs.h"
-#include "CameraFunctions.h"
-#include "UtilityFunctions.h"
+#include "../../Game/GameMain/gameUtility/UtilityEcsFunctions.h"
+#include "../../Game/GameMain/gameUtility/CameraEcsFunctions.h"
+#include "../../Game/GameMain/gameUtility/CameraSystems.h"
 #include "DebugInfoTestHeader.h"
 
 int main(int argc, char** argv)
@@ -24,7 +24,7 @@ TEST(UtilityFunctions, GetWorldMatrix) {
 	tc.rotation.z = DirectX::XM_PI / 2.0f;
 
 	//Create the world matrix given the TransformComponent
-	DirectX::XMMATRIX world = UtilityFunctions::GetWorldMatrix(tc);
+	DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(tc);
 	//Generate a test position which we will use with the world matrix
 	DirectX::XMVECTOR position = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
 	//Multiply the test position with our world matrix
@@ -42,7 +42,7 @@ TEST(UtilityFunctions, GetWorldMatrix) {
 
 TEST(CameraFunctions, CreateDevCamera) {
 	ecs::EntityComponentSystem mEcs;
-	CameraFunctions::CreateDevCamera(mEcs);
+	CameraEcsFunctions::CreateDevCamera(mEcs);
 
 	size_t numberOfTc = mEcs.getComponentCountOfType(ecs::components::TransformComponent::typeID);
 	size_t numberOfCc = mEcs.getComponentCountOfType(ecs::components::CameraComponent::typeID);
@@ -64,7 +64,7 @@ TEST(CameraFunctions, MoveCameraWithInput) {
 	keyboard.W = true;
 	//Create the entity holding the mouse and keyboard components and create the camera and its system.
 	temp_ecs.createEntity(mouse, keyboard);
-	CameraFunctions::CreateDevCamera(temp_ecs);
+	CameraEcsFunctions::CreateDevCamera(temp_ecs);
 	temp_ecs.createSystem<ecs::systems::UpdateCameraSystem>();
 	//Update the system once.
 	temp_ecs.update(0.01f);
@@ -109,7 +109,7 @@ TEST(CameraFunctions, ResetCamera) {
 	keyboard.W = true;
 	//Create the entity holding the mouse and keyboard components and create the camera and its system.
 	temp_ecs.createEntity(mouse, keyboard);
-	CameraFunctions::CreateDevCamera(temp_ecs);
+	CameraEcsFunctions::CreateDevCamera(temp_ecs);
 	temp_ecs.createSystem<ecs::systems::UpdateCameraSystem>();
 	//Update the system once to move the camera.
 	temp_ecs.update(0.01f);
