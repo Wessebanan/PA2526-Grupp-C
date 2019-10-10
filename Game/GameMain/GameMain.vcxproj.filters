@@ -18,6 +18,9 @@
       <Filter>Camera</Filter>
     </ClCompile>
     <ClCompile Include="gameSound\SoundECSSystems.cpp" />
+    <ClCompile Include="Physics\QuadTree.cpp">
+      <Filter>QuadTree</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -83,6 +86,9 @@
     <ClInclude Include="gameUtility\CameraEcsFunctions.h">
       <Filter>Camera</Filter>
     </ClInclude>
+    <ClInclude Include="Physics\QuadTree.h">
+      <Filter>QuadTree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -98,5 +104,8 @@
     <ClInclude Include="gameSound\SoundECSEvents.h" />
     <ClInclude Include="gameSound\SoundECSSystems.h" />
     <ClInclude Include="gameSound\SoundGlobals.h" />
+    <Filter Include="QuadTree">
+      <UniqueIdentifier>{c2f1b431-1005-4d56-9006-6038545ef7cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
