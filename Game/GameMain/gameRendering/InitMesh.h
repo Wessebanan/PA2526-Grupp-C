@@ -3,10 +3,10 @@
 #include "rendering/RenderManager.h"
 #include "Mesh.h"
 #include "ecs.h"
-#include "..//gameSceneObjects/SceneObjectComponents.h"
+#include "../gameSceneObjects/SceneObjectComponents.h"
 
 
-void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
+void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& rMng)
 {
 	using namespace rendering;
 	using namespace DirectX;
@@ -27,7 +27,7 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 		index_data.IndexCount = tile3.GetIndexVector()->size() * 4;
 		index_data.pIndexData = tile3.GetIndexVector()->data();
 
-		mesh_tile = mng.CreateMesh(
+		mesh_tile = rMng.CreateMesh(
 			&vertex_data,
 			&index_data);
 	}
@@ -44,7 +44,7 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 		index_data.IndexCount = dude.GetIndexVector()->size() * 4;
 		index_data.pIndexData = dude.GetIndexVector()->data();
 
-		mesh_dude = mng.CreateMesh(
+		mesh_dude = rMng.CreateMesh(
 			&vertex_data,
 			&index_data);
 	}
@@ -68,14 +68,14 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 
 	ecs::ComponentIterator itt2;
 	itt2 = rECS.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
-	ecs::components::SceneObjectComponent* scene_comp;
+	ecs::components::SceneObjectComponent* p_scene_comp;
 	int index = 1;
 	ecs::BaseComponent* p_base;
 	while (p_base = itt2.next())
 	{
-		scene_comp = (ecs::components::SceneObjectComponent*)p_base;
+		p_scene_comp = (ecs::components::SceneObjectComponent*)p_base;
 
-		ModelLoader::Mesh mesh(scene_comp->GetFilepath());
+		ModelLoader::Mesh mesh(p_scene_comp->GetFilepath());
 		//ModelLoader::Mesh mesh("gameSceneObjects/models/tree.fbx");
 
 		using namespace rendering;
@@ -91,7 +91,7 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 			index_data.IndexCount = mesh.GetIndexVector()->size() * 4;
 			index_data.pIndexData = mesh.GetIndexVector()->data();
 
-			mesh_index = mng.CreateMesh(
+			mesh_index = rMng.CreateMesh(
 				&vertex_data,
 				&index_data);
 		}
@@ -118,6 +118,6 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 
 
 
-	mng.CreateModelHeap(desc);
+	rMng.CreateModelHeap(desc);
 
 }

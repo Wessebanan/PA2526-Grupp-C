@@ -52,14 +52,13 @@ namespace GridEcsFunctions
 				{
 					tile.tileType = WATER;
 					color.color.y = 150.0f;
-					//color.color = DirectX::XMFLOAT4(0.0f,0.0f,0.0f,0.0f);
 					tile.impassable = true;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = false;
 				}
 				else if (transform.position.y == 3)
 				{
-					tile.tileType = GAMEFIELD;
+					tile.tileType = GAME_FIELD;
 					tile.impassable = false;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = true;
@@ -74,7 +73,7 @@ namespace GridEcsFunctions
 				}
 				else
 				{
-					tile.tileType = GAMEFIELD;
+					tile.tileType = GAME_FIELD;
 					tile.impassable = false;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = true;
