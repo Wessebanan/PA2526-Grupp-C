@@ -69,30 +69,17 @@ bool ecs::systems::SoundMessageSystem::Init()
 
 void ecs::systems::SoundMessageSystem::readEvent(BaseEvent& rEvent, float delta)
 {
-	// TODO:
-	// This is how it will be implemented in a future task
-	//if (rEvent.getTypeID = ecs::events::PlaySound::typeID)
-	//{
-	//	ecs::events::PlaySound* p_event = static_cast<ecs::events::PlaySound*>(&rEvent);
-	//	// ...
-	//}
-	//else
-	//{
-	//	ecs::events::PlayMusic* p_event = static_cast<ecs::events::PlayMusic*>(&rEvent);
-	//	// ...
-	//}
-	
-	// TEMPORARY: PlaySound and PlayMusic is the same for now
-	ecs::events::PlaySound* p_event = static_cast<ecs::events::PlaySound*>(&rEvent);
-	Audio::FileData* temp_data = (*mSoundBank)[p_event->soundName];
-	if (temp_data == nullptr)
+	// Sort the messages
+	if (rEvent.getTypeID() == ecs::events::PlaySound::typeID)
 	{
-		// No point in playing nothing
-		return;
+		ecs::events::PlaySound* p_event = static_cast<ecs::events::PlaySound*>(&rEvent);
+		ProcessPlaySound(p_event);
 	}
-	bool temp_loop_bool = p_event->soundFlags & SoundFlags::REPEAT;
-	Audio::Plugin::Plugin* temp_plugin = new Audio::Plugin::Sampler(temp_data, (temp_loop_bool ? 0 : 1));
-	mSoundMixer->AddSoundMessage({ temp_plugin });
+	else
+	{
+		ecs::events::PlayMusic* p_event = static_cast<ecs::events::PlayMusic*>(&rEvent);
+		ProcessPlayMusic(p_event);
+	}
 }
 
 bool ecs::systems::SoundMessageSystem::SetupEngine()
@@ -126,5 +113,34 @@ bool ecs::systems::SoundMessageSystem::SetupBank()
 {
 	// Create a new bank and load all sound effects
 	mSoundBank = new Audio::Bank();
-	return mSoundBank->LoadMultipleFiles(SOUND_NAME_PATHS, sizeof(SOUND_NAME_PATHS) / sizeof(std::string));
+	return mSoundBank->LoadMultipleFiles(AUDIO_NAME_PATHS, sizeof(AUDIO_NAME_PATHS) / sizeof(std::string));
+}
+
+void ecs::systems::SoundMessageSystem::ProcessPlaySound(ecs::events::PlaySound* pEvent)
+{
+	Audio::FileData* temp_data = (*mSoundBank)[pEvent->audioName];
+	if (temp_data == nullptr)
+	{
+		// No point in playing nothing
+		return;
+	}
+	bool temp_loop_bool = pEvent->soundFlags & SoundFlags::SF_REPEAT;
+	Audio::Plugin::Plugin* temp_plugin = new Audio::Plugin::Sampler(temp_data, (temp_loop_bool ? 0 : 1));
+	mSoundMixer->AddSoundMessage({ temp_plugin });
+}
+
+void ecs::systems::SoundMessageSystem::ProcessPlayMusic(ecs::events::PlayMusic* pEvent)
+{
+	Audio::FileData* temp_data = (*mSoundBank)[pEvent->audioName];
+	if (temp_data == nullptr)
+	{
+		// No point in playing nothing
+		return;
+	}
+	bool temp_replace_bool = pEvent->musicFlags & MusicFlags::MF_REPLACE;
+	Audio::Plugin::Plugin* temp_plugin = new Audio::Plugin::Sampler(temp_data, 0);
+	mSoundMixer->AddMusicMessage({
+		temp_plugin,
+		(temp_replace_bool ? Audio::Music::M_REPLACE : Audio::Music::M_NONE)
+	});
 }

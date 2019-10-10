@@ -19,6 +19,9 @@ namespace ecs
 			bool SetupEngine();
 			bool SetupBank();
 
+			void ProcessPlaySound(ecs::events::PlaySound* pEvent);
+			void ProcessPlayMusic(ecs::events::PlayMusic* pEvent);
+
 			Audio::PaHandler* mSoundPaHandler;
 			Audio::Engine* mSoundEngine;
 			Audio::Mixer* mSoundMixer;

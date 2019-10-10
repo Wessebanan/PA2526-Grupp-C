@@ -30,6 +30,8 @@
     <Import Project="AI_Game.props" />
     <Import Project="Utility_Game.props" />
     <Import Project="Input_Game.props" />
+    <Import Project="AudioIncludesFromGame.props" />
+    <Import Project="..\..\PropertySheets\Sound_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
@@ -39,6 +41,8 @@
     <Import Project="AI_Game.props" />
     <Import Project="Input_Game.props" />
     <Import Project="Utility_Game.props" />
+    <Import Project="AudioIncludesFromGame.props" />
+    <Import Project="..\..\PropertySheets\Sound_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
@@ -69,11 +73,13 @@
     <ClInclude Include="Physics\GroundCollision.h" />
     <ClInclude Include="Physics\MovementLogic.h" />
     <ClInclude Include="Physics\ObjectCollision.h" />
+    <ClInclude Include="Sound\SoundTests.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\GameMain\gameAI\AIFunctions.cpp" />
     <ClCompile Include="..\GameMain\gameAI\GridFunctions.cpp" />
     <ClCompile Include="..\GameMain\gameAI\GridProp.cpp" />
+    <ClCompile Include="..\GameMain\gameAudio\AudioECSSystems.cpp" />
     <ClCompile Include="..\GameMain\gameUtility\CameraFunctions.cpp" />
     <ClCompile Include="..\GameMain\gameUtility\UtilityFunctions.cpp" />
     <ClCompile Include="..\GameMain\Physics\CollisionSystem.cpp" />

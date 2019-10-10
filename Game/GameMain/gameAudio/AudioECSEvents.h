@@ -1,22 +1,22 @@
 #pragma once
 #include "ecsEventIncludes.h"
 #include "AudioGlobals.h"
-
+#undef PlaySound	// Some evil macro conflicting with my name
 namespace ecs
 {
 	namespace events
 	{
 		struct PlaySound : public ECSEvent<PlaySound>
 		{
-			SoundName soundName;
+			AudioName audioName;
 			SoundFlags soundFlags;
 			// This will be implemented later
 			//std::pair<SoundFlags,ID>* pInput;
 		};
-		struct PlayMusic : public ECSEvent<PlaySound>
+		struct PlayMusic : public ECSEvent<PlayMusic>
 		{
-			SoundName soundName;
-			SoundFlags soundFlags;
+			AudioName audioName;
+			MusicFlags musicFlags;
 			// This will be implemented later
 			//std::pair<SoundFlags,ID>* pInput;
 		};

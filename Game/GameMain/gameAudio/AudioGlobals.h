@@ -6,16 +6,25 @@
 
 enum SoundFlags
 {
-	NONE = 0x0,
-	REPEAT = 0x1
+	SF_NONE = 0x0,
+	SF_REPEAT = 0x1
 };
 
-enum SoundName
+enum MusicFlags
 {
-	COIN_TEST_SOUND
+	MF_NONE = 0x0,
+	MF_REPLACE = 0x1
 };
 
-const std::string SOUND_NAME_PATHS[] =
+enum AudioName
 {
-	"coin.wav"
+	COIN_TEST_SOUND,
+	CC_TEST_SONG
 };
+
+const std::string AUDIO_NAME_PATHS[] =
+{
+	"../AudioFiles/coin.wav",
+	"../AudioFiles/cc_song.wav"
+};
+
