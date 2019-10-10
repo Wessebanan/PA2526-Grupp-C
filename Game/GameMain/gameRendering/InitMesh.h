@@ -15,7 +15,7 @@ void InitMesh(rendering::RenderManager& mng)
 	//ModelLoader::Mesh tile("../hexagon_tile.fbx");
 	//ModelLoader::Mesh tile2("../hexagon_tile2.fbx");
 	ModelLoader::Mesh tile3("../hexagon_tile3.fbx");
-	ModelLoader::Mesh dude("../dudeMesh0.fbx");
+	ModelLoader::Mesh dude("../ArmSwing.fbx");
 
 	int mesh_tile; // tile
 	{
