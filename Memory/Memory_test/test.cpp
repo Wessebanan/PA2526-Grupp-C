@@ -252,7 +252,6 @@ namespace API
 		const uint SUB_HEAP_SIZE = 100;
 		const uint OBJ_SIZE = 10;
 		const uint OBJ_COUNT = 5;
-		uint expected_values[OBJ_COUNT];
 
 		memory::Initialize(MAIN_HEAP_SIZE);
 		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
@@ -271,6 +270,141 @@ namespace API
 	}
 }
 
-/*
-	TODO: Backend testing
-*/
+namespace Backend
+{
+	namespace Allocators
+	{
+		namespace FreeListAllocator
+		{
+			TEST(TestFreeListAllocator, Initialize)
+			{
+				const uint memory_size = 100;
+
+				void* p_memory_start = malloc(memory_size);
+
+				memory::allocators::FreeListAllocator allocator;
+				ASSERT_TRUE(allocator.Initialize(p_memory_start, memory_size));
+
+				free(p_memory_start);
+			}
+
+			TEST(TestFreeListAllocator, Allocate)
+			{
+				const uint ALLOCATION_SIZE = sizeof(int);
+				const uint ALLOCATION_COUNT = 10;
+				const uint MEMORY_SIZE = (ALLOCATION_SIZE + memory::allocators::FreeListAllocator::GetAllocationHeaderSize()) * ALLOCATION_COUNT;
+
+				void* p_memory_start = malloc(MEMORY_SIZE);
+
+				memory::allocators::FreeListAllocator allocator;
+				allocator.Initialize(p_memory_start, MEMORY_SIZE);
+
+				int* p_allocations[ALLOCATION_COUNT];
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_allocations[i] = (int*)allocator.Allocate(ALLOCATION_SIZE);
+					EXPECT_NE(p_allocations[i], nullptr);
+					*p_allocations[i] = i;
+				}
+
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					EXPECT_EQ(*p_allocations[i], i);
+				}
+
+				free(p_memory_start);
+			}
+
+			TEST(TestFreeListAllocator, Free)
+			{
+				const uint ALLOCATION_SIZE = sizeof(int);
+				const uint ALLOCATION_COUNT = 10;
+				const uint MEMORY_SIZE = (ALLOCATION_SIZE + memory::allocators::FreeListAllocator::GetAllocationHeaderSize()) * ALLOCATION_COUNT;
+
+				void* p_memory_start = malloc(MEMORY_SIZE);
+
+				memory::allocators::FreeListAllocator allocator;
+				allocator.Initialize(p_memory_start, MEMORY_SIZE);
+
+				int* p_allocations[ALLOCATION_COUNT];
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_allocations[i] = (int*)allocator.Allocate(ALLOCATION_SIZE);
+					*p_allocations[i] = i;
+				}
+
+				for (int i = ALLOCATION_COUNT-1; i >= 0; i--)
+				{
+					allocator.Free(p_allocations[i]);
+				}
+
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_allocations[i] = (int*)allocator.Allocate(ALLOCATION_SIZE);
+					*p_allocations[i] = i;
+				}
+
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					EXPECT_EQ(*p_allocations[i], i);
+				}
+
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					allocator.Free(p_allocations[i]);
+				}
+
+				free(p_memory_start);
+			}
+
+			TEST(TestFreeListAllocator, HandleOverflow)
+			{
+				const uint ALLOCATION_SIZE = sizeof(int);
+				const uint ALLOCATION_COUNT = 10;
+				const uint MEMORY_SIZE = (ALLOCATION_SIZE + memory::allocators::FreeListAllocator::GetAllocationHeaderSize()) * ALLOCATION_COUNT;
+
+				void* p_memory_start = malloc(MEMORY_SIZE);
+
+				memory::allocators::FreeListAllocator allocator;
+				allocator.Initialize(p_memory_start, MEMORY_SIZE);
+
+				int* p_allocations[ALLOCATION_COUNT];
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_allocations[i] = (int*)allocator.Allocate(ALLOCATION_SIZE);
+					*p_allocations[i] = i;
+				}
+
+				EXPECT_EQ(allocator.Allocate(ALLOCATION_SIZE), nullptr);
+
+				free(p_memory_start);
+			}
+
+			TEST(TestFreeListAllocator, HandleFreeOutOfBounds)
+			{
+				const uint ALLOCATION_SIZE = sizeof(int);
+				const uint ALLOCATION_COUNT = 5;
+				const uint ALLOCATION_WITH_HEADER_SIZE = ALLOCATION_SIZE + memory::allocators::FreeListAllocator::GetAllocationHeaderSize();
+				const uint MEMORY_SIZE = ALLOCATION_WITH_HEADER_SIZE * (ALLOCATION_COUNT*2);
+
+				void* p_memory_start = malloc(MEMORY_SIZE);
+
+				memory::allocators::FreeListAllocator allocator;
+				allocator.Initialize(p_memory_start, MEMORY_SIZE);
+				void* p_last_allocation;
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_last_allocation = allocator.Allocate(ALLOCATION_SIZE);
+				}
+
+				void* p_non_existing_allocation = (void*)((char*)p_last_allocation + ALLOCATION_WITH_HEADER_SIZE);
+				EXPECT_NO_THROW(allocator.Free(nullptr));
+				EXPECT_NO_THROW(allocator.Free(p_non_existing_allocation));
+
+				free(p_memory_start);
+			}
+		}
+	}
+
+	
+}
