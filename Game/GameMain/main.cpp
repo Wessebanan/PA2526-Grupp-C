@@ -45,13 +45,13 @@ int main()
 	InitGrid(ecs);
 	InitBiomes(ecs);
 	InitArmy(ecs);
+	InitSceneObjects(ecs);
 
 	
 	rendering::RenderManager mng;
 	mng.Initialize(1600, 900, "D3D11");
 
 	
-	InitSceneObjects(ecs, mng);
 	InitMesh(ecs, mng);
 
 	graphics::PresentWindow* pWnd = mng.GetPresentWindow();

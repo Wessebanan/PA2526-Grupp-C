@@ -73,6 +73,22 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 		index++;
 	}
 
+	itt = rECS.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
+	ecs::components::SceneObjectComponent* scene_comp;
+	while (scene_comp = (ecs::components::SceneObjectComponent*)itt.next())
+	{
+		ecs::components::TransformComponent* trComp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(scene_comp->getEntityID());
+
+		pTilePosition[index].x = trComp->position.x;
+		pTilePosition[index].y = trComp->position.y;
+		pTilePosition[index].z = trComp->position.z;
+
+		pTilePosition[index].color = PACK(0, 50, 0, 0);
+		
+
+		index++;
+	}
+
 	int armyIndex = 0;
 	itt = rECS.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
 	ecs::components::ArmyComponent* armComp;
@@ -87,8 +103,6 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 			world *= XMMatrixScaling(trComp->scale.x, trComp->scale.y, trComp->scale.z);
 			world *= XMMatrixRotationRollPitchYaw(trComp->rotation.x, trComp->rotation.y, trComp->rotation.z);
 			world *= XMMatrixTranslation(trComp->position.x, trComp->position.y, trComp->position.z);
-
-
 
 			XMStoreFloat4x4(&p_unit_pos[armyIndex], world);
 

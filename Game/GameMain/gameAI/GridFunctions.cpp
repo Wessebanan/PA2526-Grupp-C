@@ -18,6 +18,7 @@ namespace GridFunctions
 		XMFLOAT3 current_pos = { 0.0f, 0.0f, 0.0f };
 		float mid_to_side = cos(30 * pi / 180) * Radius; //Calculate length between the center position and a side. 
 		TransformComponent transform;
+		ColorComponent color;
 		TileComponent tile;
 		ecs::Entity* current_tile;
 		float height_map[ARENA_COLUMNS*ARENA_ROWS];
@@ -48,6 +49,8 @@ namespace GridFunctions
 				if (transform.position.y == -1.f)
 				{
 					tile.tileType = WATER;
+					color.color.y = 150.0f;
+					//color.color = DirectX::XMFLOAT4(0.0f,0.0f,0.0f,0.0f);
 					tile.impassable = true;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = false;
@@ -62,6 +65,7 @@ namespace GridFunctions
 				else if (transform.position.y == -2)
 				{
 					tile.tileType = WATER;
+					color.color.y = 150.0f;
 					tile.impassable = false;
 					p_gp->mGrid[i][j].isPassable = true;
 					tile.goal = true;
@@ -75,7 +79,7 @@ namespace GridFunctions
 				}
 
 				//Create the new entity
-				current_tile = rEcs.createEntity(transform, tile);
+				current_tile = rEcs.createEntity(transform, color, tile);
 				p_gp->mGrid[i][j].Id = current_tile->getID();
 				p_gp->mGrid[i][j].height = transform.position.y;
 				//Update the x-position of the next tile in this row.

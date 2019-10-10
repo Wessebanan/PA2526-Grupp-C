@@ -12,46 +12,54 @@ namespace ecs
 			SCENEOBJECT mObject;
 			OBJECTTYPE mObjectType;
 
+			// change the object depending on the biome
+			void ChangeModelByBiome(BIOME bio)
+			{
+				this->mObject = (SCENEOBJECT)((int)(this->mObjectType) + ((int)(bio) * 3));
+
+				this->AssignModel();
+			}
+
 			// places the filepath to eachfilepath
 			bool AssignModel()
 			{
 				switch (this->mObject)
 				{
 				case SCENEOBJECT::VINES:
-					this->mFilepath = "Models/vines.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::MUD:
-					this->mFilepath = "Models/mud.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::WAGON:
-					this->mFilepath = "Models/wagon.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::CLIFF:
-					this->mFilepath = "Models/mountain.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::ROCKS:
-					this->mFilepath = "Models/rocks.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::CAMP:
-					this->mFilepath = "Models/camp.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::TREES:
-					this->mFilepath = "Models/trees.fbx";
+					this->mFilepath = "gameSceneObjects/models/rock.fbx";
 					break;
 				case SCENEOBJECT::FLOWERS:
-					this->mFilepath = "Models/flowers.fbx";
+					this->mFilepath = "gameSceneObjects/models/rock.fbx";
 					break;
 				case SCENEOBJECT::VILAGE:
-					this->mFilepath = "Models/vilage.fbx";
+					this->mFilepath = "gameSceneObjects/models/rock.fbx";
 					break;
 				case SCENEOBJECT::SANDSTONE:
-					this->mFilepath = "Models/sandstone.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::PALMS:
-					this->mFilepath = "Models/palms.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::PYRAMIDS:
-					this->mFilepath = "Models/pyramids.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				default:
 					// returns false if the sceneobject fails to assign

@@ -3,7 +3,7 @@
 #include "rendering/RenderManager.h"
 #include "Mesh.h"
 #include "ecs.h"
-
+#include "..//gameSceneObjects/SceneObjectComponents.h"
 
 
 void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
@@ -62,16 +62,21 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 	MODEL_LAYOUT_DESC m_desc[14];
 	// first 2 are tile and dude, then 12 sceneobjects
 
+
+	m_desc[0].InstanceCount = 12 * 12;
+	m_desc[0].MeshIndex = mesh_tile;
+
 	ecs::ComponentIterator itt2;
 	itt2 = rECS.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
 	ecs::components::SceneObjectComponent* scene_comp;
-	int index = 0;
+	int index = 1;
 	ecs::BaseComponent* p_base;
 	while (p_base = itt2.next())
 	{
 		scene_comp = (ecs::components::SceneObjectComponent*)p_base;
 
 		ModelLoader::Mesh mesh(scene_comp->GetFilepath());
+		//ModelLoader::Mesh mesh("gameSceneObjects/models/tree.fbx");
 
 		using namespace rendering;
 		int mesh_index;
@@ -92,33 +97,26 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 		}
 
 
-		m_desc[index+2].InstanceCount = 1;
-		m_desc[index +2].MeshIndex = mesh_index;
-
-		desc[RENDER_DEFAULT].PerInstanceByteWidth = sizeof(float4);
-		desc[RENDER_DEFAULT].pModelLayout = &m_desc[index +2];
-		desc[RENDER_DEFAULT].ModelLayoutCount = 1;
+		m_desc[index].InstanceCount = 1;
+		m_desc[index].MeshIndex = mesh_index;
 
 		index++;
 	}
-	
 
+	m_desc[13].InstanceCount = 12;
+	m_desc[13].MeshIndex = mesh_dude;
 
-
-
-	m_desc[0].InstanceCount = 12*12;
-	m_desc[0].MeshIndex = mesh_tile;
-
-	m_desc[1].InstanceCount = 12;
-	m_desc[1].MeshIndex = mesh_dude;
 
 	desc[RENDER_DEFAULT].PerInstanceByteWidth = sizeof(float4);
 	desc[RENDER_DEFAULT].pModelLayout = &m_desc[0];
-	desc[RENDER_DEFAULT].ModelLayoutCount = 1;
+	desc[RENDER_DEFAULT].ModelLayoutCount = 13;
 
 	desc[RENDER_TRANSFORMATION].PerInstanceByteWidth = sizeof(float4) * 4;
-	desc[RENDER_TRANSFORMATION].pModelLayout = &m_desc[1];
+	desc[RENDER_TRANSFORMATION].pModelLayout = &m_desc[13];
 	desc[RENDER_TRANSFORMATION].ModelLayoutCount = 1;
+
+
+
 
 	mng.CreateModelHeap(desc);
 

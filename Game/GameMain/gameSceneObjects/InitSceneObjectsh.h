@@ -40,22 +40,26 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 		ecs::components::TransformComponent* tile_transf_comp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(tile_comp->getEntityID());
 
 
-		// each 12th tile gets a sceneobject
-		if (i % (144 / 12) == 0)
+
+		
+		if (
+			i == 1 || i == 15 || i == 115
+			|| i == 25 || i == 75 || i == 85
+			|| i == 35 || i == 65 || i == 95
+			|| i == 45 || i == 55 || i == 105
+			)
 		{
+
 			ecs::components::SceneObjectComponent* scene_comp = (ecs::components::SceneObjectComponent*)itt2.next();
 			ecs::components::TransformComponent* scene_tranf_comp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(scene_comp->getEntityID());
 
 			scene_tranf_comp->position.x = tile_transf_comp->position.x;
-			scene_tranf_comp->position.y = tile_transf_comp->position.y + 2.0f;
+			scene_tranf_comp->position.y = tile_transf_comp->position.y;
 			scene_tranf_comp->position.z = tile_transf_comp->position.z;
 
 
-			
-
+			scene_comp->ChangeModelByBiome(tile_comp->biome);
 		}
-
-
 	}
 
 	
