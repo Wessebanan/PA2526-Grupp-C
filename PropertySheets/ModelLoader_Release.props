@@ -10,7 +10,7 @@
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)..\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ModelLoader.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);libfbxsdk-md.lib;</AdditionalDependencies>
     </Lib>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)..\ModelLoader\ModelLoader\includes;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
