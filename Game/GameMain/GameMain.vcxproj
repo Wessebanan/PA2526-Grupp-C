@@ -43,6 +43,9 @@
     <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
     <Import Project="..\..\PropertySheets\Physics_Debug.props" />
     <Import Project="..\..\PropertySheets\UI_Debug.props" />
+    <Import Project="..\..\PropertySheets\AI_Debug.props" />
+    <Import Project="..\..\PropertySheets\Utility_Debug.props" />
+    <Import Project="..\..\PropertySheets\Sound_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -54,6 +57,9 @@
     <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
     <Import Project="..\..\PropertySheets\Physics_Release.props" />
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
+    <Import Project="..\..\PropertySheets\AI_Release.props" />
+    <Import Project="..\..\PropertySheets\Utility_Release.props" />
+    <Import Project="..\..\PropertySheets\Sound_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -90,12 +96,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="gameAI\AIFunctions.cpp" />
-    <ClCompile Include="gameAI\GridFunctions.cpp" />
-    <ClCompile Include="gameAI\GridProp.cpp" />
-    <ClCompile Include="gameUtility\CameraFunctions.cpp" />
+    <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
+    <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
+    <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
+    <ClCompile Include="gameSound\SoundECSSystems.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
-    <ClCompile Include="gameUtility\UtilityFunctions.cpp" />
+    <ClCompile Include="gameUtility\UtilityEcsFunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="UI\UISystems.cpp" />
     <ClCompile Include="Physics\CollisionSystem.cpp" />
@@ -104,24 +110,26 @@
   <ItemGroup>
     <ClInclude Include="gameAI\AIComponents.h" />
     <ClInclude Include="gameAI\AIEvents.h" />
-    <ClInclude Include="gameAI\AIFunctions.h" />
-    <ClInclude Include="gameAI\AIGlobals.h" />
+    <ClInclude Include="gameAI\AIEcsFunctions.h" />
     <ClInclude Include="gameAI\AISystems.h" />
-    <ClInclude Include="gameAI\GridFunctions.h" />
-    <ClInclude Include="gameAI\GridProp.h" />
+    <ClInclude Include="gameAI\GridEcsFunctions.h" />
     <ClInclude Include="gameAI\InitArmy.h" />
     <ClInclude Include="gameAI\InitGrid.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
+    <ClInclude Include="gameSound\InitSound.h" />
+    <ClInclude Include="gameSound\SoundECSEvents.h" />
+    <ClInclude Include="gameSound\SoundECSSystems.h" />
+    <ClInclude Include="gameSound\SoundGlobals.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
     <ClInclude Include="gameUtility\CameraEvents.h" />
-    <ClInclude Include="gameUtility\CameraFunctions.h" />
+    <ClInclude Include="gameUtility\CameraEcsFunctions.h" />
     <ClInclude Include="gameUtility\CameraSystems.h" />
     <ClInclude Include="gameUtility\DebugInfo.h" />
     <ClInclude Include="gameUtility\GlobalsCamera.h" />
     <ClInclude Include="gameUtility\UtilityComponents.h" />
     <ClInclude Include="gameUtility\UtilityEvents.h" />
-    <ClInclude Include="gameUtility\UtilityFunctions.h" />
+    <ClInclude Include="gameUtility\UtilityEcsFunctions.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
     <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />

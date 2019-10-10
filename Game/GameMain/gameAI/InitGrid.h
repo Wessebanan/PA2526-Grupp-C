@@ -2,8 +2,8 @@
 
 #include "ecs.h"
 
-#include "..//gameAI/GridProp.h"
-#include "..//gameAI/GridFunctions.h"
+#include "../../AI/AI/includes/GridProp.h"
+#include "..//gameAI/GridEcsFunctions.h"
 #include "..//gameAI/AIComponents.h"
 #include "..//gameUtility/UtilityComponents.h"
 #include <DirectXMath.h>
@@ -11,7 +11,7 @@
 
 void InitGrid(ecs::EntityComponentSystem& rECS)
 {
-	GridFunctions::CreateGrid(rECS, 12, 12, 1.0f);
+	GridEcsFunctions::CreateGrid(rECS, 12, 12, 1.0f);
 
 	//using namespace DirectX;
 
