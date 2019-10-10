@@ -403,6 +403,55 @@ namespace Backend
 
 				free(p_memory_start);
 			}
+
+			TEST(TestFreeListAllocator, Getters)
+			{
+				const uint ALLOCATION_SIZE = sizeof(int);
+				const uint ALLOCATION_COUNT = 10;
+				const uint ALLOCATION_WITH_HEADER_SIZE = ALLOCATION_SIZE + memory::allocators::FreeListAllocator::GetAllocationHeaderSize();
+				const uint MEMORY_SIZE = ALLOCATION_WITH_HEADER_SIZE * ALLOCATION_COUNT;
+
+				void* p_memory_start = malloc(MEMORY_SIZE);
+
+				memory::allocators::FreeListAllocator allocator;
+
+				EXPECT_EQ(allocator.GetMemorySize(), 0);
+				EXPECT_EQ(allocator.GetMemoryUsed(), 0);
+
+				allocator.Initialize(p_memory_start, MEMORY_SIZE);
+
+				EXPECT_EQ(allocator.GetMemorySize(), MEMORY_SIZE);
+				EXPECT_EQ(allocator.GetMemoryUsed(), 0);
+
+				uint expected_used_size = 0;
+				void* p_allocations[ALLOCATION_COUNT] = { nullptr };
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_allocations[i] = allocator.Allocate(ALLOCATION_SIZE);
+					expected_used_size += ALLOCATION_WITH_HEADER_SIZE;
+					EXPECT_EQ(allocator.GetMemoryUsed(), expected_used_size);
+				}
+
+
+				for (uint i = 0; i < ALLOCATION_COUNT / 2.f; i++)
+				{
+					allocator.Free(p_allocations[i]);
+					expected_used_size -= ALLOCATION_WITH_HEADER_SIZE;
+					EXPECT_EQ(allocator.GetMemoryUsed(), expected_used_size);
+				}
+
+				allocator.Clear();
+
+				EXPECT_EQ(allocator.GetMemorySize(), MEMORY_SIZE);
+				EXPECT_EQ(allocator.GetMemoryUsed(), 0);
+
+				allocator.Terminate();
+
+				EXPECT_EQ(allocator.GetMemorySize(), 0);
+				EXPECT_EQ(allocator.GetMemoryUsed(), 0);
+
+				free(p_memory_start);
+			}
 		}
 	}
 

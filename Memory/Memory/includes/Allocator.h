@@ -74,6 +74,20 @@ namespace memory
 			*/
 			virtual void Free(void * pObject) = 0;
 
+			/*
+				Getters
+			*/
+
+			inline uint GetMemorySize() const
+			{
+				return mMemorySize;
+			}
+
+			inline uint GetMemoryUsed() const
+			{
+				return mMemoryUsed;
+			}
+
 
 		protected:
 
