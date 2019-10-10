@@ -3,7 +3,6 @@
 #include "AIGlobals.h"
 #include "GridProp.h"
 #include "GridFunctions.h"
-#include "AIFunctions.h"
 #include <iostream>
 
 

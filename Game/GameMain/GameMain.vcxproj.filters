@@ -1,25 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="gameAI\AIFunctions.cpp" />
-    <ClCompile Include="gameAI\GridFunctions.cpp" />
-    <ClCompile Include="gameAI\GridProp.cpp" />
-    <ClCompile Include="gameUtility\CameraFunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Physics\CollisionSystem.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp" />
-    <ClCompile Include="gameUtility\UtilityFunctions.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
+    <ClCompile Include="gameUtility\CameraFunctions.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="gameUtility\UtilityFunctions.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="gameAI\AIEcsFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="gameAI\GridEcsFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gameAI\AIFunctions.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gameAI\GridFunctions.cpp">
-      <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="gameAI\GridProp.cpp">
       <Filter>Resource Files</Filter>
@@ -29,27 +30,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gameAI\AIComponents.h" />
-    <ClInclude Include="gameAI\AIEvents.h" />
-    <ClInclude Include="gameAI\AIFunctions.h" />
-    <ClInclude Include="gameAI\AIGlobals.h" />
-    <ClInclude Include="gameAI\AISystems.h" />
-    <ClInclude Include="gameAI\GridFunctions.h" />
-    <ClInclude Include="gameAI\GridProp.h" />
     <ClInclude Include="gameAI\InitArmy.h" />
     <ClInclude Include="gameAI\InitGrid.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
-    <ClInclude Include="gameUtility\CameraComponents.h" />
-    <ClInclude Include="gameUtility\CameraEvents.h" />
-    <ClInclude Include="gameUtility\CameraFunctions.h" />
-    <ClInclude Include="gameUtility\CameraSystems.h" />
     <ClInclude Include="gameUtility\DebugInfo.h" />
-    <ClInclude Include="gameUtility\GlobalsCamera.h" />
-    <ClInclude Include="gameUtility\UtilityComponents.h" />
-    <ClInclude Include="gameUtility\UtilityEvents.h" />
-    <ClInclude Include="gameUtility\UtilityFunctions.h" />
-    <ClInclude Include="gameUtility\UtilitySystems.h" />
     <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />
@@ -61,5 +46,55 @@
     <ClInclude Include="Input\InitInputBackendComponent.h" />
     <ClInclude Include="Input\InitInputComponents.h" />
     <ClInclude Include="Input\InitInputSystems.h" />
+    <ClInclude Include="gameAI\AIComponents.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\AIEvents.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\AISystems.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\GlobalsCamera.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\CameraSystems.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\CameraFunctions.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\CameraEvents.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\CameraComponents.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilitySystems.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilityComponents.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilityEvents.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilityFunctions.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\AIEcsFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\GridEcsFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="AI">
+      <UniqueIdentifier>{65a8c983-0abb-4a12-ad33-78f1fc7d42a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{5d3031d0-e8a2-43d1-8a52-a4c17bec5c9c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

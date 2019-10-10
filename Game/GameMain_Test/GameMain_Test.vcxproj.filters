@@ -87,9 +87,6 @@
     <ClInclude Include="..\GameMain\gameAI\AIFunctions.h">
       <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\AIGlobals.h">
-      <Filter>AI</Filter>
-    </ClInclude>
     <ClInclude Include="..\GameMain\gameAI\AISystems.h">
       <Filter>AI</Filter>
     </ClInclude>

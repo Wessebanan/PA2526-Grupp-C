@@ -1,7 +1,7 @@
 #pragma once
 
 #include "..//gameAI/AIComponents.h"
-#include "..//gameAI/AIFunctions.h"
+#include "AIEcsFunctions.h"
 
 #include "..//gameUtility/UtilityComponents.h"
 #include "ecs.h"
@@ -10,7 +10,7 @@
 
 void InitArmy(ecs::EntityComponentSystem& rECS)
 {
-	AIFunctions::CreatePlayerArmies(rECS);
+	AIEcsFunctions::CreatePlayerArmies(rECS);
 
 	////Create Components for a "User" entity.
 	//ecs::components::ArmyComponent army;

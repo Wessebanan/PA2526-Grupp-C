@@ -30,6 +30,7 @@
     <Import Project="AI_Game.props" />
     <Import Project="Utility_Game.props" />
     <Import Project="Input_Game.props" />
+    <Import Project="..\..\PropertySheets\AI_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
@@ -39,13 +40,13 @@
     <Import Project="AI_Game.props" />
     <Import Project="Input_Game.props" />
     <Import Project="Utility_Game.props" />
+    <Import Project="..\..\PropertySheets\AI_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClInclude Include="..\GameMain\gameAI\AIComponents.h" />
     <ClInclude Include="..\GameMain\gameAI\AIEvents.h" />
     <ClInclude Include="..\GameMain\gameAI\AIFunctions.h" />
-    <ClInclude Include="..\GameMain\gameAI\AIGlobals.h" />
     <ClInclude Include="..\GameMain\gameAI\AISystems.h" />
     <ClInclude Include="..\GameMain\gameAI\GridFunctions.h" />
     <ClInclude Include="..\GameMain\gameAI\GridProp.h" />
