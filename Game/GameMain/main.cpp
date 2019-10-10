@@ -10,6 +10,8 @@
 #include "Input/InitInput.h"
 #include "Input/InitInterpreter.h"
 
+#include "gameSound/InitSound.h"
+
 void TransformViewMatrix(
 	DirectX::XMFLOAT4X4& rViewMatrix,
 	const float x,
@@ -33,6 +35,14 @@ int main()
 	// Tiles + units + camera
 	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 1);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
+
+	InitSound(ecs);
+	// TEMPORARY
+	// Just to play something to know it works
+	ecs::events::PlaySound sound_event;
+	sound_event.soundName = SoundName::COIN_TEST_SOUND;
+	sound_event.soundFlags = SoundFlags::NONE;
+	ecs.createEvent(sound_event);
 
 	InitInput(ecs);
 	InitInterpreter(ecs);

@@ -42,6 +42,7 @@
     <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
     <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
     <Import Project="..\..\PropertySheets\Physics_Debug.props" />
+    <Import Project="..\..\PropertySheets\Sound_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -50,6 +51,7 @@
     <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
     <Import Project="..\..\PropertySheets\Physics_Release.props" />
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
+    <Import Project="..\..\PropertySheets\Sound_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -89,6 +91,7 @@
     <ClCompile Include="gameAI\AIFunctions.cpp" />
     <ClCompile Include="gameAI\GridFunctions.cpp" />
     <ClCompile Include="gameAI\GridProp.cpp" />
+    <ClCompile Include="gameSound\SoundECSSystems.cpp" />
     <ClCompile Include="gameUtility\CameraFunctions.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
     <ClCompile Include="gameUtility\UtilityFunctions.cpp" />
@@ -108,6 +111,10 @@
     <ClInclude Include="gameAI\InitGrid.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
+    <ClInclude Include="gameSound\InitSound.h" />
+    <ClInclude Include="gameSound\SoundECSEvents.h" />
+    <ClInclude Include="gameSound\SoundECSSystems.h" />
+    <ClInclude Include="gameSound\SoundGlobals.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
     <ClInclude Include="gameUtility\CameraEvents.h" />
     <ClInclude Include="gameUtility\CameraFunctions.h" />
