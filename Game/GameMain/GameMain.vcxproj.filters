@@ -17,6 +17,7 @@
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
+    <ClCompile Include="gameSound\SoundECSSystems.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -93,5 +94,9 @@
     <Filter Include="Utility">
       <UniqueIdentifier>{fac0e431-ff16-4165-b6f3-ebcc4bbb4013}</UniqueIdentifier>
     </Filter>
+    <ClInclude Include="gameSound\InitSound.h" />
+    <ClInclude Include="gameSound\SoundECSEvents.h" />
+    <ClInclude Include="gameSound\SoundECSSystems.h" />
+    <ClInclude Include="gameSound\SoundGlobals.h" />
   </ItemGroup>
 </Project>
