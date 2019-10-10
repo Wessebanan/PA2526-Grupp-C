@@ -1,6 +1,6 @@
 #include "Mixer.h"
 
-void Sound::Mixer::Fill(Samples start, Samples count, float * pData)
+void Audio::Mixer::Fill(Samples start, Samples count, float* pData)
 {
 	int i, j;
 	float voice_data[SOUND_FRAMES_PER_BUFFER*2];
@@ -28,7 +28,7 @@ void Sound::Mixer::Fill(Samples start, Samples count, float * pData)
 	}
 }
 
-bool Sound::Mixer::NewSoundVoice(Plugin::Plugin* pEntryPlugin)
+bool Audio::Mixer::NewSoundVoice(Plugin::Plugin* pEntryPlugin)
 {
 	for (int i = 0; i < SOUND_MAX_SOUND_VOICES; i++)
 	{
@@ -41,7 +41,7 @@ bool Sound::Mixer::NewSoundVoice(Plugin::Plugin* pEntryPlugin)
 	return false;
 }
 
-bool Sound::Mixer::NewMusicVoice(Plugin::Plugin* pEntryPlugin)
+bool Audio::Mixer::NewMusicVoice(Plugin::Plugin* pEntryPlugin)
 {
 	if (!mMusicVoices[0].IsActive())
 	{
@@ -51,12 +51,17 @@ bool Sound::Mixer::NewMusicVoice(Plugin::Plugin* pEntryPlugin)
 	return false;
 }
 
-void Sound::Mixer::AddSoundMessage(SoundMessage rMessage)
+void Audio::Mixer::AddSoundMessage(SoundMessage message)
 {
-	mSoundMessageBuffer.insert(&rMessage);
+	mSoundMessageBuffer.insert(&message);
 }
 
-void Sound::Mixer::ProcessMessages()
+void Audio::Mixer::AddMusicMessage(MusicMessage message)
+{
+	mMusicMessageBuffer.insert(&message);
+}
+
+void Audio::Mixer::ProcessMessages()
 {
 	if (!mSoundMessageBuffer.isEmpty())
 	{
@@ -68,7 +73,7 @@ void Sound::Mixer::ProcessMessages()
 	}
 }
 
-void Sound::Mixer::ProcessSoundMessages()
+void Audio::Mixer::ProcessSoundMessages()
 {
 	SoundMessage temp_message;
 	while (mSoundMessageBuffer.remove(&temp_message))
@@ -77,11 +82,8 @@ void Sound::Mixer::ProcessSoundMessages()
 	}
 }
 
-void Sound::Mixer::ProcessMusicMessages()
+void Audio::Mixer::ProcessMusicMessages()
 {
-	// Music messages are currently nothing different
-	// from sound messages.
-	// Will be changed in a future task
 	MusicMessage temp_message;
 	while (mMusicMessageBuffer.remove(&temp_message))
 	{

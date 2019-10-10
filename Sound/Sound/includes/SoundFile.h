@@ -3,7 +3,7 @@
 //#include "tinywav.h"
 #include <string>
 
-namespace Sound
+namespace Audio
 {
 	class FileData
 	{

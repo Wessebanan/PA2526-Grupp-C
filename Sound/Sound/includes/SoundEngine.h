@@ -5,9 +5,9 @@
 #include "Plugin.h"
 #include "Mixer.h"
 
-namespace Sound
+namespace Audio
 {
-	// Sound::Engine class 
+	// Audio::Engine class 
 	// The engine class is responsible for initializing
 	// a sound stream and holds all functionallity needed
 	// for transfering data from the chain buffers to the
@@ -90,7 +90,7 @@ namespace Sound
 		Mixer* mpMixer;
 	};
 
-	// Sound::PaHandler class
+	// Audio::PaHandler class
 	// Just a handler instanced as an object to terminate
 	// itself automatically when it goes out of scope
 	class PaHandler

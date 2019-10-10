@@ -1,6 +1,6 @@
 #include "SoundBank.h"
 #include <iostream>
-Sound::Bank::Bank()
+Audio::Bank::Bank()
 {
 	for (int i = 0; i < SOUND_MAX_BANK_FILES; i++)
 	{
@@ -8,7 +8,7 @@ Sound::Bank::Bank()
 	}
 }
 
-Sound::Bank::~Bank()
+Audio::Bank::~Bank()
 {
 	for (int i = 0; i < SOUND_MAX_BANK_FILES; i++)
 	{
@@ -20,7 +20,7 @@ Sound::Bank::~Bank()
 	}
 }
 
-Sound::FileData* Sound::Bank::GetFile(std::string path)
+Audio::FileData* Audio::Bank::GetFile(std::string path)
 {
 	for (int i = 0; i < SOUND_MAX_BANK_FILES; i++)
 	{
@@ -51,14 +51,14 @@ Sound::FileData* Sound::Bank::GetFile(std::string path)
 	}
 }
 
-bool Sound::Bank::LoadMultipleFiles(const std::string* pPathArray, int count)
+bool Audio::Bank::LoadMultipleFiles(const std::string* pPathArray, int count)
 {
 	bool return_value = true;
 	for (int i = 0; i < count; i++)
 	{
 		if (i >= SOUND_MAX_BANK_FILES)
 		{
-			std::cerr << "Sound bank reached maximum file capacity\n";
+			std::cerr << "Audio bank reached maximum file capacity\n";
 			return_value = false;
 			break;
 		}
@@ -86,7 +86,7 @@ bool Sound::Bank::LoadMultipleFiles(const std::string* pPathArray, int count)
 	return return_value;
 }
 
-Sound::FileData* Sound::Bank::operator[](int index)
+Audio::FileData* Audio::Bank::operator[](int index)
 {
 	if (index >= SOUND_MAX_BANK_FILES)
 	{
@@ -95,7 +95,7 @@ Sound::FileData* Sound::Bank::operator[](int index)
 	return mpFiles[index];
 }
 
-Sound::FileData* Sound::Bank::SetFileAtIndex(std::string path, int index)
+Audio::FileData* Audio::Bank::SetFileAtIndex(std::string path, int index)
 {
 	if (mpFiles[index] == nullptr)
 	{

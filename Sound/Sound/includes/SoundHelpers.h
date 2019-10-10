@@ -19,7 +19,7 @@
 #define M_PI  (3.14159265)
 #endif
 
-namespace Sound
+namespace Audio
 {
 	// Defining a frame structure
 	struct Frame

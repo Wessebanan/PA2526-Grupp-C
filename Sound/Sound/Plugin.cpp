@@ -1,7 +1,7 @@
 #include "Plugin.h"
 #include <cmath>
 
-Sound::Plugin::Sampler::Sampler(FileData* pFile, int repeatAmount)
+Audio::Plugin::Sampler::Sampler(FileData* pFile, int repeatAmount)
 {
 	mpFile = pFile;
 	mRepeatAmount = repeatAmount;
@@ -9,7 +9,7 @@ Sound::Plugin::Sampler::Sampler(FileData* pFile, int repeatAmount)
 }
 
 // TODO: This sampler does not support mono wav files!
-Sound::Plugin::Status Sound::Plugin::Sampler::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
+Audio::Plugin::Status Audio::Plugin::Sampler::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
 {
 	int i, j;
 	// Get pointer to the data and amount of samples

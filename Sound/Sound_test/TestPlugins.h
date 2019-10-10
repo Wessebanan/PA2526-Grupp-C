@@ -1,7 +1,7 @@
 #pragma once
 #include "Plugin.h"
 
-namespace Sound
+namespace Audio
 {
 	namespace Plugin
 	{

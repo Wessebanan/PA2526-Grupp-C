@@ -1,6 +1,6 @@
 #pragma once
 #include "Plugin.h"
-namespace Sound
+namespace Audio
 {
 	class Voice
 	{

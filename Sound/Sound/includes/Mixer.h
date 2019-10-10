@@ -1,8 +1,9 @@
 #pragma once
 #include "Plugin.h"
 #include "Voice.h"
-namespace Sound
+namespace Audio
 {
+
 	struct SoundMessage
 	{
 		Plugin::Plugin* pEntry;
@@ -17,7 +18,8 @@ namespace Sound
 		// Fills the frame data with the total of all active voices
 		void Fill(Samples start, Samples count, float * pData);
 
-		void AddSoundMessage(SoundMessage rMessage);
+		void AddSoundMessage(SoundMessage message);
+		void AddMusicMessage(MusicMessage message);
 
 		void ProcessMessages();
 	private:

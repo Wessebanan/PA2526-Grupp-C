@@ -1,6 +1,6 @@
 #pragma once
 #include "SoundFile.h"
-namespace Sound
+namespace Audio
 {
 	class Bank
 	{

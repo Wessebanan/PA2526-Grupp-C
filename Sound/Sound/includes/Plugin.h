@@ -2,7 +2,7 @@
 #include "SoundHelpers.h"
 #include "SoundFile.h"
 
-namespace Sound
+namespace Audio
 {
 	namespace Plugin
 	{

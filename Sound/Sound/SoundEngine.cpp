@@ -3,7 +3,7 @@
 #include <cmath>
 #include <algorithm>
 
-Sound::Engine::Engine()
+Audio::Engine::Engine()
 {
 	mpStream = nullptr;
 	mWorkerThreadRun = false;
@@ -11,16 +11,16 @@ Sound::Engine::Engine()
 	mProducerLastSampleCount = 0;
 }
 
-Sound::Engine::~Engine()
+Audio::Engine::~Engine()
 {
 }
 
-bool Sound::Engine::OpenStream()
+bool Audio::Engine::OpenStream()
 {
 	return OpenStream(Pa_GetDefaultOutputDevice());
 }
 
-bool Sound::Engine::OpenStream(PaDeviceIndex index)
+bool Audio::Engine::OpenStream(PaDeviceIndex index)
 {
 	PaStreamParameters output_parameters;
 
@@ -43,7 +43,7 @@ bool Sound::Engine::OpenStream(PaDeviceIndex index)
 		SOUND_SAMPLE_RATE,			// Sample rate of 44100 hz (standard)
 		SOUND_FRAMES_PER_BUFFER,
 		paClipOff,		// we won't output out of range samples so don't bother clipping them
-		&Sound::Engine::PaCallback,
+		&Audio::Engine::PaCallback,
 		this            // Using 'this' for userData so we can cast to Engine* in paCallback method
 	);
 
@@ -53,7 +53,7 @@ bool Sound::Engine::OpenStream(PaDeviceIndex index)
 		return false;
 	}
 
-	err = Pa_SetStreamFinishedCallback(mpStream, &Sound::Engine::PaStreamFinished);
+	err = Pa_SetStreamFinishedCallback(mpStream, &Audio::Engine::PaStreamFinished);
 
 	// In case an error occures, close the stream
 	if (err != paNoError)
@@ -67,7 +67,7 @@ bool Sound::Engine::OpenStream(PaDeviceIndex index)
 	return true;
 }
 
-bool Sound::Engine::CloseStream()
+bool Audio::Engine::CloseStream()
 {
 	if (mpStream == 0)
 		return false;
@@ -78,7 +78,7 @@ bool Sound::Engine::CloseStream()
 	return (err == paNoError);
 }
 
-bool Sound::Engine::StartStream()
+bool Audio::Engine::StartStream()
 {
 	if (mpStream == 0)
 		return false;
@@ -88,7 +88,7 @@ bool Sound::Engine::StartStream()
 	return (err == paNoError);
 }
 
-bool Sound::Engine::StopStream()
+bool Audio::Engine::StopStream()
 {
 	if (mpStream == 0)
 		return false;
@@ -98,26 +98,26 @@ bool Sound::Engine::StopStream()
 	return (err == paNoError);
 }
 
-void Sound::Engine::StartWorkThread()
+void Audio::Engine::StartWorkThread()
 {
 	mWorkerThreadRun = true;
 	mWorkThreadStartTime = std::chrono::steady_clock::now();
 	mpWorkerThread = new std::thread(&WorkerThreadUpdate, this);
 }
 
-void Sound::Engine::JoinWorkThread()
+void Audio::Engine::JoinWorkThread()
 {
 	mWorkerThreadRun = false;
 	mpWorkerThread->join();
 	delete mpWorkerThread;
 }
 
-void Sound::Engine::UseThisMixer(Mixer* pMixer)
+void Audio::Engine::UseThisMixer(Mixer* pMixer)
 {
 	mpMixer = pMixer;
 }
 
-int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
+int Audio::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffer,
 	unsigned long framesPerBuffer,
 	const PaStreamCallbackTimeInfo* pTimeInfo,
 	PaStreamCallbackFlags statusFlags)
@@ -149,7 +149,7 @@ int Sound::Engine::PaCallbackMethod(const void* pInputBuffer, void* pOutputBuffe
 // It may called at interrupt level on some machines so don't do anything
 // that could mess up the system like calling malloc() or free().
 // 
-int Sound::Engine::PaCallback(const void* pInputBuffer, void* pOutputBuffer,
+int Audio::Engine::PaCallback(const void* pInputBuffer, void* pOutputBuffer,
 	unsigned long framesPerBuffer,
 	const PaStreamCallbackTimeInfo* pTimeInfo,
 	PaStreamCallbackFlags statusFlags,
@@ -164,7 +164,7 @@ int Sound::Engine::PaCallback(const void* pInputBuffer, void* pOutputBuffer,
 }
 
 
-void Sound::Engine::PaStreamFinishedMethod()
+void Audio::Engine::PaStreamFinishedMethod()
 {
 	// Not being used right now
 }
@@ -172,12 +172,12 @@ void Sound::Engine::PaStreamFinishedMethod()
 /*
  * This routine is called by portaudio when playback is done.
  */
-void Sound::Engine::PaStreamFinished(void* pUserData)
+void Audio::Engine::PaStreamFinished(void* pUserData)
 {
 	return ((Engine*)pUserData)->PaStreamFinishedMethod();
 }
 
-void Sound::Engine::WorkerThreadUpdateMethod()
+void Audio::Engine::WorkerThreadUpdateMethod()
 {
 	// Process any messages recieved before filling
 	mpMixer->ProcessMessages();
@@ -214,7 +214,7 @@ void Sound::Engine::WorkerThreadUpdateMethod()
 	mProducerLastSampleCount += samples_to_fill;
 }
 
-void Sound::Engine::WorkerThreadUpdate(void* pData)
+void Audio::Engine::WorkerThreadUpdate(void* pData)
 {
 	while (((Engine*)pData)->mWorkerThreadRun)
 	{
@@ -223,11 +223,11 @@ void Sound::Engine::WorkerThreadUpdate(void* pData)
 	}
 }
 
-inline Sound::Samples Sound::Engine::GetWorkerCurrentSampleCount()
+inline Audio::Samples Audio::Engine::GetWorkerCurrentSampleCount()
 {
 	// To get the desired precision, the duration is casted
 	// to nanoseconds and then converted back to seconds
 	float temp = std::chrono::duration_cast<std::chrono::nanoseconds>
 		(std::chrono::steady_clock::now() - mWorkThreadStartTime).count() * 0.000000001f;
-	return Sound::ToSamples(temp);
+	return Audio::ToSamples(temp);
 }

@@ -32,13 +32,13 @@ int main(int argc, char** argv)
 // "The thread fills the ring buffer when needed"
 TEST(SoundAPI, InitializePortAudio)
 {
-	// Initialize a Sound Engine
-	Sound::Engine engine;
-	Sound::Mixer mixer;
+	// Initialize a Audio Engine
+	Audio::Engine engine;
+	Audio::Mixer mixer;
 
 	// Add voices to the mixer
 	{
-		using namespace Sound::Plugin;
+		using namespace Audio::Plugin;
 
 		// Test so that chained plugins doesn't cause trouble
 		mixer.AddSoundMessage(
@@ -62,7 +62,7 @@ TEST(SoundAPI, InitializePortAudio)
 		<< ", RingBufSize = " << SOUND_BUFFER_SIZE << std::endl;
 
 	// Instance PortAudio handler
-	Sound::PaHandler pa_init;
+	Audio::PaHandler pa_init;
 
 	ASSERT_EQ(pa_init.result(), paNoError)
 		<< "An error occured while using the portaudio stream"
@@ -226,14 +226,14 @@ TEST(Utility, RingBufferThreaded)
 TEST(SoundAPI, LoadSoundData)
 {
 	// Initialize a new sound bank
-	Sound::Bank bank;
+	Audio::Bank bank;
 	// Loading a non existing file should result in a nullptr (0)
 	EXPECT_FALSE(bank.GetFile("non_existing_file"));
 	// Check if sine.wav only has one channel
-	Sound::FileData* p_sine_file = bank.GetFile("sine.wav");
+	Audio::FileData* p_sine_file = bank.GetFile("sine.wav");
 	EXPECT_EQ(p_sine_file->GetNumChannels(), 1);
 	// Check if sine2.wav has two channels
-	Sound::FileData* p_sine_file2 = bank.GetFile("sine2.wav");
+	Audio::FileData* p_sine_file2 = bank.GetFile("sine2.wav");
 	EXPECT_EQ(p_sine_file2->GetNumChannels(), 2);
 }
 
@@ -245,17 +245,17 @@ TEST(SoundAPI, LoadSoundData)
 // sound data)"
 TEST(SoundAPI, PlaySoundWithSampler)
 {
-	// Initialize a Sound engine, mixer and bank
-	Sound::Engine engine;
-	Sound::Mixer mixer;
-	Sound::Bank bank;
+	// Initialize a Audio engine, mixer and bank
+	Audio::Engine engine;
+	Audio::Mixer mixer;
+	Audio::Bank bank;
 
 	// Add voice to the mixer
 	{
-		using namespace Sound::Plugin;
+		using namespace Audio::Plugin;
 
 		// Load "square.wav"
-		Sound::FileData* p_file = bank.GetFile("square.wav");
+		Audio::FileData* p_file = bank.GetFile("square.wav");
 		EXPECT_NE(p_file, nullptr);
 
 		std::cout << "The file is "
@@ -272,7 +272,7 @@ TEST(SoundAPI, PlaySoundWithSampler)
 		<< ", RingBufSize = " << SOUND_BUFFER_SIZE << std::endl;
 
 	// Instance PortAudio handler
-	Sound::PaHandler pa_init;
+	Audio::PaHandler pa_init;
 
 	ASSERT_EQ(pa_init.result(), paNoError)
 		<< "An error occured while using the portaudio stream"
@@ -309,7 +309,7 @@ TEST(SoundAPI, SoundBankReadMany)
 		"sine2.wav",
 		"square.wav"
 	};
-	Sound::Bank bank;
+	Audio::Bank bank;
 	// Should be successful
 	EXPECT_TRUE(bank.LoadMultipleFiles(FILE_NAMES, 3));
 
@@ -329,7 +329,7 @@ TEST(SoundAPI, SoundBankReadMany)
 		"sine2.wav",
 		"square.wav"
 	};
-	Sound::Bank bank_2;
+	Audio::Bank bank_2;
 	// Should fail
 	EXPECT_FALSE(bank_2.LoadMultipleFiles(FILE_NAMES_2, 4));
 	// The sound file that does not exist should be nullptr
@@ -348,7 +348,7 @@ TEST(SoundAPI, SoundBankReadMany)
 		"sine.wav","sine2.wav","square.wav",
 		"sine.wav","sine2.wav","square.wav"
 	};
-	Sound::Bank bank_3;
+	Audio::Bank bank_3;
 	// Should fail
 	EXPECT_FALSE(bank_3.LoadMultipleFiles(FILE_NAMES_3, 27));
 }
