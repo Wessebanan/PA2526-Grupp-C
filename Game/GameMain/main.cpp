@@ -40,6 +40,7 @@ int main()
 
 	InitInput(ecs);
 	InitInterpreter(ecs);
+	InitUI(ecs, &my_d2d, my_UI_systems);
 	//CameraFunctions::CreateDevCamera(ecs);
 
 
@@ -104,8 +105,7 @@ int main()
 			}
 
 			TransformViewMatrix(view_matrix, x, y, z);
-	initInput(ecs);
-	InitUI(ecs, &my_d2d, my_UI_systems);
+	
 
 			mng.SetViewMatrix(view_matrix);
 			
