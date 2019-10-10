@@ -12,6 +12,21 @@
     <ClCompile Include="..\GameMain\UI\UISystems.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="..\GameMain\gameUtility\CameraFunctions.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\gameUtility\UtilityFunctions.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\gameAI\AIFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\gameAI\GridFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\gameAI\GridProp.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -36,6 +51,63 @@
     <ClInclude Include="..\GameMain\Physics\PhysicsEvents.h">
       <Filter>Physics</Filter>
     </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\CameraComponents.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\CameraEvents.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\CameraFunctions.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\CameraSystems.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\DebugInfo.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\GlobalsCamera.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\UtilityComponents.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\UtilityEvents.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\UtilityFunctions.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\UtilitySystems.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\AIComponents.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\AIEvents.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\AIFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\AIGlobals.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\AISystems.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\GridFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\GridProp.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\InitArmy.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\InitGrid.h">
+      <Filter>AI</Filter>
+    </ClInclude>
     <ClInclude Include="UI\UIEcsTest.h">
       <Filter>UI</Filter>
     </ClInclude>
@@ -58,6 +130,15 @@
     </Filter>
     <Filter Include="UI">
       <UniqueIdentifier>{715b9bde-568d-4ee5-81c7-32635a37e315}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <Filter Include="Utility">
+      <UniqueIdentifier>{d96f7afd-16ba-4c20-9f31-1556ae77133f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AI">
+      <UniqueIdentifier>{68f9db8b-fa0c-48c8-9771-bc8de85172dc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

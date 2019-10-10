@@ -1,11 +1,11 @@
 #include "SoundHelpers.h"
 
-Sound::Samples Sound::ToSamples(const float Seconds)
+Sound::Samples Sound::ToSamples(const float seconds)
 {
-	return (Samples)(Seconds * (float)SOUND_SAMPLE_RATE);
+	return (Samples)(seconds * (float)SOUND_SAMPLE_RATE);
 }
 
-float Sound::ToSeconds(const Samples SampleCount)
+float Sound::ToSeconds(const Samples sampleCount)
 {
-	return (float)SampleCount / (float)SOUND_SAMPLE_RATE;
+	return (float)sampleCount / (float)SOUND_SAMPLE_RATE;
 }

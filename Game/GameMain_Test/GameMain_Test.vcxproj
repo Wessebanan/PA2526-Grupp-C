@@ -25,23 +25,44 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
     <Import Project="..\..\PropertySheets\ECS_Debug.props" />
-    <Import Project="..\..\PropertySheets\Utility_Debug.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
-    <Import Project="..\..\PropertySheets\AI_Debug.props" />
     <Import Project="..\..\PropertySheets\Physics_Debug.props" />
     <Import Project="..\..\PropertySheets\UI_Debug.props" />
+    <Import Project="AI_Game.props" />
+    <Import Project="Utility_Game.props" />
+    <Import Project="Input_Game.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
     <Import Project="..\..\PropertySheets\ECS_Release.props" />
-    <Import Project="..\..\PropertySheets\Utility_Release.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
-    <Import Project="..\..\PropertySheets\AI_Release.props" />
     <Import Project="..\..\PropertySheets\Physics_Release.props" />
+    <Import Project="AI_Game.props" />
+    <Import Project="Input_Game.props" />
+    <Import Project="Utility_Game.props" />
     <Import Project="..\..\PropertySheets\UI_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="..\GameMain\gameAI\AIComponents.h" />
+    <ClInclude Include="..\GameMain\gameAI\AIEvents.h" />
+    <ClInclude Include="..\GameMain\gameAI\AIFunctions.h" />
+    <ClInclude Include="..\GameMain\gameAI\AIGlobals.h" />
+    <ClInclude Include="..\GameMain\gameAI\AISystems.h" />
+    <ClInclude Include="..\GameMain\gameAI\GridFunctions.h" />
+    <ClInclude Include="..\GameMain\gameAI\GridProp.h" />
+    <ClInclude Include="..\GameMain\gameAI\InitArmy.h" />
+    <ClInclude Include="..\GameMain\gameAI\InitGrid.h" />
+    <ClInclude Include="..\GameMain\gameUtility\CameraComponents.h" />
+    <ClInclude Include="..\GameMain\gameUtility\CameraEvents.h" />
+    <ClInclude Include="..\GameMain\gameUtility\CameraFunctions.h" />
+    <ClInclude Include="..\GameMain\gameUtility\CameraSystems.h" />
+    <ClInclude Include="..\GameMain\gameUtility\DebugInfo.h" />
+    <ClInclude Include="..\GameMain\gameUtility\GlobalsCamera.h" />
+    <ClInclude Include="..\GameMain\gameUtility\UtilityComponents.h" />
+    <ClInclude Include="..\GameMain\gameUtility\UtilityEvents.h" />
+    <ClInclude Include="..\GameMain\gameUtility\UtilityFunctions.h" />
+    <ClInclude Include="..\GameMain\gameUtility\UtilitySystems.h" />
     <ClInclude Include="..\GameMain\Physics\CollisionSystem.h" />
     <ClInclude Include="..\GameMain\Physics\MovementSystem.h" />
     <ClInclude Include="..\GameMain\Physics\PhysicsComponents.h" />
@@ -57,6 +78,11 @@
     <ClInclude Include="UI\UIEcsTest.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\GameMain\gameAI\AIFunctions.cpp" />
+    <ClCompile Include="..\GameMain\gameAI\GridFunctions.cpp" />
+    <ClCompile Include="..\GameMain\gameAI\GridProp.cpp" />
+    <ClCompile Include="..\GameMain\gameUtility\CameraFunctions.cpp" />
+    <ClCompile Include="..\GameMain\gameUtility\UtilityFunctions.cpp" />
     <ClCompile Include="..\GameMain\Physics\CollisionSystem.cpp" />
     <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp" />
     <ClCompile Include="..\GameMain\UI\UISystems.cpp" />

@@ -31,7 +31,7 @@ namespace Sound
 		// at once. In future implementations, this is 
 		// NOT a good idea for large files, since we
 		// have a limited memory budget
-		bool LoadAll(std::string& Path);
+		bool LoadAll(std::string& rPath);
 		// Deletes all loaded sample data
 		void Unload();
 		// Get the amount of frames loaded
@@ -45,7 +45,7 @@ namespace Sound
 		// Get a pointer to the sample data
 		float* GetDataPointer();
 		// Compare two strings and return if equal
-		bool StringIsEqual(std::string& Path);
+		bool StringIsEqual(std::string& rPath);
 	private:
 		WavHeader mHeader;
 		std::string mPath;

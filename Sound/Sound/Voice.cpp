@@ -11,9 +11,9 @@ Sound::Voice::~Voice()
 	Delete();
 }
 
-void Sound::Voice::Fill(Samples Start, Samples Count, float* Data)
+void Sound::Voice::Fill(Samples start, Samples count, float* pData)
 {
-	mpEntryPlugin->Process(Start, Count, Data, 2);
+	mpEntryPlugin->Process(start, count, pData, 2);
 }
 
 void Sound::Voice::New(Plugin::Plugin* pEntryPlugin)
