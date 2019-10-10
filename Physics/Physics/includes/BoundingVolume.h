@@ -16,7 +16,7 @@ public:
 	// Calls private intersection functions based on which
 	// type volume has.
 	virtual bool Intersect(const BoundingVolume *volume) = 0;
-
+	virtual void WorldTransform(const XMMATRIX& world) = 0;
 private:
 	virtual bool IntersectSphere(const BoundingVolume *volume) = 0;
 	virtual bool IntersectOBB	(const BoundingVolume *volume) = 0;

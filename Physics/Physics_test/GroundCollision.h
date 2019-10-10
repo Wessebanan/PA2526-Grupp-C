@@ -51,26 +51,26 @@
 
 		GroundCollisionComponent ground_collision_component;
 
-	//	// The entity needs a transform component as well.
-	//	TransformComponent transform_component;
-
 		ecs::Entity* ground_collision_entity = ecs.createEntity(mesh_component, ground_collision_component);
 		
 		// Getting a pointer to the ground collision component to check its values.
 		GroundCollisionComponent* p_ground_collision_component = dynamic_cast<GroundCollisionComponent*>(ecs.getComponent(GroundCollisionComponent::typeID, ground_collision_entity->getComponentID(GroundCollisionComponent::typeID)));
 		
-		// Checking that each vertex is inside the box.
+		// Checking that enough vertices are inside the box.
 		std::vector<DirectX::XMFLOAT3> *vertices = mesh_component.mMesh.GetVertexPositionVector();
+		unsigned int n_inside = 0;
 		for (int i = 0; i < vertices->size(); i++)
 		{
-			// Min point is at index 0 and max point at index 7.
-			EXPECT_TRUE(vertices->at(i).x >= p_ground_collision_component->mVertices[0].x);
-			EXPECT_TRUE(vertices->at(i).y >= p_ground_collision_component->mVertices[0].y);
-			EXPECT_TRUE(vertices->at(i).z >= p_ground_collision_component->mVertices[0].z);
-			EXPECT_TRUE(vertices->at(i).x <= p_ground_collision_component->mVertices[7].x);
-			EXPECT_TRUE(vertices->at(i).y <= p_ground_collision_component->mVertices[7].y);
-			EXPECT_TRUE(vertices->at(i).z <= p_ground_collision_component->mVertices[7].z);
-		}		
+			ContainmentType containtment_type = p_ground_collision_component->mOBB.Contains(XMLoadFloat3(&vertices->at(i)));
+			if (containtment_type == ContainmentType::CONTAINS)
+			{
+				n_inside++;
+			}
+		}
+
+		// DirectXCollision disregards a few points in making the box, for optimization probably.
+		// If 99% of vertices are inside, it is safe to assume that the box has been created properly.
+		EXPECT_GT((float)n_inside / (float)vertices->size(), 0.99f);
 	}
 #pragma endregion
 #pragma region GroundCollision
@@ -170,10 +170,17 @@
 		// above the ground.
 		ecs.update(DELTA);
 
-		// y position should now be the distance from the center of the model
-		// to the base, plus the height of the tile, since the origin of
-		// the model is the center of it.
-		EXPECT_FLOAT_EQ(p_transform_component->position.y, TILE_HEIGHT + fabs(p_ground_collision_component->mVertices[0].y));
+		BoundingOrientedBox obb = p_ground_collision_component->mOBB;
+		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform_component));
+
+		XMFLOAT3* corners = new XMFLOAT3[8];
+		obb.GetCorners(corners);
+		const float ABS_ERROR = pow(10.0f, -6.0f);
+		for (int i = 0; i < 8; i++)
+		{			
+			EXPECT_GE(corners[i].y - TILE_HEIGHT, 0.0f - ABS_ERROR);
+		}
+		delete[] corners;
 	}
 
 	TEST(GroundCollision, TestCollisionHeightAdjustmentSpecificTile)
@@ -239,11 +246,16 @@
 		// above the ground.
 		ecs.update(DELTA);
 
-		// y position should now be the distance from the center of the model
-		// to the base, plus the default height of a tile (0), since the origin of
-		// the model is the center of it.
-		EXPECT_FLOAT_EQ(p_transform_component->position.y, 0.0f + fabs(p_ground_collision_component->mVertices[0].y));
+		BoundingOrientedBox obb = p_ground_collision_component->mOBB;
+		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform_component));
 
+		XMFLOAT3* corners = new XMFLOAT3[8];
+		obb.GetCorners(corners);
+		const float ABS_ERROR = pow(10.0f, -6.0f);
+		for (int i = 0; i < 8; i++)
+		{
+			EXPECT_GE(corners[i].y, 0.0f - ABS_ERROR);
+		}
 		// Changing the position of the ground collision entity to the tile
 		// where height is adjusted.
 		p_transform_component->position.x = specific_tile_transform->position.x;
@@ -251,9 +263,16 @@
 
 		ecs.update(DELTA);
 
-		// y position should now be the distance from the center of the model
-		// to the base, plus the height of the specific tile.
-		EXPECT_FLOAT_EQ(p_transform_component->position.y, TILE_HEIGHT + fabs(p_ground_collision_component->mVertices[0].y));
+		obb = p_ground_collision_component->mOBB;
+		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform_component));
+
+		obb.GetCorners(corners);
+		for (int i = 0; i < 8; i++)
+		{
+			EXPECT_GE(corners[i].y - TILE_HEIGHT, 0.0f - ABS_ERROR);
+		}
+
+		delete[] corners;
 	}
 	
 	TEST(GroundCollision, RemoveGravityOnGround)
@@ -274,9 +293,9 @@
 		ecs.initialize(ecsDesc);
 
 		// Creating systems.
-		ecs::systems::GroundCollisionSystem* ground_collision_system = ecs.createSystem<ecs::systems::GroundCollisionSystem>();
+		ecs::systems::GroundCollisionSystem* ground_collision_system = ecs.createSystem<ecs::systems::GroundCollisionSystem>(2);
 		ecs::systems::GroundCollisionComponentInitSystem* ground_collision_component_init_system = ecs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
-		ecs::systems::DynamicMovementSystem* dynamic_movement_system = ecs.createSystem<ecs::systems::DynamicMovementSystem>();
+		ecs::systems::DynamicMovementSystem* dynamic_movement_system = ecs.createSystem<ecs::systems::DynamicMovementSystem>(1);
 
 		// Creating a grid for the ecs. Choosing a radius 
 		// that kind of makes sense with the model size 
@@ -289,7 +308,7 @@
 		GroundCollisionComponent ground_collision_component;
 		TransformComponent transform_component;
 		DynamicMovementComponent movement_component;
-		const float START_POSITION = 10.0f;
+		const float START_POSITION = 15.0f;
 		transform_component.position.y = START_POSITION;
 		transform_component.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 
@@ -322,11 +341,16 @@
 		
 		ecs.update(DELTA);
 
-		// This update moves the entity below ground (0) which should set
-		// the y velocity to 0, y position to (tile height[0] + distance from 
-		// center to base of model) and the mOnGround bool to true.
+		BoundingOrientedBox obb = p_ground_collision->mOBB;
+		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform));
+		XMFLOAT3* corners = new XMFLOAT3[8];
+		obb.GetCorners(corners);
+		const float ABS_ERROR = pow(10.0f, -6.0f);
+		for (int i = 0; i < 8; i++)
+		{
+			EXPECT_GE(corners[i].y, 0.0f - ABS_ERROR);
+		}
 		EXPECT_FLOAT_EQ(p_movement->mVelocity.y, 0.0f);
-		EXPECT_FLOAT_EQ(p_transform->position.y, 0.0f + fabs(p_ground_collision->mVertices[0].y));
 		EXPECT_TRUE(p_movement->mOnGround);
 
 		// Grabbing all tiles.
@@ -350,12 +374,20 @@
 		p_transform->position.z = specific_tile_transform->position.z;
 
 		ecs.update(DELTA);
-
+		
 		// This update expects the ground collision to work even
 		// if the entity is "on ground" since it moved horizontally
 		// into a tile that is higher.
+		obb = p_ground_collision->mOBB;
+		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform));
+		obb.GetCorners(corners);
+
+		for (int i = 0; i < 8; i++)
+		{
+			EXPECT_GE(corners[i].y, 0.0f - ABS_ERROR);
+		}
 		EXPECT_FLOAT_EQ(p_movement->mVelocity.y, 0.0f);
-		EXPECT_FLOAT_EQ(p_transform->position.y, TILE_HEIGHT + fabs(p_ground_collision->mVertices[0].y));
 		EXPECT_TRUE(p_movement->mOnGround);
+		delete[] corners;
 	}
 #pragma endregion

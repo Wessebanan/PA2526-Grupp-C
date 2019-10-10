@@ -11,6 +11,7 @@ public:
 	void Generate(const XMFLOAT3* points, const unsigned int size);
 
 	bool Intersect(const BoundingVolume* volume);
+	void WorldTransform(const XMMATRIX& world);
 
 	const XMFLOAT3* GetMin() const;
 	const XMFLOAT3* GetMax() const;

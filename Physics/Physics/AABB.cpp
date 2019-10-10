@@ -43,6 +43,10 @@ bool AABB::Intersect(const BoundingVolume* volume)
 	}
 }
 
+void AABB::WorldTransform(const XMMATRIX& world)
+{
+}
+
 bool AABB::IntersectSphere(const BoundingVolume* volume)
 {
 	const BoundingSphere* sphere = dynamic_cast<const BoundingSphere*>(volume);

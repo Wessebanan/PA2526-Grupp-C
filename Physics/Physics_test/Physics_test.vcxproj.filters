@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="..\..\Game\GameMain\Physics\CollisionSystem.cpp">
+      <Filter>GameFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Game\GameMain\Physics\MovementSystem.cpp">
+      <Filter>GameFiles</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GroundCollision.h" />
+    <ClInclude Include="MovementLogic.h" />
+    <ClInclude Include="ObjectCollision.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="..\..\Game\GameMain\Physics\CollisionSystem.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\Physics\MovementSystem.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\Physics\PhysicsComponents.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\Physics\PhysicsEvents.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="GameFiles">
+      <UniqueIdentifier>{670984f7-97ce-4fb9-9a88-264869c2c95d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

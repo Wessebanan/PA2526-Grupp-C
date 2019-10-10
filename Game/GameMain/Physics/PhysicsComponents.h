@@ -2,9 +2,10 @@
 #include "ecs.h"
 #include <DirectXMath.h>
 #include "Mesh.h"
-#include "AABB.h"
-#include "BoundingSphere.h"
-#include "OBB.h"
+//#include "AABB.h"
+//#include "BoundingSphere.h"
+//#include "OBB.h"
+#include <DirectXCollision.h>
 
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
@@ -84,7 +85,8 @@ namespace ecs
 			0-------1		|: y, -: x /: z
 			*/
 			//DirectX::XMFLOAT3 mVertices[8] = { DirectX::XMFLOAT3(0, 0, 0) };
-			OBB mOBB;
+			DirectX::BoundingOrientedBox mOBB;
+			//OBB mOBB;
 			// Center Position is the middle of the box, for distance calculation.
 			// Important to apply transform to this point as well.
 			//DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);
@@ -102,7 +104,8 @@ namespace ecs
 		*/
 		COMP(ObjectCollisionComponent)
 		{
-			AABB mAABB;
+			DirectX::BoundingBox mAABB;
+			//AABB mAABB;
 			//DirectX::XMFLOAT3 mMin		= DirectX::XMFLOAT3(0, 0, 0);
 			//DirectX::XMFLOAT3 mMax		= DirectX::XMFLOAT3(0, 0, 0);
 			//DirectX::XMFLOAT3 mCenter	= DirectX::XMFLOAT3(0, 0, 0);

@@ -55,6 +55,14 @@ bool BoundingSphere::Intersect(const BoundingVolume* volume)
 	}
 }
 
+void BoundingSphere::WorldTransform(const XMMATRIX& world)
+{
+	XMVECTOR center = XMLoadFloat3(&mCenter);
+	center = XMVector3Transform(center, world);
+	XMStoreFloat3(&mCenter, center);
+	
+}
+
 bool BoundingSphere::IntersectSphere(const BoundingVolume* volume)
 {
 	// If the distance between the center points is greater than the sum of the radii, 

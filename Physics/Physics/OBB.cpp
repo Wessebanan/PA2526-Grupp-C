@@ -51,9 +51,18 @@ bool OBB::Intersect(const BoundingVolume* volume)
 	}
 }
 
+void OBB::WorldTransform(const XMMATRIX& world)
+{
+}
+
 const XMFLOAT3* OBB::GetVertices() const
 {
 	return mpVertices;
+}
+
+const XMFLOAT3* OBB::GetCenter() const
+{
+	return &mCenter;
 }
 
 bool OBB::IntersectSphere(const BoundingVolume* volume)

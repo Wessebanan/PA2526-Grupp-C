@@ -3,6 +3,7 @@
 #include "PhysicsComponents.h"
 #include "PhysicsEvents.h"
 #include "UtilityComponents.h"
+#include "UtilityFunctions.h"
 #include <math.h>
 #include "PhysicsHelperFunctions.h"
 

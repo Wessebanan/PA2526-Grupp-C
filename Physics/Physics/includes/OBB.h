@@ -26,8 +26,10 @@ public:
 	void Generate(const XMFLOAT3* points, const unsigned int size);
 
 	bool Intersect(const BoundingVolume* volume);
+	void WorldTransform(const XMMATRIX& world);
 
 	const XMFLOAT3* GetVertices() const;
+	const XMFLOAT3* GetCenter() const;
 
 private:
 	bool IntersectSphere(const BoundingVolume *volume);
@@ -35,4 +37,5 @@ private:
 	bool IntersectAABB(const BoundingVolume * volume);
 
 	XMFLOAT3 *mpVertices;
+	XMFLOAT3 mCenter;
 };
