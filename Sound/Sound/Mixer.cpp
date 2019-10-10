@@ -51,12 +51,12 @@ bool Audio::Mixer::NewMusicVoice(Plugin::Plugin* pEntryPlugin)
 	return false;
 }
 
-void Audio::Mixer::AddSoundMessage(SoundMessage message)
+void Audio::Mixer::AddSoundMessage(Sound::Message message)
 {
 	mSoundMessageBuffer.insert(&message);
 }
 
-void Audio::Mixer::AddMusicMessage(MusicMessage message)
+void Audio::Mixer::AddMusicMessage(Music::Message message)
 {
 	mMusicMessageBuffer.insert(&message);
 }
@@ -75,7 +75,7 @@ void Audio::Mixer::ProcessMessages()
 
 void Audio::Mixer::ProcessSoundMessages()
 {
-	SoundMessage temp_message;
+	Sound::Message temp_message;
 	while (mSoundMessageBuffer.remove(&temp_message))
 	{
 		NewSoundVoice(temp_message.pEntry);
@@ -84,7 +84,7 @@ void Audio::Mixer::ProcessSoundMessages()
 
 void Audio::Mixer::ProcessMusicMessages()
 {
-	MusicMessage temp_message;
+	Music::Message temp_message;
 	while (mMusicMessageBuffer.remove(&temp_message))
 	{
 		NewMusicVoice(temp_message.pEntry);

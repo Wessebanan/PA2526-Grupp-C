@@ -3,23 +3,29 @@
 #include "Voice.h"
 namespace Audio
 {
+	namespace Sound
+	{
 
-	struct SoundMessage
+		struct Message
+		{
+			Plugin::Plugin* pEntry;
+		};
+	}
+	namespace Music
 	{
-		Plugin::Plugin* pEntry;
-	};
-	struct MusicMessage
-	{
-		Plugin::Plugin* pEntry;
-	};
+		struct Message
+		{
+			Plugin::Plugin* pEntry;
+		};
+	}
 	class Mixer
 	{
 	public:
 		// Fills the frame data with the total of all active voices
 		void Fill(Samples start, Samples count, float * pData);
 
-		void AddSoundMessage(SoundMessage message);
-		void AddMusicMessage(MusicMessage message);
+		void AddSoundMessage(Sound::Message message);
+		void AddMusicMessage(Music::Message message);
 
 		void ProcessMessages();
 	private:
@@ -30,7 +36,7 @@ namespace Audio
 		bool NewMusicVoice(Plugin::Plugin* pEntryPlugin);
 		Voice mSoundVoices[SOUND_MAX_SOUND_VOICES];
 		Voice mMusicVoices[SOUND_MAX_MUSIC_VOICES];
-		Ringbuffer<SoundMessage, SOUND_MAX_SOUND_MESSAGES> mSoundMessageBuffer;
-		Ringbuffer<MusicMessage, SOUND_MAX_MUSIC_MESSAGES> mMusicMessageBuffer;
+		Ringbuffer<Sound::Message, SOUND_MAX_SOUND_MESSAGES> mSoundMessageBuffer;
+		Ringbuffer<Music::Message, SOUND_MAX_MUSIC_MESSAGES> mMusicMessageBuffer;
 	};
 }
