@@ -337,6 +337,10 @@ namespace {
 HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::XMFLOAT3>* pOutVertexPosVector, std::vector<int>* pOutIndexVector,
 	std::vector<DirectX::XMFLOAT3>* pOutNormalVector, std::vector<DirectX::XMFLOAT2>* pOutUVVector, Skeleton* pOutSkeleton, std::vector<ControlPointInfo>* pOutCPInfoVector)
 {
+	if (!pOutVertexPosVector || !pOutIndexVector || !pOutNormalVector || !pOutUVVector || !pOutSkeleton || !pOutCPInfoVector)
+	{
+		throw std::exception("One or more input vectors to LoadFBX were nullptr.");
+	}
 	// Create the FbxManager if it does not already exist
 	if (gpFbxSdkManager == nullptr)
 	{
@@ -354,9 +358,10 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 
 	// Import model
 	bool b_success = p_importer->Initialize(fileName.c_str(), -1, gpFbxSdkManager->GetIOSettings());
+
 	// Handle failed import
-	// Returns information if the FBX is in the incorrect file format version
-	if (!b_success) {
+	if (!b_success)
+	{
 		FbxString error = p_importer->GetStatus().GetErrorString();
 		OutputDebugStringA("error: Call to FbxImporter::Initialize() failed.\n");
 
@@ -364,7 +369,7 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 		sprintf_s(buffer, "error: Error returned: %s\n", error.Buffer());
 		OutputDebugStringA(buffer);
 		// Error checking, print to visual studio debug window
-		if (p_importer->GetStatus().GetCode() == FbxStatus::eInvalidFileVersion || true) {
+		if (p_importer->GetStatus().GetCode() == FbxStatus::eInvalidFileVersion) {
 			int lFileMajor, lFileMinor, lFileRevision;
 			int lSDKMajor, lSDKMinor, lSDKRevision;
 			// Get the file version number generate by the FBX SDK.
@@ -388,23 +393,23 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 	// Importer is no longer needed, remove from memory
 	p_importer->Destroy();
 
-	FbxNode* p_fbx_root_node = p_fbx_scene->GetRootNode();
 
-	FbxAxisSystem scene_axis_system = p_fbx_scene->GetGlobalSettings().GetAxisSystem();
-	FbxAxisSystem our_axis_system = FbxAxisSystem::eDirectX;
-	if (scene_axis_system != our_axis_system)
-	{
-		our_axis_system.ConvertScene(p_fbx_scene.get());
-	}
+	FbxNode* p_fbx_root_node = p_fbx_scene->GetRootNode();
 
 	if (p_fbx_root_node)
 	{
+		::ProcessSkeletonHierarchy(p_fbx_root_node, pOutSkeleton);
+
+		FbxNode* root_child = p_fbx_scene->GetRootNode();
 		FbxMesh* p_mesh = ::FindMesh(p_fbx_root_node);
 		if (p_mesh)
 		{
 
 			// Make sure the mesh is triangulated
-			assert(p_mesh->IsTriangleMesh() && "Mesh contains non-triangles, please triangulate the mesh.");
+			if (!p_mesh->IsTriangleMesh())
+			{
+				throw std::exception("Mesh contains non-triangles, please triangulate the mesh.");
+			}
 
 			FbxVector4* p_vertices = p_mesh->GetControlPoints();
 
@@ -415,16 +420,25 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 
 			// Load UVs and populate the returned UV vector
 			::LoadUV(p_mesh, pOutUVVector);
+			// Transform the mesh using the appropriate root transformation matrix
 
+			FbxAMatrix conversion_transform = FbxAMatrix(FbxVector4(0.0f, 0.0f, 0.0f), FbxVector4(-90.0f, 0.0f, 0.0f), FbxVector4(1.0f, -1.0f, 1.0f));
 			for (int j = 0; j < p_mesh->GetControlPointsCount(); ++j)
 			{
-				// Process vertex positions
 				DirectX::XMFLOAT3 vertex_pos;
+				FbxVector4 fbx_vertex = conversion_transform.MultT(p_vertices[j]);
+
 				vertex_pos.x = (float)p_vertices[j].mData[0];
 				vertex_pos.y = (float)p_vertices[j].mData[1];
 				vertex_pos.z = (float)p_vertices[j].mData[2];
+				vertex_pos.x = (float)fbx_vertex.mData[0];
+				vertex_pos.y = (float)fbx_vertex.mData[1];
+				vertex_pos.z = (float)fbx_vertex.mData[2];
 				pOutVertexPosVector->push_back(vertex_pos);
 
+
+				// Save to control point info map 
+				//control_points_info[j].ctrlPoint = p_mesh->GetControlPointAt(j);
 
 				fbxsdk::FbxVector4 normal;
 				// If the mesh normals are not in "per vertex" mode, re-generate them to be useable by this parser
@@ -432,10 +446,9 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 				{
 					p_mesh->GenerateNormals(true, true, true);
 				}
-				// Only allowing one normal per element currently, fetching the first available
+				// Only allowing one normal per element currently
 				fbxsdk::FbxGeometryElementNormal* le_normal = p_mesh->GetElementNormal(0);
 
-				// Different type of indexing in vector based on reference mode
 				switch (le_normal->GetReferenceMode())
 				{
 				case FbxGeometryElement::eDirect:
@@ -451,13 +464,26 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 					throw std::exception("Invalid Fbx Normal Reference");
 				}
 				DirectX::XMFLOAT3 vertex_normal;
-				// Double checking that the normal is normalized
 				normal.Normalize();
 				vertex_normal.x = (float)normal.mData[0];
 				vertex_normal.y = (float)normal.mData[1];
 				vertex_normal.z = (float)normal.mData[2];
 				pOutNormalVector->push_back(vertex_normal);
+
 			}
+
+			if (pOutSkeleton->joints.size() > 0)
+			{
+				// In progress, very likely to break
+				// Prepare the vector with ControlPointInfo objects to be written to in any order
+				pOutCPInfoVector->resize(p_mesh->GetControlPointsCount());
+				::ProcessJointsAndAnimations(p_mesh->GetNode(), pOutSkeleton, pOutCPInfoVector);
+			}
+
+		}
+		else
+		{
+			throw std::exception("No mesh found in .fbx file");
 		}
 	}
 	return S_OK;

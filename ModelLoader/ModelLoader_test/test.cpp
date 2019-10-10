@@ -105,3 +105,28 @@ TEST(SuccessTesting, CorrectIndex_FilePathConstructor) {
 	// First index is supposed to be 321
 	EXPECT_EQ(testMesh.GetIndexVector()->front(), 321);
 }
+
+TEST(AnimationTesting, SuccessfulAnimationLoad) {
+	ModelLoader::Mesh testMesh("AnimTest.fbx");
+	EXPECT_TRUE(testMesh.HasSkeleton());
+	EXPECT_TRUE(testMesh.GetSkeleton() != nullptr);
+	EXPECT_TRUE(testMesh.GetSkinningWeights() != nullptr);
+}
+
+TEST(AnimationTesting, ModelWithNoAnimation) {
+	ModelLoader::Mesh testMesh("cat.fbx");
+	EXPECT_TRUE(testMesh.GetSkeleton() == nullptr);
+	EXPECT_TRUE(testMesh.GetSkinningWeights() == nullptr);
+}
+
+TEST(AnimationTesting, CorrectNumberOfJoints) {
+	ModelLoader::Mesh testMesh("AnimTest.fbx");	
+	ASSERT_TRUE(testMesh.HasSkeleton());
+	EXPECT_EQ(testMesh.GetSkeleton()->joints.size(), 22);
+}
+
+TEST(AnimationTesting, CorrectNumberOfWeights) {
+	ModelLoader::Mesh testMesh("AnimTest.fbx");
+	ASSERT_TRUE(testMesh.HasSkeleton());
+	EXPECT_EQ(testMesh.GetSkinningWeights()->size(), 274);
+}

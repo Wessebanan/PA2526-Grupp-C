@@ -72,10 +72,14 @@ HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 		delete mpIndexVector;
 		delete mpNormalVector;
 		delete mpUVVector;
+		delete mpSkinningWeights;
+		delete mpSkeleton;
 		mpVertexPosVector = nullptr;
 		mpUVVector = nullptr;
 		mpNormalVector = nullptr;
 		mpIndexVector = nullptr;
+		mpSkinningWeights = nullptr;
+		mpSkeleton = nullptr;
 	}
 
 	return hr;
