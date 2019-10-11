@@ -77,6 +77,7 @@ void* memory::allocators::FreeListAllocator::Allocate(uint size)
 	// Create a pointer that will store the returning address
 	void* p_allocation = nullptr;
 
+	// Create a FreeBlock pointer if we need to iterate free list
 	FreeBlock* p_block = mpFreeBlocks;
 
 	/*
@@ -195,19 +196,35 @@ void memory::allocators::FreeListAllocator::Free(void* pObject)
 		return;
 	}
 
+	/*
+		Header is places right before allocation.
+		This function steps in memory and returns a pointer to it.
+	*/
 	AllocationHeader* p_header = FetchHeader(pObject);
 
+	/*
+		The size of reserved memory for this allocation is the user's
+		requested size (p_header->size), plus the size of the header
+		itself.
+	*/
 	const uint allocation_size = p_header->size + sizeof(AllocationHeader);
-
 	mMemoryUsed -= allocation_size;
-	
+
+	/*
+		Place a FreeBlock at the newly freed memory chunk, containing
+		the size of the chunk, and push it into the front of the free
+		list.
+	*/
 	FreeBlock* p_free_block = new(p_header) FreeBlock(allocation_size);
 
+	// If free list is non-empty
 	if (mpFreeBlocks)
 	{
 		p_free_block->pNext = mpFreeBlocks;
 		mpFreeBlocks = p_free_block;
 	}
+
+	// else if free list is empty
 	else
 	{
 		mpFreeBlocks = p_free_block;
