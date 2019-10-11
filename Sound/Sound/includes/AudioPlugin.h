@@ -36,10 +36,10 @@ namespace Audio
 		class Sampler : public Plugin
 		{
 		public:
-			Sampler(FileData* pFile, int repeatAmount);
+			Sampler(File::SoundData* pFile, int repeatAmount);
 			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount);
 		private:
-			FileData* mpFile;
+			File::SoundData* mpFile;
 			Samples mReadPointer;
 			int mRepeatAmount;
 		};

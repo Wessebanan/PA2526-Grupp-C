@@ -1,18 +1,18 @@
 #include "AudioFile.h"
-Audio::FileData::FileData()
+Audio::File::SoundData::SoundData()
 {
 	mHeader = { 0 };
 	mpData = nullptr;
 	mSampleCount = 0;
 }
 
-Audio::FileData::~FileData()
+Audio::File::SoundData::~SoundData()
 {
 	Unload();
 }
 
 
-bool Audio::FileData::LoadAll(std::string& rPath)
+bool Audio::File::SoundData::LoadAll(std::string& rPath)
 {
 	FILE* file;
 	int subchunk_search_tries = 16;
@@ -54,7 +54,7 @@ bool Audio::FileData::LoadAll(std::string& rPath)
 	return true;
 }
 
-void Audio::FileData::Unload()
+void Audio::File::SoundData::Unload()
 {
 	if (mpData != nullptr)
 	{
@@ -63,27 +63,27 @@ void Audio::FileData::Unload()
 	}
 }
 
-Audio::Samples Audio::FileData::GetFrameCount() const
+Audio::Samples Audio::File::SoundData::GetFrameCount() const
 {
 	return mSampleCount / mHeader.NumChannels;
 }
 
-Audio::Samples Audio::FileData::GetSampleCount() const
+Audio::Samples Audio::File::SoundData::GetSampleCount() const
 {
 	return mSampleCount;
 }
 
-int Audio::FileData::GetNumChannels() const
+int Audio::File::SoundData::GetNumChannels() const
 {
 	return mHeader.NumChannels;
 }
 
-float* Audio::FileData::GetDataPointer()
+float* Audio::File::SoundData::GetDataPointer()
 {
 	return mpData;
 }
 
-bool Audio::FileData::StringIsEqual(std::string& rPath)
+bool Audio::File::SoundData::StringIsEqual(std::string& rPath)
 {
 	return (rPath.compare(mPath) == 0);
 }

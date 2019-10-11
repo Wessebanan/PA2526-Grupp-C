@@ -1,7 +1,7 @@
 #include "AudioPlugin.h"
 #include <cmath>
 
-Audio::Plugin::Sampler::Sampler(FileData* pFile, int repeatAmount)
+Audio::Plugin::Sampler::Sampler(File::SoundData* pFile, int repeatAmount)
 {
 	mpFile = pFile;
 	mRepeatAmount = repeatAmount;

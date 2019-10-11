@@ -246,10 +246,10 @@ TEST(SoundAPI, LoadSoundData)
 	// Loading a non existing file should result in a nullptr (0)
 	EXPECT_FALSE(bank.GetFile("non_existing_file"));
 	// Check if sine.wav only has one channel
-	Audio::FileData* p_sine_file = bank.GetFile("sine.wav");
+	Audio::File::SoundData* p_sine_file = bank.GetFile("sine.wav");
 	EXPECT_EQ(p_sine_file->GetNumChannels(), 1);
 	// Check if sine2.wav has two channels
-	Audio::FileData* p_sine_file2 = bank.GetFile("sine2.wav");
+	Audio::File::SoundData* p_sine_file2 = bank.GetFile("sine2.wav");
 	EXPECT_EQ(p_sine_file2->GetNumChannels(), 2);
 }
 
@@ -272,7 +272,7 @@ TEST(SoundAPI, PlaySoundWithSampler)
 		using namespace Audio::Plugin;
 
 		// Load "square.wav"
-		Audio::FileData* p_file = bank.GetFile("square.wav");
+		Audio::File::SoundData* p_file = bank.GetFile("square.wav");
 		EXPECT_NE(p_file, nullptr);
 
 		std::cout << "The file is "

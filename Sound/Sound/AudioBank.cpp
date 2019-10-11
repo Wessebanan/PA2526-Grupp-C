@@ -20,7 +20,7 @@ Audio::Bank::~Bank()
 	}
 }
 
-Audio::FileData* Audio::Bank::GetFile(std::string path)
+Audio::File::SoundData* Audio::Bank::GetFile(std::string path)
 {
 	for (int i = 0; i < SOUND_MAX_BANK_FILES; i++)
 	{
@@ -36,7 +36,7 @@ Audio::FileData* Audio::Bank::GetFile(std::string path)
 	{
 		if (mpFiles[i] == nullptr)
 		{
-			mpFiles[i] = new FileData();
+			mpFiles[i] = new File::SoundData();
 			if (mpFiles[i]->LoadAll(path))
 			{
 				return mpFiles[i];
@@ -86,7 +86,7 @@ bool Audio::Bank::LoadMultipleFiles(const std::string* pPathArray, int count)
 	return return_value;
 }
 
-Audio::FileData* Audio::Bank::operator[](int index)
+Audio::File::SoundData* Audio::Bank::operator[](int index)
 {
 	if (index >= SOUND_MAX_BANK_FILES)
 	{
@@ -95,11 +95,11 @@ Audio::FileData* Audio::Bank::operator[](int index)
 	return mpFiles[index];
 }
 
-Audio::FileData* Audio::Bank::SetFileAtIndex(std::string path, int index)
+Audio::File::SoundData* Audio::Bank::SetFileAtIndex(std::string path, int index)
 {
 	if (mpFiles[index] == nullptr)
 	{
-		mpFiles[index] = new FileData();
+		mpFiles[index] = new File::SoundData();
 		if (mpFiles[index]->LoadAll(path))
 		{
 			return mpFiles[index];
