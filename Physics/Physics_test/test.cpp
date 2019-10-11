@@ -2,7 +2,6 @@
 #include "GroundCollision.h"
 #include "MovementLogic.h"
 #include "ObjectCollision.h"
-#include "Mesh.h"
 #include <crtdbg.h>
 
 int main(int argc, char** argv) {
