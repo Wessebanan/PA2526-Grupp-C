@@ -172,16 +172,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="includes\AIComponents.h" />
-    <ClInclude Include="includes\AIEvents.h" />
-    <ClInclude Include="includes\AIFunctions.h" />
     <ClInclude Include="includes\AIGlobals.h" />
-    <ClInclude Include="includes\AISystems.h" />
     <ClInclude Include="includes\GridFunctions.h" />
     <ClInclude Include="includes\GridProp.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="includes\AIFunctions.cpp" />
     <ClCompile Include="includes\GridFunctions.cpp" />
     <ClCompile Include="includes\GridProp.cpp" />
     <ClCompile Include="main.cpp">

@@ -4,6 +4,7 @@
 #include "ecs.h"
 #include "../gameAI/AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
+#include "../gameSceneObjects/SceneObjectGlobals.h"
 
 void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 {
@@ -30,6 +31,7 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 	while (tileComp = (ecs::components::TileComponent*)itt.next())
 	{
 		ecs::components::TransformComponent* trComp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(tileComp->getEntityID());
+		ecs::components::ColorComponent* color_comp = rECS.getComponentFromEntity<ecs::components::ColorComponent>(tileComp->getEntityID());
 
 		pTilePosition[index].x = trComp->position.x;
 		pTilePosition[index].y = trComp->position.y;
@@ -39,11 +41,24 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 		int color_offset = -50 + random;
 		switch (tileComp->tileType)
 		{
-		case TileTypes::GRASS:
-			pTilePosition[index].color = PACK(0, 150 + color_offset, 0, 0);
-			break;
-		case TileTypes::STONE:
-			pTilePosition[index].color = PACK(50 + color_offset, 50 + color_offset, 50 + color_offset, 0);
+		case TileTypes::GAME_FIELD:
+			switch (tileComp->biome)
+			{
+			case SWAMP:
+				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
+				break;
+			case MOUNTAIN:
+				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
+				break;
+			case FIELD:
+				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
+				break;
+			case DESERT:
+				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
+				break;
+			default:
+				break;
+			}
 			break;
 		case TileTypes::WATER:
 			pTilePosition[index].color = PACK(0, 0, 200 + color_offset, 0);
@@ -55,6 +70,23 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 			pTilePosition[index].color = PACK(255, 255, 255, 255);
 			break;
 		}
+
+		index++;
+	}
+
+	itt = rECS.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
+	ecs::components::SceneObjectComponent* scene_comp;
+	while (scene_comp = (ecs::components::SceneObjectComponent*)itt.next())
+	{
+		ecs::components::TransformComponent* trComp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(scene_comp->getEntityID());
+		ecs::components::ColorComponent* color_comp = rECS.getComponentFromEntity<ecs::components::ColorComponent>(scene_comp->getEntityID());
+
+		pTilePosition[index].x = trComp->position.x;
+		pTilePosition[index].y = trComp->position.y;
+		pTilePosition[index].z = trComp->position.z;
+
+		pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
+		
 
 		index++;
 	}
@@ -73,8 +105,6 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 			world *= XMMatrixScaling(trComp->scale.x, trComp->scale.y, trComp->scale.z);
 			world *= XMMatrixRotationRollPitchYaw(trComp->rotation.x, trComp->rotation.y, trComp->rotation.z);
 			world *= XMMatrixTranslation(trComp->position.x, trComp->position.y, trComp->position.z);
-
-
 
 			XMStoreFloat4x4(&p_unit_pos[armyIndex], world);
 
