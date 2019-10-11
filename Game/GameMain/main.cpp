@@ -43,17 +43,33 @@ int main()
 	InitArmy(ecs);
 	InitSceneObjects(ecs);
 
+	rendering::SUN_DESC sun_desc;
+	sun_desc.Red = 200;
+	sun_desc.Green = 200;
+	sun_desc.Blue = 200;
+	
+	sun_desc.Direction	= { 0.8f, -1.0f, 0.0f };
+	sun_desc.Position	= { -4.0f, 8.0f, 10.0f };
+
+	sun_desc.NearPlane = 0.1f;
+	sun_desc.FarPlane = 100.0f;
+
+	sun_desc.Width = 25.0f;
+	sun_desc.Height = 25.0f;
+
+	sun_desc.Resolution = 2048;
+	
+	rendering::RenderManager* pMng = new rendering::RenderManager;
+	pMng->Initialize(sun_desc, 1600, 900, "D3D11");
 	InitCamera(ecs);
 
-	rendering::RenderManager mng;
-	mng.Initialize(1600, 900, "D3D11");
 
 	
-	InitMesh(ecs, mng);
+	InitMesh(ecs, pMng);
 
-	graphics::PresentWindow* pWnd = mng.GetPresentWindow();
+	graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
 
-	PlaceMesh(ecs, mng);
+	PlaceMesh(ecs, pMng);
 
 
 	// to get components in the loop
@@ -63,25 +79,25 @@ int main()
 	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
 
 
-	mng.SetViewMatrix(p_cam_comp->viewMatrix);
+	pMng->SetViewMatrix(p_cam_comp->viewMatrix);
 	pWnd->Show();
 	ecs.update(0.1f);
 	while (pWnd->IsOpen())
 	{
 		if (!pWnd->Update())
 		{
-			mng.Clear(0.2f, 0.1f, 0.1f);
+			pMng->Clear(0.2f, 0.1f, 0.1f);
 			
 
-			mng.SetViewMatrix(p_cam_comp->viewMatrix);
+			pMng->SetViewMatrix(p_cam_comp->viewMatrix);
 			
-			mng.Draw();
+			pMng->Draw();
 			pWnd->Present();
 
 			ecs.update(0.1f);
 		}
 	}
 
-	mng.Destroy();
+	pMng->Destroy();
 	return 0;
 }

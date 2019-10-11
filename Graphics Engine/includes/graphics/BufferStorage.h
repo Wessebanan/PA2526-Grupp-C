@@ -122,6 +122,6 @@ namespace graphics
 
 	private:
 		BufferHeap m_heaps[ALLOCATED_BUFFER_COUNT];
-		char m_cpuData[TOTAL_ALLOCATED_CPU_BTYES];
+		char* m_pCpuData;
 	};
 }
