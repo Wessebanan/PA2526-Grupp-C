@@ -61,17 +61,17 @@ int main()
 
 	sun_desc.Resolution = 2048;
 	
-	rendering::RenderManager* mng = new rendering::RenderManager;
-	mng->Initialize(sun_desc, 1600, 900, "D3D11");
+	rendering::RenderManager* pMng = new rendering::RenderManager;
+	pMng->Initialize(sun_desc, 1600, 900, "D3D11");
 	InitCamera(ecs);
 
 
 	
-	InitMesh(ecs, mng);
+	InitMesh(ecs, pMng);
 
-	graphics::PresentWindow* pWnd = mng->GetPresentWindow();
+	graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
 
-	PlaceMesh(ecs, mng);
+	PlaceMesh(ecs, pMng);
 
 
 	// to get components in the loop
@@ -81,25 +81,25 @@ int main()
 	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
 
 
-	mng.SetViewMatrix(p_cam_comp->viewMatrix);
+	pMng->SetViewMatrix(p_cam_comp->viewMatrix);
 	pWnd->Show();
 	ecs.update(0.1f);
 	while (pWnd->IsOpen())
 	{
 		if (!pWnd->Update())
 		{
-			mng->Clear(0.2f, 0.1f, 0.1f);
+			pMng->Clear(0.2f, 0.1f, 0.1f);
 			
 
-			mng->SetViewMatrix(p_cam_comp->viewMatrix);
+			pMng->SetViewMatrix(p_cam_comp->viewMatrix);
 			
-			mng->Draw();
+			pMng->Draw();
 			pWnd->Present();
 
 			ecs.update(0.1f);
 		}
 	}
 
-	mng->Destroy();
+	pMng->Destroy();
 	return 0;
 }

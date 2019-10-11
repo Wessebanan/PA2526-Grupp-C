@@ -28,7 +28,7 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 		index_data.IndexCount = tile3.GetIndexVector()->size();
 		index_data.pIndexData = tile3.GetIndexVector()->data();
 
-		mesh_tile = mng->CreateMesh(
+		mesh_tile = pMng->CreateMesh(
 			&vertex_data,
 			&index_data);
 	}
@@ -90,10 +90,10 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 			vertex_data.pTextureCoordData = mesh.GetUVVector()->data();
 
 			INDEX_BUFFER_DATA index_data = { NULL };
-			index_data.IndexCount = mesh.GetIndexVector()->size() * 4;
+			index_data.IndexCount = mesh.GetIndexVector()->size();
 			index_data.pIndexData = mesh.GetIndexVector()->data();
 
-			mesh_index = rMng.CreateMesh(
+			mesh_index = pMng->CreateMesh(
 				&vertex_data,
 				&index_data);
 		}
