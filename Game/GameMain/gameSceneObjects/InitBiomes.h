@@ -53,7 +53,7 @@ void InitBiomes(ecs::EntityComponentSystem& rECS)
 	itt = rECS.getAllComponentsOfType(ecs::components::TileComponent::typeID);
 	for (size_t i = 0; i < 144; i++)
 	{
-		ecs::components::TileComponent* tile_comp = (ecs::components::TileComponent*)itt.next();
+		ecs::components::TileComponent* p_tile_comp = (ecs::components::TileComponent*)itt.next();
 
 
 
@@ -63,7 +63,7 @@ void InitBiomes(ecs::EntityComponentSystem& rECS)
 		int random = rand() % 50;
 		int color_offset = -25 + random;
 
-		switch (tile_comp->biome)
+		switch (p_tile_comp->biome)
 		{
 		case SWAMP:
 			tile_tansf_comp->position.y += 0.1f;

@@ -41,7 +41,7 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager& mng)
 		int color_offset = -50 + random;
 		switch (tileComp->tileType)
 		{
-		case TileTypes::GAMEFIELD:
+		case TileTypes::GAME_FIELD:
 			switch (tileComp->biome)
 			{
 			case SWAMP:
