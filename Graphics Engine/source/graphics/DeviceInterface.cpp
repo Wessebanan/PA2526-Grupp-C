@@ -81,8 +81,26 @@ namespace graphics
 		flag = m_context.Initialize(m_pDevice4, &m_storage);
 		if (!flag) return FALSE;
 
-		flag = m_pipelineArray.Initialize(m_pDevice4, MAXIMUM_GRAPHICS_PIPELINES);
-		if (!flag) return FALSE;
+		//flag = m_pipelineArray.Initialize(m_pDevice4, MAXIMUM_GRAPHICS_PIPELINES);
+		//if (!flag) return FALSE;
+
+		{
+			D3D11_SAMPLER_DESC desc = {};
+
+			desc.Filter			= D3D11_FILTER_COMPARISON_ANISOTROPIC;
+			desc.AddressU		= D3D11_TEXTURE_ADDRESS_BORDER;
+			desc.AddressV		= D3D11_TEXTURE_ADDRESS_BORDER;
+			desc.AddressW		= D3D11_TEXTURE_ADDRESS_BORDER;
+			desc.MaxAnisotropy	= 16;
+			desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+			desc.BorderColor[0] = 1.0f;
+			desc.BorderColor[1] = 1.0f;
+			desc.BorderColor[2] = 1.0f;
+			desc.BorderColor[3] = 1.0f;
+
+			m_pDevice4->CreateSamplerState(&desc, &m_pSamplerStates[0]);
+			m_context.m_pContext4->PSSetSamplers(0, 1, &m_pSamplerStates[0]);
+		}
 
 		return TRUE;
 	}
@@ -96,6 +114,8 @@ namespace graphics
 		m_context.Release();
 		m_storage.Release();
 
+		m_pSamplerStates[0]->Release();
+
 		m_pDevice4->Release();
 	}
 
@@ -104,17 +124,17 @@ namespace graphics
 		return &m_context;
 	}
 
-	UINT64 DeviceInterface::QueryVideoMemoryUsage()
-	{
-		DXGI_QUERY_VIDEO_MEMORY_INFO info;
+	//UINT64 DeviceInterface::QueryVideoMemoryUsage()
+	//{
+	//	DXGI_QUERY_VIDEO_MEMORY_INFO info;
 
-		m_pAdapter4->QueryVideoMemoryInfo(
-			0,
-			DXGI_MEMORY_SEGMENT_GROUP_LOCAL,
-			&info);
+	//	m_pAdapter4->QueryVideoMemoryInfo(
+	//		0,
+	//		DXGI_MEMORY_SEGMENT_GROUP_LOCAL,
+	//		&info);
 
-		return info.CurrentUsage;
-	}
+	//	return info.CurrentUsage;
+	//}
 
 	int DeviceInterface::CreatePresentWindow(
 		const UINT width, 
@@ -169,7 +189,8 @@ namespace graphics
 	int DeviceInterface::CreateDepthBuffer(
 		const UINT width, 
 		const UINT height, 
-		DepthBuffer* pDepthBuffer)
+		DepthBuffer* pDepthBuffer,
+		const bool createShaderResource)
 	{
 		// Creating temporary depth buffer (quick fix for sprint goal)
 		HRESULT hr = S_OK;
@@ -184,6 +205,10 @@ namespace graphics
 				desc.Format = DXGI_FORMAT_R32_TYPELESS;
 				desc.SampleDesc = { 1, 0 };
 				desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+				if (createShaderResource)
+					desc.BindFlags |= D3D11_BIND_SHADER_RESOURCE;
+
 				desc.CPUAccessFlags = 0;
 				desc.MiscFlags = 0;
 
@@ -197,6 +222,24 @@ namespace graphics
 
 			if (pDepthTexture)
 			{
+				if (createShaderResource)
+				{
+					D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
+					srv_desc.Format			= DXGI_FORMAT_R32_FLOAT;
+					srv_desc.ViewDimension	= D3D11_SRV_DIMENSION_TEXTURE2D;
+					srv_desc.Texture2D.MipLevels = -1;
+					srv_desc.Texture2D.MostDetailedMip = 0;
+
+					m_pDevice4->CreateShaderResourceView(
+						pDepthTexture, 
+						&srv_desc,
+						&pDepthBuffer->pResource);
+				}
+				else
+				{
+					pDepthBuffer->pResource = NULL;
+				}
+
 				D3D11_DEPTH_STENCIL_VIEW_DESC desc = {};
 				desc.Format = DXGI_FORMAT_D32_FLOAT;
 				desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -219,13 +262,9 @@ namespace graphics
 	int DeviceInterface::CreateGraphicsPipeline(
 		const std::string& vertexShader,
 		const std::string& pixelShader,
-		GraphicsPipeline** ppPipeline)
+		GraphicsPipeline* pPipeline)
 	{
-		return m_pipelineArray.CreateGraphicsPipeline(
-			m_pDevice4,
-			vertexShader,
-			pixelShader,
-			ppPipeline);
+		return pPipeline->Initialize(m_pDevice4, vertexShader, pixelShader);
 	}
 
 	int DeviceInterface::CreateBufferRegion(
@@ -278,13 +317,13 @@ namespace graphics
 	}
 
 	int DeviceInterface::CreateIndexBufferRegion(
-		const UINT size,
+		const UINT indexCount,
 		const void* pData,
 		BufferRegion* pRegion)
 	{
 		int result = CreateBufferRegion(
 			BUFFER_VERTEX_INDICES,
-			size,
+			indexCount * sizeof(int),
 			pData,
 			pRegion);
 
@@ -386,7 +425,7 @@ namespace graphics
 
 	void DeviceInterface::DeleteGraphicsPipeline(GraphicsPipeline* pPipeline)
 	{
-		m_pipelineArray.DeleteGraphicsPipeline(pPipeline);
+		pPipeline->Release();
 	}
 
 	void DeviceInterface::DeleteRenderTarget(const RenderTarget& renderTarget)
@@ -397,6 +436,9 @@ namespace graphics
 	void DeviceInterface::DeleteDepthBuffer(const DepthBuffer& depthBuffer)
 	{
 		depthBuffer.pView->Release();
+
+		if (depthBuffer.pResource)
+			depthBuffer.pResource->Release();
 	}
 
 	void DeviceInterface::DeletePresentWindow(const PresentWindow& window)
