@@ -279,17 +279,20 @@ namespace graphics
 
 	InternalStorage::InternalStorage()
 	{
-		ZeroMemory(m_cpuData, sizeof(m_cpuData));
+		m_pCpuData = NULL;
 	}
 
 	InternalStorage::~InternalStorage()
 	{
+		free(m_pCpuData);
 	}
 
 	int InternalStorage::Initialize(ID3D11Device4* pDevice4)
 	{
+		m_pCpuData = (char*)malloc(TOTAL_ALLOCATED_CPU_BTYES);
+
 		int flag = TRUE;
-		char* pDataStart = m_cpuData;
+		char* pDataStart = m_pCpuData;
 
 		for (UINT i = 0; i < ALLOCATED_BUFFER_COUNT && flag; i++)
 			flag = m_heaps[i].Initialize(pDevice4, BUFFER_TYPE(i), &pDataStart);
