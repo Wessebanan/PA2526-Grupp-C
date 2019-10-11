@@ -3,6 +3,9 @@
 #include "MovementSystem.h"
 #include "GridFunctions.h"
 
+// This lil' piece of jank makes tests waaay faster.
+ModelLoader::Mesh dude("../TestModel/dude.fbx");
+
 #pragma region FindLowestPointOfMesh
 	TEST(FindLowestPointOfMesh, CreateGroundCollisionComponentInitSystem)
 	{
@@ -24,8 +27,8 @@
 		EXPECT_EQ(ecs.getTotalEntityCount(), 0);
 		EXPECT_EQ(ecs.getTotalComponentCount(), 0);
 
-		MeshComponent mesh_component;		
-		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+		MeshComponent mesh_component;			
+		mesh_component.mMesh = &dude;
 		GroundCollisionComponent ground_collision_component;
 		TransformComponent transform_component;
 
@@ -47,7 +50,7 @@
 		ecs::systems::GroundCollisionComponentInitSystem* ground_collision_component_init_system = ecs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
 
 		MeshComponent mesh_component;
-		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+		mesh_component.mMesh = &dude;
 
 		GroundCollisionComponent ground_collision_component;
 
@@ -57,7 +60,7 @@
 		GroundCollisionComponent* p_ground_collision_component = dynamic_cast<GroundCollisionComponent*>(ecs.getComponent(GroundCollisionComponent::typeID, ground_collision_entity->getComponentID(GroundCollisionComponent::typeID)));
 		
 		// Checking that enough vertices are inside the box.
-		std::vector<DirectX::XMFLOAT3> *vertices = mesh_component.mMesh.GetVertexPositionVector();
+		std::vector<DirectX::XMFLOAT3> *vertices = mesh_component.mMesh->GetVertexPositionVector();
 		unsigned int n_inside = 0;
 		for (int i = 0; i < vertices->size(); i++)
 		{
@@ -95,7 +98,7 @@
 
 		// Creating the dude that is supposed to collide with ground.
 		MeshComponent mesh_component;
-		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+		mesh_component.mMesh = &dude;
 		GroundCollisionComponent ground_collision_component;
 		TransformComponent transform_component;
 
@@ -152,7 +155,7 @@
 
 		// Creating the dude that is supposed to collide with ground.
 		MeshComponent mesh_component;
-		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+		mesh_component.mMesh = &dude;
 		GroundCollisionComponent ground_collision_component;
 		TransformComponent transform_component;
 		transform_component.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -226,7 +229,7 @@
 
 		// Creating the dude that is supposed to collide with ground.
 		MeshComponent mesh_component;
-		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+		mesh_component.mMesh = &dude;
 		GroundCollisionComponent ground_collision_component;
 		TransformComponent transform_component;
 		transform_component.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -304,7 +307,7 @@
 
 		// Creating the dude that is supposed to collide with ground.
 		MeshComponent mesh_component;
-		mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+		mesh_component.mMesh = &dude;
 		GroundCollisionComponent ground_collision_component;
 		TransformComponent transform_component;
 		DynamicMovementComponent movement_component;

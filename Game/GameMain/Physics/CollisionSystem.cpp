@@ -25,7 +25,8 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	// Grabbing a copy of AABB and transforming to world space.
 	BoundingBox aabb = p_collision->mAABB;
-	aabb.Transform(aabb, UtilityFunctions::GetWorldMatrix(*p_transform));
+	XMMATRIX world_transform = UtilityFunctions::GetWorldMatrix(*p_transform);
+	aabb.Transform(aabb, world_transform);
 
 	// Grabbing the entities it could collide with.
 	TypeFilter filter;
@@ -34,10 +35,10 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	bool intersect = false;
 
-	//ObjectCollisionComponent* p_colliding_collision = nullptr;
-	//TransformComponent*	p_colliding_transform		= nullptr;
-	
 	BoundingBox colliding_aabb;
+
+	BoundingSphere colliding_sphere;
+	BoundingSphere closest_sphere;
 
 	for (int i = 0; i < it.entities.size(); i++)
 	{
@@ -52,11 +53,41 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		
 		// Grabbing copy of AABB from current and transforming to world space.
 		BoundingBox current_aabb = p_current_collision->mAABB;
-		current_aabb.Transform(current_aabb, UtilityFunctions::GetWorldMatrix(*p_current_transform));
+		XMMATRIX current_world_transform = UtilityFunctions::GetWorldMatrix(*p_current_transform);
+		current_aabb.Transform(current_aabb, current_world_transform);
 
 		// If the objects' bounding volumes intersect.
 		if(aabb.Intersects(current_aabb))
 		{
+			//// Finding the sphere closest to colliding aabb center.
+			//float closest_dist_to_current = INFINITY;
+			//
+			//for (int i = 0; i < p_collision->mSphereCount; i++)
+			//{
+			//	BoundingSphere sphere = p_collision->mSpheres[i];
+			//	sphere.Transform(sphere, world_transform);
+			//	float dist = CalculateDistance(sphere.Center, current_aabb.Center);
+			//	if (dist < closest_dist_to_current)
+			//	{
+			//		closest_dist_to_current = dist;
+			//		closest_sphere = sphere;
+			//	}
+			//}
+			//// Checking intersection for closest sphere against all spheres of colliding entity.
+			//for (int i = 0; i < p_current_collision->mSphereCount; i++)
+			//{
+			//	BoundingSphere current_sphere = p_current_collision->mSpheres[i];
+			//	current_sphere.Transform(current_sphere, current_world_transform);
+
+			//	if (closest_sphere.Intersects(current_sphere))
+			//	{
+			//		intersect = true;
+			//		colliding_sphere = current_sphere;
+			//		break;
+			//	}
+			//}
+
+
 			// Set the intersection bool and stop checking
 			// because any collision means the movement should revert.
 			intersect = true;
@@ -74,6 +105,13 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	if (intersect)
 	{
 		// If the last movement action resulted in collsion, revert the movement and reset velocity.
+		//DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
+		//
+		//XMVECTOR center = XMLoadFloat3(&closest_sphere.Center);
+		//XMVECTOR colliding_center = XMLoadFloat3(&colliding_sphere.Center);
+		//
+		//RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
+
 		DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
 
 		XMVECTOR center				= XMLoadFloat3(&aabb.Center);
@@ -119,7 +157,7 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 	MeshComponent* mesh_component = dynamic_cast<MeshComponent*>(getComponentFromKnownEntity(MeshComponent::typeID, entity->getID()));
 	GroundCollisionComponent* ground_collision_component = dynamic_cast<GroundCollisionComponent*>(getComponentFromKnownEntity(GroundCollisionComponent::typeID, entity->getID()));
 
-	std::vector<DirectX::XMFLOAT3> *vertex_vector = mesh_component->mMesh.GetVertexPositionVector();
+	std::vector<DirectX::XMFLOAT3> *vertex_vector = mesh_component->mMesh->GetVertexPositionVector();
 
 	ground_collision_component->mOBB.CreateFromPoints(ground_collision_component->mOBB, vertex_vector->size(), vertex_vector->data(), sizeof(XMFLOAT3));
 }
@@ -284,11 +322,18 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 
 	// Grabbing the mesh component and in turn the vertex list.
 	MeshComponent* mesh_component = getComponentFromKnownEntity<MeshComponent>(entity->getID());
-	std::vector<DirectX::XMFLOAT3> *vertex_list = mesh_component->mMesh.GetVertexPositionVector();
+	std::vector<DirectX::XMFLOAT3> *vertex_list = mesh_component->mMesh->GetVertexPositionVector();
 
 	// Grabbing the object collision component to fill it up.
 	ObjectCollisionComponent* object_collision_component = getComponentFromKnownEntity<ObjectCollisionComponent>(entity->getID());
 
 	object_collision_component->mAABB.CreateFromPoints(object_collision_component->mAABB, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
+	
+	/** TODO:
+	* Set ObjectCollisionComponent::mSphereCount to number of bones.
+	* Allocate memory for mSphereCount number of DirectX::BoundingSphere(s).
+	* For each bone, grab vertex cluster and create spheres from clusters.
+	*/
+
 }
 #pragma endregion

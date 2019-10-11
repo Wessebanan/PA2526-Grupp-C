@@ -23,7 +23,7 @@ TEST(ObjectBoundingVolumes, CreateObjectEntity)
 
 	// Creating the dude that is supposed to collide with objects.
 	MeshComponent mesh_component;
-	mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+	mesh_component.mMesh = &dude;
 	ObjectCollisionComponent object_collision_component;
 
 	ecs::Entity* object_collision_entity = ecs.createEntity(mesh_component, object_collision_component);
@@ -41,11 +41,11 @@ TEST(ObjectBoundingVolumes, CreateObjectEntity)
 TEST(ObjectBoundingVolumes, TestBoundingVolume)
 {
 	ecs::EntityComponentSystem ecs;
-
+	
 	ecs::systems::ObjectBoundingVolumeInitSystem* ground_collision_component_init_system = ecs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
 
 	MeshComponent mesh_component;
-	mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+	mesh_component.mMesh = &dude;
 	ObjectCollisionComponent object_collision_component;
 
 	ecs::Entity* object_collision_entity = ecs.createEntity(mesh_component, object_collision_component);
@@ -54,7 +54,7 @@ TEST(ObjectBoundingVolumes, TestBoundingVolume)
 	ObjectCollisionComponent* p_object_collision_component = dynamic_cast<ObjectCollisionComponent*>(ecs.getComponent(ObjectCollisionComponent::typeID, object_collision_entity->getComponentID(ObjectCollisionComponent::typeID)));
 
 	// Checking that enough vertices are inside the box.
-	std::vector<DirectX::XMFLOAT3>* vertices = mesh_component.mMesh.GetVertexPositionVector();
+	std::vector<DirectX::XMFLOAT3>* vertices = mesh_component.mMesh->GetVertexPositionVector();
 	unsigned int n_inside = 0;
 	for (int i = 0; i < vertices->size(); i++)
 	{
@@ -95,7 +95,7 @@ TEST(ObjectCollisionCheck, CreateCompleteEntity)
 	// Creating the components that the entity needs to be
 	// able to collide with other entities.
 	MeshComponent mesh_component;
-	mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+	mesh_component.mMesh = &dude;
 	ObjectCollisionComponent object_collision_component;
 	DynamicMovementComponent dynamic_movement_component;
 	TransformComponent transform_component;
@@ -132,7 +132,7 @@ TEST(ObjectCollisionCheck, CheckCollision)
 	ecs.createSystem<ecs::systems::DynamicMovementSystem>();
 
 	MeshComponent mesh_component;
-	mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+	mesh_component.mMesh = &dude;
 	ObjectCollisionComponent object_collision_component;
 	DynamicMovementComponent dynamic_movement_component;
 	TransformComponent transform_component;
@@ -206,7 +206,7 @@ TEST(ObjectCollisionHandling, HandleCollision)
 	ecs.createSystem<ecs::systems::DynamicMovementSystem>();
 
 	MeshComponent mesh_component;
-	mesh_component.mMesh.LoadFBX("../TestModel/dude.fbx");
+	mesh_component.mMesh = &dude;
 	ObjectCollisionComponent object_collision_component;
 	DynamicMovementComponent dynamic_movement_component;
 	TransformComponent transform_component;

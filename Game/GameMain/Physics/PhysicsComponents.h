@@ -74,22 +74,7 @@ namespace ecs
 		*/
 		COMP(GroundCollisionComponent)
 		{
-			// Vertices making up the OBB:
-			/*
-			   6-------7
-			  /|      /|
-			 / |     / |
-			2--|----3  |
-			|  4----|--5
-			| /     | /
-			0-------1		|: y, -: x /: z
-			*/
-			//DirectX::XMFLOAT3 mVertices[8] = { DirectX::XMFLOAT3(0, 0, 0) };
 			DirectX::BoundingOrientedBox mOBB;
-			//OBB mOBB;
-			// Center Position is the middle of the box, for distance calculation.
-			// Important to apply transform to this point as well.
-			//DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);
 
 			// Storing last y values to avoid unneccesary checks.
 			float mLastY = INFINITY;
@@ -105,10 +90,9 @@ namespace ecs
 		COMP(ObjectCollisionComponent)
 		{
 			DirectX::BoundingBox mAABB;
-			//AABB mAABB;
-			//DirectX::XMFLOAT3 mMin		= DirectX::XMFLOAT3(0, 0, 0);
-			//DirectX::XMFLOAT3 mMax		= DirectX::XMFLOAT3(0, 0, 0);
-			//DirectX::XMFLOAT3 mCenter	= DirectX::XMFLOAT3(0, 0, 0);
+
+			DirectX::BoundingSphere* mSpheres;
+			unsigned int mSphereCount;
 
 			// States if the last movement resulted in collision
 			// and needs to be reverted.
@@ -120,7 +104,7 @@ namespace ecs
 		*/
 		COMP(MeshComponent)
 		{
-			ModelLoader::Mesh mMesh;
+			ModelLoader::Mesh *mMesh;
 		};
 	} // components
 } // ecs
