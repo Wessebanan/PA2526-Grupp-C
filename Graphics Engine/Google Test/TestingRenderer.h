@@ -25,8 +25,10 @@ TEST(TestingRenderer, CreatingDefaultMesh)
 		 1.0f, -1.0f, 0.0f,
 	};
 
-	rendering::RenderManager renderer;
-	renderer.Initialize(800, 600, "Testing renderer");
+	rendering::SUN_DESC sunDesc;
+
+	rendering::RenderManager *renderer = new rendering::RenderManager;
+	renderer->Initialize(sunDesc, 800, 600, "Testing renderer");
 
 	// assign vertex data
 	rendering::VERTEX_BUFFER_DATA vb = { 0 };
@@ -34,12 +36,12 @@ TEST(TestingRenderer, CreatingDefaultMesh)
 	vb.pVertexData = vertex_data;
 
 	// create mesh with specified data
-	int meshIndex = renderer.CreateMesh(&vb, NULL);
+	int meshIndex = renderer->CreateMesh(&vb, NULL);
 	
 	// check return values
 	EXPECT_GE(meshIndex, 0);
 
-	renderer.Destroy();
+	renderer->Destroy();
 }
 
 TEST(TestingRenderer, CreatingIndexedMesh)
@@ -62,8 +64,9 @@ TEST(TestingRenderer, CreatingIndexedMesh)
 		1, 2, 3
 	};
 
-	rendering::RenderManager renderer;
-	renderer.Initialize(800, 600, "Testing renderer");
+	rendering::SUN_DESC sunDesc;
+	rendering::RenderManager* renderer = new rendering::RenderManager;
+	renderer->Initialize(sunDesc, 800, 600, "Testing renderer");
 
 	// Assign vertex data
 	rendering::VERTEX_BUFFER_DATA vb = { 0 };
@@ -76,12 +79,12 @@ TEST(TestingRenderer, CreatingIndexedMesh)
 	ib.pIndexData = indices;
 
 	// Create mesh with specified data
-	int meshIndex = renderer.CreateMesh(&vb, &ib);
+	int meshIndex = renderer->CreateMesh(&vb, &ib);
 
 	// check return values
 	EXPECT_GE(meshIndex, 0);
 
-	renderer.Destroy();
+	renderer->Destroy();
 }
 
 TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
@@ -89,8 +92,9 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 	using namespace rendering;
 	using namespace DirectX;
 
-	RenderManager mng;
-	mng.Initialize(1280, 720, "D3D11");
+	rendering::SUN_DESC sunDesc;
+	RenderManager* mng = new RenderManager;
+	mng->Initialize(sunDesc, 1280, 720, "D3D11");
 
 	struct float3
 	{
@@ -109,7 +113,7 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 		data.VertexCount = 3;
 		data.pVertexData = triangle;
 
-		mesh_index0 = mng.CreateMesh(&data, nullptr);
+		mesh_index0 = mng->CreateMesh(&data, nullptr);
 	}
 
 	int mesh_index1; // Quad
@@ -128,7 +132,7 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 		data.VertexCount = 6;
 		data.pVertexData = quad;
 
-		mesh_index1 = mng.CreateMesh(&data, nullptr);
+		mesh_index1 = mng->CreateMesh(&data, nullptr);
 	}
 
 	struct float4
@@ -154,24 +158,12 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 	desc[RENDER_DEFAULT].pModelLayout = m_desc;
 	desc[RENDER_DEFAULT].ModelLayoutCount = ARRAYSIZE(m_desc);
 
-	// SCREEN_SPACE will render 2 blue meshes (quad and triangle)
-	MODEL_LAYOUT_DESC m_desc0[2];
-	m_desc0[0].InstanceCount = 1;
-	m_desc0[0].MeshIndex = mesh_index1;
 
-	m_desc0[1].InstanceCount = 1;
-	m_desc0[1].MeshIndex = mesh_index0;
+	mng->CreateModelHeap(desc);
 
-	desc[RENDER_SCREEN_SPACE].PerInstanceByteWidth = sizeof(float4);
-	desc[RENDER_SCREEN_SPACE].pModelLayout = m_desc0;
-	desc[RENDER_SCREEN_SPACE].ModelLayoutCount = 2;
+	graphics::PresentWindow* pWnd = mng->GetPresentWindow();
 
-
-	mng.CreateModelHeap(desc);
-
-	graphics::PresentWindow* pWnd = mng.GetPresentWindow();
-
-	float4* tri_array = (float4*)mng.GetTechniqueModelBuffer(RENDER_DEFAULT);
+	float4* tri_array = (float4*)mng->GetTechniqueModelBuffer(RENDER_DEFAULT);
 
 	for (UINT x = 0; x < width; x++)
 	{
@@ -185,10 +177,6 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 		}
 	}
 
-	float4* water = (float4*)mng.GetTechniqueModelBuffer(RENDER_SCREEN_SPACE);
-	water->x = -0.10f;
-	water->y = 0.70f;
-
 	float x = 2.0f;
 	float z = 1.0f;
 	XMFLOAT4X4 viewMatrix;
@@ -199,9 +187,9 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 			{ 0.0f, 1.0f,  0.0f }
 	));
 
-	mng.SetViewMatrix(viewMatrix);
+	mng->SetViewMatrix(viewMatrix);
 
-	mng.Clear(0.0f, 0.0f, 0.0f);
+	mng->Clear(0.0f, 0.0f, 0.0f);
 
 	XMStoreFloat4x4(&viewMatrix,
 		XMMatrixLookToLH(
@@ -210,10 +198,10 @@ TEST(TestingRenderer, LoopThroughAllocatedDataAndDrawAFrame)
 			{ 0.0f, 1.0f,  0.0f }
 	));
 
-	mng.SetViewMatrix(viewMatrix);
+	mng->SetViewMatrix(viewMatrix);
 
-	mng.Draw();
+	mng->Draw();
 	pWnd->Present();
 
-	mng.Destroy();
+	mng->Destroy();
 }

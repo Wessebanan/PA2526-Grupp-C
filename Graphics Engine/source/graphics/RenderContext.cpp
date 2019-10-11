@@ -9,13 +9,15 @@ namespace graphics
 	{
 		m_viewport = { 0 };
 		m_viewport.MaxDepth = 1.0f;
-	
-		m_pCurrentPipeline = NULL;
-		ZeroMemory(m_clearColor, sizeof(m_clearColor));
 	}
 
 	RenderContext::~RenderContext()
 	{
+	}
+
+	ID3D11DeviceContext4* RenderContext::GetInternalContext()
+	{
+		return m_pContext4;
 	}
 
 	int RenderContext::Initialize(ID3D11Device4* pDevice4, InternalStorage* pStorage)
@@ -92,13 +94,16 @@ namespace graphics
 		const float green,
 		const float blue)
 	{
-		m_clearColor[0] = red;
-		m_clearColor[1] = green;
-		m_clearColor[2] = blue;
+		float clear_color[4];
+
+		clear_color[0] = red;
+		clear_color[1] = green;
+		clear_color[2] = blue;
+		clear_color[3] = 1.0f;
 
 		m_pContext4->ClearRenderTargetView(
 			renderTarget.pView,
-			m_clearColor);
+			clear_color);
 	}
 
 	void RenderContext::CopyDataToRegion(
@@ -142,35 +147,35 @@ namespace graphics
 	}
 
 	void RenderContext::SetRenderTarget(
-		const RenderTarget& renderTarget,
-		const DepthBuffer& depthBuffer)
+		const RenderTarget* pRenderTarget,
+		const DepthBuffer* pDepthBuffer)
 	{
+		ID3D11RenderTargetView* pTarget = NULL;
+		ID3D11DepthStencilView* pDepth = NULL;
+
+		if (pRenderTarget)
+			pTarget = pRenderTarget->pView;
+
+		if (pDepthBuffer)
+			pDepth = pDepthBuffer->pView;
+
 		// --- SET RENDER TARGETS ---
 		m_pContext4->OMSetRenderTargets(
 			1,
-			&renderTarget.pView,
-			depthBuffer.pView);
+			&pTarget,
+			pDepth);
+	}
+
+	void RenderContext::DiscardPixelShader()
+	{
+		m_pContext4->PSSetShader(NULL, NULL, 0);
 	}
 
 	void RenderContext::SetGraphicsPipeline(GraphicsPipeline* pPipeline)
 	{
-		// --- SET PIPELINE --- 
-		if (m_pCurrentPipeline != pPipeline)
-		{
-			m_pCurrentPipeline = pPipeline;
-
-			m_pContext4->IASetInputLayout(m_pCurrentPipeline->m_pLayout);
-
-			m_pContext4->VSSetShader(
-				m_pCurrentPipeline->m_pVertexShader,
-				NULL,
-				0);
-
-			m_pContext4->PSSetShader(
-				m_pCurrentPipeline->m_pPixelShader,
-				NULL,
-				0);
-		}
+		m_pContext4->IASetInputLayout(pPipeline->m_pLayout);
+		m_pContext4->VSSetShader(pPipeline->m_pVertexShader, NULL, 0);
+		m_pContext4->PSSetShader(pPipeline->m_pPixelShader, NULL, 0);
 	}
 
 	void RenderContext::SetViewport(
@@ -194,10 +199,27 @@ namespace graphics
 	{
 		ID3D11Buffer* pBuffer = m_pStorage->GetBufferHeapGPU(region.Type);
 
-		UINT firstConstant	= region.DataLocation / 16;
-		UINT numConstants	= region.DataCount / 16;
+		UINT firstConstant	= region.DataLocation	/ 16;
+		UINT numConstants	= region.DataCount		/ 16;
 
 		m_pContext4->VSSetConstantBuffers1(
+			slot,
+			1,
+			&pBuffer,
+			&firstConstant,
+			&numConstants);
+	}
+
+	void RenderContext::PSSetConstantBuffer(
+		const UINT slot,
+		const BufferRegion& region)
+	{
+		ID3D11Buffer* pBuffer = m_pStorage->GetBufferHeapGPU(region.Type);
+
+		UINT firstConstant = region.DataLocation / 16;
+		UINT numConstants = region.DataCount / 16;
+
+		m_pContext4->PSSetConstantBuffers1(
 			slot,
 			1,
 			&pBuffer,
