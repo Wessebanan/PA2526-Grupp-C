@@ -14,24 +14,32 @@ QuadTree::QuadTree(int level, float xMin, float xMax, float zMin, float zMax, Qu
 	mZBounds[1] = zMax;
 	for (int i = 0; i < 4; i++)
 	{
-		mChilden[i] = nullptr;
+		mChildren[i] = nullptr;
 	}
 	mpParent = pParent;
 }
 
 QuadTree::~QuadTree()
 {
+	Clear();
 }
 
 void QuadTree::Clear()
 {
+	for (int i = 0; i < mObjects.size(); i++)
+	{
+		mObjects[i].pBoundingBox = nullptr;
+		mObjects[i].pTransform = nullptr;
+	}
 	mObjects.clear();
+	mpParent = nullptr;
 	for (int i = 0; i < 4; i++)
 	{
-		if (mChilden[i] != nullptr)
+		if (mChildren[i] != nullptr)
 		{
-			mChilden[i]->Clear();
-			mChilden[i] = nullptr;
+			mChildren[i]->Clear();
+			delete mChildren[i];
+			mChildren[i] = nullptr;
 		}
 	}
 }
@@ -41,10 +49,10 @@ void QuadTree::Split()
 	float half_width = (mXBounds[1] - mXBounds[0]) / 2.0f;
 	float half_height = (mZBounds[1] - mZBounds[0]) / 2.0f;
 
-	mChilden[0] = new QuadTree(mLevel + 1, mXBounds[0], mXBounds[0] + half_width, mZBounds[0], mZBounds[0] + half_height, this);
-	mChilden[1] = new QuadTree(mLevel + 1, mXBounds[0] + half_width, mXBounds[1], mZBounds[0], mZBounds[0] + half_height, this);
-	mChilden[2] = new QuadTree(mLevel + 1, mXBounds[0], mXBounds[0] + half_width, mZBounds[0] + half_height, mZBounds[1], this);
-	mChilden[3] = new QuadTree(mLevel + 1, mXBounds[0] + half_width, mXBounds[1], mZBounds[0] + half_height, mZBounds[1], this);
+	mChildren[0] = new QuadTree(mLevel + 1, mXBounds[0], mXBounds[0] + half_width, mZBounds[0], mZBounds[0] + half_height, this);
+	mChildren[1] = new QuadTree(mLevel + 1, mXBounds[0] + half_width, mXBounds[1], mZBounds[0], mZBounds[0] + half_height, this);
+	mChildren[2] = new QuadTree(mLevel + 1, mXBounds[0], mXBounds[0] + half_width, mZBounds[0] + half_height, mZBounds[1], this);
+	mChildren[3] = new QuadTree(mLevel + 1, mXBounds[0] + half_width, mXBounds[1], mZBounds[0] + half_height, mZBounds[1], this);
 }
 
 int QuadTree::GetIndex(Object obj)
@@ -101,12 +109,12 @@ int QuadTree::GetIndex(Object obj)
 void QuadTree::Insert(Object obj)
 {
 	int index;
-	if (mChilden[0] != nullptr)
+	if (mChildren[0] != nullptr)
 	{
 		index = GetIndex(obj);
 		if (index != -1)
 		{
-			mChilden[index]->Insert(obj);
+			mChildren[index]->Insert(obj);
 			return;
 		}
 	}
@@ -114,7 +122,7 @@ void QuadTree::Insert(Object obj)
 	mObjects.push_back(obj);
 	if (mObjects.size() > mMaxObjects && mLevel < mMaxLevel)
 	{
-		if (mChilden[0] == nullptr)
+		if (mChildren[0] == nullptr)
 		{
 			Split();
 		}
@@ -124,7 +132,7 @@ void QuadTree::Insert(Object obj)
 			index = GetIndex(mObjects[i]);
 			if (index != -1)
 			{
-				mChilden[index]->Insert(mObjects[i]);
+				mChildren[index]->Insert(mObjects[i]);
 				mObjects.erase(mObjects.begin() + i);
 			}
 			else
@@ -138,13 +146,26 @@ void QuadTree::Insert(Object obj)
 void QuadTree::RetrieveCollisions(std::vector<Object>& objects, Object obj)
 {
 	int index = GetIndex(obj);
-	if (index != -1 && mChilden[0] != nullptr)
+	if (index != -1 && mChildren[0] != nullptr)
 	{
-		mChilden[index]->RetrieveCollisions(objects, obj);
+		mChildren[index]->RetrieveCollisions(objects, obj);
 	}
 
 	for (int i = 0; i < mObjects.size(); i++)
 	{
 		objects.push_back(mObjects[i]);
 	}
+}
+
+void QuadTree::NumberOfNodesAndObjects(int& nodes, int& objects)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		if (mChildren[i] != nullptr)
+		{
+			mChildren[i]->NumberOfNodesAndObjects(nodes, objects);
+		}
+	}
+	nodes++;
+	objects += mObjects.size();
 }

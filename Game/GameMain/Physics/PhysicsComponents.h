@@ -114,6 +114,11 @@ namespace ecs
 		{
 			ModelLoader::Mesh mMesh;
 		};
+
+		COMP(QuadTreeComponent)
+		{
+			void* pTree;
+		};
 	} // components
 } // ecs
 

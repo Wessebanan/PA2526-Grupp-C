@@ -8,6 +8,12 @@ struct Object
 {
 	ecs::components::TransformComponent* pTransform;
 	ecs::components::ObjectCollisionComponent* pBoundingBox;
+
+	Object(ecs::components::TransformComponent* p_trans, ecs::components::ObjectCollisionComponent* p_col)
+	{
+		pTransform = p_trans;
+		pBoundingBox = p_col;
+	}
 };
 
 class QuadTree
@@ -21,8 +27,8 @@ public:
 	int GetIndex(Object obj);
 	void Insert(Object obj);
 	void RetrieveCollisions(std::vector<Object>& objects, Object obj);
-
-
+	//Testing Functions
+	void NumberOfNodesAndObjects(int& nodes, int& objects);
 
 private:
 	int mMaxLevel;
@@ -31,7 +37,7 @@ private:
 	int mLevel;
 	float mXBounds[2];
 	float mZBounds[2];
-	QuadTree* mChilden[4];
+	QuadTree* mChildren[4];
 	QuadTree* mpParent;
 
 	std::vector<Object> mObjects;

@@ -1,4 +1,5 @@
 #include "CollisionSystem.h"
+#include "QuadTree.h"
 
 // This hefty boy uses pragma regions to easily look at the system you want.
 
@@ -338,5 +339,28 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 		(min_point.z + max_point.z) / 2.0f
 	);
 
+}
+#pragma endregion
+
+#pragma region FillQuadTreeSystemRegion
+ecs::systems::FillQuadTreeSystem::FillQuadTreeSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(components::TransformComponent::typeID);
+	typeFilter.addRequirement(components::ObjectCollisionComponent::typeID);
+}
+
+ecs::systems::FillQuadTreeSystem::~FillQuadTreeSystem()
+{
+
+}
+
+void ecs::systems::FillQuadTreeSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::QuadTreeComponent::typeID);
+	ecs::components::QuadTreeComponent* p_tree = static_cast<ecs::components::QuadTreeComponent*>(it.next());
+	ecs::components::TransformComponent* p_transform = entity.getComponent<ecs::components::TransformComponent>();
+	ecs::components::ObjectCollisionComponent* p_collision = entity.getComponent<ecs::components::ObjectCollisionComponent>();
+	static_cast<QuadTree*>(p_tree->pTree)->Insert(Object(p_transform, p_collision));
 }
 #pragma endregion

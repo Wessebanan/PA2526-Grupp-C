@@ -59,5 +59,12 @@ namespace ecs
 			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
 		};
 
+		SYSTEM(FillQuadTreeSystem)
+		{
+			FillQuadTreeSystem();
+			~FillQuadTreeSystem();
+			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
+		};
+
 	} // systems
 } // ecs
