@@ -5,6 +5,26 @@
 #include "ecs.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
 
+struct SUN_DESC_GAME : public rendering::SUN_DESC
+{
+	SUN_DESC_GAME()
+	{
+		Red			= 200;
+		Green		= 200;
+		Blue		= 200;
+
+		Direction	= { 0.8f, -1.0f, 0.0f };
+		Position	= { -4.0f, 8.0f, 10.0f };
+
+		NearPlane	= 0.1f;
+		FarPlane	= 100.0f;
+
+		Width		= 25.0f;
+		Height		= 25.0f;
+
+		Resolution	= 1024;
+	}
+};
 
 void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 {

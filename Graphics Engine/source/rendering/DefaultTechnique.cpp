@@ -50,6 +50,7 @@ namespace rendering
 
 		float3 color		: COLOR0;
 		float3 normal		: NORMAL0;
+		float3 modelPos		: POSITION2;
 	};
 
 	VSOUT main(
@@ -67,6 +68,8 @@ namespace rendering
 		float4 clr		= unpack(gMesh[instance].color) / 256.0f;
 		output.color	= clr.rgb;
 		output.normal	= normal;
+
+		output.modelPos		= pos;
 
 		return output;
 	}	
@@ -88,6 +91,7 @@ namespace rendering
 
 		float3 color		: COLOR0;
 		float3 normal		: NORMAL0;
+		float3 modelPos		: POSITION2;
 	};
 
 	float4 main(PSIN input) : SV_TARGET
@@ -98,6 +102,12 @@ namespace rendering
 		float in_shadow = shadow(input.sunPos.xy, input.sunPos.z);
 
 		float3 finalColor = input.color * sun_color.rgb * sun_color.a;
+		
+		
+		//float c = clamp(1.0f -  length(input.modelPos) + 0.4f, 0.2f, 1.0f);
+		//if(input.modelPos.y < -0.025f)
+		//	c = 1.0f;
+		
 
 		//return float4(input.normal, 1.0f);
 		return float4(finalColor.xyz * in_shadow + finalColor.xyz * 0.1f, 1.0f);
