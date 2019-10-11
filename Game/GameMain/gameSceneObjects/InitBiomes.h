@@ -6,28 +6,26 @@
 #include "..//gameUtility/UtilityComponents.h"
 #include "..//gameSceneObjects/SceneObjectGlobals.h"
 
-
 void InitBiomes(ecs::EntityComponentSystem& rECS)
 {
 
 	ecs::ComponentIterator itt;
-
 	GridProp* p_gp = GridProp::GetInstance();
 
-	TileData p_start[4] = { 
+	TileData p_start[4] = {
 		p_gp->mGrid[0][0],
 		p_gp->mGrid[11][0],
 		p_gp->mGrid[0][11],
 		p_gp->mGrid[11][11],
 	};
-	
+
 	for (int i = 0; i < 37; i++)
 	{
 		for (size_t j = 0; j < 4; j++)
 		{
-			ecs::components::TileComponent* p_p_tile_comp = rECS.getComponentFromEntity<ecs::components::TileComponent>(p_start[j].Id);
+			ecs::components::TileComponent* p_tile_comp = rECS.getComponentFromEntity<ecs::components::TileComponent>(p_start[j].Id);
 
-			p_p_tile_comp->biome = (BIOME)j;
+			p_tile_comp->biome = (BIOME)j;
 
 			switch (j)
 			{
@@ -51,12 +49,11 @@ void InitBiomes(ecs::EntityComponentSystem& rECS)
 
 
 	itt = rECS.getAllComponentsOfType(ecs::components::TileComponent::typeID);
+
 	for (size_t i = 0; i < 144; i++)
 	{
 		ecs::components::TileComponent* p_tile_comp = (ecs::components::TileComponent*)itt.next();
-
-
-
+		
 		ecs::components::TransformComponent* p_tile_tansf_comp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(p_tile_comp->getEntityID());
 		ecs::components::ColorComponent* p_tile_color_comp = rECS.getComponentFromEntity<ecs::components::ColorComponent>(p_tile_comp->getEntityID());
 
@@ -68,7 +65,7 @@ void InitBiomes(ecs::EntityComponentSystem& rECS)
 		case SWAMP:
 			p_tile_tansf_comp->position.y += 0.1f;
 			p_tile_tansf_comp->position.y *= 1.2f;
-			p_tile_color_comp->color = DirectX::XMFLOAT4( 0.0f , 30.0f + color_offset , 30.0f + color_offset, 0.0f );
+			p_tile_color_comp->color = DirectX::XMFLOAT4(0.0f, 30.0f + color_offset, 30.0f + color_offset, 0.0f);
 			break;
 		case MOUNTAIN:
 			p_tile_tansf_comp->position.y += 0.4f;
