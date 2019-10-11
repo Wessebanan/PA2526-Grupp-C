@@ -34,6 +34,7 @@ namespace ecs
 		struct MoveStateComponent : public ECSComponent<MoveStateComponent>
 		{
 			int data = 0;
+			std::vector<unsigned int> path;
 		};
 
 		struct UnitComponent : public ECSComponent<UnitComponent>

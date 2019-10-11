@@ -7,6 +7,8 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "..//..//AI/includes/GridFunctions.h"
 #include "..//..//AI/includes/GridProp.h"
+#include "../Physics/PhysicsComponents.h"
+#include "../Physics/PhysicsEvents.h"
 #include <iostream>
 
 namespace ecs
@@ -61,6 +63,9 @@ namespace ecs
 				start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
 				unsigned int start_tile_id = g_prop->mGrid[start_tile.x][start_tile.y].Id;
 				path = GetPath(start_tile_id);
+				components::MoveStateComponent move_comp;
+				move_comp.path = path;
+				ecs::ECSUser::removeComponent(entity.entity->getID(), entity.getComponent<components::PathfindingStateComponent>()->getID());
 			}
 			std::vector<unsigned int> GetPath(unsigned int startID)
 			{
@@ -131,6 +136,7 @@ namespace ecs
 			{
 				updateType = EntityUpdate;
 				typeFilter.addRequirement(components::MoveStateComponent::typeID);
+				typeFilter.addRequirement(components::TransformComponent::typeID);
 			}
 			virtual ~MoveStateSystem() {}
 
@@ -139,11 +145,29 @@ namespace ecs
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
 				ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
-				if (transform->position.y <= 0.0f)
-					transform->position.y = 50.0f;
-				else
-					transform->position.y -= 1.0f;
+				ecs::components::DynamicMovementComponent* dyn_move = entity.getComponent<ecs::components::DynamicMovementComponent>();
+				ecs::components::MoveStateComponent* move_comp = entity.getComponent<ecs::components::MoveStateComponent>();
+				ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
+				if (goal->position.x == transform->position.x && goal->position.z == transform->position.z)
+				{
+					if(move_comp->path.size() != 0)
+					{
+						move_comp->path.erase(move_comp->path.begin());
+						goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
+						this->x = goal->position.x - transform->position.x;
+						this->z = goal->position.z - transform->position.z;
+						dyn_move->mForward.x = this->x;
+						dyn_move->mForward.z = this->z;
+						MovementInputEvent kek;
+						kek.mInput = FORWARD;
+						kek.mEntityID = entity.entity->getID();
+						createEvent(kek);
+					}
+				}
 			}
+		private:
+			float x;
+			float z;
 		};
 
 		/*
