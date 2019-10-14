@@ -65,11 +65,12 @@ namespace rendering
 		output.pos		= mul(gPerspective, mul(gView, worldPos));
 		output.sunPos	= mul(gOrtographicsSun, mul(gViewSun, worldPos));
 
-		float4 clr		= unpack(gMesh[instance].color) / 256.0f;
+		uint4 u			= unpack(gMesh[instance].color);
+		float4 clr		= float4(u) / 256.0f;
 		output.color	= clr.rgb;
-		output.normal	= normal;
 
-		output.modelPos		= pos;
+		output.normal	= normal;
+		output.modelPos	= pos;
 
 		return output;
 	}	
@@ -101,16 +102,18 @@ namespace rendering
 
 		float in_shadow = shadow(input.sunPos.xy, input.sunPos.z);
 
-		float3 finalColor = input.color * sun_color.rgb * sun_color.a;
+		float3 finalColor = input.color;// * sun_color.rgb * sun_color.a;
 		
 		
 		//float c = clamp(1.0f -  length(input.modelPos) + 0.4f, 0.2f, 1.0f);
 		//if(input.modelPos.y < -0.025f)
 		//	c = 1.0f;
 		
+		float3 ambient = input.color * (1.0f - in_shadow) * 0.2f;
+		float3 diffuse = finalColor * in_shadow;
 
 		//return float4(input.normal, 1.0f);
-		return float4(finalColor.xyz * in_shadow + finalColor.xyz * 0.1f, 1.0f);
+		return float4(ambient + diffuse, 1.0f);
 	}	
 
 	)";
