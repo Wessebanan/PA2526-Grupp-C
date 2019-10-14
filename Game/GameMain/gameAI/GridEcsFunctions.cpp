@@ -107,30 +107,30 @@ namespace GridEcsFunctions
 			}
 		}
 
+
+		// Lopps over each tile in the scene
+		// Needs to be in this order since the tiles need to be initialized as -1
 		for (int i = 0; i < Rows; i++)
 		{
 			for (int j = 0; j < Columns; j++)
 			{
+				// Randoms what biome to take next
 				int random_biome = rand() % 4;
-
-				//int x_cord = random_biome % 2;
-				//int y_cord = 0;
-				//if (random_biome > 1)
-				//	y_cord = 1;
-				//x_cord *= 11;
-				//y_cord *= 11;
 
 				bool found = false;
 
-
+				// If-statements to have each biome start from different corners
+				// Should be changed later to have them spread, but rigth now not needed
 				if (random_biome == 0)
 				{
+					// Loop until a empty tile is found
 					for (int it = 0; it < Rows && !found; it++)
 					{
 						for (int jt = 0; jt < Columns && !found; jt++)
 						{
 							if (p_gp->mGrid[it][jt].biome == -1)
 							{
+								// Apply the biome, set later
 								p_gp->mGrid[it][jt].biome = random_biome;
 
 								found = true;
@@ -188,11 +188,13 @@ namespace GridEcsFunctions
 				}
 			}
 		}
+
+		// loops over and applies each biome to the tilecomponents
+		// Needs to be in this order since the tiles need to be initialized as -1
 		for (int i = 0; i < Rows; i++)
 		{
 			for (int j = 0; j < Columns; j++)
 			{
-
 				ecs::components::TileComponent* p_tile_comp = rEcs.getComponentFromEntity<ecs::components::TileComponent>(p_gp->mGrid[i][j].Id);
 
 				p_tile_comp->biome = (BIOME)p_gp->mGrid[i][j].biome;
