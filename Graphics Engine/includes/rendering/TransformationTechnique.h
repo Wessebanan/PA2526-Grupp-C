@@ -6,6 +6,6 @@ namespace rendering
 {
 	struct TransformationTechniqueData
 	{
-		graphics::GraphicsPipeline* pPipeline;
+		graphics::GraphicsPipeline pipeline;
 	};
 }

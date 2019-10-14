@@ -1,7 +1,7 @@
 #pragma once
-#include "Plugin.h"
+#include "AudioPlugin.h"
 
-namespace Sound
+namespace Audio
 {
 	namespace Plugin
 	{
@@ -10,7 +10,7 @@ namespace Sound
 		{
 		public:
 			TestSineWave(float Frequency);
-			void Process(Samples Start, Samples Count, float* Data, int Channels);
+			Status Process(Samples start, Samples sampleCount, float* pData, int channelCount);
 		private:
 			float mFrequency;
 		};
@@ -20,7 +20,7 @@ namespace Sound
 		{
 		public:
 			Passthrough(Plugin* pNext);
-			void Process(Samples Start, Samples Count, float* Data, int Channels);
+			Status Process(Samples start, Samples sampleCount, float* pData, int channelCount);
 		};
 	}
 }

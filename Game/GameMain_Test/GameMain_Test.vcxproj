@@ -30,6 +30,10 @@
     <Import Project="AI_Game.props" />
     <Import Project="Utility_Game.props" />
     <Import Project="Input_Game.props" />
+    <Import Project="..\..\PropertySheets\AI_Debug.props" />
+    <Import Project="..\..\PropertySheets\Utility_Debug.props" />
+    <Import Project="AudioIncludesFromGame.props" />
+    <Import Project="..\..\PropertySheets\Sound_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
@@ -39,27 +43,32 @@
     <Import Project="AI_Game.props" />
     <Import Project="Input_Game.props" />
     <Import Project="Utility_Game.props" />
+    <Import Project="..\..\PropertySheets\AI_Release.props" />
+    <Import Project="..\..\PropertySheets\Utility_Release.props" />
+    <Import Project="AudioIncludesFromGame.props" />
+    <Import Project="..\..\PropertySheets\Sound_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClInclude Include="..\..\AI\AI\includes\AIGlobals.h" />
+    <ClInclude Include="..\..\AI\AI\includes\GridFunctions.h" />
+    <ClInclude Include="..\..\AI\AI\includes\GridProp.h" />
     <ClInclude Include="..\GameMain\gameAI\AIComponents.h" />
+    <ClInclude Include="..\GameMain\gameAI\AIEcsFunctions.h" />
     <ClInclude Include="..\GameMain\gameAI\AIEvents.h" />
-    <ClInclude Include="..\GameMain\gameAI\AIFunctions.h" />
-    <ClInclude Include="..\GameMain\gameAI\AIGlobals.h" />
     <ClInclude Include="..\GameMain\gameAI\AISystems.h" />
-    <ClInclude Include="..\GameMain\gameAI\GridFunctions.h" />
-    <ClInclude Include="..\GameMain\gameAI\GridProp.h" />
+    <ClInclude Include="..\GameMain\gameAI\GridEcsFunctions.h" />
     <ClInclude Include="..\GameMain\gameAI\InitArmy.h" />
     <ClInclude Include="..\GameMain\gameAI\InitGrid.h" />
     <ClInclude Include="..\GameMain\gameUtility\CameraComponents.h" />
+    <ClInclude Include="..\GameMain\gameUtility\CameraEcsFunctions.h" />
     <ClInclude Include="..\GameMain\gameUtility\CameraEvents.h" />
-    <ClInclude Include="..\GameMain\gameUtility\CameraFunctions.h" />
     <ClInclude Include="..\GameMain\gameUtility\CameraSystems.h" />
     <ClInclude Include="..\GameMain\gameUtility\DebugInfo.h" />
     <ClInclude Include="..\GameMain\gameUtility\GlobalsCamera.h" />
     <ClInclude Include="..\GameMain\gameUtility\UtilityComponents.h" />
+    <ClInclude Include="..\GameMain\gameUtility\UtilityEcsFunctions.h" />
     <ClInclude Include="..\GameMain\gameUtility\UtilityEvents.h" />
-    <ClInclude Include="..\GameMain\gameUtility\UtilityFunctions.h" />
     <ClInclude Include="..\GameMain\gameUtility\UtilitySystems.h" />
     <ClInclude Include="..\GameMain\Physics\CollisionSystem.h" />
     <ClInclude Include="..\GameMain\Physics\MovementSystem.h" />
@@ -69,13 +78,16 @@
     <ClInclude Include="Physics\GroundCollision.h" />
     <ClInclude Include="Physics\MovementLogic.h" />
     <ClInclude Include="Physics\ObjectCollision.h" />
+    <ClInclude Include="Sound\SoundTests.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\GameMain\gameAI\AIFunctions.cpp" />
-    <ClCompile Include="..\GameMain\gameAI\GridFunctions.cpp" />
-    <ClCompile Include="..\GameMain\gameAI\GridProp.cpp" />
-    <ClCompile Include="..\GameMain\gameUtility\CameraFunctions.cpp" />
-    <ClCompile Include="..\GameMain\gameUtility\UtilityFunctions.cpp" />
+    <ClCompile Include="..\..\AI\AI\includes\GridFunctions.cpp" />
+    <ClCompile Include="..\..\AI\AI\includes\GridProp.cpp" />
+    <ClCompile Include="..\GameMain\gameAI\AIEcsFunctions.cpp" />
+    <ClCompile Include="..\GameMain\gameAI\GridEcsFunctions.cpp" />
+    <ClCompile Include="..\GameMain\gameAudio\AudioECSSystems.cpp" />
+    <ClCompile Include="..\GameMain\gameUtility\CameraEcsFunctions.cpp" />
+    <ClCompile Include="..\GameMain\gameUtility\UtilityEcsFunctions.cpp" />
     <ClCompile Include="..\GameMain\Physics\CollisionSystem.cpp" />
     <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp" />
     <ClCompile Include="test.cpp" />

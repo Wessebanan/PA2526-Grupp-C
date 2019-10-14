@@ -9,33 +9,30 @@
     <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameMain\gameUtility\CameraFunctions.cpp">
+    <ClCompile Include="..\GameMain\gameAI\AIEcsFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\gameAI\GridEcsFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\AI\AI\includes\GridFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\AI\AI\includes\GridProp.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\gameUtility\CameraEcsFunctions.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameMain\gameUtility\UtilityFunctions.cpp">
+    <ClCompile Include="..\GameMain\gameUtility\UtilityEcsFunctions.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameMain\gameAI\AIFunctions.cpp">
-      <Filter>AI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameMain\gameAI\GridFunctions.cpp">
-      <Filter>AI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameMain\gameAI\GridProp.cpp">
-      <Filter>AI</Filter>
+    <ClCompile Include="..\GameMain\gameAudio\AudioECSSystems.cpp">
+      <Filter>Sound</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Physics\GroundCollision.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\MovementLogic.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\ObjectCollision.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
     <ClInclude Include="..\GameMain\Physics\CollisionSystem.h">
       <Filter>Physics</Filter>
     </ClInclude>
@@ -54,9 +51,6 @@
     <ClInclude Include="..\GameMain\gameUtility\CameraEvents.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\gameUtility\CameraFunctions.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\GameMain\gameUtility\CameraSystems.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -72,9 +66,6 @@
     <ClInclude Include="..\GameMain\gameUtility\UtilityEvents.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\gameUtility\UtilityFunctions.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\GameMain\gameUtility\UtilitySystems.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -84,19 +75,7 @@
     <ClInclude Include="..\GameMain\gameAI\AIEvents.h">
       <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\AIFunctions.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\AIGlobals.h">
-      <Filter>AI</Filter>
-    </ClInclude>
     <ClInclude Include="..\GameMain\gameAI\AISystems.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\GridFunctions.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\GridProp.h">
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="..\GameMain\gameAI\InitArmy.h">
@@ -105,16 +84,58 @@
     <ClInclude Include="..\GameMain\gameAI\InitGrid.h">
       <Filter>AI</Filter>
     </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\AIEcsFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\GridEcsFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AI\AI\includes\AIGlobals.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AI\AI\includes\GridFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AI\AI\includes\GridProp.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\CameraEcsFunctions.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\UtilityEcsFunctions.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\ObjectCollision.h">
+      <Filter>Physics\Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\MovementLogic.h">
+      <Filter>Physics\Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\GroundCollision.h">
+      <Filter>Physics\Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound\SoundTests.h">
+      <Filter>Sound</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Physics">
       <UniqueIdentifier>{c289c533-cb9b-45b0-abc2-a28e2e2fc071}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics\Test Files">
+      <UniqueIdentifier>{7c1aab98-ef41-4a09-a0ee-2452692177d8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
     <Filter Include="Utility">
       <UniqueIdentifier>{d96f7afd-16ba-4c20-9f31-1556ae77133f}</UniqueIdentifier>
     </Filter>
     <Filter Include="AI">
       <UniqueIdentifier>{68f9db8b-fa0c-48c8-9771-bc8de85172dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sound">
+      <UniqueIdentifier>{887fb635-0555-4e3e-a53f-8dadf41c35c6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
