@@ -62,11 +62,24 @@ bool Sound::Bank::LoadMultipleFiles(const std::string* pPathArray, int count)
 			return_value = false;
 			break;
 		}
-		if (SetFileAtIndex(pPathArray[i], i) == nullptr)
+#ifdef _DEBUG
+		try
 		{
-			std::cerr << pPathArray[i] << " could not be loaded\n";
+#endif
+			if (SetFileAtIndex(pPathArray[i], i) == nullptr)
+			{
+				std::cerr << pPathArray[i] << " could not be loaded\n";
+				return_value = false;
+			}
+#ifdef _DEBUG
+		}
+		catch (std::bad_alloc e)
+		{
+			std::cerr << "Bad alloc! Probably reading outside Path Array (count too high)\n"
+				<< e.what() << std::endl;
 			return_value = false;
 		}
+#endif
 	}
 
 

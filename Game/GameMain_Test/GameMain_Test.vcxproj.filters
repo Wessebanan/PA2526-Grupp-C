@@ -9,20 +9,23 @@
     <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameMain\gameUtility\CameraFunctions.cpp">
+    <ClCompile Include="..\GameMain\gameAI\AIEcsFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\gameAI\GridEcsFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\AI\AI\includes\GridFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\AI\AI\includes\GridProp.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\gameUtility\CameraEcsFunctions.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameMain\gameUtility\UtilityFunctions.cpp">
+    <ClCompile Include="..\GameMain\gameUtility\UtilityEcsFunctions.cpp">
       <Filter>Utility</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameMain\gameAI\AIFunctions.cpp">
-      <Filter>AI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameMain\gameAI\GridFunctions.cpp">
-      <Filter>AI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\GameMain\gameAI\GridProp.cpp">
-      <Filter>AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -54,9 +57,6 @@
     <ClInclude Include="..\GameMain\gameUtility\CameraEvents.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\gameUtility\CameraFunctions.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\GameMain\gameUtility\CameraSystems.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -72,9 +72,6 @@
     <ClInclude Include="..\GameMain\gameUtility\UtilityEvents.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\gameUtility\UtilityFunctions.h">
-      <Filter>Utility</Filter>
-    </ClInclude>
     <ClInclude Include="..\GameMain\gameUtility\UtilitySystems.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -84,19 +81,7 @@
     <ClInclude Include="..\GameMain\gameAI\AIEvents.h">
       <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\AIFunctions.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\AIGlobals.h">
-      <Filter>AI</Filter>
-    </ClInclude>
     <ClInclude Include="..\GameMain\gameAI\AISystems.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\GridFunctions.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameMain\gameAI\GridProp.h">
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="..\GameMain\gameAI\InitArmy.h">
@@ -104,6 +89,27 @@
     </ClInclude>
     <ClInclude Include="..\GameMain\gameAI\InitGrid.h">
       <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\AIEcsFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameAI\GridEcsFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AI\AI\includes\AIGlobals.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AI\AI\includes\GridFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\AI\AI\includes\GridProp.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\CameraEcsFunctions.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\gameUtility\UtilityEcsFunctions.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

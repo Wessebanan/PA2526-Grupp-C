@@ -18,22 +18,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\AIComponents.h">
-      <Filter>Header Files\ECS_Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\AISystems.h">
-      <Filter>Header Files\ECS_Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\AIEvents.h">
-      <Filter>Header Files\ECS_Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\GridFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\AIGlobals.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\AIFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\GridProp.h">
@@ -45,9 +33,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="includes\GridFunctions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\AIFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="includes\GridProp.cpp">

@@ -29,8 +29,8 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	DirectX::XMVECTOR collision_min = DirectX::XMLoadFloat3(&p_collision->mMin);
 	DirectX::XMVECTOR collision_max = DirectX::XMLoadFloat3(&p_collision->mMax);
 
-	collision_min = DirectX::XMVector3Transform(collision_min, UtilityFunctions::GetWorldMatrix(*p_transform));
-	collision_max = DirectX::XMVector3Transform(collision_max, UtilityFunctions::GetWorldMatrix(*p_transform));
+	collision_min = DirectX::XMVector3Transform(collision_min, UtilityEcsFunctions::GetWorldMatrix(*p_transform));
+	collision_max = DirectX::XMVector3Transform(collision_max, UtilityEcsFunctions::GetWorldMatrix(*p_transform));
 
 	// Grabbing the entities it could collide with.
 	TypeFilter filter;
@@ -57,8 +57,8 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		DirectX::XMVECTOR current_collision_min = DirectX::XMLoadFloat3(&p_current_collision->mMin);
 		DirectX::XMVECTOR current_collision_max = DirectX::XMLoadFloat3(&p_current_collision->mMax);
 
-		current_collision_min = DirectX::XMVector3Transform(current_collision_min, UtilityFunctions::GetWorldMatrix(*p_current_transform));
-		current_collision_max = DirectX::XMVector3Transform(current_collision_max, UtilityFunctions::GetWorldMatrix(*p_current_transform));
+		current_collision_min = DirectX::XMVector3Transform(current_collision_min, UtilityEcsFunctions::GetWorldMatrix(*p_current_transform));
+		current_collision_max = DirectX::XMVector3Transform(current_collision_max, UtilityEcsFunctions::GetWorldMatrix(*p_current_transform));
 
 		// If the objects' bounding volumes intersect.
 		if (AABBIntersect(collision_min, collision_max, current_collision_min, current_collision_max))
@@ -87,8 +87,8 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		DirectX::XMVECTOR center = DirectX::XMLoadFloat3(&p_collision->mCenter);
 		DirectX::XMVECTOR colliding_center = DirectX::XMLoadFloat3(&p_colliding_collision->mCenter);
 
-		center = DirectX::XMVector3Transform(center, UtilityFunctions::GetWorldMatrix(*p_transform));
-		colliding_center = DirectX::XMVector3Transform(colliding_center, UtilityFunctions::GetWorldMatrix(*p_colliding_transform));
+		center = DirectX::XMVector3Transform(center, UtilityEcsFunctions::GetWorldMatrix(*p_transform));
+		colliding_center = DirectX::XMVector3Transform(colliding_center, UtilityEcsFunctions::GetWorldMatrix(*p_colliding_transform));
 
 		RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
 	}
@@ -188,7 +188,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	TransformComponent* p_transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
 	
 	// Creating world matrix and transforming the ground collision component center position to world space.
-	DirectX::XMMATRIX ground_collision_world = UtilityFunctions::GetWorldMatrix(*p_transform_component);
+	DirectX::XMMATRIX ground_collision_world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_component);
 	DirectX::XMVECTOR ground_collision_center_position = DirectX::XMLoadFloat3(&ground_collision_component->mCenterPos);
 	ground_collision_center_position = DirectX::XMVector3Transform(ground_collision_center_position, ground_collision_world);
 

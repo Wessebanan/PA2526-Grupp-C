@@ -82,14 +82,15 @@ namespace rendering
 		};
 	}
 
-#define INDEX (RENDER_TECHNIQUES_COUNT - N)
-
 	//Call this to start the loop.
 	template<int N, template<int I> class Wrapper, typename Parent, typename ... Args>
 	void ClassMethodLoop(Parent* parent, const Args& ... args) 
 	{
 		ClassMethodLooper::Loop<N, Wrapper, Parent, Args ...>::impl(parent, args...);
 	}
+
+	// Used for inverting to (0 -> 10) instead of (10 -> 0)
+#define INDEX (RENDER_TECHNIQUES_COUNT - N)
 
 	class RenderTechniques {
 	public:
@@ -113,10 +114,16 @@ namespace rendering
 			ClassMethodLoop<RENDER_TECHNIQUES_COUNT, UpdateTechniques>(this, pContext);
 		}
 
-		void SetAndDrawAll(graphics::RenderContext* pContext)
+		void DrawAll(graphics::RenderContext* pContext)
 		{
-			m_pDrawManager->Start(pContext);
+			m_pDrawManager->Reset(pContext);
 			ClassMethodLoop<RENDER_TECHNIQUES_COUNT, SetTechniques>(this, pContext);
+		}
+
+		void DrawAllWithoutPS(graphics::RenderContext* pContext)
+		{
+			m_pDrawManager->Reset(pContext);
+			ClassMethodLoop<RENDER_TECHNIQUES_COUNT, SetTechniquesWithoutPS>(this, pContext);
 		}
 
 		void DeconstructAll(graphics::DeviceInterface* pDevice)
@@ -127,11 +134,10 @@ namespace rendering
 		template<RENDER_TECHNIQUES T>
 		void* GetData()
 		{
-			return m_technique.GetData<T>();
+			return RenderTechnique::GetData<T>();
 		}
 
 	private:
-		RenderTechnique m_technique;
 		DrawManager* m_pDrawManager;
 
 		template<int N>
@@ -179,8 +185,19 @@ namespace rendering
 		};
 
 		template<int N>
-		struct DeconstructTechniques
+		struct SetTechniquesWithoutPS
 		{
+			void operator()(
+				RenderTechniques* parent,
+				graphics::RenderContext* pContext) const
+			{
+				parent->SetWithoutPS<N>(pContext);
+			}
+		};
+
+		template<int N>
+		struct DeconstructTechniques
+		{ 
 			void operator()(
 				RenderTechniques* parent,
 				graphics::DeviceInterface* pDevice) const
@@ -192,32 +209,42 @@ namespace rendering
 		template<int N>
 		void Construct(RENDER_TECHNIQUE_DESC& desc)
 		{
-			m_technique.Construct<RENDER_TECHNIQUES(INDEX)>(desc);
+			RenderTechnique::Construct<RENDER_TECHNIQUES(INDEX)>(desc);
 		}
 
 		template<int N>
 		void Initialize(graphics::DeviceInterface* pDevice)
 		{
-			m_technique.Initialize<RENDER_TECHNIQUES(INDEX)>(pDevice);
+			RenderTechnique::Initialize<RENDER_TECHNIQUES(INDEX)>(pDevice);
 		}
 
 		template<int N>
 		void Update(graphics::RenderContext* pContext)
 		{
-			m_technique.Update<RENDER_TECHNIQUES(INDEX)>(pContext);
+			RenderTechnique::Update<RENDER_TECHNIQUES(INDEX)>(pContext);
 		}
 
 		template<int N>
 		void Set(graphics::RenderContext* pContext)
 		{
-			m_technique.Set<RENDER_TECHNIQUES(INDEX)>(pContext);
+			RenderTechnique::Set<RENDER_TECHNIQUES(INDEX)>(pContext);
+
+			m_pDrawManager->Draw(RENDER_TECHNIQUES(INDEX), pContext);
+		}
+
+		template<int N>
+		void SetWithoutPS(graphics::RenderContext* pContext)
+		{
+			RenderTechnique::Set<RENDER_TECHNIQUES(INDEX)>(pContext);
+
+			pContext->DiscardPixelShader();
 			m_pDrawManager->Draw(RENDER_TECHNIQUES(INDEX), pContext);
 		}
 
 		template<int N>
 		void Deconstruct(graphics::DeviceInterface* pDevice)
 		{
-			m_technique.Deconstruct<RENDER_TECHNIQUES(INDEX)>(pDevice);
+			RenderTechnique::Deconstruct<RENDER_TECHNIQUES(INDEX)>(pDevice);
 		}
 	};
 }
