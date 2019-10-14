@@ -58,9 +58,9 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 			p_scene_tranf_comp->position.z = p_tile_transf_comp->position.z;
 
 
-			p_scene_color_comp->color.x = p_tile_color_comp->color.x *0.8f;
-			p_scene_color_comp->color.y = p_tile_color_comp->color.y *0.8f;
-			p_scene_color_comp->color.z = p_tile_color_comp->color.z *0.8f;
+			p_scene_color_comp->red = p_tile_color_comp->red *0.8f;
+			p_scene_color_comp->green = p_tile_color_comp->green *0.8f;
+			p_scene_color_comp->blue = p_tile_color_comp->blue *0.8f;
 
 
 
