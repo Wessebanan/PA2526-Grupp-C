@@ -43,5 +43,16 @@ namespace Audio
 			Samples mReadPointer;
 			int mRepeatAmount;
 		};
+
+		class Streamer : public Plugin
+		{
+		public:
+			Streamer(File::MusicData* pFile);
+			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount);
+		private:
+			File::MusicData* mpFile;
+			float* mpData;
+			Samples mReadPointer;
+		};
 	}
 }

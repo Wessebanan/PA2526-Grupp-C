@@ -65,11 +65,21 @@ namespace Audio
 
 			bool Init(std::string& rPath);
 
+			float* GetDataPointer();
+
+			Samples GetReadSample(Samples currentSample);
+			void RefillData();
+
 		private:
+			void Refill();
+
 			WavHeader mHeader;
 			FILE* mpFileHandle;
 			fpos_t mFileDataStart;
+			Samples mCurrentSampleRead;
 			int mRefillBuffer;
+			bool mRefillPlease;
+			Samples mSampleCount;
 			float mpData[SOUND_MUSIC_FILE_SIZE];
 		};
 	}

@@ -1,4 +1,5 @@
 #include "AudioFile.h"
+#include <iostream>
 Audio::File::SoundData::SoundData()
 {
 	mHeader = { 0 };
@@ -91,6 +92,22 @@ bool Audio::File::SoundData::StringIsEqual(std::string& rPath)
 
 
 
+Audio::File::MusicData::MusicData()
+{
+	mHeader = { 0 };
+	mpFileHandle = nullptr;
+	mFileDataStart = 0;
+	mCurrentSampleRead = 0;
+	mRefillBuffer = 0;
+	mRefillPlease = false;
+	mSampleCount = 0;
+}
+
+Audio::File::MusicData::~MusicData()
+{
+	fclose(mpFileHandle);
+}
+
 bool Audio::File::MusicData::Init(std::string& rPath)
 {
 	int subchunk_search_tries = 16;
@@ -126,5 +143,74 @@ bool Audio::File::MusicData::Init(std::string& rPath)
 
 	fgetpos(mpFileHandle, &mFileDataStart);
 
+	//Samples count_to_be_read = SOUND_MUSIC_FILE_SIZE / 2;
+	//count_to_be_read =
+	//	fread(mpData + (SOUND_MUSIC_FILE_SIZE / 2) * mRefillBuffer,
+	//		sizeof(float),
+	//		count_to_be_read,
+	//		mpFileHandle);
+
 	mRefillBuffer = 0;
+	mCurrentSampleRead = 0;
+	mSampleCount = mHeader.Subchunk2Size / sizeof(float);
+}
+
+float* Audio::File::MusicData::GetDataPointer()
+{
+	return mpData;
+}
+
+Audio::Samples Audio::File::MusicData::GetReadSample(Samples currentSample)
+{
+	Samples converted = (currentSample - (mCurrentSampleRead - (SOUND_MUSIC_FILE_SIZE / 2) * mRefillBuffer)) & (SOUND_MUSIC_FILE_SIZE) - 1;
+	if (mRefillPlease == false)
+	{
+		if (converted < SOUND_MUSIC_FILE_SIZE / 2)
+		{
+			if (mRefillBuffer == 1)
+			{
+				mRefillPlease = true;
+			}
+		}
+		else
+		{
+			if (mRefillBuffer == 0)
+			{
+				mRefillPlease = true;
+			}
+		}
+	}
+	return converted;
+}
+
+void Audio::File::MusicData::RefillData()
+{
+	if (mRefillPlease)
+	{
+		// Should be called with a thread
+		Refill();
+		mRefillPlease = false;
+	}
+}
+
+void Audio::File::MusicData::Refill()
+{
+	Samples count_to_be_read = SOUND_MUSIC_FILE_SIZE / 2;
+	count_to_be_read =
+		fread(mpData + (SOUND_MUSIC_FILE_SIZE / 2) * mRefillBuffer,
+			sizeof(float),
+			count_to_be_read,
+			mpFileHandle);
+	if (count_to_be_read != SOUND_MUSIC_FILE_SIZE / 2)
+	{
+		mCurrentSampleRead = 0;
+		fsetpos(mpFileHandle, &mFileDataStart);
+		count_to_be_read = 
+		fread(mpData + (SOUND_MUSIC_FILE_SIZE / 2) * mRefillBuffer + count_to_be_read,
+			sizeof(float),
+			(SOUND_MUSIC_FILE_SIZE / 2) - count_to_be_read,
+			mpFileHandle);
+	}
+	mCurrentSampleRead += count_to_be_read;
+	mRefillBuffer = (mRefillBuffer + 1) % 2;
 }

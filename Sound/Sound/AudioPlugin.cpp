@@ -51,3 +51,32 @@ LabelFinished:
 	}
 	return STATUS_FINISHED;
 }
+
+Audio::Plugin::Streamer::Streamer(File::MusicData* pFile)
+{
+	mpFile = pFile;
+	mpData = mpFile->GetDataPointer();
+	mReadPointer = 0;
+}
+
+Audio::Plugin::Status Audio::Plugin::Streamer::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
+{
+	int i, j;
+	// Get pointer to the data and amount of samples
+	Samples loop_mask = SOUND_MUSIC_FILE_SIZE - 1;
+	Samples data_read_sample = mpFile->GetReadSample(mReadPointer);
+	mReadPointer += sampleCount;
+	// For all frames that needs to be added...
+	for (i = 0; i < sampleCount; i++)
+	{
+		// For both channels...
+		for (j = 0; j < channelCount; j++)
+		{
+			// Read the data from the file
+			*(pData++) = mpData[data_read_sample];
+			data_read_sample = (data_read_sample + 1) & loop_mask;
+		}
+	}
+	mpFile->RefillData();
+	return STATUS_OK;
+}
