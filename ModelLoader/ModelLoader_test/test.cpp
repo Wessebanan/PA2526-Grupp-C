@@ -74,8 +74,8 @@ TEST(SuccessTesting, CorrectUV) {
 TEST(SuccessTesting, CorrectIndex) {
 	ModelLoader::Mesh testMesh;
 	testMesh.LoadFBX("cat.fbx");
-	// First index is supposed to be 321
-	EXPECT_EQ(testMesh.GetIndexVector()->front(), 321);
+	// First index is supposed to be 322
+	EXPECT_EQ(testMesh.GetIndexVector()->front(), 322);
 }
 
 // Check that vertex imported correctly
@@ -102,21 +102,21 @@ TEST(SuccessTesting, CorrectUV_FilePathConstructor) {
 // Check that index imported correctly
 TEST(SuccessTesting, CorrectIndex_FilePathConstructor) {
 	ModelLoader::Mesh testMesh("cat.fbx");
-	// First index is supposed to be 321
-	EXPECT_EQ(testMesh.GetIndexVector()->front(), 321);
+	// First index is supposed to be 322
+	EXPECT_EQ(testMesh.GetIndexVector()->front(), 322);
 }
 
 TEST(AnimationTesting, SuccessfulAnimationLoad) {
 	ModelLoader::Mesh testMesh("AnimTest.fbx");
 	EXPECT_TRUE(testMesh.HasSkeleton());
 	EXPECT_TRUE(testMesh.GetSkeleton() != nullptr);
-	EXPECT_TRUE(testMesh.GetSkinningWeights() != nullptr);
+	EXPECT_TRUE(testMesh.GetBlendWeights() != nullptr);
 }
 
 TEST(AnimationTesting, ModelWithNoAnimation) {
 	ModelLoader::Mesh testMesh("cat.fbx");
 	EXPECT_TRUE(testMesh.GetSkeleton() == nullptr);
-	EXPECT_TRUE(testMesh.GetSkinningWeights() == nullptr);
+	EXPECT_TRUE(testMesh.GetBlendWeights() == nullptr);
 }
 
 TEST(AnimationTesting, CorrectNumberOfJoints) {
@@ -128,5 +128,6 @@ TEST(AnimationTesting, CorrectNumberOfJoints) {
 TEST(AnimationTesting, CorrectNumberOfWeights) {
 	ModelLoader::Mesh testMesh("AnimTest.fbx");
 	ASSERT_TRUE(testMesh.HasSkeleton());
-	EXPECT_EQ(testMesh.GetSkinningWeights()->size(), 274);
+	EXPECT_EQ(testMesh.GetBlendIndices()->size(), 274 * 4);
+	EXPECT_EQ(testMesh.GetBlendWeights()->size(), 274 * 3);
 }

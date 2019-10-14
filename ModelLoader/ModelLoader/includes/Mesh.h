@@ -15,6 +15,8 @@ namespace ModelLoader {
 		// Used for skinning / skeletal animation
 		ModelLoader::Skeleton* mpSkeleton = nullptr;
 		std::vector<ModelLoader::ControlPointInfo>* mpSkinningWeights = nullptr;
+		std::vector<unsigned int>* mpBlendIndices;
+		std::vector<double>* mpBlendWeights;
 		bool mHasSkeleton = false;
 
 	public:
@@ -30,7 +32,12 @@ namespace ModelLoader {
 		std::vector<DirectX::XMFLOAT2>* GetUVVector();
 
 		ModelLoader::Skeleton* GetSkeleton();
-		std::vector<ModelLoader::ControlPointInfo>* GetSkinningWeights();
+		// Retrieve the vector containing all blend indices in the mesh
+		// Size: 4 indices per vertex in the mesh
+		std::vector<unsigned int>* GetBlendIndices();
+		// Retrieve the vector containing all blend weights in the mesh
+		// Size: 3 weights per vertex in the mesh
+		std::vector<double>* GetBlendWeights();
 
 		bool HasUVs();
 		bool HasNormals();

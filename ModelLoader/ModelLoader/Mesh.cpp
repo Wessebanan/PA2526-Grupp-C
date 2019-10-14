@@ -16,6 +16,10 @@ ModelLoader::Mesh::~Mesh()
 	delete mpIndexVector;
 	delete mpNormalVector;
 	delete mpUVVector;
+	delete mpSkinningWeights;
+	delete mpSkeleton;
+	delete this->mpBlendIndices;
+	delete this->mpBlendWeights;
 }
 
 HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
@@ -28,6 +32,8 @@ HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 		this->mpUVVector = new std::vector<DirectX::XMFLOAT2>;
 		this->mpSkeleton = new ModelLoader::Skeleton();
 		this->mpSkinningWeights = new std::vector<ModelLoader::ControlPointInfo>;
+		this->mpBlendIndices = new std::vector<unsigned int>;
+		this->mpBlendWeights = new std::vector<double>;
 	}
 	HRESULT hr = E_FAIL;
 	try
@@ -61,9 +67,29 @@ HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 		{
 			delete this->mpSkeleton;
 			delete this->mpSkinningWeights;
+			delete this->mpBlendIndices;
+			delete this->mpBlendWeights;
 			this->mpSkinningWeights = nullptr;
+			this->mpBlendIndices = nullptr;
+			this->mpBlendWeights = nullptr;
 			mpSkeleton = nullptr;
 			this->mHasSkeleton = false;
+		}
+		else
+		{
+			this->mpBlendIndices->reserve(this->mpVertexPosVector->size() * 4);
+			this->mpBlendWeights->reserve(this->mpVertexPosVector->size() * 3);
+			for (auto a : *this->mpSkinningWeights)
+			{
+				for (unsigned int i = 0; i < 3; i++)
+				{
+					this->mpBlendIndices->push_back(a.weightPairs[i].index);
+					this->mpBlendWeights->push_back(a.weightPairs[i].weight);
+				}
+				this->mpBlendIndices->push_back(a.weightPairs[3].index);
+			}		
+			delete this->mpSkinningWeights;
+			this->mpSkinningWeights = nullptr;
 		}
 	}
 	else
@@ -74,11 +100,16 @@ HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 		delete mpUVVector;
 		delete mpSkinningWeights;
 		delete mpSkeleton;
+		delete this->mpBlendIndices;
+		delete this->mpBlendWeights;
 		mpVertexPosVector = nullptr;
 		mpUVVector = nullptr;
 		mpNormalVector = nullptr;
 		mpIndexVector = nullptr;
-		mpSkinningWeights = nullptr;
+		this->mpSkinningWeights = nullptr;
+		this->mpBlendIndices = nullptr;
+		this->mpBlendWeights = nullptr;
+		
 		mpSkeleton = nullptr;
 	}
 
@@ -111,10 +142,16 @@ ModelLoader::Skeleton* ModelLoader::Mesh::GetSkeleton()
 	return this->mpSkeleton;
 }
 
-std::vector<ModelLoader::ControlPointInfo>* ModelLoader::Mesh::GetSkinningWeights()
+std::vector<unsigned int>* ModelLoader::Mesh::GetBlendIndices()
 {
-	return this->mpSkinningWeights;
+	return this->mpBlendIndices;
 }
+
+std::vector<double>* ModelLoader::Mesh::GetBlendWeights()
+{
+	return this->mpBlendWeights;
+}
+
 
 bool ModelLoader::Mesh::HasUVs()
 {
