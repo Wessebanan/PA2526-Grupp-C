@@ -5,6 +5,7 @@
 #include "DefaultTechnique.h"
 #include "SceenSpaceTechnique.h"
 #include "TransformationTechnique.h"
+#include "SkinningTechnique.h"
 
 #include "RenderCamera.h"
 

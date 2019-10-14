@@ -14,7 +14,7 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 
 	//ModelLoader::Mesh tile("../hexagon_tile.fbx");
 	//ModelLoader::Mesh tile2("../hexagon_tile2.fbx");
-	ModelLoader::Mesh tile3("../hexagon.fbx");
+	ModelLoader::Mesh tile3("../hexagon_tile5.fbx");
 	ModelLoader::Mesh dude("../dudeMesh0.fbx");
 
 	int mesh_tile; // tile

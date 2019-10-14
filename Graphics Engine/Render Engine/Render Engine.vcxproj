@@ -15,6 +15,7 @@
     <ClCompile Include="..\source\rendering\DrawManager.cpp" />
     <ClCompile Include="..\source\rendering\RenderCamera.cpp" />
     <ClCompile Include="..\source\rendering\RenderManager.cpp" />
+    <ClCompile Include="..\source\rendering\SkinningTechnique.cpp" />
     <ClCompile Include="..\source\rendering\TransformationTechnique.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -26,6 +27,7 @@
     <ClInclude Include="..\includes\rendering\RenderHeader.h" />
     <ClInclude Include="..\includes\rendering\RenderManager.h" />
     <ClInclude Include="..\includes\rendering\RenderTechnique.h" />
+    <ClInclude Include="..\includes\rendering\SkinningTechnique.h" />
     <ClInclude Include="..\includes\rendering\TransformationTechnique.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

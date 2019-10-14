@@ -30,6 +30,9 @@
     <ClCompile Include="..\source\rendering\RenderCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\source\rendering\SkinningTechnique.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\rendering\DefaultTechnique.h">
@@ -57,6 +60,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\rendering\RenderCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\rendering\SkinningTechnique.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

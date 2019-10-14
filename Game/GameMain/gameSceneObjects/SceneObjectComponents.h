@@ -26,40 +26,40 @@ namespace ecs
 				switch (this->mObject)
 				{
 				case SCENEOBJECT::VINES:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree2.fbx";
 					break;
 				case SCENEOBJECT::MUD:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree2.fbx";
 					break;
 				case SCENEOBJECT::WAGON:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree2.fbx";
 					break;
 				case SCENEOBJECT::CLIFF:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree2.fbx";
 					break;
 				case SCENEOBJECT::ROCKS:
-					this->mFilepath = "gameSceneObjects/models/rock.fbx";
+					this->mFilepath = "gameSceneObjects/models/rock2.fbx";
 					break;
 				case SCENEOBJECT::CAMP:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree2.fbx";
 					break;
 				case SCENEOBJECT::TREES:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree2.fbx";
 					break;
 				case SCENEOBJECT::FLOWERS:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree2.fbx";
 					break;
 				case SCENEOBJECT::VILAGE:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree2.fbx";
 					break;
 				case SCENEOBJECT::SANDSTONE:
-					this->mFilepath = "gameSceneObjects/models/rock.fbx";
+					this->mFilepath = "gameSceneObjects/models/rock2.fbx";
 					break;
 				case SCENEOBJECT::PALMS:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree2.fbx";
 					break;
 				case SCENEOBJECT::PYRAMIDS:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/tree2.fbx";
 					break;
 				default:
 					// returns false if the sceneobject fails to assign

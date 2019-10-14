@@ -428,9 +428,6 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 				DirectX::XMFLOAT3 vertex_pos;
 				FbxVector4 fbx_vertex = conversion_transform.MultT(p_vertices[j]);
 
-				vertex_pos.x = (float)p_vertices[j].mData[0];
-				vertex_pos.y = (float)p_vertices[j].mData[1];
-				vertex_pos.z = (float)p_vertices[j].mData[2];
 				vertex_pos.x = (float)fbx_vertex.mData[0];
 				vertex_pos.y = (float)fbx_vertex.mData[1];
 				vertex_pos.z = (float)fbx_vertex.mData[2];
@@ -465,11 +462,16 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 				}
 				DirectX::XMFLOAT3 vertex_normal;
 				normal.Normalize();
+				normal = conversion_transform.MultT(normal);
 				vertex_normal.x = (float)normal.mData[0];
 				vertex_normal.y = (float)normal.mData[1];
 				vertex_normal.z = (float)normal.mData[2];
 				pOutNormalVector->push_back(vertex_normal);
 
+			}
+			for (unsigned int i = 0, count = pOutIndexVector->size(); i < count - 2; i+=3)
+			{
+				std::swap((*pOutIndexVector)[i], (*pOutIndexVector)[i+2]);
 			}
 
 			if (pOutSkeleton->joints.size() > 0)
