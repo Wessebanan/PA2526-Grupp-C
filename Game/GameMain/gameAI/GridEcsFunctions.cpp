@@ -1,6 +1,7 @@
 #include "GridEcsFunctions.h"
 #include "AIGlobals.h"
 #include "GridProp.h"
+
 #include "../gameUtility/UtilityComponents.h"
 #include "../../AI/includes/GridFunctions.h"
 #include <DirectXMath.h>
@@ -55,6 +56,7 @@ namespace GridEcsFunctions
 					tile.impassable = true;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = false;
+					p_gp->mGrid[i][j].biome = -1;
 				}
 				else if (transform.position.y == 3)
 				{
@@ -62,6 +64,7 @@ namespace GridEcsFunctions
 					tile.impassable = false;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = true;
+					p_gp->mGrid[i][j].biome = -1;
 				}
 				else if (transform.position.y == -2)
 				{
@@ -69,6 +72,7 @@ namespace GridEcsFunctions
 					color.color.y = 150.0f;
 					tile.impassable = false;
 					p_gp->mGrid[i][j].isPassable = true;
+					p_gp->mGrid[i][j].biome = -1;
 					tile.goal = true;
 				}
 				else
@@ -77,6 +81,7 @@ namespace GridEcsFunctions
 					tile.impassable = false;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = true;
+					p_gp->mGrid[i][j].biome = -1;
 				}
 
 				//Create the new entity
@@ -97,6 +102,100 @@ namespace GridEcsFunctions
 				}
 			}
 		}
+
+		for (int i = 0; i < Rows; i++)
+		{
+			for (int j = 0; j < Columns; j++)
+			{
+				int random_biome = rand() % 4;
+
+				//int x_cord = random_biome % 2;
+				//int y_cord = 0;
+				//if (random_biome > 1)
+				//	y_cord = 1;
+				//x_cord *= 11;
+				//y_cord *= 11;
+
+				bool found = false;
+
+
+				if (random_biome == 0)
+				{
+					for (int it = 0; it < Rows && !found; it++)
+					{
+						for (int jt = 0; jt < Columns && !found; jt++)
+						{
+							if (p_gp->mGrid[it][jt].biome == -1)
+							{
+								p_gp->mGrid[it][jt].biome = random_biome;
+
+								found = true;
+							}
+						}
+					}
+				}
+				else if (random_biome == 1)
+				{
+					for (int it = 11; it < Rows && !found; it--)
+					{
+						for (int jt = 0; jt < Columns && !found; jt++)
+						{
+							if (p_gp->mGrid[it][jt].biome == -1)
+							{
+								p_gp->mGrid[it][jt].biome = random_biome;
+
+								found = true;
+							}
+						}
+					}
+
+				}
+				else if (random_biome == 2)
+				{
+					for (int it = 0; it < Rows && !found; it++)
+					{
+						for (int jt = 11; jt < Columns && !found; jt--)
+						{
+							if (p_gp->mGrid[it][jt].biome == -1)
+							{
+								p_gp->mGrid[it][jt].biome = random_biome;
+
+								found = true;
+							}
+						}
+					}
+
+				}
+				else if (random_biome == 3)
+				{
+					for (int it = 11; it < Rows && !found; it--)
+					{
+						for (int jt = 11; jt < Columns && !found; jt--)
+						{
+							if (p_gp->mGrid[it][jt].biome == -1)
+							{
+								p_gp->mGrid[it][jt].biome = random_biome;
+
+								found = true;
+							}
+						}
+					}
+
+				}
+			}
+		}
+		for (int i = 0; i < Rows; i++)
+		{
+			for (int j = 0; j < Columns; j++)
+			{
+
+				ecs::components::TileComponent* p_tile_comp = rEcs.getComponentFromEntity<ecs::components::TileComponent>(p_gp->mGrid[i][j].Id);
+
+				p_tile_comp->biome = (BIOME)p_gp->mGrid[i][j].biome;
+
+			}
+		}
+
 		CreatePotentialField(rEcs);
 		GridFunctions::StoreNeighbours();
 	}

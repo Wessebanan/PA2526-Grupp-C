@@ -10,42 +10,35 @@ void InitBiomes(ecs::EntityComponentSystem& rECS)
 {
 
 	ecs::ComponentIterator itt;
-	GridProp* p_gp = GridProp::GetInstance();
 
-	TileData p_start[4] = {
-		p_gp->mGrid[0][0],
-		p_gp->mGrid[11][0],
-		p_gp->mGrid[0][11],
-		p_gp->mGrid[11][11],
-	};
+	//int random = rand() % 50;
+	//for (int i = 0; i < 37; i++)
+	//{
+	//	for (size_t j = 0; j < 4; j++)
+	//	{
+	//		ecs::components::TileComponent* p_tile_comp = rECS.getComponentFromEntity<ecs::components::TileComponent>(biome_start[j].Id);
 
-	for (int i = 0; i < 37; i++)
-	{
-		for (size_t j = 0; j < 4; j++)
-		{
-			ecs::components::TileComponent* p_tile_comp = rECS.getComponentFromEntity<ecs::components::TileComponent>(p_start[j].Id);
+	//		p_tile_comp->biome = (BIOME)j;
 
-			p_tile_comp->biome = (BIOME)j;
-
-			switch (j)
-			{
-			case 0:
-				p_start[j] = p_gp->mGrid[i % 6][i / 6];
-				break;
-			case 1:
-				p_start[j] = p_gp->mGrid[11 - (i % 6)][i / 6];
-				break;
-			case 2:
-				p_start[j] = p_gp->mGrid[i % 6][11 - (i / 6)];
-				break;
-			case 3:
-				p_start[j] = p_gp->mGrid[11 - (i % 6)][11 - (i / 6)];
-				break;
-			default:
-				break;
-			}
-		}
-	}
+	//		switch (j)
+	//		{
+	//		case 0:
+	//			biome_start[j] = p_gp->mGrid[i % 6][i / 6];
+	//			break;
+	//		case 1:
+	//			biome_start[j] = p_gp->mGrid[11 - (i % 6)][i / 6];
+	//			break;
+	//		case 2:
+	//			biome_start[j] = p_gp->mGrid[i % 6][11 - (i / 6)];
+	//			break;
+	//		case 3:
+	//			biome_start[j] = p_gp->mGrid[11 - (i % 6)][11 - (i / 6)];
+	//			break;
+	//		default:
+	//			break;
+	//		}
+	//	}
+	//}
 
 
 	itt = rECS.getAllComponentsOfType(ecs::components::TileComponent::typeID);

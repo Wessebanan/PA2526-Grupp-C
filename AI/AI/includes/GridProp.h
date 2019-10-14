@@ -7,6 +7,7 @@ struct TileData
 	bool isPassable;
 	float height;
 	unsigned int neighbourIDArray[6] = { 0 };
+	int biome = -1;
 };
 
 class GridProp
