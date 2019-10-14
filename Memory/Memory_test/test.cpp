@@ -153,11 +153,11 @@ namespace API
 		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
 
 		// Try to allocate on the sub-heap and sanity check the returning ptr.
-		void* ptr = p_heap->Allocate(OBJ_SIZE);
-		ASSERT_NE(ptr, nullptr);
+		void* p_allocation = p_heap->Allocate(OBJ_SIZE);
+		ASSERT_NE(p_allocation, nullptr);
 
 		// Free all memory to avoid memory leaks.
-		p_heap->Free(ptr);
+		p_heap->Free(p_allocation);
 		memory::Free(p_heap);
 		memory::End();
 	}
@@ -177,8 +177,8 @@ namespace API
 		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
 
 		// Try to allocate on the sub-heap.
-		void* ptr = p_heap->Allocate(OBJ_SIZE);
-		EXPECT_EQ(ptr, nullptr);
+		void* p_allocation = p_heap->Allocate(OBJ_SIZE);
+		EXPECT_EQ(p_allocation, nullptr);
 
 		// Free all memory to avoid memory leaks.
 		memory::Free(p_heap);
@@ -197,13 +197,13 @@ namespace API
 		memory::Initialize(MAIN_HEAP_SIZE);
 
 		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
-		void* ptr = p_heap->Allocate(OBJ_SIZE);
+		void* p_allocation = p_heap->Allocate(OBJ_SIZE);
 
 		// Free pointer
-		p_heap->Free(ptr);
+		p_heap->Free(p_allocation);
 
 		// Try to free pointer again
-		EXPECT_NO_THROW(p_heap->Free(ptr));
+		EXPECT_NO_THROW(p_heap->Free(p_allocation));
 
 		// Free all memory to avoid memory leaks.
 		memory::Free(p_heap);
@@ -227,20 +227,55 @@ namespace API
 		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
 
 		// Allocate array and check returning pointer
-		int* array = p_heap->AllocateArray<int>(OBJ_COUNT);
-		EXPECT_NE(array, nullptr);
+		int* p_array = p_heap->AllocateArray<int>(OBJ_COUNT);
+		EXPECT_NE(p_array, nullptr);
 
 		// Try to use array
 		for (uint i = 0; i < OBJ_COUNT; i++)
 		{
-			array[i] = expected_values[i] = i;
+			p_array[i] = expected_values[i] = i;
 		}
 
 		// Check if values exist
 		for (uint i = 0; i < OBJ_COUNT; i++)
 		{
-			EXPECT_EQ(array[i], expected_values[i]);
+			EXPECT_EQ(p_array[i], expected_values[i]);
 		}
+
+		memory::Free(p_heap);
+		memory::End();
+	}
+
+	/*
+		When a user is done working with an array, that may have been just a temporary
+		allocation, the user can free it from memory like any another allocation on a
+		heap. This is done through the heap's method Free().
+	*/
+	TEST(MemoryAPI, FreeArray)
+	{
+		const uint MAIN_HEAP_SIZE = 500;
+		const uint SUB_HEAP_SIZE = 100;
+		const uint OBJ_SIZE = 10;
+		const uint OBJ_COUNT = 5;
+		uint expected_values[OBJ_COUNT];
+
+		memory::Initialize(MAIN_HEAP_SIZE);
+		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
+		int* p_array = p_heap->AllocateArray<int>(OBJ_COUNT);
+
+		/*
+			Fill array with data. If we get an invalid pointer, that is outside the
+			array's reserved memory, and we assign data to that pointer, we will get
+			a crash when freeing the array. Therefore, we assign data to all positions
+			in the array.
+		*/
+		for (int i = 0; i < OBJ_COUNT; i++)
+		{
+			p_array[i] = i;
+		}
+
+		// Try to free array from heap, should not cause a crash.
+		EXPECT_NO_THROW(p_heap->Free(p_array));
 
 		memory::Free(p_heap);
 		memory::End();
