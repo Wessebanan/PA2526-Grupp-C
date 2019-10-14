@@ -246,6 +246,11 @@ namespace API
 		memory::End();
 	}
 
+	/*
+		When a user is done working with an array, that may have been just a temporary
+		allocation, the user can free it from memory like any another allocation on a
+		heap. This is done through the heap's method Free().
+	*/
 	TEST(MemoryAPI, FreeArray)
 	{
 		const uint MAIN_HEAP_SIZE = 500;
@@ -258,12 +263,18 @@ namespace API
 		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
 		int* p_array = p_heap->AllocateArray<int>(OBJ_COUNT);
 
+		/*
+			Fill array with data. If we get an invalid pointer, that is outside the
+			array's reserved memory, and we assign data to that pointer, we will get
+			a crash when freeing the array. Therefore, we assign data to all positions
+			in the array.
+		*/
 		for (int i = 0; i < OBJ_COUNT; i++)
 		{
 			p_array[i] = i;
 		}
 
-		// Try to free array from heap
+		// Try to free array from heap, should not cause a crash.
 		EXPECT_NO_THROW(p_heap->Free(p_array));
 
 		memory::Free(p_heap);
