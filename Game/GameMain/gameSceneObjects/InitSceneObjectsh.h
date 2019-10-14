@@ -1,4 +1,5 @@
 #pragma once
+#include "GridProp.h"
 #include "ecs.h"
 
 #include "SceneObjectComponents.h"	
@@ -38,7 +39,7 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 		
 		// Look for what tiles the sceneobjects should be placed on
 		if (
-				i == 1	|| i == 45 || i == 85
+				i == 125|| i == 45 || i == 85
 			||	i == 15 || i == 44 || i == 95
 			||	i == 25 || i == 65 || i == 105
 			||	i == 35 || i == 75 || i == 115
@@ -63,6 +64,12 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 
 			// Changes the modle depening on the biome
 			p_scene_comp->ChangeModelByBiome(tile_comp->biome);
+
+
+			GridProp* p_gp = GridProp::GetInstance();
+
+
+			p_gp->mSceneObjects[(i % 12)][(i / 12) - 1] = p_scene_comp->mObjectType;
 
 			if (p_scene_comp->mObjectType == OBJECTTYPE::UNPASSABLE)
 			{

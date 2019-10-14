@@ -202,6 +202,16 @@ namespace GridEcsFunctions
 			}
 		}
 
+		// loops over and applies each biome to the tilecomponents
+// Needs to be in this order since the tiles need to be initialized as -1
+		for (int i = 0; i < Rows; i++)
+		{
+			for (int j = 0; j < Columns; j++)
+			{
+				p_gp->mSceneObjects[i][j] = -1;
+			}
+		}
+
 		CreatePotentialField(rEcs);
 		GridFunctions::StoreNeighbours();
 	}
