@@ -136,7 +136,7 @@ namespace GridEcsFunctions
 				}
 				else if (random_biome == 1)
 				{
-					for (int it = 11; it < Rows && !found; it--)
+					for (int it = 11; it > 0 && !found; it--)
 					{
 						for (int jt = 0; jt < Columns && !found; jt++)
 						{
@@ -154,7 +154,7 @@ namespace GridEcsFunctions
 				{
 					for (int it = 0; it < Rows && !found; it++)
 					{
-						for (int jt = 11; jt < Columns && !found; jt--)
+						for (int jt = 11; jt > 0 && !found; jt--)
 						{
 							if (p_gp->mGrid[it][jt].biome == -1)
 							{
@@ -168,9 +168,9 @@ namespace GridEcsFunctions
 				}
 				else if (random_biome == 3)
 				{
-					for (int it = 11; it < Rows && !found; it--)
+					for (int it = 11; it > 0 && !found; it--)
 					{
-						for (int jt = 11; jt < Columns && !found; jt--)
+						for (int jt = 11; jt > 0 && !found; jt--)
 						{
 							if (p_gp->mGrid[it][jt].biome == -1)
 							{
