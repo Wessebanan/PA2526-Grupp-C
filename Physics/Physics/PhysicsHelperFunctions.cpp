@@ -1,6 +1,5 @@
 #include "PhysicsHelperFunctions.h"
 
-
 float PhysicsHelpers::CalculateDistance(const DirectX::XMFLOAT3 &p1, const DirectX::XMFLOAT3 &p2)
 {
 	float x_diff = p1.x - p2.x;
@@ -52,5 +51,10 @@ void PhysicsHelpers::RotateAroundY(DirectX::XMFLOAT3& vec, int degrees)
 int PhysicsHelpers::Sign(float f)
 {
 	return (f > 0.0f) - (f < 0.0f);
+}
+
+float PhysicsHelpers::Square(float f)
+{
+	return f*f;
 }
 
