@@ -124,7 +124,7 @@ bool Audio::File::MusicData::Init(std::string& rPath)
 
 	// TODO Get the position of the actual data here!!!
 
-	//fgetpos(mpFileHandle, )
+	fgetpos(mpFileHandle, &mFileDataStart);
 
 	mRefillBuffer = 0;
 }
