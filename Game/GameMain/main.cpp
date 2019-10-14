@@ -4,6 +4,7 @@
 
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
+#include "AIGlobals.h"
 
 #include "Input/InitInput.h"
 #include "Input/InitInterpreter.h"
@@ -14,6 +15,7 @@
 #include "gameSceneObjects/InitBiomes.h"
 
 #include "gameSound/InitSound.h"
+#include "Physics/MovementSystem.h"
 
 
 using namespace ecs;
@@ -34,6 +36,11 @@ int main()
 	sound_event.soundName = SoundName::COIN_TEST_SOUND;
 	sound_event.soundFlags = SoundFlags::NONE;
 	ecs.createEvent(sound_event);
+	ecs.createSystem<ecs::systems::PathfindingStateSystem>();
+	ecs.createSystem<ecs::systems::IdleStateSystem>();
+	ecs.createSystem<ecs::systems::MoveStateSystem>();
+	ecs.createSystem<ecs::systems::SwitchStateSystem>();
+	ecs.createSystem<ecs::systems::DynamicMovementSystem>();
 
 	InitInput(ecs);
 	InitInterpreter(ecs);
@@ -80,7 +87,18 @@ int main()
 	itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
 	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
 
-
+	ecs::components::DynamicMovementComponent dyn_move;
+	ecs::TypeFilter dr_philter;
+	dr_philter.addRequirement(ecs::components::UnitComponent::typeID);
+	ecs::EntityIterator itttter = ecs.getEntititesByFilter(dr_philter);
+	ecs::events::ChangeUserStateEvent cool_bean;
+	for (FilteredEntity p_entity : itttter.entities)
+	{
+		ecs.createComponent<components::DynamicMovementComponent>(p_entity.entity->getID(), dyn_move);
+	}
+	cool_bean.newState = STATE::MOVE;
+	cool_bean.playerId = PLAYER::PLAYER1;
+	ecs.createEvent(cool_bean);
 	pMng->SetViewMatrix(p_cam_comp->viewMatrix);
 	pWnd->Show();
 	ecs.update(0.1f);

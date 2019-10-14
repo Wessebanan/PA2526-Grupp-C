@@ -92,6 +92,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\AI\AI\includes\GridFunctions.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
@@ -104,6 +105,7 @@
     <ClCompile Include="Physics\MovementSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\AI\AI\includes\GridFunctions.h" />
     <ClInclude Include="gameAI\AIComponents.h" />
     <ClInclude Include="gameAI\AIEvents.h" />
     <ClInclude Include="gameAI\AIEcsFunctions.h" />
