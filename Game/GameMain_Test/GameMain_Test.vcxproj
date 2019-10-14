@@ -85,6 +85,7 @@
     <ClCompile Include="..\..\AI\AI\includes\GridProp.cpp" />
     <ClCompile Include="..\GameMain\gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="..\GameMain\gameAI\GridEcsFunctions.cpp" />
+    <ClCompile Include="..\GameMain\gameAudio\AudioECSSystems.cpp" />
     <ClCompile Include="..\GameMain\gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="..\GameMain\gameUtility\UtilityEcsFunctions.cpp" />
     <ClCompile Include="..\GameMain\Physics\CollisionSystem.cpp" />
