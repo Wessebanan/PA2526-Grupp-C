@@ -14,7 +14,9 @@ namespace ecs
 		};
 		struct ColorComponent : public ECSComponent<ColorComponent>
 		{
-			DirectX::XMFLOAT4 color = { 0.0f , 0.0f , 0.0f , 0.0f};
+			uint8_t red = 0;
+			uint8_t green = 0;
+			uint8_t blue = 0;
 		};
 	}
 }

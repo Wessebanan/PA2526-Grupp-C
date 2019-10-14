@@ -11,7 +11,6 @@
 #include "gameUtility/InitCamera.h"
 
 #include "gameSceneObjects/InitSceneObjectsh.h"
-#include "gameSceneObjects/InitBiomes.h"
 
 #include "gameAudio/InitAudio.h"
 
@@ -35,7 +34,6 @@ int main()
 
 
 	InitGrid(ecs);
-	InitBiomes(ecs);
 	InitArmy(ecs);
 	InitSceneObjects(ecs);
 
