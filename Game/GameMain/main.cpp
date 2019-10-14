@@ -25,10 +25,20 @@ int main()
 
 	EntityComponentSystem ecs;
 
+	const unsigned int LOGIC_TILE_COUNT = 144;
+	const unsigned int OCEAN_TILE_COUNT = 50;
+	const unsigned int SCENE_OBJECT_COUNT = 12;
+	const unsigned int UNIT_COUNT = 12;
+	const unsigned int CAMERA_COUNT = 1;
+
+	const unsigned int COMPONENT_TRANSFORM_COUNT = LOGIC_TILE_COUNT + OCEAN_TILE_COUNT + SCENE_OBJECT_COUNT + UNIT_COUNT + CAMERA_COUNT;
+	const unsigned int COMPONENT_COLOR_COUNT = LOGIC_TILE_COUNT + OCEAN_TILE_COUNT + SCENE_OBJECT_COUNT + UNIT_COUNT;
+	const unsigned int COMPONENT_TILE_COUNT = LOGIC_TILE_COUNT;
+
 	// Tiles + sceneobjects + units + camera
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(COMPONENT_TRANSFORM_COUNT);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(COMPONENT_COLOR_COUNT);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(COMPONENT_TILE_COUNT);
 
 	InitSound(ecs);
 
