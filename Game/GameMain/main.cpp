@@ -14,11 +14,15 @@
 
 #include "gameAudio/InitAudio.h"
 
+#include <time.h>
 
-using namespace ecs;
+using namespace ecs;								  
 
 int main()
 {
+
+	srand(time(0));
+
 	EntityComponentSystem ecs;
 
 	// Tiles + sceneobjects + units + camera
