@@ -9,11 +9,14 @@
     <ClCompile Include="..\..\Game\GameMain\Physics\MovementSystem.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Game\GameMain\gameUtility\UtilityEcsFunctions.cpp">
+      <Filter>GameFiles\External</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Game\GameMain\gameAI\GridEcsFunctions.cpp">
+      <Filter>GameFiles\External</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GroundCollision.h" />
-    <ClInclude Include="MovementLogic.h" />
-    <ClInclude Include="ObjectCollision.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="..\..\Game\GameMain\Physics\CollisionSystem.h">
       <Filter>GameFiles</Filter>
@@ -27,6 +30,9 @@
     <ClInclude Include="..\..\Game\GameMain\Physics\PhysicsEvents.h">
       <Filter>GameFiles</Filter>
     </ClInclude>
+    <ClInclude Include="GroundCollision.h" />
+    <ClInclude Include="MovementLogic.h" />
+    <ClInclude Include="ObjectCollision.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -34,6 +40,9 @@
   <ItemGroup>
     <Filter Include="GameFiles">
       <UniqueIdentifier>{670984f7-97ce-4fb9-9a88-264869c2c95d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameFiles\External">
+      <UniqueIdentifier>{c4c09a77-6fcd-4ad0-ad66-783bee83ba38}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

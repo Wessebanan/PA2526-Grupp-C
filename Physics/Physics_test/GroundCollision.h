@@ -1,7 +1,7 @@
 #pragma once
 #include "CollisionSystem.h"
 #include "MovementSystem.h"
-#include "GridFunctions.h"
+#include "GridEcsFunctions.h"
 
 // This lil' piece of jank makes tests waaay faster.
 ModelLoader::Mesh dude("../TestModel/dude.fbx");
@@ -119,11 +119,12 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 	{
 		ecs::CompTypeMemDesc ecsMemDesc[] = {
 		{ TileComponent::typeID, TileComponent::size, 1000 },
+		{ ColorComponent::typeID, ColorComponent::size, 1000 },
 		{ TransformComponent::typeID, TransformComponent::size, 1000 },
 		};
 
 		ecs::ECSDesc ecsDesc;
-		ecsDesc.compTypeCount = 2;
+		ecsDesc.compTypeCount = 3;
 		ecsDesc.compTypeMemDescs = ecsMemDesc;
 		ecsDesc.systemLayerCount = 10;
 
@@ -136,7 +137,7 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		// Creating a grid for the ecs. Choosing a radius 
 		// that kind of makes sense with the model size 
 		// with no scaling of the dude.
-		GridFunctions::CreateGrid(ecs, 12, 12, 10.0f);
+		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f);
 
 		// Messing with the y-values since they are all 0 right now.
 		ecs::TypeFilter filter;
@@ -174,7 +175,7 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		ecs.update(DELTA);
 
 		BoundingOrientedBox obb = p_ground_collision_component->mOBB;
-		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform_component));
+		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform_component));
 
 		XMFLOAT3* corners = new XMFLOAT3[8];
 		obb.GetCorners(corners);
@@ -192,11 +193,13 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		// of certain types.
 		ecs::CompTypeMemDesc ecsMemDesc[] = {
 		{ TileComponent::typeID, TileComponent::size, 1000 },
+		{ ColorComponent::typeID, ColorComponent::size, 1000 },
 		{ TransformComponent::typeID, TransformComponent::size, 1000 },
 		};
 
+
 		ecs::ECSDesc ecsDesc;
-		ecsDesc.compTypeCount = 2;
+		ecsDesc.compTypeCount = 3;
 		ecsDesc.compTypeMemDescs = ecsMemDesc;
 		ecsDesc.systemLayerCount = 10;
 
@@ -210,7 +213,7 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		// Creating a grid for the ecs. Choosing a radius 
 		// that kind of makes sense with the model size 
 		// with no scaling of the dude.
-		GridFunctions::CreateGrid(ecs, 12, 12, 10.0f);
+		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f);
 
 		// Grabbing all tiles.
 		ecs::TypeFilter filter;
@@ -250,7 +253,7 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		ecs.update(DELTA);
 
 		BoundingOrientedBox obb = p_ground_collision_component->mOBB;
-		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform_component));
+		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform_component));
 
 		XMFLOAT3* corners = new XMFLOAT3[8];
 		obb.GetCorners(corners);
@@ -267,7 +270,7 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		ecs.update(DELTA);
 
 		obb = p_ground_collision_component->mOBB;
-		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform_component));
+		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform_component));
 
 		obb.GetCorners(corners);
 		for (int i = 0; i < 8; i++)
@@ -284,11 +287,13 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		// of certain types.
 		ecs::CompTypeMemDesc ecsMemDesc[] = {
 		{ TileComponent::typeID, TileComponent::size, 1000 },
+		{ ColorComponent::typeID, ColorComponent::size, 1000 },
 		{ TransformComponent::typeID, TransformComponent::size, 1000 },
 		};
 
+
 		ecs::ECSDesc ecsDesc;
-		ecsDesc.compTypeCount = 2;
+		ecsDesc.compTypeCount = 3;
 		ecsDesc.compTypeMemDescs = ecsMemDesc;
 		ecsDesc.systemLayerCount = 10;
 
@@ -303,7 +308,7 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		// Creating a grid for the ecs. Choosing a radius 
 		// that kind of makes sense with the model size 
 		// with no scaling of the dude.
-		GridFunctions::CreateGrid(ecs, 12, 12, 10.0f);
+		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f);
 
 		// Creating the dude that is supposed to collide with ground.
 		MeshComponent mesh_component;
@@ -345,7 +350,7 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		ecs.update(DELTA);
 
 		BoundingOrientedBox obb = p_ground_collision->mOBB;
-		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform));
+		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform));
 		XMFLOAT3* corners = new XMFLOAT3[8];
 		obb.GetCorners(corners);
 		const float ABS_ERROR = pow(10.0f, -6.0f);
@@ -382,7 +387,7 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		// if the entity is "on ground" since it moved horizontally
 		// into a tile that is higher.
 		obb = p_ground_collision->mOBB;
-		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform));
+		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform));
 		obb.GetCorners(corners);
 
 		for (int i = 0; i < 8; i++)
