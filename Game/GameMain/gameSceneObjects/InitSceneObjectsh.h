@@ -63,6 +63,16 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 
 			// Changes the modle depening on the biome
 			p_scene_comp->ChangeModelByBiome(tile_comp->biome);
+
+			if (p_scene_comp->mObjectType == OBJECTTYPE::UNPASSABLE)
+			{
+				tile_comp->impassable = true;
+			}
+			else if (p_scene_comp->mObjectType == OBJECTTYPE::INTERESTING)
+			{
+				// Place it in the grids list of interesting sceneobjects
+			}
+
 		}
 	}
 
