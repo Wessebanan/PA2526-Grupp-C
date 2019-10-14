@@ -28,10 +28,10 @@ namespace ecs
 				case SCENEOBJECT::SNOWMAN:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::ANGLE:
+				case SCENEOBJECT::ANGEL:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::IGLO:
+				case SCENEOBJECT::IGLOO:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::CLIFF:
