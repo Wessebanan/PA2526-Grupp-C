@@ -15,6 +15,7 @@
 #define SOUND_MAX_BANK_FILES (10)
 #define SOUND_MAX_SOUND_MESSAGES (16)
 #define SOUND_MAX_MUSIC_MESSAGES (4)
+#define SOUND_MUSIC_FILE_SIZE (2048)
 #ifndef M_PI
 #define M_PI  (3.14159265)
 #endif

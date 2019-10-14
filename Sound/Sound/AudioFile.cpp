@@ -87,3 +87,44 @@ bool Audio::File::SoundData::StringIsEqual(std::string& rPath)
 {
 	return (rPath.compare(mPath) == 0);
 }
+
+
+
+
+bool Audio::File::MusicData::Init(std::string& rPath)
+{
+	int subchunk_search_tries = 16;
+	// Open the file and check if it exists/can be opened
+	fopen_s(&mpFileHandle, rPath.c_str(), "rb");
+	if (mpFileHandle == nullptr)
+		return false;
+	// Read the Wave header
+	fread(&mHeader, sizeof(WavHeader), 1, mpFileHandle);
+	// Sometimes the fmt chunk can have extra parameters
+	// thus displacing the data chunk.
+	// Search for the subchunk id "data" to correctly
+	// read the actual data.
+	while (mHeader.Subchunk2ID != 1635017060) {   // "data"
+		// In case the wav is incorrectly formated or
+		// corrupted, this is a fail safe to not get stuck
+		// in an infinite loop
+		subchunk_search_tries--;
+		if (subchunk_search_tries <= 0)
+		{
+			return false;
+		}
+		// Progress 4 bytes and read again
+		fseek(mpFileHandle, 4, SEEK_CUR);
+		fread(&mHeader.Subchunk2ID, 4, 1, mpFileHandle);
+	}
+	// Get the size of the data
+	fread(&mHeader.Subchunk2Size, 4, 1, mpFileHandle);
+	// Get the size of the data
+	fread(&mHeader.Subchunk2Size, 4, 1, mpFileHandle);
+
+	// TODO Get the position of the actual data here!!!
+
+	//fgetpos(mpFileHandle, )
+
+	mRefillBuffer = 0;
+}

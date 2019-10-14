@@ -56,6 +56,22 @@ namespace Audio
 			float* mpData;
 			Samples mSampleCount;
 		};
+
+		class MusicData
+		{
+		public:
+			MusicData();
+			~MusicData();
+
+			bool Init(std::string& rPath);
+
+		private:
+			WavHeader mHeader;
+			FILE* mpFileHandle;
+			fpos_t mFileDataStart;
+			int mRefillBuffer;
+			float mpData[SOUND_MUSIC_FILE_SIZE];
+		};
 	}
 
 }
