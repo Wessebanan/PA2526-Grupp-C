@@ -140,13 +140,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="includes\AABB.h" />
+    <ClInclude Include="includes\BoundingSphere.h" />
+    <ClInclude Include="includes\BoundingVolume.h" />
     <ClInclude Include="includes\CollisionFunctions.h" />
     <ClInclude Include="includes\MovementFunctions.h" />
+    <ClInclude Include="includes\OBB.h" />
     <ClInclude Include="includes\PhysicsHelperFunctions.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AABB.cpp" />
+    <ClCompile Include="BoundingSphere.cpp" />
+    <ClCompile Include="BoundingVolume.cpp" />
     <ClCompile Include="CollisionFunctions.cpp" />
     <ClCompile Include="MovementFunctions.cpp" />
+    <ClCompile Include="OBB.cpp" />
     <ClCompile Include="PhysicsHelperFunctions.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
