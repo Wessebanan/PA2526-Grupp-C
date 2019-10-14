@@ -181,7 +181,6 @@ int main()
 				r_mng.UpdatePipeline(pipelineIndex0, &data);
 			} 
 
-			m_mng.EnableVertexBuffers();
 			r_mng.ExecutePipeline(pipelineIndex0);
 
 			r_mng.Present();

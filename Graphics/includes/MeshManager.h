@@ -31,7 +31,6 @@ namespace graphics
 
 		MeshRegion CreateMeshRegion(const UINT vertexCount, const UINT indexCount);
 
-		void EnableVertexBuffers();
 		void Destroy();
 
 		void UploadData(
@@ -40,6 +39,8 @@ namespace graphics
 			const void* pIndices);
 
 	private:
+		void EnableVertexBuffers();
+
 		void m_UploadVertexData(
 			const UINT index, 
 			const UINT stride, 

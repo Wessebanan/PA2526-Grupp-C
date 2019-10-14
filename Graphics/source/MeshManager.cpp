@@ -74,6 +74,8 @@ namespace graphics
 		m_sizeI		= 0;
 		m_capacityI = indexCountCapacity;
 
+		this->EnableVertexBuffers();
+
 		return S_OK;
 	}
 
