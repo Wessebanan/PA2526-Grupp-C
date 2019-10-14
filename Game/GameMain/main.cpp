@@ -13,7 +13,7 @@
 #include "gameSceneObjects/InitSceneObjectsh.h"
 #include "gameSceneObjects/InitBiomes.h"
 
-#include "gameSound/InitSound.h"
+#include "gameAudio/InitAudio.h"
 
 
 using namespace ecs;
@@ -28,12 +28,6 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
 
 	InitSound(ecs);
-	// TEMPORARY
-	// Just to play something to know it works
-	ecs::events::PlaySound sound_event;
-	sound_event.soundName = SoundName::COIN_TEST_SOUND;
-	sound_event.soundFlags = SoundFlags::NONE;
-	ecs.createEvent(sound_event);
 
 	InitInput(ecs);
 	InitInterpreter(ecs);

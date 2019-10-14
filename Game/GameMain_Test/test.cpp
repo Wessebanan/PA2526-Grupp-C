@@ -4,7 +4,8 @@
 #include "Physics/GroundCollision.h"
 #include "Physics/MovementLogic.h"
 #include "Physics/ObjectCollision.h"
-#include "Mesh.h"
+#include "Sound/SoundTests.h"
+//#include "Mesh.h"
 #include <crtdbg.h>
 
 int main(int argc, char** argv) 
