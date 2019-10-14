@@ -1,5 +1,7 @@
 #include "../includes/Window.h"
 
+#include <iostream>
+
 namespace graphics
 {
 	constexpr DWORD ws_borderless = (WS_POPUPWINDOW);
@@ -34,6 +36,10 @@ namespace graphics
 		const char* pTitle,
 		const WINDOW_STYLE style)
 	{
+
+		m_clientWidth	= clientWidth;
+		m_clientHeight	= clientHeight;
+
 		// Register the window class.
 		const char* CLASS_NAME = pTitle;
 
@@ -49,9 +55,9 @@ namespace graphics
 			if (!RegisterClass(&wc)) return S_FALSE;
 		}
 
-		DWORD ws_style = 0;
 		int x = 0;
 		int y = 0;
+		DWORD ws_style = 0;
 		switch (style)
 		{
 		case WINDOW_STYLE::BORDER:
@@ -61,14 +67,16 @@ namespace graphics
 			break;
 
 		case WINDOW_STYLE::BORDERLESS:
+			ws_style = ws_borderless;
 			x = -1;
 			y = -1;
-			ws_style = ws_borderless;
 			break;
 		}
 
-		RECT rect = { 0, 0, (LONG)clientWidth, (LONG)clientHeight };
+		RECT rect = { 0, 0, (LONG)m_clientWidth, (LONG)m_clientHeight };
 		AdjustWindowRect(&rect, ws_style, false);
+		m_clientWidth	= rect.right - rect.left;
+		m_clientHeight	= rect.bottom - rect.top;
 
 		// Create the window.
 
@@ -81,8 +89,8 @@ namespace graphics
 			// Size and position
 			x,
 			y,
-			rect.right - rect.left,
-			rect.bottom - rect.top,
+			m_clientWidth,
+			m_clientHeight,
 
 			NULL,       // Parent window    
 			NULL,       // Menu

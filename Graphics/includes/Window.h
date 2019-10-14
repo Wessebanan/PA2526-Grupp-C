@@ -41,8 +41,9 @@ namespace graphics
 	private:
 		MSG m_msg;
 		bool m_isOpen;
-
-	protected:
 		HWND m_hwnd;
+
+		UINT m_clientWidth, m_clientHeight;
+
 	};
 }

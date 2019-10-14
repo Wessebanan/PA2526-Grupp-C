@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "MeshManager.h"
 #include "RenderContext.h"
 
 #include <vector>
@@ -40,24 +39,18 @@ namespace graphics
 		RenderManager();
 		~RenderManager();
 
-		HRESULT Initialize(
-			const UINT clientWidth, 
-			const UINT clientHeight, 
-			const HWND hWnd);
+		HRESULT Initialize(const HWND hWnd);
 
 		void Destroy();
 
-		UINT CreateGraphicsShaderProgram(
+		UINT CreateShaderProgram(
 			const char* pVSFilepath,
 			const char* pPSFilepath,
 			const UINT perObjectByteWidth);
 
-		UINT CreateGraphicsPipeline(GraphicsPipeline* pPipeline, const void* pDescription);
-		void UpdateGraphicsPipelineData(const UINT pipeline, const void* pPipelineData);
-		void ExecuteGraphicsPipeline(const UINT pipeline);
-
-		MeshRegion CreateMeshRegion(const UINT vertexCount, const UINT indexCount);
-		int UploadMeshData(const MeshRegion& meshRegion, const VERTEX_DATA& vertexData, const void* pIndices);
+		UINT CreatePipeline(GraphicsPipeline* pPipeline, const void* pDescription);
+		void UpdatePipeline(const UINT pipeline, const void* pPipelineData);
+		void ExecutePipeline(const UINT pipeline);
 
 		void SetModelData(const void* pData, const UINT byteWidth);
 		void SetShaderModelLayout(const UINT shader, const ShaderModelLayout& rLayout);
@@ -79,13 +72,11 @@ namespace graphics
 
 		UINT m_clientWidth, m_clientHeight;
 
-		graphics::MeshManager m_meshManager;
-
 		RenderManagerData m_data;
 
 		std::vector<ShaderModelLayout> m_shaderModelLayouts;
-		std::vector<graphics::ShaderProgram> m_shaderPrograms;
 
+		std::vector<ShaderProgram> m_shaderPrograms;
 		std::vector<GraphicsPipeline*> m_pipelines;
 	};
 }

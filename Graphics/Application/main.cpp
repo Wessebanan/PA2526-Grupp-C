@@ -1,8 +1,11 @@
 
 #include "../includes/GraphicsInterface.h"
 #include "../includes/Window.h"
-#include "../includes/RenderManager.h"
 #include "../includes/ForwardRenderingPipeline.h"
+
+#include "../includes/MeshManager.h"
+#include "../includes/RenderManager.h"
+#include "../includes/ComputeManager.h"
 
 #include <memory>
 #include <DirectXMath.h>
@@ -43,19 +46,26 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	UINT 
-		clientWidth = 1600, 
-		clientHeight = 900;
+	UINT
+		clientWidth		= 1920,
+		clientHeight	= 1080;
 
 	graphics::Window wnd;
 	wnd.Initialize(
 		clientWidth,
 		clientHeight,
 		"Couch Commanders",
-		graphics::WINDOW_STYLE::BORDER);
+		graphics::WINDOW_STYLE::BORDERLESS);
 
-	graphics::RenderManager mng;
-	mng.Initialize(clientWidth, clientHeight, wnd);
+	graphics::RenderManager r_mng;
+	r_mng.Initialize(wnd);
+
+	graphics::MeshManager m_mng;
+	m_mng.Initialize(999, 999);
+
+	graphics::ComputeManager c_mng;
+	c_mng.Initialize();
+
 
 	UINT pipelineIndex0;
 	{
@@ -65,12 +75,12 @@ int main()
 		desc.Fov			= 3.14f / 2.0f;
 		desc.NearPlane		= 0.1f;
 		desc.FarPlane		= 100.0f;
-		pipelineIndex0		= mng.CreateGraphicsPipeline(
+		pipelineIndex0		= r_mng.CreatePipeline(
 			new graphics::ForwardRenderingPipeline, 
 			&desc);
 	}
 
-	UINT shaderIndex0 = mng.CreateGraphicsShaderProgram(
+	UINT shaderIndex0 = r_mng.CreateShaderProgram(
 		"VertexShader.cso", 
 		"PixelShader.cso", 
 		sizeof(float) * 4);
@@ -101,18 +111,18 @@ int main()
 		0, 1, 2,
 	};
 
-	graphics::MeshRegion meshIndex0 = mng.CreateMeshRegion(3, 0);
+	graphics::MeshRegion meshIndex0 = m_mng.CreateMeshRegion(3, 0);
 	{
 		graphics::VERTEX_DATA vd = { NULL };
 		vd.pVertexPositions = triangle;
-		mng.UploadMeshData(meshIndex0, vd, NULL);
+		m_mng.UploadData(meshIndex0, vd, NULL);
 	}
 
-	graphics::MeshRegion meshIndex1 = mng.CreateMeshRegion(6, 6);
+	graphics::MeshRegion meshIndex1 = m_mng.CreateMeshRegion(6, 6);
 	{
 		graphics::VERTEX_DATA vd = { NULL };
 		vd.pVertexPositions = quad;
-		mng.UploadMeshData(meshIndex1, vd, quad_indices);
+		m_mng.UploadData(meshIndex1, vd, quad_indices);
 	}
 
 	graphics::ShaderModelLayout layout;
@@ -137,8 +147,8 @@ int main()
 		{ -1.0f,  0.0f, 0.0f, 0.0f },
 	};
 
-	mng.SetModelData(pos, sizeof(pos));
-	mng.SetShaderModelLayout(shaderIndex0, layout);
+	r_mng.SetModelData(pos, sizeof(pos));
+	r_mng.SetShaderModelLayout(shaderIndex0, layout);
 
 	float x = 0.0f, y = 0.0f, z = -1.0f;
 	DirectX::XMFLOAT4X4 m_cameraMatrix;
@@ -168,15 +178,19 @@ int main()
 				graphics::FORWARD_RENDERING_PIPELINE_DATA data;
 				data.ViewMatrix = m_cameraMatrix;
 
-				mng.UpdateGraphicsPipelineData(pipelineIndex0, &data);
+				r_mng.UpdatePipeline(pipelineIndex0, &data);
 			} 
 
-			mng.ExecuteGraphicsPipeline(pipelineIndex0);
-			mng.Present();
+			m_mng.EnableVertexBuffers();
+			r_mng.ExecutePipeline(pipelineIndex0);
+
+			r_mng.Present();
 		}
 	}
 
-	mng.Destroy();
+	c_mng.Destroy();
+	m_mng.Destroy();
+	r_mng.Destroy();
 
 	return 0;
 }

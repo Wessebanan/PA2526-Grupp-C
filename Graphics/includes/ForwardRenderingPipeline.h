@@ -26,16 +26,17 @@ namespace graphics
 		virtual void Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData) override;
 		virtual void Begin(ID3D11DeviceContext4* pContext4) override;
 
-		virtual void Execute(
+		virtual void PreExecute(
 			ID3D11DeviceContext4* pContext4,
 			ID3D11VertexShader* pVertexShader,
 			ID3D11PixelShader* pPixelShader) override;
 
 		virtual void End(ID3D11DeviceContext4* pContext4, RenderManagerData* pData) override;
 
-		virtual void Destroy() override;
 
 	private:
+		virtual void Destroy() override;
+
 		UINT m_clientWidth, m_clientHeight;
 
 		ID3D11Buffer* m_pMatrixBuffers[2];

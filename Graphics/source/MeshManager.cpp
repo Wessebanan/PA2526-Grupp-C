@@ -19,11 +19,17 @@ namespace graphics
 	}
 
 	HRESULT MeshManager::Initialize(
-		ID3D11Device4* pDevice4,
 		const UINT vertexCountCapacity,
 		const UINT indexCountCapacity)
 	{
 		HRESULT hr;
+
+		hr = graphics::internal::InitializeD3D11();
+
+		graphics::internal::D3D11_DEVICE_HANDLE handle;
+		graphics::internal::GetD3D11(&handle);
+		m_pDevice4	= handle.pDevice4;
+		m_pContext4 = handle.pDeviceContext4;
 
 		UINT strides[VERTEX_BUFFER_COUNT] =
 		{
@@ -38,7 +44,7 @@ namespace graphics
 		for (UINT i = 0; i < VERTEX_BUFFER_COUNT; i++)
 		{
 			hr = graphics::CreateVertexBuffer(
-				pDevice4,
+				m_pDevice4,
 				NULL,
 				vertexCountCapacity * strides[i],
 				strides[i],
@@ -57,7 +63,7 @@ namespace graphics
 			desc.CPUAccessFlags = 0;
 			desc.Usage = D3D11_USAGE_DEFAULT;
 
-			hr = pDevice4->CreateBuffer(&desc, NULL, &m_pIndexBuffer);
+			hr = m_pDevice4->CreateBuffer(&desc, NULL, &m_pIndexBuffer);
 		}
 
 		if (FAILED(hr)) return hr;
@@ -91,11 +97,11 @@ namespace graphics
 		return mesh;
 	}
 
-	void MeshManager::EnableVertexBuffers(ID3D11DeviceContext4* pContext4, const UINT startSlot)
+	void MeshManager::EnableVertexBuffers()
 	{
-		pContext4->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		pContext4->VSSetShaderResources(startSlot, VERTEX_BUFFER_COUNT, m_pVertexBufferViews);
-		pContext4->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		m_pContext4->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		m_pContext4->VSSetShaderResources(0, VERTEX_BUFFER_COUNT, m_pVertexBufferViews);
+		m_pContext4->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	}
 
 	void MeshManager::Destroy()
@@ -110,22 +116,20 @@ namespace graphics
 	}
 
 	void MeshManager::UploadData(
-		ID3D11DeviceContext4* pContext4, 
 		const MeshRegion& mesh,
 		const VERTEX_DATA& vertexData,
 		const void* pIndices)
 	{
-		m_UploadVertexData(pContext4, 0, sizeof(float) * 3, vertexData.pVertexPositions, mesh.VertexRegion);
-		m_UploadVertexData(pContext4, 1, sizeof(float) * 3, vertexData.pVertexNormals, mesh.VertexRegion);
-		m_UploadVertexData(pContext4, 2, sizeof(float) * 2, vertexData.pVertexTexCoords, mesh.VertexRegion);
-		m_UploadVertexData(pContext4, 3, sizeof(float) * 3, vertexData.pVertexBlendWeights, mesh.VertexRegion);
-		m_UploadVertexData(pContext4, 4, sizeof(int)   * 4, vertexData.pVertexBlendIndices, mesh.VertexRegion);
+		m_UploadVertexData(0, sizeof(float) * 3, vertexData.pVertexPositions, mesh.VertexRegion);
+		m_UploadVertexData(1, sizeof(float) * 3, vertexData.pVertexNormals, mesh.VertexRegion);
+		m_UploadVertexData(2, sizeof(float) * 2, vertexData.pVertexTexCoords, mesh.VertexRegion);
+		m_UploadVertexData(3, sizeof(float) * 3, vertexData.pVertexBlendWeights, mesh.VertexRegion);
+		m_UploadVertexData(4, sizeof(int)   * 4, vertexData.pVertexBlendIndices, mesh.VertexRegion);
 
-		m_UploadIndexData(pContext4, pIndices, mesh.IndexRegion);
+		m_UploadIndexData(pIndices, mesh.IndexRegion);
 	}
 
 	void MeshManager::m_UploadVertexData(
-		ID3D11DeviceContext4* pContext4,
 		const UINT index, 
 		const UINT stride, 
 		const void* pData,
@@ -142,7 +146,7 @@ namespace graphics
 		box.left	= (rMeshRegion.Location * stride);
 		box.right	= (rMeshRegion.Location + rMeshRegion.Size) * stride;
 
-		pContext4->UpdateSubresource(
+		m_pContext4->UpdateSubresource(
 			m_pVertexBuffers[index],
 			0,
 			&box,
@@ -152,7 +156,6 @@ namespace graphics
 	}
 
 	void MeshManager::m_UploadIndexData(
-		ID3D11DeviceContext4* pContext4, 
 		const void* pData, 
 		const BufferRegion& rIndexRegion)
 	{
@@ -169,7 +172,7 @@ namespace graphics
 		box.left	= (rIndexRegion.Location * stride);
 		box.right	= (rIndexRegion.Location + rIndexRegion.Size) * stride;
 
-		pContext4->UpdateSubresource(
+		m_pContext4->UpdateSubresource(
 			m_pIndexBuffer,
 			0,
 			&box,

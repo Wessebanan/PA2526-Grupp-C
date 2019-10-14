@@ -146,7 +146,7 @@ namespace graphics
 		pContext4->VSSetConstantBuffers(1, 2, m_pMatrixBuffers);
 	}
 
-	void ForwardRenderingPipeline::Execute(
+	void ForwardRenderingPipeline::PreExecute(
 		ID3D11DeviceContext4* pContext4,
 		ID3D11VertexShader* pVertexShader,
 		ID3D11PixelShader* pPixelShader)

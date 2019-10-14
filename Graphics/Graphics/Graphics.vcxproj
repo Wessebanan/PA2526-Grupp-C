@@ -11,6 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\includes\ComputeManager.h" />
     <ClInclude Include="..\includes\D3D11Header.h" />
     <ClInclude Include="..\includes\ForwardRenderingPipeline.h" />
     <ClInclude Include="..\includes\GraphicsInterface.h" />
@@ -21,6 +22,7 @@
     <ClInclude Include="..\includes\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\source\ComputeManager.cpp" />
     <ClCompile Include="..\source\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="..\source\GraphicsInterface.cpp" />
     <ClCompile Include="..\source\RenderContext.cpp" />

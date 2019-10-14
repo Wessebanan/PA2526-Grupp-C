@@ -13,15 +13,12 @@ namespace graphics
 	{
 	}
 
-	HRESULT RenderManager::Initialize(
-		const UINT clientWidth, 
-		const UINT clientHeight, 
-		const HWND hWnd)
+	HRESULT RenderManager::Initialize(const HWND hWnd)
 	{
 		HRESULT hr = S_OK;
 
-		m_clientWidth = clientWidth;
-		m_clientHeight = clientHeight;
+		m_clientWidth	= window::GetClientResolution(hWnd).x;
+		m_clientHeight	= window::GetClientResolution(hWnd).y;
 
 		hr = graphics::internal::InitializeD3D11();
 
@@ -48,12 +45,6 @@ namespace graphics
 
 		if (FAILED(hr)) return hr;
 
-		hr = m_meshManager.Initialize(m_pDevice4, 3000, 3000);
-
-		if (FAILED(hr)) return hr;
-
-		m_meshManager.EnableVertexBuffers(m_pContext4, 0);
-
 		// Per Model Buffer
 		{
 			D3D11_BUFFER_DESC desc = { 0 };
@@ -70,8 +61,6 @@ namespace graphics
 
 	void RenderManager::Destroy()
 	{
-		m_meshManager.Destroy();
-
 		for (UINT i = 0; i < m_shaderPrograms.size(); i++)
 		{
 			m_shaderPrograms[i].pVertexShader->Release();
@@ -80,7 +69,6 @@ namespace graphics
 
 		for (UINT i = 0; i < m_pipelines.size(); i++)
 		{
-			m_pipelines[i]->Destroy();
 			m_pipelines[i]->Delete();
 		}
 
@@ -92,14 +80,14 @@ namespace graphics
 		graphics::internal::DestroyD3D11();
 	}
 
-	UINT RenderManager::CreateGraphicsPipeline(GraphicsPipeline* pPipeline, const void* pDescription)
+	UINT RenderManager::CreatePipeline(GraphicsPipeline* pPipeline, const void* pDescription)
 	{
 		pPipeline->Initialize(m_pDevice4, pDescription);
 		m_pipelines.push_back(pPipeline);
 		return m_pipelines.size() - 1;
 	}
 
-	UINT RenderManager::CreateGraphicsShaderProgram(
+	UINT RenderManager::CreateShaderProgram(
 		const char* pVSFilepath,
 		const char* pPSFilepath,
 		const UINT perObjectByteWidth)
@@ -116,20 +104,6 @@ namespace graphics
 		return m_shaderPrograms.size() - 1;
 	}
 
-	MeshRegion RenderManager::CreateMeshRegion(const UINT vertexCount, const UINT indexCount)
-	{
-		return m_meshManager.CreateMeshRegion(vertexCount, indexCount);
-	}
-
-	int RenderManager::UploadMeshData(
-		const MeshRegion& meshRegion,
-		const VERTEX_DATA& vertexData,
-		const void* pIndices)
-	{
-		m_meshManager.UploadData(m_pContext4, meshRegion, vertexData, pIndices);
-		return 0;
-	}
-
 	void RenderManager::SetModelData(const void* pData, const UINT byteWidth)
 	{
 		m_pData = pData;
@@ -141,12 +115,12 @@ namespace graphics
 		m_shaderModelLayouts[shader] = rLayout;
 	}
 
-	void RenderManager::UpdateGraphicsPipelineData(const UINT pipeline, const void* pPipelineData)
+	void RenderManager::UpdatePipeline(const UINT pipeline, const void* pPipelineData)
 	{
 		m_pipelines[pipeline]->Update(m_pContext4, pPipelineData);
 	}
 
-	void RenderManager::ExecuteGraphicsPipeline(const UINT pipeline)
+	void RenderManager::ExecutePipeline(const UINT pipeline)
 	{
 		GraphicsPipeline* pPipeline = m_pipelines[pipeline];
 
@@ -165,7 +139,7 @@ namespace graphics
 		{
 			ShaderModelLayout& layout = m_shaderModelLayouts[i];
 
-			pPipeline->Execute(
+			pPipeline->PreExecute(
 				m_pContext4, 
 				m_shaderPrograms[i].pVertexShader, 
 				m_shaderPrograms[i].pPixelShader);

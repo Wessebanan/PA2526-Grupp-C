@@ -266,6 +266,26 @@ namespace graphics
 		return hr;
 	}
 
+	HRESULT CreateComputeShaderFromFile(
+		ID3D11Device4* pDevice4, 
+		const char* pFilepath, 
+		ID3D11ComputeShader** ppComputeShader)
+	{
+		size_t size = 0;
+		uint8_t* pData = NULL;
+		LoadCompiledShader(pFilepath, &pData, &size);
+
+		HRESULT hr = pDevice4->CreateComputeShader(
+			pData,
+			size,
+			nullptr,
+			ppComputeShader);
+
+		free(pData);
+
+		return hr;
+	}
+
 	namespace internal
 	{
 		ID3D11Device4* gpDevice4				= NULL;
@@ -334,8 +354,13 @@ namespace graphics
 			pDeviceTemp->Release();
 			pContextTemp->Release();
 
-			internal::Initialize(gpDevice4, gpDeviceContext4);
+			hr = CreateAndSetInputLayout(gpDevice4, gpDeviceContext4);
+			if (FAILED(hr)) return hr;
 
+			hr = CreateAndSetVertexBuffers(gpDevice4, gpDeviceContext4);
+			if (FAILED(hr)) return hr;
+
+			gIsActive = true;
 			return hr;
 		}
 
@@ -343,6 +368,7 @@ namespace graphics
 		{
 			if (gIsActive)
 			{
+				gIsActive = false;
 				SafeRelease((IUnknown * *)& gpDevice4);
 				SafeRelease((IUnknown * *)& gpDeviceContext4);
 				SafeRelease((IUnknown * *)& gpFactory6);
@@ -475,21 +501,6 @@ namespace graphics
 
 			pContext4->IASetVertexBuffers(0, 2, pVertexBuffers, strides, offsets);
 			pBuffer->Release();
-
-			return S_OK;
-		}
-
-		HRESULT Initialize(
-			ID3D11Device4* pDevice4, 
-			ID3D11DeviceContext4* pContext4)
-		{
-			HRESULT hr;
-
-			hr = CreateAndSetInputLayout(pDevice4, pContext4);
-			if (FAILED(hr)) return hr;
-
-			hr = CreateAndSetVertexBuffers(pDevice4, pContext4);
-			if (FAILED(hr)) return hr;
 
 			return S_OK;
 		}
