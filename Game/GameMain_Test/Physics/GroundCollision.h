@@ -1,7 +1,7 @@
 #pragma once
 #include "CollisionSystem.h"
 #include "MovementSystem.h"
-#include "GridFunctions.h"
+#include "GridEcsFunctions.h"
 
 // This lil' piece of jank makes tests waaay faster.
 ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
@@ -136,7 +136,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		// Creating a grid for the ecs. Choosing a radius 
 		// that kind of makes sense with the model size 
 		// with no scaling of the dude.
-		GridFunctions::CreateGrid(ecs, 12, 12, 10.0f);
+		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f);
 
 		// Messing with the y-values since they are all 0 right now.
 		ecs::TypeFilter filter;
@@ -210,7 +210,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		// Creating a grid for the ecs. Choosing a radius 
 		// that kind of makes sense with the model size 
 		// with no scaling of the dude.
-		GridFunctions::CreateGrid(ecs, 12, 12, 10.0f);
+		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f);
 
 		// Grabbing all tiles.
 		ecs::TypeFilter filter;
@@ -303,7 +303,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		// Creating a grid for the ecs. Choosing a radius 
 		// that kind of makes sense with the model size 
 		// with no scaling of the dude.
-		GridFunctions::CreateGrid(ecs, 12, 12, 10.0f);
+		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f);
 
 		// Creating the dude that is supposed to collide with ground.
 		MeshComponent mesh_component;

@@ -2,8 +2,7 @@
 #include "ecs.h"
 #include "PhysicsComponents.h"
 #include "PhysicsEvents.h"
-#include "UtilityComponents.h"
-#include "UtilityFunctions.h"
+#include "../gameUtility/UtilityComponents.h"
 #include <math.h>
 #include "PhysicsHelperFunctions.h"
 

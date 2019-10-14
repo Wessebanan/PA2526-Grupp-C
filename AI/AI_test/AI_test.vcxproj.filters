@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="..\..\Game\GameMain\gameAI\AIEcsFunctions.cpp">
+      <Filter>GameFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Game\GameMain\gameAI\GridEcsFunctions.cpp">
+      <Filter>GameFiles</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="..\..\Game\GameMain\gameAI\AIComponents.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameAI\AIEcsFunctions.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameAI\AIEvents.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameAI\AISystems.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameAI\GridEcsFunctions.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameAI\InitArmy.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameAI\InitGrid.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Game\GameMain\gameUtility\UtilityComponents.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="GameFiles">
+      <UniqueIdentifier>{4aeb5957-aa1f-4623-8afd-94a7be08cec7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

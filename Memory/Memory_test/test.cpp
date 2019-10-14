@@ -209,6 +209,42 @@ namespace API
 		memory::Free(p_heap);
 		memory::End();
 	}
+
+	/*
+		Heaps offer the functionality of allocating an array of objects. This makes it both
+		easier for a user to access multiple objects and will save some memory overhead for
+		allocations in the allocator header.
+	*/
+	TEST(MemoryAPI, AllocateArray)
+	{
+		const uint MAIN_HEAP_SIZE = 500;
+		const uint SUB_HEAP_SIZE = 100;
+		const uint OBJ_SIZE = 10;
+		const uint OBJ_COUNT = 5;
+		uint expected_values[OBJ_COUNT];
+
+		memory::Initialize(MAIN_HEAP_SIZE);
+		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
+
+		// Allocate array and check returning pointer
+		int* array = p_heap->AllocateArray<int>(OBJ_COUNT);
+		EXPECT_NE(array, nullptr);
+
+		// Try to use array
+		for (uint i = 0; i < OBJ_COUNT; i++)
+		{
+			array[i] = expected_values[i] = i;
+		}
+
+		// Check if values exist
+		for (uint i = 0; i < OBJ_COUNT; i++)
+		{
+			EXPECT_EQ(array[i], expected_values[i]);
+		}
+
+		memory::Free(p_heap);
+		memory::End();
+	}
 }
 
 /*

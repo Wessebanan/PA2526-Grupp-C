@@ -6,10 +6,35 @@
 #include "SceenSpaceTechnique.h"
 #include "TransformationTechnique.h"
 
+#include "RenderCamera.h"
+
 #include <DirectXMath.h>
 
 namespace rendering
 {
+	struct SUN_DESC
+	{
+		DirectX::XMFLOAT3 Direction = { 0.0f, 0.0f, -1.0f };
+		DirectX::XMFLOAT3 Position = { 0.0f, 0.0f, 0.0f };
+
+		float
+			Width = 1.0f,
+			Height = 1.0f,
+			NearPlane = 0.1f,
+			FarPlane = 1.0f;
+
+		UINT Resolution = 1;
+
+		char Red, Green, Blue;
+	};
+
+	struct DirectionalLight
+	{
+		DirectX::XMFLOAT3 Direction;
+		// Red Green Blue Illumination (1 Byte each)
+		uint32_t packedData;
+	};
+
 	class RenderManager
 	{
 	public:
@@ -17,6 +42,7 @@ namespace rendering
 		~RenderManager();
 
 		void Initialize(
+			const SUN_DESC& sunDesc,
 			const UINT clientWidth,
 			const UINT clientHeight,
 			const char* pTitle);
@@ -43,26 +69,39 @@ namespace rendering
 		template<RENDER_TECHNIQUES T>
 		inline void* GetData()
 		{
-			return m_techniques.GetData<T>();
+			return m_geometry.GetData<T>();
 		}
 
 	private:
-		graphics::DeviceInterface* m_pDevice;
+		void DrawShadowMap();
+		void DrawGeometry();
+
+		graphics::DeviceInterface m_device;
 		graphics::RenderContext* m_pContext;
 
-		RenderTechniques m_techniques;
+		UINT m_clientWidth, m_clientHeight;
 
-		MeshManager m_meshManager;
+		RenderTechniques m_geometry;
 		DrawManager m_drawManager;
 
 		graphics::PresentWindow m_wnd;
 		graphics::RenderTarget m_target;
-		graphics::DepthBuffer m_depthBuffer;
 
 		graphics::BufferRegion m_modelDataRegion;
 
+		// Camera
 		graphics::BufferRegion m_viewMatrixRegion;
 		graphics::BufferRegion m_projectionMatrixRegion;
+		graphics::DepthBuffer m_depthBuffer;
+
+		// Sun
+		DirectionalLight m_sunData;
+		graphics::BufferRegion m_sunDataRegion;
+
+		graphics::BufferRegion m_sunViewMatrix;
+		graphics::BufferRegion m_sunProjMatrix;
+		graphics::DepthBuffer m_shadowMap;
+		UINT m_shadowMapResolution;
 
 		char* m_pMemoryForTechniques;
 	};

@@ -3,7 +3,7 @@
 
 #include "ecs.h"
 
-void initInput(ecs::EntityComponentSystem& rECS)
+void InitInput(ecs::EntityComponentSystem& rECS)
 {
 	rECS.reserveComponentCount<InputBackendComp>(1);
 	rECS.reserveComponentCount<KeyboardComponent>(1);
@@ -15,8 +15,7 @@ void initInput(ecs::EntityComponentSystem& rECS)
 	InputBackend* inp = new InputBackend();
 
 	//// SYSTEMS
-	TypeID var = ecs::systems::HandleInputBackend::typeID;
-	ecs::systems::HandleInputBackend* psys = rECS.createSystem<ecs::systems::HandleInputBackend>(0);// parameter är layer
+	rECS.createSystem<ecs::systems::HandleInputBackend>(0);// parameter är layer
 
 	rECS.createSystem<ecs::systems::HandleKeyboardSystem>(1);
 	rECS.createSystem<ecs::systems::HandleMouseSystem>(1);

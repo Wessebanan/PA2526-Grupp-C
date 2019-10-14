@@ -1,60 +1,126 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Physics">
-      <UniqueIdentifier>{508a280b-b0e2-4ce2-b5e1-02ad514e4b22}</UniqueIdentifier>
-    </Filter>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Physics\CollisionSystem.cpp" />
+    <ClCompile Include="Physics\MovementSystem.cpp" />
+    <ClCompile Include="Input\InterpretWebSystems.cpp" />
+    <ClCompile Include="gameAI\AIEcsFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="gameAI\GridEcsFunctions.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="gameUtility\UtilityEcsFunctions.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="gameUtility\CameraEcsFunctions.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="gameSound\SoundECSSystems.cpp" />
+    <ClCompile Include="Input\InitInputSystems.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Physics\CollisionSystem.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics\MovementSystem.cpp">
-      <Filter>Physics</Filter>
-    </ClCompile>
-    <ClCompile Include="Input\InitInputSystems.cpp">
-      <Filter>Header Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Input\InitInputComponents.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="gameAI\InitArmy.h" />
+    <ClInclude Include="gameAI\InitGrid.h" />
+    <ClInclude Include="gameRendering\InitMesh.h" />
+    <ClInclude Include="gameRendering\PlaceMesh.h" />
+    <ClInclude Include="gameUtility\DebugInfo.h" />
+    <ClInclude Include="Input\InitInterpreter.h" />
+    <ClInclude Include="Input\InterpretWebEvents.h" />
+    <ClInclude Include="Input\InterpretWebSystems.h" />
+    <ClInclude Include="Physics\CollisionSystem.h" />
+    <ClInclude Include="Physics\MovementSystem.h" />
+    <ClInclude Include="Physics\PhysicsComponents.h" />
+    <ClInclude Include="Physics\PhysicsEvents.h" />
+    <ClInclude Include="Input\InitInput.h" />
+    <ClInclude Include="Input\InitInputBackendComponent.h" />
+    <ClInclude Include="Input\InitInputComponents.h" />
+    <ClInclude Include="Input\InitInputSystems.h" />
+    <ClInclude Include="gameAI\AIComponents.h">
+      <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="Input\InitInput.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="gameAI\AIEvents.h">
+      <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="Input\InitInputSystems.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="gameAI\AISystems.h">
+      <Filter>AI</Filter>
     </ClInclude>
-    <ClInclude Include="Input\InitInputBackendComponent.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="gameUtility\GlobalsCamera.h">
+      <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Physics\CollisionSystem.h">
-      <Filter>Physics</Filter>
+    <ClInclude Include="gameUtility\CameraSystems.h">
+      <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Physics\MovementSystem.h">
-      <Filter>Physics</Filter>
+    <ClInclude Include="gameUtility\CameraEvents.h">
+      <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Physics\PhysicsComponents.h">
-      <Filter>Physics</Filter>
+    <ClInclude Include="gameUtility\CameraComponents.h">
+      <Filter>Camera</Filter>
     </ClInclude>
-    <ClInclude Include="Physics\PhysicsEvents.h">
-      <Filter>Physics</Filter>
+    <ClInclude Include="gameAI\AIEcsFunctions.h">
+      <Filter>AI</Filter>
     </ClInclude>
+    <ClInclude Include="gameAI\GridEcsFunctions.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilitySystems.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilityComponents.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilityEvents.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilityEcsFunctions.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\CameraEcsFunctions.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\InitCamera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="AI">
+      <UniqueIdentifier>{65a8c983-0abb-4a12-ad33-78f1fc7d42a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{5d3031d0-e8a2-43d1-8a52-a4c17bec5c9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{fac0e431-ff16-4165-b6f3-ebcc4bbb4013}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="gameSound\InitSound.h" />
+    <ClInclude Include="gameSound\SoundECSEvents.h" />
+    <ClInclude Include="gameSound\SoundECSSystems.h" />
+    <ClInclude Include="gameSound\SoundGlobals.h" />
+    <ClInclude Include="gameSceneObjects\SceneObjectComponents.h">
+      <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h">
+      <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="gameSceneObjects\InitSceneObjectsh.h">
+      <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="gameSceneObjects\InitBiomes.h">
+      <Filter>Biomes</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="SceneObjects">
+      <UniqueIdentifier>{f9869bdd-eb32-41ae-94a1-28c0a5280104}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Biomes">
+      <UniqueIdentifier>{f368533f-c702-46d5-8541-7f0346618310}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
