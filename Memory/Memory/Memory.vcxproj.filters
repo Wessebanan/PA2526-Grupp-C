@@ -39,6 +39,9 @@
     <ClCompile Include="src\MemoryAPI.cpp">
       <Filter>Source Files\API</Filter>
     </ClCompile>
+    <ClCompile Include="src\FreeListAllocator.cpp">
+      <Filter>Source Files\Allocators</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\MemoryAPI.h">
@@ -55,6 +58,9 @@
     </ClInclude>
     <ClInclude Include="includes\Heap.h">
       <Filter>Header Files\API</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\FreeListAllocator.h">
+      <Filter>Header Files\Allocators</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

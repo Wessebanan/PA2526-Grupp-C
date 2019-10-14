@@ -257,7 +257,6 @@ namespace API
 		const uint SUB_HEAP_SIZE = 100;
 		const uint OBJ_SIZE = 10;
 		const uint OBJ_COUNT = 5;
-		uint expected_values[OBJ_COUNT];
 
 		memory::Initialize(MAIN_HEAP_SIZE);
 		memory::Heap* p_heap = memory::CreateHeap(SUB_HEAP_SIZE);
@@ -282,6 +281,258 @@ namespace API
 	}
 }
 
-/*
-	TODO: Backend testing
-*/
+namespace Backend
+{
+	namespace Allocators
+	{
+		namespace FreeListAllocator
+		{
+			/*
+				-- Initialize
+				Try to initialize an allocator. This is necessary in order to use
+				it later.
+				Notice that an allocater does not allocate memory itself; it will
+				get some memory to work with.
+			*/
+			TEST(TestFreeListAllocator, Initialize)
+			{
+				const uint memory_size = 100;
+				void* p_memory_start = malloc(memory_size);
+
+				// Create an allocator to work with, and give it the memory
+				memory::allocators::FreeListAllocator allocator;
+				ASSERT_TRUE(allocator.Initialize(p_memory_start, memory_size));
+
+				// Cleanup
+				free(p_memory_start);
+			}
+
+			/*
+				-- Allocate
+				If you as a user want to reserve some memory in the memory an allocator
+				manage, you do so through its Allocate() method.
+			*/
+			TEST(TestFreeListAllocator, Allocate)
+			{
+				/*
+					Specify memory constraints. Allocate memory for 10 allocations, where
+					also include the memory of the allocation headers. This is not what
+					an end user will have to do, as there are probably a heap that the
+					user work with that capsulates the allocator.
+				*/	
+				const uint ALLOCATION_SIZE = sizeof(int);
+				const uint ALLOCATION_COUNT = 10;
+				const uint MEMORY_SIZE = (ALLOCATION_SIZE + memory::allocators::FreeListAllocator::GetAllocationHeaderSize()) * ALLOCATION_COUNT;
+
+				// Allocate the memory that the allocater will use
+				void* p_memory_start = malloc(MEMORY_SIZE);
+
+				// Create an allocator to work with, and give it the memory
+				memory::allocators::FreeListAllocator allocator;
+				allocator.Initialize(p_memory_start, MEMORY_SIZE);
+
+				// Allocate 10 objects and give them values based on i
+				int* p_allocations[ALLOCATION_COUNT];
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_allocations[i] = (int*)allocator.Allocate(ALLOCATION_SIZE);
+					EXPECT_NE(p_allocations[i], nullptr);
+					*p_allocations[i] = i;
+				}
+
+				// Check if all allocated objects has the correct value
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					EXPECT_EQ(*p_allocations[i], i);
+				}
+
+				// Cleanup
+				free(p_memory_start);
+			}
+
+			/*
+				-- Free
+				If you as a user is donw working with your allocated memory, you can free
+				it so the memory can be used for other allocations. Is is done with the Free()
+				method, which takes in a pointer to the memory you want to free.
+			*/
+			TEST(TestFreeListAllocator, Free)
+			{
+				// Specify memory constraints.
+				const uint ALLOCATION_SIZE = sizeof(int);
+				const uint ALLOCATION_COUNT = 10;
+				const uint MEMORY_SIZE = (ALLOCATION_SIZE + memory::allocators::FreeListAllocator::GetAllocationHeaderSize()) * ALLOCATION_COUNT;
+
+				// Allocate the memory that the allocater will use
+				void* p_memory_start = malloc(MEMORY_SIZE);
+
+				// Create an allocator to work with, and give it the memory
+				memory::allocators::FreeListAllocator allocator;
+				allocator.Initialize(p_memory_start, MEMORY_SIZE);
+
+				/*
+					Allocate 10 objects and give them values.
+					We write to the memory because if we get incorrect memory and write
+					to it, we will notice out-of-bounds crash when we free it.
+				*/
+				int* p_allocations[ALLOCATION_COUNT];
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_allocations[i] = (int*)allocator.Allocate(ALLOCATION_SIZE);
+					*p_allocations[i] = i;
+				}
+
+				// Free all allocations, but in reverse order to make the free list non linear
+				for (int i = ALLOCATION_COUNT-1; i >= 0; i--)
+				{
+					allocator.Free(p_allocations[i]);
+				}
+
+				// Try to allocate 10 objects again to see if the memory became free from Freeing it
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_allocations[i] = (int*)allocator.Allocate(ALLOCATION_SIZE);
+					*p_allocations[i] = i;
+				}
+
+				// Check if all values of the new objets
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					EXPECT_EQ(*p_allocations[i], i);
+				}
+
+				// Cleanup
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					allocator.Free(p_allocations[i]);
+				}
+				free(p_memory_start);
+			}
+
+			TEST(TestFreeListAllocator, HandleOverflow)
+			{
+				// Specify memory constraints
+				const uint ALLOCATION_SIZE = sizeof(int);
+				const uint ALLOCATION_COUNT = 10;
+				const uint MEMORY_SIZE = (ALLOCATION_SIZE + memory::allocators::FreeListAllocator::GetAllocationHeaderSize()) * ALLOCATION_COUNT;
+
+				// Allocate the memory that the allocater will use
+				void* p_memory_start = malloc(MEMORY_SIZE);
+
+				// Create an allocator to work with, and give it the memory
+				memory::allocators::FreeListAllocator allocator;
+				allocator.Initialize(p_memory_start, MEMORY_SIZE);
+
+				// 
+				int* p_allocations[ALLOCATION_COUNT];
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_allocations[i] = (int*)allocator.Allocate(ALLOCATION_SIZE);
+					*p_allocations[i] = i;
+				}
+
+				EXPECT_EQ(allocator.Allocate(ALLOCATION_SIZE), nullptr);
+
+				// Cleanup
+				free(p_memory_start);
+			}
+
+			TEST(TestFreeListAllocator, HandleFreeOutOfBounds)
+			{
+				// Specify memory constraints
+				const uint ALLOCATION_SIZE = sizeof(int);
+				const uint ALLOCATION_COUNT = 5;
+				const uint ALLOCATION_WITH_HEADER_SIZE = ALLOCATION_SIZE + memory::allocators::FreeListAllocator::GetAllocationHeaderSize();
+
+				// We want to allocate 5 objects, but we reserve size for 10 objects
+				const uint MEMORY_SIZE = ALLOCATION_WITH_HEADER_SIZE * (ALLOCATION_COUNT*2);
+
+				// Allocate the memory that the allocater will use
+				void* p_memory_start = malloc(MEMORY_SIZE);
+
+				// Create an allocator to work with, and give it the memory
+				memory::allocators::FreeListAllocator allocator;
+				allocator.Initialize(p_memory_start, MEMORY_SIZE);
+
+				/*
+					Allocate 5 objects, we don't fill the memory in order to be able to free
+					memory that the allocator manage but is not reserved.
+				*/
+				void* p_last_allocation;
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_last_allocation = allocator.Allocate(ALLOCATION_SIZE);
+				}
+
+				// Calculate address that would be the next allocation, right after the last allocation.
+				void* p_non_existing_allocation = (void*)((char*)p_last_allocation + ALLOCATION_WITH_HEADER_SIZE);
+
+				// Try to free nullptr, should not break
+				EXPECT_NO_THROW(allocator.Free(nullptr));
+
+				// Try to free memory that is not reserved, should not break
+				EXPECT_NO_THROW(allocator.Free(p_non_existing_allocation));
+
+				// Cleanup
+				free(p_memory_start);
+			}
+
+			TEST(TestFreeListAllocator, Getters)
+			{
+				// Specify memory constraints
+				const uint ALLOCATION_SIZE = sizeof(int);
+				const uint ALLOCATION_COUNT = 10;
+				const uint ALLOCATION_WITH_HEADER_SIZE = ALLOCATION_SIZE + memory::allocators::FreeListAllocator::GetAllocationHeaderSize();
+				const uint MEMORY_SIZE = ALLOCATION_WITH_HEADER_SIZE * ALLOCATION_COUNT;
+
+				// Allocate the memory that the allocater will use
+				void* p_memory_start = malloc(MEMORY_SIZE);
+
+				// Create an allocator to work with, check the getters before initializing it
+				memory::allocators::FreeListAllocator allocator;
+
+				EXPECT_EQ(allocator.GetMemorySize(), 0);
+				EXPECT_EQ(allocator.GetMemoryUsed(), 0);
+
+				// Give the allocator the memory to work with
+				allocator.Initialize(p_memory_start, MEMORY_SIZE);
+
+				EXPECT_EQ(allocator.GetMemorySize(), MEMORY_SIZE);
+				EXPECT_EQ(allocator.GetMemoryUsed(), 0);
+
+				// Allocate 10 objects and check if count getter is correct for each allocation
+				uint expected_used_size = 0;
+				void* p_allocations[ALLOCATION_COUNT] = { nullptr };
+				for (uint i = 0; i < ALLOCATION_COUNT; i++)
+				{
+					p_allocations[i] = allocator.Allocate(ALLOCATION_SIZE);
+					expected_used_size += ALLOCATION_WITH_HEADER_SIZE;
+					EXPECT_EQ(allocator.GetMemoryUsed(), expected_used_size);
+				}
+
+				// Free half of the allocations and check if count getter is correct
+				for (uint i = 0; i < ALLOCATION_COUNT / 2.f; i++)
+				{
+					allocator.Free(p_allocations[i]);
+					expected_used_size -= ALLOCATION_WITH_HEADER_SIZE;
+					EXPECT_EQ(allocator.GetMemoryUsed(), expected_used_size);
+				}
+
+				// Clear all allocations from memory and check if getters are correct
+				allocator.Clear();
+				EXPECT_EQ(allocator.GetMemorySize(), MEMORY_SIZE);
+				EXPECT_EQ(allocator.GetMemoryUsed(), 0);
+
+				// Clear all meta data in the allocator and check if getters are correct
+				allocator.Terminate();
+				EXPECT_EQ(allocator.GetMemorySize(), 0);
+				EXPECT_EQ(allocator.GetMemoryUsed(), 0);
+
+				// Cleanup
+				free(p_memory_start);
+			}
+		}
+	}
+
+	
+}
