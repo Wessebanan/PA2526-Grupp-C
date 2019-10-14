@@ -26,7 +26,7 @@ namespace ecs
 
 		struct PathfindingStateComponent : public ECSComponent<PathfindingStateComponent>
 		{
-			int data = 0;
+			STATE goalState = STATE::IDLE;
 		};
 
 		struct IdleStateComponent : public ECSComponent<IdleStateComponent>
@@ -36,7 +36,18 @@ namespace ecs
 
 		struct MoveStateComponent : public ECSComponent<MoveStateComponent>
 		{
+			STATE goalState = STATE::IDLE;
+		};
+
+		struct LootStateComponent : public ECSComponent<LootStateComponent>
+		{
 			int data = 0;
+		};
+
+		struct AttackStateComponent : public ECSComponent<AttackStateComponent>
+		{
+			int enemyEntityId = 0;
+			STATE previousState = STATE::IDLE;
 		};
 
 		struct UnitComponent : public ECSComponent<UnitComponent>
