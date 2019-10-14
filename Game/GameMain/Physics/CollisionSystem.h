@@ -9,7 +9,7 @@
 #include "../gameAI/AIComponents.h"
 
 #include "../gameUtility/UtilityComponents.h"
-#include "../gameUtility/UtilityFunctions.h"
+#include "../gameUtility/UtilityEcsFunctions.h"
 
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 

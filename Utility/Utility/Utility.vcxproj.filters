@@ -13,54 +13,21 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Camera ECS Files">
-      <UniqueIdentifier>{964853bc-b970-4bf8-b83b-e2c560ed7a23}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Utility ECS Files">
-      <UniqueIdentifier>{290eae77-60de-41d6-ad03-7b338e903a81}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\CameraComponents.h">
-      <Filter>Camera ECS Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\CameraEvents.h">
-      <Filter>Camera ECS Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\CameraSystems.h">
-      <Filter>Camera ECS Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\UtilityComponents.h">
-      <Filter>Utility ECS Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\UtilityEvents.h">
-      <Filter>Utility ECS Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\UtilityFunctions.h">
-      <Filter>Utility ECS Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\UtilitySystems.h">
-      <Filter>Utility ECS Files</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\CameraFunctions.h">
-      <Filter>Camera ECS Files</Filter>
-    </ClInclude>
     <ClInclude Include="includes\DebugInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\GlobalsCamera.h">
-      <Filter>Camera ECS Files</Filter>
+    <ClInclude Include="includes\UtilityFunctions.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="includes\CameraFunctions.cpp">
-      <Filter>Camera ECS Files</Filter>
-    </ClCompile>
     <ClCompile Include="UtilityFunctions.cpp">
-      <Filter>Utility ECS Files</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
