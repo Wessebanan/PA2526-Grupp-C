@@ -58,22 +58,30 @@ void InitBiomes(ecs::EntityComponentSystem& rECS)
 		case SWAMP:
 			p_tile_tansf_comp->position.y += 0.1f;
 			p_tile_tansf_comp->position.y *= 1.2f;
-			p_tile_color_comp->color = DirectX::XMFLOAT4(0.0f, 30.0f + color_offset, 30.0f + color_offset, 0.0f);
+			p_tile_color_comp->red = 0;
+			p_tile_color_comp->green =  30 + color_offset;
+			p_tile_color_comp->blue = 30 + color_offset;
 			break;
 		case MOUNTAIN:
 			p_tile_tansf_comp->position.y += 0.4f;
 			p_tile_tansf_comp->position.y *= 2.2f;
-			p_tile_color_comp->color = DirectX::XMFLOAT4(50.0f + color_offset, 50.0f + color_offset, 50.0f + color_offset, 0.0f);
+			p_tile_color_comp->red = 50 + color_offset;
+			p_tile_color_comp->green = 50 + color_offset;
+			p_tile_color_comp->blue = 50 + color_offset;
 			break;
 		case FIELD:
 			p_tile_tansf_comp->position.y += 0.2f;
 			p_tile_tansf_comp->position.y *= 1.4f;
-			p_tile_color_comp->color = DirectX::XMFLOAT4(0.0f, 150.0f + color_offset, 0.0f, 0.0f);
+			p_tile_color_comp->red = 0;
+			p_tile_color_comp->green = 150 + color_offset;
+			p_tile_color_comp->blue = 0;
 			break;
 		case DESERT:
 			p_tile_tansf_comp->position.y += 0.1f;
 			p_tile_tansf_comp->position.y *= 1.1f;
-			p_tile_color_comp->color = DirectX::XMFLOAT4(100.0f + color_offset, 100.0f + color_offset, 00.0f, 0.0f);
+			p_tile_color_comp->red = 100 + color_offset;
+			p_tile_color_comp->green = 100 + color_offset;
+			p_tile_color_comp->blue = 0;
 			break;
 		default:
 			break;
