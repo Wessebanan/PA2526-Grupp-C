@@ -25,7 +25,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	// Grabbing a copy of AABB and transforming to world space.
 	BoundingBox aabb = p_collision->mAABB;
-	XMMATRIX world_transform = UtilityFunctions::GetWorldMatrix(*p_transform);
+	XMMATRIX world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
 	aabb.Transform(aabb, world_transform);
 
 	// Grabbing the entities it could collide with.
@@ -53,7 +53,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		
 		// Grabbing copy of AABB from current and transforming to world space.
 		BoundingBox current_aabb = p_current_collision->mAABB;
-		XMMATRIX current_world_transform = UtilityFunctions::GetWorldMatrix(*p_current_transform);
+		XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
 		current_aabb.Transform(current_aabb, current_world_transform);
 
 		// If the objects' bounding volumes intersect.
@@ -190,7 +190,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	TransformComponent* p_transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
 	
 	// Creating world matrix and transforming the ground collision component to world space.
-	DirectX::XMMATRIX ground_collision_world = UtilityFunctions::GetWorldMatrix(*p_transform_component);
+	DirectX::XMMATRIX ground_collision_world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_component);
 
 	// Grabbing a copy of OBB and transforming to world space.
 	BoundingOrientedBox obb = ground_collision_component->mOBB;

@@ -119,11 +119,12 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 	{
 		ecs::CompTypeMemDesc ecsMemDesc[] = {
 		{ TileComponent::typeID, TileComponent::size, 1000 },
+		{ ColorComponent::typeID, ColorComponent::size, 1000 },
 		{ TransformComponent::typeID, TransformComponent::size, 1000 },
 		};
 
 		ecs::ECSDesc ecsDesc;
-		ecsDesc.compTypeCount = 2;
+		ecsDesc.compTypeCount = 3;
 		ecsDesc.compTypeMemDescs = ecsMemDesc;
 		ecsDesc.systemLayerCount = 10;
 
@@ -174,7 +175,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		ecs.update(DELTA);
 
 		BoundingOrientedBox obb = p_ground_collision_component->mOBB;
-		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform_component));
+		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform_component));
 
 		XMFLOAT3* corners = new XMFLOAT3[8];
 		obb.GetCorners(corners);
@@ -192,11 +193,13 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		// of certain types.
 		ecs::CompTypeMemDesc ecsMemDesc[] = {
 		{ TileComponent::typeID, TileComponent::size, 1000 },
+		{ ColorComponent::typeID, ColorComponent::size, 1000 },
 		{ TransformComponent::typeID, TransformComponent::size, 1000 },
 		};
 
+
 		ecs::ECSDesc ecsDesc;
-		ecsDesc.compTypeCount = 2;
+		ecsDesc.compTypeCount = 3;
 		ecsDesc.compTypeMemDescs = ecsMemDesc;
 		ecsDesc.systemLayerCount = 10;
 
@@ -250,7 +253,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		ecs.update(DELTA);
 
 		BoundingOrientedBox obb = p_ground_collision_component->mOBB;
-		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform_component));
+		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform_component));
 
 		XMFLOAT3* corners = new XMFLOAT3[8];
 		obb.GetCorners(corners);
@@ -267,7 +270,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		ecs.update(DELTA);
 
 		obb = p_ground_collision_component->mOBB;
-		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform_component));
+		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform_component));
 
 		obb.GetCorners(corners);
 		for (int i = 0; i < 8; i++)
@@ -284,11 +287,13 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		// of certain types.
 		ecs::CompTypeMemDesc ecsMemDesc[] = {
 		{ TileComponent::typeID, TileComponent::size, 1000 },
+		{ ColorComponent::typeID, ColorComponent::size, 1000 },
 		{ TransformComponent::typeID, TransformComponent::size, 1000 },
 		};
 
+
 		ecs::ECSDesc ecsDesc;
-		ecsDesc.compTypeCount = 2;
+		ecsDesc.compTypeCount = 3;
 		ecsDesc.compTypeMemDescs = ecsMemDesc;
 		ecsDesc.systemLayerCount = 10;
 
@@ -345,7 +350,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		ecs.update(DELTA);
 
 		BoundingOrientedBox obb = p_ground_collision->mOBB;
-		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform));
+		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform));
 		XMFLOAT3* corners = new XMFLOAT3[8];
 		obb.GetCorners(corners);
 		const float ABS_ERROR = pow(10.0f, -6.0f);
@@ -382,7 +387,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		// if the entity is "on ground" since it moved horizontally
 		// into a tile that is higher.
 		obb = p_ground_collision->mOBB;
-		obb.Transform(obb, UtilityFunctions::GetWorldMatrix(*p_transform));
+		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform));
 		obb.GetCorners(corners);
 
 		for (int i = 0; i < 8; i++)
