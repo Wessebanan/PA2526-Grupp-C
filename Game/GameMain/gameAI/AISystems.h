@@ -108,9 +108,10 @@ namespace ecs
 					{
 						other_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(other_unit->getEntityID());
 						distance = PhysicsHelpers::CalculateDistance(current_unit_transform->position, other_unit_transform->position);
-						//If the enemy is within attack range switch to a AttackStateComponent
+						//Check if the enemy is within attack range.
 						if (distance < attack_range)
 						{
+							//If the enemy is within attack range switch to a AttackStateComponent
 							atk_state.enemyEntityId = other_unit->getEntityID();
 							atk_state.previousState = STATE::IDLE;
 							ecs::ECSUser::removeComponent(current_unit->getEntityID(), ecs::components::IdleStateComponent::typeID);
@@ -123,7 +124,7 @@ namespace ecs
 		};
 
 		/*
-			A system that moving units.
+			A system that moves a unit along a path calculated in the PathfindingSystem.
 		*/
 		class MoveStateSystem : public ECSSystem<MoveStateSystem>
 		{
@@ -220,11 +221,12 @@ namespace ecs
 				ecs::components::TransformComponent* current_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(current_unit->getEntityID());
 				ecs::components::TransformComponent* other_unit_transform;
 
-				//Check if the enemy is still alive
+				//Get entity of enemy unit from our current AttackStateComponent.
 				ecs::components::AttackStateComponent* atk_state = entity.getComponent<ecs::components::AttackStateComponent>();
 				ecs::components::PathfindingStateComponent path_state;
 				ecs::components::IdleStateComponent idle_state;
 				ecs::Entity* target_entity = ecs::ECSUser::getEntity(atk_state->enemyEntityId);
+				//Check if the enemy is still alive
 				if (target_entity)
 				{
 					other_unit = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::UnitComponent>(atk_state->enemyEntityId);
@@ -242,6 +244,7 @@ namespace ecs
 					}
 					else
 					{
+						//If the enemy is to far away: give a new pathfind component to find a route to the closest enemy.
 						ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::AttackStateComponent::typeID);
 						path_state.goalState = STATE::ATTACK;
 						ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
@@ -251,6 +254,7 @@ namespace ecs
 				else
 				{
 					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::AttackStateComponent::typeID);
+					//Return to idle state if the previous state was idle and the unit is dead
 					if (atk_state->previousState == STATE::IDLE)
 					{
 						ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::AttackStateComponent::typeID);
@@ -258,6 +262,8 @@ namespace ecs
 					}
 					else
 					{
+						//If the current command is a attack and the enemy unit died give the unit a new pathfinding component
+						//to find a new target.
 						ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::AttackStateComponent::typeID);
 						path_state.goalState = STATE::ATTACK;
 						ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
