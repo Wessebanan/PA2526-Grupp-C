@@ -55,7 +55,7 @@ void QuadTree::Split()
 	mChildren[3] = new QuadTree(mLevel + 1, mXBounds[0] + half_width, mXBounds[1], mZBounds[0] + half_height, mZBounds[1], this);
 }
 
-int QuadTree::GetIndex(Object obj)
+int QuadTree::GetIndex(QuadTreeObject obj)
 {
 	//If the function returns -1 the object belongs in the parent.
 	int index = -1;
@@ -106,7 +106,7 @@ int QuadTree::GetIndex(Object obj)
 	return index;
 }
 
-void QuadTree::Insert(Object obj)
+void QuadTree::Insert(QuadTreeObject obj)
 {
 	int index;
 	if (mChildren[0] != nullptr)
@@ -143,7 +143,7 @@ void QuadTree::Insert(Object obj)
 	}
 }
 
-void QuadTree::RetrieveCollisions(std::vector<Object>& objects, Object obj)
+void QuadTree::RetrieveCollisions(std::vector<QuadTreeObject>& objects, QuadTreeObject obj)
 {
 	int index = GetIndex(obj);
 	if (index != -1 && mChildren[0] != nullptr)

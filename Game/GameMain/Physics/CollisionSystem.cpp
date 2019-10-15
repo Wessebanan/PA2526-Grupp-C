@@ -361,6 +361,6 @@ void ecs::systems::FillQuadTreeSystem::updateEntity(FilteredEntity& entity, floa
 	ecs::components::QuadTreeComponent* p_tree = static_cast<ecs::components::QuadTreeComponent*>(it.next());
 	ecs::components::TransformComponent* p_transform = entity.getComponent<ecs::components::TransformComponent>();
 	ecs::components::ObjectCollisionComponent* p_collision = entity.getComponent<ecs::components::ObjectCollisionComponent>();
-	static_cast<QuadTree*>(p_tree->pTree)->Insert(Object(p_transform, p_collision));
+	static_cast<QuadTree*>(p_tree->pTree)->Insert(QuadTreeObject(p_transform, p_collision));
 }
 #pragma endregion

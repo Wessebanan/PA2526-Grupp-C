@@ -23,7 +23,7 @@ TEST(QuadTreeTests, AddObjectsToTree)
 	obj_col_comp.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	obj_col_comp.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj_col_comp.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
-	Object obj(&transform_comp, &obj_col_comp);
+	QuadTreeObject obj(&transform_comp, &obj_col_comp);
 	for (int i = 0; i < 10; i++)
 	{
 		tree.Insert(obj);
@@ -107,7 +107,7 @@ TEST(QuadTreeTests, ClearTree)
 	obj_col_comp.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	obj_col_comp.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj_col_comp.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
-	Object obj(&transform_comp, &obj_col_comp);
+	QuadTreeObject obj(&transform_comp, &obj_col_comp);
 	for (int i = 0; i < 10; i++)
 	{
 		tree.Insert(obj);
@@ -197,7 +197,7 @@ TEST(QuadTreeTests, GeTCollisionList)
 	obj_col_comp.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	obj_col_comp.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj_col_comp.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
-	Object obj(&transform_comp, &obj_col_comp);
+	QuadTreeObject obj(&transform_comp, &obj_col_comp);
 	for (int i = 0; i < 10; i++)
 	{
 		tree.Insert(obj);
@@ -253,7 +253,7 @@ TEST(QuadTreeTests, GeTCollisionList)
 	tree.Insert(obj);
 
 	//Create a vector which will fetch the list off possible collision.
-	std::vector<Object> object_vector;
+	std::vector<QuadTreeObject> object_vector;
 	obj.pBoundingBox = &obj_col_comp4;
 	obj.pTransform = &transform_comp4;
 	tree.RetrieveCollisions(object_vector, obj);
