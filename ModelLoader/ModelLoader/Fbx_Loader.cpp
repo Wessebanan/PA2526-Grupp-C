@@ -18,6 +18,20 @@ namespace {
 
 	}
 
+	DirectX::XMFLOAT4X4 FbxAMatrixToXMFLOAT4X4(FbxAMatrix* toConvert)
+	{
+		DirectX::XMFLOAT4X4 newMat;
+		// Convert FbxMatrix to XMFLOAT
+		for (int i = 0; i < 4; ++i)
+		{
+			for (int j = 0; j < 4; ++j)
+			{
+				newMat.m[i][j] = static_cast<float>(toConvert->Get(i, j));
+			}
+		}
+		return newMat;
+	}
+
 	unsigned int FindJointIndexUsingName(const std::string& inJointName, ModelLoader::Skeleton* skeleton)
 	{
 		for (unsigned int i = 0; i < skeleton->joints.size(); ++i)
@@ -113,7 +127,7 @@ namespace {
 			{
 				index_array[i] = new_index_to_direct.GetAt(i);
 			}
-			uv_element->GetIndexArray().Release((void**)& index_array);
+			uv_element->GetIndexArray().Release((void**)&index_array);
 
 			// Create the new direct array
 			uv_element->GetDirectArray().Clear();
@@ -123,7 +137,7 @@ namespace {
 			{
 				direct_array[j] = new_uvs.GetAt(j);
 			}
-			uv_element->GetDirectArray().Release((void**)& direct_array);
+			uv_element->GetDirectArray().Release((void**)&direct_array);
 		}
 		// Process UVs
 		if (uv_element->GetMappingMode() == FbxGeometryElement::eByControlPoint)
@@ -261,15 +275,21 @@ namespace {
 						// Evaluate the baseline global transform for the joint at t = 0 and create the global bindpose inverse matrix
 						FbxDouble3 rot = curr_cluster->GetLink()->LclRotation.EvaluateValue(0.0f);
 						FbxDouble3 transl = curr_cluster->GetLink()->LclTranslation.EvaluateValue(0.0f);
-						curr_joint->mBoneLocalTransform = FbxAMatrix(transl, rot, FbxVector4(1.0f, 1.0f, 1.0f));
+						FbxAMatrix bone_local_transform;
+						bone_local_transform = FbxAMatrix(transl, rot, FbxVector4(1.0f, 1.0f, 1.0f));
+
+						//FbxVector4 bboxMin, bboxMax, bboxCenter;
+						//bool resultweg = inNode->GetScene()->ComputeBoundingBoxMinMaxCenter(bboxMin, bboxMax, bboxCenter, 0);
+						//resultweg = curr_cluster->GetLink()->EvaluateGlobalBoundingBoxMinMaxCenter(bboxMin, bboxMax, bboxCenter, 0);
+
 						if (curr_joint_index == 0)
 						{
-							curr_joint->mBoneGlobalTransform = curr_joint->mBoneLocalTransform;
+							curr_joint->mBoneGlobalTransform = bone_local_transform;
 						}
 						else
 						{
 							// FbxAMatrix performs matrix multiplication in REVERSE order, M1 * M2 is multiplied with M2 from the left
-							curr_joint->mBoneGlobalTransform = skeleton->joints[skeleton->joints[curr_joint_index].mParentIndex].mBoneGlobalTransform * curr_joint->mBoneLocalTransform;
+							curr_joint->mBoneGlobalTransform = skeleton->joints[skeleton->joints[curr_joint_index].mParentIndex].mBoneGlobalTransform * bone_local_transform;
 
 						}
 						curr_joint->mGlobalBindposeInverse = curr_joint->mBoneGlobalTransform.Inverse() * FbxAMatrix(FbxVector4(0.0f, 0.0f, 0.0f), FbxVector4(-90.0f, 0.0f, 0.0f), FbxVector4(1.0f, -1.0f, 1.0f));
@@ -302,35 +322,37 @@ namespace {
 								// FbxAMatrix performs matrix multiplication in REVERSE order, M1 * M2 is multiplied with M2 from the left
 								current_keyframe.mGlobalTransform = skeleton->joints[skeleton->joints[curr_joint_index].mParentIndex].mAnimationVector[loopCounter].mGlobalTransform * current_keyframe.mLocalTransform;
 							}
+							FbxAMatrix offset_matrix;
 							// FbxAMatrix performs matrix multiplication in REVERSE order, M1 * M2 is multiplied with M2 from the left
-							current_keyframe.mOffsetMatrix = FbxAMatrix(FbxVector4(0.0f, 0.0f, 0.0f), FbxVector4(-90.0f, 0.0f, 0.0f), FbxVector4(1.0f, -1.0f, 1.0f)) * (current_keyframe.mGlobalTransform * curr_joint->mGlobalBindposeInverse);
+							offset_matrix = FbxAMatrix(FbxVector4(0.0f, 0.0f, 0.0f), FbxVector4(-90.0f, 0.0f, 0.0f), FbxVector4(1.0f, -1.0f, 1.0f)) * (current_keyframe.mGlobalTransform * curr_joint->mGlobalBindposeInverse);
 
 
 							// Matrix needs to be transposed before sending to the GPU
-							current_keyframe.mOffsetMatrix = current_keyframe.mOffsetMatrix.Transpose();
+							current_keyframe.mOffsetMatrix = FbxAMatrixToXMFLOAT4X4(&(offset_matrix.Transpose()));
 							curr_joint->mAnimationVector.push_back(current_keyframe);
 							loopCounter++;
 						}
 					}
 				}
-			}
-			// Check if any vertex has more than 4 weights assigned
-			for (unsigned int i = 0; i < temp.size(); ++i)
-			{
-				for (unsigned int j = 0; j < temp[i].size(); ++j)
+				// Check if any vertex has more than 4 weights assigned
+				for (unsigned int i = 0; i < temp.size(); ++i)
 				{
-					(*jointData)[i].weightPairs[j] = temp[i][j];
-					if (j >= MAX_NUM_WEIGHTS_PER_VERTEX)
+					for (unsigned int j = 0; j < temp[i].size(); ++j)
 					{
-						throw std::exception("Mesh contains vertices with more than 4 bone weights. The engine does not support this.");
+						(*jointData)[i].weightPairs[j] = temp[i][j];
+						if (j >= MAX_NUM_WEIGHTS_PER_VERTEX)
+						{
+							throw std::exception("Mesh contains vertices with more than 4 bone weights. The engine does not support this.");
+						}
 					}
 				}
+				// Check so that the vertex weights add up to one
+				CheckSumOfWeights(jointData);
 			}
-			// Check so that the vertex weights add up to one
-			CheckSumOfWeights(jointData);
 		}
-	}
 
+
+	}
 
 }
 

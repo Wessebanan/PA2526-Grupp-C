@@ -1,4 +1,5 @@
 #pragma once
+
 #include <fbxsdk.h>
 #include <vector>
 #include <d3d11.h>
@@ -38,13 +39,12 @@ namespace ModelLoader
 		IndexWeightPair weightPairs[4];
 	};
 
-
 	//This stores the information of each key frame of each Joint
 	struct KeyFrame {
 		FbxLongLong mFrameNum;
 		FbxAMatrix mGlobalTransform;	//global transform not including bindpose inverse transform matrix
 		FbxAMatrix mLocalTransform;
-		FbxAMatrix mOffsetMatrix;		// final offset matrix, this is what needs to be sent to the GPU
+		DirectX::XMFLOAT4X4 mOffsetMatrix; // final offset matrix, this is what needs to be sent to the GPU
 	};
 
 	struct Joint {
@@ -56,7 +56,6 @@ namespace ModelLoader
 
 		FbxAMatrix mGlobalBindposeInverse;
 		FbxAMatrix mBoneGlobalTransform;
-		FbxAMatrix mBoneLocalTransform;
 		FbxAMatrix mOffsetMatrix;
 
 		Joint() :
@@ -68,7 +67,11 @@ namespace ModelLoader
 
 	struct Skeleton {
 		std::vector<Joint> joints;
+		DirectX::XMFLOAT4X4* animationData;
+		unsigned int jointCount;
+		unsigned int frameCount;
 	};
+
 
 
 	// Used for loading the very basics of an FBX
