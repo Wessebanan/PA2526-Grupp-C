@@ -55,7 +55,6 @@ int main()
 	InitArmy(ecs);
 	InitSceneObjects(ecs);
 
-	InitOcean(ecs);
 
 	rendering::SUN_DESC sun_desc;
 	sun_desc.Red = 200;
@@ -80,6 +79,8 @@ int main()
 
 	
 	InitMesh(ecs, pMng);
+
+	InitOcean(ecs);
 
 	graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
 
