@@ -1,13 +1,12 @@
-//#include "pch.h"
 #include "gtest/gtest.h"
-
-#include "Physics/GroundCollision.h"
-#include "Physics/MovementLogic.h"
-#include "Physics/ObjectCollision.h"
-//#include "Mesh.h"
-#include "Physics/QuadTreeTests.h"
-#include "Sound/SoundTests.h"
 #include <crtdbg.h>
+
+//#include "Physics/GroundCollision.h"
+//#include "Physics/MovementLogic.h"
+//#include "Physics/ObjectCollision.h"
+#include "Physics/FightingLogic.h"
+//#include "Physics/QuadTreeTests.h"
+//#include "Sound/SoundTests.h"
 
 int main(int argc, char** argv) 
 {

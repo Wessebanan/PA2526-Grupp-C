@@ -71,11 +71,13 @@
     <ClInclude Include="..\GameMain\gameUtility\UtilityEvents.h" />
     <ClInclude Include="..\GameMain\gameUtility\UtilitySystems.h" />
     <ClInclude Include="..\GameMain\Physics\CollisionSystem.h" />
+    <ClInclude Include="..\GameMain\Physics\FightingSystem.h" />
     <ClInclude Include="..\GameMain\Physics\MovementSystem.h" />
     <ClInclude Include="..\GameMain\Physics\PhysicsComponents.h" />
     <ClInclude Include="..\GameMain\Physics\PhysicsEvents.h" />
     <ClInclude Include="..\GameMain\Physics\QuadTree.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Physics\FightingLogic.h" />
     <ClInclude Include="Physics\GroundCollision.h" />
     <ClInclude Include="Physics\MovementLogic.h" />
     <ClInclude Include="Physics\ObjectCollision.h" />
@@ -91,6 +93,7 @@
     <ClCompile Include="..\GameMain\gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="..\GameMain\gameUtility\UtilityEcsFunctions.cpp" />
     <ClCompile Include="..\GameMain\Physics\CollisionSystem.cpp" />
+    <ClCompile Include="..\GameMain\Physics\FightingSystem.cpp" />
     <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp" />
     <ClCompile Include="..\GameMain\Physics\QuadTree.cpp" />
     <ClCompile Include="test.cpp" />

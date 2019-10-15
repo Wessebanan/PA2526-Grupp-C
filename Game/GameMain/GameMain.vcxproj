@@ -101,6 +101,7 @@
     <ClCompile Include="gameUtility\UtilityEcsFunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Physics\CollisionSystem.cpp" />
+    <ClCompile Include="Physics\FightingSystem.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp" />
     <ClCompile Include="Physics\QuadTree.cpp" />
   </ItemGroup>

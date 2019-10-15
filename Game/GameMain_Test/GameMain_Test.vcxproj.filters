@@ -33,6 +33,9 @@
     <ClCompile Include="..\GameMain\Physics\QuadTree.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
+    <ClCompile Include="..\GameMain\Physics\FightingSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -121,6 +124,15 @@
       <Filter>Sound</Filter>
     </ClInclude>
     <ClInclude Include="..\GameMain\Physics\QuadTree.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\FightingLogic.h">
+      <Filter>Physics\Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\QuadTreeTests.h">
+      <Filter>Physics\Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\FightingSystem.h">
       <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>

@@ -27,20 +27,44 @@ enum WEAPON_TYPE
 #pragma region BoundingVolume
 struct BoundingVolume 
 {
-	virtual ~BoundingVolume() {}
+	virtual ~BoundingVolume();
 };
 struct Sphere : public BoundingVolume
 {
-	DirectX::BoundingSphere mSphere;
+	DirectX::BoundingSphere mSphere;	
+	//~Sphere();
 };
 struct OBB : public BoundingVolume
 {
 	DirectX::BoundingOrientedBox mOBB;
+	//~OBB();
 };
 struct AABB : public BoundingVolume
 {
 	DirectX::BoundingBox mAABB;
+	//~AABB();
 };
+#ifndef BV_D
+#define BV_D
+inline BoundingVolume::~BoundingVolume()
+{
+	Sphere* sphere	= dynamic_cast<Sphere*>(this);
+	OBB* obb		= dynamic_cast<OBB*>(this);
+	AABB* aabb		= dynamic_cast<AABB*>(this);
+	if (sphere)
+	{
+		delete sphere;	
+	}
+	else if (obb) 
+	{
+		delete obb;
+	}
+	else if (aabb)
+	{
+		delete aabb;
+	}
+}
+#endif
 #pragma endregion
 
 namespace ecs
@@ -156,6 +180,24 @@ namespace ecs
 			
 			// Base damage for multiplier on hit based on weapon type.
 			float mBaseDamage = DEFAULT_BASE_DAMAGE;
+
+			~WeaponComponent()
+			{
+				switch (mType)
+				{
+				case SWORD:
+				{
+					OBB *obb = dynamic_cast<OBB*>(mBoundingVolume);
+					delete obb;
+					mBoundingVolume = nullptr;
+					break;
+				}
+				}
+				//if (mBoundingVolume)
+				//{
+				//	delete mBoundingVolume;
+				//}
+			}
 		};
 
 		/*

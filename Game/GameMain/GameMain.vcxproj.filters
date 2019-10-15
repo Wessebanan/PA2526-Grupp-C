@@ -28,6 +28,9 @@
     <ClCompile Include="Physics\QuadTree.cpp">
       <Filter>QuadTree</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\FightingSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -129,7 +132,9 @@
     <ClInclude Include="Physics\QuadTree.h">
       <Filter>QuadTree</Filter>
     </ClInclude>
-    <ClInclude Include="Physics\FightingSystem.h" />
+    <ClInclude Include="Physics\FightingSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
