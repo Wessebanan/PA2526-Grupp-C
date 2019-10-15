@@ -7,6 +7,9 @@
 #include "ecs.h"
 #include "..\\gameUtility\\UtilityComponents.h"
 #include "..\\gameAI\\AIComponents.h"
+
+#include "Mesh.h"
+
 #include "OceanSettings.h"
 
 using namespace ecs;
@@ -44,16 +47,19 @@ void InitOcean(EntityComponentSystem& rEcs)
 	unsigned int ocean_tile_count = 0;
 
 	const float MID_TO_SIDE = cos(30.f * 3.1415f / 180.f);
+	const int OCEAN_ROWS = (int)ceilf((float)OCEAN_RADIUS / (MID_TO_SIDE * 0.75f));
+	const int OCEAN_COLUMNS = OCEAN_ROWS;
+
 	//XMFLOAT3 starting_pos = { 0.0f, 0.0f, 0.0f };
+	const XMFLOAT3 OCEAN_CENTER = { (OCEAN_ALIGN_TO_MAP_ROWS / 2) * (1.5f), -1.f, (OCEAN_ALIGN_TO_MAP_ROWS / 2) * MID_TO_SIDE * 2 + (((OCEAN_ALIGN_TO_MAP_COLUMNS / 2) % 2) ? MID_TO_SIDE : 0) };
 	XMFLOAT3 starting_pos =
 	{
-		-(OCEAN_ROWS_MAX /2) * (1.5f),
-		-1.0f,
-		-(OCEAN_ROWS_MAX /2) * MID_TO_SIDE * 2 + (((OCEAN_COLUMNS_MAX / 2) % 2) ? MID_TO_SIDE : 0)
+		OCEAN_CENTER.x - (OCEAN_ROWS /2) * (1.5f),
+		OCEAN_START_HEIGHT,
+		OCEAN_CENTER.z - (OCEAN_ROWS /2) * MID_TO_SIDE * 2 + (((OCEAN_COLUMNS / 2) % 2) ? MID_TO_SIDE : 0)
 	};
 	XMFLOAT3 current_pos = { 0.0f, 0.0f, 0.0f };
 
-	const XMFLOAT3 OCEAN_CENTER = { (OCEAN_ALIGN_TO_MAP_ROWS / 2) * (1.5f), -1.f, (OCEAN_ALIGN_TO_MAP_ROWS / 2) * MID_TO_SIDE * 2 + (((OCEAN_ALIGN_TO_MAP_COLUMNS / 2) % 2) ? MID_TO_SIDE : 0) };
 	OceanTileComponent ocean_tile;
 	TransformComponent transform;
 	ColorComponent color;
@@ -66,9 +72,9 @@ void InitOcean(EntityComponentSystem& rEcs)
 	XMVECTOR xm_center = XMLoadFloat3(&OCEAN_CENTER);
 
 	//Calculate each tile position and create them
-	for (int i = 0; i < OCEAN_ROWS_MAX; i++)
+	for (int i = 0; i < OCEAN_ROWS; i++)
 	{
-		for (int j = 0; j < OCEAN_COLUMNS_MAX; j++)
+		for (int j = 0; j < OCEAN_COLUMNS; j++)
 		{
 			// Set position of tile
 			transform.position.x = starting_pos.x + j * 1.5f;
@@ -82,23 +88,23 @@ void InitOcean(EntityComponentSystem& rEcs)
 			int variation = rand() % 155 + 1;
 			color.blue = 100 + variation;
 
-			if (XMVectorGetX(xm_length) > OCEAN_RADIUS)
-			{
-				transform.position.x = 100000.f;
-			}
+			
 
 			//Create the new entity
-			if (ocean_tile_count < OCEAN_TILE_COUNT)
+			if (ocean_tile_count < OCEAN_TILE_COUNT && XMVectorGetX(xm_length) <= OCEAN_RADIUS)
 			{
+				ocean_tile_positions.push_back(xm_pos);
 				Entity* p_entity = rEcs.createEntity(transform, color, ocean_tile);
 				ocean_tile_count++;
-
-				if (XMVectorGetX(xm_length) <= OCEAN_RADIUS)
-				{
-					ocean_tile_positions.push_back(xm_pos);
-				}
 			}
 		}
+	}
+
+	while (ocean_tile_count < OCEAN_TILE_COUNT)
+	{
+		transform.position.x = 100000.f;
+		Entity* p_entity = rEcs.createEntity(transform, color, ocean_tile);
+		ocean_tile_count++;
 	}
 
 	int a = 0;

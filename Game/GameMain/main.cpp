@@ -84,7 +84,7 @@ int main()
 
 
 	
-	InitMesh(ecs, pMng);
+	//InitMesh(ecs, pMng);
 
 	InitOcean(ecs);
 
