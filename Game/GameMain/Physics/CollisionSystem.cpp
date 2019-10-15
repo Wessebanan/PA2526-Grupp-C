@@ -31,6 +31,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	// Grabbing the entities it could collide with.
 	TypeFilter filter;
 	filter.addRequirement(ObjectCollisionComponent::typeID);
+	filter.addRequirement(TransformComponent::typeID);
 	EntityIterator it = getEntitiesByFilter(filter);
 
 	bool intersect = false;
@@ -249,7 +250,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	float tile_height = closest_tile->position.y;
 
 	// Saving this tile height as the last tile y value if it changed.
-	const float ABS_ERROR = pow(10, -10);
+	const float ABS_ERROR = (float)pow(10, -10);
 	
 	// If the height of the nearest tile changed, update and move on.
 	if (fabs(tile_height - ground_collision_component->mLastTileY) > ABS_ERROR)
@@ -343,6 +344,7 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 
 	// Grabbing the object collision component to fill it up.
 	ObjectCollisionComponent* object_collision_component = getComponentFromKnownEntity<ObjectCollisionComponent>(entity->getID());
+	
 
 	object_collision_component->mAABB.CreateFromPoints(object_collision_component->mAABB, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
 	
