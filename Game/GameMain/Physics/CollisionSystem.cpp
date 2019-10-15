@@ -171,21 +171,32 @@ ecs::systems::GroundCollisionSystem::GroundCollisionSystem()
 
 ecs::systems::GroundCollisionSystem::~GroundCollisionSystem() 
 {
-	delete[] tile_transforms;
+	if (tile_transforms)
+	{
+		delete[] tile_transforms;
+	}
 }
 
 void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityInfo, float _delta) 
 {
 	// On first update, fill tile info members of system.
-	if (tiles.entities.size() == 0)
+	if (!init)
 	{
 		tiles = getEntitiesWithComponent<TileComponent>();
 	
 		tile_count = tiles.entities.size();
-		tile_transforms = new TransformComponent * [tile_count];
-		for (int i = 0; i < tile_count; i++)
+		if (tile_count != 0)
 		{
-			tile_transforms[i] = getComponentFromKnownEntity<TransformComponent>(tiles.entities.at(i).entity->getID());
+			init = true;
+			tile_transforms = new TransformComponent * [tile_count];
+			for (int i = 0; i < tile_count; i++)
+			{
+				tile_transforms[i] = getComponentFromKnownEntity<TransformComponent>(tiles.entities.at(i).entity->getID());
+			}
+		}
+		else
+		{
+			return;
 		}
 	}
 
@@ -205,7 +216,6 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	// Grabbing a copy of OBB and transforming to world space.
 	BoundingOrientedBox obb = ground_collision_component->mOBB;
 	obb.Transform(obb, ground_collision_world);
-
 
 	// Holds the index of the closest tile.
 	TypeID closest_tile_id = -1;

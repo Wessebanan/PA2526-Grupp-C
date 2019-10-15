@@ -59,8 +59,9 @@ namespace ecs
 			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
 		private:
 			EntityIterator tiles;
-			TransformComponent** tile_transforms;
-			unsigned int tile_count;
+			TransformComponent** tile_transforms = nullptr;
+			unsigned int tile_count = 0;
+			bool init = false;
 		};
 
 	} // systems
