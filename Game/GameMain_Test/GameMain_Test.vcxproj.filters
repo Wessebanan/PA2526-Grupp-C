@@ -27,6 +27,12 @@
     <ClCompile Include="..\GameMain\gameUtility\UtilityEcsFunctions.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\GameMain\gameAudio\AudioECSSystems.cpp">
+      <Filter>Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\Physics\QuadTree.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -111,6 +117,12 @@
     <ClInclude Include="Physics\GroundCollision.h">
       <Filter>Physics\Test Files</Filter>
     </ClInclude>
+    <ClInclude Include="Sound\SoundTests.h">
+      <Filter>Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\QuadTree.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Physics">
@@ -127,6 +139,9 @@
     </Filter>
     <Filter Include="AI">
       <UniqueIdentifier>{68f9db8b-fa0c-48c8-9771-bc8de85172dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sound">
+      <UniqueIdentifier>{887fb635-0555-4e3e-a53f-8dadf41c35c6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

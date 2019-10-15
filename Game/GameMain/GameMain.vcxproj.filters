@@ -2,8 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Physics\CollisionSystem.cpp" />
-    <ClCompile Include="Physics\MovementSystem.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp">
       <Filter>AI</Filter>
@@ -17,8 +15,19 @@
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="gameSound\SoundECSSystems.cpp" />
-    <ClCompile Include="Input\InitInputSystems.cpp" />
+    <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
+    <ClCompile Include="Physics\MovementSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\CollisionSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Input\InitInputSystems.cpp">
+      <Filter>Init</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\QuadTree.cpp">
+      <Filter>QuadTree</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\AI\AI\includes\GridFunctions.cpp">
       <Filter>AI</Filter>
     </ClCompile>
@@ -29,22 +38,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gameAI\InitArmy.h" />
-    <ClInclude Include="gameAI\InitGrid.h" />
-    <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameUtility\DebugInfo.h" />
-    <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />
-    <ClInclude Include="Physics\CollisionSystem.h" />
-    <ClInclude Include="Physics\MovementSystem.h" />
-    <ClInclude Include="Physics\PhysicsComponents.h" />
-    <ClInclude Include="Physics\PhysicsEvents.h" />
-    <ClInclude Include="Input\InitInput.h" />
-    <ClInclude Include="Input\InitInputBackendComponent.h" />
-    <ClInclude Include="Input\InitInputComponents.h" />
-    <ClInclude Include="Input\InitInputSystems.h" />
     <ClInclude Include="gameAI\AIComponents.h">
       <Filter>AI</Filter>
     </ClInclude>
@@ -90,6 +87,51 @@
     <ClInclude Include="gameUtility\InitCamera.h">
       <Filter>Camera</Filter>
     </ClInclude>
+    <ClInclude Include="Physics\PhysicsEvents.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\PhysicsComponents.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\MovementSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\CollisionSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\InitArmy.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAudio\InitAudio.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAI\InitGrid.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InitInput.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InitInputBackendComponent.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InitInputComponents.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InitInputSystems.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InitInterpreter.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gameRendering\InitMesh.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\InitPhysics.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\QuadTree.h">
+      <Filter>QuadTree</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\AI\AI\includes\GridFunctions.h">
       <Filter>AI</Filter>
     </ClInclude>
@@ -104,10 +146,6 @@
     <Filter Include="Utility">
       <UniqueIdentifier>{fac0e431-ff16-4165-b6f3-ebcc4bbb4013}</UniqueIdentifier>
     </Filter>
-    <ClInclude Include="gameSound\InitSound.h" />
-    <ClInclude Include="gameSound\SoundECSEvents.h" />
-    <ClInclude Include="gameSound\SoundECSSystems.h" />
-    <ClInclude Include="gameSound\SoundGlobals.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h">
       <Filter>SceneObjects</Filter>
     </ClInclude>
@@ -120,6 +158,12 @@
     <ClInclude Include="gameSceneObjects\InitBiomes.h">
       <Filter>Biomes</Filter>
     </ClInclude>
+    <Filter Include="Physics">
+      <UniqueIdentifier>{25313e40-8e6f-4849-a7de-6cc3c94949d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Init">
+      <UniqueIdentifier>{3adc6f81-bab9-4577-aa3a-be10876437ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SceneObjects">
@@ -127,6 +171,13 @@
     </Filter>
     <Filter Include="Biomes">
       <UniqueIdentifier>{f368533f-c702-46d5-8541-7f0346618310}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="gameAudio\AudioECSEvents.h" />
+    <ClInclude Include="gameAudio\AudioECSSystems.h" />
+    <ClInclude Include="gameAudio\AudioGlobals.h" />
+    <ClInclude Include="gameAudio\InitAudio.h" />
+    <Filter Include="QuadTree">
+      <UniqueIdentifier>{c2f1b431-1005-4d56-9006-6038545ef7cd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

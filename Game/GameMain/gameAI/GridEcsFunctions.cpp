@@ -1,6 +1,7 @@
 #include "GridEcsFunctions.h"
 #include "AIGlobals.h"
 #include "GridProp.h"
+
 #include "../gameUtility/UtilityComponents.h"
 #include "../../AI/includes/GridFunctions.h"
 #include <DirectXMath.h>
@@ -34,6 +35,11 @@ namespace GridEcsFunctions
 		//}
 		
 		GridProp* p_gp = GridProp::GetInstance();
+
+		color.red = 0;
+		color.green = 0;
+		color.blue = 0;
+
 		//Calculate the position and create every tile.
 		for (int i = 0; i < Rows; i++)
 		{
@@ -42,7 +48,6 @@ namespace GridEcsFunctions
 			current_pos.z = starting_pos.z + i * mid_to_side * 2;
 			for (int j = 0; j < Columns; j++)
 			{
-				color.color = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 				
 				//Save the calculated values into the PositionComponent.
 				transform.position.x = current_pos.x;
@@ -51,10 +56,11 @@ namespace GridEcsFunctions
 				if (transform.position.y == -1.f)
 				{
 					tile.tileType = WATER;
-					color.color.y = 150.0f;
+					color.blue = 150.0f;
 					tile.impassable = true;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = false;
+					p_gp->mGrid[i][j].biome = -1;
 				}
 				else if (transform.position.y == 3)
 				{
@@ -62,13 +68,15 @@ namespace GridEcsFunctions
 					tile.impassable = false;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = true;
+					p_gp->mGrid[i][j].biome = -1;
 				}
 				else if (transform.position.y == -2)
 				{
 					tile.tileType = WATER;
-					color.color.y = 150.0f;
+					color.blue = 150.0f;
 					tile.impassable = false;
 					p_gp->mGrid[i][j].isPassable = true;
+					p_gp->mGrid[i][j].biome = -1;
 					tile.goal = true;
 				}
 				else
@@ -77,6 +85,7 @@ namespace GridEcsFunctions
 					tile.impassable = false;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = true;
+					p_gp->mGrid[i][j].biome = -1;
 				}
 
 				//Create the new entity
@@ -97,6 +106,102 @@ namespace GridEcsFunctions
 				}
 			}
 		}
+
+
+		// Lopps over each tile in the scene
+		// Needs to be in this order since the tiles need to be initialized as -1
+		for (int i = 0; i < Rows; i++)
+		{
+			for (int j = 0; j < Columns; j++)
+			{
+				// Randoms what biome to take next
+				int random_biome = rand() % 4;
+
+				bool found = false;
+
+				// If-statements to have each biome start from different corners
+				// Should be changed later to have them spread, but rigth now not needed
+				if (random_biome == 0)
+				{
+					// Loop until a empty tile is found
+					for (int it = 0; it < Rows && !found; it++)
+					{
+						for (int jt = 0; jt < Columns && !found; jt++)
+						{
+							if (p_gp->mGrid[it][jt].biome == -1)
+							{
+								// Apply the biome, set later
+								p_gp->mGrid[it][jt].biome = random_biome;
+
+								found = true;
+							}
+						}
+					}
+				}
+				else if (random_biome == 1)
+				{
+					for (int it = 11; it > 0 && !found; it--)
+					{
+						for (int jt = 0; jt < Columns && !found; jt++)
+						{
+							if (p_gp->mGrid[it][jt].biome == -1)
+							{
+								p_gp->mGrid[it][jt].biome = random_biome;
+
+								found = true;
+							}
+						}
+					}
+
+				}
+				else if (random_biome == 2)
+				{
+					for (int it = 0; it < Rows && !found; it++)
+					{
+						for (int jt = 11; jt > 0 && !found; jt--)
+						{
+							if (p_gp->mGrid[it][jt].biome == -1)
+							{
+								p_gp->mGrid[it][jt].biome = random_biome;
+
+								found = true;
+							}
+						}
+					}
+
+				}
+				else if (random_biome == 3)
+				{
+					for (int it = 11; it > 0 && !found; it--)
+					{
+						for (int jt = 11; jt > 0 && !found; jt--)
+						{
+							if (p_gp->mGrid[it][jt].biome == -1)
+							{
+								p_gp->mGrid[it][jt].biome = random_biome;
+
+								found = true;
+							}
+						}
+					}
+
+				}
+			}
+		}
+
+		// loops over and applies each biome to the tilecomponents
+		// Needs to be in this order since the tiles need to be initialized as -1
+		for (int i = 0; i < Rows; i++)
+		{
+			for (int j = 0; j < Columns; j++)
+			{
+				ecs::components::TileComponent* p_tile_comp = rEcs.getComponentFromEntity<ecs::components::TileComponent>(p_gp->mGrid[i][j].Id);
+
+				p_tile_comp->biome = (BIOME)p_gp->mGrid[i][j].biome;
+
+			}
+		}
+
 		CreatePotentialField(rEcs);
 		GridFunctions::StoreNeighbours();
 		LoadNeighboursToComponents(rEcs);

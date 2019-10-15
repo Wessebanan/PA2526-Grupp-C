@@ -15,15 +15,19 @@
 #include "gameSceneObjects/InitBiomes.h"
 #include "gameUtility/UtilityEcsFunctions.h"
 
-#include "gameSound/InitSound.h"
-#include "Physics/MovementSystem.h"
-#include "Physics/CollisionSystem.h"
+#include "gameAudio/InitAudio.h"
 
+#include "Physics/InitPhysics.h"
 
-using namespace ecs;
+#include <time.h>
+
+using namespace ecs;								  
 
 int main()
 {
+
+	srand(time(0));
+
 	EntityComponentSystem ecs;
 
 	// Tiles + sceneobjects + units + camera
@@ -32,12 +36,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
 
 	InitSound(ecs);
-	// TEMPORARY
-	// Just to play something to know it works
-	ecs::events::PlaySound sound_event;
-	sound_event.soundName = SoundName::COIN_TEST_SOUND;
-	sound_event.soundFlags = SoundFlags::NONE;
-	ecs.createEvent(sound_event);
+
 	ecs.createSystem<ecs::systems::PathfindingStateSystem>();
 	ecs.createSystem<ecs::systems::IdleStateSystem>();
 	ecs.createSystem<ecs::systems::MoveStateSystem>();
@@ -51,9 +50,9 @@ int main()
 
 
 	InitGrid(ecs);
-	InitBiomes(ecs);
 	InitArmy(ecs);
 	InitSceneObjects(ecs);
+
 
 	rendering::SUN_DESC sun_desc;
 	sun_desc.Red = 200;
@@ -75,9 +74,9 @@ int main()
 	pMng->Initialize(sun_desc, 1600, 900, "D3D11");
 	InitCamera(ecs);
 
-
+	ModelLoader::Mesh **pp_meshes = InitMesh(ecs, pMng);
 	
-	InitMesh(ecs, pMng);
+	InitPhysics(ecs, pp_meshes);
 
 	graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
 
@@ -160,6 +159,9 @@ int main()
 			ecs.update(0.003f);
 		}
 	}
+	
+	for (int i = 0; i < Mesh::N_MESHES; i++) delete pp_meshes[i];
+	delete[] pp_meshes;
 
 	pMng->Destroy();
 	return 0;

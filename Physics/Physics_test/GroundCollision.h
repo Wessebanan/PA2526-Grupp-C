@@ -221,7 +221,7 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		ecs::EntityIterator it = ecs.getEntititesByFilter(filter);
 
 		const float TILE_HEIGHT = 3.0f;
-		const float SPECIFIC_TILE_INDEX = 33;
+		const int SPECIFIC_TILE_INDEX = 33;
 		
 		// Grabbing one specific tile.
 		ecs::Entity* specific_tile = it.entities.at(SPECIFIC_TILE_INDEX).entity;
@@ -367,7 +367,7 @@ ModelLoader::Mesh dude("../TestModel/dude.fbx");
 		ecs::EntityIterator it = ecs.getEntititesByFilter(filter);
 
 		const float TILE_HEIGHT = 3.0f;
-		const float SPECIFIC_TILE_INDEX = 33;
+		const int SPECIFIC_TILE_INDEX = 33;
 
 		// Grabbing one specific tile.
 		ecs::Entity* specific_tile = it.entities.at(SPECIFIC_TILE_INDEX).entity;
