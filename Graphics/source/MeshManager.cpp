@@ -10,6 +10,8 @@ namespace graphics
 		m_sizeI		= 0;
 		m_capacityI = 0;
 
+		m_pIndexBuffer = NULL;
+
 		ZeroMemory(m_pVertexBuffers, sizeof(m_pVertexBuffers));
 		ZeroMemory(m_pVertexBufferViews, sizeof(m_pVertexBufferViews));
 	}
@@ -23,6 +25,8 @@ namespace graphics
 		const UINT indexCountCapacity)
 	{
 		HRESULT hr;
+
+		if (vertexCountCapacity == 0 || indexCountCapacity == 0) return E_INVALIDARG;
 
 		hr = graphics::internal::InitializeD3D11();
 
@@ -110,34 +114,58 @@ namespace graphics
 	{
 		for (UINT i = 0; i < VERTEX_BUFFER_COUNT; i++)
 		{
-			m_pVertexBuffers[i]->Release();
-			m_pVertexBufferViews[i]->Release();
+			graphics::SafeRelease((IUnknown**)&m_pVertexBuffers[i]);
+			graphics::SafeRelease((IUnknown**)&m_pVertexBufferViews[i]);
 		}
 
 		graphics::SafeRelease((IUnknown**)&m_pIndexBuffer);
+
+		graphics::internal::DestroyD3D11();
 	}
 
-	void MeshManager::UploadData(
+	HRESULT MeshManager::UploadData(
 		const MeshRegion& mesh,
 		const VERTEX_DATA& vertexData,
 		const void* pIndices)
 	{
-		m_UploadVertexData(0, sizeof(float) * 3, vertexData.pVertexPositions, mesh.VertexRegion);
-		m_UploadVertexData(1, sizeof(float) * 3, vertexData.pVertexNormals, mesh.VertexRegion);
-		m_UploadVertexData(2, sizeof(float) * 2, vertexData.pVertexTexCoords, mesh.VertexRegion);
-		m_UploadVertexData(3, sizeof(float) * 3, vertexData.pVertexBlendWeights, mesh.VertexRegion);
-		m_UploadVertexData(4, sizeof(int)   * 4, vertexData.pVertexBlendIndices, mesh.VertexRegion);
+		HRESULT hr = S_OK;
+		if (mesh.VertexRegion.Size == 0) return E_INVALIDARG;
 
-		m_UploadIndexData(pIndices, mesh.IndexRegion);
+		hr = m_UploadVertexData(0, sizeof(float) * 3, vertexData.pVertexPositions, mesh.VertexRegion);
+		if (FAILED(hr)) return hr;
+		
+		hr = m_UploadVertexData(1, sizeof(float) * 3, vertexData.pVertexNormals, mesh.VertexRegion);
+		if (FAILED(hr)) return hr;
+
+		hr = m_UploadVertexData(2, sizeof(float) * 2, vertexData.pVertexTexCoords, mesh.VertexRegion);
+		if (FAILED(hr)) return hr;
+		
+		hr = m_UploadVertexData(3, sizeof(float) * 3, vertexData.pVertexBlendWeights, mesh.VertexRegion);
+		if (FAILED(hr)) return hr;
+		
+		hr = m_UploadVertexData(4, sizeof(int)   * 4, vertexData.pVertexBlendIndices, mesh.VertexRegion);
+		if (FAILED(hr)) return hr;
+
+		if (pIndices)
+		{
+			if (mesh.IndexRegion.Size == 0) return E_INVALIDARG;
+
+			hr = m_UploadIndexData(pIndices, mesh.IndexRegion);
+			return hr;
+		}
+		else
+		{
+			return S_OK;
+		}
 	}
 
-	void MeshManager::m_UploadVertexData(
+	HRESULT MeshManager::m_UploadVertexData(
 		const UINT index, 
 		const UINT stride, 
 		const void* pData,
 		const BufferRegion& rMeshRegion)
 	{
-		if (!pData || rMeshRegion.Size < 1) return;
+		if (!pData) return S_FALSE;
 
 		D3D11_BOX box;
 		box.back	= 1;
@@ -155,13 +183,15 @@ namespace graphics
 			pData,
 			rMeshRegion.Size * stride,
 			0);
+
+		return S_OK;
 	}
 
-	void MeshManager::m_UploadIndexData(
+	HRESULT MeshManager::m_UploadIndexData(
 		const void* pData, 
 		const BufferRegion& rIndexRegion)
 	{
-		if (!pData || rIndexRegion.Size < 1) return;
+		if (!pData) return S_FALSE;
 
 		const UINT stride = sizeof(int);
 
@@ -181,5 +211,7 @@ namespace graphics
 			pData,
 			rIndexRegion.Size * stride,
 			0);
+
+		return S_OK;
 	}
 }

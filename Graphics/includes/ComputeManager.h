@@ -1,12 +1,16 @@
 #pragma once
 
-#include "GraphicsInterface.h"
-#include "Pipeline.h"
+#include "RenderContext.h"
 
 #include <vector>
 
 namespace graphics
-{
+{	
+	class ComputePipeline;
+
+	/*
+		A Shader Program Used For Computing
+	*/
 	struct ComputeProgram
 	{
 		ID3D11ComputeShader* pComputeShader;
@@ -20,10 +24,26 @@ namespace graphics
 
 		HRESULT Initialize();
 
+		/*
+			Create a shader program to be called on ExecutePipeline()
+			: Returns UINT_MAX if failed
+		*/
 		UINT CreateShaderProgram(const char* pCSFilepath);
 
+		/*
+			Create pipeline (Every pipeline has their own structs for description)
+			: Returns UINT_MAX if failed
+		*/
 		UINT CreatePipeline(ComputePipeline* pPipeline, const void* pDescription);
+
+		/*
+			Update pipeline data (Every pipeline has their own structs for data)
+		*/
 		void UpdatePipeline(const UINT pipeline, const void* pPipelineData);
+
+		/*
+			Execute desired pipeline
+		*/
 		void ExecutePipeline(const UINT pipeline, const UINT program);
 
 		void Destroy();

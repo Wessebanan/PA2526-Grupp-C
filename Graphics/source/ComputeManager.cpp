@@ -1,4 +1,5 @@
 #include "../includes/ComputeManager.h"
+#include "../includes/Pipeline.h"
 
 namespace graphics
 {
@@ -18,7 +19,7 @@ namespace graphics
 
 		graphics::internal::D3D11_DEVICE_HANDLE handle;
 		graphics::internal::GetD3D11(&handle);
-		m_pDevice4 = handle.pDevice4;
+		m_pDevice4	= handle.pDevice4;
 		m_pContext4 = handle.pDeviceContext4;
 		m_pFactory6 = handle.pFactory6;
 		m_pAdapter4 = handle.pAdapter4;
@@ -28,9 +29,12 @@ namespace graphics
 
 	UINT ComputeManager::CreateShaderProgram(const char* pCSFilepath)
 	{
+		HRESULT hr;
 		graphics::ComputeProgram program;
 
-		graphics::CreateComputeShaderFromFile(m_pDevice4, pCSFilepath, &program.pComputeShader);
+		hr = graphics::CreateComputeShaderFromFile(m_pDevice4, pCSFilepath, &program.pComputeShader);
+		if (FAILED(hr)) return UINT_MAX;
+		
 		m_programs.push_back(program);
 
 		return (UINT)m_programs.size() - 1;
@@ -38,7 +42,9 @@ namespace graphics
 
 	UINT ComputeManager::CreatePipeline(ComputePipeline* pPipeline, const void* pDescription)
 	{
-		pPipeline->Initialize(m_pDevice4, pDescription);
+		HRESULT hr = pPipeline->Initialize(m_pDevice4, pDescription);
+		if (FAILED(hr)) return UINT_MAX;
+
 		m_pipelines.push_back(pPipeline);
 		return (UINT)m_pipelines.size() - 1;
 	}
@@ -64,5 +70,7 @@ namespace graphics
 		{
 			m_pipelines[i]->Delete();
 		}
+
+		graphics::internal::DestroyD3D11();
 	}
 }

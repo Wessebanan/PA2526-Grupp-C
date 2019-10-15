@@ -41,16 +41,22 @@ namespace graphics
 		const UINT shaderLength,
 		ID3D11VertexShader** ppVertexShader);
 
-	HRESULT CreateVertexShaderFromFile(
-		ID3D11Device4* pDevice4,
-		const char* pFilepath,
-		ID3D11VertexShader** ppVertexShader);
-
 	HRESULT CreatePixelShader(
 		ID3D11Device4* pDevice4,
 		const char* pShaderCode,
 		const UINT shaderLength,
 		ID3D11PixelShader** ppPixelShader);
+
+	HRESULT CreateComputeShader(
+		ID3D11Device4* pDevice4,
+		const char* pShaderCode,
+		const UINT shaderLength,
+		ID3D11ComputeShader** ppComputeShader);
+
+	HRESULT CreateVertexShaderFromFile(
+		ID3D11Device4* pDevice4,
+		const char* pFilepath,
+		ID3D11VertexShader** ppVertexShader);
 
 	HRESULT CreatePixelShaderFromFile(
 		ID3D11Device4* pDevice4,
@@ -122,10 +128,6 @@ namespace graphics
 			ID3D11DeviceContext4* pContext4);
 
 		HRESULT CreateAndSetVertexBuffers(
-			ID3D11Device4* pDevice4,
-			ID3D11DeviceContext4* pContext4);
-
-		HRESULT Initialize(
 			ID3D11Device4* pDevice4,
 			ID3D11DeviceContext4* pContext4);
 	}

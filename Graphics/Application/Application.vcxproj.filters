@@ -20,10 +20,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\shaders\PixelShader.hlsl">
+    <FxCompile Include="..\shaders\PS_Default.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="..\shaders\VertexShader.hlsl">
+    <FxCompile Include="..\shaders\VS_Default.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

@@ -47,15 +47,15 @@ int main()
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	UINT
-		clientWidth		= 1920,
-		clientHeight	= 1080;
+		clientWidth		= 1600,
+		clientHeight	= 900;
 
 	graphics::Window wnd;
 	wnd.Initialize(
 		clientWidth,
 		clientHeight,
 		"Couch Commanders",
-		graphics::WINDOW_STYLE::BORDERLESS);
+		graphics::WINDOW_STYLE::BORDER);
 
 	graphics::RenderManager r_mng;
 	r_mng.Initialize(wnd);
@@ -81,8 +81,8 @@ int main()
 	}
 
 	UINT shaderIndex0 = r_mng.CreateShaderProgram(
-		"VertexShader.cso", 
-		"PixelShader.cso", 
+		"VS_Default.cso", 
+		"PS_Default.cso", 
 		sizeof(float) * 4);
 
 	struct float3

@@ -107,6 +107,8 @@ namespace graphics
 
 			pTemp->QueryInterface(IID_PPV_ARGS(ppSwapChain4));
 			pTemp->Release();
+
+			pFactory6->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER);
 		}
 
 		return hr;
@@ -195,26 +197,6 @@ namespace graphics
 		return hr;
 	}
 
-	HRESULT CreateVertexShaderFromFile(
-		ID3D11Device4* pDevice4, 
-		const char* pFilepath, 
-		ID3D11VertexShader** ppVertexShader)
-	{
-		size_t size = 0;
-		uint8_t* pData = NULL;
-		LoadCompiledShader(pFilepath, &pData, &size);
-
-		HRESULT hr = pDevice4->CreateVertexShader(
-			pData,
-			size,
-			nullptr,
-			ppVertexShader);
-
-		free(pData);
-
-		return hr;
-	}
-
 	HRESULT CreatePixelShader(
 		ID3D11Device4* pDevice4, 
 		const char* pShaderCode, 
@@ -246,16 +228,73 @@ namespace graphics
 		return hr;
 	}
 
+	HRESULT CreateComputeShader(
+		ID3D11Device4* pDevice4, 
+		const char* pShaderCode, 
+		const UINT shaderLength, 
+		ID3D11ComputeShader** ppComputeShader)
+	{
+		int result;
+		HRESULT hr;
+
+		// Compile Shader
+		ID3DBlob* pShader = NULL;
+		result = CompileShader(
+			pShaderCode,
+			shaderLength,
+			"cs_5_0",
+			&pShader);
+
+		if (!result) return FALSE;
+
+		// Create Pixel Shader With Compiled Code
+		hr = pDevice4->CreateComputeShader(
+			pShader->GetBufferPointer(),
+			pShader->GetBufferSize(),
+			NULL,
+			ppComputeShader);
+
+		pShader->Release();
+
+		return hr;
+	}
+
+	HRESULT CreateVertexShaderFromFile(
+		ID3D11Device4* pDevice4,
+		const char* pFilepath,
+		ID3D11VertexShader** ppVertexShader)
+	{
+		HRESULT hr		= S_OK;
+		size_t size		= 0;
+		uint8_t* pData	= NULL;
+
+		hr = LoadCompiledShader(pFilepath, &pData, &size);
+		if (FAILED(hr)) return hr;
+
+		hr = pDevice4->CreateVertexShader(
+			pData,
+			size,
+			nullptr,
+			ppVertexShader);
+
+		free(pData);
+
+		return hr;
+	}
+
 	HRESULT CreatePixelShaderFromFile(
 		ID3D11Device4* pDevice4, 
 		const char* pFilepath, 
 		ID3D11PixelShader** ppPixelShader)
 	{
-		size_t size = 0;
-		uint8_t* pData = NULL;
-		LoadCompiledShader(pFilepath, &pData, &size);
+		HRESULT hr		= S_OK;
+		size_t size		= 0;
+		uint8_t* pData	= NULL;
 
-		HRESULT hr = pDevice4->CreatePixelShader(
+		hr = LoadCompiledShader(pFilepath, &pData, &size);
+		if (FAILED(hr)) return hr;
+
+		hr = pDevice4->CreatePixelShader(
 			pData,
 			size,
 			nullptr,
@@ -271,11 +310,14 @@ namespace graphics
 		const char* pFilepath, 
 		ID3D11ComputeShader** ppComputeShader)
 	{
-		size_t size = 0;
-		uint8_t* pData = NULL;
-		LoadCompiledShader(pFilepath, &pData, &size);
+		HRESULT hr		= S_OK;
+		size_t size		= 0;
+		uint8_t* pData	= NULL;
 
-		HRESULT hr = pDevice4->CreateComputeShader(
+		hr = LoadCompiledShader(pFilepath, &pData, &size);
+		if (FAILED(hr)) return hr;
+
+		hr = pDevice4->CreateComputeShader(
 			pData,
 			size,
 			nullptr,
@@ -295,18 +337,24 @@ namespace graphics
 		IDXGIAdapter4* gpAdapter4				= NULL;
 
 		bool gIsActive							= false;
+		UINT gCountsActivated					= 0;		// if activated more than once (don't destroy at first call)
+
 
 		HRESULT InitializeD3D11()
 		{
-			if (gIsActive) return S_OK;
+			if (gIsActive)
+			{
+				gCountsActivated++;
+				return S_OK;
+			}
 
-			HRESULT hr = S_OK;
-			UINT device_flag = 0;
-			UINT factory_flag = 0;
+			HRESULT hr			= S_OK;
+			UINT device_flag	= 0;
+			UINT factory_flag	= 0;
 
 #ifdef _DEBUG
-			device_flag |= D3D11_CREATE_DEVICE_DEBUG;
-			factory_flag |= DXGI_CREATE_FACTORY_DEBUG;
+			device_flag		|= D3D11_CREATE_DEVICE_DEBUG;
+			factory_flag	|= DXGI_CREATE_FACTORY_DEBUG;
 #endif // _DEBUG
 
 			hr = CreateDXGIFactory2(
@@ -368,11 +416,18 @@ namespace graphics
 		{
 			if (gIsActive)
 			{
-				gIsActive = false;
-				SafeRelease((IUnknown * *)& gpDevice4);
-				SafeRelease((IUnknown * *)& gpDeviceContext4);
-				SafeRelease((IUnknown * *)& gpFactory6);
-				SafeRelease((IUnknown * *)& gpAdapter4);
+				if (gCountsActivated > 0)
+				{
+					gCountsActivated--;
+				}
+				else
+				{
+					gIsActive = false;
+					SafeRelease((IUnknown**)&gpDevice4);
+					SafeRelease((IUnknown**)&gpDeviceContext4);
+					SafeRelease((IUnknown**)&gpFactory6);
+					SafeRelease((IUnknown**)&gpAdapter4);
+				}
 			}
 		}
 

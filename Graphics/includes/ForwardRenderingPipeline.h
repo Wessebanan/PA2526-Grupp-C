@@ -22,7 +22,7 @@ namespace graphics
 		ForwardRenderingPipeline();
 		virtual ~ForwardRenderingPipeline() override;
 
-		virtual void Initialize(ID3D11Device4* pDevice4, const void* pDescription) override;
+		virtual HRESULT Initialize(ID3D11Device4* pDevice4, const void* pDescription) override;
 		virtual void Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData) override;
 		virtual void Begin(ID3D11DeviceContext4* pContext4) override;
 

@@ -10,7 +10,7 @@ namespace graphics
 	public:
 		virtual ~Pipeline() {}
 
-		virtual void Initialize(ID3D11Device4* pDevice4, const void* pDescription) = 0;
+		virtual HRESULT Initialize(ID3D11Device4* pDevice4, const void* pDescription) = 0;
 		virtual void Update(ID3D11DeviceContext4* pContext4, const void* pData) = 0;
 		
 		void Delete() { this->Destroy(); delete this; }

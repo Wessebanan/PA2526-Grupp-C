@@ -25,29 +25,39 @@ namespace graphics
 		MeshManager();
 		~MeshManager();
 
+		/*
+			Initialize with maximum vertex count capacity and index count capacity
+		*/
 		HRESULT Initialize(
 			const UINT vertexCountCapacity,
 			const UINT indexCountCapacity);
 
+		/*
+			Create a mesh region to store meshes
+			: Returns 0 in size if failed
+		*/
 		MeshRegion CreateMeshRegion(const UINT vertexCount, const UINT indexCount);
 
-		void Destroy();
-
-		void UploadData(
+		/*
+			Upload mesh data to a region
+		*/
+		HRESULT UploadData(
 			const MeshRegion& mesh,
 			const VERTEX_DATA& vertexData,
 			const void* pIndices);
 
+		void Destroy();
+
 	private:
 		void EnableVertexBuffers();
 
-		void m_UploadVertexData(
+		HRESULT m_UploadVertexData(
 			const UINT index, 
 			const UINT stride, 
 			const void* pData, 
 			const BufferRegion& rMeshRegion);
 
-		void m_UploadIndexData(
+		HRESULT m_UploadIndexData(
 			const void* pData,
 			const BufferRegion& rIndexRegion);
 

@@ -37,14 +37,14 @@ namespace graphics
 	{
 	}
 
-	void ForwardRenderingPipeline::Initialize(
+	HRESULT ForwardRenderingPipeline::Initialize(
 		ID3D11Device4* pDevice4,
 		const void* pDescription)
 	{
 		FORWARD_RENDERING_PIPELINE_DESC* pDesc = (FORWARD_RENDERING_PIPELINE_DESC*)pDescription;
 
-		m_clientWidth = pDesc->ClientWidth;
-		m_clientHeight = pDesc->ClientHeight;
+		m_clientWidth	= pDesc->ClientWidth;
+		m_clientHeight	= pDesc->ClientHeight;
 
 		{
 			D3D11_TEXTURE2D_DESC texture_desc = { 0 };
@@ -120,6 +120,8 @@ namespace graphics
 
 			pDevice4->CreateBuffer(&desc, NULL, &m_pMatrixBuffers[0]);
 		}
+
+		return S_OK;
 	}
 
 	void ForwardRenderingPipeline::Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData)

@@ -82,7 +82,9 @@ namespace graphics
 
 	UINT RenderManager::CreatePipeline(GraphicsPipeline* pPipeline, const void* pDescription)
 	{
-		pPipeline->Initialize(m_pDevice4, pDescription);
+		HRESULT hr = pPipeline->Initialize(m_pDevice4, pDescription);
+		if (FAILED(hr)) return UINT_MAX;
+
 		m_pipelines.push_back(pPipeline);
 		return m_pipelines.size() - 1;
 	}
@@ -92,10 +94,15 @@ namespace graphics
 		const char* pPSFilepath,
 		const UINT perObjectByteWidth)
 	{
-		graphics::ShaderProgram program;
+		HRESULT hr;
+		graphics::RenderProgram program;
 
-		graphics::CreateVertexShaderFromFile(m_pDevice4, pVSFilepath, &program.pVertexShader);
+		hr = graphics::CreateVertexShaderFromFile(m_pDevice4, pVSFilepath, &program.pVertexShader);
+		if (FAILED(hr)) return UINT_MAX;
+		
 		graphics::CreatePixelShaderFromFile(m_pDevice4, pPSFilepath, &program.pPixelShader);
+		if (FAILED(hr)) return UINT_MAX;
+		
 		program.PerObjectByteWidth = perObjectByteWidth;
 
 		m_shaderPrograms.push_back(program);
