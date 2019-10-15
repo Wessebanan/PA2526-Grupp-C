@@ -368,22 +368,24 @@ TEST(SoundAPI, MusicThroughMessaging)
 	
 	std::cout << "Add music..." << std::endl;
 	mixer.AddMusicMessage({
-		new Audio::Plugin::Sampler(bank[0],0),
-		Audio::Music::M_NONE
+		bank[0],
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_DATA_AS_PARAMETER
 		});
 	Pa_Sleep(1000);
 
-	std::cout << "Attempt to add music without the replace flag..." << std::endl;
-	mixer.AddMusicMessage({
-		new Audio::Plugin::Sampler(bank[0],0),
-		Audio::Music::M_NONE
-		});
-	Pa_Sleep(1000);
+	//std::cout << "Attempt to add music without the replace flag..." << std::endl;
+	//mixer.AddMusicMessage({
+	//	new Audio::Plugin::Sampler(bank[0],0),
+	//	Audio::Music::M_NONE
+	//	});
+	//Pa_Sleep(1000);
 
 	std::cout << "Attempt to add music WITH the replace flag..." << std::endl;
 	mixer.AddMusicMessage({
-		new Audio::Plugin::Sampler(bank[0],0),
-		Audio::Music::M_REPLACE
+		bank[0],
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_DATA_AS_PARAMETER
 		});
 	Pa_Sleep(1000);
 
@@ -416,8 +418,9 @@ TEST(SoundAPI, MusicAndSoundMessaging)
 	for (int i = 0; i < 3; i++)
 	{
 		mixer.AddMusicMessage({
-			new Audio::Plugin::Sampler(bank[0],0),
-			Audio::Music::M_NONE
+			bank[0],
+			Audio::Music::M_FUNC_REPLACE_MUSIC |
+			Audio::Music::M_DATA_AS_PARAMETER
 			});
 		for (int j = 0; j < 20; j++)
 		{
