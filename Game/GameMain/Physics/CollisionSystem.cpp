@@ -1,4 +1,5 @@
 #include "CollisionSystem.h"
+#include "QuadTree.h"
 
 #pragma region ObjectCollisionSystem
 ecs::systems::ObjectCollisionSystem::ObjectCollisionSystem()
@@ -354,5 +355,28 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 	* For each bone, grab vertex cluster and create spheres from clusters.
 	*/
 
+}
+#pragma endregion
+
+#pragma region FillQuadTreeSystemRegion
+ecs::systems::FillQuadTreeSystem::FillQuadTreeSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(components::TransformComponent::typeID);
+	typeFilter.addRequirement(components::ObjectCollisionComponent::typeID);
+}
+
+ecs::systems::FillQuadTreeSystem::~FillQuadTreeSystem()
+{
+
+}
+
+void ecs::systems::FillQuadTreeSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::QuadTreeComponent::typeID);
+	ecs::components::QuadTreeComponent* p_tree = static_cast<ecs::components::QuadTreeComponent*>(it.next());
+	ecs::components::TransformComponent* p_transform = entity.getComponent<ecs::components::TransformComponent>();
+	ecs::components::ObjectCollisionComponent* p_collision = entity.getComponent<ecs::components::ObjectCollisionComponent>();
+	static_cast<QuadTree*>(p_tree->pTree)->Insert(QuadTreeObject(p_transform, p_collision));
 }
 #pragma endregion
