@@ -20,9 +20,8 @@ TEST(QuadTreeTests, AddObjectsToTree)
 	ecs::components::TransformComponent transform_comp;
 	transform_comp.position = DirectX::XMFLOAT3(24.0f, 10.0f, 18.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp;
-	obj_col_comp.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	QuadTreeObject obj(&transform_comp, &obj_col_comp);
 	for (int i = 0; i < 10; i++)
 	{
@@ -32,9 +31,8 @@ TEST(QuadTreeTests, AddObjectsToTree)
 	ecs::components::TransformComponent transform_comp2;
 	transform_comp2.position = DirectX::XMFLOAT3(70.0f, 10.0f, 18.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp2;
-	obj_col_comp2.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp2.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp2.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp2.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp2.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp2;
 	obj.pTransform = &transform_comp2;
 	for (int i = 0; i < 10; i++)
@@ -45,9 +43,8 @@ TEST(QuadTreeTests, AddObjectsToTree)
 	ecs::components::TransformComponent transform_comp3;
 	transform_comp3.position = DirectX::XMFLOAT3(24.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp3;
-	obj_col_comp3.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp3.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp3.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp3.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp3.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp3;
 	obj.pTransform = &transform_comp3;
 	for (int i = 0; i < 10; i++)
@@ -58,9 +55,8 @@ TEST(QuadTreeTests, AddObjectsToTree)
 	ecs::components::TransformComponent transform_comp4;
 	transform_comp4.position = DirectX::XMFLOAT3(52.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp4;
-	obj_col_comp4.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp4.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp4.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp4.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp4.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp4;
 	obj.pTransform = &transform_comp4;
 	for (int i = 0; i < 10; i++)
@@ -71,9 +67,8 @@ TEST(QuadTreeTests, AddObjectsToTree)
 	ecs::components::TransformComponent transform_comp5;
 	transform_comp5.position = DirectX::XMFLOAT3(88.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp5;
-	obj_col_comp5.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp5.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp5.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp5.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp5.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp5;
 	obj.pTransform = &transform_comp5;
 	tree.Insert(obj);
@@ -104,9 +99,8 @@ TEST(QuadTreeTests, ClearTree)
 	ecs::components::TransformComponent transform_comp;
 	transform_comp.position = DirectX::XMFLOAT3(24.0f, 10.0f, 18.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp;
-	obj_col_comp.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	QuadTreeObject obj(&transform_comp, &obj_col_comp);
 	for (int i = 0; i < 10; i++)
 	{
@@ -116,9 +110,8 @@ TEST(QuadTreeTests, ClearTree)
 	ecs::components::TransformComponent transform_comp2;
 	transform_comp2.position = DirectX::XMFLOAT3(70.0f, 10.0f, 18.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp2;
-	obj_col_comp2.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp2.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp2.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp2.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp2.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp2;
 	obj.pTransform = &transform_comp2;
 	for (int i = 0; i < 10; i++)
@@ -129,9 +122,8 @@ TEST(QuadTreeTests, ClearTree)
 	ecs::components::TransformComponent transform_comp3;
 	transform_comp3.position = DirectX::XMFLOAT3(24.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp3;
-	obj_col_comp3.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp3.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp3.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp3.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp3.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp3;
 	obj.pTransform = &transform_comp3;
 	for (int i = 0; i < 10; i++)
@@ -142,9 +134,8 @@ TEST(QuadTreeTests, ClearTree)
 	ecs::components::TransformComponent transform_comp4;
 	transform_comp4.position = DirectX::XMFLOAT3(52.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp4;
-	obj_col_comp4.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp4.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp4.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp4.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp4.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp4;
 	obj.pTransform = &transform_comp4;
 	for (int i = 0; i < 10; i++)
@@ -155,9 +146,8 @@ TEST(QuadTreeTests, ClearTree)
 	ecs::components::TransformComponent transform_comp5;
 	transform_comp5.position = DirectX::XMFLOAT3(88.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp5;
-	obj_col_comp5.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp5.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp5.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp5.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp5.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp5;
 	obj.pTransform = &transform_comp5;
 	tree.Insert(obj);
@@ -194,9 +184,8 @@ TEST(QuadTreeTests, GeTCollisionList)
 	ecs::components::TransformComponent transform_comp;
 	transform_comp.position = DirectX::XMFLOAT3(24.0f, 10.0f, 18.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp;
-	obj_col_comp.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	QuadTreeObject obj(&transform_comp, &obj_col_comp);
 	for (int i = 0; i < 10; i++)
 	{
@@ -206,9 +195,8 @@ TEST(QuadTreeTests, GeTCollisionList)
 	ecs::components::TransformComponent transform_comp2;
 	transform_comp2.position = DirectX::XMFLOAT3(70.0f, 10.0f, 18.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp2;
-	obj_col_comp2.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp2.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp2.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp2.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp2.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp2;
 	obj.pTransform = &transform_comp2;
 	for (int i = 0; i < 10; i++)
@@ -219,9 +207,8 @@ TEST(QuadTreeTests, GeTCollisionList)
 	ecs::components::TransformComponent transform_comp3;
 	transform_comp3.position = DirectX::XMFLOAT3(24.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp3;
-	obj_col_comp3.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp3.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp3.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp3.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp3.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp3;
 	obj.pTransform = &transform_comp3;
 	for (int i = 0; i < 10; i++)
@@ -232,9 +219,8 @@ TEST(QuadTreeTests, GeTCollisionList)
 	ecs::components::TransformComponent transform_comp4;
 	transform_comp4.position = DirectX::XMFLOAT3(52.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp4;
-	obj_col_comp4.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp4.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp4.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp4.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp4.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp4;
 	obj.pTransform = &transform_comp4;
 	for (int i = 0; i < 10; i++)
@@ -245,9 +231,8 @@ TEST(QuadTreeTests, GeTCollisionList)
 	ecs::components::TransformComponent transform_comp5;
 	transform_comp5.position = DirectX::XMFLOAT3(88.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp5;
-	obj_col_comp5.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp5.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp5.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp5.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp5.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	obj.pBoundingBox = &obj_col_comp5;
 	obj.pTransform = &transform_comp5;
 	tree.Insert(obj);
@@ -284,9 +269,8 @@ TEST(QuadTreeTests, FillQuadTreeSystem)
 	ecs::components::TransformComponent transform_comp;
 	transform_comp.position = DirectX::XMFLOAT3(24.0f, 10.0f, 18.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp;
-	obj_col_comp.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	for (int i = 0; i < 10; i++)
 	{
 		my_ecs.createEntity(transform_comp, obj_col_comp);
@@ -295,9 +279,8 @@ TEST(QuadTreeTests, FillQuadTreeSystem)
 	ecs::components::TransformComponent transform_comp2;
 	transform_comp2.position = DirectX::XMFLOAT3(70.0f, 10.0f, 18.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp2;
-	obj_col_comp2.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp2.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp2.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp2.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp2.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	for (int i = 0; i < 10; i++)
 	{
 		my_ecs.createEntity(transform_comp2, obj_col_comp2);
@@ -306,9 +289,8 @@ TEST(QuadTreeTests, FillQuadTreeSystem)
 	ecs::components::TransformComponent transform_comp3;
 	transform_comp3.position = DirectX::XMFLOAT3(24.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp3;
-	obj_col_comp3.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp3.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp3.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp3.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp3.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	for (int i = 0; i < 10; i++)
 	{
 		my_ecs.createEntity(transform_comp3, obj_col_comp3);
@@ -317,9 +299,8 @@ TEST(QuadTreeTests, FillQuadTreeSystem)
 	ecs::components::TransformComponent transform_comp4;
 	transform_comp4.position = DirectX::XMFLOAT3(52.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp4;
-	obj_col_comp4.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp4.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp4.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp4.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp4.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	for (int i = 0; i < 10; i++)
 	{
 		my_ecs.createEntity(transform_comp4, obj_col_comp4);
@@ -328,9 +309,8 @@ TEST(QuadTreeTests, FillQuadTreeSystem)
 	ecs::components::TransformComponent transform_comp5;
 	transform_comp5.position = DirectX::XMFLOAT3(88.0f, 10.0f, 50.0f);
 	ecs::components::ObjectCollisionComponent obj_col_comp5;
-	obj_col_comp5.mCenter = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	obj_col_comp5.mMax = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	obj_col_comp5.mMin = DirectX::XMFLOAT3(-1.0f, -1.0f, -1.0f);
+	obj_col_comp5.mAABB.Center = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	obj_col_comp5.mAABB.Extents = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	my_ecs.createEntity(transform_comp5, obj_col_comp5);
 
 	my_ecs.update(0.1f);
