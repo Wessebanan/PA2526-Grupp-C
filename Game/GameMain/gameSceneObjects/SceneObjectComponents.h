@@ -6,6 +6,12 @@ namespace ecs
 {
 	namespace components
 	{
+		struct OceanTileComponent : public ecs::ECSComponent<OceanTileComponent>
+		{
+			float offset;
+			OceanTileComponent() : offset(0) {}
+		};
+
 		struct SceneObjectComponent : public ECSComponent<SceneObjectComponent>
 		{
 		public:

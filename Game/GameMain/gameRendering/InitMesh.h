@@ -4,6 +4,7 @@
 #include "Mesh.h"
 #include "ecs.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
+#include "../gameSceneObjects/OceanSettings.h"
 
 
 void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
@@ -64,8 +65,9 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 	MODEL_LAYOUT_DESC m_desc[14];
 	// first 2 are tile and dude, then 12 sceneobjects
 
+	const unsigned int TILE_COUNT = 12 * 12;
 
-	m_desc[0].InstanceCount = 12 * 12;
+	m_desc[0].InstanceCount = TILE_COUNT + OCEAN_TILE_COUNT;
 	m_desc[0].MeshIndex = mesh_tile;
 
 	ecs::ComponentIterator itt2;

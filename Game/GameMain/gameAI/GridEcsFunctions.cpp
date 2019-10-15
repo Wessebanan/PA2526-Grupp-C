@@ -44,10 +44,10 @@ namespace GridEcsFunctions
 		for (int i = 0; i < Rows; i++)
 		{
 			//Reset x-pos for every new row and set the starting z-pos for the new row.
-			current_pos.x = starting_pos.x;
 			current_pos.z = starting_pos.z + i * mid_to_side * 2;
 			for (int j = 0; j < Columns; j++)
 			{
+				current_pos.x = starting_pos.x + j * 1.5f * Radius;
 				
 				//Save the calculated values into the PositionComponent.
 				transform.position.x = current_pos.x;
@@ -93,7 +93,7 @@ namespace GridEcsFunctions
 				p_gp->mGrid[i][j].Id = current_tile->getID();
 				p_gp->mGrid[i][j].height = transform.position.y;
 				//Update the x-position of the next tile in this row.
-				current_pos.x += 1.5f * Radius;
+				//current_pos.x += 1.5f * Radius;
 				//Update the z-position of the next tile depending on if it is in a 
 				//odd or even column.
 				if (j % 2 == 0)

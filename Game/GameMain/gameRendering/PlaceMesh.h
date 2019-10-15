@@ -23,9 +23,6 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* mng)
 
 	//InitGravityOnUnits(ecs, dude);
 
-
-
-
 	itt = rECS.getAllComponentsOfType(ecs::components::TileComponent::typeID);
 	ecs::components::TileComponent* tileComp;
 	while (tileComp = (ecs::components::TileComponent*)itt.next())
@@ -57,6 +54,37 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* mng)
 
 		index++;
 	}
+
+	/*
+		Place all ocean tiles
+	*/
+
+	// Fetch all entities that we now are ocean tiles, by filtering with OceanTileComponent
+	ecs::TypeFilter ocean_filter;
+	ocean_filter.addRequirement(ecs::components::OceanTileComponent::typeID);
+	ocean_filter.addRequirement(ecs::components::ColorComponent::typeID);
+	ocean_filter.addRequirement(ecs::components::TransformComponent::typeID);
+	ecs::EntityIterator entity_it = rECS.getEntititesByFilter(ocean_filter);
+
+	// Iterate all entities we got and place their meshes
+	for (ecs::FilteredEntity fe : entity_it.entities)
+	{
+		// Fetch necessary components from current entity
+		ecs::components::TransformComponent* p_transform = fe.getComponent<ecs::components::TransformComponent>();
+		ecs::components::ColorComponent* p_color = fe.getComponent<ecs::components::ColorComponent>();
+
+		// Set its position
+		pTilePosition[index].x = p_transform->position.x;
+		pTilePosition[index].y = p_transform->position.y;
+		pTilePosition[index].z = p_transform->position.z;
+
+		// Set its color
+		pTilePosition[index].color = PACK(p_color->red, p_color->green, p_color->blue, 0);
+
+		// Iterate index
+		index++;
+	}
+
 
 	itt = rECS.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
 	ecs::components::SceneObjectComponent* scene_comp;
