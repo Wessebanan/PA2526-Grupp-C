@@ -13,9 +13,11 @@
 
 #include "gameSceneObjects/InitSceneObjectsh.h"
 #include "gameSceneObjects/InitBiomes.h"
+#include "gameUtility/UtilityEcsFunctions.h"
 
 #include "gameSound/InitSound.h"
 #include "Physics/MovementSystem.h"
+#include "Physics/CollisionSystem.h"
 
 
 using namespace ecs;
@@ -41,6 +43,7 @@ int main()
 	ecs.createSystem<ecs::systems::MoveStateSystem>();
 	ecs.createSystem<ecs::systems::SwitchStateSystem>();
 	ecs.createSystem<ecs::systems::DynamicMovementSystem>();
+	ecs.createSystem<ecs::systems::GroundCollisionSystem>();
 
 	InitInput(ecs);
 	InitInterpreter(ecs);
@@ -90,15 +93,41 @@ int main()
 	ecs::components::DynamicMovementComponent dyn_move;
 	ecs::TypeFilter dr_philter;
 	dr_philter.addRequirement(ecs::components::UnitComponent::typeID);
-	ecs::EntityIterator itttter = ecs.getEntititesByFilter(dr_philter);
+	ecs::EntityIterator ittt = ecs.getEntititesByFilter(dr_philter);
 	ecs::events::ChangeUserStateEvent cool_bean;
-	for (FilteredEntity p_entity : itttter.entities)
+	ecs::events::ChangeUserStateEvent cool_bean2;
+	ecs::events::ChangeUserStateEvent cool_bean3;
+	ecs::events::ChangeUserStateEvent cool_bean4;
+	for (FilteredEntity p_entity : ittt.entities)
 	{
+		dyn_move.mGravity = 0;
 		ecs.createComponent<components::DynamicMovementComponent>(p_entity.entity->getID(), dyn_move);
+		
 	}
+
 	cool_bean.newState = STATE::MOVE;
 	cool_bean.playerId = PLAYER::PLAYER1;
 	ecs.createEvent(cool_bean);
+
+	cool_bean2.newState = STATE::MOVE;
+	cool_bean2.playerId = PLAYER::PLAYER2;
+	ecs.createEvent(cool_bean2);
+
+	cool_bean3.newState = STATE::MOVE;
+	cool_bean3.playerId = PLAYER::PLAYER3;
+	ecs.createEvent(cool_bean3);
+
+	cool_bean4.newState = STATE::MOVE;
+	cool_bean4.playerId = PLAYER::PLAYER4;
+	ecs.createEvent(cool_bean4);
+
+	ecs::ComponentIterator itttt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
+	ecs::components::ArmyComponent* army_comp;
+	BaseComponent* p_base_comp;
+	components::TransformComponent* army_transform;
+	XMMATRIX some_world_matrix_from_army_trans_comp;
+	//p_base_comp = itttt.next();
+	
 	pMng->SetViewMatrix(p_cam_comp->viewMatrix);
 	pWnd->Show();
 	ecs.update(0.1f);
@@ -107,14 +136,28 @@ int main()
 		if (!pWnd->Update())
 		{
 			pMng->Clear(0.2f, 0.1f, 0.1f);
-			
+
 
 			pMng->SetViewMatrix(p_cam_comp->viewMatrix);
+			int int_itt = 0;
+			ecs::ComponentIterator itttt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
+			while (p_base_comp = itttt.next())
+			{
+				army_comp = static_cast<ecs::components::ArmyComponent*>(p_base_comp);
+				for (int i = 0; i < army_comp->unitIDs.size(); i++)
+				{
+					army_transform = ecs.getComponentFromEntity<components::TransformComponent>(army_comp->unitIDs.at(i));
+					some_world_matrix_from_army_trans_comp = UtilityEcsFunctions::GetWorldMatrix(*army_transform);
+					DirectX::XMFLOAT4X4* pMatrices = (DirectX::XMFLOAT4X4*)pMng->GetTechniqueModelBuffer(rendering::RENDER_TRANSFORMATION);
+					DirectX::XMStoreFloat4x4(&pMatrices[int_itt++], some_world_matrix_from_army_trans_comp);
+				}
+			}
+			
 			
 			pMng->Draw();
 			pWnd->Present();
 
-			ecs.update(0.1f);
+			ecs.update(0.003f);
 		}
 	}
 

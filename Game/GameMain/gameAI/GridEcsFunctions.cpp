@@ -166,11 +166,12 @@ namespace GridEcsFunctions
 		unsigned int next_tile_id = 0;
 		unsigned int current_tile_id = startID;
 		unsigned int last_tile_id = 0;
-		float niceTry;
+		float niceTry = 999.f;
+		float lastNice = 500.f;
 		current_tile = rEcs.getComponentFromEntity<components::TileComponent>(startID);
-		while (current_tile_id != endID)
+		while (/*current_tile_id != endID*/lastNice != niceTry)
 		{
-			niceTry = 999.f;
+			lastNice = niceTry;
 			for (int i = 0; i < 6; i++)
 			{	//check if neighbour is not 0 or was the last visited tile
 				if(current_tile->neighboursIDArray[i] != 0 && current_tile->neighboursIDArray[i] != last_tile_id)
@@ -182,7 +183,7 @@ namespace GridEcsFunctions
 					}
 				}
 			}
-			if (next_tile_id != 0)
+			if (lastNice != niceTry)
 			{
 				current_tile = rEcs.getComponentFromEntity<components::TileComponent>(next_tile_id);
 				to_return.push_back(next_tile_id);

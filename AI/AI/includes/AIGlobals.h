@@ -2,7 +2,7 @@
 
 #define ARENA_ROWS 12
 #define ARENA_COLUMNS 12
-#define TILE_RADIUS 4
+#define TILE_RADIUS 1
 
 using TileType = unsigned int;
 enum TileTypes //enum used in AIcomponents right now 

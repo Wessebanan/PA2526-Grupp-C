@@ -68,7 +68,7 @@ namespace ecs
 				move_comp.path = path;
 				
 				ecs::ECSUser::createComponent(entity.entity->getID(), move_comp);
-				ecs::ECSUser::removeComponent(entity.entity->getID(), entity.getComponent<components::PathfindingStateComponent>()->getID());
+				ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::PathfindingStateComponent::typeID);
 			}
 			std::vector<unsigned int> GetPath(unsigned int startID)
 			{
@@ -88,7 +88,6 @@ namespace ecs
 					{	//check if neighbour is not 0 or was the last visited tile
 						if (current_tile->neighboursIDArray[i] != 0 && current_tile->neighboursIDArray[i] != last_tile_id)
 						{	//check for the lowest niceness then that is the next tile
-
 							if (ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness < niceTry)
 							{
 								niceTry = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness;
@@ -151,14 +150,14 @@ namespace ecs
 				ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
 				ecs::components::DynamicMovementComponent* dyn_move = entity.getComponent<ecs::components::DynamicMovementComponent>();
 				ecs::components::MoveStateComponent* move_comp = entity.getComponent<ecs::components::MoveStateComponent>();
-				ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());				
-				if(move_comp->path.size() != 0)
+				if(move_comp->path.size() > 0)
 				{
-					if (goal->position.x == transform->position.x && goal->position.z == transform->position.z)
+					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());				
+					if (abs(goal->position.x - transform->position.x) < 0.003f && abs(goal->position.z - transform->position.z) < 0.003f)
 					{
 						move_comp->path.erase(move_comp->path.begin());
 					}
-					if (move_comp->path.size() != 0)
+					if (move_comp->path.size() > 0)
 					{
 						goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
 						this->x = goal->position.x - transform->position.x;
@@ -166,7 +165,6 @@ namespace ecs
 						this->length = sqrt(x * x + z * z);
 						this->x = this->x / this->length;
 						this->z = this->z / this->length;
-						std::cout << transform->position.x << " " << transform->position.z << "\n";
 						dyn_move->mForward.x = this->x;
 						dyn_move->mForward.z = this->z;
 
