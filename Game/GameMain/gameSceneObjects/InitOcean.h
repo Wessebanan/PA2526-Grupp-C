@@ -21,19 +21,35 @@ void InitOcean(EntityComponentSystem& rEcs)
 	/*
 		Fetch all existing tiles we want to create ocean around
 	*/
-	//TypeFilter tile_filter;
-	//tile_filter.addRequirement(components::TransformComponent::typeID);
-	//tile_filter.addRequirement(components::TileComponent::typeID);
-	//EntityIterator tile_entity_iterator = rEcs.getEntititesByFilter(tile_filter);
-	//
-	//cout << "\n\n\n\n\n" << endl;
-	//for (FilteredEntity fe : tile_entity_iterator.entities)
-	//{
-	//	TransformComponent* p_transform = fe.getComponent<TransformComponent>();
-	//	cout << "Tile position - x:" << p_transform->position.x << "\t" <<
-	//		"y:" << p_transform->position.y << "\t" <<
-	//		"z:" << p_transform->position.z << endl;
-	//}
+	TypeFilter tile_filter;
+	tile_filter.addRequirement(components::TransformComponent::typeID);
+	tile_filter.addRequirement(components::TileComponent::typeID);
+	EntityIterator tile_entity_iterator = rEcs.getEntititesByFilter(tile_filter);
+	
+	XMVECTOR xm_map_center = XMVectorZero();
+	for (FilteredEntity fe : tile_entity_iterator.entities)
+	{
+		TransformComponent* p_transform = fe.getComponent<TransformComponent>();
+		xm_map_center = XMVectorAdd(xm_map_center, XMLoadFloat3(&p_transform->position));
+	}
+	xm_map_center = XMVectorScale(xm_map_center, (float)1.f / ((float)tile_entity_iterator.entities.size()));
+
+	// Get exact position of the center tile, in order to calculate a start position offset for the ocean
+	XMFLOAT3 ocean_center = { 10000.f, 10000.f ,10000.f };
+	XMVECTOR xm_ocean_center = XMLoadFloat3(&ocean_center);
+	float closest_distance_to_center = XMVectorGetX(XMVector3Length(xm_ocean_center - xm_map_center));
+	for (FilteredEntity fe : tile_entity_iterator.entities)
+	{
+		TransformComponent* p_transform = fe.getComponent<TransformComponent>();
+		XMVECTOR xm_current_position = XMLoadFloat3(&p_transform->position);
+		float distance = XMVectorGetX(XMVector3Length(xm_current_position - xm_map_center));
+		if (distance < closest_distance_to_center)
+		{
+			xm_ocean_center = xm_current_position;
+			closest_distance_to_center = distance;
+		}
+	}
+	XMStoreFloat3(&ocean_center, xm_ocean_center);
 
 	//getchar();
 
@@ -50,15 +66,13 @@ void InitOcean(EntityComponentSystem& rEcs)
 	const int OCEAN_ROWS = (int)ceilf((float)OCEAN_RADIUS / (MID_TO_SIDE * 0.75f));
 	const int OCEAN_COLUMNS = OCEAN_ROWS;
 
-	//XMFLOAT3 starting_pos = { 0.0f, 0.0f, 0.0f };
-	const XMFLOAT3 OCEAN_CENTER = { (OCEAN_ALIGN_TO_MAP_ROWS / 2) * (1.5f), -1.f, (OCEAN_ALIGN_TO_MAP_ROWS / 2) * MID_TO_SIDE * 2 + (((OCEAN_ALIGN_TO_MAP_COLUMNS / 2) % 2) ? MID_TO_SIDE : 0) };
+	//XMStoreFloat3(&ocean_center, xm_map_center);
 	XMFLOAT3 starting_pos =
 	{
-		OCEAN_CENTER.x - (OCEAN_ROWS /2) * (1.5f),
+		ocean_center.x - (OCEAN_ROWS /2) * (1.5f),
 		OCEAN_START_HEIGHT,
-		OCEAN_CENTER.z - (OCEAN_ROWS /2) * MID_TO_SIDE * 2 + (((OCEAN_COLUMNS / 2) % 2) ? MID_TO_SIDE : 0)
+		ocean_center.z - (OCEAN_ROWS /2) * MID_TO_SIDE * 2 + (((OCEAN_COLUMNS / 2) % 2) ? MID_TO_SIDE : 0)
 	};
-	XMFLOAT3 current_pos = { 0.0f, 0.0f, 0.0f };
 
 	OceanTileComponent ocean_tile;
 	TransformComponent transform;
@@ -66,10 +80,7 @@ void InitOcean(EntityComponentSystem& rEcs)
 	color.red = 0;
 	color.green = 0;
 
-	current_pos = starting_pos;
 	transform.position = starting_pos;
-
-	XMVECTOR xm_center = XMLoadFloat3(&OCEAN_CENTER);
 
 	//Calculate each tile position and create them
 	for (int i = 0; i < OCEAN_ROWS; i++)
@@ -78,23 +89,27 @@ void InitOcean(EntityComponentSystem& rEcs)
 		{
 			// Set position of tile
 			transform.position.x = starting_pos.x + j * 1.5f;
+			transform.position.y = OCEAN_START_HEIGHT;
 			transform.position.z = starting_pos.z + i * MID_TO_SIDE * 2 + ((j % 2) ? MID_TO_SIDE : 0);
 
 			XMVECTOR xm_pos = XMLoadFloat3(&transform.position);
 
-			XMVECTOR xm_length = XMVector3Length(xm_pos - xm_center);
+			float distance_to_center = XMVectorGetX(XMVector3Length(xm_pos - xm_map_center));
 
 			// Randomize a slightly different blue color for each ocean tile
 			int variation = rand() % 155 + 1;
 			color.blue = 100 + variation;
 
+			//transform.position.y += (variation/255.f) * 0.8f - 0.4f;
 			
 
 			//Create the new entity
-			if (ocean_tile_count < OCEAN_TILE_COUNT && XMVectorGetX(xm_length) <= OCEAN_RADIUS)
+			if (ocean_tile_count < OCEAN_TILE_COUNT && distance_to_center <= OCEAN_RADIUS)
 			{
 				ocean_tile_positions.push_back(xm_pos);
+
 				Entity* p_entity = rEcs.createEntity(transform, color, ocean_tile);
+
 				ocean_tile_count++;
 			}
 		}
