@@ -37,7 +37,7 @@ void UpdateAcceleration(XMFLOAT3& acc, const XMFLOAT3& force, const float& weigh
 	}
 }
 
-void HandleGravity(float& y_acc, float& y_vel, float& y_pos, const float& gravity, const float& max_vel, const float& delta)
+float HandleGravity(float& y_acc, float& y_vel, float& y_pos, const float& gravity, const float& max_vel, const float& delta)
 {
 	y_acc = -gravity;
 	if (fabs(y_vel) < max_vel)
@@ -50,5 +50,7 @@ void HandleGravity(float& y_acc, float& y_vel, float& y_pos, const float& gravit
 	{
 		y_vel = Sign(y_vel) * max_vel;
 	}
+	float change = y_vel * delta;
 	y_pos += y_vel * delta;
+	return change;
 }

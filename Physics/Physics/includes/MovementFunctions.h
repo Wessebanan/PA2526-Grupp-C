@@ -20,4 +20,4 @@ void SetDirection(XMFLOAT3& dir, const XMFLOAT3 &forward, MovementInputs input);
 
 void UpdateAcceleration(XMFLOAT3 &acc, const XMFLOAT3 &force, const float &weight, const XMFLOAT3 &velocity, const float &dec);
 
-void HandleGravity(float&y_acc, float&y_vel, float&y_pos, const float &gravity, const float &max_vel, const float &delta);
+float HandleGravity(float&y_acc, float&y_vel, float&y_pos, const float &gravity, const float &max_vel, const float &delta);

@@ -131,17 +131,19 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	}
 
 	// Potential collision if object moved.
-	const float ABS_ERROR = pow(10.0, -10.0);
+	const float ABS_ERROR = (float)pow(10.0, -10.0);
 
-	// If the difference after movement is more than negligible make a potential collision event.
-	if (CalculateDistance(transform_component->position, position_pre_movement) > ABS_ERROR)
+	// If the difference after movement is more than negligible...
+	if (CalculateDistance(transform_component->position, position_pre_movement) > ABS_ERROR &&
+		_entityInfo.entity->hasComponentOfType(ObjectCollisionComponent::typeID))
 	{
+		// ...make a potential collision event.
 		PotentialCollisionEvent potential_collision;
 		potential_collision.mEntityID = _entityInfo.entity->getID();
 		potential_collision.mDelta = _delta;
 		createEvent(potential_collision);
-	}
 
+	}
 }
 
 void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)

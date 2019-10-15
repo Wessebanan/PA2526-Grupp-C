@@ -17,7 +17,8 @@
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="gameSound\SoundECSSystems.cpp" />
+    <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
+    <ClCompile Include="Input\InitInputSystems.cpp" />
     <ClCompile Include="Physics\QuadTree.cpp">
       <Filter>QuadTree</Filter>
     </ClCompile>
@@ -86,6 +87,9 @@
     <ClInclude Include="gameUtility\CameraEcsFunctions.h">
       <Filter>Camera</Filter>
     </ClInclude>
+    <ClInclude Include="gameUtility\InitCamera.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
     <ClInclude Include="Physics\QuadTree.h">
       <Filter>QuadTree</Filter>
     </ClInclude>
@@ -104,6 +108,30 @@
     <ClInclude Include="gameSound\SoundECSEvents.h" />
     <ClInclude Include="gameSound\SoundECSSystems.h" />
     <ClInclude Include="gameSound\SoundGlobals.h" />
+    <ClInclude Include="gameSceneObjects\SceneObjectComponents.h">
+      <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h">
+      <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="gameSceneObjects\InitSceneObjectsh.h">
+      <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="gameSceneObjects\InitBiomes.h">
+      <Filter>Biomes</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="SceneObjects">
+      <UniqueIdentifier>{f9869bdd-eb32-41ae-94a1-28c0a5280104}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Biomes">
+      <UniqueIdentifier>{f368533f-c702-46d5-8541-7f0346618310}</UniqueIdentifier>
+    </Filter>
+    <ClInclude Include="gameAudio\AudioECSEvents.h" />
+    <ClInclude Include="gameAudio\AudioECSSystems.h" />
+    <ClInclude Include="gameAudio\AudioGlobals.h" />
+    <ClInclude Include="gameAudio\InitAudio.h" />
     <Filter Include="QuadTree">
       <UniqueIdentifier>{c2f1b431-1005-4d56-9006-6038545ef7cd}</UniqueIdentifier>
     </Filter>

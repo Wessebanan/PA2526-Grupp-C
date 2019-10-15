@@ -2,13 +2,46 @@
 #include "ecs.h"
 #include <DirectXMath.h>
 #include "Mesh.h"
+#include <DirectXCollision.h>
+
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
+// A bunch of default values.
 #define DEFAULT_MOVEMENT_FORCE 500.0f
 #define DEFAULT_DECELERATION 10.0f
 #define DEFAULT_MAX_VELOCITY 100.0f
 #define DEFAULT_WEIGHT 50.0f
 #define DEFAULT_GRAVITY 9.82f
+#define DEFAULT_HEALTH 100.0f
+#define DEFAULT_BASE_DAMAGE 10.0f
+
+// WEAPON_TYPE decides what bounding volume to use.
+enum WEAPON_TYPE
+{
+	MELEE,
+	PROJECTILE,
+	DEFAULT
+};
+
+// Inheritance structure for unspecific bounding volumes.
+#pragma region BoundingVolume
+struct BoundingVolume 
+{
+	virtual ~BoundingVolume() {}
+};
+struct Sphere : public BoundingVolume
+{
+	DirectX::BoundingSphere mSphere;
+};
+struct OBB : public BoundingVolume
+{
+	DirectX::BoundingOrientedBox mOBB;
+};
+struct AABB : public BoundingVolume
+{
+	DirectX::BoundingBox mAABB;
+};
+#pragma endregion
 
 namespace ecs
 {
@@ -69,21 +102,7 @@ namespace ecs
 		*/
 		COMP(GroundCollisionComponent)
 		{
-			// Vertices making up the OBB:
-			/*
-			   6-------7
-			  /|      /|
-			 / |     / |
-			2--|----3  |
-			|  4----|--5
-			| /     | /
-			0-------1		|: y, -: x /: z
-			*/
-			DirectX::XMFLOAT3 mVertices[8] = { DirectX::XMFLOAT3(0, 0, 0) };
-			
-			// Center Position is the middle of the box, for distance calculation.
-			// Important to apply transform to this point as well.
-			DirectX::XMFLOAT3 mCenterPos = DirectX::XMFLOAT3(0, 0, 0);
+			DirectX::BoundingOrientedBox mOBB;
 
 			// Storing last y values to avoid unneccesary checks.
 			float mLastY = INFINITY;
@@ -98,13 +117,19 @@ namespace ecs
 		*/
 		COMP(ObjectCollisionComponent)
 		{
-			DirectX::XMFLOAT3 mMin		= DirectX::XMFLOAT3(0, 0, 0);
-			DirectX::XMFLOAT3 mMax		= DirectX::XMFLOAT3(0, 0, 0);
-			DirectX::XMFLOAT3 mCenter	= DirectX::XMFLOAT3(0, 0, 0);
+			DirectX::BoundingBox mAABB;
+
+			DirectX::BoundingSphere *mSpheres = nullptr;
+			unsigned int mSphereCount = 0;
 
 			// States if the last movement resulted in collision
 			// and needs to be reverted.
 			bool mIntersect = false;
+
+			~ObjectCollisionComponent()
+			{
+				delete[] mSpheres;
+			}
 		};
 
 		/*
@@ -112,7 +137,36 @@ namespace ecs
 		*/
 		COMP(MeshComponent)
 		{
-			ModelLoader::Mesh mMesh;
+			ModelLoader::Mesh *mMesh;
+		};
+		
+		/*
+		* Holds weapon type (SWORD, PROJECTILE etc.), unspecified bounding volume,
+		* previous position for damage calculation on impact and base damage specific
+		* to a weapon.
+		*/
+		COMP(WeaponComponent)
+		{
+			WEAPON_TYPE mType = DEFAULT;
+
+			BoundingVolume* mBoundingVolume = nullptr;
+
+			// Previous position to calculate velocity for damage.
+			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+			
+			// Base damage for multiplier on hit based on weapon type.
+			float mBaseDamage = DEFAULT_BASE_DAMAGE;
+		};
+
+		/*
+		* Holds health at the moment (HealthComponent is already defined)
+		* might hold strength, stamina, speed etc. in the future so constitution
+		* is a good name.
+		*/
+		COMP(ConstitutionComponent)
+		{
+			float mBaseHealth	= DEFAULT_HEALTH;
+			float mHealth		= DEFAULT_HEALTH;
 		};
 
 		COMP(QuadTreeComponent)
