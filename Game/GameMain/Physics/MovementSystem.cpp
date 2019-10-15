@@ -131,7 +131,7 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	}
 
 	// Potential collision if object moved.
-	const float ABS_ERROR = pow(10.0, -10.0);
+	const float ABS_ERROR = (float)pow(10.0, -10.0);
 
 	// If the difference after movement is more than negligible...
 	if (CalculateDistance(transform_component->position, position_pre_movement) > ABS_ERROR &&

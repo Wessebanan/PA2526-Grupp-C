@@ -59,5 +59,17 @@ namespace ecs
 			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
 		};
 
+		/*FillQuadTreeSystem
+		* Each update this system fills the quadtree with QuadTreeObjects containing
+		* information needed to check for collisions. The tree needs to be manually cleared
+		* between each update.
+		*/
+		SYSTEM(FillQuadTreeSystem)
+		{
+			FillQuadTreeSystem();
+			~FillQuadTreeSystem();
+			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
+		};
+
 	} // systems
 } // ecs

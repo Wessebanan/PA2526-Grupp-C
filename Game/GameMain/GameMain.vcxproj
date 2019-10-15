@@ -102,6 +102,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Physics\CollisionSystem.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp" />
+    <ClCompile Include="Physics\QuadTree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gameAI\AIComponents.h" />
@@ -143,6 +144,7 @@
     <ClInclude Include="Input\InitInputBackendComponent.h" />
     <ClInclude Include="Input\InitInputComponents.h" />
     <ClInclude Include="Input\InitInputSystems.h" />
+    <ClInclude Include="Physics\QuadTree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

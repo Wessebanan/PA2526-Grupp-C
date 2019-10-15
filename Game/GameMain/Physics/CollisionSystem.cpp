@@ -1,4 +1,5 @@
 #include "CollisionSystem.h"
+#include "QuadTree.h"
 
 #pragma region ObjectCollisionSystem
 ecs::systems::ObjectCollisionSystem::ObjectCollisionSystem()
@@ -31,6 +32,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	// Grabbing the entities it could collide with.
 	TypeFilter filter;
 	filter.addRequirement(ObjectCollisionComponent::typeID);
+	filter.addRequirement(TransformComponent::typeID);
 	EntityIterator it = getEntitiesByFilter(filter);
 
 	bool intersect = false;
@@ -232,7 +234,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	float tile_height = closest_tile->position.y;
 
 	// Saving this tile height as the last tile y value if it changed.
-	const float ABS_ERROR = pow(10, -10);
+	const float ABS_ERROR = (float)pow(10, -10);
 	
 	// If the height of the nearest tile changed, update and move on.
 	if (fabs(tile_height - ground_collision_component->mLastTileY) > ABS_ERROR)
@@ -326,6 +328,7 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 
 	// Grabbing the object collision component to fill it up.
 	ObjectCollisionComponent* object_collision_component = getComponentFromKnownEntity<ObjectCollisionComponent>(entity->getID());
+	
 
 	object_collision_component->mAABB.CreateFromPoints(object_collision_component->mAABB, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
 	
@@ -335,5 +338,28 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 	* For each bone, grab vertex cluster and create spheres from clusters.
 	*/
 
+}
+#pragma endregion
+
+#pragma region FillQuadTreeSystemRegion
+ecs::systems::FillQuadTreeSystem::FillQuadTreeSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(components::TransformComponent::typeID);
+	typeFilter.addRequirement(components::ObjectCollisionComponent::typeID);
+}
+
+ecs::systems::FillQuadTreeSystem::~FillQuadTreeSystem()
+{
+
+}
+
+void ecs::systems::FillQuadTreeSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::QuadTreeComponent::typeID);
+	ecs::components::QuadTreeComponent* p_tree = static_cast<ecs::components::QuadTreeComponent*>(it.next());
+	ecs::components::TransformComponent* p_transform = entity.getComponent<ecs::components::TransformComponent>();
+	ecs::components::ObjectCollisionComponent* p_collision = entity.getComponent<ecs::components::ObjectCollisionComponent>();
+	static_cast<QuadTree*>(p_tree->pTree)->Insert(QuadTreeObject(p_transform, p_collision));
 }
 #pragma endregion

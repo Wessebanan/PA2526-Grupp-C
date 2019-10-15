@@ -19,6 +19,9 @@
     </ClCompile>
     <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
+    <ClCompile Include="Physics\QuadTree.cpp">
+      <Filter>QuadTree</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -87,6 +90,9 @@
     <ClInclude Include="gameUtility\InitCamera.h">
       <Filter>Camera</Filter>
     </ClInclude>
+    <ClInclude Include="Physics\QuadTree.h">
+      <Filter>QuadTree</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -126,5 +132,8 @@
     <ClInclude Include="gameAudio\AudioECSSystems.h" />
     <ClInclude Include="gameAudio\AudioGlobals.h" />
     <ClInclude Include="gameAudio\InitAudio.h" />
+    <Filter Include="QuadTree">
+      <UniqueIdentifier>{c2f1b431-1005-4d56-9006-6038545ef7cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
