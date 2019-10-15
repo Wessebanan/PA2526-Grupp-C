@@ -5,6 +5,7 @@
 #include "../gameAI/AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameSceneObjects/SceneObjectGlobals.h"
+#include "../gameAnimation//AnimationGlobals.h"
 
 void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* mng)
 {
@@ -17,6 +18,7 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* mng)
 	};
 	float4* pTilePosition = (float4*)mng->GetTechniqueModelBuffer(RENDER_DEFAULT);
 	XMFLOAT4X4* p_unit_pos = (XMFLOAT4X4*)mng->GetTechniqueModelBuffer(RENDER_TRANSFORMATION);
+	SkinPerObjectData* p_unit_pos_animated = (SkinPerObjectData*)mng->GetTechniqueModelBuffer(RENDER_SKINNING);
 
 	UINT index = 0;
 	ecs::ComponentIterator itt;
@@ -91,6 +93,8 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* mng)
 			world *= XMMatrixTranslation(trComp->position.x, trComp->position.y, trComp->position.z);
 
 			XMStoreFloat4x4(&p_unit_pos[armyIndex], world);
+
+			XMStoreFloat4x4(&p_unit_pos_animated[armyIndex].worldMatrix, world);
 
 			armyIndex++;
 		}

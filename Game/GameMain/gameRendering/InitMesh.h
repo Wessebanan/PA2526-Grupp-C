@@ -15,7 +15,7 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 	//ModelLoader::Mesh tile("../hexagon_tile.fbx");
 	//ModelLoader::Mesh tile2("../hexagon_tile2.fbx");
 	ModelLoader::Mesh tile3("../hexagon_tile5.fbx");
-	ModelLoader::Mesh dude("../dudeMesh0.fbx");
+	ModelLoader::Mesh dude("../Walking.fbx");
 
 	int mesh_tile; // tile
 	{
@@ -41,6 +41,8 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 		vertex_data.pVertexData = dude.GetVertexPositionVector()->data();
 		vertex_data.pNormalsData = dude.GetVertexPositionVector()->data();
 		vertex_data.pTextureCoordData = dude.GetUVVector()->data();
+		vertex_data.pBlendIndices = dude.GetBlendIndices()->data();
+		vertex_data.pBlendWeight = dude.GetBlendWeights()->data();
 
 		INDEX_BUFFER_DATA index_data = { NULL };
 		index_data.IndexCount = dude.GetIndexVector()->size();
@@ -116,6 +118,10 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 	desc[RENDER_TRANSFORMATION].PerInstanceByteWidth = sizeof(float4) * 4;
 	desc[RENDER_TRANSFORMATION].pModelLayout = &m_desc[13];
 	desc[RENDER_TRANSFORMATION].ModelLayoutCount = 1;
+
+	desc[RENDER_SKINNING].PerInstanceByteWidth = sizeof(float4) * 4 * 64;
+	desc[RENDER_SKINNING].pModelLayout = &m_desc[13];
+	desc[RENDER_SKINNING].ModelLayoutCount = 1;
 
 	pMng->CreateModelHeap(desc);
 }

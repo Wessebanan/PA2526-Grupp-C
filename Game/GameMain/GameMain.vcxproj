@@ -112,6 +112,8 @@
     <ClInclude Include="gameAI\GridEcsFunctions.h" />
     <ClInclude Include="gameAI\InitArmy.h" />
     <ClInclude Include="gameAI\InitGrid.h" />
+    <ClInclude Include="gameAnimation\AnimationGlobals.h" />
+    <ClInclude Include="gameAnimation\UpdateAnimation.h" />
     <ClInclude Include="gameAudio\AudioECSEvents.h" />
     <ClInclude Include="gameAudio\AudioECSSystems.h" />
     <ClInclude Include="gameAudio\AudioGlobals.h" />

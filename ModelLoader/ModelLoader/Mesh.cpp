@@ -33,7 +33,7 @@ HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 		this->mpSkeleton = new ModelLoader::Skeleton();
 		this->mpSkinningWeights = new std::vector<ModelLoader::ControlPointInfo>;
 		this->mpBlendIndices = new std::vector<unsigned int>;
-		this->mpBlendWeights = new std::vector<double>;
+		this->mpBlendWeights = new std::vector<float>;
 	}
 	HRESULT hr = E_FAIL;
 	try
@@ -84,7 +84,7 @@ HRESULT ModelLoader::Mesh::LoadFBX(const std::string& filePath)
 				for (unsigned int i = 0; i < 3; i++)
 				{
 					this->mpBlendIndices->push_back(a.weightPairs[i].index);
-					this->mpBlendWeights->push_back(a.weightPairs[i].weight);
+					this->mpBlendWeights->push_back((float)a.weightPairs[i].weight);
 				}
 				this->mpBlendIndices->push_back(a.weightPairs[3].index);
 			}		
@@ -147,7 +147,7 @@ std::vector<unsigned int>* ModelLoader::Mesh::GetBlendIndices()
 	return this->mpBlendIndices;
 }
 
-std::vector<double>* ModelLoader::Mesh::GetBlendWeights()
+std::vector<float>* ModelLoader::Mesh::GetBlendWeights()
 {
 	return this->mpBlendWeights;
 }

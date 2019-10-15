@@ -219,6 +219,9 @@ namespace {
 			// including it for safety because I don't know if blender does or not
 			FbxAMatrix geometry_transform = GetGeometryTransformation(inNode);
 			std::vector<std::vector<ModelLoader::IndexWeightPair>> temp(jointData->size(), std::vector<ModelLoader::IndexWeightPair>());
+
+			unsigned int animation_length = 0;
+
 			// Loop through deformers
 			// Deformer is basically a skeleton
 			// Most likely only on exists in the mesh
@@ -263,7 +266,6 @@ namespace {
 					if (curr_anim_stack)
 					{
 						// Get animation information
-						FbxLongLong animation_length;
 						std::string animation_name;
 						FbxString anim_stack_name = curr_anim_stack->GetName();
 						animation_name = anim_stack_name.Buffer();
@@ -334,6 +336,7 @@ namespace {
 						}
 					}
 				}
+
 				// Check if any vertex has more than 4 weights assigned
 				for (unsigned int i = 0; i < temp.size(); ++i)
 				{
@@ -348,6 +351,16 @@ namespace {
 				}
 				// Check so that the vertex weights add up to one
 				CheckSumOfWeights(jointData);
+			}
+			skeleton->jointCount = skeleton->joints.size();
+			skeleton->frameCount = animation_length;
+			skeleton->animationData = new DirectX::XMFLOAT4X4[skeleton->jointCount * animation_length];
+			for (int i = 0; i < skeleton->jointCount; ++i)
+			{
+				for (int j = 0; j < animation_length; ++j)
+				{
+					skeleton->animationData[j * skeleton->jointCount + i] = (skeleton->joints[i].mAnimationVector[j].mOffsetMatrix);
+				}
 			}
 		}
 

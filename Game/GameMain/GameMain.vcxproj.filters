@@ -93,6 +93,12 @@
     <ClInclude Include="Physics\QuadTree.h">
       <Filter>QuadTree</Filter>
     </ClInclude>
+    <ClInclude Include="gameAnimation\UpdateAnimation.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAnimation\AnimationGlobals.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -104,10 +110,6 @@
     <Filter Include="Utility">
       <UniqueIdentifier>{fac0e431-ff16-4165-b6f3-ebcc4bbb4013}</UniqueIdentifier>
     </Filter>
-    <ClInclude Include="gameSound\InitSound.h" />
-    <ClInclude Include="gameSound\SoundECSEvents.h" />
-    <ClInclude Include="gameSound\SoundECSSystems.h" />
-    <ClInclude Include="gameSound\SoundGlobals.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h">
       <Filter>SceneObjects</Filter>
     </ClInclude>
@@ -120,6 +122,9 @@
     <ClInclude Include="gameSceneObjects\InitBiomes.h">
       <Filter>Biomes</Filter>
     </ClInclude>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{815930ba-43bd-4ac3-a9d0-4d5497c24d6d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SceneObjects">

@@ -16,7 +16,7 @@ namespace ModelLoader {
 		ModelLoader::Skeleton* mpSkeleton = nullptr;
 		std::vector<ModelLoader::ControlPointInfo>* mpSkinningWeights = nullptr;
 		std::vector<unsigned int>* mpBlendIndices;
-		std::vector<double>* mpBlendWeights;
+		std::vector<float>* mpBlendWeights;
 		bool mHasSkeleton = false;
 
 	public:
@@ -37,7 +37,7 @@ namespace ModelLoader {
 		std::vector<unsigned int>* GetBlendIndices();
 		// Retrieve the vector containing all blend weights in the mesh
 		// Size: 3 weights per vertex in the mesh
-		std::vector<double>* GetBlendWeights();
+		std::vector<float>* GetBlendWeights();
 
 		bool HasUVs();
 		bool HasNormals();

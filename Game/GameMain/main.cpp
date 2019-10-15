@@ -14,6 +14,7 @@
 
 #include "gameAudio/InitAudio.h"
 
+#include "gameAnimation/UpdateAnimation.h"
 #include <time.h>
 
 using namespace ecs;								  
@@ -80,6 +81,8 @@ int main()
 	pMng->SetViewMatrix(p_cam_comp->viewMatrix);
 	pWnd->Show();
 	ecs.update(0.1f);
+	ModelLoader::Mesh animTest("../Walking.fbx");
+	unsigned long long int frameCount = 0;
 	while (pWnd->IsOpen())
 	{
 		if (!pWnd->Update())
@@ -93,6 +96,7 @@ int main()
 			pWnd->Present();
 
 			ecs.update(0.1f);
+			UpdateAnimation(pMng, &animTest, frameCount);
 		}
 	}
 
