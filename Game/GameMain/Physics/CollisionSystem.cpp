@@ -183,7 +183,8 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	if (!mInit)
 	{
 		mTiles = getEntitiesWithComponent<TileComponent>();
-	
+		
+		// Grabbing sile of entityiterator to check if the grid is created.
 		mTileCount = mTiles.entities.size();
 		if (mTileCount != 0)
 		{
@@ -194,6 +195,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 				mppTileTransforms[i] = getComponentFromKnownEntity<TransformComponent>(mTiles.entities.at(i).entity->getID());
 			}
 		}
+		// If there is no grid, skip ground collision.
 		else
 		{
 			return;
