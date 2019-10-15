@@ -33,6 +33,8 @@
     <Import Project="Input_Game.props" />
     <Import Project="..\..\PropertySheets\AI_Debug.props" />
     <Import Project="..\..\PropertySheets\Utility_Debug.props" />
+    <Import Project="AudioIncludesFromGame.props" />
+    <Import Project="..\..\PropertySheets\Sound_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
@@ -44,6 +46,8 @@
     <Import Project="Utility_Game.props" />
     <Import Project="..\..\PropertySheets\AI_Release.props" />
     <Import Project="..\..\PropertySheets\Utility_Release.props" />
+    <Import Project="AudioIncludesFromGame.props" />
+    <Import Project="..\..\PropertySheets\Sound_Release.props" />
     <Import Project="..\..\PropertySheets\UI_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -72,6 +76,7 @@
     <ClInclude Include="..\GameMain\Physics\MovementSystem.h" />
     <ClInclude Include="..\GameMain\Physics\PhysicsComponents.h" />
     <ClInclude Include="..\GameMain\Physics\PhysicsEvents.h" />
+    <ClInclude Include="..\GameMain\Physics\QuadTree.h" />
     <ClInclude Include="..\GameMain\UI\InitUI.h" />
     <ClInclude Include="..\GameMain\UI\UIComponents.h" />
     <ClInclude Include="..\GameMain\UI\UIEvents.h" />
@@ -81,16 +86,20 @@
     <ClInclude Include="Physics\MovementLogic.h" />
     <ClInclude Include="Physics\ObjectCollision.h" />
     <ClInclude Include="UI\UIEcsTest.h" />
+    <ClInclude Include="Sound\SoundTests.h" />
+    <ClInclude Include="Physics\QuadTreeTests.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\AI\AI\includes\GridFunctions.cpp" />
     <ClCompile Include="..\..\AI\AI\includes\GridProp.cpp" />
     <ClCompile Include="..\GameMain\gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="..\GameMain\gameAI\GridEcsFunctions.cpp" />
+    <ClCompile Include="..\GameMain\gameAudio\AudioECSSystems.cpp" />
     <ClCompile Include="..\GameMain\gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="..\GameMain\gameUtility\UtilityEcsFunctions.cpp" />
     <ClCompile Include="..\GameMain\Physics\CollisionSystem.cpp" />
     <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp" />
+    <ClCompile Include="..\GameMain\Physics\QuadTree.cpp" />
     <ClCompile Include="..\GameMain\UI\UISystems.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="pch.cpp">

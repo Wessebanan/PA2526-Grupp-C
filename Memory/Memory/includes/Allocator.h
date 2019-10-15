@@ -63,16 +63,36 @@ namespace memory
 			virtual void Clear() = 0;
 
 			/*
-				Reserves a block of memory in the allocator's memory heap, and returns a pointer to it.
+				Reserves a block of memory in the allocator's memory, and returns a pointer to it.
 				Returns nullptr if allocation failed.
 			*/
 			virtual void* Allocate(uint size) = 0;
 
 			/*
-				Returns a block of reserved memory back to the allocator's memory heap, so that the memory
+				Returns a block of reserved memory back to the allocator's memory, so that the memory
 				can be used for future allocations.
 			*/
 			virtual void Free(void * pObject) = 0;
+
+			/*
+				Getters
+			*/
+
+			// Returns the size of the allocatable memory the allocator is allowed to manage.
+			inline uint GetMemorySize() const
+			{
+				return mMemorySize;
+			}
+
+			/*
+				Returns the size of all reserved memory the allocator handles. This will also memory that is
+				reserved by headers containing information about allocations, since these also live in the heaps
+				memory.
+			*/
+			inline uint GetMemoryUsed() const
+			{
+				return mMemoryUsed;
+			}
 
 
 		protected:

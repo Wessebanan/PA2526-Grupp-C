@@ -13,19 +13,19 @@
   <ItemGroup>
     <ClCompile Include="..\source\rendering\DefaultTechnique.cpp" />
     <ClCompile Include="..\source\rendering\DrawManager.cpp" />
-    <ClCompile Include="..\source\rendering\MeshManager.cpp" />
+    <ClCompile Include="..\source\rendering\RenderCamera.cpp" />
     <ClCompile Include="..\source\rendering\RenderManager.cpp" />
-    <ClCompile Include="..\source\rendering\ScreenSpaceTechnique.cpp" />
     <ClCompile Include="..\source\rendering\TransformationTechnique.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\includes\rendering\DefaultTechnique.h" />
     <ClInclude Include="..\includes\rendering\DrawManager.h" />
-    <ClInclude Include="..\includes\rendering\MeshManager.h" />
+    <ClInclude Include="..\includes\rendering\GPUMesh.h" />
+    <ClInclude Include="..\includes\rendering\HLSLFunctions.h" />
+    <ClInclude Include="..\includes\rendering\RenderCamera.h" />
     <ClInclude Include="..\includes\rendering\RenderHeader.h" />
     <ClInclude Include="..\includes\rendering\RenderManager.h" />
     <ClInclude Include="..\includes\rendering\RenderTechnique.h" />
-    <ClInclude Include="..\includes\rendering\SceenSpaceTechnique.h" />
     <ClInclude Include="..\includes\rendering\TransformationTechnique.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

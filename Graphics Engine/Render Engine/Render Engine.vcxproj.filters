@@ -21,16 +21,13 @@
     <ClCompile Include="..\source\rendering\DrawManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\rendering\MeshManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\source\rendering\RenderManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\rendering\ScreenSpaceTechnique.cpp">
+    <ClCompile Include="..\source\rendering\TransformationTechnique.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\source\rendering\TransformationTechnique.cpp">
+    <ClCompile Include="..\source\rendering\RenderCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -39,9 +36,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\rendering\DrawManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\includes\rendering\MeshManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\includes\rendering\RenderHeader.h">
@@ -53,10 +47,16 @@
     <ClInclude Include="..\includes\rendering\RenderTechnique.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\rendering\SceenSpaceTechnique.h">
+    <ClInclude Include="..\includes\rendering\TransformationTechnique.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\includes\rendering\TransformationTechnique.h">
+    <ClInclude Include="..\includes\rendering\HLSLFunctions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\rendering\GPUMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\includes\rendering\RenderCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

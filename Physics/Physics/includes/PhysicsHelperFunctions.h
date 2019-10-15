@@ -15,4 +15,5 @@ namespace PhysicsHelpers
 	// Returns 1 for positive, -1 for negative and 0 for 0
 	int Sign(float f);
 
+	inline float Square(float f);
 } // helper_functions

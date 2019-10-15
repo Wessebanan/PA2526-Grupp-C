@@ -5,11 +5,6 @@
 
 namespace graphics
 {
-	enum SHADER_RESOURCE_SLOT
-	{
-		SHADER_RESOURCE_SHADOW_MAP = 16,
-	};
-
 	enum BUFFER_UPLOAD_TYPE
 	{
 		BUFFER_UPLOAD_VERTEX_DATA,
@@ -33,6 +28,7 @@ namespace graphics
 		friend class RenderContext;
 		friend class DeviceInterface;
 
+		ID3D11ShaderResourceView* pResource;
 	private:
 		ID3D11DepthStencilView* pView;
 	};
@@ -48,6 +44,8 @@ namespace graphics
 
 		RenderContext();
 		~RenderContext();
+
+		ID3D11DeviceContext4* GetInternalContext();
 
 		void ClearDepth(const DepthBuffer& depthBuffer);
 
@@ -69,9 +67,65 @@ namespace graphics
 			const UINT slot,
 			const BufferRegion& region);
 
+		template <UINT N>
+		void VSSetConstantBuffers(
+			const UINT startSlot,
+			const BufferRegion* pRegions)
+		{
+			ID3D11Buffer* pBuffers[N];
+			UINT first_constants[N];
+			UINT num_constants[N];
+
+			for (UINT i = 0; i < N; i++)
+			{
+				pBuffers[i] = m_pStorage->GetBufferHeapGPU(pRegions[i].Type);
+
+				first_constants[i]	= pRegions[i].DataLocation / 16;
+				num_constants[i]	= pRegions[i].DataCount / 16;
+			}
+
+			m_pContext4->VSSetConstantBuffers1(
+				startSlot,
+				N,
+				pBuffers,
+				first_constants,
+				num_constants);
+		}
+
+		void PSSetConstantBuffer(
+			const UINT slot,
+			const BufferRegion& region);
+
+		template <UINT N>
+		void PSSetConstantBuffers(
+			const UINT startSlot,
+			const BufferRegion* pRegions)
+		{
+			ID3D11Buffer* pBuffers[N];
+			UINT first_constants[N];
+			UINT num_constants[N];
+
+			for (UINT i = 0; i < N; i++)
+			{
+				pBuffers[i] = m_pStorage->GetBufferHeapGPU(pRegions[i].Type);
+
+				first_constants[i] = pRegions[i].DataLocation / 16;
+				num_constants[i] = pRegions[i].DataCount / 16;
+			}
+
+			m_pContext4->PSSetConstantBuffers1(
+				startSlot,
+				N,
+				pBuffers,
+				first_constants,
+				num_constants);
+		}
+
 		void SetRenderTarget(
-			const RenderTarget& renderTarget, 
-			const DepthBuffer& depthBuffer);
+			const RenderTarget* pRenderTarget, 
+			const DepthBuffer* pDepthBuffer);
+
+		void DiscardPixelShader();
 
 		void DrawInstanced(
 			const UINT instanceCount,
@@ -97,13 +151,10 @@ namespace graphics
 		int Initialize(ID3D11Device4* pDevice4, InternalStorage* pStorage);
 		void Release();
 
-		float m_clearColor[4];
-
 		ID3D11DeviceContext4* m_pContext4;
 		D3D11_VIEWPORT m_viewport;
 
 		InternalStorage* m_pStorage;
-		GraphicsPipeline* m_pCurrentPipeline;
 	};
 
 
@@ -113,13 +164,13 @@ namespace graphics
 	{
 
 	public:
-		static constexpr UINT MAXIMUM_GRAPHICS_PIPELINES = 10;
-
 		DeviceInterface();
 		~DeviceInterface();
 
+		int Initialize();
+		void Release();
+
 		RenderContext* GetRenderContext();
-		UINT64 QueryVideoMemoryUsage();
 
 		int CreatePresentWindow(
 			const UINT width,
@@ -131,12 +182,13 @@ namespace graphics
 		int CreateDepthBuffer(
 			const UINT width,
 			const UINT height,
-			DepthBuffer* pDepthBuffer);
+			DepthBuffer* pDepthBuffer,
+			const bool createShaderResource);
 
 		int CreateGraphicsPipeline(
 			const std::string& vertexShader,
 			const std::string& pixelShader,
-			GraphicsPipeline** ppPipeline);
+			GraphicsPipeline* pPipeline);
 
 		int CreateDynamicBufferRegion(
 			const UINT size,
@@ -149,7 +201,7 @@ namespace graphics
 			BufferRegion* pRegion);
 
 		int CreateIndexBufferRegion(
-			const UINT size,
+			const UINT indexCount,
 			const void* pData,
 			BufferRegion* pRegion);
 
@@ -168,16 +220,11 @@ namespace graphics
 		void DeletePresentWindow(const PresentWindow& window);
 
 	private:
-		void Release();
-		int Initialize();
 		int CreateBufferRegion(
 			const BUFFER_TYPE type,
 			const UINT size,
 			const void* pData,
 			BufferRegion* pRegion);
-
-		friend int CreateDeviceInterface(DeviceInterface** ppDevice);
-		friend void DeleteDeviceInterface(DeviceInterface* pDevice);
 
 		ID3D11Device4* m_pDevice4;
 		IDXGIFactory6* m_pFactory6;
@@ -188,25 +235,8 @@ namespace graphics
 		// handled in the class because it will be easier 
 		// for render context to fetch with some kind of index
 		InternalStorage m_storage;
-		GraphicsPipelineArray m_pipelineArray;
-
 
 		// Sampler states will only be a definite amount 
 		ID3D11SamplerState* m_pSamplerStates[10];
 	};
-
-	inline int CreateDeviceInterface(DeviceInterface** ppDevice)
-	{
-		DeviceInterface* pObj = new DeviceInterface();
-		int result = pObj->Initialize();
-		(*ppDevice) = pObj;
-
-		return result;
-	}
-
-	inline void DeleteDeviceInterface(DeviceInterface* pDevice)
-	{
-		pDevice->Release();
-		delete pDevice;
-	}
 }
