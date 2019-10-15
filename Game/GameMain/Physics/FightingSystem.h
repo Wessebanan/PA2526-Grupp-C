@@ -13,9 +13,6 @@ namespace ecs
 	{
 		SYSTEM(WeaponInitSystem)
 		{
-			/*ObjectBoundingVolumeInitSystem();
-					~ObjectBoundingVolumeInitSystem();
-					void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;*/
 			WeaponInitSystem();
 			~WeaponInitSystem();
 			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;

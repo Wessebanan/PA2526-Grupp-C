@@ -28,6 +28,15 @@ enum WEAPON_TYPE
 struct BoundingVolume 
 {
 	virtual ~BoundingVolume() {}
+	bool Intersects(BoundingVolume* other)
+	{
+		// Finding what volume
+		BoundingSphere* sphere = dynamic_cast<BoundingSphere*>(this);
+		if (sphere)
+		{
+
+		}
+	}
 };
 struct Sphere : public BoundingVolume
 {
