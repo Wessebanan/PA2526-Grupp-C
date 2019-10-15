@@ -42,23 +42,7 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* mng)
 		switch (tileComp->tileType)
 		{
 		case TileTypes::GAME_FIELD:
-			switch (tileComp->biome)
-			{
-			case SWAMP:
-				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
-				break;
-			case MOUNTAIN:
-				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
-				break;
-			case FIELD:
-				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
-				break;
-			case DESERT:
-				pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
-				break;
-			default:
-				break;
-			}
+			pTilePosition[index].color = PACK(color_comp->red, color_comp->green, color_comp->blue, 0);
 			break;
 		case TileTypes::WATER:
 			pTilePosition[index].color = PACK(0, 0, 200 + color_offset, 0);
@@ -85,7 +69,7 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* mng)
 		pTilePosition[index].y = trComp->position.y;
 		pTilePosition[index].z = trComp->position.z;
 
-		pTilePosition[index].color = PACK(color_comp->color.x, color_comp->color.y, color_comp->color.z, color_comp->color.w);
+		pTilePosition[index].color = PACK(color_comp->red, color_comp->green, color_comp->blue, 0);
 		
 
 		index++;

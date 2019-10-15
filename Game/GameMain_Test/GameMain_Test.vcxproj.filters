@@ -27,18 +27,15 @@
     <ClCompile Include="..\GameMain\gameUtility\UtilityEcsFunctions.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="..\GameMain\gameAudio\AudioECSSystems.cpp">
+      <Filter>Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\Physics\QuadTree.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Physics\GroundCollision.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\MovementLogic.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\ObjectCollision.h">
-      <Filter>Physics</Filter>
-    </ClInclude>
     <ClInclude Include="..\GameMain\Physics\CollisionSystem.h">
       <Filter>Physics</Filter>
     </ClInclude>
@@ -111,16 +108,40 @@
     <ClInclude Include="..\GameMain\gameUtility\UtilityEcsFunctions.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Physics\ObjectCollision.h">
+      <Filter>Physics\Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\MovementLogic.h">
+      <Filter>Physics\Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\GroundCollision.h">
+      <Filter>Physics\Test Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Sound\SoundTests.h">
+      <Filter>Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\QuadTree.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Physics">
       <UniqueIdentifier>{c289c533-cb9b-45b0-abc2-a28e2e2fc071}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Physics\Test Files">
+      <UniqueIdentifier>{7c1aab98-ef41-4a09-a0ee-2452692177d8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
     <Filter Include="Utility">
       <UniqueIdentifier>{d96f7afd-16ba-4c20-9f31-1556ae77133f}</UniqueIdentifier>
     </Filter>
     <Filter Include="AI">
       <UniqueIdentifier>{68f9db8b-fa0c-48c8-9771-bc8de85172dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sound">
+      <UniqueIdentifier>{887fb635-0555-4e3e-a53f-8dadf41c35c6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

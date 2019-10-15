@@ -1,6 +1,5 @@
 #pragma once
 #include "MovementSystem.h"
-#include <algorithm>
 
 #pragma region StaticMovementLogic
 	TEST(StaticMovementLogic, CreateStaticMovementSystem)
@@ -264,7 +263,7 @@
 		for (int i = 0; i < 60; i++)
 		{
 			// Peak velocity is 100.
-			float expected_velocity = (std::min)(i * 9.82f, p_movement->mMaxVelocity);
+			float expected_velocity = min(i * 9.82f, p_movement->mMaxVelocity);
 			expected_velocity *= -1.0f;
 			expected_position += expected_velocity;
 			EXPECT_FLOAT_EQ(expected_velocity, p_movement->mVelocity.y);

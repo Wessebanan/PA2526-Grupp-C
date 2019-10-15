@@ -1,9 +1,9 @@
 #include "pch.h"
 
-#include "SoundEngine.h"
+#include "AudioEngine.h"
 #include "RingBuffer.h"
 #include "TestPlugins.h"
-#include "SoundBank.h"
+#include "AudioBank.h"
 #include <thread>
 #include <cmath>
 
@@ -19,6 +19,44 @@ int main(int argc, char** argv)
 	return RUN_ALL_TESTS();
 }
 
+// To reduce code in tests, the engine setupa and teardown
+// have moved to separate functions
+inline
+void SetupEngine(Audio::Engine& rEngine, Audio::Mixer& rMixer, Audio::PaHandler& rPaHandler)
+{
+	// Have the engine use this mixer
+	rEngine.UseThisMixer(&rMixer);
+
+	std::cout << "PortAudio Test: output sine wave. SR = " << SOUND_SAMPLE_RATE
+		<< ", RingBufSize = " << SOUND_BUFFER_SIZE << std::endl;
+
+	// Instance PortAudio handler
+	
+
+	ASSERT_EQ(rPaHandler.result(), paNoError)
+		<< "An error occured while using the portaudio stream"
+		<< "\nError number: " << rPaHandler.result()
+		<< "\nError message: " << Pa_GetErrorText(rPaHandler.result());
+
+	// Open stream
+	ASSERT_TRUE(rEngine.OpenStream());
+	// Start feeding the sound card using the callback function
+	ASSERT_TRUE(rEngine.StartStream());
+
+	rEngine.StartWorkThread();	// Start the work thread
+								// to fill the ringbuffer
+}
+
+inline
+void TeardownEngine(Audio::Engine& rEngine)
+{
+	rEngine.JoinWorkThread();	// End the work thread
+
+	rEngine.StopStream();
+
+	rEngine.CloseStream();
+}
+
 // MOST TEST REQUIRES HEADPHONES OR LOUDSPEAKER TO BE PLUGGED IN!!!
 
 // Test based on the task:
@@ -32,13 +70,14 @@ int main(int argc, char** argv)
 // "The thread fills the ring buffer when needed"
 TEST(SoundAPI, InitializePortAudio)
 {
-	// Initialize a Sound Engine
-	Sound::Engine engine;
-	Sound::Mixer mixer;
+	// Initialize a Audio Engine
+	Audio::Engine engine;
+	Audio::Mixer mixer;
+	Audio::PaHandler pa_init;
 
 	// Add voices to the mixer
 	{
-		using namespace Sound::Plugin;
+		using namespace Audio::Plugin;
 
 		// Test so that chained plugins doesn't cause trouble
 		mixer.AddSoundMessage(
@@ -55,37 +94,14 @@ TEST(SoundAPI, InitializePortAudio)
 		mixer.AddSoundMessage({ new TestSineWave(110.f) });
 
 	}
-	// Have the engine use this mixer
-	engine.UseThisMixer(&mixer);
 
-	std::cout << "PortAudio Test: output sine wave. SR = " << SOUND_SAMPLE_RATE
-		<< ", RingBufSize = " << SOUND_BUFFER_SIZE << std::endl;
-
-	// Instance PortAudio handler
-	Sound::PaHandler pa_init;
-
-	ASSERT_EQ(pa_init.result(), paNoError)
-		<< "An error occured while using the portaudio stream"
-		<< "\nError number: " << pa_init.result()
-		<< "\nError message: " << Pa_GetErrorText(pa_init.result());
-
-	// Open stream
-	ASSERT_TRUE(engine.OpenStream());
-	// Start feeding the sound card using the callback function
-	ASSERT_TRUE(engine.StartStream());
-
-	engine.StartWorkThread();	// Start the work thread
-								// to fill the ringbuffer
+	SetupEngine(engine, mixer, pa_init);
 
 	std::cout << "Play for 2 seconds.\n";
 	Pa_Sleep(2 * 1000);
 
 	// Tear-down
-	engine.JoinWorkThread();	// End the work thread
-
-	engine.StopStream();
-
-	engine.CloseStream();
+	TeardownEngine(engine);
 
 	std::cout << "Test finished.\n";
 }
@@ -226,14 +242,14 @@ TEST(Utility, RingBufferThreaded)
 TEST(SoundAPI, LoadSoundData)
 {
 	// Initialize a new sound bank
-	Sound::Bank bank;
+	Audio::Bank bank;
 	// Loading a non existing file should result in a nullptr (0)
 	EXPECT_FALSE(bank.GetFile("non_existing_file"));
 	// Check if sine.wav only has one channel
-	Sound::FileData* p_sine_file = bank.GetFile("sine.wav");
+	Audio::FileData* p_sine_file = bank.GetFile("sine.wav");
 	EXPECT_EQ(p_sine_file->GetNumChannels(), 1);
 	// Check if sine2.wav has two channels
-	Sound::FileData* p_sine_file2 = bank.GetFile("sine2.wav");
+	Audio::FileData* p_sine_file2 = bank.GetFile("sine2.wav");
 	EXPECT_EQ(p_sine_file2->GetNumChannels(), 2);
 }
 
@@ -245,57 +261,35 @@ TEST(SoundAPI, LoadSoundData)
 // sound data)"
 TEST(SoundAPI, PlaySoundWithSampler)
 {
-	// Initialize a Sound engine, mixer and bank
-	Sound::Engine engine;
-	Sound::Mixer mixer;
-	Sound::Bank bank;
+	// Initialize a Audio engine, mixer and bank
+	Audio::Engine engine;
+	Audio::Mixer mixer;
+	Audio::Bank bank;
+	Audio::PaHandler pa_init;
 
 	// Add voice to the mixer
 	{
-		using namespace Sound::Plugin;
+		using namespace Audio::Plugin;
 
 		// Load "square.wav"
-		Sound::FileData* p_file = bank.GetFile("square.wav");
+		Audio::FileData* p_file = bank.GetFile("square.wav");
 		EXPECT_NE(p_file, nullptr);
 
 		std::cout << "The file is "
 			<< ((float)p_file->GetFrameCount() / (float)SOUND_SAMPLE_RATE)
 			<< " seconds long\n";
 
-		mixer.AddSoundMessage({ new Sampler(p_file) });
+		mixer.AddSoundMessage({ new Sampler(p_file, 0) });
 
 	}
-	// Have the engine use this mixer
-	engine.UseThisMixer(&mixer);
-
-	std::cout << "PortAudio Test: output sine wave. SR = " << SOUND_SAMPLE_RATE
-		<< ", RingBufSize = " << SOUND_BUFFER_SIZE << std::endl;
-
-	// Instance PortAudio handler
-	Sound::PaHandler pa_init;
-
-	ASSERT_EQ(pa_init.result(), paNoError)
-		<< "An error occured while using the portaudio stream"
-		<< "\nError number: " << pa_init.result()
-		<< "\nError message: " << Pa_GetErrorText(pa_init.result());
-
-	// Open stream
-	ASSERT_TRUE(engine.OpenStream());
-	// Start feeding the sound card using the callback function
-	ASSERT_TRUE(engine.StartStream());
-
-	engine.StartWorkThread();	// Start the work thread
-								// to fill the ringbuffer
+	
+	SetupEngine(engine, mixer, pa_init);
 
 	std::cout << "Play for 2.5 seconds.\n";
 	Pa_Sleep(2500);
 
 	// Tear-down
-	engine.JoinWorkThread();	// End the work thread
-
-	engine.StopStream();
-
-	engine.CloseStream();
+	TeardownEngine(engine);
 
 	std::cout << "Test finished.\n";
 }
@@ -309,7 +303,7 @@ TEST(SoundAPI, SoundBankReadMany)
 		"sine2.wav",
 		"square.wav"
 	};
-	Sound::Bank bank;
+	Audio::Bank bank;
 	// Should be successful
 	EXPECT_TRUE(bank.LoadMultipleFiles(FILE_NAMES, 3));
 
@@ -329,7 +323,7 @@ TEST(SoundAPI, SoundBankReadMany)
 		"sine2.wav",
 		"square.wav"
 	};
-	Sound::Bank bank_2;
+	Audio::Bank bank_2;
 	// Should fail
 	EXPECT_FALSE(bank_2.LoadMultipleFiles(FILE_NAMES_2, 4));
 	// The sound file that does not exist should be nullptr
@@ -348,7 +342,94 @@ TEST(SoundAPI, SoundBankReadMany)
 		"sine.wav","sine2.wav","square.wav",
 		"sine.wav","sine2.wav","square.wav"
 	};
-	Sound::Bank bank_3;
+	Audio::Bank bank_3;
 	// Should fail
 	EXPECT_FALSE(bank_3.LoadMultipleFiles(FILE_NAMES_3, 27));
+}
+
+
+TEST(SoundAPI, MusicThroughMessaging)
+{
+	// Initialize a Audio engine, mixer and bank
+	Audio::Engine engine;
+	Audio::Mixer mixer;
+	Audio::Bank bank;
+	Audio::PaHandler pa_init;
+
+	// Read song into bank
+	std::string file_paths[] =
+	{
+		"cc_song.wav"
+	};
+	ASSERT_TRUE(bank.LoadMultipleFiles(file_paths, 1));
+
+	// Start engine
+	SetupEngine(engine, mixer, pa_init);
+	
+	std::cout << "Add music..." << std::endl;
+	mixer.AddMusicMessage({
+		new Audio::Plugin::Sampler(bank[0],0),
+		Audio::Music::M_NONE
+		});
+	Pa_Sleep(1000);
+
+	std::cout << "Attempt to add music without the replace flag..." << std::endl;
+	mixer.AddMusicMessage({
+		new Audio::Plugin::Sampler(bank[0],0),
+		Audio::Music::M_NONE
+		});
+	Pa_Sleep(1000);
+
+	std::cout << "Attempt to add music WITH the replace flag..." << std::endl;
+	mixer.AddMusicMessage({
+		new Audio::Plugin::Sampler(bank[0],0),
+		Audio::Music::M_REPLACE
+		});
+	Pa_Sleep(1000);
+
+	TeardownEngine(engine);
+
+	std::cout << "End of test\n";
+}
+
+TEST(SoundAPI, MusicAndSoundMessaging)
+{
+	// Initialize a Audio engine, mixer and bank
+	Audio::Engine engine;
+	Audio::Mixer mixer;
+	Audio::Bank bank;
+	Audio::PaHandler pa_init;
+
+	// Read both music and sound effect
+	std::string file_paths[] =
+	{
+		"cc_song.wav",
+		"coin.wav"
+	};
+	ASSERT_TRUE(bank.LoadMultipleFiles(file_paths, 2));
+
+	// Setup engine
+	SetupEngine(engine, mixer, pa_init);
+
+	std::cout << "Adds music every second (shouldn't interrupt song)" << std::endl;
+	std::cout << "Adds sound 20 times a second" << std::endl;
+	for (int i = 0; i < 3; i++)
+	{
+		mixer.AddMusicMessage({
+			new Audio::Plugin::Sampler(bank[0],0),
+			Audio::Music::M_NONE
+			});
+		for (int j = 0; j < 20; j++)
+		{
+			mixer.AddSoundMessage({
+				new Audio::Plugin::Sampler(bank[1],1)
+				});
+			Pa_Sleep(50);	
+		}
+
+	}
+
+	TeardownEngine(engine);
+
+	std::cout << "End of test\n";
 }
