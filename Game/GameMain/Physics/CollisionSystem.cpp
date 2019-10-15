@@ -173,13 +173,36 @@ ecs::systems::GroundCollisionSystem::GroundCollisionSystem()
 
 ecs::systems::GroundCollisionSystem::~GroundCollisionSystem() 
 {
-
+	if (mppTileTransforms)
+	{
+		delete[] mppTileTransforms;
+	}
 }
 
 void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityInfo, float _delta) 
 {
-	// Grabbing all entities with a tile component (tiles).
-	EntityIterator it = getEntitiesWithComponent<TileComponent>();
+	// On first update, fill tile info members of system.
+	if (!mInit)
+	{
+		mTiles = getEntitiesWithComponent<TileComponent>();
+		
+		// Grabbing sile of entityiterator to check if the grid is created.
+		mTileCount = mTiles.entities.size();
+		if (mTileCount != 0)
+		{
+			mInit = true;
+			mppTileTransforms = new TransformComponent * [mTileCount];
+			for (int i = 0; i < mTileCount; i++)
+			{
+				mppTileTransforms[i] = getComponentFromKnownEntity<TransformComponent>(mTiles.entities.at(i).entity->getID());
+			}
+		}
+		// If there is no grid, skip ground collision.
+		else
+		{
+			return;
+		}
+	}
 
 	// Grabbing the ground collision component from the current entity.
 	GroundCollisionComponent* ground_collision_component = getComponentFromKnownEntity<GroundCollisionComponent>(_entityInfo.entity->getID());
@@ -198,7 +221,6 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	BoundingOrientedBox obb = ground_collision_component->mOBB;
 	obb.Transform(obb, ground_collision_world);
 
-
 	// Holds the index of the closest tile.
 	TypeID closest_tile_id = -1;
 
@@ -207,17 +229,12 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 
 	// For each tile, check which is closest to the ground collision component.
 	// This is bad, and will likely be optimized in the future.	
-	for (int i = 0; i < it.entities.size(); i++)
+	for (int i = 0; i < mTiles.entities.size(); i++)
 	{		
-		TypeID current_tile = it.entities.at(i).entity->getID();
+		TypeID current_tile = mTiles.entities.at(i).entity->getID();
 
-		// Check that the tile has a transform component before trying to use it.
-		if (!it.entities.at(i).entity->hasComponentOfType<TransformComponent>())
-		{
-			return;
-		}
-		TransformComponent* tile_transform = getComponentFromKnownEntity<TransformComponent>(current_tile);
-		
+		TransformComponent* tile_transform = mppTileTransforms[i];
+	
 		float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_transform->position, obb.Center);
 		// Setting the ID to the closest tile.
 		if (closest_distance > distance_to_tile)

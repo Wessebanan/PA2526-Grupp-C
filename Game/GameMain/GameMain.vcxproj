@@ -137,6 +137,7 @@
     <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />
     <ClInclude Include="Physics\CollisionSystem.h" />
+    <ClInclude Include="Physics\InitPhysics.h" />
     <ClInclude Include="Physics\MovementSystem.h" />
     <ClInclude Include="Physics\PhysicsComponents.h" />
     <ClInclude Include="Physics\PhysicsEvents.h" />
