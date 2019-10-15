@@ -17,7 +17,7 @@
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="gameSound\SoundECSSystems.cpp" />
+    <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -122,5 +122,9 @@
     <Filter Include="Biomes">
       <UniqueIdentifier>{f368533f-c702-46d5-8541-7f0346618310}</UniqueIdentifier>
     </Filter>
+    <ClInclude Include="gameAudio\AudioECSEvents.h" />
+    <ClInclude Include="gameAudio\AudioECSSystems.h" />
+    <ClInclude Include="gameAudio\AudioGlobals.h" />
+    <ClInclude Include="gameAudio\InitAudio.h" />
   </ItemGroup>
 </Project>

@@ -25,13 +25,13 @@ namespace ecs
 			{
 				switch (this->mObject)
 				{
-				case SCENEOBJECT::VINES:
+				case SCENEOBJECT::SNOWMAN:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::MUD:
+				case SCENEOBJECT::ANGEL:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::WAGON:
+				case SCENEOBJECT::IGLOO:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				case SCENEOBJECT::CLIFF:

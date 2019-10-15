@@ -2,6 +2,7 @@
 
 #include "MemoryGlobals.h"
 #include "LinearAllocator.h"
+#include "FreeListAllocator.h"
 
 /*
 												! HEAP VISUALISATION !

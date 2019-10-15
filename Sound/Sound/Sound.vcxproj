@@ -137,29 +137,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="includes\SoundBank.cpp" />
-    <ClCompile Include="includes\SoundFile.cpp" />
+    <ClCompile Include="AudioBank.cpp" />
+    <ClCompile Include="AudioFile.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="Mixer.cpp" />
-    <ClCompile Include="Plugin.cpp" />
-    <ClCompile Include="SoundEngine.cpp" />
-    <ClCompile Include="SoundHelpers.cpp" />
-    <ClCompile Include="Voice.cpp" />
+    <ClCompile Include="AudioMixer.cpp" />
+    <ClCompile Include="AudioPlugin.cpp" />
+    <ClCompile Include="AudioEngine.cpp" />
+    <ClCompile Include="AudioHelpers.cpp" />
+    <ClCompile Include="AudioVoice.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\Mixer.h" />
-    <ClInclude Include="includes\Plugin.h" />
+    <ClInclude Include="includes\AudioMixer.h" />
+    <ClInclude Include="includes\AudioPlugin.h" />
     <ClInclude Include="includes\RingBuffer.h" />
-    <ClInclude Include="includes\SoundBank.h" />
-    <ClInclude Include="includes\SoundEngine.h" />
-    <ClInclude Include="includes\SoundFile.h" />
-    <ClInclude Include="includes\SoundHelpers.h" />
-    <ClInclude Include="includes\Voice.h" />
+    <ClInclude Include="includes\AudioBank.h" />
+    <ClInclude Include="includes\AudioEngine.h" />
+    <ClInclude Include="includes\AudioFile.h" />
+    <ClInclude Include="includes\AudioHelpers.h" />
+    <ClInclude Include="includes\AudioVoice.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
