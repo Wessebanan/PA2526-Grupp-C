@@ -58,10 +58,10 @@ namespace ecs
 			~GroundCollisionSystem();
 			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
 		private:
-			EntityIterator tiles;
-			TransformComponent** tile_transforms = nullptr;
-			unsigned int tile_count = 0;
-			bool init = false;
+			EntityIterator mTiles;
+			TransformComponent** mppTileTransforms = nullptr;
+			unsigned int mTileCount = 0;
+			bool mInit = false;
 		};
 
 	} // systems
