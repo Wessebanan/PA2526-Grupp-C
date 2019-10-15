@@ -30,11 +30,11 @@ int main(int argc, char** argv) {
 
 TEST(ExpectedTrue, CreateRenderTarget) 
 {
-	HWND windowHandle = CreateHwndWindow(); //create HWND needed for rendertarget
-	Direct2D Dtest;
+	HWND window_handle = CreateHwndWindow(); //create HWND needed for rendertarget
+	Direct2D d_test;
 	HRESULT hr;
-	RECT rectTest = { 0,0,800,600 }; //used for the size of the window so rendertarget is the whole window
-	hr = Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
+	RECT rect_test = { 0,0,800,600 }; //used for the size of the window so rendertarget is the whole window
+	hr = d_test.CreateHwndRenderTarget(window_handle, &rect_test);
 
 
 	EXPECT_EQ(hr, S_OK);
@@ -42,13 +42,13 @@ TEST(ExpectedTrue, CreateRenderTarget)
 
 TEST(ExpectedTrue, LoadImageToBitmap) 
 {
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
+	HWND window_handle = CreateHwndWindow();
+	Direct2D d_test;
 	HRESULT hr;
-	RECT rectTest = { 0,0,800,600 };
+	RECT rect_test = { 0,0,800,600 };
 	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	hr = Dtest.LoadImageToBitmap("PepeLaugh.jfif", hehe);
+	d_test.CreateHwndRenderTarget(window_handle, &rect_test);
+	hr = d_test.LoadImageToBitmap("PepeLaugh.jfif", hehe);
 
 
 	EXPECT_EQ(hr, S_OK);
@@ -56,15 +56,15 @@ TEST(ExpectedTrue, LoadImageToBitmap)
 
 TEST(ExpectedTrue, GetBitmap) 
 {
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
+	HWND window_handle = CreateHwndWindow();
+	Direct2D d_test;
 	//ID myID;
 	HRESULT hr;
-	RECT rectTest = { 0,0,800,600 };
+	RECT rect_test = { 0,0,800,600 };
 	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	hr = Dtest.LoadImageToBitmap("PepeLaugh.jfif", hehe);
-	void* jej = Dtest.GetBitmap(hehe); //Using the name to get the bitmap
+	d_test.CreateHwndRenderTarget(window_handle, &rect_test);
+	hr = d_test.LoadImageToBitmap("PepeLaugh.jfif", hehe);
+	void* jej = d_test.GetBitmap(hehe); //Using the name to get the bitmap
 
 	EXPECT_EQ(hr, S_OK);
 	EXPECT_NE(jej, nullptr);
@@ -73,24 +73,24 @@ TEST(ExpectedTrue, GetBitmap)
 
 TEST(Expectedfalse, FailCreateRenderTarget) // The same tests but expecting fails
 {
-	HWND windowHandle = nullptr;
-	Direct2D Dtest;
+	HWND window_handle = nullptr;
+	Direct2D d_test;
 	HRESULT hr;
-	RECT rectTest = { 0,0,800,600 };
-	hr = Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
+	RECT rect_test = { 0,0,800,600 };
+	hr = d_test.CreateHwndRenderTarget(window_handle, &rect_test);
 
 	EXPECT_NE(hr, S_OK);
 } 
 
 TEST(Expectedfalse, FailLoadImageToBitmap)
 {
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
+	HWND window_handle = CreateHwndWindow();
+	Direct2D d_test;
 	HRESULT hr;
 	RECT rectTest = { 0,0,800,600 };
 	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	hr = Dtest.LoadImageToBitmap("PepeLaugh", hehe);
+	d_test.CreateHwndRenderTarget(window_handle, &rectTest);
+	hr = d_test.LoadImageToBitmap("PepeLaugh", hehe);
 
 
 	EXPECT_NE(hr, S_OK);
@@ -98,15 +98,15 @@ TEST(Expectedfalse, FailLoadImageToBitmap)
 
 TEST(Expectedfalse, FailGetBitmap)
 {
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
+	HWND window_handle = CreateHwndWindow();
+	Direct2D d_test;
 	//ID myID;
 	HRESULT hr;
 	RECT rectTest = { 0,0,800,600 };
 	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	hr = Dtest.LoadImageToBitmap("fdjak", hehe);
-	void* jej = Dtest.GetBitmap(hehe);
+	d_test.CreateHwndRenderTarget(window_handle, &rectTest);
+	hr = d_test.LoadImageToBitmap("fdjak", hehe);
+	void* jej = d_test.GetBitmap(hehe);
 
 	EXPECT_NE(hr, S_OK);
 	EXPECT_EQ(jej, nullptr);

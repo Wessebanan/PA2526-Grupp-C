@@ -18,6 +18,9 @@
       <Filter>Camera</Filter>
     </ClCompile>
     <ClCompile Include="gameSound\SoundECSSystems.cpp" />
+    <ClCompile Include="UI\UISystems.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -83,6 +86,18 @@
     <ClInclude Include="gameUtility\CameraEcsFunctions.h">
       <Filter>Camera</Filter>
     </ClInclude>
+    <ClInclude Include="UI\InitUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UISystems.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIEvents.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIComponents.h">
+      <Filter>UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -98,5 +113,8 @@
     <ClInclude Include="gameSound\SoundECSEvents.h" />
     <ClInclude Include="gameSound\SoundECSSystems.h" />
     <ClInclude Include="gameSound\SoundGlobals.h" />
+    <Filter Include="UI">
+      <UniqueIdentifier>{e5fe4da1-5a62-4f97-a13b-3fbf689fa0d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>
