@@ -99,7 +99,7 @@ int main()
 	ecs::events::ChangeUserStateEvent cool_bean4;
 	for (FilteredEntity p_entity : ittt.entities)
 	{
-		dyn_move.mGravity = 0;
+		
 		ecs.createComponent<components::DynamicMovementComponent>(p_entity.entity->getID(), dyn_move);
 		
 	}
@@ -156,7 +156,7 @@ int main()
 			pMng->Draw();
 			pWnd->Present();
 
-			ecs.update(0.003f);
+			ecs.update(0.02f);
 		}
 	}
 	

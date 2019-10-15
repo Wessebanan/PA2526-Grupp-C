@@ -153,7 +153,7 @@ namespace ecs
 				if(move_comp->path.size() > 0)
 				{
 					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());				
-					if (abs(goal->position.x - transform->position.x) < 0.003f && abs(goal->position.z - transform->position.z) < 0.003f)
+					if (abs(goal->position.x - transform->position.x) < 0.005f && abs(goal->position.z - transform->position.z) < 0.005f)
 					{
 						move_comp->path.erase(move_comp->path.begin());
 					}
