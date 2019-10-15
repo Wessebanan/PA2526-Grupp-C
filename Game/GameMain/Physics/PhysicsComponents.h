@@ -168,6 +168,11 @@ namespace ecs
 			float mBaseHealth	= DEFAULT_HEALTH;
 			float mHealth		= DEFAULT_HEALTH;
 		};
+
+		COMP(QuadTreeComponent)
+		{
+			void* pTree;
+		};
 	} // components
 } // ecs
 

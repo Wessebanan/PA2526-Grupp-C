@@ -57,6 +57,23 @@ namespace ecs
 			GroundCollisionSystem();
 			~GroundCollisionSystem();
 			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
+		private:
+			EntityIterator mTiles;
+			TransformComponent** mppTileTransforms = nullptr;
+			unsigned int mTileCount = 0;
+			bool mInit = false;
+		};
+
+		/*FillQuadTreeSystem
+		* Each update this system fills the quadtree with QuadTreeObjects containing
+		* information needed to check for collisions. The tree needs to be manually cleared
+		* between each update.
+		*/
+		SYSTEM(FillQuadTreeSystem)
+		{
+			FillQuadTreeSystem();
+			~FillQuadTreeSystem();
+			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
 		};
 
 	} // systems
