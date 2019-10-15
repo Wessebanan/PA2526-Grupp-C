@@ -469,6 +469,7 @@ HRESULT ModelLoader::LoadFBX(const std::string& fileName, std::vector<DirectX::X
 				pOutNormalVector->push_back(vertex_normal);
 
 			}
+			// Flip the winding order
 			for (unsigned int i = 0, count = pOutIndexVector->size(); i < count - 2; i+=3)
 			{
 				std::swap((*pOutIndexVector)[i], (*pOutIndexVector)[i+2]);
