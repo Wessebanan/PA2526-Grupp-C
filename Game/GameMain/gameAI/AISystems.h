@@ -133,6 +133,7 @@ namespace ecs
 			{
 				updateType = EntityUpdate;
 				typeFilter.addRequirement(components::MoveStateComponent::typeID);
+				typeFilter.addRequirement(components::TransformComponent::typeID);
 			}
 			virtual ~MoveStateSystem() {}
 
@@ -140,23 +141,48 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
+				//Fetch the move and transform component of the entity
+				ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
+				ecs::components::MoveStateComponent* move = entity.getComponent<ecs::components::MoveStateComponent>();
+
+				
 				/*****************************************************/
 				/****************************************************/
 				/*    FILL OUT WITH MOVE LOGIC IN ANOTHER TASK     */
 				/**************************************************/
 				/*************************************************/
-				ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
-				if (transform->position.y <= 0.0f)
-					transform->position.y = 50.0f;
-				else
-					transform->position.y -= 1.0f;
-
-				//Check if it is time to switch to the next state
-
-
-
-
-
+				
+			
+				//Create the possible states we could switch to
+				ecs::components::AttackStateComponent atk_state;
+				atk_state.previousState = move->goalState;
+				ecs::components::LootStateComponent loot_state;
+				ecs::components::PathfindingStateComponent path_state;
+				path_state.goalState = move->goalState;
+				//Calculate distance to goal and add the frame time to the total travel time
+				float distance = PhysicsHelpers::CalculateDistance(transform->position, move->goalPos);
+				float max_traveltime = 1.0f;
+				move->time += delta;
+				//Check if we are close enought to the goal to switch state
+				if (distance < 1.0f)
+				{
+					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
+					switch (move->goalState)
+					{
+					case LOOT:
+						ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
+						break;
+					default:
+						ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
+						break;
+					}
+				}
+				//Check if it is time to recalculate the path since we did it last time
+				else if (move->time > max_traveltime)
+				{
+					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
+					ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
+				}
 			}
 		};
 

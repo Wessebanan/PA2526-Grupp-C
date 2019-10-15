@@ -4,6 +4,7 @@
 #include <vector>
 #include "..//gameSceneObjects/SceneObjectGlobals.h"
 #include "../../AI/includes/AIGlobals.h"
+#include <DirectXMath.h>
 
 namespace ecs
 {
@@ -37,6 +38,8 @@ namespace ecs
 		struct MoveStateComponent : public ECSComponent<MoveStateComponent>
 		{
 			STATE goalState = STATE::IDLE;
+			DirectX::XMFLOAT3 goalPos = {5.0f, 0.0f, 0.0f};
+			float time = 0.0f;
 		};
 
 		struct LootStateComponent : public ECSComponent<LootStateComponent>
