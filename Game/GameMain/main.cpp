@@ -14,6 +14,8 @@
 
 #include "gameAudio/InitAudio.h"
 
+#include "Physics/InitPhysics.h"
+
 #include "gameSceneObjects/InitOcean.h"
 #include "gameSceneObjects/OceanSettings.h"
 
@@ -76,6 +78,10 @@ int main()
 	pMng->Initialize(sun_desc, 1600, 900, "D3D11");
 	InitCamera(ecs);
 
+	ModelLoader::Mesh **pp_meshes = InitMesh(ecs, pMng);
+	
+	InitPhysics(ecs, pp_meshes);
+
 
 	
 	InitMesh(ecs, pMng);
@@ -111,6 +117,9 @@ int main()
 			ecs.update(0.1f);
 		}
 	}
+	
+	for (int i = 0; i < Mesh::N_MESHES; i++) delete pp_meshes[i];
+	delete[] pp_meshes;
 
 	pMng->Destroy();
 	return 0;

@@ -1,4 +1,5 @@
 #include "CollisionSystem.h"
+#include "QuadTree.h"
 
 #pragma region ObjectCollisionSystem
 ecs::systems::ObjectCollisionSystem::ObjectCollisionSystem()
@@ -31,6 +32,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	// Grabbing the entities it could collide with.
 	TypeFilter filter;
 	filter.addRequirement(ObjectCollisionComponent::typeID);
+	filter.addRequirement(TransformComponent::typeID);
 	EntityIterator it = getEntitiesByFilter(filter);
 
 	bool intersect = false;
@@ -171,13 +173,36 @@ ecs::systems::GroundCollisionSystem::GroundCollisionSystem()
 
 ecs::systems::GroundCollisionSystem::~GroundCollisionSystem() 
 {
-
+	if (mppTileTransforms)
+	{
+		delete[] mppTileTransforms;
+	}
 }
 
 void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityInfo, float _delta) 
 {
-	// Grabbing all entities with a tile component (tiles).
-	EntityIterator it = getEntitiesWithComponent<TileComponent>();
+	// On first update, fill tile info members of system.
+	if (!mInit)
+	{
+		mTiles = getEntitiesWithComponent<TileComponent>();
+		
+		// Grabbing sile of entityiterator to check if the grid is created.
+		mTileCount = mTiles.entities.size();
+		if (mTileCount != 0)
+		{
+			mInit = true;
+			mppTileTransforms = new TransformComponent * [mTileCount];
+			for (int i = 0; i < mTileCount; i++)
+			{
+				mppTileTransforms[i] = getComponentFromKnownEntity<TransformComponent>(mTiles.entities.at(i).entity->getID());
+			}
+		}
+		// If there is no grid, skip ground collision.
+		else
+		{
+			return;
+		}
+	}
 
 	// Grabbing the ground collision component from the current entity.
 	GroundCollisionComponent* ground_collision_component = getComponentFromKnownEntity<GroundCollisionComponent>(_entityInfo.entity->getID());
@@ -196,7 +221,6 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	BoundingOrientedBox obb = ground_collision_component->mOBB;
 	obb.Transform(obb, ground_collision_world);
 
-
 	// Holds the index of the closest tile.
 	TypeID closest_tile_id = -1;
 
@@ -205,17 +229,12 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 
 	// For each tile, check which is closest to the ground collision component.
 	// This is bad, and will likely be optimized in the future.	
-	for (int i = 0; i < it.entities.size(); i++)
+	for (int i = 0; i < mTiles.entities.size(); i++)
 	{		
-		TypeID current_tile = it.entities.at(i).entity->getID();
+		TypeID current_tile = mTiles.entities.at(i).entity->getID();
 
-		// Check that the tile has a transform component before trying to use it.
-		if (!it.entities.at(i).entity->hasComponentOfType<TransformComponent>())
-		{
-			return;
-		}
-		TransformComponent* tile_transform = getComponentFromKnownEntity<TransformComponent>(current_tile);
-		
+		TransformComponent* tile_transform = mppTileTransforms[i];
+	
 		float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_transform->position, obb.Center);
 		// Setting the ID to the closest tile.
 		if (closest_distance > distance_to_tile)
@@ -232,7 +251,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	float tile_height = closest_tile->position.y;
 
 	// Saving this tile height as the last tile y value if it changed.
-	const float ABS_ERROR = pow(10, -10);
+	const float ABS_ERROR = (float)pow(10, -10);
 	
 	// If the height of the nearest tile changed, update and move on.
 	if (fabs(tile_height - ground_collision_component->mLastTileY) > ABS_ERROR)
@@ -326,6 +345,7 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 
 	// Grabbing the object collision component to fill it up.
 	ObjectCollisionComponent* object_collision_component = getComponentFromKnownEntity<ObjectCollisionComponent>(entity->getID());
+	
 
 	object_collision_component->mAABB.CreateFromPoints(object_collision_component->mAABB, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
 	
@@ -335,5 +355,28 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 	* For each bone, grab vertex cluster and create spheres from clusters.
 	*/
 
+}
+#pragma endregion
+
+#pragma region FillQuadTreeSystemRegion
+ecs::systems::FillQuadTreeSystem::FillQuadTreeSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(components::TransformComponent::typeID);
+	typeFilter.addRequirement(components::ObjectCollisionComponent::typeID);
+}
+
+ecs::systems::FillQuadTreeSystem::~FillQuadTreeSystem()
+{
+
+}
+
+void ecs::systems::FillQuadTreeSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::QuadTreeComponent::typeID);
+	ecs::components::QuadTreeComponent* p_tree = static_cast<ecs::components::QuadTreeComponent*>(it.next());
+	ecs::components::TransformComponent* p_transform = entity.getComponent<ecs::components::TransformComponent>();
+	ecs::components::ObjectCollisionComponent* p_collision = entity.getComponent<ecs::components::ObjectCollisionComponent>();
+	static_cast<QuadTree*>(p_tree->pTree)->Insert(QuadTreeObject(p_transform, p_collision));
 }
 #pragma endregion
