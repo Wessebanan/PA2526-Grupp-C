@@ -171,13 +171,23 @@ ecs::systems::GroundCollisionSystem::GroundCollisionSystem()
 
 ecs::systems::GroundCollisionSystem::~GroundCollisionSystem() 
 {
-
+	delete[] tile_transforms;
 }
 
 void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityInfo, float _delta) 
 {
-	// Grabbing all entities with a tile component (tiles).
-	EntityIterator it = getEntitiesWithComponent<TileComponent>();
+	// On first update, fill tile info members of system.
+	if (tiles.entities.size() == 0)
+	{
+		tiles = getEntitiesWithComponent<TileComponent>();
+	
+		tile_count = tiles.entities.size();
+		tile_transforms = new TransformComponent * [tile_count];
+		for (int i = 0; i < tile_count; i++)
+		{
+			tile_transforms[i] = getComponentFromKnownEntity<TransformComponent>(tiles.entities.at(i).entity->getID());
+		}
+	}
 
 	// Grabbing the ground collision component from the current entity.
 	GroundCollisionComponent* ground_collision_component = getComponentFromKnownEntity<GroundCollisionComponent>(_entityInfo.entity->getID());
@@ -205,17 +215,12 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 
 	// For each tile, check which is closest to the ground collision component.
 	// This is bad, and will likely be optimized in the future.	
-	for (int i = 0; i < it.entities.size(); i++)
+	for (int i = 0; i < tiles.entities.size(); i++)
 	{		
-		TypeID current_tile = it.entities.at(i).entity->getID();
+		TypeID current_tile = tiles.entities.at(i).entity->getID();
 
-		// Check that the tile has a transform component before trying to use it.
-		if (!it.entities.at(i).entity->hasComponentOfType<TransformComponent>())
-		{
-			return;
-		}
-		TransformComponent* tile_transform = getComponentFromKnownEntity<TransformComponent>(current_tile);
-		
+		TransformComponent* tile_transform = tile_transforms[i];
+	
 		float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_transform->position, obb.Center);
 		// Setting the ID to the closest tile.
 		if (closest_distance > distance_to_tile)

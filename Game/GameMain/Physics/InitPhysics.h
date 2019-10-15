@@ -4,24 +4,38 @@
 #include "CollisionSystem.h"
 #include "PhysicsComponents.h"
 #include "PhysicsEvents.h"
-
-
-//void InitPhysics(ecs::EntityComponentSystem& rEcs);
+namespace Mesh
+{
+	enum MESHES
+	{
+		DUDE,
+		TILE,
+		N_MESHES,
+	};
+}
+// Must be called after InitMesh and InitArmy.
+void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh **ppMmeshes);
 
 // Create every system needed for physics.
 void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs);
 
 // Create every necessary component for entities with unit components.
-void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh& mesh);
+void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh *pMesh);
 
 // Creates an entity with mesh component and collision component for an object (eg. tree).
-ecs::Entity* CreateEntityForObject(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh& mesh);
+ecs::Entity* CreateEntityForObject(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh *pMesh);
 
 // Set parameter direction to movement component forward and move forward.
 void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, XMFLOAT3 direction);
 
 // Move in direction of parameter input while keeping forward.
 void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, MovementInputs input);
+
+inline void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh** ppMeshes)
+{
+	CreatePhysicsSystems(rEcs);
+	CreatePhysicsComponentsForUnits(rEcs, ppMeshes[Mesh::DUDE]);
+}
 
 inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 {
@@ -37,14 +51,14 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 	rEcs.createSystem<ecs::systems::GroundCollisionSystem>();
 }
 
-inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh &mesh)
+inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh * pMesh)
 {
 	ecs::TypeFilter filter;
 	filter.addRequirement(UnitComponent::typeID);
 	ecs::EntityIterator it = rEcs.getEntititesByFilter(filter);
 	
 	MeshComponent mesh_component;
-	mesh_component.mMesh = &mesh;
+	mesh_component.mMesh = pMesh;
 	ObjectCollisionComponent object_collision;
 	GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
@@ -74,11 +88,11 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 	}
 }
 
-inline ecs::Entity* CreateEntityForObject(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh& mesh)
+inline ecs::Entity* CreateEntityForObject(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh)
 {
 	// Create components.
 	MeshComponent mesh_component;
-	mesh_component.mMesh = &mesh;
+	mesh_component.mMesh = pMesh;
 	ObjectCollisionComponent collsion_component;
 	TransformComponent transform_component;
 	transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);

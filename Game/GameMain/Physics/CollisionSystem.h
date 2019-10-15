@@ -57,6 +57,10 @@ namespace ecs
 			GroundCollisionSystem();
 			~GroundCollisionSystem();
 			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
+		private:
+			EntityIterator tiles;
+			TransformComponent** tile_transforms;
+			unsigned int tile_count;
 		};
 
 	} // systems
