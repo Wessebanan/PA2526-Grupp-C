@@ -9,10 +9,6 @@
 #include <DirectXMath.h>
 #include <memory>
 
-#pragma comment (lib, "libfbxsdk.lib")
-#pragma comment (lib, "d3d11.lib")
-#pragma comment (lib, "dxguid.lib")
-
 #define MAX_NUM_WEIGHTS_PER_VERTEX 4
 
 namespace ModelLoader
