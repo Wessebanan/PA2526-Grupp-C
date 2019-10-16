@@ -1,4 +1,4 @@
-#include "../../pch.h"
+
 #include "../includes/Window.h"
 
 namespace graphics

@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\pch.h" />
     <ClInclude Include="..\includes\ComputeManager.h" />
     <ClInclude Include="..\includes\D3D11Header.h" />
     <ClInclude Include="..\includes\ForwardRenderingPipeline.h" />
@@ -26,10 +25,6 @@
     <ClCompile Include="..\source\ComputeManager.cpp" />
     <ClCompile Include="..\source\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="..\source\GraphicsInterface.cpp" />
-    <ClCompile Include="..\source\pch.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\source\RenderContext.cpp" />
     <ClCompile Include="..\source\MeshManager.cpp" />
     <ClCompile Include="..\source\RenderManager.cpp" />
@@ -81,6 +76,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -95,6 +93,9 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

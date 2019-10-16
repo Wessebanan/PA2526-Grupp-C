@@ -1,4 +1,4 @@
-#include "../../pch.h"
+
 
 #include "../includes/GraphicsInterface.h"
 #include "../includes/Window.h"
@@ -7,6 +7,10 @@
 #include "../includes/MeshManager.h"
 #include "../includes/RenderManager.h"
 #include "../includes/ComputeManager.h"
+
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 
 void SetViewMatrix(
 	DirectX::XMFLOAT4X4& rViewMatrix,

@@ -1,5 +1,6 @@
-#include "../../pch.h"
+
 #include "../includes/GraphicsInterface.h"
+#include <fstream>
 
 namespace graphics
 {
