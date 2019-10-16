@@ -108,6 +108,35 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a re
 	return hr;
 }
 
+HRESULT Direct2D::CreateHwndRenderTarget(HWND window, int width, int height)
+{
+	HRESULT hr = E_FAIL;
+	if (SUCCEEDED(hr = this->mpFactory->CreateHwndRenderTarget(
+		D2D1::RenderTargetProperties(),
+		D2D1::HwndRenderTargetProperties(
+			window,
+			D2D1::SizeU(width, height)),
+		&this->mpHwndRenderTarget)))
+	{
+		this->mHwndRenderTargetCreated = true;
+		this->mpHwndRenderTarget->SetAntialiasMode(D2D1_ANTIALIAS_MODE_PER_PRIMITIVE);
+		this->mpHwndRenderTarget->AddRef(); //add reference counter
+		hr = this->mCreateColorText();
+		hr = this->mCreateColorDraw();
+		hr = this->mCreateTextFormat(this->mfont, this->mfontSize, &this->mpTextFormat);
+		this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
+		hr = this->mCreateTextFormat(L"Times New Roman", 20, &this->mpDebugTextFormat);//textformat for debug
+		this->mpDebugTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
+		hr = this->mCreateColorBrushes();
+		this->LoadImageToBitmap("fail.png");
+		//this->mpTextFormat->AddRef();
+		this->mpColorText->AddRef();
+		this->mpColorDraw->AddRef();
+	};
+
+	return hr;
+}
+
 void Direct2D::InitDeviceAndContext(IDXGIDevice* dxgiDevice) //takes DXGIdevice from Dx11
 {
 	this->mpFactory->CreateDevice(dxgiDevice, &this->mpDevice);

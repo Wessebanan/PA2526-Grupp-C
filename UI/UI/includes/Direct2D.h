@@ -63,6 +63,7 @@ public:
 	~Direct2D();
 	
 	HRESULT CreateHwndRenderTarget(HWND window, RECT* rect);
+	HRESULT CreateHwndRenderTarget(HWND window, int width, int height);
 	void InitDeviceAndContext(IDXGIDevice* dxgiDevice); //Takes dxgidevice from dx11 and creates d2d device and device context
 	ID2D1DeviceContext* GetpContext();
 	HRESULT LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
