@@ -23,17 +23,6 @@ enum WEAPON_TYPE
 	DEFAULT
 };
 
-// Inheritance structure for unspecific bounding volumes.
-//#pragma region BoundingVolume
-//struct BoundingVolume 
-//{
-//	virtual ~BoundingVolume() = default;
-//};
-//struct Sphere : public BoundingVolume, DirectX::BoundingSphere {};
-//struct OBB : public BoundingVolume, DirectX::BoundingOrientedBox {};
-//struct AABB : public BoundingVolume, DirectX::BoundingBox {};
-//#pragma endregion
-
 namespace ecs
 {
 	namespace components
@@ -140,10 +129,12 @@ namespace ecs
 		{
 			// When an entity gets the weapon, give owner entity id to component.
 			ID mOwnerEntity;
-		
+			
+
 			WEAPON_TYPE mType = DEFAULT;
+			float mAttackRange = 0.0f;
 			BoundingVolume* mBoundingVolume = nullptr;
-			//OBB* mOBB = nullptr;
+			
 			// Previous position to calculate velocity for damage.
 			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			
