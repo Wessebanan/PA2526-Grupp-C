@@ -18,19 +18,22 @@ namespace Audio
 			Plugin()
 			{
 				mpNext = nullptr;
+				mNextIsOnStack = false;
 			}
 			// Once one plugin gets deleted, the chain of
 			// plugins gets deleted
 			~Plugin() {
-				if (mpNext != nullptr)
+				if (!mNextIsOnStack && mpNext != nullptr)
 				{
 					delete mpNext;
 					mpNext = nullptr;
 				}
 			}
+			void SetNextPointer(Plugin* pNext, bool NextIsOnStack);
 			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount) = 0;
 		protected:
 			Plugin* mpNext;
+			bool mNextIsOnStack;
 		};
 
 		class Sampler : public Plugin
@@ -46,6 +49,16 @@ namespace Audio
 			FileData* mpFile;
 			Samples mReadPointer;
 			int mRepeatAmount;
+		};
+
+		class Gain : public Plugin
+		{
+		public:
+			Gain(Plugin* pNext = nullptr, float gain = 0.0f);
+			void SetGain(float gain);
+			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount);
+		private:
+			float mGain;
 		};
 	}
 }

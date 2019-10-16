@@ -35,16 +35,29 @@ namespace Audio
 			// Functions
 			M_FUNC_NOTHING =			0,
 			M_FUNC_REPLACE_MUSIC =		(1 << 5),
-			M_FUNC_FADE_IN =			(2 << 5),
-			M_FUNC_FADE_OUT =			(3 << 5),
-			M_FUNC_MASK =				(0b11 << 5)
+			M_FUNC_SET_GAIN =			(2 << 5),
+			M_FUNC_FADE_IN =			(3 << 5),
+			M_FUNC_FADE_OUT =			(4 << 5),
+			M_FUNC_MASK =				(0b111 << 5)
 
 		};
 		union MessageDataUnion
 		{
-			void* tpVoid;
-			Audio::FileData* pFileData;
-			float tFloat;
+			MessageDataUnion()
+			{
+				_void = 0;
+			}
+			MessageDataUnion(float Float)
+			{
+				_float = Float;
+			}
+			MessageDataUnion(Audio::FileData* FileData)
+			{
+				_FileData = FileData;
+			}
+			void* _void;
+			Audio::FileData* _FileData;
+			float _float;
 		};
 		struct Message
 		{
@@ -63,11 +76,13 @@ namespace Audio
 			struct MusicVoiceData
 			{
 				Plugin::Plugin* Entry;
+				Plugin::Gain Gain;
 				Plugin::Sampler Sampler;
 			};
 
 			//void NewMusicVoice(Plugin::Plugin* pEntryPlugin, bool replace);
 			void ReplaceMusic(Message& rMessage, MusicVoiceData* pTarget);
+			void SetGain(Message& rMessage, MusicVoiceData* pTarget);
 
 			Ringbuffer<Music::Message, SOUND_MAX_MUSIC_MESSAGES> mMusicMessageBuffer;
 			//Voice mMusicVoices[SOUND_MAX_MUSIC_VOICES];

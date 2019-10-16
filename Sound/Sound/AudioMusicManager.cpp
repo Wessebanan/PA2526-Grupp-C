@@ -4,7 +4,15 @@ void Audio::Music::Manager::ReplaceMusic(Message& rMessage, MusicVoiceData* pTar
 {
 	if ((rMessage.flags & M_DATA_MASK) == M_DATA_AS_PARAMETER)
 	{
-		pTarget->Sampler.SetFileAndReset(rMessage.data.pFileData);
+		pTarget->Sampler.SetFileAndReset(rMessage.data._FileData);
+	}
+}
+
+void Audio::Music::Manager::SetGain(Message& rMessage, MusicVoiceData* pTarget)
+{
+	if ((rMessage.flags & M_DATA_MASK) == M_DATA_AS_PARAMETER)
+	{
+		pTarget->Gain.SetGain(rMessage.data._float);
 	}
 }
 
@@ -30,6 +38,9 @@ void Audio::Music::Manager::ProcessMusicMessages()
 		{
 		case M_FUNC_REPLACE_MUSIC:
 			ReplaceMusic(temp_message, target_data);
+			break;
+		case M_FUNC_SET_GAIN:
+			SetGain(temp_message, target_data);
 			break;
 		}
 
@@ -67,7 +78,7 @@ void Audio::Music::Manager::ProcessMusicMessages()
 		// Data teardown
 		if ((temp_message.flags & M_DATA_TEARDOWN_MASK) == M_DATA_TEARDOWN_DELETE)
 		{
-			delete temp_message.data.tpVoid;	// If it works like this
+			delete temp_message.data._void;	// If it works like this
 		}
 	}
 }
@@ -92,8 +103,11 @@ void Audio::Music::Manager::Fill(Samples start, Samples sampleCount, float* pDat
 
 Audio::Music::Manager::Manager()
 {
-	mMainData.Entry = &mMainData.Sampler;
-	mSubData.Entry = &mSubData.Sampler;
+	mMainData.Gain.SetNextPointer(&mMainData.Sampler, true);
+	mMainData.Entry = &mMainData.Gain;
+	
+	mSubData.Gain.SetNextPointer(&mSubData.Sampler, true);
+	mSubData.Entry = &mSubData.Gain;
 }
 
 void Audio::Music::Manager::AddMusicMessage(Music::Message message)

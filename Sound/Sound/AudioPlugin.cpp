@@ -83,3 +83,31 @@ LabelFinished:
 	}
 	return STATUS_FINISHED;
 }
+
+Audio::Plugin::Gain::Gain(Plugin* pNext, float gain)
+{
+	mpNext = pNext;
+	mGain = gain;
+}
+
+
+void Audio::Plugin::Gain::SetGain(float gain)
+{
+	mGain = gain;
+}
+
+Audio::Plugin::Status Audio::Plugin::Gain::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
+{
+	Status status = mpNext->Process(start, sampleCount, pData, channelCount);
+	for (int i = 0; i < sampleCount * channelCount; i++)
+	{
+		pData[i] *= mGain;
+	}
+	return status;
+}
+
+void Audio::Plugin::Plugin::SetNextPointer(Plugin* pNext, bool NextIsOnStack)
+{
+	mpNext = pNext;
+	mNextIsOnStack = NextIsOnStack;
+}
