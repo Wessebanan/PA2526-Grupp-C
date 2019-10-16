@@ -53,7 +53,7 @@ struct SKIN_VSIn
 	float2 UV		: UV0;
 	uint instance : INDEX0;
 	float3 blendWeights : BLENDWEIGHT0;
-	min16int4 blendIndices : BLENDINDICES0;
+	uint4 blendIndices : BLENDINDICES0;
 };
 
 struct VSOut

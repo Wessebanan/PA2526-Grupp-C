@@ -99,7 +99,7 @@ namespace graphics
 		desc[4].SemanticIndex = 0;
 		desc[4].SemanticName = "BLENDWEIGHT";
 
-		desc[5].Format = DXGI_FORMAT_R32G32B32A32_SINT;
+		desc[5].Format = DXGI_FORMAT_R32G32B32A32_UINT;
 		desc[5].InputSlot = 5;
 		desc[5].InputSlotClass = D3D11_INPUT_PER_INSTANCE_DATA;
 		desc[5].InstanceDataStepRate = 0;
