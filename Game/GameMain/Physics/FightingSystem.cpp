@@ -71,12 +71,6 @@ ecs::systems::DamageSystem::~DamageSystem()
 }
 void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	// if collision: 
-	// *check movement diff on weapon
-	// *calc velocity
-	// *multiply velocity with base damage for true damage
-	// *deduct damage from collided entities health
-
 	Entity* weapon = _entityInfo.entity;
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(weapon->getID());
 	TransformComponent* weapon_transform_component = getComponentFromKnownEntity<TransformComponent>(weapon->getID());
@@ -113,6 +107,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 	// Check collision against entities that could take damage.
 	bool intersect = false;
+	int intersected_index = -1;
 	for (int i = 0; i < units.entities.size(); i++)
 	{
 		// Skip weapon owner.
@@ -126,24 +121,22 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		// Grabbing copy of AABB from current and transforming to world space.
 		AABB current_aabb = p_current_collision->mAABB;
 		XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
-		//current_aabb.BoundingBox::Transform(*(BoundingBox*)current_aabb, current_world_transform);
-		//
-		//intersect = weapon_bv->Intersects(current_aabb);
-		
+		current_aabb.BoundingBox::Transform(current_aabb, current_world_transform);		
+
+		// Checking intersection and breaks if intersection.
+		intersect = weapon_bv->Intersects(&current_aabb);
+		if (intersect)
+		{
+			intersected_index = i;
+			break;
+		}
 	}
 	
-	
-		
-			//// Grabbing the collision and transform component from the current entity.
-			//ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(it.entities.at(i).entity->getID());
-			//TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(it.entities.at(i).entity->getID());
-
-			//// Grabbing copy of AABB from current and transforming to world space.
-			//BoundingBox current_aabb = p_current_collision->mAABB;
-			//XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
-			//current_aabb.Transform(current_aabb, current_world_transform);
-		
-	
+	// if collision: 
+// *check movement diff on weapon
+// *calc velocity
+// *multiply velocity with base damage for true damage
+// *deduct damage from collided entities health
 
 	weapon_component->mPreviousPos = weapon_transform_component->position;
 }
