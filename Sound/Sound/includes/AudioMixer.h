@@ -53,7 +53,7 @@ namespace Audio
 			Manager();
 			void AddMusicMessage(Music::Message message);
 			void ProcessMusicMessages();
-			void Fill(Samples start, Samples sampleCount, float* pData, int channelCount);
+			void Fill(Samples start, Samples sampleCount, float* pData, int channelCount, float* pVoiceData);
 		private:
 			struct MusicVoiceData
 			{

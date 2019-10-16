@@ -69,6 +69,7 @@ LabelFinished:
 		{
 			*(pData++) = 0.f;
 		}
+		j = 0;
 	}
 	return STATUS_FINISHED;
 }

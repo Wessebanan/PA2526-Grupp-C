@@ -367,6 +367,7 @@ TEST(SoundAPI, MusicThroughMessaging)
 	SetupEngine(engine, mixer, pa_init);
 	
 	std::cout << "Add music..." << std::endl;
+	Audio::FileData* hello = bank[0];
 	mixer.AddMusicMessage({
 		bank[0],
 		Audio::Music::M_FUNC_REPLACE_MUSIC |
@@ -394,45 +395,45 @@ TEST(SoundAPI, MusicThroughMessaging)
 	std::cout << "End of test\n";
 }
 
-TEST(SoundAPI, MusicAndSoundMessaging)
-{
-	// Initialize a Audio engine, mixer and bank
-	Audio::Engine engine;
-	Audio::Mixer mixer;
-	Audio::Bank bank;
-	Audio::PaHandler pa_init;
-
-	// Read both music and sound effect
-	std::string file_paths[] =
-	{
-		"cc_song.wav",
-		"coin.wav"
-	};
-	ASSERT_TRUE(bank.LoadMultipleFiles(file_paths, 2));
-
-	// Setup engine
-	SetupEngine(engine, mixer, pa_init);
-
-	std::cout << "Adds music every second (shouldn't interrupt song)" << std::endl;
-	std::cout << "Adds sound 20 times a second" << std::endl;
-	for (int i = 0; i < 3; i++)
-	{
-		mixer.AddMusicMessage({
-			bank[0],
-			Audio::Music::M_FUNC_REPLACE_MUSIC |
-			Audio::Music::M_DATA_AS_PARAMETER
-			});
-		for (int j = 0; j < 20; j++)
-		{
-			mixer.AddSoundMessage({
-				new Audio::Plugin::Sampler(bank[1],1)
-				});
-			Pa_Sleep(50);	
-		}
-
-	}
-
-	TeardownEngine(engine);
-
-	std::cout << "End of test\n";
-}
+//TEST(SoundAPI, MusicAndSoundMessaging)
+//{
+//	// Initialize a Audio engine, mixer and bank
+//	Audio::Engine engine;
+//	Audio::Mixer mixer;
+//	Audio::Bank bank;
+//	Audio::PaHandler pa_init;
+//
+//	// Read both music and sound effect
+//	std::string file_paths[] =
+//	{
+//		"cc_song.wav",
+//		"coin.wav"
+//	};
+//	ASSERT_TRUE(bank.LoadMultipleFiles(file_paths, 2));
+//
+//	// Setup engine
+//	SetupEngine(engine, mixer, pa_init);
+//
+//	std::cout << "Adds music every second (shouldn't interrupt song)" << std::endl;
+//	std::cout << "Adds sound 20 times a second" << std::endl;
+//	for (int i = 0; i < 3; i++)
+//	{
+//		mixer.AddMusicMessage({
+//			bank[0],
+//			Audio::Music::M_FUNC_REPLACE_MUSIC |
+//			Audio::Music::M_DATA_AS_PARAMETER
+//			});
+//		for (int j = 0; j < 20; j++)
+//		{
+//			mixer.AddSoundMessage({
+//				new Audio::Plugin::Sampler(bank[1],1)
+//				});
+//			Pa_Sleep(50);	
+//		}
+//
+//	}
+//
+//	TeardownEngine(engine);
+//
+//	std::cout << "End of test\n";
+//}
