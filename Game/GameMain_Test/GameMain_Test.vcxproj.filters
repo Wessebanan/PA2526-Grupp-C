@@ -30,6 +30,9 @@
     <ClCompile Include="..\GameMain\gameAudio\AudioECSSystems.cpp">
       <Filter>Sound</Filter>
     </ClCompile>
+    <ClCompile Include="..\GameMain\Physics\QuadTree.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -116,6 +119,9 @@
     </ClInclude>
     <ClInclude Include="Sound\SoundTests.h">
       <Filter>Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\Physics\QuadTree.h">
+      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
