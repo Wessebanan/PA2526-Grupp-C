@@ -158,7 +158,6 @@ TEST(ObjectCollisionCheck, CheckCollision)
 
 	// Moving entity2 so it is right in front of entity1
 	// so any forward movement should trigger a collision.
-	p_object_collision_component1->mAABB.Extents.x * 2.0f;
 	p_transform_component2->position.x = p_object_collision_component1->mAABB.Extents.x * 2.0f;
 
 	// This test is to see if entity1 collides properly with entity2.
