@@ -46,7 +46,6 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* mng)
 			break;
 		case TileTypes::WATER:
 			pTilePosition[index].color = PACK(0, 0, 200 + color_offset, 0);
-			//pTilePosition[index].y = -100.f;
 			break;
 		case TileTypes::UNDEFINED:
 			pTilePosition[index].color = PACK(0, 0, 0, 255);
