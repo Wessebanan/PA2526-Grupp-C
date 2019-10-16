@@ -71,7 +71,7 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 
 			p_gp->mSceneObjects[(i % 12)][(i / 12) - 1] = p_scene_comp->mObjectType;
 
-			if (p_scene_comp->mObjectType == OBJECTTYPE::UNPASSABLE)
+			if (p_scene_comp->mObjectType == OBJECTTYPE::IMPASSABLE)
 			{
 				tile_comp->impassable = true;
 			}
