@@ -15,6 +15,8 @@
 #include "gameAudio/InitAudio.h"
 
 #include "gameAnimation/UpdateAnimation.h"
+#include "Physics/InitPhysics.h"
+
 #include <time.h>
 
 using namespace ecs;								  
@@ -42,6 +44,7 @@ int main()
 	InitArmy(ecs);
 	InitSceneObjects(ecs);
 
+
 	rendering::SUN_DESC sun_desc;
 	sun_desc.Red = 200;
 	sun_desc.Green = 200;
@@ -62,9 +65,9 @@ int main()
 	pMng->Initialize(sun_desc, 1600, 900, "D3D11");
 	InitCamera(ecs);
 
-
+	ModelLoader::Mesh **pp_meshes = InitMesh(ecs, pMng);
 	
-	InitMesh(ecs, pMng);
+	InitPhysics(ecs, pp_meshes);
 
 	graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
 
@@ -99,6 +102,9 @@ int main()
 			UpdateAnimation(pMng, &animTest, frameCount);
 		}
 	}
+	
+	for (int i = 0; i < Mesh::N_MESHES; i++) delete pp_meshes[i];
+	delete[] pp_meshes;
 
 	pMng->Destroy();
 	return 0;

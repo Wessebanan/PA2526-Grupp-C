@@ -57,6 +57,11 @@ namespace ecs
 			GroundCollisionSystem();
 			~GroundCollisionSystem();
 			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
+		private:
+			EntityIterator mTiles;
+			TransformComponent** mppTileTransforms = nullptr;
+			unsigned int mTileCount = 0;
+			bool mInit = false;
 		};
 
 		/*FillQuadTreeSystem
