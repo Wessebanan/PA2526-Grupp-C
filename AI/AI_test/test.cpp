@@ -122,7 +122,7 @@ TEST(GridFunctions, differentTypes) {
 	{
 		nr_of_components++;
 		p_tile = (ecs::components::TileComponent*)p_base; //casts base component to transform component
-		if (p_tile->tileType == TileTypes::STONE) // check if there is a component with a stone type and how many stone tiles there are
+		if (p_tile->tileType == TileTypes::GAME_FIELD) // check if there is a component with a stone type and how many stone tiles there are
 		{
 			stone_found = true;
 			nr_of_stone++;
