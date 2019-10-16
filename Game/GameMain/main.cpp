@@ -22,7 +22,6 @@ using namespace ecs;
 
 int main()
 {
-
 	srand(time(0));
 
 	EntityComponentSystem ecs;
@@ -36,8 +35,6 @@ int main()
 
 	InitInput(ecs);
 	InitInterpreter(ecs);
-	//CameraFunctions::CreateDevCamera(ecs);
-
 
 	InitGrid(ecs);
 	InitArmy(ecs);
