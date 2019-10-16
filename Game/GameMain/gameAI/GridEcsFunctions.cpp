@@ -121,71 +121,185 @@ namespace GridEcsFunctions
 
 				// If-statements to have each biome start from different corners
 				// Should be changed later to have them spread, but rigth now not needed
-				if (random_biome == 0)
-				{
-					// Loop until a empty tile is found
-					for (int it = 0; it < Rows && !found; it++)
-					{
-						for (int jt = 0; jt < Columns && !found; jt++)
-						{
-							if (p_gp->mGrid[it][jt].biome == -1)
-							{
-								// Apply the biome, set later
-								p_gp->mGrid[it][jt].biome = random_biome;
 
-								found = true;
-							}
-						}
-					}
-				}
-				else if (random_biome == 1)
 				{
-					for (int it = 11; it > 0 && !found; it--)
-					{
-						for (int jt = 0; jt < Columns && !found; jt++)
-						{
-							if (p_gp->mGrid[it][jt].biome == -1)
-							{
-								p_gp->mGrid[it][jt].biome = random_biome;
 
-								found = true;
-							}
-						}
+
+					int itteratons = 0;
+					int it;
+					int jt;
+
+					switch (random_biome)
+					{
+					case 0:
+						it = 0;
+						jt = 0;
+						break;
+					case 1:
+						it = 11;
+						jt = 0;
+						break;
+					case 2:
+						it = 0;
+						jt = 11;
+						break;
+					case 3:
+						it = 11;
+						jt = 11;
+						break;
+					default:
+						break;
 					}
 
-				}
-				else if (random_biome == 2)
-				{
-					for (int it = 0; it < Rows && !found; it++)
-					{
-						for (int jt = 11; jt > 0 && !found; jt--)
-						{
-							if (p_gp->mGrid[it][jt].biome == -1)
-							{
-								p_gp->mGrid[it][jt].biome = random_biome;
 
-								found = true;
+					//TileData* next_tile = &p_gp->mGrid[it][jt];
+
+					while (p_gp->mGrid[it][jt].biome != -1)
+					{
+						int random_factor = rand() % 6;
+
+						TileData* neighbours[6] = {
+							nullptr,
+							nullptr,
+							nullptr,
+							nullptr,
+							nullptr,
+							nullptr
+						};
+
+						if (it < Rows)
+							neighbours[0] = &p_gp->mGrid[it + 1][jt];
+						if (jt < Columns)
+							neighbours[1] = &p_gp->mGrid[it][jt + 1];
+						if (it > 0)
+							neighbours[2] = &p_gp->mGrid[it - 1][jt];
+						if (jt > 0)
+							neighbours[3] = &p_gp->mGrid[it][jt - 1];
+						if (it < Rows)
+						{
+							if (jt < Columns)
+								neighbours[4] = &p_gp->mGrid[it + 1][jt + 1];
+							if (jt > 0)
+								neighbours[5] = &p_gp->mGrid[it + 1][jt - 1];
+						}
+							
+						int stop_loop = 0;
+						while (neighbours[(++random_factor) % 6] != nullptr && stop_loop++ < 6)
+						{
+							//next_tile = p_gp->mGrid[it][jt];
+							random_factor;
+
+							switch ((random_factor) % 6)
+							{
+							case 0:
+								it++;
+								break;
+							case 1:
+								jt++;
+								break;
+							case 2:
+								it--;
+								break;
+							case 3:
+								jt--;
+								break;
+							case 4:
+								it++;
+								jt++;
+								break;
+							case 5:
+								it++;
+								jt--;
+								break;
+							default:
+								break;
 							}
 						}
-					}
 
-				}
-				else if (random_biome == 3)
-				{
-					for (int it = 11; it > 0 && !found; it--)
-					{
-						for (int jt = 11; jt > 0 && !found; jt--)
+						if (stop_loop == 6)
 						{
-							if (p_gp->mGrid[it][jt].biome == -1)
-							{
-								p_gp->mGrid[it][jt].biome = random_biome;
-
-								found = true;
-							}
+							j--;
 						}
+
+						
+
+						//p_gp->mGrid[it][jt].biome = random_biome;
+
+
+						itteratons++;
+						if (itteratons > 144)
+							break;
 					}
 
+					p_gp->mGrid[it][jt].biome = random_biome;
+
 				}
+
+				//if (random_biome == 0)
+				//{
+				//	// Loop until a empty tile is found
+				//	for (int it = 0; it < Rows && !found; it++)
+				//	{
+				//		for (int jt = 0; jt < Columns && !found; jt++)
+				//		{
+				//			if (p_gp->mGrid[it][jt].biome == -1)
+				//			{
+				//				// Apply the biome, set later
+				//				p_gp->mGrid[it][jt].biome = random_biome;
+
+				//				found = true;
+				//			}
+				//		}
+				//	}
+				//}
+				//else if (random_biome == 1)
+				//{
+				//	for (int it = 11; it > 0 && !found; it--)
+				//	{
+				//		for (int jt = 0; jt < Columns && !found; jt++)
+				//		{
+				//			if (p_gp->mGrid[it][jt].biome == -1)
+				//			{
+				//				p_gp->mGrid[it][jt].biome = random_biome;
+
+				//				found = true;
+				//			}
+				//		}
+				//	}
+
+				//}
+				//else if (random_biome == 2)
+				//{
+				//	for (int it = 0; it < Rows && !found; it++)
+				//	{
+				//		for (int jt = 11; jt > 0 && !found; jt--)
+				//		{
+				//			if (p_gp->mGrid[it][jt].biome == -1)
+				//			{
+				//				p_gp->mGrid[it][jt].biome = random_biome;
+
+				//				found = true;
+				//			}
+				//		}
+				//	}
+
+				//}
+				//else if (random_biome == 3)
+				//{
+				//	for (int it = 11; it > 0 && !found; it--)
+				//	{
+				//		for (int jt = 11; jt > 0 && !found; jt--)
+				//		{
+				//			if (p_gp->mGrid[it][jt].biome == -1)
+				//			{
+				//				p_gp->mGrid[it][jt].biome = random_biome;
+
+				//				found = true;
+				//			}
+				//		}
+				//	}
+
+				//}
 			}
 		}
 
