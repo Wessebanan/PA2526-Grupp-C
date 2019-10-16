@@ -7,6 +7,7 @@
 //#include "Mesh.h"
 #include "Physics/QuadTreeTests.h"
 #include "Sound/SoundTests.h"
+#include "AiTests.h"
 #include <crtdbg.h>
 
 int main(int argc, char** argv) 

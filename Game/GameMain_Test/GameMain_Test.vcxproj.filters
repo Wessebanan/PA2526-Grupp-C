@@ -123,6 +123,10 @@
     <ClInclude Include="..\GameMain\Physics\QuadTree.h">
       <Filter>Physics</Filter>
     </ClInclude>
+    <ClInclude Include="Physics\QuadTreeTests.h" />
+    <ClInclude Include="AI\AiTests.h">
+      <Filter>Physics\Test Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Physics">

@@ -4,6 +4,7 @@
 #include <vector>
 #include "..//gameSceneObjects/SceneObjectGlobals.h"
 #include "../../AI/includes/AIGlobals.h"
+#include <DirectXMath.h>
 
 namespace ecs
 {
@@ -26,7 +27,7 @@ namespace ecs
 
 		struct PathfindingStateComponent : public ECSComponent<PathfindingStateComponent>
 		{
-			int data = 0;
+			STATE goalState = STATE::IDLE;
 		};
 
 		struct IdleStateComponent : public ECSComponent<IdleStateComponent>
@@ -36,7 +37,20 @@ namespace ecs
 
 		struct MoveStateComponent : public ECSComponent<MoveStateComponent>
 		{
+			STATE goalState = STATE::IDLE;
+			DirectX::XMFLOAT3 goalPos = {0.0f, 0.0f, 0.0f}; //Defaults to 0,0,0 to make sure that there always is some kind of goal.
+			float time = 0.0f;
+		};
+
+		struct LootStateComponent : public ECSComponent<LootStateComponent>
+		{
 			int data = 0;
+		};
+
+		struct AttackStateComponent : public ECSComponent<AttackStateComponent>
+		{
+			int enemyEntityId = 0;
+			STATE previousState = STATE::IDLE;
 		};
 
 		struct UnitComponent : public ECSComponent<UnitComponent>
