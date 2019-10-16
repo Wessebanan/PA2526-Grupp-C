@@ -21,6 +21,7 @@ namespace ecs
 
 			void ProcessPlaySound(ecs::events::PlaySound* pEvent);
 			void ProcessPlayMusic(ecs::events::PlayMusic* pEvent);
+			void ProcessFadeInMusic(ecs::events::FadeInMusic* pEvent);
 
 			Audio::PaHandler* mSoundPaHandler;
 			Audio::Engine* mSoundEngine;

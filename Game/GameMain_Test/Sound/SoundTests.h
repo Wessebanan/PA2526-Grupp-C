@@ -16,8 +16,11 @@ TEST(SoundAPI, PlayAudioThroughECS)
 
 	ecs::events::PlayMusic music_event;
 	music_event.audioName = AudioName::CC_TEST_SONG;
-	music_event.musicFlags = MusicFlags::MF_REPLACE;
 	ecs.createEvent(music_event);
+
+	ecs::events::FadeInMusic fade_in_event;
+	fade_in_event.fadeInTimeInSeconds = 3.0f;
+	ecs.createEvent(fade_in_event);
 
 	int loop_amount = 50;
 	while (loop_amount != 0)

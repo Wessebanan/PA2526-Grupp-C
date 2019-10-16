@@ -16,9 +16,10 @@ namespace ecs
 		struct PlayMusic : public ECSEvent<PlayMusic>
 		{
 			AudioName audioName;
-			MusicFlags musicFlags;
-			// This will be implemented later
-			//std::pair<SoundFlags,ID>* pInput;
+		};
+		struct FadeInMusic : public ECSEvent<FadeInMusic>
+		{
+			float fadeInTimeInSeconds;
 		};
 
 	}

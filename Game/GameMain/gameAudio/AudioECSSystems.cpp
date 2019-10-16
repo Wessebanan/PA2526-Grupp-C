@@ -7,6 +7,7 @@ ecs::systems::SoundMessageSystem::SoundMessageSystem()
 	updateType = EventReader;
 	typeFilter.addRequirement(ecs::events::PlaySound::typeID);
 	typeFilter.addRequirement(ecs::events::PlayMusic::typeID);
+	typeFilter.addRequirement(ecs::events::FadeInMusic::typeID);
 }
 
 ecs::systems::SoundMessageSystem::~SoundMessageSystem()
@@ -70,16 +71,39 @@ bool ecs::systems::SoundMessageSystem::Init()
 void ecs::systems::SoundMessageSystem::readEvent(BaseEvent& rEvent, float delta)
 {
 	// Sort the messages
-	if (rEvent.getTypeID() == ecs::events::PlaySound::typeID)
 	{
-		ecs::events::PlaySound* p_event = static_cast<ecs::events::PlaySound*>(&rEvent);
-		ProcessPlaySound(p_event);
+		using namespace ecs::events;
+		//switch (rEvent.getTypeID())
+		//{
+		//case PlaySound::typeID:
+		//	ProcessPlaySound(static_cast<PlaySound*>(&rEvent));
+		//	break;
+		//case PlayMusic::typeID:
+		//	ProcessPlayMusic(static_cast<PlayMusic*>(&rEvent));
+		//	break;
+		//case FadeInMusic::typeID:
+		//	FadeInMusic(static_cast<FadeInMusic*>(&rEvent));
+		//	break;
+		//}
+		TypeID id = rEvent.getTypeID();
+
+		if(PlaySound::typeID == id)
+			ProcessPlaySound(static_cast<PlaySound*>(&rEvent));
+		else if(PlayMusic::typeID == id)
+			ProcessPlayMusic(static_cast<PlayMusic*>(&rEvent));
+		else if(FadeInMusic::typeID)
+			ProcessFadeInMusic(static_cast<FadeInMusic*>(&rEvent));
 	}
-	else
-	{
-		ecs::events::PlayMusic* p_event = static_cast<ecs::events::PlayMusic*>(&rEvent);
-		ProcessPlayMusic(p_event);
-	}
+	//if (rEvent.getTypeID() == ecs::events::)
+	//{
+	//	ecs::events::PlaySound* p_event = static_cast<ecs::events::PlaySound*>(&rEvent);
+	//	ProcessPlaySound(p_event);
+	//}
+	//else
+	//{
+	//	ecs::events::PlayMusic* p_event = static_cast<ecs::events::PlayMusic*>(&rEvent);
+	//	ProcessPlayMusic(p_event);
+	//}
 }
 
 bool ecs::systems::SoundMessageSystem::SetupEngine()
@@ -131,16 +155,20 @@ void ecs::systems::SoundMessageSystem::ProcessPlaySound(ecs::events::PlaySound* 
 
 void ecs::systems::SoundMessageSystem::ProcessPlayMusic(ecs::events::PlayMusic* pEvent)
 {
-	Audio::FileData* temp_data = (*mSoundBank)[pEvent->audioName];
-	if (temp_data == nullptr)
-	{
-		// No point in playing nothing
-		return;
-	}
-	bool temp_replace_bool = pEvent->musicFlags & MusicFlags::MF_REPLACE;
-	Audio::Plugin::Plugin* temp_plugin = new Audio::Plugin::Sampler(temp_data, 0);
+	//bool temp_replace_bool = pEvent->musicFlags & MusicFlags::MF_REPLACE;
+	//Audio::Plugin::Plugin* temp_plugin = new Audio::Plugin::Sampler(temp_data, 0);
 	mSoundMixer->AddMusicMessage({
-		temp_plugin,
-		(temp_replace_bool ? Audio::Music::M_REPLACE : Audio::Music::M_NONE)
+		(*mSoundBank)[pEvent->audioName],
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_FUNC_REPLACE_MUSIC
+	});
+}
+
+void ecs::systems::SoundMessageSystem::ProcessFadeInMusic(ecs::events::FadeInMusic* pEvent)
+{
+	mSoundMixer->AddMusicMessage({
+		(unsigned long)(pEvent->fadeInTimeInSeconds*44100.f),
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_FUNC_FADE_IN
 	});
 }
