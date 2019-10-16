@@ -24,10 +24,17 @@
 //};
 #pragma once
 #include <DirectXCollision.h>
+// Base struct for unspecified DirectX bounding volumes.
 struct BoundingVolume
 {
 	virtual ~BoundingVolume() = default;
 };
+
+//Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingSphere.
 struct Sphere : public BoundingVolume, DirectX::BoundingSphere {};
+
+//Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingOrientedBox.
 struct OBB : public BoundingVolume, DirectX::BoundingOrientedBox {};
+
+//Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingBox.
 struct AABB : public BoundingVolume, DirectX::BoundingBox {};

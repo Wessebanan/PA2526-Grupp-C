@@ -18,6 +18,9 @@ namespace ecs
 			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
 		};
 
-		//SYSTEM(DamageSystem){};
+		SYSTEM(DamageSystem)
+		{
+
+		};
 	} // systems
 } // ecs
