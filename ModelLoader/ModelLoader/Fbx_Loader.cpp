@@ -19,16 +19,16 @@ namespace {
 
 	DirectX::XMFLOAT4X4 FbxAMatrixToXMFLOAT4X4(FbxAMatrix* toConvert)
 	{
-		DirectX::XMFLOAT4X4 newMat;
+		DirectX::XMFLOAT4X4 new_mat;
 		// Convert FbxMatrix to XMFLOAT
 		for (int i = 0; i < 4; ++i)
 		{
 			for (int j = 0; j < 4; ++j)
 			{
-				newMat.m[i][j] = static_cast<float>(toConvert->Get(i, j));
+				new_mat.m[i][j] = static_cast<float>(toConvert->Get(i, j));
 			}
 		}
-		return newMat;
+		return new_mat;
 	}
 
 	FbxMesh* FindMesh(FbxNode* currentNode)
@@ -285,7 +285,7 @@ namespace {
 						// Pre-reserve slots in the vector for the keyframes
 						curr_joint->mAnimationVector.reserve(animation_length);
 
-						unsigned int loopCounter = 0;
+						unsigned int loop_counter = 0;
 						for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
 						{
 							ModelLoader::KeyFrame current_keyframe;
@@ -308,7 +308,7 @@ namespace {
 							else
 							{
 								// FbxAMatrix performs matrix multiplication in REVERSE order, M1 * M2 is multiplied with M2 from the left
-								current_keyframe.mGlobalTransform = skeleton->joints[skeleton->joints[curr_joint_index].mParentIndex].mAnimationVector[loopCounter].mGlobalTransform * current_keyframe.mLocalTransform;
+								current_keyframe.mGlobalTransform = skeleton->joints[skeleton->joints[curr_joint_index].mParentIndex].mAnimationVector[loop_counter].mGlobalTransform * current_keyframe.mLocalTransform;
 							}
 							FbxAMatrix offset_matrix;
 							// FbxAMatrix performs matrix multiplication in REVERSE order, M1 * M2 is multiplied with M2 from the left
@@ -318,7 +318,7 @@ namespace {
 							// Matrix needs to be transposed before sending to the GPU
 							current_keyframe.mOffsetMatrix = FbxAMatrixToXMFLOAT4X4(&(offset_matrix.Transpose()));
 							curr_joint->mAnimationVector.push_back(current_keyframe);
-							loopCounter++;
+							loop_counter++;
 						}
 					}
 
