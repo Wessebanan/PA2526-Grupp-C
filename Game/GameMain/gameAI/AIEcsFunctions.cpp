@@ -47,7 +47,7 @@ namespace AIEcsFunctions
 				transform.scale.z = 0.1f;
 
 				// roate them 90deg
-				transform.rotation.x = -1.57079633f;
+				//transform.rotation.x = -1.57079633f;
 				switch (i)
 				{
 				case 0:
