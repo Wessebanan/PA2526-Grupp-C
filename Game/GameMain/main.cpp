@@ -1,11 +1,15 @@
-#include "ecs.h"
+//#include "Input/InitInput.h"
+#include "../../Graphics/includes/Window.h"
+//#include "ecs.h"
+
+
+
 //#include "gameRendering/InitMesh.h"
 //#include "gameRendering/PlaceMesh.h"
 
 //#include "gameAI/InitArmy.h"
 //#include "gameAI/InitGrid.h"
 
-//#include "Input/InitInput.h"
 //#include "Input/InitInterpreter.h"
 
 //#include "gameUtility/InitCamera.h"
@@ -18,7 +22,7 @@
 
 #include "Mesh.h"
 
-#include "../../Graphics/includes/Window.h"
+
 #include "../../Graphics/includes/RenderManager.h"
 #include "../../Graphics/includes/MeshManager.h"
 
@@ -223,7 +227,7 @@ int main()
 	//ecs.update(0.1f);
 	while (wnd.IsOpen())
 	{
-		if (!wnd.Update())
+		if (!wnd.Update()) 
 		{
 			//ecs.update(0.1f);
 

@@ -65,7 +65,7 @@ VSOUT main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 	output.pos		= mul(gPerspective, mul(gView, worldPos));
 	output.sunPos	= mul(gOrtographicsSun, mul(gViewSun, worldPos));
 
-	float4 clr		= unpack(gMesh[InstanceID].color) / 256.0f;
+	float4 clr		= unpack(gMesh[InstanceID].color) / 255.0f;
 	output.color	= clr.rgb;
 	output.normal	= gVertexNormals[VertexID];
 
