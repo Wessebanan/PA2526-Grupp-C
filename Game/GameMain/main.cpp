@@ -5,7 +5,7 @@
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
 
-//#include "Input/InitInput.h"
+#include "Input/InitInput.h"
 #include "Input/InitInterpreter.h"
 #include "UI/InitUI.h"
 #include "Direct2D.h"
@@ -38,21 +38,10 @@ int main()
 
 	InitSound(ecs);
 
-	//InitInput(ecs);
-	//InitInterpreter(ecs);
+	InitInput(ecs);
+	InitInterpreter(ecs);
 	InitUI(ecs, &my_d2d, my_UI_systems);
 	
-	/*ecs::systems::UIPreRenderSystem* UIpreSys = ecs.createSystem<ecs::systems::UIPreRenderSystem>(0);
-	ecs::systems::UIBitmapSystem* UIBitmapSys = ecs.createSystem<ecs::systems::UIBitmapSystem>();
-	ecs::systems::UITextSystem* UITextSys = ecs.createSystem<ecs::systems::UITextSystem>();
-	ecs::systems::UIDebugSystem* UIDebugSys = ecs.createSystem<ecs::systems::UIDebugSystem>(5);
-	ecs::systems::UIPostRenderSystem* UIpostSys = ecs.createSystem<ecs::systems::UIPostRenderSystem>(6);
-	UIpreSys->mpD2D =
-		UITextSys->mpD2D =
-		UIpostSys->mpD2D =
-		UIBitmapSys->mpD2D =
-		UIDebugSys->mpD2D = my_d2d;
-*/
 	//CameraFunctions::CreateDevCamera(ecs);
 
 
@@ -88,12 +77,7 @@ int main()
 	graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
 	
 	PlaceMesh(ecs, pMng);
-	RECT kek;
-	kek.bottom = 900;
-	kek.left = 0;
-	kek.right = 1600;
-	kek.top = 0;
-	my_d2d->CreateHwndRenderTarget(*pWnd, &kek);
+	my_d2d->CreateHwndRenderTarget(*pWnd,1600,900);
 	// to get components in the loop
 	ecs::ComponentIterator itt;
 

@@ -108,7 +108,7 @@ namespace ecs
 			void act(float _delta) override
 			{
 				mpD2D->getHwndRenderTarget()->BeginDraw();
-				//mpD2D->getHwndRenderTarget()->Clear();
+				mpD2D->getHwndRenderTarget()->Clear();
 			}
 			Direct2D* mpD2D;
 		};
