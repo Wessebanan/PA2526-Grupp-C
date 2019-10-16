@@ -31,56 +31,143 @@ struct WorldVertex
 
 struct TileVertexBuffer
 {
-	WorldVertex* first;
+	WorldVertex* pFirst;
 	unsigned int vertexCount;
 };
 
+struct OceanShaderLookUpTable
+{
+	XMFLOAT2* pPositionsXZ;		// Positions of ocean tiles in the X and Z plane, Y is skipped as it will be calculated by a compute shader
+	UINT oceanTileCount;		// Number of ocean tiles
+	UINT oceanTileOffset;		// Offset in vertex buffer where ocean tiles start
+};
 
-
-void InitWorldTiles(EntityComponentSystem& rEcs, ModelLoader::Mesh* p_tile_mesh, TileVertexBuffer** pp_vertex_buffer_output)
+void CreateWorldTileVertexBuffer(EntityComponentSystem& rEcs, ModelLoader::Mesh* p_tile_mesh, TileVertexBuffer** pp_vertex_buffer_output)
 {
 	/*
 		TODO: Change vertex buffer to use index buffer
 	*/
 
+	// Fetch mesh data
 	std::vector<XMFLOAT3>* p_mesh_vertices = p_tile_mesh->GetVertexPositionVector();
 	std::vector<int>* p_mesh_indices = p_tile_mesh->GetIndexVector();
+
+	/*
+		Create vertex buffer for all tiles (map + ocean), and a look up
+		table used later in a compute shader that will update ocean tile
+		positions during runtime.
+	*/
 	TileVertexBuffer* p_vertex_buffer = new TileVertexBuffer;
+	OceanShaderLookUpTable* p_look_up_table = new OceanShaderLookUpTable;
 
 	// Fetch all existing tile entities
-	TypeFilter tile_filter;
-	tile_filter.addRequirement(components::TileComponent::typeID);
-	tile_filter.addRequirement(components::ColorComponent::typeID);
-	tile_filter.addRequirement(components::TransformComponent::typeID);
-	EntityIterator tile_iterator = rEcs.getEntititesByFilter(tile_filter);
+	TypeFilter type_filter;
+	type_filter.addRequirement(components::TileComponent::typeID);
+	type_filter.addRequirement(components::ColorComponent::typeID);
+	type_filter.addRequirement(components::TransformComponent::typeID);
+	EntityIterator tile_iterator = rEcs.getEntititesByFilter(type_filter);
 
 	// Calculate total tile count (world tiles + ocean tiles)
 	const UINT total_tile_count = (unsigned int)tile_iterator.entities.size() + OCEAN_TILE_COUNT;
-	p_vertex_buffer->vertexCount = total_tile_count;
 	UINT inited_tile_count = 0;
 
-	// Create vertex array
-	p_vertex_buffer->first = new WorldVertex[total_tile_count * p_mesh_indices->size()];
+	// Create vertex array and lookup table array
+	p_vertex_buffer->pFirst = new WorldVertex[total_tile_count * p_mesh_indices->size()];
+	p_look_up_table->pPositionsXZ = new XMFLOAT2[OCEAN_TILE_COUNT];
+
+
 
 	/*
 		Init all world tiles
 	*/
+
+	// Declare temporary storage variables for calculations
 	XMFLOAT3 position;
 	XMVECTOR xm_position;
 	XMMATRIX xm_world;
 	components::ColorComponent* p_color;
 	components::TransformComponent* p_transform;
+
+	// Iterate all map tiles and place their vertices in vertex buffer
 	for (FilteredEntity& tile : tile_iterator.entities)
 	{
+		// Fetch world position and color of current tile
 		p_color = tile.getComponent<components::ColorComponent>();
 		p_transform = tile.getComponent<components::TransformComponent>();
+
+		// Calculate world matrix for tile
 		xm_world = XMMatrixTranslation(p_transform->position.x, p_transform->position.y, p_transform->position.z);
 
-		//for (int index : *p_mesh_indices)
-		//{
-		//	xm_position = 
-		//	XMStoreFloat3(&position, XMLoadFloat3(&(*mesh_vertices)[index]))
-		//	vertex_buffer->first[inited_tile_count++] = WorldVertex()
-		//}
+		/*
+			Iterate all vertices in the mesh,
+			translate them to world position,
+			set vertex color,
+			push vertex at the back of vertex buffer
+		*/
+		for (int index : *p_mesh_indices)
+		{
+			std::vector<XMFLOAT3> vert = *p_mesh_vertices;
+			XMFLOAT3 pos = vert[index];
+			xm_position = XMLoadFloat3(&(*p_mesh_vertices)[index]);
+			xm_position = XMVector3Transform(xm_position, xm_world);
+			XMStoreFloat3(&position, xm_position);
+
+			p_vertex_buffer->pFirst[inited_tile_count++] = WorldVertex(position, p_color->red, p_color->green, p_color->blue, 255);
+		}
 	}
+
+	// Make look up table know where ocean tiles start
+	p_look_up_table->oceanTileOffset = inited_tile_count;
+
+
+
+	/*
+		Init all ocean tiles
+	*/
+	type_filter.removeRequirement(components::TileComponent::typeID);
+	type_filter.addRequirement(components::OceanTileComponent::typeID);
+	tile_iterator = rEcs.getEntititesByFilter(type_filter);
+	UINT ocean_tile_counter = 0;
+
+	// Iterate all ocean tiles and place their vertices in vertex buffer
+	for (FilteredEntity& tile : tile_iterator.entities)
+	{
+		// Fetch world position and color of current tile
+		p_color = tile.getComponent<components::ColorComponent>();
+		p_transform = tile.getComponent<components::TransformComponent>();
+
+		// Calculate world matrix for tile
+		xm_world = XMMatrixTranslation(p_transform->position.x, p_transform->position.y, p_transform->position.z);
+
+		// Push XZ position at back of look up table, used later in compute shader for water effects
+		p_look_up_table->pPositionsXZ[ocean_tile_counter++] = XMFLOAT2(p_transform->position.x, p_transform->position.z);
+
+		/*
+			Iterate all vertices in the mesh,
+			translate them to world position,
+			set vertex color,
+			push vertex at the back of vertex buffer
+		*/
+		for (int index : *p_mesh_indices)
+		{
+			std::vector<XMFLOAT3> vert = *p_mesh_vertices;
+			XMFLOAT3 pos = vert[index];
+			xm_position = XMLoadFloat3(&(*p_mesh_vertices)[index]);
+			xm_position = XMVector3Transform(xm_position, xm_world);
+			XMStoreFloat3(&position, xm_position);
+
+			p_vertex_buffer->pFirst[inited_tile_count++] = WorldVertex(position, p_color->red, p_color->green, p_color->blue, 255);
+		}
+	}
+
+	p_vertex_buffer->vertexCount = inited_tile_count;
+	p_look_up_table->oceanTileCount = ocean_tile_counter;
+
+	// Delete this. These are only used to free memory until the new graphics engine exist
+	delete p_vertex_buffer->pFirst;
+	delete p_vertex_buffer;
+	delete p_look_up_table->pPositionsXZ;
+	delete p_look_up_table;
+
+	*pp_vertex_buffer_output = p_vertex_buffer;
 }

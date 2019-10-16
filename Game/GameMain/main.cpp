@@ -81,11 +81,13 @@ int main()
 	
 	InitPhysics(ecs, pp_meshes);
 
-
 	
 	//InitMesh(ecs, pMng);
 
 	InitOcean(ecs);
+
+	TileVertexBuffer* p_world_vertex_buffer = nullptr;
+	CreateWorldTileVertexBuffer(ecs, pp_meshes[Mesh::TILE], &p_world_vertex_buffer);
 
 	graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
 
