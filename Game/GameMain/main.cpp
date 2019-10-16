@@ -17,7 +17,7 @@
 #include "Physics/InitPhysics.h"
 
 #include "gameSceneObjects/InitOcean.h"
-#include "gameSceneObjects/OceanSettings.h"
+#include "gameWorld/InitWorld.h"
 
 #include <time.h>
 
@@ -56,7 +56,6 @@ int main()
 	InitGrid(ecs);
 	InitArmy(ecs);
 	InitSceneObjects(ecs);
-
 
 	rendering::SUN_DESC sun_desc;
 	sun_desc.Red = 200;

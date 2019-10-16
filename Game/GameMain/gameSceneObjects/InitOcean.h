@@ -10,7 +10,7 @@
 
 #include "Mesh.h"
 
-#include "OceanSettings.h"
+#include "..\\gameWorld\\WorldSettings.h"
 
 using namespace ecs;
 using namespace DirectX;

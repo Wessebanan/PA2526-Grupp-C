@@ -121,7 +121,6 @@
     <ClInclude Include="gameSceneObjects\InitBiomes.h" />
     <ClInclude Include="gameSceneObjects\InitOcean.h" />
     <ClInclude Include="gameSceneObjects\InitSceneObjectsh.h" />
-    <ClInclude Include="gameSceneObjects\OceanSettings.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
@@ -135,6 +134,8 @@
     <ClInclude Include="gameUtility\UtilityEvents.h" />
     <ClInclude Include="gameUtility\UtilityEcsFunctions.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
+    <ClInclude Include="gameWorld\InitWorld.h" />
+    <ClInclude Include="gameWorld\WorldSettings.h" />
     <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />

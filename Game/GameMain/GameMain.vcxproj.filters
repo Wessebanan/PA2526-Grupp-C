@@ -132,8 +132,11 @@
     <ClInclude Include="gameSceneObjects\InitOcean.h">
       <Filter>SceneObjects</Filter>
     </ClInclude>
-    <ClInclude Include="gameSceneObjects\OceanSettings.h">
-      <Filter>SceneObjects</Filter>
+    <ClInclude Include="gameWorld\InitWorld.h">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="gameWorld\WorldSettings.h">
+      <Filter>World</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -163,6 +166,9 @@
     </Filter>
     <Filter Include="Init">
       <UniqueIdentifier>{3adc6f81-bab9-4577-aa3a-be10876437ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="World">
+      <UniqueIdentifier>{228dd77b-9074-4476-aa6c-132de5740f4b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

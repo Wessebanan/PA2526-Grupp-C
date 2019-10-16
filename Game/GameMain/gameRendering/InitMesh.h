@@ -5,7 +5,7 @@
 #include "ecs.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
 #include "../Physics/InitPhysics.h"
-#include "../gameSceneObjects/OceanSettings.h"
+#include "../gameWorld/WorldSettings.h"
 
 ModelLoader::Mesh** InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 {
