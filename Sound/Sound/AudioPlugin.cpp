@@ -88,6 +88,7 @@ Audio::Plugin::Gain::Gain(Plugin* pNext, float gain)
 {
 	mpNext = pNext;
 	mGain = gain;
+	mGainSpeed = 0.0f;
 }
 
 
@@ -96,12 +97,36 @@ void Audio::Plugin::Gain::SetGain(float gain)
 	mGain = gain;
 }
 
+void Audio::Plugin::Gain::FadeToFull(unsigned long sampleDuration)
+{
+	mGainSpeed = (1.0f - mGain) / sampleDuration;
+}
+
+void Audio::Plugin::Gain::FadeToEmpty(unsigned long sampleDuration)
+{
+	mGainSpeed = (-mGain) / sampleDuration;
+}
+
 Audio::Plugin::Status Audio::Plugin::Gain::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
 {
 	Status status = mpNext->Process(start, sampleCount, pData, channelCount);
-	for (int i = 0; i < sampleCount * channelCount; i++)
+	for (int i = 0; i < sampleCount; i++)
 	{
-		pData[i] *= mGain;
+		for (int j = 0; j < channelCount; j++)
+		{
+			pData[i*2+j] *= mGain + mGainSpeed * i;
+		}
+	}
+	mGain += mGainSpeed * sampleCount;
+	if (mGain > 1.0f)
+	{
+		mGain = 1.0f;
+		mGainSpeed = 0.0f;
+	}
+	if (mGain < 0.0f)
+	{
+		mGain = 0.0f;
+		mGainSpeed = 0.0f;
 	}
 	return status;
 }

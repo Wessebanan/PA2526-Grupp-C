@@ -462,15 +462,12 @@ TEST(SoundAPI, MusicMixing)
 		Audio::Music::M_FUNC_REPLACE_MUSIC |
 		Audio::Music::M_DATA_AS_PARAMETER
 	});
-	for (int i = 0; i < 100; i++)
-	{
-		mixer.AddMusicMessage({
-			0.01f * i,
-			Audio::Music::M_FUNC_SET_GAIN |
-			Audio::Music::M_DATA_AS_PARAMETER
-			});
-		Pa_Sleep(10);
-	}
+	mixer.AddMusicMessage({
+		(unsigned long)80000,
+		Audio::Music::M_FUNC_FADE_IN |
+		Audio::Music::M_DATA_AS_PARAMETER
+	});
+	Pa_Sleep(4000);
 
 	mixer.AddMusicMessage({
 		bank[1],
@@ -480,18 +477,29 @@ TEST(SoundAPI, MusicMixing)
 		Audio::Music::M_SYNC_THIS_WITH_OTHER
 	});
 
-	for (int i = 0; i < 10; i++)
-	{
-		mixer.AddMusicMessage({
-			0.1f * i,
-			Audio::Music::M_FUNC_SET_GAIN |
-			Audio::Music::M_DATA_AS_PARAMETER |
-			Audio::Music::M_TARGET_SUB
-			});
-		Pa_Sleep(100);
-	}
+	mixer.AddMusicMessage({
+		(unsigned long)80000,
+		Audio::Music::M_FUNC_FADE_IN |
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_TARGET_SUB
+	});
 
-	Pa_Sleep(2000);
+	Pa_Sleep(4000);
+
+	mixer.AddMusicMessage({
+		(unsigned long)120000,
+		Audio::Music::M_FUNC_FADE_OUT |
+		Audio::Music::M_DATA_AS_PARAMETER
+		});
+
+	mixer.AddMusicMessage({
+		(unsigned long)120000,
+		Audio::Music::M_FUNC_FADE_OUT |
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_TARGET_SUB
+		});
+
+	Pa_Sleep(3000);
 
 	TeardownEngine(engine);
 

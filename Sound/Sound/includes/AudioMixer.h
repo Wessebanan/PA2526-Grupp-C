@@ -55,9 +55,14 @@ namespace Audio
 			{
 				_FileData = FileData;
 			}
+			MessageDataUnion(unsigned long Long)
+			{
+				_ulong = Long;
+			}
 			void* _void;
 			Audio::FileData* _FileData;
 			float _float;
+			unsigned long _ulong;
 		};
 		struct Message
 		{
@@ -83,6 +88,8 @@ namespace Audio
 			//void NewMusicVoice(Plugin::Plugin* pEntryPlugin, bool replace);
 			void ReplaceMusic(Message& rMessage, MusicVoiceData* pTarget);
 			void SetGain(Message& rMessage, MusicVoiceData* pTarget);
+			void FadeIn(Message& rMessage, MusicVoiceData* pTarget);
+			void FadeOut(Message& rMessage, MusicVoiceData* pTarget);
 
 			Ringbuffer<Music::Message, SOUND_MAX_MUSIC_MESSAGES> mMusicMessageBuffer;
 			//Voice mMusicVoices[SOUND_MAX_MUSIC_VOICES];

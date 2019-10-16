@@ -16,6 +16,22 @@ void Audio::Music::Manager::SetGain(Message& rMessage, MusicVoiceData* pTarget)
 	}
 }
 
+void Audio::Music::Manager::FadeIn(Message& rMessage, MusicVoiceData* pTarget)
+{
+	if ((rMessage.flags & M_DATA_MASK) == M_DATA_AS_PARAMETER)
+	{
+		pTarget->Gain.FadeToFull(rMessage.data._ulong);
+	}
+}
+
+void Audio::Music::Manager::FadeOut(Message& rMessage, MusicVoiceData* pTarget)
+{
+	if ((rMessage.flags & M_DATA_MASK) == M_DATA_AS_PARAMETER)
+	{
+		pTarget->Gain.FadeToEmpty(rMessage.data._ulong);
+	}
+}
+
 void Audio::Music::Manager::ProcessMusicMessages()
 {
 	Music::Message temp_message;
@@ -41,6 +57,12 @@ void Audio::Music::Manager::ProcessMusicMessages()
 			break;
 		case M_FUNC_SET_GAIN:
 			SetGain(temp_message, target_data);
+			break;
+		case M_FUNC_FADE_IN:
+			FadeIn(temp_message, target_data);
+			break;
+		case M_FUNC_FADE_OUT:
+			FadeOut(temp_message, target_data);
 			break;
 		}
 
