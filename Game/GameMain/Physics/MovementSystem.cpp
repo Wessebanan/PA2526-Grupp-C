@@ -96,9 +96,6 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(_entityInfo.entity->getID());
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
 
-	// Saving the current position for comparison later.
-	DirectX::XMFLOAT3 position_pre_movement = transform_component->position;
-
 	// Starting off with movement in the x-z-plane.
 
 	UpdateAcceleration(movement_component->mAcceleration, movement_component->mForce, movement_component->mWeight, movement_component->mVelocity, movement_component->mDeceleration);
@@ -134,7 +131,7 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	const float ABS_ERROR = (float)pow(10.0, -10.0);
 
 	// If the difference after movement is more than negligible...
-	if (CalculateDistance(transform_component->position, position_pre_movement) > ABS_ERROR &&
+	if (CalculateDistance(transform_component->position, movement_component->mPreviousPos) > ABS_ERROR &&
 		_entityInfo.entity->hasComponentOfType(ObjectCollisionComponent::typeID))
 	{
 		// ...make a potential collision event.
@@ -142,8 +139,8 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 		potential_collision.mEntityID = _entityInfo.entity->getID();
 		potential_collision.mDelta = _delta;
 		createEvent(potential_collision);
-
 	}
+	movement_component->mPreviousPos = transform_component->position;
 }
 
 void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)

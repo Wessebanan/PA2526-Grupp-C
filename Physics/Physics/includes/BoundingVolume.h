@@ -24,10 +24,25 @@
 //};
 #pragma once
 #include <DirectXCollision.h>
+using namespace DirectX;
 struct BoundingVolume
 {
 	virtual ~BoundingVolume() = default;
+	virtual bool Intersects(BoundingVolume* other) = 0;
+	virtual void Transform(XMMATRIX transform) = 0;
 };
-struct Sphere : public BoundingVolume, DirectX::BoundingSphere {};
-struct OBB : public BoundingVolume, DirectX::BoundingOrientedBox {};
-struct AABB : public BoundingVolume, DirectX::BoundingBox {};
+struct Sphere : public BoundingVolume, DirectX::BoundingSphere 
+{
+	bool Intersects(BoundingVolume* other);
+	void Transform(XMMATRIX transform);
+};
+struct OBB : public BoundingVolume, DirectX::BoundingOrientedBox 
+{
+	bool Intersects(BoundingVolume* other);
+	void Transform(XMMATRIX transform);
+};
+struct AABB : public BoundingVolume, DirectX::BoundingBox 
+{
+	bool Intersects(BoundingVolume* other);
+	void Transform(XMMATRIX transform);
+};

@@ -1,4 +1,6 @@
 #include "FightingSystem.h"
+
+#pragma region WeaponInitSystem
 ecs::systems::WeaponInitSystem::WeaponInitSystem()
 {
 	updateType = EventListenerOnly;
@@ -55,4 +57,93 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	default:
 		break;
 	}
+}
+#pragma endregion
+#pragma region DamageSystem
+ecs::systems::DamageSystem::DamageSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(WeaponComponent::typeID);
+}
+ecs::systems::DamageSystem::~DamageSystem()
+{
+
+}
+void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	// if collision: 
+	// *check movement diff on weapon
+	// *calc velocity
+	// *multiply velocity with base damage for true damage
+	// *deduct damage from collided entities health
+
+	Entity* weapon = _entityInfo.entity;
+	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(weapon->getID());
+	TransformComponent* weapon_transform_component = getComponentFromKnownEntity<TransformComponent>(weapon->getID());
+	// Check if weapon has an owner
+	if (weapon_component->mOwnerEntity == 0)
+	{
+		return;
+	}
+
+	// Grab all entities with a constitution component (units).
+	EntityIterator units = getEntitiesWithComponent<ConstitutionComponent>();
+
+	// FILL OUT WITH OTHER WEAPONS LATER
+	// Making a copy of the bounding volume for weapon.
+	BoundingVolume* weapon_bv = nullptr;
+	switch (weapon_component->mType)
+	{
+	case SWORD:
+	{
+		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
+		weapon_bv = new OBB(*obb);
+		break;
+	}
+	default:
+	{
+		MessageBoxA(NULL, "Weapon Component has no type. (DamageSystem::updateEntity)", NULL, MB_YESNO);
+		return;
+	}
+	}
+
+	// Transforming weapon bv to world space for collision.
+	XMMATRIX weapon_world = UtilityEcsFunctions::GetWorldMatrix(*weapon_transform_component);
+	weapon_bv->Transform(weapon_world);
+
+	// Check collision against entities that could take damage.
+	bool intersect = false;
+	for (int i = 0; i < units.entities.size(); i++)
+	{
+		// Skip weapon owner.
+		if (units.entities.at(i).entity->getID() == weapon_component->mOwnerEntity)
+		{
+			continue;
+		}
+		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(units.entities.at(i).entity->getID());
+		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(units.entities.at(i).entity->getID());
+
+		// Grabbing copy of AABB from current and transforming to world space.
+		AABB current_aabb = p_current_collision->mAABB;
+		XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
+		//current_aabb.BoundingBox::Transform(*(BoundingBox*)current_aabb, current_world_transform);
+		//
+		//intersect = weapon_bv->Intersects(current_aabb);
+		
+	}
+	
+	
+		
+			//// Grabbing the collision and transform component from the current entity.
+			//ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(it.entities.at(i).entity->getID());
+			//TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(it.entities.at(i).entity->getID());
+
+			//// Grabbing copy of AABB from current and transforming to world space.
+			//BoundingBox current_aabb = p_current_collision->mAABB;
+			//XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
+			//current_aabb.Transform(current_aabb, current_world_transform);
+		
+	
+
+	weapon_component->mPreviousPos = weapon_transform_component->position;
 }

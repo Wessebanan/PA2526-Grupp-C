@@ -58,6 +58,9 @@ namespace ecs
 			// density all over.
 			DirectX::XMFLOAT3 mMassCenter;
 
+			// Position pre-movement to determine if the object moved since last update.
+			DirectX::XMFLOAT3 mPreviousPos;
+
 			// If object is on ground.
 			bool mOnGround = false;
 		};
@@ -128,8 +131,7 @@ namespace ecs
 		COMP(WeaponComponent)
 		{
 			// When an entity gets the weapon, give owner entity id to component.
-			ID mOwnerEntity;
-			
+			ID mOwnerEntity = 0;			
 
 			WEAPON_TYPE mType = DEFAULT;
 			float mAttackRange = 0.0f;
