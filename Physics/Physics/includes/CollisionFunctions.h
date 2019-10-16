@@ -2,10 +2,11 @@
 #include <DirectXMath.h>
 #include "PhysicsHelperFunctions.h"
 #include <DirectXCollision.h>
+#include "BoundingVolume.h"
 
 using namespace DirectX;
 using namespace PhysicsHelpers;
-
+void RevertMovement(XMFLOAT3& position, BoundingVolume* v1, BoundingVolume* v2);
 void RevertMovement(XMFLOAT3 &position, XMFLOAT3 &velocity, const XMVECTOR &center_world, const XMVECTOR &colliding_center_world, const float &delta);
 
 //bool IntersectSphereLayer(const BoundingSphere** spheres1, const unsigned int& count1, const BoundingSphere** spheres2, const unsigned int& count2, const BoundingBox& aabb2);

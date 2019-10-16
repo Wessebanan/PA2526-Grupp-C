@@ -1,5 +1,10 @@
 #include "CollisionFunctions.h"
 
+void RevertMovement(XMFLOAT3& position, BoundingVolume* v1, BoundingVolume* v2)
+{
+	
+}
+
 void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const XMVECTOR& center_world, const XMVECTOR& colliding_center_world, const float& delta)
 {
 	// Getting a vector between the centers of the bounding volumes.
