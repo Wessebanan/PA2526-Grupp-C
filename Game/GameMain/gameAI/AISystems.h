@@ -62,40 +62,58 @@ namespace ecs
 				GridProp* g_prop = GridProp::GetInstance();
 				components::TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
 				start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
-				unsigned int start_tile_id = g_prop->mGrid[start_tile.x][start_tile.y].Id;
-				path = GetPath(start_tile_id);
+				unsigned int start_tile_id = g_prop->mGrid[start_tile.y][start_tile.x].Id;
+				path = GetPath(start_tile_id,113);
 				components::MoveStateComponent move_comp;
 				move_comp.path = path;
 				
 				ecs::ECSUser::createComponent(entity.entity->getID(), move_comp);
 				ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::PathfindingStateComponent::typeID);
 			}
-			std::vector<unsigned int> GetPath(unsigned int startID)
+			std::vector<unsigned int> GetPath(unsigned int startID, unsigned int goalID)
 			{
 				std::vector<unsigned int> to_return;
+				std::unordered_map<unsigned int, bool> have_visited;
+				ecs::ComponentIterator comp_itt;
+				BaseComponent* p_base_comp;
 				components::TileComponent* current_tile = nullptr;
+				components::TransformComponent* current_neighbour_transfrom = nullptr;
+				components::TransformComponent* goal_tile_transfrom = nullptr;
+				comp_itt = ecs::ECSUser::getComponentsOfType<components::TileComponent>();
+				while (p_base_comp = comp_itt.next())
+				{
+					current_tile = static_cast<components::TileComponent*>(p_base_comp);
+					have_visited[current_tile->getEntityID()] = false;
+				}
 				unsigned int next_tile_id = 0;
 				unsigned int current_tile_id = startID;
 				unsigned int last_tile_id = 0;
 				float niceTry = 999.f;
 				float lastNice = 500.f;
+				float dist = 0.f;
 				current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(startID);
-				while (/*current_tile_id != endID*/lastNice != niceTry)
+				current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(startID);
+				goal_tile_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(goalID);
+				while (current_tile_id != goalID /*lastNice != niceTry*/)
 				{
 					lastNice = niceTry;
-					//niceTry = 999.f;
+					have_visited[current_tile_id] = true;
+					niceTry = 999.f;
 					for (int i = 0; i < 6; i++)
 					{	//check if neighbour is not 0 or was the last visited tile
-						if (current_tile->neighboursIDArray[i] != 0 && current_tile->neighboursIDArray[i] != last_tile_id)
+						if (current_tile->neighboursIDArray[i] != 0 && !have_visited[current_tile->neighboursIDArray[i]])
 						{	//check for the lowest niceness then that is the next tile
-							if (ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness < niceTry)
+							current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
+							dist = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z,
+								goal_tile_transfrom->position.x, goal_tile_transfrom->position.z);
+							if (ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness + dist < niceTry)
 							{
-								niceTry = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness;
+								niceTry = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness + dist;
 								next_tile_id = current_tile->neighboursIDArray[i];
 							}
 						}
 					}
-					if (lastNice != niceTry)
+					if (current_tile_id != goalID)
 					{
 						current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
 						to_return.push_back(next_tile_id);
