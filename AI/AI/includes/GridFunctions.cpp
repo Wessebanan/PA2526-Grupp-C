@@ -1,6 +1,9 @@
 #include "GridFunctions.h"
 #include "GridProp.h"
 #include <DirectXMath.h>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
 using namespace DirectX;
 
 namespace GridFunctions
@@ -189,73 +192,63 @@ namespace GridFunctions
 
 	int2 FindStartingTile(PLAYER Id)
 	{
+		/*
+		Picture of which corner the players should spawn in
+		__________________
+		|        |        |
+		|        |        |
+		|   3    |   4    |
+		|________|________|
+		|        |        |
+		|        |        |
+		|   1    |   2    |
+		|________|________|
+		*/
+
+		//Initialize variables
 		int rows = ARENA_ROWS;
 		int columns = ARENA_COLUMNS;
-		int2 index;
-		index.x = -1;
-		index.y = -1;
+		int2 index(-1, -1);
+		int min_x, min_y;
 		GridProp* p_gp = GridProp::GetInstance();
-		bool tile_found = false;
+		//Set the minimum tile index in x- and y-axis depending on which player it is
 		switch (Id)
 		{
 		case PLAYER1:
-			for (int y = 0; y < rows / 2; y++)
-			{
-				for (int x = 0; x < columns / 2; x++)
-				{
-					if (p_gp->mGrid[y][x].isPassable)
-					{
-						index.x = x;
-						index.y = y;
-						return index;
-					}
-				}
-			}
+			min_x = min_y = 0;
 			break;
 		case PLAYER2:
-			for (int y = 0; y < rows / 2; y++)
-			{
-				for (int x = columns - 1; x > columns / 2; x--)
-				{
-					if (p_gp->mGrid[y][x].isPassable)
-					{
-						index.x = x;
-						index.y = y;
-						return index;
-					}
-				}
-			}
+			min_x = columns / 2;
+			min_y = 0;
 			break;
 		case PLAYER3:
-			for (int y = rows - 1; y > rows / 2; y--)
-			{
-				for (int x = 0; x < columns / 2; x++)
-				{
-					if (p_gp->mGrid[y][x].isPassable)
-					{
-						index.x = x;
-						index.y = y;
-						return index;
-					}
-				}
-			}
+			min_x = 0;
+			min_y = rows / 2;
 			break;
 		case PLAYER4:
-			for (int y = rows - 1; y > rows / 2; y--)
-			{
-				for (int x = columns - 1; x > columns / 2; x--)
-				{
-					if (p_gp->mGrid[y][x].isPassable)
-					{
-						index.x = x;
-						index.y = y;
-						return index;
-					}
-				}
-			}
+			min_x = columns / 2;
+			min_y = rows / 2;
 			break;
 		default:
 			break;
+		}
+		//Initialize the random number generator
+		bool tileFound = false;
+		int x = 0;
+		int y = 0;
+		//Randomize an index in the players corner and check if it is a passable tile. If so return that tiles index as the starting tile.
+		//The seed is set in AIEcsFunctions.cpp in the CreateArmies function.
+		while (!tileFound)
+		{
+			x = std::rand() % (columns / 2) + min_x;
+			y = std::rand() % (rows / 2) + min_y; 
+			if (p_gp->mGrid[y][x].isPassable)
+			{
+				//std::cout << "x: " << x << " y: " << y << std::endl; //Used for debug purpose
+				index.x = x;
+				index.y = y;
+				tileFound = true;
+			}
 		}
 		return index;
 	}

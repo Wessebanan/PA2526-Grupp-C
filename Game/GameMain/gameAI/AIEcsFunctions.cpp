@@ -4,6 +4,9 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "GridEcsFunctions.h"
 #include "../../AI/includes/GridFunctions.h"
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
 
 namespace AIEcsFunctions
 {
@@ -11,6 +14,8 @@ namespace AIEcsFunctions
 	//has been created.
 	void CreatePlayerArmies(ecs::EntityComponentSystem& rEcs)
 	{
+		//Set seed
+		std::srand(std::time(nullptr));
 		//Create Components for a "User" entity.
 		ecs::components::ArmyComponent army;
 		//Create Components for a "Unit" entity.
@@ -33,20 +38,36 @@ namespace AIEcsFunctions
 			p_transform = rEcs.getComponentFromEntity<ecs::components::TransformComponent>(temp_id);
 			//Set current players enum ID for this armies units.
 			unit.playerID = (PLAYER)i;
-
+			int divider = 2;
 			for (int u = 0; u < PlayerProperties::numberOfUnits; u++)
 			{
-				//Set starting position of the unit.
-				transform.position.x = p_transform->position.x + u * 0.2f;
-				transform.position.y = p_transform->position.y + 2.0f;
-				transform.position.z = p_transform->position.z + u * 0.3f;
+				//Set the starting position of the unit depending on the center position of the units starting tile. Needs to
+				//be updated if the number of units is increased beyond 3.
+				if (u == 0)
+				{
+					transform.position.x = p_transform->position.x + (float(TILE_RADIUS) / divider);
+					transform.position.y = p_transform->position.y + 1.1f;
+					transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
+				}
+				else if (u == 1)
+				{
+					transform.position.x = p_transform->position.x - (float(TILE_RADIUS) / divider);
+					transform.position.y = p_transform->position.y + 1.1f;
+					transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
+				}
+				else
+				{
+					transform.position.x = p_transform->position.x;
+					transform.position.y = p_transform->position.y + 1.1f;
+					transform.position.z = p_transform->position.z - (float(TILE_RADIUS) / divider);
+				}
 
 				// set scale to fit on tile
 				transform.scale.x = 0.1f;
 				transform.scale.y = 0.1f;
 				transform.scale.z = 0.1f;
 
-				// roate them 90deg
+				// rotate them 90deg
 				transform.rotation.x = -1.57079633f;
 				switch (i)
 				{
