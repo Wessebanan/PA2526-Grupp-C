@@ -27,44 +27,11 @@ enum WEAPON_TYPE
 #pragma region BoundingVolume
 struct BoundingVolume 
 {
-	virtual ~BoundingVolume();
+	virtual ~BoundingVolume() = default;
 };
-struct Sphere : public BoundingVolume
-{
-	DirectX::BoundingSphere mSphere;	
-	//~Sphere();
-};
-struct OBB : public BoundingVolume
-{
-	DirectX::BoundingOrientedBox mOBB;
-	//~OBB();
-};
-struct AABB : public BoundingVolume
-{
-	DirectX::BoundingBox mAABB;
-	//~AABB();
-};
-#ifndef BV_D
-#define BV_D
-inline BoundingVolume::~BoundingVolume()
-{
-	Sphere* sphere	= dynamic_cast<Sphere*>(this);
-	OBB* obb		= dynamic_cast<OBB*>(this);
-	AABB* aabb		= dynamic_cast<AABB*>(this);
-	if (sphere)
-	{
-		delete sphere;	
-	}
-	else if (obb) 
-	{
-		delete obb;
-	}
-	else if (aabb)
-	{
-		delete aabb;
-	}
-}
-#endif
+struct Sphere : public BoundingVolume, DirectX::BoundingSphere {};
+struct OBB : public BoundingVolume, DirectX::BoundingOrientedBox {};
+struct AABB : public BoundingVolume, DirectX::BoundingBox {};
 #pragma endregion
 
 namespace ecs
@@ -171,10 +138,12 @@ namespace ecs
 		*/
 		COMP(WeaponComponent)
 		{
+			// When an entity gets the weapon, give owner entity id to component.
+			ID mOwnerEntity;
+
 			WEAPON_TYPE mType = DEFAULT;
-
 			BoundingVolume* mBoundingVolume = nullptr;
-
+			//OBB* mOBB = nullptr;
 			// Previous position to calculate velocity for damage.
 			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			
@@ -182,21 +151,11 @@ namespace ecs
 			float mBaseDamage = DEFAULT_BASE_DAMAGE;
 
 			~WeaponComponent()
-			{
-				switch (mType)
+			{				
+				if (mBoundingVolume)
 				{
-				case SWORD:
-				{
-					OBB *obb = dynamic_cast<OBB*>(mBoundingVolume);
-					delete obb;
-					mBoundingVolume = nullptr;
-					break;
+					delete mBoundingVolume;
 				}
-				}
-				//if (mBoundingVolume)
-				//{
-				//	delete mBoundingVolume;
-				//}
 			}
 		};
 

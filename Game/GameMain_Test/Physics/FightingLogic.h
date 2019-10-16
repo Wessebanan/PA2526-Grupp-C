@@ -67,7 +67,7 @@ TEST(WeaponInit, TestBoundingVolume)
 	for (int i = 0; i < vertices->size(); i++)
 	{
 		XMVECTOR current_vertex = DirectX::XMLoadFloat3(&vertices->at(i));
-		ContainmentType containtment_type = obb->mOBB.Contains(DirectX::XMLoadFloat3(&vertices->at(i)));
+		ContainmentType containtment_type = obb->Contains(DirectX::XMLoadFloat3(&vertices->at(i)));
 		if (containtment_type == ContainmentType::CONTAINS)
 		{
 			n_inside++;
@@ -77,5 +77,8 @@ TEST(WeaponInit, TestBoundingVolume)
 	// DirectXCollision disregards a few points in making the box, for optimization probably.
 	// If 99% of vertices are inside, it is safe to assume that the box has been created properly.
 	EXPECT_GT((float)n_inside / (float)vertices->size(), 0.99f);
+
+	delete p_weapon_component->mBoundingVolume;
+	
 }
 #pragma endregion

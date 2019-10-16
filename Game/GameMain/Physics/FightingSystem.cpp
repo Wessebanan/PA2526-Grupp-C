@@ -38,9 +38,10 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	{
 		weapon_component->mBoundingVolume = new OBB;
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
+		//weapon_component->mBo = new OBB;
 		BoundingBox aabb;
 		aabb.CreateFromPoints(aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
-		obb->mOBB.CreateFromBoundingBox(obb->mOBB, aabb);
+		obb->CreateFromBoundingBox(*(BoundingOrientedBox*)obb, aabb);
 		break;
 	}
 	case PROJECTILE:

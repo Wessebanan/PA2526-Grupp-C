@@ -234,7 +234,12 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		TypeID current_tile = mTiles.entities.at(i).entity->getID();
 
 		TransformComponent* tile_transform = mppTileTransforms[i];
-	
+		
+		XMFLOAT3 obb_center_no_height = obb.Center;
+		obb_center_no_height.y = 0.0f;
+		XMFLOAT3 tile_transform_position_no_height = tile_transform->position;
+		tile_transform_position_no_height.y = 0.0f;
+
 		float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_transform->position, obb.Center);
 		// Setting the ID to the closest tile.
 		if (closest_distance > distance_to_tile)
