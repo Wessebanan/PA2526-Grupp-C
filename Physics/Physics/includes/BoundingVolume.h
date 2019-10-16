@@ -22,3 +22,12 @@
 //	virtual bool IntersectOBB	(const BoundingVolume *volume) = 0;
 //	virtual bool IntersectAABB	(const BoundingVolume *volume) = 0;
 //};
+#pragma once
+#include <DirectXCollision.h>
+struct BoundingVolume
+{
+	virtual ~BoundingVolume() = default;
+};
+struct Sphere : public BoundingVolume, DirectX::BoundingSphere {};
+struct OBB : public BoundingVolume, DirectX::BoundingOrientedBox {};
+struct AABB : public BoundingVolume, DirectX::BoundingBox {};

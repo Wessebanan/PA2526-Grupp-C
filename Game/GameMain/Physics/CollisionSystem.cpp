@@ -240,7 +240,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		XMFLOAT3 tile_transform_position_no_height = tile_transform->position;
 		tile_transform_position_no_height.y = 0.0f;
 
-		float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_transform->position, obb.Center);
+		float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_transform_position_no_height, obb_center_no_height);
 		// Setting the ID to the closest tile.
 		if (closest_distance > distance_to_tile)
 		{

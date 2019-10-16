@@ -3,7 +3,7 @@
 #include <DirectXMath.h>
 #include "Mesh.h"
 #include <DirectXCollision.h>
-
+#include "BoundingVolume.h"
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
 // A bunch of default values.
@@ -24,15 +24,15 @@ enum WEAPON_TYPE
 };
 
 // Inheritance structure for unspecific bounding volumes.
-#pragma region BoundingVolume
-struct BoundingVolume 
-{
-	virtual ~BoundingVolume() = default;
-};
-struct Sphere : public BoundingVolume, DirectX::BoundingSphere {};
-struct OBB : public BoundingVolume, DirectX::BoundingOrientedBox {};
-struct AABB : public BoundingVolume, DirectX::BoundingBox {};
-#pragma endregion
+//#pragma region BoundingVolume
+//struct BoundingVolume 
+//{
+//	virtual ~BoundingVolume() = default;
+//};
+//struct Sphere : public BoundingVolume, DirectX::BoundingSphere {};
+//struct OBB : public BoundingVolume, DirectX::BoundingOrientedBox {};
+//struct AABB : public BoundingVolume, DirectX::BoundingBox {};
+//#pragma endregion
 
 namespace ecs
 {
@@ -93,7 +93,7 @@ namespace ecs
 		*/
 		COMP(GroundCollisionComponent)
 		{
-			DirectX::BoundingOrientedBox mOBB;
+			OBB mOBB;
 
 			// Storing last y values to avoid unneccesary checks.
 			float mLastY = INFINITY;
@@ -108,9 +108,9 @@ namespace ecs
 		*/
 		COMP(ObjectCollisionComponent)
 		{
-			DirectX::BoundingBox mAABB;
+			AABB mAABB;
 
-			DirectX::BoundingSphere *mSpheres = nullptr;
+			Sphere *mSpheres = nullptr;
 			unsigned int mSphereCount = 0;
 
 			// States if the last movement resulted in collision
@@ -140,7 +140,7 @@ namespace ecs
 		{
 			// When an entity gets the weapon, give owner entity id to component.
 			ID mOwnerEntity;
-
+		
 			WEAPON_TYPE mType = DEFAULT;
 			BoundingVolume* mBoundingVolume = nullptr;
 			//OBB* mOBB = nullptr;
