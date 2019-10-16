@@ -33,6 +33,37 @@ void Audio::Music::Manager::ProcessMusicMessages()
 			break;
 		}
 
+		// Syncing (Could be done more elegantly)
+		if ((temp_message.flags & M_SYNC_MASK) == M_SYNC_THIS_WITH_OTHER)
+		{
+			switch (temp_message.flags & M_TARGET_MASK)
+			{
+			case M_TARGET_MAIN:
+				mMainData.Sampler.SetReadPointer(
+					mSubData.Sampler.GetReadPointer());
+				break;
+			case M_TARGET_SUB:
+				mSubData.Sampler.SetReadPointer(
+					mMainData.Sampler.GetReadPointer());
+				break;
+			}
+		}
+
+		if ((temp_message.flags & M_SYNC_MASK) == M_SYNC_OTHER_WITH_THIS)
+		{
+			switch (temp_message.flags & M_TARGET_MASK)
+			{
+			case M_TARGET_MAIN:
+				mSubData.Sampler.SetReadPointer(
+					mMainData.Sampler.GetReadPointer());
+				break;
+			case M_TARGET_SUB:
+				mMainData.Sampler.SetReadPointer(
+					mSubData.Sampler.GetReadPointer());
+				break;
+			}
+		}
+
 		// Data teardown
 		if ((temp_message.flags & M_DATA_TEARDOWN_MASK) == M_DATA_TEARDOWN_DELETE)
 		{

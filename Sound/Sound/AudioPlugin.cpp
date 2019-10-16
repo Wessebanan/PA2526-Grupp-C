@@ -21,6 +21,16 @@ void Audio::Plugin::Sampler::SetFileAndReset(FileData* pFile)
 	mReadPointer = 0;
 }
 
+Audio::Samples Audio::Plugin::Sampler::GetReadPointer()
+{
+	return mReadPointer;
+}
+
+void Audio::Plugin::Sampler::SetReadPointer(Samples readPointer)
+{
+	mReadPointer = readPointer;
+}
+
 // TODO: This sampler does not support mono wav files!
 Audio::Plugin::Status Audio::Plugin::Sampler::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
 {

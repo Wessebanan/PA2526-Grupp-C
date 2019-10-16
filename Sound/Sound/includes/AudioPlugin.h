@@ -39,6 +39,8 @@ namespace Audio
 			Sampler(FileData* pFile, int repeatAmount);
 			Sampler();
 			void SetFileAndReset(FileData* pFile);
+			Samples GetReadPointer();
+			void SetReadPointer(Samples readPointer);
 			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount);
 		private:
 			FileData* mpFile;

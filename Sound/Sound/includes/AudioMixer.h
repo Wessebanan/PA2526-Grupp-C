@@ -27,12 +27,17 @@ namespace Audio
 			M_DATA_TEARDOWN_NOTHING =	0,
 			M_DATA_TEARDOWN_DELETE =	(1 << 2),
 			M_DATA_TEARDOWN_MASK =		(0b1 << 2),
+			// Syncs
+			M_SYNC_NO_SYNC =			0,
+			M_SYNC_THIS_WITH_OTHER =	(1 << 3),
+			M_SYNC_OTHER_WITH_THIS =	(2 << 3),
+			M_SYNC_MASK =				(0b11 << 3),
 			// Functions
 			M_FUNC_NOTHING =			0,
-			M_FUNC_REPLACE_MUSIC =		(1 << 3),
-			M_FUNC_FADE_IN =			(2 << 3),
-			M_FUNC_FADE_OUT =			(3 << 3),
-			M_FUNC_MASK =				(0b11 << 3)
+			M_FUNC_REPLACE_MUSIC =		(1 << 5),
+			M_FUNC_FADE_IN =			(2 << 5),
+			M_FUNC_FADE_OUT =			(3 << 5),
+			M_FUNC_MASK =				(0b11 << 5)
 
 		};
 		union MessageDataUnion
