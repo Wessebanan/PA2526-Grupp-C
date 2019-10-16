@@ -7,8 +7,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameMain", "GameMain\GameMa
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GameMain_Test", "GameMain_Test\GameMain_Test.vcxproj", "{181144AD-488C-45FF-A543-473BB74255FE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Precompiled Header", "Precompiled Header\Precompiled Header.vcxproj", "{9DE5EA9D-D6C4-42B9-94AB-53DCC732D560}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -23,10 +21,6 @@ Global
 		{181144AD-488C-45FF-A543-473BB74255FE}.Debug|x64.Build.0 = Debug|x64
 		{181144AD-488C-45FF-A543-473BB74255FE}.Release|x64.ActiveCfg = Release|x64
 		{181144AD-488C-45FF-A543-473BB74255FE}.Release|x64.Build.0 = Release|x64
-		{9DE5EA9D-D6C4-42B9-94AB-53DCC732D560}.Debug|x64.ActiveCfg = Debug|x64
-		{9DE5EA9D-D6C4-42B9-94AB-53DCC732D560}.Debug|x64.Build.0 = Debug|x64
-		{9DE5EA9D-D6C4-42B9-94AB-53DCC732D560}.Release|x64.ActiveCfg = Release|x64
-		{9DE5EA9D-D6C4-42B9-94AB-53DCC732D560}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

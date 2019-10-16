@@ -1,6 +1,5 @@
+#include "../../pch.h"
 #include "../includes/Window.h"
-
-#include <iostream>
 
 namespace graphics
 {

@@ -43,7 +43,7 @@ struct PSIN
 
 float4 main(PSIN input) : SV_TARGET
 {
-	float4 sun_color = unpack(gSunData) / 256.0f;
+	float4 sun_color = unpack(gSunData) / 255.0f;
 	float illu = dot(gSunDirection, normalize(input.normal));
 
 	float3 finalColor = input.color * sun_color.rgb * sun_color.a;

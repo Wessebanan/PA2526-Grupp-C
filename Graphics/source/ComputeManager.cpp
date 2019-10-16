@@ -1,3 +1,4 @@
+#include "../../pch.h"
 #include "../includes/ComputeManager.h"
 #include "../includes/Pipeline.h"
 
