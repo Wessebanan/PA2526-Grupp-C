@@ -243,6 +243,15 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		TransformComponent* p_transform_component = dynamic_cast<TransformComponent*>(ecs.getComponentFromEntity(TransformComponent::typeID, ground_collision_entity->getID()));
 		GroundCollisionComponent* p_ground_collision_component = dynamic_cast<GroundCollisionComponent*>(ecs.getComponentFromEntity(GroundCollisionComponent::typeID, ground_collision_entity->getID()));
 		
+		// Getting closest tile to unit.
+		XMFLOAT3 *unit_position = &p_transform_component->position;
+		int2 closest_tile_index = GridFunctions::GetTileFromWorldPos(unit_position->x, unit_position->z);
+		GridProp* grid_prop = GridProp::GetInstance();
+		TileData tile_data = grid_prop->mGrid[closest_tile_index.y][closest_tile_index.x];
+
+		// Grabbing the closest tile.
+		TransformComponent* closest_tile = dynamic_cast<TransformComponent*>(ecs.getComponentFromEntity(TransformComponent::typeID, tile_data.Id));
+
 		const float DELTA = 0.1f;
 
 		// y position should be 0 at this point, as it is not translated.
@@ -260,7 +269,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		const float ABS_ERROR = pow(10.0f, -6.0f);
 		for (int i = 0; i < 8; i++)
 		{
-			EXPECT_GE(corners[i].y, 0.0f - ABS_ERROR);
+			EXPECT_GE(corners[i].y, tile_data.height - ABS_ERROR);
 		}
 		// Changing the position of the ground collision entity to the tile
 		// where height is adjusted.
@@ -269,13 +278,19 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 		ecs.update(DELTA);
 
+
+		closest_tile_index = GridFunctions::GetTileFromWorldPos(unit_position->x, unit_position->z);
+		grid_prop = GridProp::GetInstance();
+		tile_data = grid_prop->mGrid[closest_tile_index.y][closest_tile_index.x];
+
+
 		obb = p_ground_collision_component->mOBB;
 		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform_component));
 
 		obb.GetCorners(corners);
 		for (int i = 0; i < 8; i++)
 		{
-			EXPECT_GE(corners[i].y - TILE_HEIGHT, 0.0f - ABS_ERROR);
+			EXPECT_GE(corners[i].y - tile_data.height, 0.0f - ABS_ERROR);
 		}
 
 		delete[] corners;
@@ -349,6 +364,12 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		
 		ecs.update(DELTA);
 
+		// Getting closest tile to unit.
+		XMFLOAT3* unit_position = &p_transform->position;
+		int2 closest_tile_index = GridFunctions::GetTileFromWorldPos(unit_position->x, unit_position->z);
+		GridProp* grid_prop = GridProp::GetInstance();
+		TileData tile_data = grid_prop->mGrid[closest_tile_index.y][closest_tile_index.x];
+
 		BoundingOrientedBox obb = p_ground_collision->mOBB;
 		obb.Transform(obb, UtilityEcsFunctions::GetWorldMatrix(*p_transform));
 		XMFLOAT3* corners = new XMFLOAT3[8];
@@ -356,7 +377,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		const float ABS_ERROR = pow(10.0f, -6.0f);
 		for (int i = 0; i < 8; i++)
 		{
-			EXPECT_GE(corners[i].y, 0.0f - ABS_ERROR);
+			EXPECT_GE(corners[i].y, tile_data.height - ABS_ERROR);
 		}
 		EXPECT_FLOAT_EQ(p_movement->mVelocity.y, 0.0f);
 		EXPECT_TRUE(p_movement->mOnGround);
