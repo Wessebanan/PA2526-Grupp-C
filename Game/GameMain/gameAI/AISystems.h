@@ -159,6 +159,7 @@ namespace ecs
 				ecs::components::LootStateComponent loot_state;
 				ecs::components::PathfindingStateComponent path_state;
 				path_state.goalState = move->goalState;
+				ecs::components::IdleStateComponent idle_state;
 				//Calculate distance to goal and add the frame time to the total travel time
 				float distance = PhysicsHelpers::CalculateDistance(transform->position, move->goalPos);
 				float max_traveltime = 1.0f;
@@ -172,8 +173,11 @@ namespace ecs
 					case LOOT:
 						ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
 						break;
-					default:
+					case ATTACK:
 						ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
+						break;
+					default:
+						ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
 						break;
 					}
 				}
