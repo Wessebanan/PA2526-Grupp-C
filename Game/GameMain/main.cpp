@@ -1,7 +1,5 @@
-#include "../../pch.h"
 
-
-//#include "Input/InitInput.h"
+#include "Input/InitInput.h"
 #include "../../Graphics/includes/Window.h"
 //#include "ecs.h"
 
@@ -10,18 +8,18 @@
 //#include "gameRendering/InitMesh.h"
 //#include "gameRendering/PlaceMesh.h"
 
-//#include "gameAI/InitArmy.h"
-//#include "gameAI/InitGrid.h"
+#include "gameAI/InitArmy.h"
+#include "gameAI/InitGrid.h"
 
-//#include "Input/InitInterpreter.h"
+#include "Input/InitInterpreter.h"
 
-//#include "gameUtility/InitCamera.h"
+#include "gameUtility/InitCamera.h"
 
-//#include "gameSceneObjects/InitSceneObjectsh.h"
+#include "gameSceneObjects/InitSceneObjectsh.h"
 
-//#include "gameAudio/InitAudio.h"
+#include "gameAudio/InitAudio.h"
 
-//#include "Physics/InitPhysics.h"
+#include "Physics/InitPhysics.h"
 
 #include "Mesh.h"
 

@@ -34,6 +34,7 @@ struct _websocket_header
 	unsigned char len : 7;
 	unsigned char mask : 1;
 };
+#pragma pack (pop)
 
 struct _extended_16
 {
