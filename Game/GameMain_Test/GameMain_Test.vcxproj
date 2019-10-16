@@ -76,7 +76,6 @@
     <ClInclude Include="..\GameMain\Physics\PhysicsComponents.h" />
     <ClInclude Include="..\GameMain\Physics\PhysicsEvents.h" />
     <ClInclude Include="..\GameMain\Physics\QuadTree.h" />
-    <ClInclude Include="AI\AiTests.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Physics\FightingLogic.h" />
     <ClInclude Include="Physics\GroundCollision.h" />
@@ -125,7 +124,7 @@
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
-      <AdditionalIncludeDirectories>$(SolutionDir)\GameMain_Test\AI;$(SolutionDir)..\Game\GameMain\Physics;$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\Game\GameMain\Physics;$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -140,7 +139,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>$(SolutionDir)\GameMain_Test\AI;$(SolutionDir)..\Game\GameMain\Physics;$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\Game\GameMain\Physics;$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
