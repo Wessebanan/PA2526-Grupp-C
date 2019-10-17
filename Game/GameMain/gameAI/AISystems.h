@@ -261,44 +261,43 @@ namespace ecs
 						MovementInputEvent kek;
 						kek.mInput = FORWARD;
 						kek.mEntityID = entity.entity->getID();
-						createEvent(kek);
-					}
-				}
+						createEvent(kek);//creates an event to physics to move character
 
-
-				//Create the possible states we could switch to
-				ecs::components::AttackStateComponent atk_state;
-				atk_state.previousState = move_comp->goalState;
-				ecs::components::LootStateComponent loot_state;
-				ecs::components::PathfindingStateComponent path_state;
-				path_state.goalState = move_comp->goalState;
-				ecs::components::IdleStateComponent idle_state;
-				//Calculate distance to goal and add the frame time to the total travel time
-				float distance = PhysicsHelpers::CalculateDistance(transform->position, move_comp->goalPos);
-				float max_traveltime = 1.0f;
-				move_comp->time += delta;
-				//Check if we are close enought to the goal to switch state
-				if (distance < 1.0f)
-				{
-					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
-					switch (move_comp->goalState)
-					{
-					case LOOT:
-						ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
-						break;
-					case ATTACK:
-						ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
-						break;
-					default:
-						ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
-						break;
+						//Create the possible states we could switch to
+						ecs::components::AttackStateComponent atk_state;
+						atk_state.previousState = move_comp->goalState;
+						ecs::components::LootStateComponent loot_state;
+						ecs::components::PathfindingStateComponent path_state;
+						path_state.goalState = move_comp->goalState;
+						ecs::components::IdleStateComponent idle_state;
+						//Calculate distance to goal and add the frame time to the total travel time
+						float distance = PhysicsHelpers::CalculateDistance(transform->position, move_comp->goalPos);
+						float max_traveltime = 100.0f;
+						move_comp->time += delta;
+						//Check if we are close enought to the goal to switch state
+						if (distance < 0.1f)
+						{
+							ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
+							switch (move_comp->goalState)
+							{
+							case LOOT:
+								ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
+								break;
+							case ATTACK:
+								ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
+								break;
+							default:
+								ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
+								break;
+							}
+						}
+						//Check if it is time to recalculate the path since we did it last time
+						else if (move_comp->time > max_traveltime)
+						{
+							ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
+							ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
+						}
 					}
-				}
-				//Check if it is time to recalculate the path since we did it last time
-				else if (move_comp->time > max_traveltime)
-				{
-					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
-					ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
 				}
 			}
 		private:
