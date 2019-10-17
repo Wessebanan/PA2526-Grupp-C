@@ -252,4 +252,78 @@ namespace GridFunctions
 		}
 		return index;
 	}
+	int2 GetTileFromWorldPos(float x, float z)
+	{
+		int2 index;
+		index.x = -1;
+		index.y = -1;
+		GridProp* p_gp = GridProp::GetInstance();
+		float pos_x = x;
+		float pos_z = z;
+		float pi = 3.1415f;
+		float mid_to_side = cos(30 * pi / 180) * TILE_RADIUS; //Calculate length between the center position and a side. 
+		int steps = 0;
+
+		if (pos_x < TILE_RADIUS)
+		{
+			index.x = 0;
+		}
+		else
+		{
+			while (pos_x > TILE_RADIUS)
+			{
+				pos_x -= TILE_RADIUS * 2;
+				steps++;
+			}
+			if (steps > ARENA_COLUMNS - 1)
+			{
+				index.x = ARENA_COLUMNS - 1;
+			}
+			else
+			{
+				index.x = steps;
+			}
+		}
+		steps = 0;
+		if (pos_z < mid_to_side)
+		{
+			index.y = 0;
+		}
+		else
+		{
+			if (index.x % 2 == 0)
+			{
+				while (pos_z > mid_to_side)
+				{
+					pos_z -= mid_to_side * 2;
+					steps++;
+				}
+				if (steps > ARENA_ROWS - 1)
+				{
+					index.y = ARENA_ROWS - 1;
+				}
+				else
+				{
+					index.y = steps;
+				}
+			}
+			else
+			{
+				while (pos_z > mid_to_side * 2)
+				{
+					pos_z -= mid_to_side * 2;
+					steps++;
+				}
+				if (steps > ARENA_ROWS - 1)
+				{
+					index.y = ARENA_ROWS - 1;
+				}
+				else
+				{
+					index.y = steps;
+				}
+			}
+		}
+		return index;
+	}
 };
