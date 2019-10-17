@@ -64,13 +64,12 @@ namespace ecs
 				components::TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
 				start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
 				unsigned int start_tile_id = g_prop->mGrid[start_tile.y][start_tile.x].Id;
-				path = GetPath(start_tile_id,111);
+				path = GetPath(start_tile_id,117);
+
 				components::MoveStateComponent move_comp;
 				move_comp.path = path;
-				//Add the MoveStateComponent
-				ecs::components::MoveStateComponent move;
-				move.goalState = entity.getComponent<PathfindingStateComponent>()->goalState;
-				ecs::ECSUser::createComponent(entity.entity->getID(), move);
+				move_comp.goalState = entity.getComponent<PathfindingStateComponent>()->goalState;
+				ecs::ECSUser::createComponent(entity.entity->getID(), move_comp);
 				//Remove the PathfindingStateComponent
 				ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::PathfindingStateComponent::typeID);
 				
@@ -159,7 +158,7 @@ namespace ecs
 				/*************************************************/
 
 				
-			}
+			
 		};
 
 		/*
@@ -238,32 +237,51 @@ namespace ecs
 			{
 				//Fetch the move and transform component of the entity
 				ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
-				ecs::components::MoveStateComponent* move = entity.getComponent<ecs::components::MoveStateComponent>();
 
+				ecs::components::DynamicMovementComponent* dyn_move = entity.getComponent<ecs::components::DynamicMovementComponent>();
+				ecs::components::MoveStateComponent* move_comp = entity.getComponent<ecs::components::MoveStateComponent>();
+				if (move_comp->path.size() > 0)
+				{
+					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
+					if (abs(goal->position.x - transform->position.x) < 0.005f && abs(goal->position.z - transform->position.z) < 0.005f)
+					{
+						move_comp->path.erase(move_comp->path.begin());
+					}
+					if (move_comp->path.size() > 0)
+					{
+						goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
+						this->x = goal->position.x - transform->position.x;
+						this->z = goal->position.z - transform->position.z;
+						this->length = sqrt(x * x + z * z);
+						this->x = this->x / this->length;
+						this->z = this->z / this->length;
+						dyn_move->mForward.x = this->x;
+						dyn_move->mForward.z = this->z;
 
-				/*****************************************************/
-				/****************************************************/
-				/*    FILL OUT WITH MOVE LOGIC IN ANOTHER TASK     */
-				/**************************************************/
-				/*************************************************/
+						MovementInputEvent kek;
+						kek.mInput = FORWARD;
+						kek.mEntityID = entity.entity->getID();
+						createEvent(kek);
+					}
+				}
 
 
 				//Create the possible states we could switch to
 				ecs::components::AttackStateComponent atk_state;
-				atk_state.previousState = move->goalState;
+				atk_state.previousState = move_comp->goalState;
 				ecs::components::LootStateComponent loot_state;
 				ecs::components::PathfindingStateComponent path_state;
-				path_state.goalState = move->goalState;
+				path_state.goalState = move_comp->goalState;
 				ecs::components::IdleStateComponent idle_state;
 				//Calculate distance to goal and add the frame time to the total travel time
-				float distance = PhysicsHelpers::CalculateDistance(transform->position, move->goalPos);
+				float distance = PhysicsHelpers::CalculateDistance(transform->position, move_comp->goalPos);
 				float max_traveltime = 1.0f;
-				move->time += delta;
+				move_comp->time += delta;
 				//Check if we are close enought to the goal to switch state
 				if (distance < 1.0f)
 				{
 					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
-					switch (move->goalState)
+					switch (move_comp->goalState)
 					{
 					case LOOT:
 						ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
@@ -277,12 +295,16 @@ namespace ecs
 					}
 				}
 				//Check if it is time to recalculate the path since we did it last time
-				else if (move->time > max_traveltime)
+				else if (move_comp->time > max_traveltime)
 				{
 					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
 					ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
 				}
 			}
+		private:
+			float x;
+			float z;
+			float length;
 		};
 
 		/*
@@ -395,39 +417,10 @@ namespace ecs
 						path_state.goalState = STATE::ATTACK;
 						ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
 					}
-				}
-				ecs::components::DynamicMovementComponent* dyn_move = entity.getComponent<ecs::components::DynamicMovementComponent>();
-				ecs::components::MoveStateComponent* move_comp = entity.getComponent<ecs::components::MoveStateComponent>();
-				if(move_comp->path.size() > 0)
-				{
-					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());				
-					if (abs(goal->position.x - transform->position.x) < 0.005f && abs(goal->position.z - transform->position.z) < 0.005f)
-					{
-						move_comp->path.erase(move_comp->path.begin());
-					}
-					if (move_comp->path.size() > 0)
-					{
-						goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
-						this->x = goal->position.x - transform->position.x;
-						this->z = goal->position.z - transform->position.z;
-						this->length = sqrt(x * x + z * z);
-						this->x = this->x / this->length;
-						this->z = this->z / this->length;
-						dyn_move->mForward.x = this->x;
-						dyn_move->mForward.z = this->z;
-
-						MovementInputEvent kek;
-						kek.mInput = FORWARD;
-						kek.mEntityID = entity.entity->getID();
-						createEvent(kek);
-					}
-				}
+				}				
 				
 			}
-		private:
-			float x;
-			float z;
-			float length;
+		
 		};
 
 
