@@ -166,7 +166,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
 
-	InitSound(ecs);
+	//InitSound(ecs);
 
 	InitInput(ecs);
 	InitInterpreter(ecs);
