@@ -223,5 +223,7 @@ TEST(DamageDealing, DealDamage)
 	
 	// Now the attacked unit has died and should be removed from the ecs.
 	EXPECT_EQ(ecs.getTotalEntityCount(), 2);
+
+	delete p_weapon_component->mBoundingVolume;
 }
 #pragma endregion
