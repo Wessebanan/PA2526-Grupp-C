@@ -109,6 +109,7 @@
     <ClCompile Include="Physics\QuadTree.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="computeShaders\Temp_ocean_buffer_upload_code.h" />
     <ClInclude Include="gameAI\AIComponents.h" />
     <ClInclude Include="gameAI\AIEvents.h" />
     <ClInclude Include="gameAI\AIEcsFunctions.h" />

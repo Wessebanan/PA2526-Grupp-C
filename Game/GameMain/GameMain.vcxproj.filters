@@ -141,6 +141,9 @@
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="computeShaders\Temp_ocean_buffer_upload_code.h">
+      <Filter>Shaders\Compute</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
