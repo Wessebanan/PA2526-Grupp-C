@@ -244,7 +244,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	//	if (closest_distance > distance_to_tile)
 	//	{
 	//		closest_distance = distance_to_tile;
-	//		closest_tile_id = current_tile;
+	//		closest_tile_id = current_tile;pls wit
 	//	}
 	//}
 
