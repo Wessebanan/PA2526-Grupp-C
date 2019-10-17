@@ -64,7 +64,7 @@ int QuadTree::GetIndex(QuadTreeObject obj)
 	DirectX::XMVECTOR max_position = DirectX::XMLoadFloat3(&obj.pBoundingBox->mAABB.Center);
 	DirectX::XMVECTOR extents = DirectX::XMLoadFloat3(&obj.pBoundingBox->mAABB.Extents);
 	min_position = DirectX::XMVectorSubtract(min_position, extents);
-	min_position = DirectX::XMVectorAdd(max_position, extents);
+	max_position = DirectX::XMVectorAdd(max_position, extents);
 	DirectX::XMMATRIX world_matrix = UtilityEcsFunctions::GetWorldMatrix(*obj.pTransform);
 	//Convert the max and min position to world space.
 	min_position = DirectX::XMVector3Transform(min_position, world_matrix);

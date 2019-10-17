@@ -74,8 +74,8 @@ TEST(SuccessTesting, CorrectUV) {
 TEST(SuccessTesting, CorrectIndex) {
 	ModelLoader::Mesh testMesh;
 	testMesh.LoadFBX("cat.fbx");
-	// First index is supposed to be 321
-	EXPECT_EQ(testMesh.GetIndexVector()->front(), 321);
+	// First index is supposed to be 322
+	EXPECT_EQ(testMesh.GetIndexVector()->front(), 322);
 }
 
 // Check that vertex imported correctly
@@ -102,6 +102,15 @@ TEST(SuccessTesting, CorrectUV_FilePathConstructor) {
 // Check that index imported correctly
 TEST(SuccessTesting, CorrectIndex_FilePathConstructor) {
 	ModelLoader::Mesh testMesh("cat.fbx");
-	// First index is supposed to be 321
-	EXPECT_EQ(testMesh.GetIndexVector()->front(), 321);
+	// First index is supposed to be 322
+	EXPECT_EQ(testMesh.GetIndexVector()->front(), 322);
+}
+
+TEST(SuccessTesting, Gather_Hitbox_Info_From_Joint) {
+	ModelLoader::Mesh testMesh("Walking2.fbx");
+	ASSERT_TRUE(testMesh.HasSkeleton());
+	// Root bone should not have connected vertices
+	EXPECT_EQ(testMesh.GetSkeleton()->joints[0].mConnectedVertexIndices.size(), 0);
+	// First bone has 46 connected vertices
+	EXPECT_EQ(testMesh.GetSkeleton()->joints[1].mConnectedVertexIndices.size(), 46);
 }
