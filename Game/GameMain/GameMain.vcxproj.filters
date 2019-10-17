@@ -217,5 +217,8 @@
     <FxCompile Include="gameGraphics\PS_Transformation.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

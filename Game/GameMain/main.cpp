@@ -154,13 +154,20 @@ int main()
 		ps.c_str(), 
 		sizeof(float) * 3 + sizeof(UINT));
 
+	const std::string vs_skin = GetShaderFilepath("VS_Skinning.cso");
+	UINT shader_index1 = renderer.CreateShaderProgram(
+		vs_skin.c_str(),
+		ps.c_str(),
+		sizeof(float) * 3 + sizeof(UINT));
+
 	ModelLoader::Mesh mesh_hexagon("../meshes/hexagon.fbx");
 	ModelLoader::Mesh mesh_rock("../meshes/rock.fbx");
 	ModelLoader::Mesh mesh_tree("../meshes/tree.fbx");
-
+	ModelLoader::Mesh mesh_dude("../dudeMesh0.fbx");
 	graphics::MeshRegion mesh_region_hexagon	= InsertMesh(mesh_hexagon, mesh_manager);
 	graphics::MeshRegion mesh_region_tree		= InsertMesh(mesh_rock, mesh_manager);
 	graphics::MeshRegion mesh_region_rock		= InsertMesh(mesh_tree, mesh_manager);
+	graphics::MeshRegion mesh_region_dude	    = InsertMesh(mesh_dude, mesh_manager);
 
 	ecs::EntityComponentSystem ecs;
 
@@ -200,12 +207,22 @@ int main()
 	layout.Meshes[1]			= (mesh_region_tree);
 	layout.Meshes[2]			= (mesh_region_rock);
 
+	graphics::ShaderModelLayout layout_skin;
+	layout.MeshCount			= 1;
+	layout.Meshes[0]			= (mesh_region_dude);
+
 
 
 	struct ShaderProgramInput
 	{
 		float x, y, z;
 		uint32_t Color;
+	};
+
+	struct SkinningShaderProgramInput
+	{
+		XMFLOAT4X4 world;
+		XMFLOAT4X4 boneMatrices[63];
 	};
 
 	UINT index = 0;
@@ -251,7 +268,16 @@ int main()
 		index++;
 	}
 
+	SkinningShaderProgramInput skin_shader_program_input[12];
+	ModelLoader::Skeleton* skeleton = mesh_dude.GetSkeleton();
+	for (unsigned int i = 0; i < 12; ++i)
+	{
+		memcpy(&skin_shader_program_input[i].boneMatrices, skeleton->animationData, skeleton->jointCount * sizeof(XMFLOAT4X4));
+		
+	}
+
 	renderer.SetShaderModelLayout(shader_index0, layout);
+	renderer.SetShaderModelLayout(shader_index1, layout_skin);
 	renderer.SetModelData(pData, sizeof(ShaderProgramInput) * size);
 
 	wnd.Open();
