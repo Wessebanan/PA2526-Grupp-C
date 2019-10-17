@@ -96,29 +96,31 @@ namespace ecs
 				goal_tile_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(goalID);
 				while (current_tile_id != goalID /*lastNice != niceTry*/)
 				{
-					lastNice = niceTry;
-					have_visited[current_tile_id] = true;
-					niceTry = 999.f;
-					for (int i = 0; i < 6; i++)
-					{	//check if neighbour is not 0 or was the last visited tile
-						if (current_tile->neighboursIDArray[i] != 0 && !have_visited[current_tile->neighboursIDArray[i]])
-						{	//check for the lowest niceness then that is the next tile
-							current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
-							dist = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z,
-								goal_tile_transfrom->position.x, goal_tile_transfrom->position.z);
-							if (ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness + dist < niceTry)
-							{
-								niceTry = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness + dist;
-								next_tile_id = current_tile->neighboursIDArray[i];
+					if(current_tile_id != last_tile_id)
+					{
+						have_visited[current_tile_id] = true;
+						niceTry = 999.f;
+						for (int i = 0; i < 6; i++)
+						{	//check if neighbour is not 0 or was the last visited tile
+							if (current_tile->neighboursIDArray[i] != 0 && !have_visited[current_tile->neighboursIDArray[i]])
+							{	//check for the lowest niceness then that is the next tile
+								current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
+								dist = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z,
+									goal_tile_transfrom->position.x, goal_tile_transfrom->position.z);
+								if (ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness + dist < niceTry)
+								{
+									niceTry = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness + dist;
+									next_tile_id = current_tile->neighboursIDArray[i];
+								}
 							}
 						}
-					}
-					if (current_tile_id != goalID)
-					{
-						current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
-						to_return.push_back(next_tile_id);
-						last_tile_id = current_tile_id;
-						current_tile_id = next_tile_id;
+						if (current_tile_id != goalID)
+						{
+							current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
+							to_return.push_back(next_tile_id);
+							last_tile_id = current_tile_id;
+							current_tile_id = next_tile_id;
+						}
 					}
 				}
 				return to_return;
