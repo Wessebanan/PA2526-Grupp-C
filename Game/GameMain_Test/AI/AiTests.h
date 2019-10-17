@@ -1,7 +1,5 @@
 #pragma once
 #include "AIEcsFunctions.h"
-#include "CollisionSystem.h"
-#include "MovementSystem.h"
 #include "GridEcsFunctions.h"
 
 
