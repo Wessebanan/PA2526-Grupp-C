@@ -128,7 +128,7 @@ int main()
 	/*
 		-- Meshes --
 	*/
-	ModelLoader::Mesh mesh_hexagon("../meshes/hexagon.fbx");
+	ModelLoader::Mesh mesh_hexagon("../meshes/hexagon_tile5.fbx");
 	ModelLoader::Mesh mesh_rock("../meshes/rock.fbx");
 	ModelLoader::Mesh mesh_tree("../meshes/tree.fbx");
 
