@@ -1,7 +1,7 @@
 
 #include "Input/InitInput.h"
 #include "../../Graphics/includes/Window.h"
-//#include "ecs.h"
+#include "ecs.h"
 
 
 
@@ -32,7 +32,7 @@
 
 //#include "../../Graphics/includes/ForwardRenderingPipeline.h"
 
-//#include <time.h>
+#include <time.h>
 
 inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3) {
 	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
@@ -157,64 +157,42 @@ int main()
 	renderer.SetShaderModelLayout(shader_index0, layout);
 	renderer.SetModelData(v, sizeof(v));
 
-	//srand(time(0));
+	srand(time(0));
 
-	//EntityComponentSystem ecs;
+	ecs::EntityComponentSystem ecs;
 
-	// Tiles + sceneobjects + units + camera
-	//ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
-	//ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
-	//ecs.reserveComponentCount<ecs::components::TileComponent>(144);
+	//Tiles + sceneobjects + units + camera
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
 
-	//InitSound(ecs);
+	InitSound(ecs);
 
-	//InitInput(ecs);
-	//InitInterpreter(ecs);
+	InitInput(ecs);
+	InitInterpreter(ecs);
 	//CameraFunctions::CreateDevCamera(ecs);
 
 
-	//InitGrid(ecs);
-	//InitArmy(ecs);
-	//InitSceneObjects(ecs);
-
-
-	//rendering::SUN_DESC sun_desc;
-	//sun_desc.Red = 200;
-	//sun_desc.Green = 200;
-	//sun_desc.Blue = 200;
-	//
-	//sun_desc.Direction	= { 0.8f, -1.0f, 0.0f };
-	//sun_desc.Position	= { -4.0f, 8.0f, 10.0f };
-
-	//sun_desc.NearPlane = 0.1f;
-	//sun_desc.FarPlane = 100.0f;
-
-	//sun_desc.Width = 25.0f;
-	//sun_desc.Height = 25.0f;
-
-	//sun_desc.Resolution = 2048;
-	//
-	//rendering::RenderManager* pMng = new rendering::RenderManager;
-	//pMng->Initialize(sun_desc, 1600, 900, "D3D11");
+	InitGrid(ecs);
+	InitArmy(ecs);
+	InitSceneObjects(ecs);
 
 	//
 
-	//InitCamera(ecs);
+	InitCamera(ecs);
 
 	//ModelLoader::Mesh **pp_meshes = InitMesh(ecs, pMng);
 	//
 	//InitPhysics(ecs, pp_meshes);
 
-	//graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
-
 	//PlaceMesh(ecs, pMng);
 
 
-	//// to get components in the loop
-	//ecs::ComponentIterator itt;
+	// to get components in the loop
+	ecs::ComponentIterator itt;
 
-	//itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
-	//ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
+	itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
 
 	float x = -5.0f, y = 10.0f, z = 0.0f;
 	DirectX::XMFLOAT4X4 camera_matrix;
@@ -223,19 +201,17 @@ int main()
 		x, y, z,
 		1.0f, -1.0f, 0.0f);
 
-	//pMng->SetViewMatrix(p_cam_comp->viewMatrix);
 	wnd.Open();
-	//ecs.update(0.1f);
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update()) 
 		{
-			//ecs.update(0.1f);
-
 			if (GetAsyncKeyState(VK_ESCAPE))
 			{
 				wnd.Close();
 			}
+
+			ecs.update(0.1f);
 
 			{	
 				DirectX::XMFLOAT4X4 shadow_matrix;
@@ -252,7 +228,7 @@ int main()
 
 			{
 				graphics::FORWARD_RENDERING_PIPELINE_DATA data;
-				data.ViewMatrix = camera_matrix;
+				data.ViewMatrix = p_cam_comp->viewMatrix;
 				data.Red	= 0.25f;
 				data.Green	= 0.25f;
 				data.Blue	= 1.0f;
