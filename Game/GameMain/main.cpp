@@ -228,8 +228,6 @@ int main()
 		layout.TotalModels = layout.InstanceCounts[i];
 	}
 
-	UINT tree_index = size;
-	UINT rock_index = size * 2;
 	while (tileComp = (ecs::components::TileComponent*)itt.next())
 	{
 		ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(tileComp->getEntityID());
@@ -260,6 +258,7 @@ int main()
 		index++;
 	}
 
+	UINT scene_objects_index = size;
 	itt = ecs.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
 	ecs::components::SceneObjectComponent* scene_comp;
 	while (scene_comp = (ecs::components::SceneObjectComponent*)itt.next())
@@ -267,14 +266,14 @@ int main()
 		ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(scene_comp->getEntityID());
 		ecs::components::ColorComponent* color_comp = ecs.getComponentFromEntity<ecs::components::ColorComponent>(scene_comp->getEntityID());
 
-		pData[tree_index].x = trComp->position.x;
-		pData[tree_index].y = trComp->position.y;
-		pData[tree_index].z = trComp->position.z;
+		pData[scene_objects_index].x = trComp->position.x;
+		pData[scene_objects_index].y = trComp->position.y;
+		pData[scene_objects_index].z = trComp->position.z;
 
-		pData[tree_index].Color = PACK(color_comp->red, color_comp->green, color_comp->blue, 0);
+		pData[scene_objects_index].Color = PACK(color_comp->red, color_comp->green, color_comp->blue, 0);
 
 
-		tree_index++;
+		scene_objects_index++;
 	}
 
 	renderer.SetShaderModelLayout(shader_index0, layout);
