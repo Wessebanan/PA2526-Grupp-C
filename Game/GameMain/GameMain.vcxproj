@@ -154,6 +154,10 @@
     <ClInclude Include="Physics\QuadTree.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="computeShaders\OceanPositionUpdateShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+    </FxCompile>
     <FxCompile Include="gameGraphics\PS_Transformation.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>

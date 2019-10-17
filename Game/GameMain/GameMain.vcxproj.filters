@@ -176,6 +176,9 @@
     <Filter Include="Graphics">
       <UniqueIdentifier>{26314c13-6838-471b-aa52-20b6f3999b9d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Compute">
+      <UniqueIdentifier>{6e101fc3-2fd2-44c7-a201-42e2e0db28cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SceneObjects">
@@ -204,6 +207,9 @@
     </FxCompile>
     <FxCompile Include="gameGraphics\PS_Transformation.hlsl">
       <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="computeShaders\OceanPositionUpdateShader.hlsl">
+      <Filter>Shaders\Compute</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>
