@@ -4,9 +4,9 @@
 #include "Mesh.h"
 #include "ecs.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
+#include "../Physics/InitPhysics.h"
 
-
-void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
+ModelLoader::Mesh** InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 {
 	using namespace rendering;
 	using namespace DirectX;
@@ -14,8 +14,8 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 
 	//ModelLoader::Mesh tile("../hexagon_tile.fbx");
 	//ModelLoader::Mesh tile2("../hexagon_tile2.fbx");
-	ModelLoader::Mesh tile3("../hexagon.fbx");
-	ModelLoader::Mesh dude("../dudeMesh0.fbx");
+	ModelLoader::Mesh tile3("../hexagon_tile5.fbx");
+	ModelLoader::Mesh dude("../Walking2.fbx");
 
 	int mesh_tile; // tile
 	{
@@ -118,4 +118,22 @@ void InitMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* pMng)
 	desc[RENDER_TRANSFORMATION].ModelLayoutCount = 1;
 
 	pMng->CreateModelHeap(desc);
+
+	// Physics needs meshes, if this function for some reason is called more than
+	// once, the memory is not allocated again.
+	static bool init = false;
+	if (!init)
+	{
+		ModelLoader::Mesh** pp_meshes = new ModelLoader::Mesh * [Mesh::N_MESHES];
+		ModelLoader::Mesh* p_dude = new ModelLoader::Mesh("../Walking2.fbx");
+		ModelLoader::Mesh* p_tile = new ModelLoader::Mesh("../hexagon.fbx");
+		pp_meshes[Mesh::DUDE] = p_dude;
+		pp_meshes[Mesh::TILE] = p_tile;		
+		init = true;
+		return pp_meshes;
+	}
+	else
+	{
+		return nullptr;
+	}
 }
