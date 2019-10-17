@@ -37,7 +37,7 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				createEvent(cus_event);
 			}
-			else if (ucComp->userCommands[i].mCommand == "idel" && mCurrStates[i] != STATE::IDLE)
+			else if (ucComp->userCommands[i].mCommand == "idle" && mCurrStates[i] != STATE::IDLE)
 			{
 				// change state component
 				events::ChangeUserStateEvent cus_event;
@@ -45,6 +45,28 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				cus_event.playerId = (PLAYER)i;
 
 				mCurrStates[i] = STATE::IDLE;
+
+				createEvent(cus_event);
+			}
+			else if (ucComp->userCommands[i].mCommand == "attack" && mCurrStates[i] != STATE::ATTACK)
+			{
+				// change state component
+				events::ChangeUserStateEvent cus_event;
+				cus_event.newState = STATE::ATTACK;
+				cus_event.playerId = (PLAYER)i;
+
+				mCurrStates[i] = STATE::ATTACK;
+
+				createEvent(cus_event);
+			}
+			else if (ucComp->userCommands[i].mCommand == "loot" && mCurrStates[i] != STATE::LOOT)
+			{
+				// change state component
+				events::ChangeUserStateEvent cus_event;
+				cus_event.newState = STATE::LOOT;
+				cus_event.playerId = (PLAYER)i;
+
+				mCurrStates[i] = STATE::LOOT;
 
 				createEvent(cus_event);
 			}
