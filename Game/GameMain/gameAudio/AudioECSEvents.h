@@ -33,6 +33,14 @@ namespace ecs
 		{
 			float fadeOutTimeInSeconds;
 		};
+		struct MusicSetVolume : public ECSEvent<MusicSetVolume>
+		{
+			float volume;
+		};
+		struct SubMusicSetVolume : public ECSEvent<SubMusicSetVolume>
+		{
+			float volume;
+		};
 
 	}
 }

@@ -14,7 +14,7 @@ namespace ecs
 
 			bool Init();
 
-			void readEvent(BaseEvent& rEvent, float delta) override;
+			void onEvent(TypeID _eventType, BaseEvent* _event) override;
 		private:
 			bool SetupEngine();
 			bool SetupBank();
@@ -25,6 +25,8 @@ namespace ecs
 			void ProcessPlaySubMusic(ecs::events::PlaySubMusic* pEvent);
 			void ProcessFadeInSubMusic(ecs::events::FadeInSubMusic* pEvent);
 			void ProcessFadeOutSubMusic(ecs::events::FadeOutSubMusic* pEvent);
+			void ProcessMusicSetVolume(ecs::events::MusicSetVolume* pEvent);
+			void ProcessSubMusicSetVolume(ecs::events::SubMusicSetVolume* pEvent);
 
 			Audio::PaHandler* mSoundPaHandler;
 			Audio::Engine* mSoundEngine;

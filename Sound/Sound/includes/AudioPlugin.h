@@ -54,7 +54,7 @@ namespace Audio
 		class Gain : public Plugin
 		{
 		public:
-			Gain(Plugin* pNext = nullptr, float gain = 0.0f);
+			Gain(Plugin* pNext = nullptr, float gain = 1.0f);
 			void SetGain(float gain);
 			void FadeToFull(unsigned long sampleDuration);
 			void FadeToEmpty(unsigned long sampleDuration);
