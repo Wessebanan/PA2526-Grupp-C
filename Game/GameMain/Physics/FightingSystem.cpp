@@ -33,25 +33,24 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 	switch (weapon_component->mType)
 	{
-		// DirectXCollision is aggressive as f when making OBBs so I make
-		// an AABB and then an OBB out of it to avoid a bunch of points being
-		// outside of the OBB.
+	// DirectXCollision is aggressive as f when making OBBs so I make
+	// an AABB and then an OBB out of it to avoid a bunch of points being
+	// outside of the OBB.
 	case SWORD:
 	{
 		weapon_component->mBoundingVolume = new OBB;
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
-		//weapon_component->mBo = new OBB;
 		BoundingBox aabb;
 		aabb.CreateFromPoints(aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
 		obb->CreateFromBoundingBox(*(BoundingOrientedBox*)obb, aabb);
 		break;
 	}
+
 	case PROJECTILE:
 		break;
-	case DEFAULT:
+	case FIST:
 	{
-		LPCSTR message = "Weapon component created without specified weapon type";
-		MessageBoxA(NULL, message, NULL, MB_YESNO);
+		
 		break;
 	}
 	default:
@@ -80,8 +79,6 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		return;
 	}
 
-	// Grab all entities with a constitution component (units).
-	EntityIterator units = getEntitiesWithComponent<ConstitutionComponent>();
 
 	// FILL OUT WITH OTHER WEAPONS LATER
 	// Making a copy of the bounding volume for weapon.
@@ -105,13 +102,18 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	XMMATRIX weapon_world = UtilityEcsFunctions::GetWorldMatrix(*weapon_transform_component);
 	weapon_bv->Transform(weapon_world);
 
+	// Grab all entities with a constitution component (units).
+	EntityIterator units = getEntitiesWithComponent<ConstitutionComponent>();
+
 	// Check collision against entities that could take damage.
 	bool intersect = false;
-	int intersected_index = -1;
+	ID collided_unit = 0;
+
 	for (int i = 0; i < units.entities.size(); i++)
 	{
+		ID current_unit = units.entities.at(i).entity->getID();
 		// Skip weapon owner.
-		if (units.entities.at(i).entity->getID() == weapon_component->mOwnerEntity)
+		if (current_unit == weapon_component->mOwnerEntity)
 		{
 			continue;
 		}
@@ -127,16 +129,31 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		intersect = weapon_bv->Intersects(&current_aabb);
 		if (intersect)
 		{
-			intersected_index = i;
+			collided_unit = current_unit;
 			break;
 		}
 	}
 	
-	// if collision: 
-// *check movement diff on weapon
-// *calc velocity
-// *multiply velocity with base damage for true damage
-// *deduct damage from collided entities health
+	if (intersect)
+	{
+		// Calculating velocity on weapon.
+		float movement = CalculateDistance(weapon_component->mPreviousPos, weapon_transform_component->position);
+		float velocity = movement / _delta;
 
+		// Calculating damage by multiplying weapon velocity and the base damage.
+		float damage = velocity * weapon_component->mBaseDamage;
+		// s/t = v
+
+		ConstitutionComponent *collided_constitution = getComponentFromKnownEntity<ConstitutionComponent>(collided_unit);
+
+		collided_constitution->mHealth -= damage;
+
+		// Deleting unit from existence if dead for now.
+		if (collided_constitution->mHealth < 0.0f)
+		{
+			removeEntity(collided_unit);
+		}
+	}
+	
 	weapon_component->mPreviousPos = weapon_transform_component->position;
 }

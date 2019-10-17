@@ -13,14 +13,13 @@
 #define DEFAULT_WEIGHT 50.0f
 #define DEFAULT_GRAVITY 9.82f
 #define DEFAULT_HEALTH 100.0f
-#define DEFAULT_BASE_DAMAGE 10.0f
 
 // WEAPON_TYPE decides what bounding volume to use.
 enum WEAPON_TYPE
 {
 	SWORD,
 	PROJECTILE,
-	DEFAULT
+	FIST
 };
 
 namespace ecs
@@ -133,7 +132,7 @@ namespace ecs
 			// When an entity gets the weapon, give owner entity id to component.
 			ID mOwnerEntity = 0;			
 
-			WEAPON_TYPE mType = DEFAULT;
+			WEAPON_TYPE mType = FIST;
 			float mAttackRange = 0.0f;
 			BoundingVolume* mBoundingVolume = nullptr;
 			
@@ -141,7 +140,7 @@ namespace ecs
 			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			
 			// Base damage for multiplier on hit based on weapon type.
-			float mBaseDamage = DEFAULT_BASE_DAMAGE;
+			float mBaseDamage = 0.0f;
 
 			~WeaponComponent()
 			{				

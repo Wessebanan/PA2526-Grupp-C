@@ -4,7 +4,7 @@
 #include "GridEcsFunctions.h"
 
 // This lil' piece of jank makes tests waaay faster.
-ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
+ModelLoader::Mesh dude("Physics/TestModel/dude1.fbx");
 
 #pragma region FindLowestPointOfMesh
 	TEST(FindLowestPointOfMesh, CreateGroundCollisionComponentInitSystem)
