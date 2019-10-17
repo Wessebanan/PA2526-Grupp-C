@@ -58,16 +58,33 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
+				ecs::components::PathfindingStateComponent* path_comp = entity.getComponent<ecs::components::PathfindingStateComponent>();
 				int2 start_tile = 0;
 				std::vector<unsigned int> path;
 				GridProp* g_prop = GridProp::GetInstance();
 				components::TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
+				ecs::components::TransformComponent* goal_transform;
 				start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
 				unsigned int start_tile_id = g_prop->mGrid[start_tile.y][start_tile.x].Id;
-				path = GetPath(start_tile_id,117);
+				unsigned int goal_id = 0;
+				unsigned int goal_tile_id = 0;
+				int2 goal_tile_index;
+				if (path_comp->goalState == STATE::ATTACK)
+				{
+					goal_id = this->FindClosestEnemy(entity.entity);
+					goal_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, goal_id));
+					goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
+					goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].Id;
+				}
+				else if (path_comp->goalState == STATE::LOOT)
+				{
+					goal_id = 117;
+				}
+				path = GetPath(start_tile_id, goal_id);
 
 				components::MoveStateComponent move_comp;
 				move_comp.path = path;
+				move_comp.goalID = goal_id;
 				move_comp.goalState = entity.getComponent<PathfindingStateComponent>()->goalState;
 				ecs::ECSUser::createComponent(entity.entity->getID(), move_comp);
 				//Remove the PathfindingStateComponent
@@ -150,6 +167,43 @@ namespace ecs
 					}
 				}
 				return to_return;
+			}
+		private:
+			unsigned int FindClosestEnemy(ecs::Entity* current_unit)
+			{
+				ecs::ComponentIterator ittr;
+				ecs::BaseComponent* p_base_component;
+				ecs::components::ArmyComponent* army_comp;
+				ecs::Entity* other_unit;
+				ecs::components::UnitComponent* curr_unit_comp = static_cast<ecs::components::UnitComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::UnitComponent::typeID, current_unit->getID()));
+				ecs::components::UnitComponent* other_unit_comp;
+				ecs::components::TransformComponent* curr_unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, current_unit->getID()));
+				ecs::components::TransformComponent* other_unit_transform;
+				float dist = 1000.0f;
+				float temp_dist = 0.0f;
+				unsigned int enemy_id;
+
+				ittr = ecs::ECSUser::getComponentsOfType(ecs::components::ArmyComponent::typeID);
+				while (p_base_component = ittr.next())
+				{
+					army_comp = static_cast<ecs::components::ArmyComponent*>(p_base_component);
+					for (int i = 0; i < army_comp->unitIDs.size(); i++)
+					{
+						other_unit = ecs::ECSUser::getEntity(army_comp->unitIDs[i]);
+						other_unit_comp = static_cast<ecs::components::UnitComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::UnitComponent::typeID, other_unit->getID()));
+						if (other_unit_comp->playerID != curr_unit_comp->playerID)
+						{
+							other_unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, other_unit->getID()));
+							temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
+							if (temp_dist < dist)
+							{
+								dist = temp_dist;
+								enemy_id = other_unit->getID();
+							}
+						}
+					}
+				}
+				return enemy_id;
 			}
 				/*****************************************************/
 				/****************************************************/
@@ -266,6 +320,7 @@ namespace ecs
 						//Create the possible states we could switch to
 						ecs::components::AttackStateComponent atk_state;
 						atk_state.previousState = move_comp->goalState;
+						atk_state.enemyEntityId = move_comp->goalID;
 						ecs::components::LootStateComponent loot_state;
 						ecs::components::PathfindingStateComponent path_state;
 						path_state.goalState = move_comp->goalState;
@@ -362,7 +417,7 @@ namespace ecs
 				/*************************************************/
 
 				//Check if there is an enemy within fighting range.
-				float attack_range = 5.0f; //SHOULD BE BASED ON EQUIPED WEAPON LATER WHEN ITEMS IS IMPLEMENTED.
+				float attack_range = 0.01f; //SHOULD BE BASED ON EQUIPED WEAPON LATER WHEN ITEMS IS IMPLEMENTED.
 				float distance = 1000.0f;
 				ecs::components::UnitComponent* current_unit = entity.getComponent<ecs::components::UnitComponent>();
 				ecs::components::UnitComponent* other_unit;
