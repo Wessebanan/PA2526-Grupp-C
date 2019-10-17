@@ -82,3 +82,59 @@ TEST(WeaponInit, TestBoundingVolume)
 	
 }
 #pragma endregion
+#pragma region DamageDealing
+TEST(DamageDealing, CreateDamageSystem)
+{
+	ecs::EntityComponentSystem ecs;
+	EXPECT_EQ(ecs.getTotalSystemCount(), 0);
+
+	ecs::systems::DamageSystem* damage_system = ecs.createSystem<ecs::systems::DamageSystem>();
+	EXPECT_EQ(ecs.getTotalSystemCount(), 1);
+
+	EXPECT_NE(damage_system, nullptr);
+}
+TEST(DamageDealing, CreateOwnedWeapon)
+{
+	ecs::EntityComponentSystem ecs;
+	
+	// Creating the components that the entity needs to be
+	// able to collide with other entities.
+	MeshComponent unit_mesh_component;
+	ObjectCollisionComponent unit_collision_component;
+	DynamicMovementComponent unit_movement_component;
+	TransformComponent unit_transform_component;
+
+	ecs::ComponentList component_list;
+	ecs::BaseComponent* list[] =
+	{
+		&unit_mesh_component,
+		&unit_collision_component,
+		&unit_movement_component,
+		&unit_transform_component
+	};
+	component_list.initialInfo = list;
+	component_list.componentCount = 4;
+	ecs::Entity* unit_entity = ecs.createEntity(component_list);
+
+	// Checking that there is now one entity and four components.
+	EXPECT_EQ(ecs.getTotalEntityCount(), 1);
+	EXPECT_EQ(ecs.getTotalComponentCount(), 4);
+
+	WeaponComponent weapon_component;
+	weapon_component.mOwnerEntity = unit_entity->getID();
+	TransformComponent weapon_transform_component;
+	MeshComponent weapon_mesh_component;
+
+	ecs::Entity* weapon_entity = ecs.createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
+
+	// Checking that there is now two entities and seven components.
+	EXPECT_EQ(ecs.getTotalEntityCount(), 2);
+	EXPECT_EQ(ecs.getTotalComponentCount(), 7);
+
+	WeaponComponent *p_weapon_component = ecs.getComponentFromEntity<WeaponComponent>(weapon_entity->getID());
+
+	// Checking that the unit entity owns the weapon entity.
+	EXPECT_EQ(unit_entity, ecs.getEntity(p_weapon_component->mOwnerEntity));
+}
+
+#pragma endregion

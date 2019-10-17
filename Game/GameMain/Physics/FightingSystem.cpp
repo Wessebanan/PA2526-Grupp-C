@@ -40,17 +40,18 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	{
 		weapon_component->mBoundingVolume = new OBB;
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
-		BoundingBox aabb;
+		AABB aabb;
 		aabb.CreateFromPoints(aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
 		obb->CreateFromBoundingBox(*(BoundingOrientedBox*)obb, aabb);
 		break;
 	}
 
-	case PROJECTILE:
-		break;
 	case FIST:
 	{
-		
+		// No vertex groups so fist is entire dude.
+		weapon_component->mBoundingVolume = new AABB;
+		AABB *aabb = static_cast<AABB*>(weapon_component->mBoundingVolume);
+		aabb->CreateFromPoints(*aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
 		break;
 	}
 	default:
@@ -63,6 +64,7 @@ ecs::systems::DamageSystem::DamageSystem()
 {
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(WeaponComponent::typeID);
+	typeFilter.addRequirement(TransformComponent::typeID);
 }
 ecs::systems::DamageSystem::~DamageSystem()
 {
@@ -91,13 +93,15 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		weapon_bv = new OBB(*obb);
 		break;
 	}
-	default:
+	case FIST:
 	{
-		MessageBoxA(NULL, "Weapon Component has no type. (DamageSystem::updateEntity)", NULL, MB_YESNO);
-		return;
+		AABB* aabb = static_cast<AABB*>(weapon_component->mBoundingVolume);
+		weapon_bv = new AABB(*aabb);
 	}
+	default:
+		break;
 	}
-
+	
 	// Transforming weapon bv to world space for collision.
 	XMMATRIX weapon_world = UtilityEcsFunctions::GetWorldMatrix(*weapon_transform_component);
 	weapon_bv->Transform(weapon_world);
