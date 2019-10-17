@@ -33,6 +33,8 @@ void PlaceMesh(ecs::EntityComponentSystem& rECS, rendering::RenderManager* mng)
 		ecs::components::TransformComponent* trComp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(tileComp->getEntityID());
 		ecs::components::ColorComponent* color_comp = rECS.getComponentFromEntity<ecs::components::ColorComponent>(tileComp->getEntityID());
 
+		ecs::components::MeshComponent* mesh_comp = rECS.getComponentFromEntity<ecs::components::MeshComponent>(tileComp->getEntityID());
+
 		pTilePosition[index].x = trComp->position.x;
 		pTilePosition[index].y = trComp->position.y;
 		pTilePosition[index].z = trComp->position.z;

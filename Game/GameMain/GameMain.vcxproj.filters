@@ -141,6 +141,9 @@
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="GraphicsComponents.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">

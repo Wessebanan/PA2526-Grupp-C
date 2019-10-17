@@ -5,8 +5,8 @@
 
 
 
-//#include "gameRendering/InitMesh.h"
-//#include "gameRendering/PlaceMesh.h"
+#include "gameRendering/InitMesh.h"
+#include "gameRendering/PlaceMesh.h"
 
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
@@ -59,6 +59,8 @@ void SetViewMatrix(
 
 int main()
 {
+	srand(time(0));
+
 	const UINT
 		client_width = 1920,
 		client_height = 1080;
@@ -128,13 +130,45 @@ int main()
 		}
 	}
 
+	ecs::EntityComponentSystem ecs;
+
+	//Tiles + sceneobjects + units + camera
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
+
+	InitSound(ecs);
+
+	InitInput(ecs);
+	InitInterpreter(ecs);
+
+	InitGrid(ecs);
+	InitArmy(ecs);
+	InitSceneObjects(ecs);
+
+	InitCamera(ecs);
+
+	ModelLoader::Mesh **pp_meshes = InitMesh(ecs, mesh_manager);
+	//
+	//InitPhysics(ecs, pp_meshes);
+
+	PlaceMesh(ecs, pMng);
+
+
+	// to get components in the loop
+	ecs::ComponentIterator itt;
+
+	itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
+
+
 	graphics::ShaderModelLayout layout;
-	layout.Meshes[0] = (mesh_region0);
+	layout.Meshes[0]			= (mesh_region0);
 
-	layout.InstanceCounts[0] = (2);
+	layout.InstanceCounts[0]	= (2);
 
-	layout.MeshCount	= 1;
-	layout.TotalModels	= 2;
+	layout.MeshCount			= 1;
+	layout.TotalModels			= 2;
 
 
 	struct ShaderProgramInput
@@ -157,47 +191,12 @@ int main()
 	renderer.SetShaderModelLayout(shader_index0, layout);
 	renderer.SetModelData(v, sizeof(v));
 
-	srand(time(0));
 
-	ecs::EntityComponentSystem ecs;
-
-	//Tiles + sceneobjects + units + camera
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
-
-	InitSound(ecs);
-
-	InitInput(ecs);
-	InitInterpreter(ecs);
-	//CameraFunctions::CreateDevCamera(ecs);
-
-
-	InitGrid(ecs);
-	InitArmy(ecs);
-	InitSceneObjects(ecs);
-
-	//
-
-	InitCamera(ecs);
-
-	//ModelLoader::Mesh **pp_meshes = InitMesh(ecs, pMng);
-	//
-	//InitPhysics(ecs, pp_meshes);
-
-	//PlaceMesh(ecs, pMng);
-
-
-	// to get components in the loop
-	ecs::ComponentIterator itt;
-
-	itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
-	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
 
 	float x = -5.0f, y = 10.0f, z = 0.0f;
 	DirectX::XMFLOAT4X4 camera_matrix;
 	SetViewMatrix(
-		camera_matrix, 
+		camera_matrix,
 		x, y, z,
 		1.0f, -1.0f, 0.0f);
 
@@ -228,7 +227,7 @@ int main()
 
 			{
 				graphics::FORWARD_RENDERING_PIPELINE_DATA data;
-				data.ViewMatrix = p_cam_comp->viewMatrix;
+				data.ViewMatrix = camera_matrix;
 				data.Red	= 0.25f;
 				data.Green	= 0.25f;
 				data.Blue	= 1.0f;
