@@ -122,7 +122,7 @@ int main()
 	renderer.Initialize(wnd);
 
 	graphics::MeshManager mesh_manager;
-	mesh_manager.Initialize(1000, 1000);
+	mesh_manager.Initialize(100000, 100000);
 
 
 	/*
@@ -131,11 +131,13 @@ int main()
 	ModelLoader::Mesh mesh_hexagon("../meshes/hexagon_tile5.fbx");
 	ModelLoader::Mesh mesh_rock("../meshes/rock.fbx");
 	ModelLoader::Mesh mesh_tree("../meshes/tree.fbx");
+	ModelLoader::Mesh mesh_dude("../Walking2.fbx");
 
 
 	graphics::MeshRegion mesh_region_hexagon = UploadMeshToGPU(mesh_hexagon, mesh_manager);
 	graphics::MeshRegion mesh_region_tree = UploadMeshToGPU(mesh_tree, mesh_manager);
 	graphics::MeshRegion mesh_region_rock = UploadMeshToGPU(mesh_rock, mesh_manager);
+	graphics::MeshRegion mesh_region_dude = UploadMeshToGPU(mesh_dude, mesh_manager);
 
 
 	UINT pipeline_shadow_map;
@@ -171,6 +173,12 @@ int main()
 		ps.c_str(), 
 		sizeof(float) * 3 + sizeof(UINT));
 
+	const std::string vs_skin = GetShaderFilepath("VS_Skinning.cso");
+	UINT shader_index1 = renderer.CreateShaderProgram(
+		vs_skin.c_str(),
+		ps.c_str(),
+		sizeof(float) * 3 + sizeof(UINT));
+
 
 	ecs::EntityComponentSystem ecs;
 
@@ -200,14 +208,16 @@ int main()
 
 
 	graphics::ShaderModelLayout layout;
-	layout.MeshCount			= 3;
+	layout.MeshCount			= 0;
 	layout.Meshes[0]			= (mesh_region_hexagon);
 	layout.Meshes[1]			= (mesh_region_tree);
 	layout.Meshes[2]			= (mesh_region_rock);
 
 	graphics::ShaderModelLayout layout_skin;
-	layout.MeshCount			= 1;
+	layout.MeshCount			= 0;
 	layout.Meshes[0]			= (mesh_region_dude);
+	layout.InstanceCounts[0]	= 0;
+	layout.TotalModels			= 0;
 
 
 
@@ -228,10 +238,12 @@ int main()
 	ecs::components::TileComponent* tileComp;
 	size_t size = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
 
-	ShaderProgramInput* pData = new ShaderProgramInput[size * 3];
-	layout.InstanceCounts[0] = size;
-	layout.InstanceCounts[1] = 6;
-	layout.InstanceCounts[2] = 6;
+	ShaderProgramInput* pData = new ShaderProgramInput[size + 6 + 6];
+	UINT sizeOfPdata = sizeof(ShaderProgramInput) * (size + 6 + 6);
+	sizeOfPdata = sizeOfPdata + (256 - (sizeOfPdata % 256));
+	layout.InstanceCounts[0] = 0;
+	layout.InstanceCounts[1] = 0;
+	layout.InstanceCounts[2] = 0;
 
 	ZeroMemory(pData, sizeof(ShaderProgramInput) * size);
 
@@ -288,20 +300,31 @@ int main()
 		scene_objects_index++;
 	}
 
-	SkinningShaderProgramInput skin_shader_program_input[12];
+
+
+	SkinningShaderProgramInput* skin_shader_program_input = new SkinningShaderProgramInput[12];
+	UINT skin_size = sizeof(SkinningShaderProgramInput) * 12;
 	ModelLoader::Skeleton* skeleton = mesh_dude.GetSkeleton();
 	// Load animation data for first frame
 	for (unsigned int i = 0; i < 12; ++i)
 	{
+
 		memcpy(&skin_shader_program_input[i].boneMatrices[0], skeleton->animationData, skeleton->jointCount * sizeof(XMFLOAT4X4));
 		
 	}
 
 	renderer.SetShaderModelLayout(shader_index0, layout);
 	renderer.SetShaderModelLayout(shader_index1, layout_skin);
-	renderer.SetModelData(pData, sizeof(ShaderProgramInput) * size * 3);
 
+	char* pInstanceData = (char*)malloc(skin_size + sizeOfPdata);
+	memcpy(pInstanceData, pData, sizeOfPdata);
+
+	memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
+	
+	unsigned long long int frame_count = 0;
 	wnd.Open();
+
+
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update()) 
@@ -312,6 +335,34 @@ int main()
 			}
 
 			ecs.update(0.1f);
+			int armyIndex = 0;
+			itt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
+			ecs::components::ArmyComponent* armComp;
+			while (armComp = (ecs::components::ArmyComponent*)itt.next())
+			{
+				// over alla units in the army
+				for (size_t i = 0; i < 3; i++)
+				{
+					ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(armComp->unitIDs[i]);
+
+					XMMATRIX world = XMMatrixIdentity();
+					world *= XMMatrixScaling(trComp->scale.x, trComp->scale.y, trComp->scale.z);
+					world *= XMMatrixRotationRollPitchYaw(trComp->rotation.x, trComp->rotation.y, trComp->rotation.z);
+					world *= XMMatrixTranslation(trComp->position.x, trComp->position.y, trComp->position.z);
+
+					XMStoreFloat4x4(skin_shader_program_input[armyIndex].boneMatrices, world);
+
+					armyIndex++;
+				}
+			}
+			for (unsigned int i = 0; i < 12; ++i)
+			{
+				frame_count = frame_count % skeleton->frameCount;
+				memcpy(&skin_shader_program_input[i].boneMatrices[frame_count * skeleton->jointCount], skeleton->animationData, skeleton->jointCount * sizeof(XMFLOAT4X4));
+
+			}
+			memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
+			renderer.SetModelData(pData, sizeOfPdata);
 
 			{	
 				DirectX::XMFLOAT4X4 shadow_matrix;
