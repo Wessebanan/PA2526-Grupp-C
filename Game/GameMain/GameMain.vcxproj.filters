@@ -28,6 +28,9 @@
     <ClCompile Include="Physics\QuadTree.cpp">
       <Filter>QuadTree</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\FightingSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -36,9 +39,6 @@
     </ClCompile>
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp">
       <Filter>Init</Filter>
-    </ClCompile>
-    <ClCompile Include="Physics\FightingSystem.cpp">
-      <Filter>Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -141,6 +141,9 @@
     <ClInclude Include="Physics\QuadTree.h">
       <Filter>QuadTree</Filter>
     </ClInclude>
+    <ClInclude Include="Physics\FightingSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
     <ClInclude Include="gameGraphics\ForwardRenderingPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -149,9 +152,6 @@
     </ClInclude>
     <ClInclude Include="GraphicsComponents.h">
       <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Physics\FightingSystem.h">
-      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -215,9 +215,6 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameGraphics\PS_Transformation.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

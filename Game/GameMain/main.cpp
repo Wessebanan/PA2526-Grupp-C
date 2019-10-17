@@ -73,7 +73,7 @@ const std::string GetShaderFilepath(const char* pFilename)
 }
 
 
-graphics::MeshRegion InsertMesh(ModelLoader::Mesh& mesh, graphics::MeshManager& rMng)
+graphics::MeshRegion UploadMeshToGPU(ModelLoader::Mesh& mesh, graphics::MeshManager& rMng)
 {
 	graphics::MeshRegion mesh_region;
 
@@ -101,9 +101,12 @@ graphics::MeshRegion InsertMesh(ModelLoader::Mesh& mesh, graphics::MeshManager& 
 
 int main()
 {
-
 	srand(time(0));
 
+
+	/*
+		-- Client Resolution --
+	*/
 	const UINT
 		client_width = 1920,
 		client_height = 1080;
@@ -121,10 +124,24 @@ int main()
 	graphics::MeshManager mesh_manager;
 	mesh_manager.Initialize(1000, 1000);
 
+
+	/*
+		-- Meshes --
+	*/
+	ModelLoader::Mesh mesh_hexagon("../meshes/hexagon_tile5.fbx");
+	ModelLoader::Mesh mesh_rock("../meshes/rock.fbx");
+	ModelLoader::Mesh mesh_tree("../meshes/tree.fbx");
+
+
+	graphics::MeshRegion mesh_region_hexagon = UploadMeshToGPU(mesh_hexagon, mesh_manager);
+	graphics::MeshRegion mesh_region_tree = UploadMeshToGPU(mesh_tree, mesh_manager);
+	graphics::MeshRegion mesh_region_rock = UploadMeshToGPU(mesh_rock, mesh_manager);
+
+
 	UINT pipeline_shadow_map;
 	{
 		graphics::SHADOW_MAP_PIPELINE_DESC desc;
-		desc.PixelsWidth	= 2048;
+		desc.PixelsWidth	= 1024;
 		desc.Width			= 25.0f;
 		desc.Height			= 40.0f;
 		desc.NearPlane		=  1.0f;
@@ -154,20 +171,6 @@ int main()
 		ps.c_str(), 
 		sizeof(float) * 3 + sizeof(UINT));
 
-	const std::string vs_skin = GetShaderFilepath("VS_Skinning.cso");
-	UINT shader_index1 = renderer.CreateShaderProgram(
-		vs_skin.c_str(),
-		ps.c_str(),
-		sizeof(float) * 3 + sizeof(UINT));
-
-	ModelLoader::Mesh mesh_hexagon("../meshes/hexagon.fbx");
-	ModelLoader::Mesh mesh_rock("../meshes/rock.fbx");
-	ModelLoader::Mesh mesh_tree("../meshes/tree.fbx");
-	ModelLoader::Mesh mesh_dude("../Walking2.fbx");
-	graphics::MeshRegion mesh_region_hexagon	= InsertMesh(mesh_hexagon, mesh_manager);
-	graphics::MeshRegion mesh_region_tree		= InsertMesh(mesh_rock, mesh_manager);
-	graphics::MeshRegion mesh_region_rock		= InsertMesh(mesh_tree, mesh_manager);
-	graphics::MeshRegion mesh_region_dude	    = InsertMesh(mesh_dude, mesh_manager);
 
 	ecs::EntityComponentSystem ecs;
 
@@ -187,12 +190,7 @@ int main()
 
 	InitCamera(ecs);
 
-	//ModelLoader::Mesh **pp_meshes = InitMesh(ecs, mesh_manager);
-	//
 	//InitPhysics(ecs, pp_meshes);
-
-	//PlaceMesh(ecs, pMng);
-
 
 	// to get components in the loop
 	ecs::ComponentIterator itt;
@@ -230,13 +228,17 @@ int main()
 	ecs::components::TileComponent* tileComp;
 	size_t size = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
 
-	ShaderProgramInput* pData = new ShaderProgramInput[size];
+	ShaderProgramInput* pData = new ShaderProgramInput[size * 3];
 	layout.InstanceCounts[0] = size;
-	layout.InstanceCounts[1] = 0;
-	layout.InstanceCounts[2] = 0;
+	layout.InstanceCounts[1] = 6;
+	layout.InstanceCounts[2] = 6;
 
+	ZeroMemory(pData, sizeof(ShaderProgramInput) * size);
 
-	layout.TotalModels = size;
+	for (UINT i = 0; i < layout.MeshCount; i++)
+	{
+		layout.TotalModels = layout.InstanceCounts[i];
+	}
 
 	while (tileComp = (ecs::components::TileComponent*)itt.next())
 	{
@@ -268,6 +270,24 @@ int main()
 		index++;
 	}
 
+	UINT scene_objects_index = size;
+	itt = ecs.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
+	ecs::components::SceneObjectComponent* scene_comp;
+	while (scene_comp = (ecs::components::SceneObjectComponent*)itt.next())
+	{
+		ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(scene_comp->getEntityID());
+		ecs::components::ColorComponent* color_comp = ecs.getComponentFromEntity<ecs::components::ColorComponent>(scene_comp->getEntityID());
+
+		pData[scene_objects_index].x = trComp->position.x;
+		pData[scene_objects_index].y = trComp->position.y;
+		pData[scene_objects_index].z = trComp->position.z;
+
+		pData[scene_objects_index].Color = PACK(color_comp->red, color_comp->green, color_comp->blue, 0);
+
+
+		scene_objects_index++;
+	}
+
 	SkinningShaderProgramInput skin_shader_program_input[12];
 	ModelLoader::Skeleton* skeleton = mesh_dude.GetSkeleton();
 	// Load animation data for first frame
@@ -279,7 +299,7 @@ int main()
 
 	renderer.SetShaderModelLayout(shader_index0, layout);
 	renderer.SetShaderModelLayout(shader_index1, layout_skin);
-	renderer.SetModelData(pData, sizeof(ShaderProgramInput) * size);
+	renderer.SetModelData(pData, sizeof(ShaderProgramInput) * size * 3);
 
 	wnd.Open();
 	while (wnd.IsOpen())
