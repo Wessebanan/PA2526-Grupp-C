@@ -21,6 +21,18 @@ namespace ecs
 		{
 			float fadeInTimeInSeconds;
 		};
+		struct PlaySubMusic : public ECSEvent<PlaySubMusic>
+		{
+			AudioName audioName;
+		};
+		struct FadeInSubMusic : public ECSEvent<FadeInSubMusic>
+		{
+			float fadeInTimeInSeconds;
+		};
+		struct FadeOutSubMusic : public ECSEvent<FadeOutSubMusic>
+		{
+			float fadeOutTimeInSeconds;
+		};
 
 	}
 }

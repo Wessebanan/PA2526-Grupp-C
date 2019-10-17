@@ -8,6 +8,9 @@ ecs::systems::SoundMessageSystem::SoundMessageSystem()
 	typeFilter.addRequirement(ecs::events::PlaySound::typeID);
 	typeFilter.addRequirement(ecs::events::PlayMusic::typeID);
 	typeFilter.addRequirement(ecs::events::FadeInMusic::typeID);
+	typeFilter.addRequirement(ecs::events::PlaySubMusic::typeID);
+	typeFilter.addRequirement(ecs::events::FadeInSubMusic::typeID);
+	typeFilter.addRequirement(ecs::events::FadeOutSubMusic::typeID);
 }
 
 ecs::systems::SoundMessageSystem::~SoundMessageSystem()
@@ -87,12 +90,20 @@ void ecs::systems::SoundMessageSystem::readEvent(BaseEvent& rEvent, float delta)
 		//}
 		TypeID id = rEvent.getTypeID();
 
-		if(PlaySound::typeID == id)
+		if (PlaySound::typeID == id)
 			ProcessPlaySound(static_cast<PlaySound*>(&rEvent));
-		else if(PlayMusic::typeID == id)
+		else if (PlayMusic::typeID == id)
 			ProcessPlayMusic(static_cast<PlayMusic*>(&rEvent));
-		else if(FadeInMusic::typeID)
+		else if (FadeInMusic::typeID == id)
 			ProcessFadeInMusic(static_cast<FadeInMusic*>(&rEvent));
+		else if (PlaySubMusic::typeID == id)
+			ProcessPlaySubMusic(static_cast<PlaySubMusic*>(&rEvent));
+		else if (FadeInSubMusic::typeID == id)
+			ProcessFadeInSubMusic(static_cast<FadeInSubMusic*>(&rEvent));
+		else if (FadeOutSubMusic::typeID == id)
+			ProcessFadeOutSubMusic(static_cast<FadeOutSubMusic*>(&rEvent));
+		else
+			std::cout << "HEY!";
 	}
 	//if (rEvent.getTypeID() == ecs::events::)
 	//{
@@ -170,5 +181,36 @@ void ecs::systems::SoundMessageSystem::ProcessFadeInMusic(ecs::events::FadeInMus
 		(unsigned long)(pEvent->fadeInTimeInSeconds*44100.f),
 		Audio::Music::M_DATA_AS_PARAMETER |
 		Audio::Music::M_FUNC_FADE_IN
+	});
+}
+
+void ecs::systems::SoundMessageSystem::ProcessPlaySubMusic(ecs::events::PlaySubMusic* pEvent)
+{
+	mSoundMixer->AddMusicMessage({
+		(*mSoundBank)[pEvent->audioName],
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_TARGET_SUB |
+		Audio::Music::M_SYNC_THIS_WITH_OTHER
+	});
+}
+
+void ecs::systems::SoundMessageSystem::ProcessFadeInSubMusic(ecs::events::FadeInSubMusic* pEvent)
+{
+	mSoundMixer->AddMusicMessage({
+		(unsigned long)(pEvent->fadeInTimeInSeconds * 44100.f),
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_FUNC_FADE_IN |
+		Audio::Music::M_TARGET_SUB
+		});
+}
+
+void ecs::systems::SoundMessageSystem::ProcessFadeOutSubMusic(ecs::events::FadeOutSubMusic* pEvent)
+{
+	mSoundMixer->AddMusicMessage({
+		(unsigned long)(pEvent->fadeOutTimeInSeconds * 44100.f),
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_FUNC_FADE_OUT |
+		Audio::Music::M_TARGET_SUB
 	});
 }
