@@ -2,7 +2,6 @@
 #include "FightingSystem.h"
 #include "UtilityComponents.h"
 
-ModelLoader::Mesh sword("Physics/TestModel/sword.fbx");
 
 #pragma region WeaponInit
 TEST(WeaponInit, CreateWeaponInitSystem)
@@ -22,6 +21,7 @@ TEST(WeaponInit, CreateWeaponEntity)
 	// Making sure there are no entities or components.
 	EXPECT_EQ(ecs.getTotalEntityCount(), 0);
 	EXPECT_EQ(ecs.getTotalComponentCount(), 0);
+	ModelLoader::Mesh sword("Physics/TestModel/sword.fbx");
 
 	// Creating the components a weapon should have.
 	MeshComponent mesh_component;
@@ -43,6 +43,7 @@ TEST(WeaponInit, TestBoundingVolume)
 {
 	ecs::EntityComponentSystem ecs;
 	ecs::systems::WeaponInitSystem* weapon_init_system = ecs.createSystem<ecs::systems::WeaponInitSystem>();
+	ModelLoader::Mesh sword("Physics/TestModel/sword.fbx");
 
 	// Creating the components a weapon should have.
 	MeshComponent mesh_component;

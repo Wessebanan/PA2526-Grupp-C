@@ -24,6 +24,7 @@
 //};
 #pragma once
 #include <DirectXCollision.h>
+// Base struct for unspecified DirectX bounding volumes.
 using namespace DirectX;
 struct BoundingVolume
 {
@@ -31,16 +32,21 @@ struct BoundingVolume
 	virtual bool Intersects(BoundingVolume* other) = 0;
 	virtual void Transform(XMMATRIX transform) = 0;
 };
+
+
+//Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingSphere.
 struct Sphere : public BoundingVolume, DirectX::BoundingSphere 
 {
 	bool Intersects(BoundingVolume* other);
 	void Transform(XMMATRIX transform);
 };
+//Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingOrientedBox.
 struct OBB : public BoundingVolume, DirectX::BoundingOrientedBox 
 {
 	bool Intersects(BoundingVolume* other);
 	void Transform(XMMATRIX transform);
 };
+//Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingBox.
 struct AABB : public BoundingVolume, DirectX::BoundingBox 
 {
 	bool Intersects(BoundingVolume* other);
