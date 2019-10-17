@@ -163,7 +163,7 @@ int main()
 	ModelLoader::Mesh mesh_hexagon("../meshes/hexagon.fbx");
 	ModelLoader::Mesh mesh_rock("../meshes/rock.fbx");
 	ModelLoader::Mesh mesh_tree("../meshes/tree.fbx");
-	ModelLoader::Mesh mesh_dude("../dudeMesh0.fbx");
+	ModelLoader::Mesh mesh_dude("../Walking2.fbx");
 	graphics::MeshRegion mesh_region_hexagon	= InsertMesh(mesh_hexagon, mesh_manager);
 	graphics::MeshRegion mesh_region_tree		= InsertMesh(mesh_rock, mesh_manager);
 	graphics::MeshRegion mesh_region_rock		= InsertMesh(mesh_tree, mesh_manager);
@@ -270,9 +270,10 @@ int main()
 
 	SkinningShaderProgramInput skin_shader_program_input[12];
 	ModelLoader::Skeleton* skeleton = mesh_dude.GetSkeleton();
+	// Load animation data for first frame
 	for (unsigned int i = 0; i < 12; ++i)
 	{
-		memcpy(&skin_shader_program_input[i].boneMatrices, skeleton->animationData, skeleton->jointCount * sizeof(XMFLOAT4X4));
+		memcpy(&skin_shader_program_input[i].boneMatrices[0], skeleton->animationData, skeleton->jointCount * sizeof(XMFLOAT4X4));
 		
 	}
 
