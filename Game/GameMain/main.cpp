@@ -84,9 +84,11 @@ graphics::MeshRegion UploadMeshToGPU(ModelLoader::Mesh& mesh, graphics::MeshMana
 
 		{
 			graphics::VERTEX_DATA data = { NULL };
-			data.pVertexPositions	= mesh.GetVertexPositionVector()->data();
-			data.pVertexNormals		= mesh.GetNormalVector()->data();
-			data.pVertexTexCoords	= mesh.GetUVVector()->data();
+			data.pVertexPositions		= mesh.GetVertexPositionVector()->data();
+			data.pVertexNormals			= mesh.GetNormalVector()->data();
+			data.pVertexTexCoords		= mesh.GetUVVector()->data();
+			//data.pVertexBlendWeights	= mesh.GetSkinningWeights()->data();
+			//data.pVertexBlendIndices	= mesh.
 
 			rMng.UploadData(
 				mesh_region,
@@ -122,7 +124,7 @@ int main()
 	renderer.Initialize(wnd);
 
 	graphics::MeshManager mesh_manager;
-	mesh_manager.Initialize(100000, 100000);
+	mesh_manager.Initialize(10000, 10000);
 
 
 	/*
@@ -134,10 +136,10 @@ int main()
 	ModelLoader::Mesh mesh_dude("../Walking2.fbx");
 
 
-	graphics::MeshRegion mesh_region_hexagon = UploadMeshToGPU(mesh_hexagon, mesh_manager);
-	graphics::MeshRegion mesh_region_tree = UploadMeshToGPU(mesh_tree, mesh_manager);
-	graphics::MeshRegion mesh_region_rock = UploadMeshToGPU(mesh_rock, mesh_manager);
-	graphics::MeshRegion mesh_region_dude = UploadMeshToGPU(mesh_dude, mesh_manager);
+	graphics::MeshRegion mesh_region_hexagon	= UploadMeshToGPU(mesh_hexagon, mesh_manager);
+	graphics::MeshRegion mesh_region_tree		= UploadMeshToGPU(mesh_tree, mesh_manager);
+	graphics::MeshRegion mesh_region_rock		= UploadMeshToGPU(mesh_rock, mesh_manager);
+	graphics::MeshRegion mesh_region_dude		= UploadMeshToGPU(mesh_dude, mesh_manager);
 
 
 	UINT pipeline_shadow_map;
@@ -166,19 +168,35 @@ int main()
 			&desc);
 	}
 
+	struct ShaderProgramInput
+	{
+		float x, y, z;
+		uint32_t Color;
+	};
+
+	struct SkinningShaderProgramInput
+	{
+		XMFLOAT4X4 world;
+		XMFLOAT4X4 boneMatrices[63];
+	};
+
 	const std::string vs = GetShaderFilepath("VS_Default.cso");
 	const std::string ps = GetShaderFilepath("PS_Default.cso");
+	const std::string vs_skin = GetShaderFilepath("VS_Skinning.cso");
+
 	UINT shader_index0 = renderer.CreateShaderProgram(
 		vs.c_str(), 
 		ps.c_str(), 
-		sizeof(float) * 3 + sizeof(UINT));
+		sizeof(ShaderProgramInput));
 
-	const std::string vs_skin = GetShaderFilepath("VS_Skinning.cso");
 	UINT shader_index1 = renderer.CreateShaderProgram(
 		vs_skin.c_str(),
 		ps.c_str(),
-		sizeof(float) * 3 + sizeof(UINT));
+		sizeof(SkinningShaderProgramInput));
 
+
+
+	/* ECS BEGIN */
 
 	ecs::EntityComponentSystem ecs;
 
@@ -206,52 +224,42 @@ int main()
 	itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
 	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
 
+	itt = ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID);
+	ecs::components::TileComponent* tileComp;
 
-	graphics::ShaderModelLayout layout;
-	layout.MeshCount			= 0;
+	/* ECS END */
+
+
+
+	graphics::ShaderModelLayout layout = { 0 };
+	layout.MeshCount			= 3;
 	layout.Meshes[0]			= (mesh_region_hexagon);
 	layout.Meshes[1]			= (mesh_region_tree);
 	layout.Meshes[2]			= (mesh_region_rock);
 
-	graphics::ShaderModelLayout layout_skin;
-	layout.MeshCount			= 0;
-	layout.Meshes[0]			= (mesh_region_dude);
-	layout.InstanceCounts[0]	= 0;
-	layout.TotalModels			= 0;
+	graphics::ShaderModelLayout layout_skin = { 0 };
+	layout_skin.MeshCount			= 1;
+	layout_skin.Meshes[0]			= (mesh_region_dude);
+	layout_skin.InstanceCounts[0]	= 12;
+	layout_skin.TotalModels			= 12;
 
+	size_t tile_count = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
 
+	ShaderProgramInput* pData	= new ShaderProgramInput[tile_count + 6 + 6];
+	UINT sizeOfPdata			= sizeof(ShaderProgramInput) * (tile_count + 6 + 6);
+	ZeroMemory(pData, sizeOfPdata);
 
-	struct ShaderProgramInput
-	{
-		float x, y, z;
-		uint32_t Color;
-	};
+	layout.InstanceCounts[0] = tile_count;
+	layout.InstanceCounts[1] = 6;
+	layout.InstanceCounts[2] = 6;
 
-	struct SkinningShaderProgramInput
-	{
-		XMFLOAT4X4 world;
-		XMFLOAT4X4 boneMatrices[63];
-	};
-
-	UINT index = 0;
-	itt = ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID);
-	ecs::components::TileComponent* tileComp;
-	size_t size = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
-
-	ShaderProgramInput* pData = new ShaderProgramInput[size + 6 + 6];
-	UINT sizeOfPdata = sizeof(ShaderProgramInput) * (size + 6 + 6);
-	sizeOfPdata = sizeOfPdata + (256 - (sizeOfPdata % 256));
-	layout.InstanceCounts[0] = 0;
-	layout.InstanceCounts[1] = 0;
-	layout.InstanceCounts[2] = 0;
-
-	ZeroMemory(pData, sizeof(ShaderProgramInput) * size);
 
 	for (UINT i = 0; i < layout.MeshCount; i++)
 	{
-		layout.TotalModels = layout.InstanceCounts[i];
+		layout.TotalModels += layout.InstanceCounts[i];
 	}
 
+	UINT index = 0;
 	while (tileComp = (ecs::components::TileComponent*)itt.next())
 	{
 		ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(tileComp->getEntityID());
@@ -282,7 +290,7 @@ int main()
 		index++;
 	}
 
-	UINT scene_objects_index = size;
+	UINT scene_objects_index = tile_count;
 	itt = ecs.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
 	ecs::components::SceneObjectComponent* scene_comp;
 	while (scene_comp = (ecs::components::SceneObjectComponent*)itt.next())
@@ -301,15 +309,20 @@ int main()
 	}
 
 
+	sizeOfPdata = sizeOfPdata + (256 - (sizeOfPdata % 256));
 
 	SkinningShaderProgramInput* skin_shader_program_input = new SkinningShaderProgramInput[12];
 	UINT skin_size = sizeof(SkinningShaderProgramInput) * 12;
 	ModelLoader::Skeleton* skeleton = mesh_dude.GetSkeleton();
+
 	// Load animation data for first frame
 	for (unsigned int i = 0; i < 12; ++i)
 	{
 
-		memcpy(&skin_shader_program_input[i].boneMatrices[0], skeleton->animationData, skeleton->jointCount * sizeof(XMFLOAT4X4));
+		//memcpy(
+		//	&skin_shader_program_input[i].boneMatrices, 
+		//	skeleton->animationData, 
+		//	skeleton->jointCount * sizeof(XMFLOAT4X4));
 		
 	}
 
@@ -350,19 +363,25 @@ int main()
 					world *= XMMatrixRotationRollPitchYaw(trComp->rotation.x, trComp->rotation.y, trComp->rotation.z);
 					world *= XMMatrixTranslation(trComp->position.x, trComp->position.y, trComp->position.z);
 
-					XMStoreFloat4x4(skin_shader_program_input[armyIndex].boneMatrices, world);
+					XMStoreFloat4x4(&skin_shader_program_input[armyIndex].world, world);
 
 					armyIndex++;
 				}
 			}
+
 			for (unsigned int i = 0; i < 12; ++i)
 			{
 				frame_count = frame_count % skeleton->frameCount;
-				memcpy(&skin_shader_program_input[i].boneMatrices[frame_count * skeleton->jointCount], skeleton->animationData, skeleton->jointCount * sizeof(XMFLOAT4X4));
+				// påminelse: 
+				//  - kanske något fel här?
+				//  - se också till att ladda upp blend indices och weigths
+				//	- ändra i shadern också (nu används bara world position)
+				//memcpy(&skin_shader_program_input[i].boneMatrices[frame_count * skeleton->jointCount], skeleton->animationData, skeleton->jointCount * sizeof(XMFLOAT4X4));
 
 			}
+
 			memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
-			renderer.SetModelData(pData, sizeOfPdata);
+			renderer.SetModelData(pInstanceData, sizeOfPdata + skin_size);
 
 			{	
 				DirectX::XMFLOAT4X4 shadow_matrix;

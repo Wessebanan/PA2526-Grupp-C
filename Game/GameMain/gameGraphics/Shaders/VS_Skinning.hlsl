@@ -55,7 +55,7 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 	v += lastWeight * mul(float4(gVertexPositions[VertexID], 1.0f), gMesh[InstanceID].gBoneTransforms[gVertexBlendIndices[VertexID][MAX_AFFECTING_BONES - 1]]);
 	norm += (lastWeight * mul(float4(gVertexNormals[VertexID], 1.0f), gMesh[InstanceID].gBoneTransforms[gVertexBlendIndices[VertexID][MAX_AFFECTING_BONES - 1]])).xyz;
 	v.w = 1.0f;
-	output.pos = mul(wvpCam, v);
+	output.pos = mul(wvpCam, float4(gVertexPositions[VertexID], 1.0f));
 	output.sunPos = mul(wvpSun, float4(gVertexPositions[VertexID], 1.0f));
 	output.color = float3(1.0f, 1.0f, 1.0f);
 	output.normal = mul(gMesh[InstanceID].World, float4(gVertexNormals[VertexID], 0.0f)).xyz;
