@@ -14,6 +14,9 @@
 #define DEFAULT_GRAVITY 9.82f
 #define DEFAULT_HEALTH 100.0f
 
+#define BASE_SWORD_DAMAGE 10.0f
+#define BASE_FIST_DAMAGE 1.0f
+
 // WEAPON_TYPE decides what bounding volume to use.
 enum WEAPON_TYPE
 {
@@ -133,7 +136,6 @@ namespace ecs
 			ID mOwnerEntity = 0;			
 
 			WEAPON_TYPE mType = FIST;
-			float mAttackRange = 0.0f;
 			BoundingVolume* mBoundingVolume = nullptr;
 			
 			// Previous position to calculate velocity for damage.
@@ -141,6 +143,7 @@ namespace ecs
 			
 			// Base damage for multiplier on hit based on weapon type.
 			float mBaseDamage = 0.0f;
+			float mAttackRange = 0.0f;
 
 			~WeaponComponent()
 			{				

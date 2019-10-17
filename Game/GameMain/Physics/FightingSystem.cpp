@@ -26,8 +26,14 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	{
 		return;
 	}
+	// Need transform component for scaling attack range.
+	if (!entity->hasComponentOfType(TransformComponent::typeID))
+	{
+		return;
+	}
 
 	MeshComponent* mesh_component = getComponentFromKnownEntity<MeshComponent>(entity->getID());
+	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(entity->getID());
 	std::vector<XMFLOAT3> *vertices = mesh_component->mMesh->GetVertexPositionVector();
 
@@ -43,6 +49,12 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		AABB aabb;
 		aabb.CreateFromPoints(aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
 		obb->CreateFromBoundingBox(*(BoundingOrientedBox*)obb, aabb);
+
+		// Finding greatest extent in obb and setting that to attack range (for now).
+		XMFLOAT3 extents = obb->Extents;
+		weapon_component->mAttackRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
+
+		weapon_component->mBaseDamage = BASE_SWORD_DAMAGE;
 		break;
 	}
 
@@ -52,6 +64,12 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		weapon_component->mBoundingVolume = new AABB;
 		AABB *aabb = static_cast<AABB*>(weapon_component->mBoundingVolume);
 		aabb->CreateFromPoints(*aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
+
+		// Finding greatest extent in aabb and setting that to attack range (for now).
+		XMFLOAT3 extents = aabb->Extents;
+		weapon_component->mAttackRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
+
+		weapon_component->mBaseDamage = BASE_FIST_DAMAGE;
 		break;
 	}
 	default:
@@ -153,7 +171,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		collided_constitution->mHealth -= damage;
 
 		// Deleting unit from existence if dead for now.
-		if (collided_constitution->mHealth < 0.0f)
+		if (collided_constitution->mHealth <= 0.0f)
 		{
 			removeEntity(collided_unit);
 		}

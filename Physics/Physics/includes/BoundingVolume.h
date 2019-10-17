@@ -33,7 +33,6 @@ struct BoundingVolume
 	virtual void Transform(XMMATRIX transform) = 0;
 };
 
-
 //Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingSphere.
 struct Sphere : public BoundingVolume, DirectX::BoundingSphere 
 {
