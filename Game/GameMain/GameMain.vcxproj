@@ -101,7 +101,9 @@
     <ClCompile Include="gameUtility\UtilityEcsFunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Physics\CollisionSystem.cpp" />
+    <ClCompile Include="Physics\FightingSystem.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp" />
+    <ClCompile Include="Physics\QuadTree.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gameAI\AIComponents.h" />
@@ -136,6 +138,8 @@
     <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />
     <ClInclude Include="Physics\CollisionSystem.h" />
+    <ClInclude Include="Physics\FightingSystem.h" />
+    <ClInclude Include="Physics\InitPhysics.h" />
     <ClInclude Include="Physics\MovementSystem.h" />
     <ClInclude Include="Physics\PhysicsComponents.h" />
     <ClInclude Include="Physics\PhysicsEvents.h" />
@@ -143,6 +147,7 @@
     <ClInclude Include="Input\InitInputBackendComponent.h" />
     <ClInclude Include="Input\InitInputComponents.h" />
     <ClInclude Include="Input\InitInputSystems.h" />
+    <ClInclude Include="Physics\QuadTree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,7 +3,7 @@
 #include <DirectXMath.h>
 #include "Mesh.h"
 #include <DirectXCollision.h>
-
+#include "BoundingVolume.h"
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
 // A bunch of default values.
@@ -18,30 +18,10 @@
 // WEAPON_TYPE decides what bounding volume to use.
 enum WEAPON_TYPE
 {
-	MELEE,
+	SWORD,
 	PROJECTILE,
 	DEFAULT
 };
-
-// Inheritance structure for unspecific bounding volumes.
-#pragma region BoundingVolume
-struct BoundingVolume 
-{
-	virtual ~BoundingVolume() {}
-};
-struct Sphere : public BoundingVolume
-{
-	DirectX::BoundingSphere mSphere;
-};
-struct OBB : public BoundingVolume
-{
-	DirectX::BoundingOrientedBox mOBB;
-};
-struct AABB : public BoundingVolume
-{
-	DirectX::BoundingBox mAABB;
-};
-#pragma endregion
 
 namespace ecs
 {
@@ -102,7 +82,7 @@ namespace ecs
 		*/
 		COMP(GroundCollisionComponent)
 		{
-			DirectX::BoundingOrientedBox mOBB;
+			OBB mOBB;
 
 			// Storing last y values to avoid unneccesary checks.
 			float mLastY = INFINITY;
@@ -117,9 +97,9 @@ namespace ecs
 		*/
 		COMP(ObjectCollisionComponent)
 		{
-			DirectX::BoundingBox mAABB;
+			AABB mAABB;
 
-			DirectX::BoundingSphere *mSpheres = nullptr;
+			Sphere *mSpheres = nullptr;
 			unsigned int mSphereCount = 0;
 
 			// States if the last movement resulted in collision
@@ -147,15 +127,27 @@ namespace ecs
 		*/
 		COMP(WeaponComponent)
 		{
+			// When an entity gets the weapon, give owner entity id to component.
+			ID mOwnerEntity;
+			
+
 			WEAPON_TYPE mType = DEFAULT;
-
+			float mAttackRange = 0.0f;
 			BoundingVolume* mBoundingVolume = nullptr;
-
+			
 			// Previous position to calculate velocity for damage.
 			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			
 			// Base damage for multiplier on hit based on weapon type.
 			float mBaseDamage = DEFAULT_BASE_DAMAGE;
+
+			~WeaponComponent()
+			{				
+				if (mBoundingVolume)
+				{
+					delete mBoundingVolume;
+				}
+			}
 		};
 
 		/*
@@ -167,6 +159,11 @@ namespace ecs
 		{
 			float mBaseHealth	= DEFAULT_HEALTH;
 			float mHealth		= DEFAULT_HEALTH;
+		};
+
+		COMP(QuadTreeComponent)
+		{
+			void* pTree;
 		};
 	} // components
 } // ecs

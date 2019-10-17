@@ -172,13 +172,36 @@ ecs::systems::GroundCollisionSystem::GroundCollisionSystem()
 
 ecs::systems::GroundCollisionSystem::~GroundCollisionSystem() 
 {
-
+	if (mppTileTransforms)
+	{
+		delete[] mppTileTransforms;
+	}
 }
 
 void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityInfo, float _delta) 
 {
-	// Grabbing all entities with a tile component (tiles).
-	EntityIterator it = getEntitiesWithComponent<TileComponent>();
+	// On first update, fill tile info members of system.
+	if (!mInit)
+	{
+		mTiles = getEntitiesWithComponent<TileComponent>();
+		
+		// Grabbing sile of entityiterator to check if the grid is created.
+		mTileCount = mTiles.entities.size();
+		if (mTileCount != 0)
+		{
+			mInit = true;
+			mppTileTransforms = new TransformComponent * [mTileCount];
+			for (int i = 0; i < mTileCount; i++)
+			{
+				mppTileTransforms[i] = getComponentFromKnownEntity<TransformComponent>(mTiles.entities.at(i).entity->getID());
+			}
+		}
+		// If there is no grid, skip ground collision.
+		else
+		{
+			return;
+		}
+	}
 
 	// Grabbing the ground collision component from the current entity.
 	GroundCollisionComponent* ground_collision_component = getComponentFromKnownEntity<GroundCollisionComponent>(_entityInfo.entity->getID());
@@ -197,7 +220,6 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	BoundingOrientedBox obb = ground_collision_component->mOBB;
 	obb.Transform(obb, ground_collision_world);
 
-
 	// Holds the index of the closest tile.
 	TypeID closest_tile_id = -1;
 
@@ -206,28 +228,35 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 
 	// For each tile, check which is closest to the ground collision component.
 	// This is bad, and will likely be optimized in the future.	
-	for (int i = 0; i < it.entities.size(); i++)
-	{		
-		TypeID current_tile = it.entities.at(i).entity->getID();
+	//for (int i = 0; i < mTiles.entities.size(); i++)
+	//{		
+	//	TypeID current_tile = mTiles.entities.at(i).entity->getID();
 
-		// Check that the tile has a transform component before trying to use it.
-		if (!it.entities.at(i).entity->hasComponentOfType<TransformComponent>())
-		{
-			return;
-		}
-		TransformComponent* tile_transform = getComponentFromKnownEntity<TransformComponent>(current_tile);
-		
-		float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_transform->position, obb.Center);
-		// Setting the ID to the closest tile.
-		if (closest_distance > distance_to_tile)
-		{
-			closest_distance = distance_to_tile;
-			closest_tile_id = current_tile;
-		}
-	}
+	//	TransformComponent* tile_transform = mppTileTransforms[i];
+	//	
+	//	XMFLOAT3 obb_center_no_height = obb.Center;
+	//	obb_center_no_height.y = 0.0f;
+	//	XMFLOAT3 tile_transform_position_no_height = tile_transform->position;
+	//	tile_transform_position_no_height.y = 0.0f;
+
+	//	float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_transform_position_no_height, obb_center_no_height);
+	//	// Setting the ID to the closest tile.
+	//	if (closest_distance > distance_to_tile)
+	//	{
+	//		closest_distance = distance_to_tile;
+	//		closest_tile_id = current_tile;
+	//	}
+	//}
+
+	// Getting closest tile to unit.
+	XMFLOAT3 unit_position = p_transform_component->position;
+	int2 closest_tile_index = GridFunctions::GetTileFromWorldPos(unit_position.x, unit_position.z);
+
+	GridProp* grid_prop = GridProp::GetInstance();
+	TileData tile_data = grid_prop->mGrid[closest_tile_index.y][closest_tile_index.x];
 
 	// Grabbing the closest tile.
-	TransformComponent* closest_tile = getComponentFromKnownEntity<TransformComponent>(closest_tile_id);
+	TransformComponent* closest_tile = getComponentFromKnownEntity<TransformComponent>(tile_data.Id);
 
 	// Grabbing the height (y value).
 	float tile_height = closest_tile->position.y;
@@ -337,5 +366,28 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 	* For each bone, grab vertex cluster and create spheres from clusters.
 	*/
 
+}
+#pragma endregion
+
+#pragma region FillQuadTreeSystemRegion
+ecs::systems::FillQuadTreeSystem::FillQuadTreeSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(components::TransformComponent::typeID);
+	typeFilter.addRequirement(components::ObjectCollisionComponent::typeID);
+}
+
+ecs::systems::FillQuadTreeSystem::~FillQuadTreeSystem()
+{
+
+}
+
+void ecs::systems::FillQuadTreeSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::QuadTreeComponent::typeID);
+	ecs::components::QuadTreeComponent* p_tree = static_cast<ecs::components::QuadTreeComponent*>(it.next());
+	ecs::components::TransformComponent* p_transform = entity.getComponent<ecs::components::TransformComponent>();
+	ecs::components::ObjectCollisionComponent* p_collision = entity.getComponent<ecs::components::ObjectCollisionComponent>();
+	static_cast<QuadTree*>(p_tree->pTree)->Insert(QuadTreeObject(p_transform, p_collision));
 }
 #pragma endregion
