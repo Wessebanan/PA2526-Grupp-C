@@ -244,7 +244,7 @@ namespace GridFunctions
 			y = std::rand() % (rows / 2) + min_y; 
 			if (p_gp->mGrid[y][x].isPassable)
 			{
-				//std::cout << "x: " << x << " y: " << y << std::endl; //Used for debug purpose
+				std::cout << "x: " << x << " y: " << y << std::endl; //Used for debug purpose
 				index.x = x;
 				index.y = y;
 				tileFound = true;

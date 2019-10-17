@@ -2,6 +2,9 @@
 #include "ecs.h"
 #include "../Physics/QuadTree.h"
 #include "../../AI/includes/GridProp.h"
+#include "CollisionSystem.h"
+#include "MovementSystem.h"
+#include "GridEcsFunctions.h"
 
 #pragma region QuadTreeTests
 TEST(QuadTreeTests, AddObjectsToTree)

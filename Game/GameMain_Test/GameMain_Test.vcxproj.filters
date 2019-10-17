@@ -126,6 +126,9 @@
     <ClInclude Include="Physics\QuadTreeTests.h">
       <Filter>Physics\Test Files</Filter>
     </ClInclude>
+    <ClInclude Include="AI\AiTests.h">
+      <Filter>AI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Physics">
