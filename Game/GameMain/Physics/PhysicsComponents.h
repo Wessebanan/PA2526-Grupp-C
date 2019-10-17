@@ -61,7 +61,7 @@ namespace ecs
 			DirectX::XMFLOAT3 mMassCenter;
 
 			// Position pre-movement to determine if the object moved since last update.
-			DirectX::XMFLOAT3 mPreviousPos;
+			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 			// If object is on ground.
 			bool mOnGround = false;
@@ -155,7 +155,7 @@ namespace ecs
 		};
 
 		/*
-		* Holds health at the moment (HealthComponent is already defined)
+		* Holds health at the moment (ConstitutionComponent is already defined)
 		* might hold strength, stamina, speed etc. in the future so constitution
 		* is a good name.
 		*/

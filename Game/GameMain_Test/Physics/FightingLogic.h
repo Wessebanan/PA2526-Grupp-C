@@ -134,9 +134,10 @@ TEST(DamageDealing, CreateOwnedWeapon)
 	EXPECT_EQ(ecs.getTotalComponentCount(), 7);
 
 	WeaponComponent *p_weapon_component = ecs.getComponentFromEntity<WeaponComponent>(weapon_entity->getID());
-
+	
 	// Checking that the unit entity owns the weapon entity.
 	EXPECT_EQ(unit_entity, ecs.getEntity(p_weapon_component->mOwnerEntity));
+
 }
 TEST(DamageDealing, DealDamage)
 {
