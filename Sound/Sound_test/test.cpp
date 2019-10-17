@@ -367,23 +367,19 @@ TEST(SoundAPI, MusicThroughMessaging)
 	SetupEngine(engine, mixer, pa_init);
 	
 	std::cout << "Add music..." << std::endl;
+	Audio::FileData* hello = bank[0];
 	mixer.AddMusicMessage({
-		new Audio::Plugin::Sampler(bank[0],0),
-		Audio::Music::M_NONE
-		});
-	Pa_Sleep(1000);
-
-	std::cout << "Attempt to add music without the replace flag..." << std::endl;
-	mixer.AddMusicMessage({
-		new Audio::Plugin::Sampler(bank[0],0),
-		Audio::Music::M_NONE
+		bank[0],
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_DATA_AS_PARAMETER
 		});
 	Pa_Sleep(1000);
 
 	std::cout << "Attempt to add music WITH the replace flag..." << std::endl;
 	mixer.AddMusicMessage({
-		new Audio::Plugin::Sampler(bank[0],0),
-		Audio::Music::M_REPLACE
+		bank[0],
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_DATA_AS_PARAMETER
 		});
 	Pa_Sleep(1000);
 
@@ -416,8 +412,9 @@ TEST(SoundAPI, MusicAndSoundMessaging)
 	for (int i = 0; i < 3; i++)
 	{
 		mixer.AddMusicMessage({
-			new Audio::Plugin::Sampler(bank[0],0),
-			Audio::Music::M_NONE
+			bank[0],
+			Audio::Music::M_FUNC_REPLACE_MUSIC |
+			Audio::Music::M_DATA_AS_PARAMETER
 			});
 		for (int j = 0; j < 20; j++)
 		{
@@ -428,6 +425,86 @@ TEST(SoundAPI, MusicAndSoundMessaging)
 		}
 
 	}
+
+	TeardownEngine(engine);
+
+	std::cout << "End of test\n";
+}
+
+TEST(SoundAPI, MusicMixing)
+{
+	// Initialize a Audio engine, mixer and bank
+	Audio::Engine engine;
+	Audio::Mixer mixer;
+	Audio::Bank bank;
+	Audio::PaHandler pa_init;
+
+	// Read both music and sound effect
+	std::string file_paths[] =
+	{
+		"cc_song.wav",
+		"cc_drums.wav"
+	};
+	ASSERT_TRUE(bank.LoadMultipleFiles(file_paths, 2));
+
+	// Setup engine
+	SetupEngine(engine, mixer, pa_init);
+
+	mixer.AddMusicMessage({
+		bank[0],
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_DATA_AS_PARAMETER
+	});
+	mixer.AddMusicMessage({
+		0.0f,
+		Audio::Music::M_FUNC_SET_GAIN |
+		Audio::Music::M_DATA_AS_PARAMETER
+		});
+	mixer.AddMusicMessage({
+		(unsigned long)80000,
+		Audio::Music::M_FUNC_FADE_IN |
+		Audio::Music::M_DATA_AS_PARAMETER
+	});
+	Pa_Sleep(4000);
+
+	mixer.AddMusicMessage({
+		bank[1],
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_TARGET_SUB |
+		Audio::Music::M_SYNC_THIS_WITH_OTHER
+	});
+
+	mixer.AddMusicMessage({
+		0.0f,
+		Audio::Music::M_FUNC_SET_GAIN |
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_TARGET_SUB
+		});
+
+	mixer.AddMusicMessage({
+		(unsigned long)80000,
+		Audio::Music::M_FUNC_FADE_IN |
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_TARGET_SUB
+	});
+
+	Pa_Sleep(4000);
+
+	mixer.AddMusicMessage({
+		(unsigned long)120000,
+		Audio::Music::M_FUNC_FADE_OUT |
+		Audio::Music::M_DATA_AS_PARAMETER
+		});
+
+	mixer.AddMusicMessage({
+		(unsigned long)120000,
+		Audio::Music::M_FUNC_FADE_OUT |
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_TARGET_SUB
+		});
+
+	Pa_Sleep(3000);
 
 	TeardownEngine(engine);
 
