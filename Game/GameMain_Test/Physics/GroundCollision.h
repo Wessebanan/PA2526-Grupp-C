@@ -4,7 +4,6 @@
 #include "GridEcsFunctions.h"
 
 // This lil' piece of jank makes tests waaay faster.
-ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 #pragma region FindLowestPointOfMesh
 	TEST(FindLowestPointOfMesh, CreateGroundCollisionComponentInitSystem)
@@ -26,6 +25,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		// Making sure there are no entities or components.
 		EXPECT_EQ(ecs.getTotalEntityCount(), 0);
 		EXPECT_EQ(ecs.getTotalComponentCount(), 0);
+		ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 		MeshComponent mesh_component;			
 		mesh_component.mMesh = &dude;
@@ -48,6 +48,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		ecs::EntityComponentSystem ecs;
 
 		ecs::systems::GroundCollisionComponentInitSystem* ground_collision_component_init_system = ecs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
+		ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 		MeshComponent mesh_component;
 		mesh_component.mMesh = &dude;
@@ -72,8 +73,8 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		}
 
 		// DirectXCollision disregards a few points in making the box, for optimization probably.
-		// If 99% of vertices are inside, it is safe to assume that the box has been created properly.
-		EXPECT_GT((float)n_inside / (float)vertices->size(), 0.99f);
+		// If 98% of vertices are inside, it is safe to assume that the box has been created properly.
+		EXPECT_GT((float)n_inside / (float)vertices->size(), 0.98f);
 	}
 #pragma endregion
 #pragma region GroundCollision
@@ -95,6 +96,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		// Making sure there are no entities or components.
 		EXPECT_EQ(ecs.getTotalEntityCount(), 0);
 		EXPECT_EQ(ecs.getTotalComponentCount(), 0);
+		ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 		// Creating the dude that is supposed to collide with ground.
 		MeshComponent mesh_component;
@@ -153,6 +155,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 			TransformComponent* transform = dynamic_cast<TransformComponent*>(ecs.getComponentFromEntity(TransformComponent::typeID, tile->getID()));
 			transform->position.y = TILE_HEIGHT;
 		}
+		ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 		// Creating the dude that is supposed to collide with ground.
 		MeshComponent mesh_component;
@@ -229,6 +232,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		// Setting that specific tile to a certain height.
 		TransformComponent* specific_tile_transform = dynamic_cast<TransformComponent*>(ecs.getComponentFromEntity(TransformComponent::typeID, specific_tile->getID()));
 		specific_tile_transform->position.y = TILE_HEIGHT;
+		ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 		// Creating the dude that is supposed to collide with ground.
 		MeshComponent mesh_component;
@@ -324,6 +328,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		// that kind of makes sense with the model size 
 		// with no scaling of the dude.
 		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f);
+		ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 		// Creating the dude that is supposed to collide with ground.
 		MeshComponent mesh_component;
@@ -331,7 +336,7 @@ ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 		GroundCollisionComponent ground_collision_component;
 		TransformComponent transform_component;
 		DynamicMovementComponent movement_component;
-		const float START_POSITION = 15.0f;
+		const float START_POSITION = 20.0f;
 		transform_component.position.y = START_POSITION;
 		transform_component.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 
