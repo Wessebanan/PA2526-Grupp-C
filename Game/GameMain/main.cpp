@@ -5,8 +5,8 @@
 
 
 
-#include "gameRendering/InitMesh.h"
-#include "gameRendering/PlaceMesh.h"
+//#include "gameRendering/InitMesh.h"
+//#include "gameRendering/PlaceMesh.h"
 
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
@@ -57,8 +57,25 @@ void SetViewMatrix(
 	));
 }
 
+const std::string GetShaderFilepath(const char* pFilename)
+{
+	std::string filepath = "..//";
+
+#ifdef _DEBUG
+	filepath.append("shaders_d//");
+#else
+	filepath.append("shaders//");
+#endif // _DEBUG
+
+	filepath.append(pFilename);
+
+	return filepath;
+}
+
+
 int main()
 {
+
 	srand(time(0));
 
 	const UINT
@@ -104,14 +121,16 @@ int main()
 			&desc);
 	}
 
+	const std::string vs = GetShaderFilepath("VS_Default.cso");
+	const std::string ps = GetShaderFilepath("PS_Default.cso");
 	UINT shader_index0 = renderer.CreateShaderProgram(
-		"VS_Default.cso",
-		"PS_Default.cso",
+		vs.c_str(), 
+		ps.c_str(), 
 		sizeof(float) * 3 + sizeof(UINT));
 
 	graphics::MeshRegion mesh_region0;
 	{
-		ModelLoader::Mesh mesh0("hexagon.fbx");
+		ModelLoader::Mesh mesh0("../meshes/hexagon.fbx");
 
 		mesh_region0 = mesh_manager.CreateMeshRegion(
 			mesh0.GetVertexPositionVector()->size(),
@@ -148,11 +167,11 @@ int main()
 
 	InitCamera(ecs);
 
-	ModelLoader::Mesh **pp_meshes = InitMesh(ecs, mesh_manager);
+	//ModelLoader::Mesh **pp_meshes = InitMesh(ecs, mesh_manager);
 	//
 	//InitPhysics(ecs, pp_meshes);
 
-	PlaceMesh(ecs, pMng);
+	//PlaceMesh(ecs, pMng);
 
 
 	// to get components in the loop

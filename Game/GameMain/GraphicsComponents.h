@@ -10,7 +10,7 @@ namespace ecs
 		COMP(ModelComponent)
 		{
 			int index;
-		}
+		};
 
 
 	} // components
