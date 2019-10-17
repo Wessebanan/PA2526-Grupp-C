@@ -37,6 +37,9 @@
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp">
       <Filter>Init</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\FightingSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -146,6 +149,9 @@
     </ClInclude>
     <ClInclude Include="GraphicsComponents.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\FightingSystem.h">
+      <Filter>Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
