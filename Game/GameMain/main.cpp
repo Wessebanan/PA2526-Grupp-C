@@ -41,8 +41,8 @@ int main()
 	ecs.createSystem<ecs::systems::IdleStateSystem>();
 	ecs.createSystem<ecs::systems::MoveStateSystem>();
 	ecs.createSystem<ecs::systems::SwitchStateSystem>();
-	ecs.createSystem<ecs::systems::DynamicMovementSystem>();
-	ecs.createSystem<ecs::systems::GroundCollisionSystem>();
+	//ecs.createSystem<ecs::systems::DynamicMovementSystem>();
+	//ecs.createSystem<ecs::systems::GroundCollisionSystem>();
 
 	InitInput(ecs);
 	InitInterpreter(ecs);
@@ -100,9 +100,10 @@ int main()
 	for (FilteredEntity p_entity : ittt.entities)
 	{
 		
-		ecs.createComponent<components::DynamicMovementComponent>(p_entity.entity->getID(), dyn_move);
+		//ecs.createComponent<components::DynamicMovementComponent>(p_entity.entity->getID(), dyn_move);
 		
 	}
+	CreatePhysicsComponentsForUnits(ecs, pp_meshes[Mesh::DUDE]);
 
 	cool_bean.newState = STATE::MOVE;
 	cool_bean.playerId = PLAYER::PLAYER1;
@@ -156,7 +157,7 @@ int main()
 			pMng->Draw();
 			pWnd->Present();
 
-			ecs.update(0.02f);
+			ecs.update(0.001f);
 		}
 	}
 	
