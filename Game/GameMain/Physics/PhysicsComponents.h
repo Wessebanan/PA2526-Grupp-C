@@ -155,11 +155,11 @@ namespace ecs
 		};
 
 		/*
-		* Holds health at the moment (ConstitutionComponent is already defined)
+		* Holds health at the moment (HealthComponent is already defined)
 		* might hold strength, stamina, speed etc. in the future so constitution
 		* is a good name.
 		*/
-		COMP(ConstitutionComponent)
+		COMP(HealthComponent)
 		{
 			float mBaseHealth	= DEFAULT_HEALTH;
 			float mHealth		= DEFAULT_HEALTH;

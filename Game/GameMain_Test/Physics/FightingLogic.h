@@ -151,7 +151,7 @@ TEST(DamageDealing, DealDamage)
 	ObjectCollisionComponent	unit_collision_component;
 	DynamicMovementComponent	unit_movement_component;
 	TransformComponent			unit_transform_component;
-	ConstitutionComponent		unit_constitution_component;
+	HealthComponent		unit_constitution_component;
 
 	ModelLoader::Mesh dude("Physics/TestModel/dude2.fbx");
 	unit_mesh_component.mMesh = &dude;
@@ -192,7 +192,7 @@ TEST(DamageDealing, DealDamage)
 	WeaponComponent* p_weapon_component = dynamic_cast<WeaponComponent*>(ecs.getComponent(WeaponComponent::typeID, weapon_entity->getComponentID(WeaponComponent::typeID)));
 
 	// Getting the constitution component to check health.
-	ConstitutionComponent* p_attacked_unit_constitution_component = dynamic_cast<ConstitutionComponent*>(ecs.getComponent(ConstitutionComponent::typeID, attacked_unit_entity->getComponentID(ConstitutionComponent::typeID)));//ecs.getComponent<ConstitutionComponent>(attacked_unit_entity->getID());
+	HealthComponent* p_attacked_unit_constitution_component = dynamic_cast<HealthComponent*>(ecs.getComponent(HealthComponent::typeID, attacked_unit_entity->getComponentID(HealthComponent::typeID)));//ecs.getComponent<HealthComponent>(attacked_unit_entity->getID());
 
 	const float DELTA = 0.1f;
 

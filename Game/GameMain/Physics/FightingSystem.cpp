@@ -125,7 +125,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	weapon_bv->Transform(weapon_world);
 
 	// Grab all entities with a constitution component (units).
-	EntityIterator units = getEntitiesWithComponent<ConstitutionComponent>();
+	EntityIterator units = getEntitiesWithComponent<HealthComponent>();
 
 	// Check collision against entities that could take damage.
 	bool intersect = false;
@@ -166,7 +166,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		float damage = velocity * weapon_component->mBaseDamage;
 		// s/t = v
 
-		ConstitutionComponent *collided_constitution = getComponentFromKnownEntity<ConstitutionComponent>(collided_unit);
+		HealthComponent *collided_constitution = getComponentFromKnownEntity<HealthComponent>(collided_unit);
 
 		collided_constitution->mHealth -= damage;
 
