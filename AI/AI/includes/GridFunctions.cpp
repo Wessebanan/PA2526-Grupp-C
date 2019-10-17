@@ -36,7 +36,7 @@ namespace GridFunctions
 		float dist = sqrt(x * x + z * z);//get the distance from start to end
 		dist = dist / ((TILE_RADIUS)*4);//scale the distance for better values
 		int sign = (int)(fabs(Charge) / Charge);//get the sign from charge variable "+" or "-"
-		to_return = sign*pow(fabs(Charge), 1 / (dist + 1.f));//return a exponentially decreasing value depending on distance
+		to_return = sign*pow(fabs(Charge), 1 / (dist + 1.2f));//return a exponentially decreasing value depending on distance
 
 		return to_return;
 	}
@@ -47,7 +47,7 @@ namespace GridFunctions
 		float x = fabsf(endX - startX);
 		float z = fabsf(endZ - startZ);
 		float dist = sqrt(x * x + z * z);//get the distance from start to end
-		to_return = dist / ((TILE_RADIUS)*2);//scale the distance for better values
+		to_return = dist / ((TILE_RADIUS)*2.f);//scale the distance for better values
 		return to_return;
 	}
 

@@ -156,7 +156,7 @@ int main()
 			pMng->Draw();
 			pWnd->Present();
 
-			ecs.update(0.015f);
+			ecs.update(0.02f);
 		}
 	}
 	

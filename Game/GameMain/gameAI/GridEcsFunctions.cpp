@@ -246,13 +246,13 @@ namespace GridEcsFunctions
 						entry.getComponent<ecs::components::TileComponent>()->niceness += GridFunctions::CreateCharge(e_x, e_z, o_x, o_z, 10);
 						nr_of_obstacles++;
 					}
-					if (other.getComponent<ecs::components::TransformComponent>()->position.y == -2.f)
-					{
-						//this is the tile with an attractive charge(goal node)
-						o_x = other.getComponent<ecs::components::TransformComponent>()->position.x;
-						o_z = other.getComponent<ecs::components::TransformComponent>()->position.z;
-						dist = GridFunctions::GetDistance(e_x, e_z, o_x, o_z);
-					}
+					//if (other.getComponent<ecs::components::TransformComponent>()->position.y == -2.f)
+					//{
+					//	//this is the tile with an attractive charge(goal node)
+					//	o_x = other.getComponent<ecs::components::TransformComponent>()->position.x;
+					//	o_z = other.getComponent<ecs::components::TransformComponent>()->position.z;
+					//	dist = GridFunctions::GetDistance(e_x, e_z, o_x, o_z);
+					//}
 				}
 				entry.getComponent<ecs::components::TileComponent>()->niceness = entry.getComponent<ecs::components::TileComponent>()->niceness / nr_of_obstacles;
 				entry.getComponent<ecs::components::TileComponent>()->niceness += dist;

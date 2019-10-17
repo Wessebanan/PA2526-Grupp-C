@@ -63,7 +63,7 @@ namespace ecs
 				components::TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
 				start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
 				unsigned int start_tile_id = g_prop->mGrid[start_tile.y][start_tile.x].Id;
-				path = GetPath(start_tile_id,113);
+				path = GetPath(start_tile_id,111);
 				components::MoveStateComponent move_comp;
 				move_comp.path = path;
 				
@@ -89,7 +89,7 @@ namespace ecs
 				unsigned int current_tile_id = startID;
 				unsigned int last_tile_id = 0;
 				float niceTry = 999.f;
-				float lastNice = 500.f;
+				//float lastNice = 500.f;
 				float dist = 0.f;
 				current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(startID);
 				current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(startID);
@@ -101,8 +101,8 @@ namespace ecs
 						have_visited[current_tile_id] = true;
 						niceTry = 999.f;
 						for (int i = 0; i < 6; i++)
-						{	//check if neighbour is not 0 or was the last visited tile
-							if (current_tile->neighboursIDArray[i] != 0 && !have_visited[current_tile->neighboursIDArray[i]])
+						{	//check if neighbour is not 0 or have been visited before
+							if (current_tile->neighboursIDArray[i] != 0 &&  !have_visited[current_tile->neighboursIDArray[i]])
 							{	//check for the lowest niceness then that is the next tile
 								current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
 								dist = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z,
@@ -116,6 +116,28 @@ namespace ecs
 						}
 						if (current_tile_id != goalID)
 						{
+							current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
+							to_return.push_back(next_tile_id);
+							last_tile_id = current_tile_id;
+							current_tile_id = next_tile_id;
+						}
+					}
+					else
+					{
+						for (int i = 0; i < 6; i++)
+						{
+							if (current_tile->neighboursIDArray[i] != 0)
+							{
+								//check for the lowest niceness then that is the next tile
+								current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
+								dist = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z,
+									goal_tile_transfrom->position.x, goal_tile_transfrom->position.z);
+								if (dist < niceTry)
+								{
+									niceTry = dist;
+									next_tile_id = current_tile->neighboursIDArray[i];
+								}
+							}
 							current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
 							to_return.push_back(next_tile_id);
 							last_tile_id = current_tile_id;
