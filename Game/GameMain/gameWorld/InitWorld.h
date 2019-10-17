@@ -11,6 +11,10 @@
 using namespace ecs;
 using namespace DirectX;
 
+/*
+	This struct defines each vertex in the world 'mesh' vertex buffer. Each vertex
+	includes a position (FLOAT3) and a color (4 * UINT_8).
+*/
 struct WorldVertex
 {
 	XMFLOAT3 position;
@@ -29,12 +33,23 @@ struct WorldVertex
 		position(pos), color(red, green, blue, alpha) {}
 };
 
+/*
+	This struct defines each vertex in the world 'mesh' vertex buffer.
+*/
 struct TileVertexBuffer
 {
 	WorldVertex* pFirst;
 	unsigned int vertexCount;
 };
 
+/*
+	This struct defines a look-up table, used by the compute shader that updates the ocean grid. The compute shader
+	need to know
+		1. The number of ocean tiles
+		2. Where in the vertex buffer the ocean tiles starts (map tiles are placed at the beginning)
+		3. The X and Z position values for each ocean tile, where the main task of the shader is to calculate Y
+		   and place each ocean tile vertex accordingly.
+*/
 struct OceanShaderLookUpTable
 {
 	XMFLOAT2* pPositionsXZ;		// Positions of ocean tiles in the X and Z plane, Y is skipped as it will be calculated by a compute shader
@@ -42,6 +57,10 @@ struct OceanShaderLookUpTable
 	UINT oceanTileOffset;		// Offset in vertex buffer where ocean tiles start
 };
 
+/*
+	This function generates all necessary information to render the world tiles (map + ocean) as one mesh, 
+	including the information necessary for updating the ocean tiles.
+*/
 void CreateWorldTileVertexBuffer(EntityComponentSystem& rEcs, ModelLoader::Mesh* p_tile_mesh, TileVertexBuffer** pp_vertex_buffer_output)
 {
 	/*
