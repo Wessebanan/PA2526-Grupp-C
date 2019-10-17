@@ -28,6 +28,9 @@
     <ClCompile Include="Physics\QuadTree.cpp">
       <Filter>QuadTree</Filter>
     </ClCompile>
+    <ClCompile Include="Physics\FightingSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -137,6 +140,9 @@
     </ClInclude>
     <ClInclude Include="Physics\QuadTree.h">
       <Filter>QuadTree</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics\FightingSystem.h">
+      <Filter>Physics</Filter>
     </ClInclude>
     <ClInclude Include="gameGraphics\ForwardRenderingPipeline.h">
       <Filter>Graphics</Filter>

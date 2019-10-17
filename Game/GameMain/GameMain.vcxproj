@@ -111,6 +111,7 @@
     <ClCompile Include="gameUtility\UtilityEcsFunctions.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Physics\CollisionSystem.cpp" />
+    <ClCompile Include="Physics\FightingSystem.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp" />
     <ClCompile Include="Physics\QuadTree.cpp" />
   </ItemGroup>
@@ -150,6 +151,7 @@
     <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />
     <ClInclude Include="Physics\CollisionSystem.h" />
+    <ClInclude Include="Physics\FightingSystem.h" />
     <ClInclude Include="Physics\InitPhysics.h" />
     <ClInclude Include="Physics\MovementSystem.h" />
     <ClInclude Include="Physics\PhysicsComponents.h" />
