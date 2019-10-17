@@ -246,7 +246,7 @@ int main()
 
 			{
 				graphics::FORWARD_RENDERING_PIPELINE_DATA data;
-				data.ViewMatrix = camera_matrix;
+				data.ViewMatrix = p_cam_comp->viewMatrix;
 				data.Red	= 0.25f;
 				data.Green	= 0.25f;
 				data.Blue	= 1.0f;

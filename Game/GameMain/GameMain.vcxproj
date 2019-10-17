@@ -99,6 +99,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />

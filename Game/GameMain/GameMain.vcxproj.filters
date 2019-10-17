@@ -34,6 +34,9 @@
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp">
+      <Filter>Init</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
