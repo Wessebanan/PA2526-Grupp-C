@@ -23,7 +23,7 @@ float shadow(const float2 pos, const float depth)
 	return gShadowMap.SampleCmpLevelZero(
 		gSmpCmp,
 		shadowMapUV,
-		depth - 0.0025f);
+		depth - 0.0015f);
 }
 
 cbuffer SunData : register (b0)

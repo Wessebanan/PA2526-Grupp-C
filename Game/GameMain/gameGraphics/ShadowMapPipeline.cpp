@@ -66,8 +66,8 @@ namespace graphics
 			DirectX::XMFLOAT4X4 orto_matrix;
 			SetOrtographicsMatrix(
 				orto_matrix,
-				m_pixelsWidth,
-				m_pixelsWidth,
+				pDesc->Width,
+				pDesc->Height,
 				pDesc->NearPlane,
 				pDesc->FarPlane);
 
@@ -136,7 +136,6 @@ namespace graphics
 		pContext4->OMSetRenderTargets(0, NULL, m_pDepthBuffer);
 
 		pContext4->VSSetConstantBuffers(1, 2, m_pMatrixBuffers);
-		pContext4->VSSetConstantBuffers(3, 2, m_pMatrixBuffers);
 	}
 
 	void ShadowMapPipeline::PreExecute(
@@ -152,6 +151,7 @@ namespace graphics
 	{
 		pContext4->OMSetRenderTargets(0, NULL, NULL);
 		pContext4->PSSetSamplers(0, 1, &m_pSamplerState);
+		pContext4->VSSetConstantBuffers(3, 2, m_pMatrixBuffers);
 		pContext4->PSSetShaderResources(0, 1, &m_pDepthResource);
 	}
 

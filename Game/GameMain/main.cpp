@@ -73,6 +73,32 @@ const std::string GetShaderFilepath(const char* pFilename)
 }
 
 
+graphics::MeshRegion InsertMesh(ModelLoader::Mesh& mesh, graphics::MeshManager& rMng)
+{
+	graphics::MeshRegion mesh_region;
+
+	{
+		mesh_region = rMng.CreateMeshRegion(
+			mesh.GetVertexPositionVector()->size(),
+			mesh.GetIndexVector()->size());
+
+		{
+			graphics::VERTEX_DATA data = { NULL };
+			data.pVertexPositions	= mesh.GetVertexPositionVector()->data();
+			data.pVertexNormals		= mesh.GetNormalVector()->data();
+			data.pVertexTexCoords	= mesh.GetUVVector()->data();
+
+			rMng.UploadData(
+				mesh_region,
+				data,
+				mesh.GetIndexVector()->data());
+		}
+	}
+
+	return mesh_region;
+}
+
+
 int main()
 {
 
@@ -100,9 +126,9 @@ int main()
 		graphics::SHADOW_MAP_PIPELINE_DESC desc;
 		desc.PixelsWidth	= 2048;
 		desc.Width			= 25.0f;
-		desc.Height			= 25.0f;
-		desc.NearPlane		= 0.1f;
-		desc.FarPlane		= 100.0f;
+		desc.Height			= 40.0f;
+		desc.NearPlane		=  1.0f;
+		desc.FarPlane		= 40.0f;
 		pipeline_shadow_map = renderer.CreatePipeline(
 			new graphics::ShadowMapPipeline,
 			&desc);
@@ -128,26 +154,13 @@ int main()
 		ps.c_str(), 
 		sizeof(float) * 3 + sizeof(UINT));
 
-	graphics::MeshRegion mesh_region0;
-	{
-		ModelLoader::Mesh mesh0("../meshes/hexagon.fbx");
+	ModelLoader::Mesh mesh_hexagon("../meshes/hexagon.fbx");
+	ModelLoader::Mesh mesh_rock("../meshes/rock.fbx");
+	ModelLoader::Mesh mesh_tree("../meshes/tree.fbx");
 
-		mesh_region0 = mesh_manager.CreateMeshRegion(
-			mesh0.GetVertexPositionVector()->size(),
-			mesh0.GetIndexVector()->size());
-
-		{
-			graphics::VERTEX_DATA data = { NULL };
-			data.pVertexPositions	= mesh0.GetVertexPositionVector()->data();
-			data.pVertexNormals		= mesh0.GetNormalVector()->data();
-			data.pVertexTexCoords	= mesh0.GetUVVector()->data();
-
-			mesh_manager.UploadData(
-				mesh_region0,
-				data,
-				mesh0.GetIndexVector()->data());
-		}
-	}
+	graphics::MeshRegion mesh_region_hexagon	= InsertMesh(mesh_hexagon, mesh_manager);
+	graphics::MeshRegion mesh_region_tree		= InsertMesh(mesh_rock, mesh_manager);
+	graphics::MeshRegion mesh_region_rock		= InsertMesh(mesh_tree, mesh_manager);
 
 	ecs::EntityComponentSystem ecs;
 
@@ -182,12 +195,11 @@ int main()
 
 
 	graphics::ShaderModelLayout layout;
-	layout.Meshes[0]			= (mesh_region0);
+	layout.MeshCount			= 3;
+	layout.Meshes[0]			= (mesh_region_hexagon);
+	layout.Meshes[1]			= (mesh_region_tree);
+	layout.Meshes[2]			= (mesh_region_rock);
 
-	layout.InstanceCounts[0]	= (2);
-
-	layout.MeshCount			= 1;
-	layout.TotalModels			= 2;
 
 
 	struct ShaderProgramInput
@@ -196,28 +208,51 @@ int main()
 		uint32_t Color;
 	};
 
-	ShaderProgramInput v[2];
-	v[0].x = 0.0f;
-	v[0].y = 0.0f;
-	v[0].z = 2.0f;
-	v[0].Color = PACK(255, 0, 0, 255);
+	UINT index = 0;
+	itt = ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID);
+	ecs::components::TileComponent* tileComp;
+	size_t size = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
 
-	v[1].x = 0.0f;
-	v[1].y = 0.0f;
-	v[1].z = 5.0f;
-	v[1].Color = PACK(0, 255, 0, 255);
+	ShaderProgramInput* pData = new ShaderProgramInput[size];
+	layout.InstanceCounts[0] = size;
+	layout.InstanceCounts[1] = 0;
+	layout.InstanceCounts[2] = 0;
+
+
+	layout.TotalModels = size;
+
+	while (tileComp = (ecs::components::TileComponent*)itt.next())
+	{
+		ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(tileComp->getEntityID());
+		ecs::components::ColorComponent* color_comp = ecs.getComponentFromEntity<ecs::components::ColorComponent>(tileComp->getEntityID());
+
+		pData[index].x = trComp->position.x;
+		pData[index].y = trComp->position.y;
+		pData[index].z = trComp->position.z;
+
+		int random = rand() % 101;
+		int color_offset = -50 + random;
+		switch (tileComp->tileType)
+		{
+		case TileTypes::GAME_FIELD:
+			pData[index].Color = PACK(color_comp->red, color_comp->green, color_comp->blue, 0);
+			break;
+		case TileTypes::WATER:
+			pData[index].Color = PACK(0, 0, 200 + color_offset, 0);
+			break;
+		case TileTypes::UNDEFINED:
+			pData[index].Color = PACK(0, 0, 0, 255);
+			break;
+		default:
+			pData[index].Color = PACK(255, 255, 255, 255);
+			break;
+		}
+
+		index++;
+	}
 
 	renderer.SetShaderModelLayout(shader_index0, layout);
-	renderer.SetModelData(v, sizeof(v));
-
-
-
-	float x = -5.0f, y = 10.0f, z = 0.0f;
-	DirectX::XMFLOAT4X4 camera_matrix;
-	SetViewMatrix(
-		camera_matrix,
-		x, y, z,
-		1.0f, -1.0f, 0.0f);
+	renderer.SetModelData(pData, sizeof(ShaderProgramInput) * size);
 
 	wnd.Open();
 	while (wnd.IsOpen())
@@ -235,7 +270,7 @@ int main()
 				DirectX::XMFLOAT4X4 shadow_matrix;
 				SetViewMatrix(
 					shadow_matrix,
-					0.0f, 4.0f, -5.0f,
+					6.0f,  4.0f, -5.0f,
 					0.0f, -1.0f, 1.0f);
 
 				graphics::SHADOW_MAP_PIPELINE_DATA data;
