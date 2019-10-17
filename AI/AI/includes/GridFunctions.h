@@ -11,5 +11,5 @@ namespace GridFunctions
 	void StoreNeighbours();
 	//Returns the index of the starting tile for the given player.
 	int2 FindStartingTile(PLAYER Id);
-	
+	int2 GetTileFromWorldPos(float x, float z);
 };

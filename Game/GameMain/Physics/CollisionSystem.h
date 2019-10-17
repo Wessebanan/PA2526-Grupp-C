@@ -5,11 +5,14 @@
 #include "PhysicsEvents.h"
 #include "PhysicsHelperFunctions.h"
 #include "CollisionFunctions.h"
+#include "QuadTree.h"
 
 #include "../gameAI/AIComponents.h"
 
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameUtility/UtilityEcsFunctions.h"
+#include "GridFunctions.h"
+#include "GridProp.h"
 
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
