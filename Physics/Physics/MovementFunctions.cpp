@@ -25,12 +25,12 @@ void UpdateAcceleration(XMFLOAT3& acc, const XMFLOAT3& force, const float& weigh
 	acc.z = force.z / weight;
 
 	// Applying deceleration if velocity is greater than 0 and acceleration works opposite or not at all.
-	if (fabs(velocity.x) > 0.0f && acc.x / velocity.x <= 0.0f)
+	if (fabs(velocity.x) > 0.001f && acc.x / velocity.x <= 0.0f)
 	{
 		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
 		acc.x -= Sign(velocity.x) * dec;
 	}
-	if (fabs(velocity.z) > 0.0f && acc.z / velocity.z <= 0.0f)
+	if (fabs(velocity.z) > 0.001f && acc.z / velocity.z <= 0.0f)
 	{
 		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
 		acc.z -= Sign(velocity.z) * dec;

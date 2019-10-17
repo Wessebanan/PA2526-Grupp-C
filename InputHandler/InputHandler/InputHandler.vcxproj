@@ -163,6 +163,7 @@
   <ItemGroup>
     <None Include="ccTest.html" />
     <None Include="gridStyle.css" />
+    <None Include="mobileSite.html" />
     <None Include="scripts\script.js" />
     <None Include="StyleSheet.css" />
   </ItemGroup>
