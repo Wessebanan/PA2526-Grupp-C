@@ -32,7 +32,7 @@ void UploadTileMeshToGPU(ModelLoader::Mesh* pTileMesh, TileMeshConstBuf** pMeshB
 	const unsigned int OCEAN_SCALE_RATIO = 1.1f;
 	XMMATRIX scale_matrix = XMMatrixScaling(OCEAN_SCALE_RATIO, OCEAN_SCALE_RATIO, OCEAN_SCALE_RATIO);
 
-	int vertex_counter = 0;
+	int float_counter = 0;
 	XMFLOAT3 vertex;
 	XMVECTOR xm_vertex;
 	for (int index : *p_mesh_indices)
@@ -44,11 +44,17 @@ void UploadTileMeshToGPU(ModelLoader::Mesh* pTileMesh, TileMeshConstBuf** pMeshB
 		XMStoreFloat3(&vertex, xm_vertex);
 
 
-		p_mesh_buffer->vertices[vertex_counter]		= vertex.x;
-		p_mesh_buffer->vertices[vertex_counter + 1] = vertex.y;
-		p_mesh_buffer->vertices[vertex_counter + 2] = vertex.z;
-		p_mesh_buffer->vertices[vertex_counter + 3] = 1.0f;
+		p_mesh_buffer->vertices[float_counter]		= vertex.x;
+		p_mesh_buffer->vertices[float_counter + 1] = vertex.y;
+		p_mesh_buffer->vertices[float_counter + 2] = vertex.z;
+		p_mesh_buffer->vertices[float_counter + 3] = 1.0f;
 
-		vertex_counter += 4;
+		float_counter += 4;
 	}
+
+	// TODO: Check so that vertex_count really is 60..
+	p_mesh_buffer->vertex_count = 60;
+
+	// AVOID MEMORY LEAKS BEFORE
+	//delete 
 }
