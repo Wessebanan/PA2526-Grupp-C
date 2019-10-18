@@ -20,13 +20,27 @@ enum AudioName
 {
 	COIN_TEST_SOUND,
 	CC_TEST_SONG,
-	CC_TEST_SONG_DRUMS
+	CC_TEST_SONG_DRUMS,
+	TRUMPET_FANFARE,
+	GRUNT_1,
+	GRUNT_2,
+	PLOP,
+	DEATH_SCREAM,
+	SWISH,
+	SWORD_HIT
 };
 
 const std::string AUDIO_NAME_PATHS[] =
 {
 	"../AudioFiles/coin.wav",
 	"../AudioFiles/cc_song.wav",
-	"../AudioFiles/cc_drums.wav"
+	"../AudioFiles/cc_drums.wav",
+	"../AudioFiles/fanfare.wav",
+	"../AudioFiles/grunt1.wav",
+	"../AudioFiles/grunt2.wav",
+	"../AudioFiles/plop.wav",
+	"../AudioFiles/scream.wav",
+	"../AudioFiles/swish.wav",
+	"../AudioFiles/sword.wav"
 };
 

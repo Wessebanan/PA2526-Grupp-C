@@ -9,10 +9,10 @@ TEST(SoundAPI, PlayAudioThroughECS)
 	ASSERT_TRUE(InitSound(ecs)) << "InitSound Failed!";
 
 
-	ecs::events::PlaySound sound_event;
-	sound_event.audioName = AudioName::COIN_TEST_SOUND;
-	sound_event.soundFlags = SoundFlags::SF_REPEAT;
-	ecs.createEvent(sound_event);
+	//ecs::events::PlaySound sound_event;
+	//sound_event.audioName = AudioName::DEATH_SCREAM;
+	//sound_event.soundFlags = SoundFlags::SF_REPEAT;
+	//ecs.createEvent(sound_event);
 
 	ecs::events::PlayMusic music_event;
 	music_event.audioName = AudioName::CC_TEST_SONG;
