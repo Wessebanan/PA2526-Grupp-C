@@ -20,6 +20,7 @@
 #include "Physics/InitPhysics.h"
 
 #include <time.h>
+#include <chrono>
 
 using namespace ecs;								  
 
@@ -132,13 +133,21 @@ int main()
 	pMng->SetViewMatrix(p_cam_comp->viewMatrix);
 	pWnd->Show();
 	ecs.update(0.1f);
+
+	// Timer
+	std::chrono::system_clock::time_point frame_start = std::chrono::system_clock::now();
+	std::chrono::system_clock::time_point frame_end = std::chrono::system_clock::now();
+	std::chrono::duration<float> elapsed;
 	while (pWnd->IsOpen())
 	{
+
 		if (!pWnd->Update())
 		{
+			// Starting frame right after ecs::update, first frame a little fucky.
+			frame_start = std::chrono::system_clock::now();
+
 			pMng->Clear(0.2f, 0.1f, 0.1f);
-
-
+			
 			pMng->SetViewMatrix(p_cam_comp->viewMatrix);
 			int int_itt = 0;
 			ecs::ComponentIterator itttt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
@@ -158,7 +167,13 @@ int main()
 			pMng->Draw();
 			pWnd->Present();
 
-			ecs.update(0.001f);
+			// Finding how long passed between each ecs::update.
+			frame_end = std::chrono::system_clock::now();
+			elapsed = frame_end - frame_start;
+
+			// Passing elapsed time in seconds to ecs.
+			ecs.update(elapsed.count());
+			
 		}
 	}
 	
