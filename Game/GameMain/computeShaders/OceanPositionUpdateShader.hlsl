@@ -21,9 +21,13 @@ cbuffer LookUpTableBuffer : register (b1)
 
 RWStructuredBuffer<TileVertex> gBufferOut : register(u0);
 
-[numthreads(1024, 1, 1)]
-void main( uint3 DTid : SV_DispatchThreadID )
+[numthreads(96, 1, 1)]
+void main( uint3 DTid : SV_DispatchThreadID, uint gi : SV_GroupIndex )
 {
+	uint indexInTileVB = gi;
+	uint indexOutVB = DTid.x * TILE_VERTEX_COUNT + gi;
+	uint indexOutVB = (DTid.y * TILES_IN_X_DIM + DTid.x) * TILE_VERTEX_COUNT + gi;
+
 	const int THREAD_COUNT = 1024;
 	int current_index = DTid;
 	
