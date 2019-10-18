@@ -33,6 +33,8 @@
 #include "gameGraphics/ForwardRenderingPipeline.h"
 #include "gameGraphics/ShadowMapPipeline.h"
 
+#include "gameAnimation/InitAnimation.h"
+
 //#include "../../Graphics/includes/ForwardRenderingPipeline.h"
 
 #include <time.h>
@@ -69,6 +71,8 @@ const std::string GetShaderFilepath(const char* pFilename)
 #else
 	filepath.append("shaders//");
 #endif // _DEBUG
+
+	//filepath.append("shaders_d//");
 
 	filepath.append(pFilename);
 
@@ -152,7 +156,7 @@ int main()
 	UINT pipeline_shadow_map;
 	{
 		graphics::SHADOW_MAP_PIPELINE_DESC desc;
-		desc.PixelsWidth	= 1024;
+		desc.PixelsWidth	= 4096;
 		desc.Width			= 25.0f;
 		desc.Height			= 40.0f;
 		desc.NearPlane		=  1.0f;
@@ -181,11 +185,7 @@ int main()
 		uint32_t Color;
 	};
 
-	struct SkinningShaderProgramInput
-	{
-		XMFLOAT4X4 world;
-		XMFLOAT4X4 boneMatrices[63];
-	};
+
 
 	const std::string vs = GetShaderFilepath("VS_Default.cso");
 	const std::string ps = GetShaderFilepath("PS_Default.cso");
@@ -279,7 +279,8 @@ int main()
 	size_t tile_count = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
 
 	ShaderProgramInput* pData	= new ShaderProgramInput[tile_count + 6 + 6];
-	UINT sizeOfPdata			= sizeof(ShaderProgramInput) * (tile_count + 6 + 6);
+	UINT sizeOfPdata			= (UINT)(sizeof(ShaderProgramInput) * (tile_count + 6 + 6));
+	sizeOfPdata = 2496;
 	ZeroMemory(pData, sizeOfPdata);
 
 	layout.InstanceCounts[0] = tile_count;
@@ -348,16 +349,8 @@ int main()
 	UINT skin_size = sizeof(SkinningShaderProgramInput) * 12;
 	ModelLoader::Skeleton* skeleton = mesh_dude.GetSkeleton();
 
-	// Load animation data for first frame
-	for (unsigned int i = 0; i < 12; ++i)
-	{
+	InitAnimation(skeleton, skin_shader_program_input);
 
-		memcpy(
-			&skin_shader_program_input[i].boneMatrices, 
-			skeleton->animationData, 
-			skeleton->jointCount * sizeof(XMFLOAT4X4));
-		
-	}
 
 	renderer.SetShaderModelLayout(shader_index0, layout);
 	renderer.SetShaderModelLayout(shader_index1, layout_skin);
@@ -371,26 +364,6 @@ int main()
 	unsigned long long int frame_count2 = 0;
 	wnd.Open();
 
-
-	ecs::components::DynamicMovementComponent dyn_move;
-	ecs::TypeFilter dr_philter;
-	dr_philter.addRequirement(ecs::components::UnitComponent::typeID);
-	ecs::EntityIterator ittt = ecs.getEntititesByFilter(dr_philter);
-	ecs::events::ChangeUserStateEvent cool_bean;
-	ecs::events::ChangeUserStateEvent cool_bean2;
-	ecs::events::ChangeUserStateEvent cool_bean3;
-	ecs::events::ChangeUserStateEvent cool_bean4;
-	//for (FilteredEntity p_entity : ittt.entities)
-	//{
-	//	
-	//	//ecs.createComponent<components::DynamicMovementComponent>(p_entity.entity->getID(), dyn_move);
-	//	
-	//}
-	//CreatePhysicsComponentsForUnits(ecs, &mesh_dude);
-
-	//cool_bean.newState = STATE::ATTACK;
-	//cool_bean.playerId = PLAYER::PLAYER1;
-	//ecs.createEvent(cool_bean);
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
@@ -420,14 +393,8 @@ int main()
 					armyIndex++;
 				}
 			}
-			for (unsigned int i = 0; i < 12; ++i)
-			{
 
-				frame_count2 = frame_count2 % skeleton->frameCount;
-
-				memcpy(skin_shader_program_input[i].boneMatrices, &skeleton->animationData[frame_count2* skeleton->jointCount], skeleton->jointCount * sizeof(XMFLOAT4X4));
-
-			}
+			UpdateAnimation(skeleton, skin_shader_program_input, frame_count2);
 
 			memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
 			renderer.SetModelData(pInstanceData, sizeOfPdata + skin_size);
@@ -460,7 +427,7 @@ int main()
 
 			renderer.Present();
 			frame_count++;
-			if (frame_count % 4)
+			if (frame_count % 3 == 0)
 			{
 				frame_count2++;
 			}
