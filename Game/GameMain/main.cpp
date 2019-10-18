@@ -37,10 +37,11 @@ int main()
 
 	InitSound(ecs);
 
-	ecs.createSystem<ecs::systems::PathfindingStateSystem>();
-	ecs.createSystem<ecs::systems::IdleStateSystem>();
-	ecs.createSystem<ecs::systems::MoveStateSystem>();
-	ecs.createSystem<ecs::systems::SwitchStateSystem>();
+	ecs.createSystem<ecs::systems::PathfindingStateSystem>(5);
+	ecs.createSystem<ecs::systems::IdleStateSystem>(5);
+	ecs.createSystem<ecs::systems::MoveStateSystem>(5);
+	ecs.createSystem<ecs::systems::AttackStateSystem>(5);
+	ecs.createSystem<ecs::systems::SwitchStateSystem>(4);
 	//ecs.createSystem<ecs::systems::DynamicMovementSystem>();
 	//ecs.createSystem<ecs::systems::GroundCollisionSystem>();
 
@@ -105,9 +106,9 @@ int main()
 	}
 	CreatePhysicsComponentsForUnits(ecs, pp_meshes[Mesh::DUDE]);
 
-	cool_bean.newState = STATE::ATTACK;
-	cool_bean.playerId = PLAYER::PLAYER1;
-	ecs.createEvent(cool_bean);
+	//cool_bean.newState = STATE::ATTACK;
+	//cool_bean.playerId = PLAYER::PLAYER1;
+	//ecs.createEvent(cool_bean);
 
 	//cool_bean2.newState = STATE::ATTACK;
 	//cool_bean2.playerId = PLAYER::PLAYER2;
