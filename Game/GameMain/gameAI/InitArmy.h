@@ -11,7 +11,6 @@
 void InitArmy(ecs::EntityComponentSystem& rECS)
 {
 	AIEcsFunctions::CreatePlayerArmies(rECS);
-
 	////Create Components for a "User" entity.
 	//ecs::components::ArmyComponent army;
 	////Create Components for a "Unit" entity.

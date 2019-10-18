@@ -13,4 +13,5 @@ namespace GridEcsFunctions
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs);
 	void CreatePotentialField(ecs::EntityComponentSystem& rEcs);
 	std::vector<unsigned int> FindPath(ecs::EntityComponentSystem& rEcs, unsigned int startID, unsigned int endID);
+	void LoadNeighboursToComponents(ecs::EntityComponentSystem& rEcs);
 };

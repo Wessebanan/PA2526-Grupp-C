@@ -10,12 +10,15 @@
 
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
+#include "AIGlobals.h"
 
 #include "Input/InitInterpreter.h"
 
 #include "gameUtility/InitCamera.h"
 
 #include "gameSceneObjects/InitSceneObjectsh.h"
+#include "gameSceneObjects/InitBiomes.h"
+#include "gameUtility/UtilityEcsFunctions.h"
 
 #include "gameAudio/InitAudio.h"
 
@@ -211,6 +214,14 @@ int main()
 
 	InitSound(ecs);
 
+	ecs.createSystem<ecs::systems::PathfindingStateSystem>(5);
+	ecs.createSystem<ecs::systems::IdleStateSystem>(5);
+	ecs.createSystem<ecs::systems::MoveStateSystem>(5);
+	ecs.createSystem<ecs::systems::AttackStateSystem>(5);
+	ecs.createSystem<ecs::systems::SwitchStateSystem>(4);
+	//ecs.createSystem<ecs::systems::DynamicMovementSystem>();
+	//ecs.createSystem<ecs::systems::GroundCollisionSystem>();
+
 	InitInput(ecs);
 	InitInterpreter(ecs);
 
@@ -342,14 +353,25 @@ int main()
 	wnd.Open();
 
 
-	while (wnd.IsOpen())
+	ecs::components::DynamicMovementComponent dyn_move;
+	ecs::TypeFilter dr_philter;
+	dr_philter.addRequirement(ecs::components::UnitComponent::typeID);
+	ecs::EntityIterator ittt = ecs.getEntititesByFilter(dr_philter);
+	ecs::events::ChangeUserStateEvent cool_bean;
+	ecs::events::ChangeUserStateEvent cool_bean2;
+	ecs::events::ChangeUserStateEvent cool_bean3;
+	ecs::events::ChangeUserStateEvent cool_bean4;
+	for (FilteredEntity p_entity : ittt.entities)
 	{
-		if (!wnd.Update()) 
-		{
-			if (GetAsyncKeyState(VK_ESCAPE))
-			{
-				wnd.Close();
-			}
+		
+		//ecs.createComponent<components::DynamicMovementComponent>(p_entity.entity->getID(), dyn_move);
+		
+	}
+	CreatePhysicsComponentsForUnits(ecs, pp_meshes[Mesh::DUDE]);
+
+	//cool_bean.newState = STATE::ATTACK;
+	//cool_bean.playerId = PLAYER::PLAYER1;
+	//ecs.createEvent(cool_bean);
 
 			ecs.update(0.1f);
 			int armyIndex = 0;
