@@ -6,7 +6,7 @@
 #include "../includes/MeshManager.h"
 #include "../includes/ComputeManager.h"
 
-#include "../includes/ForwardRenderingPipeline.h"
+#include "../Application/ForwardRenderingPipeline.h"
 
 TEST(Graphics, CreatingAndClosingWindow)
 {

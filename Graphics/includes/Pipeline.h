@@ -23,12 +23,12 @@ namespace graphics
 	class GraphicsPipeline : public Pipeline
 	{
 	public:
-		virtual void PreExecute(
+		virtual void PreProcess(
 			ID3D11DeviceContext4* pContext4, 
 			ID3D11VertexShader* pVertexShader,
 			ID3D11PixelShader* pPixelShader) = 0;
 		
-		virtual void Begin(ID3D11DeviceContext4* pContext4) = 0;
+		virtual void Begin(ID3D11DeviceContext4* pContext4, RenderManagerData* pData) = 0;
 		virtual void End(ID3D11DeviceContext4* pContext4, RenderManagerData* pData) = 0;
 	};
 

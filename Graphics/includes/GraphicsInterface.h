@@ -19,12 +19,6 @@ namespace graphics
 		const char* pTarget,
 		ID3DBlob** ppBlob);
 
-	HRESULT CreateSwapChain(
-		ID3D11Device4* pDevice4,
-		IDXGIFactory6* pFactory6,
-		HWND hWnd,
-		IDXGISwapChain4** ppSwapChain4);
-
 	HRESULT CreateVertexBuffer(
 		ID3D11Device4* pDevice4,
 		const void* pData,
@@ -109,6 +103,10 @@ namespace graphics
 	namespace internal
 	{
 		HRESULT InitializeD3D11();
+
+		HRESULT CreateSwapChain(
+			HWND hWnd,
+			IDXGISwapChain4** ppSwapChain4);
 
 		void DestroyD3D11();
 

@@ -31,9 +31,7 @@ namespace graphics
 
 		if (FAILED(hr)) return hr;
 
-		hr = graphics::CreateSwapChain(
-			m_pDevice4,
-			m_pFactory6,
+		hr = graphics::internal::CreateSwapChain(
 			hWnd,
 			&m_pSwapChain);
 
@@ -44,6 +42,18 @@ namespace graphics
 			IID_PPV_ARGS(&m_data.pBackBufferTexture));
 
 		if (FAILED(hr)) return hr;
+
+		{
+			D3D11_RENDER_TARGET_VIEW_DESC desc = {};
+			desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+			desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+			desc.Texture2D.MipSlice = 0;
+
+			m_pDevice4->CreateRenderTargetView(
+				m_data.pBackBufferTexture,
+				&desc,
+				&m_data.pBackBuffer);
+		}
 
 		// Per Model Buffer
 		{
@@ -86,7 +96,7 @@ namespace graphics
 		if (FAILED(hr)) return UINT_MAX;
 
 		m_pipelines.push_back(pPipeline);
-		return m_pipelines.size() - 1;
+		return (UINT)m_pipelines.size() - 1;
 	}
 
 	UINT RenderManager::CreateShaderProgram(
@@ -108,7 +118,7 @@ namespace graphics
 		m_shaderPrograms.push_back(program);
 		m_shaderModelLayouts.push_back(ShaderModelLayout());
 
-		return m_shaderPrograms.size() - 1;
+		return (UINT)m_shaderPrograms.size() - 1;
 	}
 
 	void RenderManager::SetModelData(const void* pData, const UINT byteWidth)
@@ -131,7 +141,7 @@ namespace graphics
 	{
 		GraphicsPipeline* pPipeline = m_pipelines[pipeline];
 
-		pPipeline->Begin(m_pContext4);
+		pPipeline->Begin(m_pContext4, &m_data);
 
 		graphics::UploadToDynamicBuffer(
 			m_pContext4,
@@ -146,7 +156,7 @@ namespace graphics
 		{
 			ShaderModelLayout& layout = m_shaderModelLayouts[i];
 
-			pPipeline->PreExecute(
+			pPipeline->PreProcess(
 				m_pContext4, 
 				m_shaderPrograms[i].pVertexShader, 
 				m_shaderPrograms[i].pPixelShader);
@@ -161,14 +171,14 @@ namespace graphics
 				layout.InstanceCounts);
 
 			data_location += layout.TotalModels * m_shaderPrograms[i].PerObjectByteWidth;
-			data_location = (UINT)ceil(data_location / 256.0f) * 256;
+			data_location += 256 - (data_location % 256);
 		}
 
 		pPipeline->End(m_pContext4, &m_data);
 	}
 
-	void RenderManager::Present()
+	void RenderManager::Present(const UINT syncInterval)
 	{
-		m_pSwapChain->Present(1, 0);
+		m_pSwapChain->Present(syncInterval, 0);
 	}
 }

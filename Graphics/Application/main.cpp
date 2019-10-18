@@ -1,11 +1,12 @@
 
 #include "../includes/GraphicsInterface.h"
 #include "../includes/Window.h"
-#include "../includes/ForwardRenderingPipeline.h"
 
 #include "../includes/MeshManager.h"
 #include "../includes/RenderManager.h"
 #include "../includes/ComputeManager.h"
+
+#include "ForwardRenderingPipeline.h"
 
 #include <memory>
 #include <DirectXMath.h>
@@ -183,7 +184,7 @@ int main()
 
 			r_mng.ExecutePipeline(pipelineIndex0);
 
-			r_mng.Present();
+			r_mng.Present(0);
 		}
 	}
 

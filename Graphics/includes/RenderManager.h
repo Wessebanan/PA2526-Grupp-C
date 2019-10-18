@@ -17,9 +17,9 @@ namespace graphics
 	struct ShaderModelLayout
 	{
 		UINT MeshCount;				// Total Meshes Within This Struct
-		MeshRegion Meshes[2];		// Which Meshes To Be Drawn
+		MeshRegion Meshes[10];		// Which Meshes To Be Drawn
 
-		UINT InstanceCounts[2];		// Total Instances Per Mesh
+		UINT InstanceCounts[10];	// Total Instances Per Mesh
 
 		UINT TotalModels;
 	};
@@ -40,6 +40,7 @@ namespace graphics
 	struct RenderManagerData
 	{
 		ID3D11Texture2D* pBackBufferTexture;
+		ID3D11RenderTargetView* pBackBuffer;
 	};
 
 	class RenderManager
@@ -91,7 +92,7 @@ namespace graphics
 		/*
 			Preset back buffer
 		*/
-		void Present();
+		void Present(const UINT syncInterval);
 
 		void Destroy();
 	private:

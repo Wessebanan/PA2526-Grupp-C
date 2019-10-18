@@ -71,49 +71,6 @@ namespace graphics
 	}
 
 
-	HRESULT CreateSwapChain(
-		ID3D11Device4* pDevice4,
-		IDXGIFactory6* pFactory6,
-		HWND hWnd,
-		IDXGISwapChain4** ppSwapChain4)
-	{
-		HRESULT hr = S_OK;
-
-		{
-			IDXGISwapChain1* pTemp = NULL;
-
-			DXGI_SWAP_CHAIN_DESC1 desc = { 0 };
-			desc.Width			= 0;
-			desc.Height			= 0;
-			desc.Format			= DXGI_FORMAT_R8G8B8A8_UNORM;
-			desc.Stereo			= FALSE;
-			desc.SampleDesc		= { 1, 0 };
-			desc.BufferUsage	= DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			desc.BufferCount	= 2;
-			desc.Scaling		= DXGI_SCALING_NONE;
-			desc.SwapEffect		= DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-			desc.AlphaMode		= DXGI_ALPHA_MODE_UNSPECIFIED;
-			desc.Flags			= 0;
-
-			hr = pFactory6->CreateSwapChainForHwnd(
-				pDevice4,
-				hWnd,
-				&desc,
-				NULL,
-				NULL,
-				&pTemp);
-
-			if (FAILED(hr)) return hr;
-
-			pTemp->QueryInterface(IID_PPV_ARGS(ppSwapChain4));
-			pTemp->Release();
-
-			pFactory6->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER);
-		}
-
-		return hr;
-	}
-
 	HRESULT CreateVertexBuffer(
 		ID3D11Device4* pDevice4, 
 		const void* pData, 
@@ -338,7 +295,9 @@ namespace graphics
 
 		bool gIsActive							= false;
 		UINT gCountsActivated					= 0;		// if activated more than once (don't destroy at first call)
-
+		
+		IDXGISwapChain4* gpSwapChain4			= NULL;
+		HWND gHwnd								= 0;
 
 		HRESULT InitializeD3D11()
 		{
@@ -412,6 +371,55 @@ namespace graphics
 			return hr;
 		}
 
+		HRESULT CreateSwapChain(
+			HWND hWnd,
+			IDXGISwapChain4** ppSwapChain4)
+		{
+			if (hWnd == gHwnd)
+			{
+				*ppSwapChain4 = gpSwapChain4; 
+				return S_OK;
+			}
+
+			HRESULT hr = S_OK;
+
+			{
+				IDXGISwapChain1* pTemp = NULL;
+
+				DXGI_SWAP_CHAIN_DESC1 desc = { 0 };
+				desc.Width = 0;
+				desc.Height = 0;
+				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+				desc.Stereo = FALSE;
+				desc.SampleDesc = { 1, 0 };
+				desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+				desc.BufferCount = 2;
+				desc.Scaling = DXGI_SCALING_NONE;
+				desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+				desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+				desc.Flags = 0;
+
+				hr = gpFactory6->CreateSwapChainForHwnd(
+					gpDevice4,
+					hWnd,
+					&desc,
+					NULL,
+					NULL,
+					&pTemp);
+
+				if (FAILED(hr)) return hr;
+
+				pTemp->QueryInterface(IID_PPV_ARGS(&gpSwapChain4));
+				pTemp->Release();
+
+				gHwnd = hWnd;
+
+				gpFactory6->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER);
+			}
+
+			return hr;
+		}
+
 		void DestroyD3D11()
 		{
 			if (gIsActive)
@@ -427,6 +435,7 @@ namespace graphics
 					SafeRelease((IUnknown**)&gpDeviceContext4);
 					SafeRelease((IUnknown**)&gpFactory6);
 					SafeRelease((IUnknown**)&gpAdapter4);
+					SafeRelease((IUnknown**)&gpSwapChain4);
 				}
 			}
 		}
