@@ -105,21 +105,21 @@ int main()
 	}
 	CreatePhysicsComponentsForUnits(ecs, pp_meshes[Mesh::DUDE]);
 
-	cool_bean.newState = STATE::MOVE;
+	cool_bean.newState = STATE::ATTACK;
 	cool_bean.playerId = PLAYER::PLAYER1;
 	ecs.createEvent(cool_bean);
 
-	cool_bean2.newState = STATE::MOVE;
-	cool_bean2.playerId = PLAYER::PLAYER2;
-	ecs.createEvent(cool_bean2);
-
-	cool_bean3.newState = STATE::MOVE;
-	cool_bean3.playerId = PLAYER::PLAYER3;
-	ecs.createEvent(cool_bean3);
-
-	cool_bean4.newState = STATE::MOVE;
-	cool_bean4.playerId = PLAYER::PLAYER4;
-	ecs.createEvent(cool_bean4);
+	//cool_bean2.newState = STATE::ATTACK;
+	//cool_bean2.playerId = PLAYER::PLAYER2;
+	//ecs.createEvent(cool_bean2);
+	//
+	//cool_bean3.newState = STATE::ATTACK;
+	//cool_bean3.playerId = PLAYER::PLAYER3;
+	//ecs.createEvent(cool_bean3);
+	//
+	//cool_bean4.newState = STATE::ATTACK;
+	//cool_bean4.playerId = PLAYER::PLAYER4;
+	//ecs.createEvent(cool_bean4);
 
 	ecs::ComponentIterator itttt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
 	ecs::components::ArmyComponent* army_comp;
