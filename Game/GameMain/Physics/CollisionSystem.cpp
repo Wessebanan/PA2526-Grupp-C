@@ -41,6 +41,9 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	BoundingSphere colliding_sphere;
 	BoundingSphere closest_sphere;
 
+	//EntityIterator collided_entities;
+	std::vector<AABB> collided_aabb_vector;
+
 	for (int i = 0; i < it.entities.size(); i++)
 	{
 		// Skip yourself.
@@ -53,7 +56,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(it.entities.at(i).entity->getID());
 		
 		// Grabbing copy of AABB from current and transforming to world space.
-		BoundingBox current_aabb = p_current_collision->mAABB;
+		AABB current_aabb = p_current_collision->mAABB;
 		XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
 		current_aabb.Transform(current_aabb, current_world_transform);
 
@@ -92,10 +95,11 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			// Set the intersection bool and stop checking
 			// because any collision means the movement should revert.
 			intersect = true;
-
 			// Saving the transformed aabb from the collided entity.
-			colliding_aabb = current_aabb;
-			break;
+			//colliding_aabb = current_aabb;
+			//collided_entities.entities.push_back(it.entities.at(i));
+			collided_aabb_vector.push_back(current_aabb);
+			//break;
 		}
 	}
 	p_collision->mIntersect = intersect;
@@ -105,20 +109,24 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	// DynamicMovementComponent.
 	if (intersect)
 	{
-		// If the last movement action resulted in collsion, revert the movement and reset velocity.
-		//DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
-		//
-		//XMVECTOR center = XMLoadFloat3(&closest_sphere.Center);
-		//XMVECTOR colliding_center = XMLoadFloat3(&colliding_sphere.Center);
-		//
-		//RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
+		// NEW: Looping through each collided aabb instead of breaking after one collision in case of clumping.
+		for (int i = 0; i < collided_aabb_vector.size(); i++)
+		{
+			// If the last movement action resulted in collsion, revert the movement and reset velocity.
+			//DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
+			//
+			//XMVECTOR center = XMLoadFloat3(&closest_sphere.Center);
+			//XMVECTOR colliding_center = XMLoadFloat3(&colliding_sphere.Center);
+			//
+			//RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
+			
+			DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
 
-		DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
-
-		XMVECTOR center				= XMLoadFloat3(&aabb.Center);
-		XMVECTOR colliding_center	= XMLoadFloat3(&colliding_aabb.Center);
-
-		RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
+			XMVECTOR center				= XMLoadFloat3(&aabb.Center);
+			//XMVECTOR colliding_center	= XMLoadFloat3(&colliding_aabb.Center);
+			XMVECTOR colliding_center = XMLoadFloat3(&collided_aabb_vector.at(i).Center);
+			RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
+		}
 	}
 }
 #pragma endregion
