@@ -231,7 +231,7 @@ int main()
 
 	InitCamera(ecs);
 
-	//InitPhysics(ecs, pp_meshes);
+	InitPhysics(ecs, &mesh_dude);
 
 	// to get components in the loop
 	ecs::ComponentIterator itt;
@@ -361,19 +361,26 @@ int main()
 	ecs::events::ChangeUserStateEvent cool_bean2;
 	ecs::events::ChangeUserStateEvent cool_bean3;
 	ecs::events::ChangeUserStateEvent cool_bean4;
-	for (FilteredEntity p_entity : ittt.entities)
+	//for (FilteredEntity p_entity : ittt.entities)
+	//{
+	//	
+	//	//ecs.createComponent<components::DynamicMovementComponent>(p_entity.entity->getID(), dyn_move);
+	//	
+	//}
+	//CreatePhysicsComponentsForUnits(ecs, &mesh_dude);
+
+	cool_bean.newState = STATE::ATTACK;
+	cool_bean.playerId = PLAYER::PLAYER1;
+	ecs.createEvent(cool_bean);
+	while (wnd.IsOpen())
 	{
-		
-		//ecs.createComponent<components::DynamicMovementComponent>(p_entity.entity->getID(), dyn_move);
-		
-	}
-	CreatePhysicsComponentsForUnits(ecs, pp_meshes[Mesh::DUDE]);
-
-	//cool_bean.newState = STATE::ATTACK;
-	//cool_bean.playerId = PLAYER::PLAYER1;
-	//ecs.createEvent(cool_bean);
-
-			ecs.update(0.1f);
+		if (!wnd.Update())
+		{
+			if (GetAsyncKeyState(VK_ESCAPE))
+			{
+				wnd.Close();
+			}
+			ecs.update(0.001f);
 			int armyIndex = 0;
 			itt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
 			ecs::components::ArmyComponent* armComp;
@@ -439,7 +446,7 @@ int main()
 	//for (int i = 0; i < Mesh::N_MESHES; i++) delete pp_meshes[i];
 	//delete[] pp_meshes;
 
-	mesh_manager.Destroy();
-	renderer.Destroy();
+	//mesh_manager.Destroy();
+	//renderer.Destroy();
 	return 0;
 }
