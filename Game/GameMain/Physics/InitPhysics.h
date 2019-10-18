@@ -62,7 +62,9 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 	ObjectCollisionComponent object_collision;
 	GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
-
+	movement_component.mGravity *= 10.0f;
+	movement_component.mMovementForce *= 3.0f;
+	movement_component.mDeceleration *= 3.0f;
 	for (int i = 0; i < it.entities.size(); i++)
 	{
 		ecs::Entity* current = it.entities.at(i).entity;

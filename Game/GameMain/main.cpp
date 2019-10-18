@@ -214,6 +214,24 @@ int main()
 
 	InitSound(ecs);
 
+	{
+		ecs::events::PlayMusic m_event;
+		m_event.audioName = AudioName::CC_TEST_SONG;
+		ecs.createEvent(m_event);
+	}
+
+	{
+		ecs::events::PlaySubMusic m_event;
+		m_event.audioName = AudioName::CC_TEST_SONG;
+		ecs.createEvent(m_event);
+	}
+
+	{
+		ecs::events::SubMusicSetVolume m_event;
+		m_event.volume = 0.0f;
+		ecs.createEvent(m_event);
+	}
+
 	ecs.createSystem<ecs::systems::PathfindingStateSystem>(5);
 	ecs.createSystem<ecs::systems::IdleStateSystem>(5);
 	ecs.createSystem<ecs::systems::MoveStateSystem>(5);
@@ -354,7 +372,7 @@ int main()
 			{
 				wnd.Close();
 			}
-			ecs.update(0.001f);
+			ecs.update(0.002f);
 			int armyIndex = 0;
 			itt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
 			ecs::components::ArmyComponent* armComp;
