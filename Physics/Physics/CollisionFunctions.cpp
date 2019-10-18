@@ -3,20 +3,35 @@
 void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const XMVECTOR& center_world, const XMVECTOR& colliding_center_world, const float& delta)
 {
 	// Getting a vector between the centers of the bounding volumes.
-	DirectX::XMVECTOR v_diff = DirectX::XMVectorSubtract(center_world, colliding_center_world);
-	DirectX::XMFLOAT3 diff;
-	DirectX::XMStoreFloat3(&diff, v_diff);
+	XMVECTOR v_diff = DirectX::XMVectorSubtract(center_world, colliding_center_world);
+	XMFLOAT3 diff;
+	XMStoreFloat3(&diff, v_diff);
+	diff = XMFLOAT3(fabs(diff.x), fabs(diff.y), fabs(diff.z));
+	// Checking that the object is not trying to move away from the colliding object.
+	XMVECTOR v_velocity = XMLoadFloat3(&velocity);
+
+	v_velocity	= XMVector3Normalize(v_velocity);
+	v_diff		= XMVector3Normalize(v_diff);
+
+	// XMVector3Dot replicates dot product into each component.
+	XMVECTOR dot = XMVector3Dot(v_velocity, v_diff);
+
+	// If the dot product is positive, do not revert movement.
+	if (XMVectorGetX(dot) > 0.0f)
+	{
+		return;
+	}
 
 	// Saving a 1 in the direction of the largest component in the vector.
 	bool x = false;
 	bool y = false;
 	bool z = false;
 
-	if (fabs(diff.x) > fabs(diff.y) && fabs(diff.x) > fabs(diff.z))
+	if (diff.x > diff.y && diff.x > diff.z)
 	{
 		x = true;
 	}
-	else if (fabs(diff.y) > fabs(diff.x) && fabs(diff.y) > fabs(diff.z))
+	else if (diff.y > diff.x && diff.y > diff.z)
 	{
 		y = true;
 	}
