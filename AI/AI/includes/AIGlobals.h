@@ -2,7 +2,8 @@
 
 #define ARENA_ROWS 12
 #define ARENA_COLUMNS 12
-#define TILE_RADIUS 1
+#define TILE_RADIUS 1.f
+#define HEXA_TILE_MID_TO_SIDE (cos(30.f * 3.1415f / 180.f) * TILE_RADIUS)
 
 using TileType = unsigned int;
 enum TileTypes //enum used in AIcomponents right now 
