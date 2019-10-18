@@ -121,6 +121,8 @@ namespace graphics
 			pDevice4->CreateBuffer(&desc, NULL, &m_pMatrixBuffers[0]);
 		}
 
+		internal::GetBackBuffer(&m_pRenderTarget);
+
 		return S_OK;
 	}
 

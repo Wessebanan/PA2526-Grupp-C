@@ -13,14 +13,12 @@ namespace graphics
 	{
 	}
 
-	HRESULT RenderManager::Initialize(const HWND hWnd)
+	HRESULT RenderManager::Initialize(const UINT totalBytesPerExecute)
 	{
 		HRESULT hr = S_OK;
 
-		m_clientWidth	= window::GetClientResolution(hWnd).x;
-		m_clientHeight	= window::GetClientResolution(hWnd).y;
-
 		hr = graphics::internal::InitializeD3D11();
+		if (FAILED(hr)) return hr;
 
 		graphics::internal::D3D11_DEVICE_HANDLE handle;
 		graphics::internal::GetD3D11(&handle);
@@ -29,37 +27,14 @@ namespace graphics
 		m_pFactory6	= handle.pFactory6;
 		m_pAdapter4	= handle.pAdapter4;
 
-		if (FAILED(hr)) return hr;
-
-		hr = graphics::internal::CreateSwapChain(
-			hWnd,
-			&m_pSwapChain);
-
-		if (FAILED(hr)) return hr;
-
-		hr = m_pSwapChain->GetBuffer(
-			0, 
-			IID_PPV_ARGS(&m_data.pBackBufferTexture));
-
-		if (FAILED(hr)) return hr;
-
-		{
-			D3D11_RENDER_TARGET_VIEW_DESC desc = {};
-			desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-			desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-			desc.Texture2D.MipSlice = 0;
-
-			m_pDevice4->CreateRenderTargetView(
-				m_data.pBackBufferTexture,
-				&desc,
-				&m_data.pBackBuffer);
-		}
-
 		// Per Model Buffer
 		{
+			UINT bytes = totalBytesPerExecute;
+			bytes += 256 - bytes % 256;
+
 			D3D11_BUFFER_DESC desc = { 0 };
 			desc.BindFlags		= D3D11_BIND_CONSTANT_BUFFER;
-			desc.ByteWidth		= MAX_BYTES_PER_DRAW;
+			desc.ByteWidth		= bytes;
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			desc.Usage			= D3D11_USAGE_DYNAMIC;
 

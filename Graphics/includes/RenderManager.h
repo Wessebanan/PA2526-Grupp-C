@@ -52,7 +52,7 @@ namespace graphics
 		/*
 			Initialize with a window that will be the back buffer
 		*/
-		HRESULT Initialize(const HWND hWnd);
+		HRESULT Initialize(const UINT totalBytesPerExecute);
 
 		/*
 			Create a shader program to be called on every ExecutePipeline()

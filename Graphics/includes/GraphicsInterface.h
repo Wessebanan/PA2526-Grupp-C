@@ -104,9 +104,9 @@ namespace graphics
 	{
 		HRESULT InitializeD3D11();
 
-		HRESULT CreateSwapChain(
-			HWND hWnd,
-			IDXGISwapChain4** ppSwapChain4);
+		HRESULT CreateSwapChain(HWND hWnd);
+		void GetBackBuffer(ID3D11RenderTargetView** ppBackBuffer);
+		void Present(const UINT syncInterval);
 
 		void DestroyD3D11();
 

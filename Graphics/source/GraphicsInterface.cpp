@@ -297,7 +297,7 @@ namespace graphics
 		UINT gCountsActivated					= 0;		// if activated more than once (don't destroy at first call)
 		
 		IDXGISwapChain4* gpSwapChain4			= NULL;
-		HWND gHwnd								= 0;
+		ID3D11RenderTargetView* gpBackBuffer	= NULL;
 
 		HRESULT InitializeD3D11()
 		{
@@ -371,16 +371,8 @@ namespace graphics
 			return hr;
 		}
 
-		HRESULT CreateSwapChain(
-			HWND hWnd,
-			IDXGISwapChain4** ppSwapChain4)
+		HRESULT CreateSwapChain(HWND hWnd)
 		{
-			if (hWnd == gHwnd)
-			{
-				*ppSwapChain4 = gpSwapChain4; 
-				return S_OK;
-			}
-
 			HRESULT hr = S_OK;
 
 			{
@@ -412,12 +404,37 @@ namespace graphics
 				pTemp->QueryInterface(IID_PPV_ARGS(&gpSwapChain4));
 				pTemp->Release();
 
-				gHwnd = hWnd;
-
 				gpFactory6->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER);
 			}
 
+			{
+				ID3D11Texture2D* pTexture = NULL;
+
+				hr = gpSwapChain4->GetBuffer(
+					0,
+					IID_PPV_ARGS(&pTexture));
+
+				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
+				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+				desc.Texture2D.MipSlice = 0;
+
+				gpDevice4->CreateRenderTargetView(
+					pTexture,
+					&desc,
+					&gpBackBuffer);
+			}
+
 			return hr;
+		}
+
+		void GetBackBuffer(ID3D11RenderTargetView** ppBackBuffer)
+		{
+		}
+
+		void Present(const UINT syncInterval)
+		{
+			gpSwapChain4->Present(syncInterval, 0);
 		}
 
 		void DestroyD3D11()
