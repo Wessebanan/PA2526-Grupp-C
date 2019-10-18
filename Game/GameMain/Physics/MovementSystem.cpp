@@ -106,9 +106,21 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	// If the max velocity is not exceeded:
 	if (CalculateVectorLength(movement_component->mVelocity) < movement_component->mMaxVelocity)
 	{
+		int prev_sign_x = Sign(movement_component->mVelocity.x);
+		int prev_sign_z = Sign(movement_component->mVelocity.z);
 		// v = v_0 + a*delta_t
 		movement_component->mVelocity.x += movement_component->mAcceleration.x * _delta;
 		movement_component->mVelocity.z += movement_component->mAcceleration.z * _delta;
+		
+		// If this velocity change changed the sign of the velocity and there was no input: reset velocity to 0.
+		if (prev_sign_x != Sign(movement_component->mVelocity.x) && fabs(movement_component->mForce.x) < 0.01f)
+		{
+			movement_component->mVelocity.x = 0.0f;
+		}
+		if (prev_sign_z != Sign(movement_component->mVelocity.z) && fabs(movement_component->mForce.z) < 0.01f)
+		{
+			movement_component->mVelocity.z = 0.0f;
+		}			
 	}
 
 	// d = d_0 + v*delta_t
