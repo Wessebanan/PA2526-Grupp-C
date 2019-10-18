@@ -139,8 +139,8 @@ int main()
 	*/
 	ModelLoader::Mesh mesh_hexagon("../meshes/hexagon_tile5.fbx");
 	ModelLoader::Mesh mesh_rock("../meshes/rock.fbx");
-	ModelLoader::Mesh mesh_tree("../meshes/tree.fbx");
-	ModelLoader::Mesh mesh_dude("../Walking2.fbx");
+	ModelLoader::Mesh mesh_tree("../meshes/tree2.fbx");
+	ModelLoader::Mesh mesh_dude("../RunningCustom.fbx");
 
 
 	graphics::MeshRegion mesh_region_hexagon	= UploadMeshToGPU(mesh_hexagon, mesh_manager);
