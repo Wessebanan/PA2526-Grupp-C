@@ -46,8 +46,8 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 
 	// Collision
 	rEcs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
-	rEcs.createSystem<ecs::systems::ObjectCollisionSystem>();
 	rEcs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
+	rEcs.createSystem<ecs::systems::ObjectCollisionSystem>();
 	rEcs.createSystem<ecs::systems::GroundCollisionSystem>();
 }
 
@@ -73,7 +73,7 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 
 		if (!current->hasComponentOfType<ObjectCollisionComponent>())
 		{
-			//rEcs.createComponent<ObjectCollisionComponent>(current->getID(), object_collision);
+			rEcs.createComponent<ObjectCollisionComponent>(current->getID(), object_collision);
 		}
 
 		if (!current->hasComponentOfType<GroundCollisionComponent>())
