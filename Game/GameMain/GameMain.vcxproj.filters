@@ -153,6 +153,9 @@
     <ClInclude Include="GraphicsComponents.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="gameAnimation\InitAnimation.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -188,6 +191,9 @@
     <Filter Include="Graphics">
       <UniqueIdentifier>{26314c13-6838-471b-aa52-20b6f3999b9d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{d0dc9ea9-6fa1-4c18-81dc-be9ad461bf9a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SceneObjects">
@@ -217,5 +223,6 @@
     <FxCompile Include="gameGraphics\PS_Transformation.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl" />
   </ItemGroup>
 </Project>
