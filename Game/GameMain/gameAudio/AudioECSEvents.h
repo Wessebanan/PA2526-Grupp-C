@@ -10,8 +10,6 @@ namespace ecs
 		{
 			AudioName audioName;
 			SoundFlags soundFlags;
-			// This will be implemented later
-			//std::pair<SoundFlags,ID>* pInput;
 		};
 		struct PlayMusic : public ECSEvent<PlayMusic>
 		{
