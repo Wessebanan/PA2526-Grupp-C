@@ -87,8 +87,12 @@ graphics::MeshRegion UploadMeshToGPU(ModelLoader::Mesh& mesh, graphics::MeshMana
 			data.pVertexPositions		= mesh.GetVertexPositionVector()->data();
 			data.pVertexNormals			= mesh.GetNormalVector()->data();
 			data.pVertexTexCoords		= mesh.GetUVVector()->data();
-			//data.pVertexBlendWeights	= mesh.GetSkinningWeights()->data();
-			//data.pVertexBlendIndices	= mesh.
+			if (mesh.HasSkeleton())
+			{
+				data.pVertexBlendWeights = mesh.GetBlendWeights()->data();
+				data.pVertexBlendIndices = mesh.GetBlendIndices()->data();
+			}
+
 
 			rMng.UploadData(
 				mesh_region,
@@ -319,10 +323,10 @@ int main()
 	for (unsigned int i = 0; i < 12; ++i)
 	{
 
-		//memcpy(
-		//	&skin_shader_program_input[i].boneMatrices, 
-		//	skeleton->animationData, 
-		//	skeleton->jointCount * sizeof(XMFLOAT4X4));
+		memcpy(
+			&skin_shader_program_input[i].boneMatrices, 
+			skeleton->animationData, 
+			skeleton->jointCount * sizeof(XMFLOAT4X4));
 		
 	}
 
@@ -368,15 +372,11 @@ int main()
 					armyIndex++;
 				}
 			}
-
 			for (unsigned int i = 0; i < 12; ++i)
 			{
 				frame_count = frame_count % skeleton->frameCount;
-				// påminelse: 
-				//  - kanske något fel här?
-				//  - se också till att ladda upp blend indices och weigths
-				//	- ändra i shadern också (nu används bara world position)
-				//memcpy(&skin_shader_program_input[i].boneMatrices[frame_count * skeleton->jointCount], skeleton->animationData, skeleton->jointCount * sizeof(XMFLOAT4X4));
+
+				memcpy(skin_shader_program_input[i].boneMatrices, &skeleton->animationData[frame_count* skeleton->jointCount], skeleton->jointCount * sizeof(XMFLOAT4X4));
 
 			}
 
@@ -410,6 +410,7 @@ int main()
 			renderer.ExecutePipeline(pipeline_forward);
 
 			renderer.Present();
+			frame_count++;
 		}
 	}
 	

@@ -47,16 +47,17 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 	float3 norm = float3(0.0f, 0.0f, 0.0f);
 	for (int i = 0; i < MAX_AFFECTING_BONES - 1; ++i)
 	{
-		v += gVertexBlendIndices[VertexID][i] * mul(float4(gVertexPositions[VertexID], 1.0f), gMesh[InstanceID].gBoneTransforms[gVertexBlendIndices[VertexID][i]]);
-		norm += (gVertexBlendIndices[VertexID][i] * mul(float4(gVertexNormals[VertexID], 1.0f), gMesh[InstanceID].gBoneTransforms[gVertexBlendIndices[VertexID][i]])).xyz;
-		lastWeight -= gVertexBlendIndices[VertexID][i];
+		v += gVertexBlendWeight[VertexID][i] * mul(float4(gVertexPositions[VertexID], 1.0f), gMesh[InstanceID].gBoneTransforms[gVertexBlendIndices[VertexID][i]]);
+		norm += (gVertexBlendWeight[VertexID][i] * mul(float4(gVertexNormals[VertexID], 1.0f), gMesh[InstanceID].gBoneTransforms[gVertexBlendIndices[VertexID][i]])).xyz;
+		lastWeight -= gVertexBlendWeight[VertexID][i];
 	}
 	// Apply last weight
 	v += lastWeight * mul(float4(gVertexPositions[VertexID], 1.0f), gMesh[InstanceID].gBoneTransforms[gVertexBlendIndices[VertexID][MAX_AFFECTING_BONES - 1]]);
 	norm += (lastWeight * mul(float4(gVertexNormals[VertexID], 1.0f), gMesh[InstanceID].gBoneTransforms[gVertexBlendIndices[VertexID][MAX_AFFECTING_BONES - 1]])).xyz;
 	v.w = 1.0f;
-	output.pos = mul(wvpCam, float4(gVertexPositions[VertexID], 1.0f));
-	output.sunPos = mul(wvpSun, float4(gVertexPositions[VertexID], 1.0f));
+
+	output.pos = mul(wvpCam, v);
+	output.sunPos = mul(wvpSun, v);
 	output.color = float3(1.0f, 1.0f, 1.0f);
 	output.normal = mul(gMesh[InstanceID].World, float4(gVertexNormals[VertexID], 0.0f)).xyz;
 	return output;
