@@ -368,6 +368,7 @@ int main()
 	memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
 	
 	unsigned long long int frame_count = 0;
+	unsigned long long int frame_count2 = 0;
 	wnd.Open();
 
 
@@ -387,9 +388,9 @@ int main()
 	//}
 	//CreatePhysicsComponentsForUnits(ecs, &mesh_dude);
 
-	cool_bean.newState = STATE::ATTACK;
-	cool_bean.playerId = PLAYER::PLAYER1;
-	ecs.createEvent(cool_bean);
+	//cool_bean.newState = STATE::ATTACK;
+	//cool_bean.playerId = PLAYER::PLAYER1;
+	//ecs.createEvent(cool_bean);
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
@@ -398,7 +399,7 @@ int main()
 			{
 				wnd.Close();
 			}
-			ecs.update(0.001f);
+			ecs.update(0.002f);
 			int armyIndex = 0;
 			itt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
 			ecs::components::ArmyComponent* armComp;
@@ -421,9 +422,10 @@ int main()
 			}
 			for (unsigned int i = 0; i < 12; ++i)
 			{
-				frame_count = frame_count % skeleton->frameCount;
 
-				memcpy(skin_shader_program_input[i].boneMatrices, &skeleton->animationData[frame_count* skeleton->jointCount], skeleton->jointCount * sizeof(XMFLOAT4X4));
+				frame_count2 = frame_count2 % skeleton->frameCount;
+
+				memcpy(skin_shader_program_input[i].boneMatrices, &skeleton->animationData[frame_count2* skeleton->jointCount], skeleton->jointCount * sizeof(XMFLOAT4X4));
 
 			}
 
@@ -458,6 +460,10 @@ int main()
 
 			renderer.Present();
 			frame_count++;
+			if (frame_count % 4)
+			{
+				frame_count2++;
+			}
 		}
 	}
 	
