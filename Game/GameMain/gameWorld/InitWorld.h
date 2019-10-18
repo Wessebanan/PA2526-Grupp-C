@@ -19,18 +19,28 @@ struct WorldVertex
 {
 	XMFLOAT3 position;
 
-	struct Color
-	{
-		UINT red : 8;
-		UINT green : 8;
-		UINT blue : 8;
-		UINT alpha : 8;
-		Color(UINT _red, UINT _green, UINT _blue, UINT _alpha) : red(_red), green(_green), blue(_blue), alpha(_alpha) {}
-	} color;
+	//struct Color
+	//{
+	//	UINT red : 8;
+	//	UINT green : 8;
+	//	UINT blue : 8;
+	//	UINT alpha : 8;
+	//	Color(UINT _red, UINT _green, UINT _blue, UINT _alpha) : red(_red), green(_green), blue(_blue), alpha(_alpha) {}
+	//} color;
 
-	WorldVertex() : position(0.f, 0.f, 0.f), color(0,0,0,0) {}
-	WorldVertex(XMFLOAT3 pos, UINT red, UINT green, UINT blue, UINT alpha) :
-		position(pos), color(red, green, blue, alpha) {}
+	WorldVertex() : position(0.f, 0.f, 0.f) {} // , color(0, 0, 0, 0) {}
+	WorldVertex(XMFLOAT3 pos)://, UINT red, UINT green, UINT blue, UINT alpha) :
+		position(pos) {}//, color(red, green, blue, alpha) {}
+};
+
+struct VertexColor
+{
+	UINT red : 8;
+	UINT green : 8;
+	UINT blue : 8;
+	UINT alpha : 8;
+	VertexColor() {}
+	VertexColor(UINT _red, UINT _green, UINT _blue, UINT _alpha) : red(_red), green(_green), blue(_blue), alpha(_alpha) {}
 };
 
 /*
@@ -61,7 +71,7 @@ struct OceanShaderLookUpTable
 	This function generates all necessary information to render the world tiles (map + ocean) as one mesh, 
 	including the information necessary for updating the ocean tiles.
 */
-void CreateWorldTileVertexBuffer(EntityComponentSystem& rEcs, ModelLoader::Mesh* p_tile_mesh, TileVertexBuffer** pp_vertex_buffer_output)
+void CreateWorldTileVertexBuffer(EntityComponentSystem& rEcs, ModelLoader::Mesh* p_tile_mesh, TileVertexBuffer** pp_vertex_buffer_output, VertexColor** pp_vertex_color_output)
 {
 	/*
 		TODO: Change vertex buffer to use index buffer
@@ -95,7 +105,7 @@ void CreateWorldTileVertexBuffer(EntityComponentSystem& rEcs, ModelLoader::Mesh*
 	p_look_up_table->pPositionsXZ = new XMFLOAT2[OCEAN_TILE_COUNT];
 
 
-
+	VertexColor* p_vertex_color_buffer = new VertexColor[total_tile_count * p_mesh_indices->size()];
 	/*
 		Init all world tiles
 	*/
@@ -106,6 +116,8 @@ void CreateWorldTileVertexBuffer(EntityComponentSystem& rEcs, ModelLoader::Mesh*
 	XMMATRIX xm_world;
 	components::ColorComponent* p_color;
 	components::TransformComponent* p_transform;
+
+	UINT vertex_counter = 0;
 
 	// Iterate all map tiles and place their vertices in vertex buffer
 	for (FilteredEntity& tile : tile_iterator.entities)
@@ -131,8 +143,12 @@ void CreateWorldTileVertexBuffer(EntityComponentSystem& rEcs, ModelLoader::Mesh*
 			xm_position = XMVector3Transform(xm_position, xm_world);
 			XMStoreFloat3(&position, xm_position);
 
-			p_vertex_buffer->pFirst[inited_tile_count++] = WorldVertex(position, p_color->red, p_color->green, p_color->blue, 255);
+			p_vertex_buffer->pFirst[vertex_counter] = WorldVertex(position); // , p_color->red, p_color->green, p_color->blue, 255);
+			p_vertex_color_buffer[vertex_counter] = VertexColor(p_color->red, p_color->green, p_color->blue, 255);
+			vertex_counter++;
 		}
+
+		inited_tile_count++;
 	}
 
 	// Make look up table know where ocean tiles start
@@ -175,18 +191,23 @@ void CreateWorldTileVertexBuffer(EntityComponentSystem& rEcs, ModelLoader::Mesh*
 			xm_position = XMVector3Transform(xm_position, xm_world);
 			XMStoreFloat3(&position, xm_position);
 
-			p_vertex_buffer->pFirst[inited_tile_count++] = WorldVertex(position, p_color->red, p_color->green, p_color->blue, 255);
+			p_vertex_buffer->pFirst[vertex_counter] = WorldVertex(position);// , p_color->red, p_color->green, p_color->blue, 255);
+			p_vertex_color_buffer[vertex_counter] = VertexColor(p_color->red, p_color->green, p_color->blue, 255);
+			vertex_counter++;
 		}
+
+		inited_tile_count++;
 	}
 
-	p_vertex_buffer->vertexCount = inited_tile_count;
+	p_vertex_buffer->vertexCount = vertex_counter;
 	p_look_up_table->oceanTileCount = ocean_tile_counter;
 
 	// Delete this. These are only used to free memory until the new graphics engine exist
-	delete p_vertex_buffer->pFirst;
-	delete p_vertex_buffer;
+	//delete p_vertex_buffer->pFirst;
+	//delete p_vertex_buffer;
 	delete p_look_up_table->pPositionsXZ;
 	delete p_look_up_table;
 
 	*pp_vertex_buffer_output = p_vertex_buffer;
+	*pp_vertex_color_output = p_vertex_color_buffer;
 }

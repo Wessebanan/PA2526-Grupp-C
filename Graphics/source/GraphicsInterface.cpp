@@ -510,7 +510,8 @@ namespace graphics
 			HRESULT hr;
 
 			// maximum indices in vertex shader (vertex data and instance data)
-			constexpr UINT maximum_indices = 65536;
+			//constexpr UINT maximum_indices = 65536;
+			constexpr UINT maximum_indices = 500000; // Macke
 
 			ID3D11Buffer* pBuffer = NULL;
 			{

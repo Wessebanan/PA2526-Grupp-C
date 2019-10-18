@@ -125,7 +125,7 @@ int main()
 	renderer.Initialize(wnd);
 
 	graphics::MeshManager mesh_manager;
-	mesh_manager.Initialize(1000, 1000);
+	mesh_manager.Initialize(500000, 500000);
 
 
 	/*
@@ -136,7 +136,7 @@ int main()
 	ModelLoader::Mesh mesh_tree("../meshes/tree.fbx");
 
 
-	graphics::MeshRegion mesh_region_hexagon = UploadMeshToGPU(mesh_hexagon, mesh_manager);
+	//graphics::MeshRegion mesh_region_hexagon0 = UploadMeshToGPU(mesh_hexagon, mesh_manager);
 	graphics::MeshRegion mesh_region_tree = UploadMeshToGPU(mesh_tree, mesh_manager);
 	graphics::MeshRegion mesh_region_rock = UploadMeshToGPU(mesh_rock, mesh_manager);
 
@@ -193,7 +193,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(OCEAN_TILE_COUNT);
 
 
-	InitSound(ecs);
+	//InitSound(ecs);
 
 	InitInput(ecs);
 	InitInterpreter(ecs);
@@ -202,6 +202,7 @@ int main()
 	InitArmy(ecs);
 	InitSceneObjects(ecs);
 
+	InitCamera(ecs);
 
 	//InitPhysics(ecs, pp_meshes);
 
@@ -212,9 +213,44 @@ int main()
 	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
 
 
+
+
+
+
+	// ##################################################################################### //
+	// ############################## MACKE GREJJER START ¤################################# //
+	// ##################################################################################### //
+	InitOcean(ecs);
+
+	//WorldVertex triangle[] = {
+	//	{ XMFLOAT3(-50.f, 0.f, -50.f) },
+	//	{ XMFLOAT3(0.f, 0.f, 50.f) },
+	//	{ XMFLOAT3(50.f, 0.f, -50.f)}
+	//};
+
+	VertexColor* colors;
+	TileVertexBuffer* p_world_vertex_buffer = nullptr;
+	CreateWorldTileVertexBuffer(ecs, &mesh_hexagon, &p_world_vertex_buffer, &colors);
+
+	graphics::MeshRegion world_mesh_region = mesh_manager.CreateMeshRegion(p_world_vertex_buffer->vertexCount, 0);
+	graphics::VERTEX_DATA world_vertex_data = { NULL };
+	world_vertex_data.pVertexPositions = p_world_vertex_buffer->pFirst;
+	mesh_manager.UploadData(world_mesh_region, world_vertex_data, nullptr);
+
+	//graphics::MeshRegion world_mesh_region = mesh_manager.CreateMeshRegion(3, 0);
+	//graphics::VERTEX_DATA world_vertex_data;
+	//world_vertex_data.pVertexPositions = triangle;
+	//mesh_manager.UploadData(world_mesh_region, world_vertex_data, nullptr);
+
+
+	// ##################################################################################### //
+	// ############################## MACKE GREJJER END ¤################################### //
+	// ##################################################################################### //
+
 	graphics::ShaderModelLayout layout;
 	layout.MeshCount			= 3;
-	layout.Meshes[0]			= (mesh_region_hexagon);
+	//layout.Meshes[0]			= (mesh_region_hexagon);
+	layout.Meshes[0]			= (world_mesh_region); // Macke
 	layout.Meshes[1]			= (mesh_region_tree);
 	layout.Meshes[2]			= (mesh_region_rock);
 
@@ -227,49 +263,54 @@ int main()
 	UINT index = 0;
 	itt = ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID);
 	ecs::components::TileComponent* tileComp;
-	size_t size = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
+	//size_t size = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
+	size_t size = 1;
 
-	ShaderProgramInput* pData = new ShaderProgramInput[size * 3];
-	layout.InstanceCounts[0] = size;
+	//ShaderProgramInput* pData = new ShaderProgramInput[size * 3];
+	ShaderProgramInput* pData = new ShaderProgramInput[size + 12]; // Macke
+	pData[0] = { 0 };
+	pData[0].Color = PACK(30, 255, 64, 255);
+	//layout.InstanceCounts[0] = size;
+	layout.InstanceCounts[0] = 1; // Macke
 	layout.InstanceCounts[1] = 6;
 	layout.InstanceCounts[2] = 6;
 
-	ZeroMemory(pData, sizeof(ShaderProgramInput) * size);
+	//ZeroMemory(pData, sizeof(ShaderProgramInput) * size);
 
 	for (UINT i = 0; i < layout.MeshCount; i++)
 	{
 		layout.TotalModels = layout.InstanceCounts[i];
 	}
 
-	while (tileComp = (ecs::components::TileComponent*)itt.next())
-	{
-		ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(tileComp->getEntityID());
-		ecs::components::ColorComponent* color_comp = ecs.getComponentFromEntity<ecs::components::ColorComponent>(tileComp->getEntityID());
+	//while (tileComp = (ecs::components::TileComponent*)itt.next())
+	//{
+	//	ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(tileComp->getEntityID());
+	//	ecs::components::ColorComponent* color_comp = ecs.getComponentFromEntity<ecs::components::ColorComponent>(tileComp->getEntityID());
 
-		pData[index].x = trComp->position.x;
-		pData[index].y = trComp->position.y;
-		pData[index].z = trComp->position.z;
+	//	pData[index].x = trComp->position.x;
+	//	pData[index].y = trComp->position.y;
+	//	pData[index].z = trComp->position.z;
 
-		int random = rand() % 101;
-		int color_offset = -50 + random;
-		switch (tileComp->tileType)
-		{
-		case TileTypes::GAME_FIELD:
-			pData[index].Color = PACK(color_comp->red, color_comp->green, color_comp->blue, 0);
-			break;
-		case TileTypes::WATER:
-			pData[index].Color = PACK(0, 0, 200 + color_offset, 0);
-			break;
-		case TileTypes::UNDEFINED:
-			pData[index].Color = PACK(0, 0, 0, 255);
-			break;
-		default:
-			pData[index].Color = PACK(255, 255, 255, 255);
-			break;
-		}
+	//	int random = rand() % 101;
+	//	int color_offset = -50 + random;
+	//	switch (tileComp->tileType)
+	//	{
+	//	case TileTypes::GAME_FIELD:
+	//		pData[index].Color = PACK(color_comp->red, color_comp->green, color_comp->blue, 0);
+	//		break;
+	//	case TileTypes::WATER:
+	//		pData[index].Color = PACK(0, 0, 200 + color_offset, 0);
+	//		break;
+	//	case TileTypes::UNDEFINED:
+	//		pData[index].Color = PACK(0, 0, 0, 255);
+	//		break;
+	//	default:
+	//		pData[index].Color = PACK(255, 255, 255, 255);
+	//		break;
+	//	}
 
-		index++;
-	}
+	//	index++;
+	//}
 
 	UINT scene_objects_index = size;
 	itt = ecs.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
@@ -282,15 +323,10 @@ int main()
 		pData[scene_objects_index].x = trComp->position.x;
 		pData[scene_objects_index].y = trComp->position.y;
 		pData[scene_objects_index].z = trComp->position.z;
+
 	
-	//InitMesh(ecs, pMng);
 
-	InitOcean(ecs);
-
-	TileVertexBuffer* p_world_vertex_buffer = nullptr;
-	CreateWorldTileVertexBuffer(ecs, pp_meshes[Mesh::TILE], &p_world_vertex_buffer);
-
-	graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
+	//graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
 
 		pData[scene_objects_index].Color = PACK(color_comp->red, color_comp->green, color_comp->blue, 0);
 
@@ -299,7 +335,8 @@ int main()
 	}
 
 	renderer.SetShaderModelLayout(shader_index0, layout);
-	renderer.SetModelData(pData, sizeof(ShaderProgramInput) * size * 3);
+	//renderer.SetModelData(pData, sizeof(ShaderProgramInput) * size * 3);
+	renderer.SetModelData(pData, sizeof(ShaderProgramInput) * (size + 12)); // Macke
 
 	wnd.Open();
 	while (wnd.IsOpen())
