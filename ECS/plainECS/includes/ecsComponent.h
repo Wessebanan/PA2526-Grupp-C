@@ -7,14 +7,6 @@ namespace ecs
 {
 	namespace components
 	{
-		struct HealthComponent : public ECSComponent<HealthComponent>
-		{
-			float health;
-		};
-
-		struct PoisonComponent : public ECSComponent<PoisonComponent>
-		{
-			float tickDamage;
-		};
+		// Leave ecs::components namespaces, so that plainECS can compile with it.
 	}
 }

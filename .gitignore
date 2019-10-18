@@ -328,3 +328,5 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+/Lib_d/libfbxsdk-md.lib
+/Lib_d/ModelLoader.lib
