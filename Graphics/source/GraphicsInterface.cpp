@@ -364,28 +364,6 @@ namespace graphics
 			*ppBackBuffer = gpBackBuffer;
 		}
 
-		void Present(const UINT syncInterval)
-		{
-			gpSwapChain4->Present(syncInterval, 0);
-		}
-
-		void DestroyD3D11()
-		{
-			if (gIsActive)
-			{
-				gIsActive = false;
-
-				SafeRelease((IUnknown**)&gpBackBuffer);
-				SafeRelease((IUnknown**)&gpSwapChain4);
-
-				SafeRelease((IUnknown**)&gpFactory6);
-				SafeRelease((IUnknown**)&gpAdapter4);
-
-				SafeRelease((IUnknown**)&gpDevice4);
-				SafeRelease((IUnknown**)&gpDeviceContext4);
-			}
-		}
-
 		void GetD3D11(D3D11_DEVICE_HANDLE* pHandle)
 		{
 			pHandle->pDevice4			= gpDevice4;
@@ -513,74 +491,96 @@ namespace graphics
 
 			return S_OK;
 		}
+	}
+
+	void Present(const UINT syncInterval)
+	{
+		internal::gpSwapChain4->Present(syncInterval, 0);
+	}
 
 
-		HRESULT InitializeD3D11(const HWND hWnd)
-		{
-			if (gIsActive) return S_OK;
+	HRESULT InitializeD3D11(const HWND hWnd)
+	{
+		if (internal::gIsActive) return S_OK;
 
-			HRESULT hr = S_OK;
-			UINT device_flag = 0;
-			UINT factory_flag = 0;
+		HRESULT hr = S_OK;
+		UINT device_flag = 0;
+		UINT factory_flag = 0;
 
 #ifdef _DEBUG
-			device_flag |= D3D11_CREATE_DEVICE_DEBUG;
-			factory_flag |= DXGI_CREATE_FACTORY_DEBUG;
+		device_flag |= D3D11_CREATE_DEVICE_DEBUG;
+		factory_flag |= DXGI_CREATE_FACTORY_DEBUG;
 #endif // _DEBUG
 
-			hr = CreateDXGIFactory2(
-				factory_flag,
-				IID_PPV_ARGS(&gpFactory6));
+		hr = CreateDXGIFactory2(
+			factory_flag,
+			IID_PPV_ARGS(&internal::gpFactory6));
 
-			if (FAILED(hr)) return hr;
+		if (FAILED(hr)) return hr;
 
-			hr = gpFactory6->EnumAdapterByGpuPreference(
-				0,
-				DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-				IID_PPV_ARGS(&gpAdapter4));
+		hr = internal::gpFactory6->EnumAdapterByGpuPreference(
+			0,
+			DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+			IID_PPV_ARGS(&internal::gpAdapter4));
 
-			if (FAILED(hr))
-			{
-				gpFactory6->Release();
-				return hr;
-			}
-
-			ID3D11Device* pDeviceTemp = NULL;
-			ID3D11DeviceContext* pContextTemp = NULL;
-
-			D3D11CreateDevice(
-				gpAdapter4,
-				D3D_DRIVER_TYPE_UNKNOWN,
-				NULL,
-				device_flag,
-				NULL,
-				0,
-				D3D11_SDK_VERSION,
-				&pDeviceTemp,
-				NULL,
-				&pContextTemp);
-
-			if (FAILED(hr))
-			{
-				gpFactory6->Release();
-				gpAdapter4->Release();
-				return hr;
-			}
-
-			pDeviceTemp->QueryInterface(IID_PPV_ARGS(&gpDevice4));
-			pContextTemp->QueryInterface(IID_PPV_ARGS(&gpDeviceContext4));
-
-			pDeviceTemp->Release();
-			pContextTemp->Release();
-
-			hr = CreateAndSetInputLayout();
-			if (FAILED(hr)) return hr;
-
-			hr = CreateSwapChain(hWnd);
-			if (FAILED(hr)) return hr;
-
-			gIsActive = true;
+		if (FAILED(hr))
+		{
+			internal::gpFactory6->Release();
 			return hr;
+		}
+
+		ID3D11Device* pDeviceTemp = NULL;
+		ID3D11DeviceContext* pContextTemp = NULL;
+
+		D3D11CreateDevice(
+			internal::gpAdapter4,
+			D3D_DRIVER_TYPE_UNKNOWN,
+			NULL,
+			device_flag,
+			NULL,
+			0,
+			D3D11_SDK_VERSION,
+			&pDeviceTemp,
+			NULL,
+			&pContextTemp);
+
+		if (FAILED(hr))
+		{
+			internal::gpFactory6->Release();
+			internal::gpAdapter4->Release();
+			return hr;
+		}
+
+		pDeviceTemp->QueryInterface(IID_PPV_ARGS(&internal::gpDevice4));
+		pContextTemp->QueryInterface(IID_PPV_ARGS(&internal::gpDeviceContext4));
+
+		pDeviceTemp->Release();
+		pContextTemp->Release();
+
+		hr = internal::CreateAndSetInputLayout();
+		if (FAILED(hr)) return hr;
+
+		hr = internal::CreateSwapChain(hWnd);
+		if (FAILED(hr)) return hr;
+
+		internal::gIsActive = true;
+		return hr;
+	}
+
+	void DestroyD3D11()
+	{
+		if (internal::gIsActive)
+		{
+			internal::gIsActive = false;
+
+			SafeRelease((IUnknown**)& internal::gpBackBuffer);
+			SafeRelease((IUnknown**)& internal::gpSwapChain4);
+
+			SafeRelease((IUnknown**)& internal::gpFactory6);
+			SafeRelease((IUnknown**)& internal::gpAdapter4);
+
+			SafeRelease((IUnknown**)& internal::gpDevice4);
+			SafeRelease((IUnknown**)& internal::gpDeviceContext4);
 		}
 	}
 }

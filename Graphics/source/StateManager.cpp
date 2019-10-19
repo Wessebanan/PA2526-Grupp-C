@@ -51,6 +51,5 @@ namespace graphics
 		}
 
 		m_settings.clear();
-		graphics::internal::DestroyD3D11();
 	}
 }

@@ -48,17 +48,17 @@ int main()
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	UINT
-		clientWidth		= 1600,
-		clientHeight	= 900;
+		clientWidth		= graphics::window::GetWorkAreaResolution().x,
+		clientHeight	= graphics::window::GetWorkAreaResolution().y;
 
 	graphics::Window wnd;
 	wnd.Initialize(
 		clientWidth,
 		clientHeight,
 		"Couch Commanders",
-		graphics::WINDOW_STYLE::BORDER);
+		graphics::WINDOW_STYLE::BORDERLESS);
 
-	graphics::internal::InitializeD3D11(wnd);
+	graphics::InitializeD3D11(wnd);
 
 	graphics::RenderManager r_mng;
 	r_mng.Initialize(65536);
@@ -160,7 +160,7 @@ int main()
 	wnd.Open();
 	while (wnd.IsOpen())
 	{
-		if (!wnd.Update())
+		if (!wnd.Update() && graphics::window::IsInFocus(wnd))
 		{
 			float moveSpeed = 0.1f;
 			if (GetAsyncKeyState(VK_UP))
@@ -188,14 +188,14 @@ int main()
 			m_mng.SetVertexBuffers();
 			r_mng.ExecutePipeline(pipelineIndex0);
 
-			graphics::internal::Present(0);
+			graphics::Present(0);
 		}
 	}
 
 	c_mng.Destroy();
 	m_mng.Destroy();
 	r_mng.Destroy();
-	graphics::internal::DestroyD3D11();
+	graphics::DestroyD3D11();
 
 	return 0;
 }

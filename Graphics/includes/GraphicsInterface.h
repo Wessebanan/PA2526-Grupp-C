@@ -98,16 +98,21 @@ namespace graphics
 				r.bottom - r.top 
 			};
 		}
+
+		inline UINT IsInFocus(const HWND hWnd)
+		{
+			return GetActiveWindow() == hWnd ? TRUE : FALSE;
+		}
 	}
+
+	HRESULT InitializeD3D11(const HWND hWnd);
+	void DestroyD3D11();
+
+	void Present(const UINT syncInterval);
 
 	namespace internal
 	{
-		HRESULT InitializeD3D11(const HWND hWnd);
-
 		void GetBackBuffer(ID3D11RenderTargetView** ppBackBuffer);
-		void Present(const UINT syncInterval);
-
-		void DestroyD3D11();
 
 		struct D3D11_DEVICE_HANDLE
 		{
