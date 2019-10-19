@@ -183,7 +183,7 @@ int main()
 				r_mng.UpdatePipeline(pipelineIndex0, &data);
 			} 
 
-			m_mng.EnableVertexBuffers();
+			m_mng.SetVertexBuffers();
 			r_mng.ExecutePipeline(pipelineIndex0);
 
 			graphics::internal::Present(0);

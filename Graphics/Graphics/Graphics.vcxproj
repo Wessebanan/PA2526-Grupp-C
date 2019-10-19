@@ -19,7 +19,6 @@
     <ClInclude Include="..\includes\Pipeline.h" />
     <ClInclude Include="..\includes\RenderManager.h" />
     <ClInclude Include="..\includes\StateManager.h" />
-    <ClInclude Include="..\includes\StateSettings.h" />
     <ClInclude Include="..\includes\Window.h" />
   </ItemGroup>
   <ItemGroup>

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "StateSettings.h"
+#include "Pipeline.h"
 
 #include <vector>
 #include <DirectXMath.h>
@@ -26,26 +26,23 @@ namespace graphics
 			Create Pipeline (Every pipeline has their own structs for description)
 			: Returns UINT_MAX if failed
 		*/
-		UINT CreateState(StateSettings* pState, const void* pDescription);
+		UINT CreatePipeline(StatePipeline* pPipeline, const void* pDescription);
 
 		/*
 			Update pipeline data (Every pipeline has their own structs for data)
 		*/
-		void UpdateState(const UINT state, const void* pStateData);
+		void UpdatePipeline(const UINT pipeline, const void* pStateData);
 
 		/*
 			Execute desired pipeline (will use all created programs)
 		*/
-		void SetState(const UINT state);
+		void SetPipeline(const UINT pipeline);
 
 		void Destroy();
 	private:
 		ID3D11Device4* m_pDevice4;
 		ID3D11DeviceContext4* m_pContext4;
 
-		IDXGIFactory6* m_pFactory6;
-		IDXGIAdapter4* m_pAdapter4;
-
-		std::vector<StateSettings*> m_settings;
+		std::vector<StatePipeline*> m_settings;
 	};
 }

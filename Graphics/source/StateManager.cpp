@@ -18,31 +18,29 @@ namespace graphics
 		graphics::internal::GetD3D11(&handle);
 		m_pDevice4		= handle.pDevice4;
 		m_pContext4		= handle.pDeviceContext4;
-		m_pFactory6		= handle.pFactory6;
-		m_pAdapter4		= handle.pAdapter4;
 
 		if (FAILED(hr)) return hr;
 
 		return S_OK;
 	}
 
-	UINT StateManager::CreateState(StateSettings* pState, const void* pDescription)
+	UINT StateManager::CreatePipeline(StatePipeline* pState, const void* pDescription)
 	{
-		HRESULT hr = pState->Initialize(m_pDevice4, m_pContext4, pDescription);
+		HRESULT hr = pState->Initialize(m_pDevice4, pDescription);
 		if (FAILED(hr)) return UINT_MAX;
 
 		m_settings.push_back(pState);
 		return (UINT)m_settings.size() - 1;
 	}
 
-	void StateManager::UpdateState(const UINT state, const void* pStateData)
+	void StateManager::UpdatePipeline(const UINT state, const void* pStateData)
 	{
-		m_settings[state]->Update(m_pDevice4, m_pContext4, pStateData);
+		m_settings[state]->Update(m_pContext4, pStateData);
 	}
 
-	void StateManager::SetState(const UINT state)
+	void StateManager::SetPipeline(const UINT state)
 	{
-		m_settings[state]->Set(m_pDevice4, m_pContext4);
+		m_settings[state]->SetState(m_pContext4);
 	}
 
 	void StateManager::Destroy()

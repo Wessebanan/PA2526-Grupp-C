@@ -1,7 +1,4 @@
 #include "../includes/RenderManager.h"
-#include "../includes/Pipeline.h"
-
-#define MAX_BYTES_PER_DRAW 131072
 
 namespace graphics
 {

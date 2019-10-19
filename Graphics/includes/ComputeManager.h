@@ -54,8 +54,5 @@ namespace graphics
 
 		ID3D11Device4* m_pDevice4;
 		ID3D11DeviceContext4* m_pContext4;
-
-		IDXGIFactory6* m_pFactory6;
-		IDXGIAdapter4* m_pAdapter4;
 	};
 }

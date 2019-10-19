@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "RenderContext.h"
+#include "Pipeline.h"
 
 #include <vector>
 #include <DirectXMath.h>

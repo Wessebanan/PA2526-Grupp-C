@@ -48,7 +48,7 @@ namespace graphics
 				pVertexBlendWeights		: register (t2);
 				pVertexBlendIndices		: register (t2);
 		*/
-		void EnableVertexBuffers();
+		void SetVertexBuffers();
 
 		/*
 			Clear all data to enable overwrites

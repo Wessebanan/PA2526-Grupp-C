@@ -106,7 +106,7 @@ namespace graphics
 		return mesh;
 	}
 
-	void MeshManager::EnableVertexBuffers()
+	void MeshManager::SetVertexBuffers()
 	{
 		m_pContext4->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_pContext4->VSSetShaderResources(0, VERTEX_BUFFER_COUNT, m_pVertexBufferViews);
