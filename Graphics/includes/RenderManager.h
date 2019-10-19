@@ -20,8 +20,6 @@ namespace graphics
 		MeshRegion Meshes[10];		// Which Meshes To Be Drawn
 
 		UINT InstanceCounts[10];	// Total Instances Per Mesh
-
-		UINT TotalModels;
 	};
 
 	/*
@@ -34,15 +32,6 @@ namespace graphics
 		UINT PerObjectByteWidth;
 	};
 
-	/*
-		Internal Data Structure Used For Communicating Between Pipelines
-	*/
-	struct RenderManagerData
-	{
-		ID3D11Texture2D* pBackBufferTexture;
-		ID3D11RenderTargetView* pBackBuffer;
-	};
-
 	class RenderManager
 	{
 	public:
@@ -51,6 +40,7 @@ namespace graphics
 
 		/*
 			Initialize with a window that will be the back buffer
+				_IN_ totalBytesPerExecute : How large model data can be at setModelData()  
 		*/
 		HRESULT Initialize(const UINT totalBytesPerExecute);
 
@@ -80,7 +70,8 @@ namespace graphics
 		void ExecutePipeline(const UINT pipeline);
 
 		/*
-			Set the model data for all pipelines in one go (Must be update when data is changed)
+			Set the model data for all shaders in one go and must be updated everytime data gets dirty
+			(MAX byteWidth set at initialize)
 		*/
 		void SetModelData(const void* pData, const UINT byteWidth);
 
@@ -89,28 +80,16 @@ namespace graphics
 		*/
 		void SetShaderModelLayout(const UINT shader, const ShaderModelLayout& rLayout);
 
-		/*
-			Preset back buffer
-		*/
-		void Present(const UINT syncInterval);
-
 		void Destroy();
 	private:
 		ID3D11Device4* m_pDevice4;
 		ID3D11DeviceContext4* m_pContext4;
-
-		IDXGIFactory6* m_pFactory6;
-		IDXGIAdapter4* m_pAdapter4;
-
-		IDXGISwapChain4* m_pSwapChain;
 
 		ID3D11Buffer* m_pPerObjectBuffer;
 		const void* m_pData;
 		UINT m_dataByteWidth;
 
 		UINT m_clientWidth, m_clientHeight;
-
-		RenderManagerData m_data;
 
 		std::vector<ShaderModelLayout> m_shaderModelLayouts;
 

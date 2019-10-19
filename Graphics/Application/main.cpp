@@ -58,8 +58,10 @@ int main()
 		"Couch Commanders",
 		graphics::WINDOW_STYLE::BORDER);
 
+	graphics::internal::InitializeD3D11(wnd);
+
 	graphics::RenderManager r_mng;
-	r_mng.Initialize(wnd);
+	r_mng.Initialize(65536);
 
 	graphics::MeshManager m_mng;
 	m_mng.Initialize(999, 999);
@@ -134,7 +136,6 @@ int main()
 	layout.InstanceCounts[1] = (2);
 
 	layout.MeshCount	= 2;
-	layout.TotalModels	= 4;
 
 	struct float4
 	{
@@ -182,15 +183,17 @@ int main()
 				r_mng.UpdatePipeline(pipelineIndex0, &data);
 			} 
 
+			m_mng.EnableVertexBuffers();
 			r_mng.ExecutePipeline(pipelineIndex0);
 
-			r_mng.Present(0);
+			graphics::internal::Present(0);
 		}
 	}
 
 	c_mng.Destroy();
 	m_mng.Destroy();
 	r_mng.Destroy();
+	graphics::internal::DestroyD3D11();
 
 	return 0;
 }

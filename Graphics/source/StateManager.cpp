@@ -14,8 +14,6 @@ namespace graphics
 	{
 		HRESULT hr = S_OK;
 
-		hr = graphics::internal::InitializeD3D11();
-
 		graphics::internal::D3D11_DEVICE_HANDLE handle;
 		graphics::internal::GetD3D11(&handle);
 		m_pDevice4		= handle.pDevice4;

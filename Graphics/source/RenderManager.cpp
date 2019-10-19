@@ -7,6 +7,10 @@ namespace graphics
 {
 	RenderManager::RenderManager()
 	{
+		m_clientWidth = 0;
+		m_clientHeight = 0;
+
+		m_dataByteWidth = 0;
 	}
 
 	RenderManager::~RenderManager()
@@ -17,15 +21,10 @@ namespace graphics
 	{
 		HRESULT hr = S_OK;
 
-		hr = graphics::internal::InitializeD3D11();
-		if (FAILED(hr)) return hr;
-
 		graphics::internal::D3D11_DEVICE_HANDLE handle;
 		graphics::internal::GetD3D11(&handle);
 		m_pDevice4	= handle.pDevice4;
 		m_pContext4 = handle.pDeviceContext4;
-		m_pFactory6	= handle.pFactory6;
-		m_pAdapter4	= handle.pAdapter4;
 
 		// Per Model Buffer
 		{
@@ -58,11 +57,6 @@ namespace graphics
 		}
 
 		m_pPerObjectBuffer->Release();
-
-		m_data.pBackBufferTexture->Release();
-		m_pSwapChain->Release();
-
-		graphics::internal::DestroyD3D11();
 	}
 
 	UINT RenderManager::CreatePipeline(GraphicsPipeline* pPipeline, const void* pDescription)
@@ -116,7 +110,7 @@ namespace graphics
 	{
 		GraphicsPipeline* pPipeline = m_pipelines[pipeline];
 
-		pPipeline->Begin(m_pContext4, &m_data);
+		pPipeline->Begin(m_pContext4);
 
 		graphics::UploadToDynamicBuffer(
 			m_pContext4,
@@ -130,6 +124,12 @@ namespace graphics
 		for (UINT i = 0; i < shader_count; i++)
 		{
 			ShaderModelLayout& layout = m_shaderModelLayouts[i];
+
+			UINT total_models = 0;
+			for (UINT i = 0; i < layout.MeshCount; i++)
+			{
+				total_models += layout.InstanceCounts[i];
+			}
 
 			pPipeline->PreProcess(
 				m_pContext4, 
@@ -145,15 +145,10 @@ namespace graphics
 				layout.Meshes,
 				layout.InstanceCounts);
 
-			data_location += layout.TotalModels * m_shaderPrograms[i].PerObjectByteWidth;
+			data_location += total_models * m_shaderPrograms[i].PerObjectByteWidth;
 			data_location += 256 - (data_location % 256);
 		}
 
-		pPipeline->End(m_pContext4, &m_data);
-	}
-
-	void RenderManager::Present(const UINT syncInterval)
-	{
-		m_pSwapChain->Present(syncInterval, 0);
+		pPipeline->End(m_pContext4);
 	}
 }

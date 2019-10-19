@@ -102,9 +102,8 @@ namespace graphics
 
 	namespace internal
 	{
-		HRESULT InitializeD3D11();
+		HRESULT InitializeD3D11(const HWND hWnd);
 
-		HRESULT CreateSwapChain(HWND hWnd);
 		void GetBackBuffer(ID3D11RenderTargetView** ppBackBuffer);
 		void Present(const UINT syncInterval);
 
@@ -121,12 +120,9 @@ namespace graphics
 
 		void GetD3D11(D3D11_DEVICE_HANDLE* pHandle);
 
-		HRESULT CreateAndSetInputLayout(
-			ID3D11Device4* pDevice4,
-			ID3D11DeviceContext4* pContext4);
-
 		HRESULT CreateAndSetVertexBuffers(
 			ID3D11Device4* pDevice4,
-			ID3D11DeviceContext4* pContext4);
+			ID3D11DeviceContext4* pContext4,
+			const UINT maximumVertexCountPerDraw);
 	}
 }

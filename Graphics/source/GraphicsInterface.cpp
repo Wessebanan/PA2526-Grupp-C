@@ -293,85 +293,12 @@ namespace graphics
 		IDXGIFactory6* gpFactory6				= NULL;
 		IDXGIAdapter4* gpAdapter4				= NULL;
 
-		bool gIsActive							= false;
-		UINT gCountsActivated					= 0;		// if activated more than once (don't destroy at first call)
-		
 		IDXGISwapChain4* gpSwapChain4			= NULL;
 		ID3D11RenderTargetView* gpBackBuffer	= NULL;
 
-		HRESULT InitializeD3D11()
-		{
-			if (gIsActive)
-			{
-				gCountsActivated++;
-				return S_OK;
-			}
+		bool gIsActive							= false;
 
-			HRESULT hr			= S_OK;
-			UINT device_flag	= 0;
-			UINT factory_flag	= 0;
-
-#ifdef _DEBUG
-			device_flag		|= D3D11_CREATE_DEVICE_DEBUG;
-			factory_flag	|= DXGI_CREATE_FACTORY_DEBUG;
-#endif // _DEBUG
-
-			hr = CreateDXGIFactory2(
-				factory_flag,
-				IID_PPV_ARGS(&gpFactory6));
-
-			if (FAILED(hr)) return hr;
-
-			hr = gpFactory6->EnumAdapterByGpuPreference(
-				0,
-				DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-				IID_PPV_ARGS(&gpAdapter4));
-
-			if (FAILED(hr))
-			{
-				gpFactory6->Release();
-				return hr;
-			}
-
-			ID3D11Device* pDeviceTemp = NULL;
-			ID3D11DeviceContext* pContextTemp = NULL;
-
-			D3D11CreateDevice(
-				gpAdapter4,
-				D3D_DRIVER_TYPE_UNKNOWN,
-				NULL,
-				device_flag,
-				NULL,
-				0,
-				D3D11_SDK_VERSION,
-				&pDeviceTemp,
-				NULL,
-				&pContextTemp);
-
-			if (FAILED(hr))
-			{
-				gpFactory6->Release();
-				gpAdapter4->Release();
-				return hr;
-			}
-
-			pDeviceTemp->QueryInterface(IID_PPV_ARGS(&gpDevice4));
-			pContextTemp->QueryInterface(IID_PPV_ARGS(&gpDeviceContext4));
-
-			pDeviceTemp->Release();
-			pContextTemp->Release();
-
-			hr = CreateAndSetInputLayout(gpDevice4, gpDeviceContext4);
-			if (FAILED(hr)) return hr;
-
-			hr = CreateAndSetVertexBuffers(gpDevice4, gpDeviceContext4);
-			if (FAILED(hr)) return hr;
-
-			gIsActive = true;
-			return hr;
-		}
-
-		HRESULT CreateSwapChain(HWND hWnd)
+		HRESULT CreateSwapChain(const HWND hWnd)
 		{
 			HRESULT hr = S_OK;
 
@@ -419,10 +346,14 @@ namespace graphics
 				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 				desc.Texture2D.MipSlice = 0;
 
+				if (!pTexture) return E_INVALIDARG;
+
 				gpDevice4->CreateRenderTargetView(
 					pTexture,
 					&desc,
 					&gpBackBuffer);
+
+				pTexture->Release();
 			}
 
 			return hr;
@@ -430,6 +361,7 @@ namespace graphics
 
 		void GetBackBuffer(ID3D11RenderTargetView** ppBackBuffer)
 		{
+			*ppBackBuffer = gpBackBuffer;
 		}
 
 		void Present(const UINT syncInterval)
@@ -441,19 +373,16 @@ namespace graphics
 		{
 			if (gIsActive)
 			{
-				if (gCountsActivated > 0)
-				{
-					gCountsActivated--;
-				}
-				else
-				{
-					gIsActive = false;
-					SafeRelease((IUnknown**)&gpDevice4);
-					SafeRelease((IUnknown**)&gpDeviceContext4);
-					SafeRelease((IUnknown**)&gpFactory6);
-					SafeRelease((IUnknown**)&gpAdapter4);
-					SafeRelease((IUnknown**)&gpSwapChain4);
-				}
+				gIsActive = false;
+
+				SafeRelease((IUnknown**)&gpBackBuffer);
+				SafeRelease((IUnknown**)&gpSwapChain4);
+
+				SafeRelease((IUnknown**)&gpFactory6);
+				SafeRelease((IUnknown**)&gpAdapter4);
+
+				SafeRelease((IUnknown**)&gpDevice4);
+				SafeRelease((IUnknown**)&gpDeviceContext4);
 			}
 		}
 
@@ -465,9 +394,7 @@ namespace graphics
 			pHandle->pAdapter4			= gpAdapter4;
 		}
 
-		HRESULT CreateAndSetInputLayout(
-			ID3D11Device4* pDevice4,
-			ID3D11DeviceContext4* pContext4)
+		HRESULT CreateAndSetInputLayout()
 		{
 			HRESULT hr;
 			ID3D11InputLayout* pInputLayout = NULL;
@@ -486,7 +413,7 @@ namespace graphics
 
 			hr = graphics::CompileShader(
 				gDummyVertexShader.c_str(),
-				gDummyVertexShader.length(),
+				(UINT)gDummyVertexShader.length(),
 				"vs_5_0",
 				&pVSBlob);
 
@@ -510,7 +437,7 @@ namespace graphics
 			element_desc[1].SemanticIndex = 0;
 			element_desc[1].SemanticName = "InstanceStart";
 
-			hr = pDevice4->CreateInputLayout(
+			hr = gpDevice4->CreateInputLayout(
 				element_desc,
 				2,
 				pVSBlob->GetBufferPointer(),
@@ -523,7 +450,7 @@ namespace graphics
 				return hr;
 			}
 
-			pContext4->IASetInputLayout(pInputLayout);
+			gpDeviceContext4->IASetInputLayout(pInputLayout);
 
 			pInputLayout->Release();
 			pVSBlob->Release();
@@ -533,12 +460,13 @@ namespace graphics
 
 		HRESULT CreateAndSetVertexBuffers(
 			ID3D11Device4* pDevice4, 
-			ID3D11DeviceContext4* pContext4)
+			ID3D11DeviceContext4* pContext4,
+			const UINT maximumVertexCountPerDraw)
 		{
 			HRESULT hr;
 
 			// maximum indices in vertex shader (vertex data and instance data)
-			constexpr UINT maximum_indices = 65536;
+			const UINT maximum_indices = maximumVertexCountPerDraw;
 
 			ID3D11Buffer* pBuffer = NULL;
 			{
@@ -584,6 +512,75 @@ namespace graphics
 			pBuffer->Release();
 
 			return S_OK;
+		}
+
+
+		HRESULT InitializeD3D11(const HWND hWnd)
+		{
+			if (gIsActive) return S_OK;
+
+			HRESULT hr = S_OK;
+			UINT device_flag = 0;
+			UINT factory_flag = 0;
+
+#ifdef _DEBUG
+			device_flag |= D3D11_CREATE_DEVICE_DEBUG;
+			factory_flag |= DXGI_CREATE_FACTORY_DEBUG;
+#endif // _DEBUG
+
+			hr = CreateDXGIFactory2(
+				factory_flag,
+				IID_PPV_ARGS(&gpFactory6));
+
+			if (FAILED(hr)) return hr;
+
+			hr = gpFactory6->EnumAdapterByGpuPreference(
+				0,
+				DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+				IID_PPV_ARGS(&gpAdapter4));
+
+			if (FAILED(hr))
+			{
+				gpFactory6->Release();
+				return hr;
+			}
+
+			ID3D11Device* pDeviceTemp = NULL;
+			ID3D11DeviceContext* pContextTemp = NULL;
+
+			D3D11CreateDevice(
+				gpAdapter4,
+				D3D_DRIVER_TYPE_UNKNOWN,
+				NULL,
+				device_flag,
+				NULL,
+				0,
+				D3D11_SDK_VERSION,
+				&pDeviceTemp,
+				NULL,
+				&pContextTemp);
+
+			if (FAILED(hr))
+			{
+				gpFactory6->Release();
+				gpAdapter4->Release();
+				return hr;
+			}
+
+			pDeviceTemp->QueryInterface(IID_PPV_ARGS(&gpDevice4));
+			pContextTemp->QueryInterface(IID_PPV_ARGS(&gpDeviceContext4));
+
+			pDeviceTemp->Release();
+			pContextTemp->Release();
+
+			hr = CreateAndSetInputLayout();
+			if (FAILED(hr)) return hr;
+
+			hr = CreateSwapChain(hWnd);
+			if (FAILED(hr)) return hr;
+
+			gIsActive = true;
+			return hr;
 		}
 	}
 }
