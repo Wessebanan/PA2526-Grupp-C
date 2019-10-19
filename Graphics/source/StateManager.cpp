@@ -24,7 +24,7 @@ namespace graphics
 		return S_OK;
 	}
 
-	UINT StateManager::CreatePipeline(StatePipeline* pState, const void* pDescription)
+	UINT StateManager::CreatePipelineState(StatePipeline* pState, const void* pDescription)
 	{
 		HRESULT hr = pState->Initialize(m_pDevice4, pDescription);
 		if (FAILED(hr)) return UINT_MAX;
@@ -33,12 +33,12 @@ namespace graphics
 		return (UINT)m_settings.size() - 1;
 	}
 
-	void StateManager::UpdatePipeline(const UINT state, const void* pStateData)
+	void StateManager::UpdatePipelineState(const UINT state, const void* pStateData)
 	{
 		m_settings[state]->Update(m_pContext4, pStateData);
 	}
 
-	void StateManager::SetPipeline(const UINT state)
+	void StateManager::SetPipelineState(const UINT state)
 	{
 		m_settings[state]->SetState(m_pContext4);
 	}

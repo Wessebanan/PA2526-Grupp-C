@@ -26,17 +26,17 @@ namespace graphics
 			Create Pipeline (Every pipeline has their own structs for description)
 			: Returns UINT_MAX if failed
 		*/
-		UINT CreatePipeline(StatePipeline* pPipeline, const void* pDescription);
+		UINT CreatePipelineState(StatePipeline* pPipeline, const void* pDescription);
 
 		/*
 			Update pipeline data (Every pipeline has their own structs for data)
 		*/
-		void UpdatePipeline(const UINT pipeline, const void* pStateData);
+		void UpdatePipelineState(const UINT pipeline, const void* pStateData);
 
 		/*
 			Execute desired pipeline (will use all created programs)
 		*/
-		void SetPipeline(const UINT pipeline);
+		void SetPipelineState(const UINT pipeline);
 
 		void Destroy();
 	private:

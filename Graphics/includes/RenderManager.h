@@ -16,10 +16,10 @@ namespace graphics
 	*/
 	struct ShaderModelLayout
 	{
-		UINT MeshCount;				// Total Meshes Within This Struct
-		MeshRegion Meshes[10];		// Which Meshes To Be Drawn
+		UINT MeshCount;					// Total Meshes Within This Struct
 
-		UINT InstanceCounts[10];	// Total Instances Per Mesh
+		MeshRegion* pMeshes;			// Which Meshes To Be Drawn
+		UINT* pInstanceCountPerMesh;	// Total Instances Per Mesh
 	};
 
 	/*
@@ -67,29 +67,45 @@ namespace graphics
 		/*
 			Execute desired pipeline (will use all created programs)
 		*/
+		void ExecutePipeline(const UINT pipeline, const UINT shaderStart, const UINT shaderEnd);
 		void ExecutePipeline(const UINT pipeline);
 
 		/*
 			Set the model data for all shaders in one go and must be updated everytime data gets dirty
 			(MAX byteWidth set at initialize)
 		*/
-		void SetModelData(const void* pData, const UINT byteWidth);
+		void UploadPerInstanceData(
+			const void* pData, 
+			const UINT byteWidth,
+			const UINT offset);
 
 		/*
 			Set shader model layout for a shader (Can be set once or every frame)
 		*/
 		void SetShaderModelLayout(const UINT shader, const ShaderModelLayout& rLayout);
 
+		/*
+			Must be called before upload
+		*/
+		void BeginUpload();
+
+		/*
+			Get number of shader programs
+		*/
+		UINT GetNumShaderPrograms();
+		UINT GetNumPipelines();
+
 		void Destroy();
+
 	private:
 		ID3D11Device4* m_pDevice4;
 		ID3D11DeviceContext4* m_pContext4;
 
 		ID3D11Buffer* m_pPerObjectBuffer;
-		const void* m_pData;
-		UINT m_dataByteWidth;
 
 		UINT m_clientWidth, m_clientHeight;
+
+		UINT m_firstTimeUpload;
 
 		std::vector<ShaderModelLayout> m_shaderModelLayouts;
 

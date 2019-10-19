@@ -2,8 +2,6 @@
 
 #include "RenderContext.h"
 
-class Pipeline;
-
 namespace graphics
 {
 	constexpr UINT VERTEX_BUFFER_COUNT = 5;
@@ -19,7 +17,6 @@ namespace graphics
 
 	class MeshManager
 	{
-		friend class Pipeline;
 
 	public:
 		MeshManager();

@@ -113,6 +113,7 @@ namespace graphics
 		graphics::UploadToDynamicBuffer(
 			pContext4, 
 			m_pMatrixBuffers[0],
+			D3D11_MAP_WRITE_DISCARD,
 			&pData->ViewMatrix, 
 			sizeof(pData->ViewMatrix),
 			0);

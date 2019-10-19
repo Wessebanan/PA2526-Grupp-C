@@ -26,12 +26,13 @@ namespace graphics
 	inline void UploadToDynamicBuffer(
 		ID3D11DeviceContext4* pContext4,
 		ID3D11Buffer* pBuffer,
+		const D3D11_MAP mapType,
 		const void* pData,
 		const UINT byteWidth,
 		const UINT offset)
 	{
 		D3D11_MAPPED_SUBRESOURCE map;
-		pContext4->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+		pContext4->Map(pBuffer, 0, mapType, 0, &map);
 		memcpy((char*)map.pData + offset, pData, byteWidth);
 		pContext4->Unmap(pBuffer, 0);
 	}

@@ -7,7 +7,7 @@ namespace graphics
 		m_clientWidth = 0;
 		m_clientHeight = 0;
 
-		m_dataByteWidth = 0;
+		m_firstTimeUpload = TRUE;
 	}
 
 	RenderManager::~RenderManager()
@@ -26,7 +26,7 @@ namespace graphics
 		// Per Model Buffer
 		{
 			UINT bytes = totalBytesPerExecute;
-			bytes += 256 - bytes % 256;
+			bytes += 256 - (bytes % 256);
 
 			D3D11_BUFFER_DESC desc = { 0 };
 			desc.BindFlags		= D3D11_BIND_CONSTANT_BUFFER;
@@ -38,6 +38,16 @@ namespace graphics
 		}
 
 		return FAILED(hr) ? hr : S_OK;
+	}
+
+	UINT RenderManager::GetNumShaderPrograms()
+	{
+		return (UINT)m_shaderPrograms.size();
+	}
+
+	UINT RenderManager::GetNumPipelines()
+	{
+		return (UINT)m_pipelines.size();
 	}
 
 	void RenderManager::Destroy()
@@ -87,15 +97,44 @@ namespace graphics
 		return (UINT)m_shaderPrograms.size() - 1;
 	}
 
-	void RenderManager::SetModelData(const void* pData, const UINT byteWidth)
+	void RenderManager::UploadPerInstanceData(
+		const void* pData, 
+		const UINT byteWidth,
+		const UINT offset)
 	{
-		m_pData = pData;
-		m_dataByteWidth = byteWidth;
+		switch (m_firstTimeUpload)
+		{
+		case TRUE:
+			graphics::UploadToDynamicBuffer(
+				m_pContext4,
+				m_pPerObjectBuffer,
+				D3D11_MAP_WRITE_DISCARD,
+				pData,
+				byteWidth,
+				offset);
+			m_firstTimeUpload = FALSE;
+			break;
+
+		default:
+			graphics::UploadToDynamicBuffer(
+				m_pContext4,
+				m_pPerObjectBuffer,
+				D3D11_MAP_WRITE_NO_OVERWRITE,
+				pData,
+				byteWidth,
+				offset);
+			break;
+		}
 	}
 
 	void RenderManager::SetShaderModelLayout(const UINT shader, const ShaderModelLayout& rLayout)
 	{
 		m_shaderModelLayouts[shader] = rLayout;
+	}
+
+	void RenderManager::BeginUpload()
+	{
+		m_firstTimeUpload = TRUE;
 	}
 
 	void RenderManager::UpdatePipeline(const UINT pipeline, const void* pPipelineData)
@@ -105,32 +144,37 @@ namespace graphics
 
 	void RenderManager::ExecutePipeline(const UINT pipeline)
 	{
+		this->ExecutePipeline(pipeline, 0, (UINT)m_shaderPrograms.size());
+	}
+
+	void RenderManager::ExecutePipeline(
+		const UINT pipeline, 
+		const UINT programStartIndex, 
+		const UINT programEndIndex)
+	{
 		GraphicsPipeline* pPipeline = m_pipelines[pipeline];
 
 		pPipeline->Begin(m_pContext4);
 
-		graphics::UploadToDynamicBuffer(
-			m_pContext4,
-			m_pPerObjectBuffer,
-			m_pData,
-			m_dataByteWidth,
-			0);
-
 		UINT data_location = 0;
 		UINT shader_count = (UINT)m_shaderPrograms.size();
-		for (UINT i = 0; i < shader_count; i++)
+
+		const UINT start	= max(programStartIndex, 0);
+		const UINT end		= min(programEndIndex, m_shaderPrograms.size());
+
+		for (UINT i = start; i < end; i++)
 		{
 			ShaderModelLayout& layout = m_shaderModelLayouts[i];
 
 			UINT total_models = 0;
 			for (UINT i = 0; i < layout.MeshCount; i++)
 			{
-				total_models += layout.InstanceCounts[i];
+				total_models += layout.pInstanceCountPerMesh[i];
 			}
 
 			pPipeline->PreProcess(
-				m_pContext4, 
-				m_shaderPrograms[i].pVertexShader, 
+				m_pContext4,
+				m_shaderPrograms[i].pVertexShader,
 				m_shaderPrograms[i].pPixelShader);
 
 			graphics::DrawMeshes(
@@ -139,8 +183,8 @@ namespace graphics
 				data_location,
 				m_shaderPrograms[i].PerObjectByteWidth,
 				layout.MeshCount,
-				layout.Meshes,
-				layout.InstanceCounts);
+				layout.pMeshes,
+				layout.pInstanceCountPerMesh);
 
 			data_location += total_models * m_shaderPrograms[i].PerObjectByteWidth;
 			data_location += 256 - (data_location % 256);

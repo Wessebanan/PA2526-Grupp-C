@@ -114,28 +114,28 @@ int main()
 		0, 1, 2,
 	};
 
-	graphics::MeshRegion meshIndex0 = m_mng.CreateMeshRegion(3, 0);
+	graphics::MeshRegion mesh_regions[2];
+	UINT instance_counts[2] = { 2, 2 };
+
+	mesh_regions[0] = m_mng.CreateMeshRegion(3, 0);
 	{
 		graphics::VERTEX_DATA vd = { NULL };
 		vd.pVertexPositions = triangle;
-		m_mng.UploadData(meshIndex0, vd, NULL);
+		m_mng.UploadData(mesh_regions[0], vd, NULL);
 	}
 
-	graphics::MeshRegion meshIndex1 = m_mng.CreateMeshRegion(6, 6);
+	mesh_regions[1] = m_mng.CreateMeshRegion(6, 6);
 	{
 		graphics::VERTEX_DATA vd = { NULL };
 		vd.pVertexPositions = quad;
-		m_mng.UploadData(meshIndex1, vd, quad_indices);
+		m_mng.UploadData(mesh_regions[1], vd, quad_indices);
 	}
 
 	graphics::ShaderModelLayout layout;
-	layout.Meshes[0] = (meshIndex0);
-	layout.Meshes[1] = (meshIndex1);
+	layout.MeshCount				= 2;
+	layout.pMeshes					= mesh_regions;
+	layout.pInstanceCountPerMesh	= instance_counts;
 
-	layout.InstanceCounts[0] = (2);
-	layout.InstanceCounts[1] = (2);
-
-	layout.MeshCount	= 2;
 
 	struct float4
 	{
@@ -149,7 +149,9 @@ int main()
 		{ -1.0f,  0.0f, 0.0f, 0.0f },
 	};
 
-	r_mng.SetModelData(pos, sizeof(pos));
+	r_mng.BeginUpload();
+	r_mng.UploadPerInstanceData(pos, sizeof(float4) * 2, 0);
+	r_mng.UploadPerInstanceData(pos, sizeof(float4) * 2, sizeof(float4) * 2);
 	r_mng.SetShaderModelLayout(shaderIndex0, layout);
 
 	float x = 0.0f, y = 0.0f, z = -1.0f;
