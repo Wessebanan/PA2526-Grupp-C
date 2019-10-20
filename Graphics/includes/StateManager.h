@@ -40,9 +40,9 @@ namespace graphics
 
 		void Destroy();
 	private:
+		std::vector<StatePipeline*> m_settings;
+
 		ID3D11Device4* m_pDevice4;
 		ID3D11DeviceContext4* m_pContext4;
-
-		std::vector<StatePipeline*> m_settings;
 	};
 }

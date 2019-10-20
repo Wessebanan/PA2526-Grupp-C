@@ -32,6 +32,12 @@ namespace graphics
 		UINT PerObjectByteWidth;
 	};
 
+	struct RenderShader
+	{
+		ShaderModelLayout Layout;
+		RenderProgram Program;
+	};
+
 	class RenderManager
 	{
 	public:
@@ -71,8 +77,9 @@ namespace graphics
 		void ExecutePipeline(const UINT pipeline);
 
 		/*
-			Set the model data for all shaders in one go and must be updated everytime data gets dirty
-			(MAX byteWidth set at initialize)
+			Set the model data for all shaders.
+			New data can be pushed in intervals if needed.
+			The placements of the shaders determine the order of the data.
 		*/
 		void UploadPerInstanceData(
 			const void* pData, 
@@ -98,18 +105,16 @@ namespace graphics
 		void Destroy();
 
 	private:
-		ID3D11Device4* m_pDevice4;
-		ID3D11DeviceContext4* m_pContext4;
+		std::vector<RenderShader>		m_shaders;
+		std::vector<GraphicsPipeline*>	m_pipelines;
+
+		ID3D11Device4*			m_pDevice4;
+		ID3D11DeviceContext4*	m_pContext4;
 
 		ID3D11Buffer* m_pPerObjectBuffer;
 
-		UINT m_clientWidth, m_clientHeight;
-
-		UINT m_firstTimeUpload;
-
-		std::vector<ShaderModelLayout> m_shaderModelLayouts;
-
-		std::vector<RenderProgram> m_shaderPrograms;
-		std::vector<GraphicsPipeline*> m_pipelines;
+		UINT m_clientWidth, 
+			m_clientHeight,
+			m_firstTimeUpload;
 	};
 }

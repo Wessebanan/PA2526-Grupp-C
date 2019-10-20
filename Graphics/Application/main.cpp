@@ -83,10 +83,15 @@ int main()
 			&desc);
 	}
 
+	struct float4
+	{
+		float x, y, z, w;
+	};
+
 	UINT shaderIndex0 = r_mng.CreateShaderProgram(
 		"VS_Default.cso", 
 		"PS_Default.cso", 
-		sizeof(float) * 4);
+		sizeof(float4));
 
 	struct float3
 	{
@@ -135,12 +140,6 @@ int main()
 	layout.MeshCount				= 2;
 	layout.pMeshes					= mesh_regions;
 	layout.pInstanceCountPerMesh	= instance_counts;
-
-
-	struct float4
-	{
-		float x, y, z, w;
-	};
 
 	float4 pos[4] = {
 		{  0.0f,  0.0f, 0.0f, 0.0f },
@@ -195,6 +194,7 @@ int main()
 	c_mng.Destroy();
 	m_mng.Destroy();
 	r_mng.Destroy();
+
 	graphics::DestroyD3D11();
 
 	return 0;

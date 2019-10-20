@@ -42,7 +42,7 @@ namespace graphics
 
 	UINT RenderManager::GetNumShaderPrograms()
 	{
-		return (UINT)m_shaderPrograms.size();
+		return (UINT)m_shaders.size();
 	}
 
 	UINT RenderManager::GetNumPipelines()
@@ -52,10 +52,10 @@ namespace graphics
 
 	void RenderManager::Destroy()
 	{
-		for (UINT i = 0; i < m_shaderPrograms.size(); i++)
+		for (UINT i = 0; i < m_shaders.size(); i++)
 		{
-			m_shaderPrograms[i].pVertexShader->Release();
-			m_shaderPrograms[i].pPixelShader->Release();
+			m_shaders[i].Program.pVertexShader->Release();
+			m_shaders[i].Program.pPixelShader->Release();
 		}
 
 		for (UINT i = 0; i < m_pipelines.size(); i++)
@@ -91,10 +91,9 @@ namespace graphics
 		
 		program.PerObjectByteWidth = perObjectByteWidth;
 
-		m_shaderPrograms.push_back(program);
-		m_shaderModelLayouts.push_back(ShaderModelLayout());
+		m_shaders.push_back({ShaderModelLayout(), program});
 
-		return (UINT)m_shaderPrograms.size() - 1;
+		return (UINT)m_shaders.size() - 1;
 	}
 
 	void RenderManager::UploadPerInstanceData(
@@ -129,7 +128,7 @@ namespace graphics
 
 	void RenderManager::SetShaderModelLayout(const UINT shader, const ShaderModelLayout& rLayout)
 	{
-		m_shaderModelLayouts[shader] = rLayout;
+		m_shaders[shader].Layout = rLayout;
 	}
 
 	void RenderManager::BeginUpload()
@@ -144,7 +143,7 @@ namespace graphics
 
 	void RenderManager::ExecutePipeline(const UINT pipeline)
 	{
-		this->ExecutePipeline(pipeline, 0, (UINT)m_shaderPrograms.size());
+		this->ExecutePipeline(pipeline, 0, (UINT)m_shaders.size());
 	}
 
 	void RenderManager::ExecutePipeline(
@@ -157,14 +156,15 @@ namespace graphics
 		pPipeline->Begin(m_pContext4);
 
 		UINT data_location = 0;
-		UINT shader_count = (UINT)m_shaderPrograms.size();
+		UINT shader_count = (UINT)m_shaders.size();
 
 		const UINT start	= max(programStartIndex, 0);
-		const UINT end		= min(programEndIndex, m_shaderPrograms.size());
+		const UINT end		= min(programEndIndex, m_shaders.size());
 
 		for (UINT i = start; i < end; i++)
 		{
-			ShaderModelLayout& layout = m_shaderModelLayouts[i];
+			ShaderModelLayout& layout	= m_shaders[i].Layout;
+			RenderProgram& program		= m_shaders[i].Program;
 
 			UINT total_models = 0;
 			for (UINT i = 0; i < layout.MeshCount; i++)
@@ -174,19 +174,19 @@ namespace graphics
 
 			pPipeline->PreProcess(
 				m_pContext4,
-				m_shaderPrograms[i].pVertexShader,
-				m_shaderPrograms[i].pPixelShader);
+				program.pVertexShader,
+				program.pPixelShader);
 
 			graphics::DrawMeshes(
 				m_pContext4,
 				m_pPerObjectBuffer,
 				data_location,
-				m_shaderPrograms[i].PerObjectByteWidth,
+				program.PerObjectByteWidth,
 				layout.MeshCount,
 				layout.pMeshes,
 				layout.pInstanceCountPerMesh);
 
-			data_location += total_models * m_shaderPrograms[i].PerObjectByteWidth;
+			data_location += total_models * program.PerObjectByteWidth;
 			data_location += 256 - (data_location % 256);
 		}
 

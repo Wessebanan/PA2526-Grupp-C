@@ -2,6 +2,7 @@
 
 #include "../includes/Window.h"
 
+#include "../includes/RenderContext.h"
 #include "../includes/RenderManager.h"
 #include "../includes/MeshManager.h"
 #include "../includes/ComputeManager.h"

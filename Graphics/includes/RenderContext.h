@@ -100,8 +100,8 @@ namespace graphics
 		const UINT instanceStart,
 		const BufferRegion& rMeshRegion)
 	{
-		UINT vertexCountPerInstance = rMeshRegion.Size;// / (sizeof(float) * 3);
-		UINT startVertexLocation = rMeshRegion.Location;// / (sizeof(float) * 3);
+		UINT vertexCountPerInstance = rMeshRegion.Size;
+		UINT startVertexLocation = rMeshRegion.Location;
 
 		pContext4->DrawInstanced(
 			vertexCountPerInstance,
@@ -117,10 +117,10 @@ namespace graphics
 		const BufferRegion& rMeshRegion,
 		const BufferRegion& rIndexRegion)
 	{
-		UINT indexCountPerInstance = rIndexRegion.Size;// / sizeof(int);
+		UINT indexCountPerInstance = rIndexRegion.Size;
 
-		UINT startIndexLocation = rIndexRegion.Location;// / sizeof(int);
-		UINT startVertexLocation = rMeshRegion.Location;// / (sizeof(float) * 3);
+		UINT startIndexLocation = rIndexRegion.Location;
+		UINT startVertexLocation = rMeshRegion.Location;
 
 		pContext4->DrawIndexedInstanced(
 			indexCountPerInstance,
@@ -129,7 +129,6 @@ namespace graphics
 			startVertexLocation,
 			instanceStart);
 	}
-
 
 	void DrawMeshes(
 		ID3D11DeviceContext4* pContext4,

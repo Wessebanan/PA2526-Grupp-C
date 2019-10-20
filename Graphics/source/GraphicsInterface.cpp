@@ -287,16 +287,16 @@ namespace graphics
 
 	namespace internal
 	{
-		ID3D11Device4* gpDevice4				= NULL;
-		ID3D11DeviceContext4* gpDeviceContext4	= NULL;
-
-		IDXGIFactory6* gpFactory6				= NULL;
-		IDXGIAdapter4* gpAdapter4				= NULL;
-
-		IDXGISwapChain4* gpSwapChain4			= NULL;
-		ID3D11RenderTargetView* gpBackBuffer	= NULL;
-
-		bool gIsActive							= false;
+		static ID3D11Device4* gpDevice4					= NULL;
+		static ID3D11DeviceContext4* gpDeviceContext4	= NULL;
+		
+		static IDXGIFactory6* gpFactory6				= NULL;
+		static IDXGIAdapter4* gpAdapter4				= NULL;
+		
+		static IDXGISwapChain4* gpSwapChain4			= NULL;
+		static ID3D11RenderTargetView* gpBackBuffer		= NULL;
+	
+		static bool gIsActive							= false;
 
 		HRESULT CreateSwapChain(const HWND hWnd)
 		{
