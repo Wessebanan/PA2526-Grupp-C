@@ -156,10 +156,10 @@ namespace graphics
 		pPipeline->Begin(m_pContext4);
 
 		UINT data_location = 0;
-		UINT shader_count = (UINT)m_shaders.size();
+		const UINT shader_count = (UINT)m_shaders.size();
 
 		const UINT start	= max(programStartIndex, 0);
-		const UINT end		= min(programEndIndex, m_shaders.size());
+		const UINT end		= min(programEndIndex, shader_count);
 
 		for (UINT i = start; i < end; i++)
 		{

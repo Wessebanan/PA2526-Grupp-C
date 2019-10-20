@@ -162,7 +162,7 @@ int main()
 	{
 		if (!wnd.Update() && graphics::window::IsInFocus(wnd))
 		{
-			float moveSpeed = 0.1f;
+			float moveSpeed = 0.001f;
 			if (GetAsyncKeyState(VK_UP))
 			{
 				z += moveSpeed;
