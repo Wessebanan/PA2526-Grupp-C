@@ -105,8 +105,10 @@ namespace graphics
 		}
 	}
 
-	HRESULT InitializeD3D11(const HWND hWnd);
+	HRESULT InitializeD3D11();
 	void DestroyD3D11();
+
+	HRESULT AttachHwndToSwapChain(const HWND hWnd);
 
 	void Present(const UINT syncInterval);
 

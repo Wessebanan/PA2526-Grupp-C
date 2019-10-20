@@ -58,7 +58,8 @@ int main()
 		"Couch Commanders",
 		graphics::WINDOW_STYLE::BORDERLESS);
 
-	graphics::InitializeD3D11(wnd);
+	graphics::InitializeD3D11();
+	graphics::AttachHwndToSwapChain(wnd);
 
 	graphics::RenderManager r_mng;
 	r_mng.Initialize(65536);

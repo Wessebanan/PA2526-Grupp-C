@@ -29,52 +29,52 @@ TEST(Graphics, UpdateWindow)
 
 TEST(Graphics, RenderManager)
 {
-	UINT client_width	= 800;
-	UINT client_height	= 600;
-
-	graphics::Window wnd;
-	wnd.Initialize(client_width, client_height, "RenderManager", graphics::WINDOW_STYLE::BORDER);
+	graphics::InitializeD3D11();
 
 	graphics::RenderManager mng;
-	HRESULT hr = mng.Initialize(wnd);
+	HRESULT hr = mng.Initialize(65536);
 
 	EXPECT_EQ(hr, S_OK);
 
 	mng.Destroy();
-	wnd.Close();
+
+	graphics::DestroyD3D11();
 }
 
 TEST(Graphics, MeshManager)
 {
+	graphics::InitializeD3D11();
+
 	graphics::MeshManager mng;
 	HRESULT hr = mng.Initialize(999, 999);
 
 	EXPECT_EQ(hr, S_OK);
 
 	mng.Destroy();
+	graphics::DestroyD3D11();
 }
 
 TEST(Graphics, ComputeManager)
 {
+	graphics::InitializeD3D11();
+
 	graphics::ComputeManager mng;
 	HRESULT hr = mng.Initialize();
 
 	EXPECT_EQ(hr, S_OK);
 
 	mng.Destroy();
+	graphics::DestroyD3D11();
 }
 
 TEST(Graphics, MultipleManagers)
 {
-	HRESULT hr			= S_OK;
-	UINT client_width	= 800;
-	UINT client_height	= 600;
+	graphics::InitializeD3D11();
 
-	graphics::Window wnd;
-	wnd.Initialize(client_width, client_height, "MultipleManagers", graphics::WINDOW_STYLE::BORDER);
+	HRESULT hr			= S_OK;
 
 	graphics::RenderManager r_mng;
-	hr = r_mng.Initialize(wnd);
+	hr = r_mng.Initialize(65536);
 
 	EXPECT_EQ(hr, S_OK);
 
@@ -90,12 +90,11 @@ TEST(Graphics, MultipleManagers)
 
 	EXPECT_EQ(hr, S_OK);
 
-
 	r_mng.Destroy();
 	c_mng.Destroy();
 	m_mng.Destroy();
 
-	wnd.Close();
+	graphics::DestroyD3D11();
 }
 
 TEST(Graphics, CreatePipeline)
@@ -111,56 +110,62 @@ TEST(Graphics, CreatePipeline)
 		"CreatePipeline",
 		graphics::WINDOW_STYLE::BORDERLESS);
 
+	graphics::InitializeD3D11();
+	graphics::AttachHwndToSwapChain(wnd);
+
 	graphics::RenderManager r_mng;
-	r_mng.Initialize(wnd);
+	r_mng.Initialize(65536);
+
+	graphics::FORWARD_RENDERING_PIPELINE_DESC desc = { 0 };
+	desc.NearPlane	= 0.1f;
+	desc.FarPlane	= 1.0f;
+	desc.ClientHeight = 100;
+	desc.ClientWidth = 100;
+	desc.Fov = 3.14f;
+
+	UINT index = r_mng.CreatePipeline(
+		new graphics::ForwardRenderingPipeline(),
+		&desc);
+
+	EXPECT_EQ(index, 0);
+
+	r_mng.Destroy();
+	graphics::DestroyD3D11();
 }
 
 TEST(Graphics, CreateRenderProgramCorrectFilepath)
 {
-	UINT
-		clientWidth = graphics::window::GetWorkAreaResolution().x,
-		clientHeight = graphics::window::GetWorkAreaResolution().y;
-
-	graphics::Window wnd;
-	wnd.Initialize(
-		clientWidth,
-		clientHeight,
-		"CreateRenderProgramCorrectFilepath",
-		graphics::WINDOW_STYLE::BORDERLESS);
+	graphics::InitializeD3D11();
 
 	graphics::RenderManager r_mng;
-	r_mng.Initialize(wnd);
+	r_mng.Initialize(65536);
 
 	UINT index = r_mng.CreateShaderProgram("VertexShader.cso", "PixelShader.cso", 0);
 	EXPECT_EQ(index, 0);
 
 	r_mng.Destroy();
+	graphics::DestroyD3D11();
 }
 
 TEST(Graphics, CreateRenderProgramFaultyFilepath)
 {
-	UINT
-		clientWidth = graphics::window::GetWorkAreaResolution().x,
-		clientHeight = graphics::window::GetWorkAreaResolution().y;
-
-	graphics::Window wnd;
-	wnd.Initialize(
-		clientWidth,
-		clientHeight,
-		"CreateRenderProgramFaultyFilepath",
-		graphics::WINDOW_STYLE::BORDERLESS);
+	graphics::InitializeD3D11();
 
 	graphics::RenderManager r_mng;
-	r_mng.Initialize(wnd);
+	r_mng.Initialize(65536);
 
 	UINT index = r_mng.CreateShaderProgram("VS_FaultyFilepath.cso", "PS_FaultyFilepath.cso", 0);
 	EXPECT_EQ(index, UINT_MAX);
 
 	r_mng.Destroy();
+
+	graphics::DestroyD3D11();
 }
 
 TEST(Graphics, CreateComputeProgramCorrectFilepath)
 {
+	graphics::InitializeD3D11();
+
 	graphics::ComputeManager c_mng;
 	c_mng.Initialize();
 
@@ -168,10 +173,14 @@ TEST(Graphics, CreateComputeProgramCorrectFilepath)
 	EXPECT_EQ(index, 0);
 
 	c_mng.Destroy();
+
+	graphics::DestroyD3D11();
 }
 
 TEST(Graphics, CreateComputeProgramFaultyFilepath)
 {
+	graphics::InitializeD3D11();
+
 	graphics::ComputeManager c_mng;
 	c_mng.Initialize();
 
@@ -179,10 +188,14 @@ TEST(Graphics, CreateComputeProgramFaultyFilepath)
 	EXPECT_EQ(index, UINT_MAX);
 
 	c_mng.Destroy();
+
+	graphics::DestroyD3D11();
 }
 
 TEST(Graphics, UploadMeshesToMeshManager)
 {
+	graphics::InitializeD3D11();
+
 	graphics::MeshManager m_mng;
 	m_mng.Initialize(999, 999);
 
@@ -233,10 +246,13 @@ TEST(Graphics, UploadMeshesToMeshManager)
 	}
 
 	m_mng.Destroy();
+	graphics::DestroyD3D11();
 }
 
 TEST(Graphics, UploadMeshesToMeshManagerNoSpace)
 {
+	graphics::InitializeD3D11();
+
 	graphics::MeshManager m_mng;
 	m_mng.Initialize(0, 0);
 
@@ -287,6 +303,8 @@ TEST(Graphics, UploadMeshesToMeshManagerNoSpace)
 	}
 
 	m_mng.Destroy();
+
+	graphics::DestroyD3D11();
 }
 
 int main(int argc, char** argv)

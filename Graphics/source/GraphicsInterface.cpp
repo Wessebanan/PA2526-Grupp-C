@@ -499,7 +499,7 @@ namespace graphics
 	}
 
 
-	HRESULT InitializeD3D11(const HWND hWnd)
+	HRESULT InitializeD3D11()
 	{
 		if (internal::gIsActive) return S_OK;
 
@@ -560,8 +560,8 @@ namespace graphics
 		hr = internal::CreateAndSetInputLayout();
 		if (FAILED(hr)) return hr;
 
-		hr = internal::CreateSwapChain(hWnd);
-		if (FAILED(hr)) return hr;
+		/*hr = internal::CreateSwapChain(hWnd);
+		if (FAILED(hr)) return hr;*/
 
 		internal::gIsActive = true;
 		return hr;
@@ -582,5 +582,10 @@ namespace graphics
 			SafeRelease((IUnknown**)& internal::gpDevice4);
 			SafeRelease((IUnknown**)& internal::gpDeviceContext4);
 		}
+	}
+
+	HRESULT AttachHwndToSwapChain(const HWND hWnd)
+	{
+		return internal::CreateSwapChain(hWnd);
 	}
 }
