@@ -1,6 +1,5 @@
-#include "../includes/Window.h"
 
-#include <iostream>
+#include "../includes/Window.h"
 
 namespace graphics
 {

@@ -19,7 +19,7 @@ namespace Mesh
 }
 
 // Must be called after InitMesh and InitArmy.
-void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh **ppMmeshes);
+void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh *ppMmeshes);
 
 // Create every system needed for physics.
 void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs);
@@ -39,10 +39,10 @@ void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, XMFLOAT3 directio
 // Move in direction of parameter input while keeping forward.
 void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, MovementInputs input);
 
-inline void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh** ppMeshes)
+inline void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* ppMeshes)
 {
 	CreatePhysicsSystems(rEcs);
-	CreatePhysicsComponentsForUnits(rEcs, ppMeshes[Mesh::DUDE]);
+	CreatePhysicsComponentsForUnits(rEcs, ppMeshes);
 }
 
 inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
@@ -54,8 +54,8 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 
 	// Collision
 	rEcs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
-	rEcs.createSystem<ecs::systems::ObjectCollisionSystem>();
 	rEcs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
+	//rEcs.createSystem<ecs::systems::ObjectCollisionSystem>();
 	rEcs.createSystem<ecs::systems::GroundCollisionSystem>();
 
 	// Fighting

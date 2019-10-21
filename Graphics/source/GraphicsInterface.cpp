@@ -1,7 +1,5 @@
-#include "../includes/GraphicsInterface.h"
 
-#include <string>
-#include <vector>
+#include "../includes/GraphicsInterface.h"
 #include <fstream>
 
 namespace graphics

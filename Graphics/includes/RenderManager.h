@@ -17,9 +17,9 @@ namespace graphics
 	struct ShaderModelLayout
 	{
 		UINT MeshCount;				// Total Meshes Within This Struct
-		MeshRegion Meshes[2];		// Which Meshes To Be Drawn
+		MeshRegion Meshes[10];		// Which Meshes To Be Drawn
 
-		UINT InstanceCounts[2];		// Total Instances Per Mesh
+		UINT InstanceCounts[10];	// Total Instances Per Mesh
 
 		UINT TotalModels;
 	};
