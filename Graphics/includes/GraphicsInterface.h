@@ -62,25 +62,19 @@ namespace graphics
 		const char* pFilepath,
 		ID3D11ComputeShader** ppComputeShader);
 
-	HRESULT InitializeD3D11();
-	void DestroyD3D11();
-
-	HRESULT AttachHwndToSwapChain(const HWND hWnd);
-
-	void Present(const UINT syncInterval);
-
 	namespace internal
 	{
-		void GetBackBuffer(ID3D11RenderTargetView** ppBackBuffer);
-
 		struct D3D11_DEVICE_HANDLE
 		{
 			ID3D11Device4* pDevice4;
 			ID3D11DeviceContext4* pDeviceContext4;
-			
+
 			IDXGIFactory6* pFactory6;
 			IDXGIAdapter4* pAdapter4;
 		};
+
+		void GetBackBuffer(ID3D11RenderTargetView** ppBackBuffer);
+
 
 		void GetD3D11(D3D11_DEVICE_HANDLE* pHandle);
 
@@ -89,4 +83,11 @@ namespace graphics
 			ID3D11DeviceContext4* pContext4,
 			const UINT maximumVertexCountPerDraw);
 	}
+
+	HRESULT InitializeD3D11();
+	void DestroyD3D11();
+
+	HRESULT AttachHwndToSwapChain(const HWND hWnd);
+
+	void Present(const UINT syncInterval);
 }
