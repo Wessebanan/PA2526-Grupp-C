@@ -5,6 +5,10 @@
 #include "../Input/InterpretWebEvents.h"
 #include "AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
+#include "..//..//AI/includes/GridFunctions.h"
+#include "..//..//AI/includes/GridProp.h"
+#include "../Physics/PhysicsComponents.h"
+#include "../Physics/PhysicsEvents.h"
 #include <iostream>
 #include "../../Physics/includes/PhysicsHelperFunctions.h"
 
@@ -46,6 +50,7 @@ namespace ecs
 			{
 				updateType = EntityUpdate;
 				typeFilter.addRequirement(components::PathfindingStateComponent::typeID);
+				typeFilter.addRequirement(components::TransformComponent::typeID);
 			}
 			virtual ~PathfindingStateSystem() {}
 
@@ -53,19 +58,161 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
+				ecs::components::PathfindingStateComponent* path_comp = entity.getComponent<ecs::components::PathfindingStateComponent>();
+				int2 start_tile = 0;
+				std::vector<unsigned int> path;
+				GridProp* g_prop = GridProp::GetInstance();
+				components::TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
+				ecs::components::TransformComponent* goal_transform;
+				start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
+				unsigned int start_tile_id = g_prop->mGrid[start_tile.y][start_tile.x].Id;
+				unsigned int goal_id = 0;
+				unsigned int goal_tile_id = 0;
+				int2 goal_tile_index;
+				if (path_comp->goalState == STATE::ATTACK)
+				{
+					goal_id = this->FindClosestEnemy(entity.entity);
+					goal_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, goal_id));
+					goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
+					goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].Id;
+				}
+				else if (path_comp->goalState == STATE::LOOT)
+				{
+					goal_id = 117;
+				}
+				path = GetPath(start_tile_id, goal_id);
+
+				components::MoveStateComponent move_comp;
+				move_comp.path = path;
+				move_comp.goalID = goal_id;
+				move_comp.goalState = entity.getComponent<PathfindingStateComponent>()->goalState;
+				ecs::ECSUser::createComponent(entity.entity->getID(), move_comp);
+				//Remove the PathfindingStateComponent
+				ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::PathfindingStateComponent::typeID);
+				
+			}
+			std::vector<unsigned int> GetPath(unsigned int startID, unsigned int goalID)
+			{
+				std::vector<unsigned int> to_return;
+				std::unordered_map<unsigned int, bool> have_visited;
+				ecs::ComponentIterator comp_itt;
+				BaseComponent* p_base_comp;
+				components::TileComponent* current_tile = nullptr;
+				components::TransformComponent* current_neighbour_transfrom = nullptr;
+				components::TransformComponent* goal_tile_transfrom = nullptr;
+				comp_itt = ecs::ECSUser::getComponentsOfType<components::TileComponent>();
+				while (p_base_comp = comp_itt.next())
+				{
+					current_tile = static_cast<components::TileComponent*>(p_base_comp);
+					have_visited[current_tile->getEntityID()] = false;
+				}
+				unsigned int next_tile_id = 0;
+				unsigned int current_tile_id = startID;
+				unsigned int last_tile_id = 0;
+				float niceTry = 999.f;
+				//float lastNice = 500.f;
+				float dist = 0.f;
+				current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(startID);
+				current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(startID);
+				goal_tile_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(goalID);
+				while (current_tile_id != goalID /*lastNice != niceTry*/)
+				{
+					if(current_tile_id != last_tile_id)
+					{
+						have_visited[current_tile_id] = true;
+						niceTry = 999.f;
+						for (int i = 0; i < 6; i++)
+						{	//check if neighbour is not 0 or have been visited before
+							if (current_tile->neighboursIDArray[i] != 0 &&  !have_visited[current_tile->neighboursIDArray[i]])
+							{	//check for the lowest niceness then that is the next tile
+								current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
+								dist = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z,
+									goal_tile_transfrom->position.x, goal_tile_transfrom->position.z);
+								if (ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness + dist < niceTry)
+								{
+									niceTry = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness + dist;
+									next_tile_id = current_tile->neighboursIDArray[i];
+								}
+							}
+						}
+						if (current_tile_id != goalID)
+						{
+							current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
+							to_return.push_back(next_tile_id);
+							last_tile_id = current_tile_id;
+							current_tile_id = next_tile_id;
+						}
+					}
+					else
+					{
+						for (int i = 0; i < 6; i++)
+						{
+							if (current_tile->neighboursIDArray[i] != 0)
+							{
+								//check for the lowest niceness then that is the next tile
+								current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
+								dist = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z,
+									goal_tile_transfrom->position.x, goal_tile_transfrom->position.z);
+								if (dist < niceTry)
+								{
+									niceTry = dist;
+									next_tile_id = current_tile->neighboursIDArray[i];
+								}
+							}
+							current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
+							to_return.push_back(next_tile_id);
+							last_tile_id = current_tile_id;
+							current_tile_id = next_tile_id;
+						}
+					}
+				}
+				return to_return;
+			}
+		private:
+			unsigned int FindClosestEnemy(ecs::Entity* current_unit)
+			{
+				ecs::ComponentIterator ittr;
+				ecs::BaseComponent* p_base_component;
+				ecs::components::ArmyComponent* army_comp;
+				ecs::Entity* other_unit;
+				ecs::components::UnitComponent* curr_unit_comp = static_cast<ecs::components::UnitComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::UnitComponent::typeID, current_unit->getID()));
+				ecs::components::UnitComponent* other_unit_comp;
+				ecs::components::TransformComponent* curr_unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, current_unit->getID()));
+				ecs::components::TransformComponent* other_unit_transform;
+				float dist = 1000.0f;
+				float temp_dist = 0.0f;
+				unsigned int enemy_id;
+
+				ittr = ecs::ECSUser::getComponentsOfType(ecs::components::ArmyComponent::typeID);
+				while (p_base_component = ittr.next())
+				{
+					army_comp = static_cast<ecs::components::ArmyComponent*>(p_base_component);
+					for (int i = 0; i < army_comp->unitIDs.size(); i++)
+					{
+						other_unit = ecs::ECSUser::getEntity(army_comp->unitIDs[i]);
+						other_unit_comp = static_cast<ecs::components::UnitComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::UnitComponent::typeID, other_unit->getID()));
+						if (other_unit_comp->playerID != curr_unit_comp->playerID)
+						{
+							other_unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, other_unit->getID()));
+							temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
+							if (temp_dist < dist)
+							{
+								dist = temp_dist;
+								enemy_id = other_unit->getID();
+							}
+						}
+					}
+				}
+				return enemy_id;
+			}
 				/*****************************************************/
 				/****************************************************/
 				/* FILL OUT WITH PATHFINDING LOGIC IN ANOTHER TASK */
 				/**************************************************/
 				/*************************************************/
 
-				//Add the MoveStateComponent
-				ecs::components::MoveStateComponent move;
-				move.goalState = entity.getComponent<PathfindingStateComponent>()->goalState;
-				ecs::ECSUser::createComponent(entity.entity->getID(), move);
-				//Remove the PathfindingStateComponent
-				ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::PathfindingStateComponent::typeID);
-			}
+				
+			
 		};
 
 		/*
@@ -134,6 +281,7 @@ namespace ecs
 				updateType = EntityUpdate;
 				typeFilter.addRequirement(components::MoveStateComponent::typeID);
 				typeFilter.addRequirement(components::TransformComponent::typeID);
+				typeFilter.addRequirement(components::DynamicMovementComponent::typeID);
 			}
 			virtual ~MoveStateSystem() {}
 
@@ -143,51 +291,74 @@ namespace ecs
 			{
 				//Fetch the move and transform component of the entity
 				ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
-				ecs::components::MoveStateComponent* move = entity.getComponent<ecs::components::MoveStateComponent>();
 
-
-				/*****************************************************/
-				/****************************************************/
-				/*    FILL OUT WITH MOVE LOGIC IN ANOTHER TASK     */
-				/**************************************************/
-				/*************************************************/
-
-
-				//Create the possible states we could switch to
-				ecs::components::AttackStateComponent atk_state;
-				atk_state.previousState = move->goalState;
-				ecs::components::LootStateComponent loot_state;
-				ecs::components::PathfindingStateComponent path_state;
-				path_state.goalState = move->goalState;
-				ecs::components::IdleStateComponent idle_state;
-				//Calculate distance to goal and add the frame time to the total travel time
-				float distance = PhysicsHelpers::CalculateDistance(transform->position, move->goalPos);
-				float max_traveltime = 1.0f;
-				move->time += delta;
-				//Check if we are close enought to the goal to switch state
-				if (distance < 1.0f)
+				ecs::components::DynamicMovementComponent* dyn_move = entity.getComponent<ecs::components::DynamicMovementComponent>();
+				ecs::components::MoveStateComponent* move_comp = entity.getComponent<ecs::components::MoveStateComponent>();
+				if (move_comp->path.size() > 0)
 				{
-					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
-					switch (move->goalState)
+					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
+					if (abs(goal->position.x - transform->position.x) < 0.005f && abs(goal->position.z - transform->position.z) < 0.005f)
 					{
-					case LOOT:
-						ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
-						break;
-					case ATTACK:
-						ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
-						break;
-					default:
-						ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
-						break;
+						move_comp->path.erase(move_comp->path.begin());
+					}
+					if (move_comp->path.size() > 0)
+					{
+						goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
+						this->x = goal->position.x - transform->position.x;
+						this->z = goal->position.z - transform->position.z;
+						this->length = sqrt(x * x + z * z);
+						this->x = this->x / this->length;
+						this->z = this->z / this->length;
+						dyn_move->mForward.x = this->x;
+						dyn_move->mForward.z = this->z;
+
+						MovementInputEvent kek;
+						kek.mInput = FORWARD;
+						kek.mEntityID = entity.entity->getID();
+						createEvent(kek);//creates an event to physics to move character
+
+						//Create the possible states we could switch to
+						ecs::components::AttackStateComponent atk_state;
+						atk_state.previousState = move_comp->goalState;
+						atk_state.enemyEntityId = move_comp->goalID;
+						ecs::components::LootStateComponent loot_state;
+						ecs::components::PathfindingStateComponent path_state;
+						path_state.goalState = move_comp->goalState;
+						ecs::components::IdleStateComponent idle_state;
+						//Calculate distance to goal and add the frame time to the total travel time
+						float distance = PhysicsHelpers::CalculateDistance(transform->position, move_comp->goalPos);
+						float max_traveltime = 100.0f;
+						move_comp->time += delta;
+						//Check if we are close enought to the goal to switch state
+						if (distance < 0.1f)
+						{
+							ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
+							switch (move_comp->goalState)
+							{
+							case LOOT:
+								ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
+								break;
+							case ATTACK:
+								ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
+								break;
+							default:
+								ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
+								break;
+							}
+						}
+						//Check if it is time to recalculate the path since we did it last time
+						else if (move_comp->time > max_traveltime)
+						{
+							ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
+							ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
+						}
 					}
 				}
-				//Check if it is time to recalculate the path since we did it last time
-				else if (move->time > max_traveltime)
-				{
-					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
-					ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
-				}
 			}
+		private:
+			float x;
+			float z;
+			float length;
 		};
 
 		/*
@@ -246,7 +417,7 @@ namespace ecs
 				/*************************************************/
 
 				//Check if there is an enemy within fighting range.
-				float attack_range = 5.0f; //SHOULD BE BASED ON EQUIPED WEAPON LATER WHEN ITEMS IS IMPLEMENTED.
+				float attack_range = 0.01f; //SHOULD BE BASED ON EQUIPED WEAPON LATER WHEN ITEMS IS IMPLEMENTED.
 				float distance = 1000.0f;
 				ecs::components::UnitComponent* current_unit = entity.getComponent<ecs::components::UnitComponent>();
 				ecs::components::UnitComponent* other_unit;
@@ -300,8 +471,10 @@ namespace ecs
 						path_state.goalState = STATE::ATTACK;
 						ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
 					}
-				}
+				}				
+				
 			}
+		
 		};
 
 
@@ -316,7 +489,7 @@ namespace ecs
 			SwitchStateSystem()
 			{
 				updateType = EventReader;
-				typeFilter.addRequirement(ecs::events::ChangeUserStateEvent::typeID); //Needs to be added when the input event is merged into master.
+				typeFilter.addRequirement(ecs::events::ChangeUserStateEvent::typeID);
 			}
 			virtual ~SwitchStateSystem() {}
 			void readEvent(BaseEvent& event, float delta) override

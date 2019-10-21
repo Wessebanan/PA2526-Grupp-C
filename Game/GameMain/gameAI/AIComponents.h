@@ -40,11 +40,14 @@ namespace ecs
 			STATE goalState = STATE::IDLE;
 			DirectX::XMFLOAT3 goalPos = { 0.0f, 0.0f, 0.0f }; //Defaults to 0,0,0 to make sure that there always is some kind of goal.
 			float time = 0.0f;
+			std::vector<unsigned int> path;
+			unsigned int goalID;
 		};
 
 		struct LootStateComponent : public ECSComponent<LootStateComponent>
 		{
 			int data = 0;
+			std::vector<unsigned int> path;
 		};
 
 		struct AttackStateComponent : public ECSComponent<AttackStateComponent>

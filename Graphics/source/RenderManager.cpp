@@ -1,3 +1,4 @@
+
 #include "../includes/RenderManager.h"
 
 namespace graphics

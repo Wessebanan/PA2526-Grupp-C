@@ -13,14 +13,16 @@
 #define DEFAULT_WEIGHT 50.0f
 #define DEFAULT_GRAVITY 9.82f
 #define DEFAULT_HEALTH 100.0f
-#define DEFAULT_BASE_DAMAGE 10.0f
+
+#define BASE_SWORD_DAMAGE 10.0f
+#define BASE_FIST_DAMAGE 1.0f
 
 // WEAPON_TYPE decides what bounding volume to use.
 enum WEAPON_TYPE
 {
 	SWORD,
 	PROJECTILE,
-	DEFAULT
+	FIST
 };
 
 namespace ecs
@@ -57,6 +59,9 @@ namespace ecs
 			// Assuming objects are equal in
 			// density all over.
 			DirectX::XMFLOAT3 mMassCenter;
+
+			// Position pre-movement to determine if the object moved since last update.
+			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 			// If object is on ground.
 			bool mOnGround = false;
@@ -128,18 +133,17 @@ namespace ecs
 		COMP(WeaponComponent)
 		{
 			// When an entity gets the weapon, give owner entity id to component.
-			ID mOwnerEntity;
-			
+			ID mOwnerEntity = 0;			
 
-			WEAPON_TYPE mType = DEFAULT;
-			float mAttackRange = 0.0f;
+			WEAPON_TYPE mType = FIST;
 			BoundingVolume* mBoundingVolume = nullptr;
 			
 			// Previous position to calculate velocity for damage.
 			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			
 			// Base damage for multiplier on hit based on weapon type.
-			float mBaseDamage = DEFAULT_BASE_DAMAGE;
+			float mBaseDamage = 0.0f;
+			float mAttackRange = 0.0f;
 
 			~WeaponComponent()
 			{				
@@ -155,7 +159,7 @@ namespace ecs
 		* might hold strength, stamina, speed etc. in the future so constitution
 		* is a good name.
 		*/
-		COMP(ConstitutionComponent)
+		COMP(HealthComponent)
 		{
 			float mBaseHealth	= DEFAULT_HEALTH;
 			float mHealth		= DEFAULT_HEALTH;

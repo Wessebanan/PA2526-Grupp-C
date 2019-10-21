@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "../../pch.h"
+
 #include "../includes/Window.h"
 
 #include "../includes/RenderContext.h"

@@ -1,5 +1,5 @@
 #include "CollisionSystem.h"
-
+#include "..//gameAudio/AudioECSEvents.h"
 #pragma region ObjectCollisionSystem
 ecs::systems::ObjectCollisionSystem::ObjectCollisionSystem()
 {
@@ -303,6 +303,12 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		
 		// If the object moved, it is now on the ground level.
 		on_ground = true;
+
+		// TEMP GROUND HIT SOUND
+		//ecs::events::PlaySound sound_event;
+		//sound_event.audioName = AudioName::COIN_TEST_SOUND;
+		//sound_event.soundFlags = SoundFlags::SF_NONE;
+		//createEvent(sound_event);
 	}
 
 	// Break if entity does not move dynamically.

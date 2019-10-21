@@ -27,17 +27,19 @@
     <Import Project="..\..\PropertySheets\ECS_Release.props" />
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
     <Import Project="..\..\PropertySheets\InputInterpreter_Release.props" />
-    <Import Project="..\..\PropertySheets\Physics_Release.props" />
     <Import Project="..\..\PropertySheets\Utility_Release.props" />
     <Import Project="..\..\PropertySheets\AI_Release.props" />
+    <Import Project="..\..\PropertySheets\Physics_Release.props" />
+    <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
     <Import Project="..\..\PropertySheets\ECS_Debug.props" />
-    <Import Project="..\..\PropertySheets\Physics_Debug.props" />
     <Import Project="..\..\PropertySheets\Utility_Debug.props" />
     <Import Project="..\..\PropertySheets\InputInterpreter_Debug.props" />
     <Import Project="..\..\PropertySheets\AI_Debug.props" />
+    <Import Project="..\..\PropertySheets\Physics_Debug.props" />
+    <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
@@ -49,11 +51,13 @@
     <ClInclude Include="..\..\Game\GameMain\gameAI\InitArmy.h" />
     <ClInclude Include="..\..\Game\GameMain\gameAI\InitGrid.h" />
     <ClInclude Include="..\..\Game\GameMain\gameUtility\UtilityComponents.h" />
+    <ClInclude Include="..\AI\includes\GridFunctions.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Game\GameMain\gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="..\..\Game\GameMain\gameAI\GridEcsFunctions.cpp" />
+    <ClCompile Include="..\AI\includes\GridFunctions.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
