@@ -493,12 +493,6 @@ namespace graphics
 		}
 	}
 
-	void Present(const UINT syncInterval)
-	{
-		internal::gpSwapChain4->Present(syncInterval, 0);
-	}
-
-
 	HRESULT InitializeD3D11()
 	{
 		if (internal::gIsActive) return S_OK;
@@ -560,9 +554,6 @@ namespace graphics
 		hr = internal::CreateAndSetInputLayout();
 		if (FAILED(hr)) return hr;
 
-		/*hr = internal::CreateSwapChain(hWnd);
-		if (FAILED(hr)) return hr;*/
-
 		internal::gIsActive = true;
 		return hr;
 	}
@@ -587,5 +578,10 @@ namespace graphics
 	HRESULT AttachHwndToSwapChain(const HWND hWnd)
 	{
 		return internal::CreateSwapChain(hWnd);
+	}
+
+	void Present(const UINT syncInterval)
+	{
+		internal::gpSwapChain4->Present(syncInterval, 0);
 	}
 }
