@@ -5,25 +5,22 @@
 ecs::systems::SoundMessageSystem::SoundMessageSystem()
 {
 	updateType = EventListenerOnly;
-	{
-		using namespace ecs::events;
-		subscribeEventCreation(PlaySound::typeID);
-		subscribeEventCreation(PlayMusic::typeID);
-		subscribeEventCreation(MusicSetVolume::typeID);
-		subscribeEventCreation(SubMusicSetVolume::typeID);
-		subscribeEventCreation(FadeInMusic::typeID);
-		subscribeEventCreation(PlaySubMusic::typeID);
-		subscribeEventCreation(FadeInSubMusic::typeID);
-		subscribeEventCreation(FadeOutSubMusic::typeID);
-	}
+	mEngineInit = false;
+	mSoundPaHandler = nullptr;
+	mSoundEngine = nullptr;
+	mSoundMixer = nullptr;
+	mSoundBank = nullptr;
 }
 
 ecs::systems::SoundMessageSystem::~SoundMessageSystem()
 {
 	// Wait for the work thread to finish, the shutdown
-	mSoundEngine->JoinWorkThread();
-	mSoundEngine->StopStream();
-	mSoundEngine->CloseStream();
+	if (mEngineInit)
+	{
+		mSoundEngine->JoinWorkThread();
+		mSoundEngine->StopStream();
+		mSoundEngine->CloseStream();
+	}
 
 	if (mSoundPaHandler != nullptr)
 	{
@@ -68,11 +65,27 @@ bool ecs::systems::SoundMessageSystem::Init()
 		std::cerr << "Setting up sound engine failed!\n";
 		return false;
 	}
+
+	mEngineInit = true;
 	if (!SetupBank())
 	{
 		std::cerr << "Setting up sound bank failed!\n";
 		return false;
 	}
+
+	//Subscribe to events
+	{
+		using namespace ecs::events;
+		subscribeEventCreation(PlaySound::typeID);
+		subscribeEventCreation(PlayMusic::typeID);
+		subscribeEventCreation(MusicSetVolume::typeID);
+		subscribeEventCreation(SubMusicSetVolume::typeID);
+		subscribeEventCreation(FadeInMusic::typeID);
+		subscribeEventCreation(PlaySubMusic::typeID);
+		subscribeEventCreation(FadeInSubMusic::typeID);
+		subscribeEventCreation(FadeOutSubMusic::typeID);
+	}
+
 	return true;
 }
 
@@ -119,6 +132,7 @@ bool ecs::systems::SoundMessageSystem::SetupEngine()
 	// Will start triggering the callback function
 	if (!mSoundEngine->StartStream())
 	{
+		mSoundEngine->CloseStream();
 		std::cerr << "An error occured while starting the stream\n";
 		return false;
 	}
