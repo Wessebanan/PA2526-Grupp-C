@@ -43,8 +43,6 @@ int main()
 	ecs.createSystem<ecs::systems::MoveStateSystem>(5);
 	ecs.createSystem<ecs::systems::AttackStateSystem>(5);
 	ecs.createSystem<ecs::systems::SwitchStateSystem>(4);
-	//ecs.createSystem<ecs::systems::DynamicMovementSystem>();
-	//ecs.createSystem<ecs::systems::GroundCollisionSystem>();
 
 	InitInput(ecs);
 	InitInterpreter(ecs);
@@ -99,13 +97,6 @@ int main()
 	ecs::events::ChangeUserStateEvent cool_bean2;
 	ecs::events::ChangeUserStateEvent cool_bean3;
 	ecs::events::ChangeUserStateEvent cool_bean4;
-	for (FilteredEntity p_entity : ittt.entities)
-	{
-		
-		//ecs.createComponent<components::DynamicMovementComponent>(p_entity.entity->getID(), dyn_move);
-		
-	}
-	//CreatePhysicsComponentsForUnits(ecs, pp_meshes[Mesh::DUDE]);
 
 	cool_bean.newState = STATE::ATTACK;
 	cool_bean.playerId = PLAYER::PLAYER1;
