@@ -32,6 +32,7 @@ namespace ecs
 			Audio::Engine* mSoundEngine;
 			Audio::Mixer* mSoundMixer;
 			Audio::Bank* mSoundBank;
+			bool mEngineInit;
 		};
 	}
 }
