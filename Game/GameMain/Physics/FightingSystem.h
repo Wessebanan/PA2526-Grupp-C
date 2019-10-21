@@ -12,6 +12,13 @@ namespace ecs
 {
 	namespace systems
 	{
+		/** Weapon Init System:
+		* Triggers when a weapon component is created
+		* and initializes provided the entity has a mesh 
+		* component and a transform component before. Use
+		* "CreateWeaponEntity" from Physics/InitPhysics.h
+		* to make sure the weapon component is created properly.
+		*/
 		SYSTEM(WeaponInitSystem)
 		{
 			WeaponInitSystem();
@@ -19,6 +26,12 @@ namespace ecs
 			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
 		};
 
+
+		/** Damage System:
+		* Checks collision of each weapon with each entity that has a 
+		* health component, applies damage to each collided entity based
+		* on weapon properties and velocity.
+		*/
 		SYSTEM(DamageSystem)
 		{
 			DamageSystem();
