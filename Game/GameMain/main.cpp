@@ -159,7 +159,7 @@ int main()
 	UINT pipeline_shadow_map;
 	{
 		graphics::SHADOW_MAP_PIPELINE_DESC desc;
-		desc.PixelsWidth	= 4096;
+		desc.PixelsWidth	= 1024;
 		desc.Width			= 25.0f;
 		desc.Height			= 40.0f;
 		desc.NearPlane		=  1.0f;
@@ -402,7 +402,11 @@ int main()
 				renderer.UpdatePipeline(pipeline_forward, &data);
 			}
 
-			renderer.ExecutePipeline(pipeline_shadow_map);
+			mesh_manager.SetVertexBuffers();
+
+			if(frame_count % 2 == 0)
+				renderer.ExecutePipeline(pipeline_shadow_map);
+
 			renderer.ExecutePipeline(pipeline_forward);
 
 			graphics::Present(0);
@@ -414,11 +418,11 @@ int main()
 			}
 		}
 	}
-	
-	//for (int i = 0; i < Mesh::N_MESHES; i++) delete pp_meshes[i];
-	//delete[] pp_meshes;
 
 	mesh_manager.Destroy();
 	renderer.Destroy();
+
+	graphics::DestroyD3D11();
+
 	return 0;
 }
