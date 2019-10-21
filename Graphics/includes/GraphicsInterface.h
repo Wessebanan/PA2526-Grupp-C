@@ -99,7 +99,7 @@ namespace graphics
 			};
 		}
 
-		inline UINT IsInFocus(const HWND hWnd)
+		inline UINT HasFocus(const HWND hWnd)
 		{
 			return GetActiveWindow() == hWnd ? TRUE : FALSE;
 		}

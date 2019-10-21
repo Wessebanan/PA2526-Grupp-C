@@ -160,17 +160,19 @@ int main()
 	wnd.Open();
 	while (wnd.IsOpen())
 	{
-		if (!wnd.Update() && graphics::window::IsInFocus(wnd))
+		if (!wnd.Update() && graphics::window::HasFocus(wnd))
 		{
 			float moveSpeed = 0.001f;
 			if (GetAsyncKeyState(VK_UP))
 			{
 				z += moveSpeed;
 			}
+
 			if (GetAsyncKeyState(VK_DOWN))
 			{
 				z -= moveSpeed;
 			}
+
 			if (GetAsyncKeyState(VK_ESCAPE))
 			{
 				wnd.Close();
