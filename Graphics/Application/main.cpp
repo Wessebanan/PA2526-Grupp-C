@@ -157,6 +157,7 @@ int main()
 	float x = 0.0f, y = 0.0f, z = -1.0f;
 	DirectX::XMFLOAT4X4 m_cameraMatrix;
 
+
 	wnd.Open();
 	while (wnd.IsOpen())
 	{
