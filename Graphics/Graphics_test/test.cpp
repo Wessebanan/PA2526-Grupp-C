@@ -100,8 +100,8 @@ TEST(Graphics, MultipleManagers)
 TEST(Graphics, CreatePipeline)
 {
 	UINT
-		clientWidth = graphics::window::GetWorkAreaResolution().x,
-		clientHeight = graphics::window::GetWorkAreaResolution().y;
+		clientWidth = graphics::GetWorkAreaResolution().x,
+		clientHeight = graphics::GetWorkAreaResolution().y;
 
 	graphics::Window wnd;
 	wnd.Initialize(

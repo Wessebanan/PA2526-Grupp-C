@@ -48,8 +48,8 @@ int main()
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	UINT
-		clientWidth		= graphics::window::GetWorkAreaResolution().x,
-		clientHeight	= graphics::window::GetWorkAreaResolution().y;
+		clientWidth		= graphics::GetDisplayResolution().x,
+		clientHeight	= graphics::GetDisplayResolution().y;
 
 	graphics::Window wnd;
 	wnd.Initialize(
@@ -160,9 +160,9 @@ int main()
 	wnd.Open();
 	while (wnd.IsOpen())
 	{
-		if (!wnd.Update() && graphics::window::HasFocus(wnd))
+		if (!wnd.Update() && graphics::HasFocus(wnd))
 		{
-			float moveSpeed = 0.001f;
+			float moveSpeed = 0.1f;
 			if (GetAsyncKeyState(VK_UP))
 			{
 				z += moveSpeed;

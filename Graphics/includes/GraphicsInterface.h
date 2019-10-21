@@ -62,49 +62,6 @@ namespace graphics
 		const char* pFilepath,
 		ID3D11ComputeShader** ppComputeShader);
 
-	namespace window
-	{
-		struct CLIENT_INT2
-		{
-			int x, y;
-		};
-
-		inline CLIENT_INT2 GetWorkAreaResolution()
-		{
-			RECT r;
-			SystemParametersInfoA(SPI_GETWORKAREA, 0, &r, 0);
-
-			return { 
-				r.right - r.left, 
-				r.bottom - r.top 
-			};
-		}
-
-		inline CLIENT_INT2 GetDisplayResolution()
-		{
-			return { 
-				GetSystemMetrics(SM_CXSCREEN), 
-				GetSystemMetrics(SM_CYSCREEN) 
-			};
-		}
-
-		inline CLIENT_INT2 GetClientResolution(const HWND hWnd)
-		{
-			RECT r;
-			GetClientRect(hWnd, &r);
-
-			return { 
-				r.right - r.left, 
-				r.bottom - r.top 
-			};
-		}
-
-		inline UINT HasFocus(const HWND hWnd)
-		{
-			return GetActiveWindow() == hWnd ? TRUE : FALSE;
-		}
-	}
-
 	HRESULT InitializeD3D11();
 	void DestroyD3D11();
 
