@@ -121,8 +121,8 @@ int main()
 		-- Client Resolution --
 	*/
 	const UINT
-		client_width = 1920,
-		client_height = 1080;
+		client_width = graphics::GetDisplayResolution().x,
+		client_height = graphics::GetDisplayResolution().y;
 
 	graphics::Window wnd;
 	wnd.Initialize(
@@ -131,8 +131,11 @@ int main()
 		"Couch Commanders",
 		graphics::WINDOW_STYLE::BORDERLESS);
 
+	graphics::InitializeD3D11();
+	graphics::AttachHwndToSwapChain(wnd);
+
 	graphics::RenderManager renderer;
-	renderer.Initialize(wnd);
+	renderer.Initialize(131072);
 
 	graphics::MeshManager mesh_manager;
 	mesh_manager.Initialize(10000, 10000);
@@ -245,36 +248,27 @@ int main()
 
 	/* ECS END */
 
-
-
-	graphics::ShaderModelLayout layout_scenery = { 0 };
-	layout_scenery.MeshCount		= 3;
-	layout_scenery.Meshes[0]		= (mesh_region_hexagon);
-	layout_scenery.Meshes[1]		= (mesh_region_tree);
-	layout_scenery.Meshes[2]		= (mesh_region_rock);
-
-	graphics::ShaderModelLayout layout_skin = { 0 };
-	layout_skin.MeshCount			= 1;
-	layout_skin.Meshes[0]			= (mesh_region_dude);
-	layout_skin.InstanceCounts[0]	= 12;
-	layout_skin.TotalModels			= 12;
-
 	size_t tile_count = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
+
+	UINT instance_count_scenery[] = { tile_count, 6, 6 };
+	graphics::MeshRegion mesh_regions[] = { mesh_region_hexagon, mesh_region_tree, mesh_region_rock };
+	graphics::ShaderModelLayout layout_scenery = { 0 };
+	layout_scenery.MeshCount				= 3;
+	layout_scenery.pMeshes					= mesh_regions;
+	layout_scenery.pInstanceCountPerMesh	= instance_count_scenery;
+
+	UINT instance_count_buddies = 12;
+	graphics::ShaderModelLayout layout_skin = { 0 };
+	layout_skin.MeshCount					= 1;
+	layout_skin.pMeshes						= &mesh_region_dude;
+	layout_skin.pInstanceCountPerMesh		= &instance_count_buddies;
+
 
 	ShaderProgramInput* pData	= new ShaderProgramInput[tile_count + 6 + 6];
 	UINT sizeOfPdata			= (UINT)(sizeof(ShaderProgramInput) * (tile_count + 6 + 6));
 	sizeOfPdata = 2496;
 	ZeroMemory(pData, sizeOfPdata);
 
-	layout_scenery.InstanceCounts[0] = tile_count;
-	layout_scenery.InstanceCounts[1] = 6;
-	layout_scenery.InstanceCounts[2] = 6;
-
-
-	for (UINT i = 0; i < layout_scenery.MeshCount; i++)
-	{
-		layout_scenery.TotalModels += layout_scenery.InstanceCounts[i];
-	}
 
 	// Map tiles will be uploaded with ocean meshes
 	UINT index = 0;
@@ -327,7 +321,7 @@ int main()
 	}
 
 
-	sizeOfPdata = sizeOfPdata + (256 - (sizeOfPdata % 256));
+	sizeOfPdata += (256 - (sizeOfPdata % 256));
 
 	SkinningShaderProgramInput* skin_shader_program_input = new SkinningShaderProgramInput[12];
 	UINT skin_size = sizeof(SkinningShaderProgramInput) * 12;
@@ -381,7 +375,9 @@ int main()
 			UpdateAnimation(skeleton, skin_shader_program_input, frame_count2);
 
 			memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
-			renderer.SetModelData(pInstanceData, sizeOfPdata + skin_size);
+
+			renderer.BeginUpload();
+			renderer.UploadPerInstanceData(pInstanceData, sizeOfPdata + skin_size, 0);
 
 			{	
 				DirectX::XMFLOAT4X4 shadow_matrix;
@@ -409,7 +405,8 @@ int main()
 			renderer.ExecutePipeline(pipeline_shadow_map);
 			renderer.ExecutePipeline(pipeline_forward);
 
-			renderer.Present();
+			graphics::Present(0);
+
 			frame_count++;
 			if (frame_count % 3 == 0)
 			{
