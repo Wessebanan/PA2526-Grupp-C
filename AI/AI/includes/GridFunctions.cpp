@@ -8,51 +8,70 @@ using namespace DirectX;
 
 namespace GridFunctions
 {
-	void CreateHeightmap(float* Arr) //Creates a array that is used to change the hight for the map and remove chunks for water
+	void CreateHeightmap(float* Arr, int rows, int columns) //Creates a array that is used to change the hight for the map and remove chunks for water
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
-		float height_values[12][12] =
-		{
-			{	-1.f,-1.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,-1.f,-1.f,-1.f},
-			{	-1.f,0.f,0.f,0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,-1.f},
-			{	0.f,0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f},
-			{	0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f},
-			{	-1.f,-1.f,-1.f,-1.f,-1.f,0.f,0.f,-1.f,-1.f,-1.f,-1.f,-1.f},
-			{	0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f},
-			{	0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f},
-			{	0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f},
-			{	0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f},
-			{	0.f,1.f,2.f,3.f,2.f,1.f,0.f,0.f,-2.f,0.f,0.f,-1.f},
-			{	0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,-1.f},
-			{	-1.f,-1.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,-1.f}
-		};
+
+		const int max_rows = ARENA_ROWS;
+		const int max_columns = ARENA_COLUMNS;
+
+
+		float height_values[max_rows][max_columns];
+
+		for (size_t i = 0; i < max_rows; i++)
+			for (size_t j = 0; j < max_columns; j++)
+			{
+				height_values[i][j] = -1.f;
+			}
+
+		for (size_t i = 0; i < rows; i++)
+			for (size_t j = 0; j < columns; j++)
+			{
+				height_values[i][j] = 0.f;
+			}
+
+
+		//{
+		//	{	-1.f,-1.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,-1.f,-1.f,-1.f},
+		//	{	-1.f,0.f,0.f,0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,-1.f},
+		//	{	0.f,0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f},
+		//	{	0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f},
+		//	{	-1.f,-1.f,-1.f,-1.f,-1.f,0.f,0.f,-1.f,-1.f,-1.f,-1.f,-1.f},
+		//	{	0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f},
+		//	{	0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f},
+		//	{	0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f},
+		//	{	0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f},
+		//	{	0.f,1.f,2.f,3.f,2.f,1.f,0.f,0.f,-2.f,0.f,0.f,-1.f},
+		//	{	0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,-1.f},
+		//	{	-1.f,-1.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,-1.f}
+		//};
 
 		// Removes chunks from each side of the map
-		int side0 = rand() % 9;
-		int side1 = rand() % 9;
-		int side2 = rand() % 9;
-		int side3 = rand() % 9;
+		int side0 = rand() % (rows - 3);
+		int side1 = rand() % (rows - 3);
+		int side2 = rand() % (rows - 3);
+		int side3 = rand() % (rows - 3);
 
 		// removed 3 on each side
 		for (size_t i = 0; i < 3; i++)
 		{
 			height_values[0][(side0 + i)] = -1.0f;
-			height_values[11][(side1 + i)] = -1.0f;
+			height_values[rows - 1][(side1 + i)] = -1.0f;
 			height_values[(side2 + i)][0] = -1.0f;
-			height_values[(side3 + i)][11] = -1.0f;
+			height_values[(side3 + i)][rows - 1] = -1.0f;
 		}
 
 		// removes 2 more from 2 sides one layer close to the center
 		for (size_t i = 0; i < 2; i++)
 		{
 			height_values[1][(side0 + i)] = -1.0f;
-			height_values[10][(side1 + i)] = -1.0f;
+			height_values[rows - 2][(side1 + i)] = -1.0f;
 		}
 
-		for (int i = 0; i < 12; i++)
+		for (int i = 0; i < rows; i++)
 		{
-			for (int j = 0; j < 12; j++)
-				Arr[j + i * 12] = height_values[i][j];
+			for (int j = 0; j < columns; j++)
+				Arr[j + i * ARENA_ROWS] = height_values[i][j];
 		}
 	}
 
@@ -215,7 +234,7 @@ namespace GridFunctions
 		}
 	}
 
-	int2 FindStartingTile(PLAYER Id)
+	int2 FindStartingTile(PLAYER Id, int Rows, int Colums)
 	{
 		/*
 		Picture of which corner the players should spawn in
@@ -231,8 +250,8 @@ namespace GridFunctions
 		*/
 
 		//Initialize variables
-		int rows = ARENA_ROWS;
-		int columns = ARENA_COLUMNS;
+		int rows = Rows;
+		int columns = Colums;
 		int2 index(-1, -1);
 		int min_x, min_y;
 		GridProp* p_gp = GridProp::GetInstance();

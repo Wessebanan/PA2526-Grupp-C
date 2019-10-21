@@ -23,8 +23,11 @@ namespace GridEcsFunctions
 		ColorComponent color;
 		TileComponent tile;
 		ecs::Entity* current_tile;
-		float height_map[ARENA_COLUMNS*ARENA_ROWS];
-		GridFunctions::CreateHeightmap(height_map);
+
+		const int mapsze = ARENA_ROWS*ARENA_ROWS; // Max size
+		//const int mapsze = Columns * Rows;
+		float height_map[mapsze];
+		GridFunctions::CreateHeightmap(height_map, Rows, Columns);
 		//for (int i = 0; i < rows; i++)
 		//{
 		//	ArenaProperties::gridLogic[0][i].entityID = i;
@@ -35,6 +38,9 @@ namespace GridEcsFunctions
 		//}
 		
 		GridProp* p_gp = GridProp::GetInstance();
+
+		p_gp->SetSize(Rows,Columns);
+
 
 		color.red = 0;
 		color.green = 0;
@@ -51,7 +57,7 @@ namespace GridEcsFunctions
 				
 				//Save the calculated values into the PositionComponent.
 				transform.position.x = current_pos.x;
-				transform.position.y = height_map[(i*12)+j];
+				transform.position.y = height_map[(i*ARENA_ROWS)+j];
 				transform.position.z = current_pos.z;
 				if (transform.position.y == -1.f)
 				{
@@ -303,9 +309,11 @@ namespace GridEcsFunctions
 	{
 		GridProp* p_gp = GridProp::GetInstance();
 		components::TileComponent* temp_component = nullptr;
-		for (int i = 0; i < ARENA_ROWS; i++)
+		int rows = p_gp->GetSize().x;
+		int columns = p_gp->GetSize().y;
+		for (int i = 0; i < rows; i++)
 		{
-			for (int j = 0; j < ARENA_COLUMNS; j++)
+			for (int j = 0; j < columns; j++)
 			{
 				temp_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[i][j].Id);
 				for (int k = 0; k < 6; k++)

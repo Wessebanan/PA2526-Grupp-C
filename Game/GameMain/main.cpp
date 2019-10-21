@@ -208,9 +208,9 @@ int main()
 	ecs::EntityComponentSystem ecs;
 
 	//Tiles + sceneobjects + units + camera
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(300 + 12 + 12 + 1);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(300 + 12 + 12);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(300);
 
 	InitSound(ecs);
 

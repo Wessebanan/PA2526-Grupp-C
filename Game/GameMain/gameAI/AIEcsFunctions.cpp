@@ -29,11 +29,12 @@ namespace AIEcsFunctions
 		ID temp_id;
 		ecs::components::TransformComponent* p_transform;
 		GridProp* p_gp = GridProp::GetInstance();
+		int2 size = p_gp->GetSize();
 		//Loop for every player.
 		for (int i = 0; i < 4; i++)
 		{
 			////Fetch the index of the starting tile for this player.
-			starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i);
+			starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i, size.x,size.y);
 			temp_id = p_gp->mGrid[starting_tile_index.y][starting_tile_index.x].Id;
 			p_transform = rEcs.getComponentFromEntity<ecs::components::TransformComponent>(temp_id);
 			//Set current players enum ID for this armies units.

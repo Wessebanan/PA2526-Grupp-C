@@ -14,6 +14,7 @@ class GridProp
 {
 private:
 	GridProp() {};
+	int2 mMapSize = int2(0,0);
 	static GridProp* mpInstance;
 	// Stop the compiler generating methods of copy the object
 	GridProp(GridProp const& copy);            // Not Implemented
@@ -21,6 +22,9 @@ private:
 	~GridProp() {};
 public:
 	TileData mGrid[ARENA_COLUMNS][ARENA_ROWS];
+
+	int2 GetSize() { return this->mMapSize; };
+	void SetSize(int rows, int columns) { this->mMapSize.x = rows; this->mMapSize.y = columns; };
 	static GridProp* GetInstance()
 	{
 		{

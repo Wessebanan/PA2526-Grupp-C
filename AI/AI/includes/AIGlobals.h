@@ -1,7 +1,7 @@
 #pragma once
 
-#define ARENA_ROWS 12
-#define ARENA_COLUMNS 12
+#define ARENA_ROWS 24
+#define ARENA_COLUMNS 24
 #define TILE_RADIUS 1
 
 using TileType = unsigned int;
