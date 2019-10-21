@@ -27,150 +27,150 @@ using namespace ecs;
 int main()
 {
 
-	srand(time(0));
+	//srand(time(0));
 
-	EntityComponentSystem ecs;
+	//EntityComponentSystem ecs;
 
-	// Tiles + sceneobjects + units + camera
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
+	//// Tiles + sceneobjects + units + camera
+	//ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
+	//ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
+	//ecs.reserveComponentCount<ecs::components::TileComponent>(144);
 
-	InitSound(ecs);
+	//InitSound(ecs);
 
-	ecs.createSystem<ecs::systems::PathfindingStateSystem>(5);
-	ecs.createSystem<ecs::systems::IdleStateSystem>(5);
-	ecs.createSystem<ecs::systems::MoveStateSystem>(5);
-	ecs.createSystem<ecs::systems::AttackStateSystem>(5);
-	ecs.createSystem<ecs::systems::SwitchStateSystem>(4);
+	//ecs.createSystem<ecs::systems::PathfindingStateSystem>(5);
+	//ecs.createSystem<ecs::systems::IdleStateSystem>(5);
+	//ecs.createSystem<ecs::systems::MoveStateSystem>(5);
+	//ecs.createSystem<ecs::systems::AttackStateSystem>(5);
+	//ecs.createSystem<ecs::systems::SwitchStateSystem>(4);
 
-	InitInput(ecs);
-	InitInterpreter(ecs);
-	//CameraFunctions::CreateDevCamera(ecs);
-
-
-	InitGrid(ecs);
-	InitArmy(ecs);
-	InitSceneObjects(ecs);
+	//InitInput(ecs);
+	//InitInterpreter(ecs);
+	////CameraFunctions::CreateDevCamera(ecs);
 
 
-	rendering::SUN_DESC sun_desc;
-	sun_desc.Red = 200;
-	sun_desc.Green = 200;
-	sun_desc.Blue = 200;
-	
-	sun_desc.Direction	= { 0.8f, -1.0f, 0.0f };
-	sun_desc.Position	= { -4.0f, 8.0f, 10.0f };
-
-	sun_desc.NearPlane = 0.1f;
-	sun_desc.FarPlane = 100.0f;
-
-	sun_desc.Width = 25.0f;
-	sun_desc.Height = 25.0f;
-
-	sun_desc.Resolution = 2048;
-	
-	rendering::RenderManager* pMng = new rendering::RenderManager;
-	pMng->Initialize(sun_desc, 1600, 900, "D3D11");
-	InitCamera(ecs);
-
-	ModelLoader::Mesh **pp_meshes = InitMesh(ecs, pMng);
-	
-	InitPhysics(ecs, pp_meshes);
-
-	graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
-
-	PlaceMesh(ecs, pMng);
+	//InitGrid(ecs);
+	//InitArmy(ecs);
+	//InitSceneObjects(ecs);
 
 
-	// to get components in the loop
-	ecs::ComponentIterator itt;
+	//rendering::SUN_DESC sun_desc;
+	//sun_desc.Red = 200;
+	//sun_desc.Green = 200;
+	//sun_desc.Blue = 200;
+	//
+	//sun_desc.Direction	= { 0.8f, -1.0f, 0.0f };
+	//sun_desc.Position	= { -4.0f, 8.0f, 10.0f };
 
-	itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
-	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
+	//sun_desc.NearPlane = 0.1f;
+	//sun_desc.FarPlane = 100.0f;
 
-	ecs::components::DynamicMovementComponent dyn_move;
-	ecs::TypeFilter dr_philter;
-	dr_philter.addRequirement(ecs::components::UnitComponent::typeID);
-	ecs::EntityIterator ittt = ecs.getEntititesByFilter(dr_philter);
-	ecs::events::ChangeUserStateEvent cool_bean;
-	ecs::events::ChangeUserStateEvent cool_bean2;
-	ecs::events::ChangeUserStateEvent cool_bean3;
-	ecs::events::ChangeUserStateEvent cool_bean4;
+	//sun_desc.Width = 25.0f;
+	//sun_desc.Height = 25.0f;
 
-	cool_bean.newState = STATE::ATTACK;
-	cool_bean.playerId = PLAYER::PLAYER1;
-	ecs.createEvent(cool_bean);
+	//sun_desc.Resolution = 2048;
+	//
+	//rendering::RenderManager* pMng = new rendering::RenderManager;
+	//pMng->Initialize(sun_desc, 1600, 900, "D3D11");
+	//InitCamera(ecs);
 
-	cool_bean2.newState = STATE::ATTACK;
-	cool_bean2.playerId = PLAYER::PLAYER2;
-	ecs.createEvent(cool_bean2);
-	
-	cool_bean3.newState = STATE::ATTACK;
-	cool_bean3.playerId = PLAYER::PLAYER3;
-	ecs.createEvent(cool_bean3);
-	
-	cool_bean4.newState = STATE::ATTACK;
-	cool_bean4.playerId = PLAYER::PLAYER4;
-	ecs.createEvent(cool_bean4);
+	//ModelLoader::Mesh **pp_meshes = InitMesh(ecs, pMng);
+	//
+	//InitPhysics(ecs, pp_meshes);
 
-	ecs::ComponentIterator itttt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
-	ecs::components::ArmyComponent* army_comp;
-	BaseComponent* p_base_comp;
-	components::TransformComponent* army_transform;
-	XMMATRIX some_world_matrix_from_army_trans_comp;
-	//p_base_comp = itttt.next();
-	
-	pMng->SetViewMatrix(p_cam_comp->viewMatrix);
-	pWnd->Show();
-	ecs.update(0.1f);
+	//graphics::PresentWindow* pWnd = pMng->GetPresentWindow();
 
-	// Timer
-	std::chrono::system_clock::time_point frame_start = std::chrono::system_clock::now();
-	std::chrono::system_clock::time_point frame_end = std::chrono::system_clock::now();
-	std::chrono::duration<float> elapsed;
-	while (pWnd->IsOpen())
-	{
+	//PlaceMesh(ecs, pMng);
 
-		if (!pWnd->Update())
-		{
-			// Starting frame right after ecs::update, first frame a little fucky.
-			frame_start = std::chrono::system_clock::now();
 
-			pMng->Clear(0.2f, 0.1f, 0.1f);
-			
-			pMng->SetViewMatrix(p_cam_comp->viewMatrix);
-			int int_itt = 0;
-			ecs::ComponentIterator itttt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
-			while (p_base_comp = itttt.next())
-			{
-				army_comp = static_cast<ecs::components::ArmyComponent*>(p_base_comp);
-				for (int i = 0; i < army_comp->unitIDs.size(); i++)
-				{
-					army_transform = ecs.getComponentFromEntity<components::TransformComponent>(army_comp->unitIDs.at(i));
-					some_world_matrix_from_army_trans_comp = UtilityEcsFunctions::GetWorldMatrix(*army_transform);
-					DirectX::XMFLOAT4X4* pMatrices = (DirectX::XMFLOAT4X4*)pMng->GetTechniqueModelBuffer(rendering::RENDER_TRANSFORMATION);
-					DirectX::XMStoreFloat4x4(&pMatrices[int_itt++], some_world_matrix_from_army_trans_comp);
-				}
-			}
-			
-			
-			pMng->Draw();
-			pWnd->Present();
+	//// to get components in the loop
+	//ecs::ComponentIterator itt;
 
-			// Finding how long passed between each ecs::update.
-			frame_end = std::chrono::system_clock::now();
-			elapsed = frame_end - frame_start;
+	//itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
+	//ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
 
-			// Passing elapsed time in seconds to ecs.
-			ecs.update(elapsed.count());
-			
-		}
-	}
-	
-	for (int i = 0; i < Mesh::N_MESHES; i++) delete pp_meshes[i];
-	delete[] pp_meshes;
+	//ecs::components::DynamicMovementComponent dyn_move;
+	//ecs::TypeFilter dr_philter;
+	//dr_philter.addRequirement(ecs::components::UnitComponent::typeID);
+	//ecs::EntityIterator ittt = ecs.getEntititesByFilter(dr_philter);
+	//ecs::events::ChangeUserStateEvent cool_bean;
+	//ecs::events::ChangeUserStateEvent cool_bean2;
+	//ecs::events::ChangeUserStateEvent cool_bean3;
+	//ecs::events::ChangeUserStateEvent cool_bean4;
 
-	pMng->Destroy();
+	//cool_bean.newState = STATE::ATTACK;
+	//cool_bean.playerId = PLAYER::PLAYER1;
+	//ecs.createEvent(cool_bean);
+
+	//cool_bean2.newState = STATE::ATTACK;
+	//cool_bean2.playerId = PLAYER::PLAYER2;
+	//ecs.createEvent(cool_bean2);
+	//
+	//cool_bean3.newState = STATE::ATTACK;
+	//cool_bean3.playerId = PLAYER::PLAYER3;
+	//ecs.createEvent(cool_bean3);
+	//
+	//cool_bean4.newState = STATE::ATTACK;
+	//cool_bean4.playerId = PLAYER::PLAYER4;
+	//ecs.createEvent(cool_bean4);
+
+	//ecs::ComponentIterator itttt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
+	//ecs::components::ArmyComponent* army_comp;
+	//BaseComponent* p_base_comp;
+	//components::TransformComponent* army_transform;
+	//XMMATRIX some_world_matrix_from_army_trans_comp;
+	////p_base_comp = itttt.next();
+	//
+	//pMng->SetViewMatrix(p_cam_comp->viewMatrix);
+	//pWnd->Show();
+	//ecs.update(0.1f);
+
+	//// Timer
+	//std::chrono::system_clock::time_point frame_start = std::chrono::system_clock::now();
+	//std::chrono::system_clock::time_point frame_end = std::chrono::system_clock::now();
+	//std::chrono::duration<float> elapsed;
+	//while (pWnd->IsOpen())
+	//{
+
+	//	if (!pWnd->Update())
+	//	{
+	//		// Starting frame right after ecs::update, first frame a little fucky.
+	//		frame_start = std::chrono::system_clock::now();
+
+	//		pMng->Clear(0.2f, 0.1f, 0.1f);
+	//		
+	//		pMng->SetViewMatrix(p_cam_comp->viewMatrix);
+	//		int int_itt = 0;
+	//		ecs::ComponentIterator itttt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
+	//		while (p_base_comp = itttt.next())
+	//		{
+	//			army_comp = static_cast<ecs::components::ArmyComponent*>(p_base_comp);
+	//			for (int i = 0; i < army_comp->unitIDs.size(); i++)
+	//			{
+	//				army_transform = ecs.getComponentFromEntity<components::TransformComponent>(army_comp->unitIDs.at(i));
+	//				some_world_matrix_from_army_trans_comp = UtilityEcsFunctions::GetWorldMatrix(*army_transform);
+	//				DirectX::XMFLOAT4X4* pMatrices = (DirectX::XMFLOAT4X4*)pMng->GetTechniqueModelBuffer(rendering::RENDER_TRANSFORMATION);
+	//				DirectX::XMStoreFloat4x4(&pMatrices[int_itt++], some_world_matrix_from_army_trans_comp);
+	//			}
+	//		}
+	//		
+	//		
+	//		pMng->Draw();
+	//		pWnd->Present();
+
+	//		// Finding how long passed between each ecs::update.
+	//		frame_end = std::chrono::system_clock::now();
+	//		elapsed = frame_end - frame_start;
+
+	//		// Passing elapsed time in seconds to ecs.
+	//		ecs.update(elapsed.count());
+	//		
+	//	}
+	//}
+	//
+	//for (int i = 0; i < Mesh::N_MESHES; i++) delete pp_meshes[i];
+	//delete[] pp_meshes;
+
+	//pMng->Destroy();
 	return 0;
 }
