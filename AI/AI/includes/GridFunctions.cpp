@@ -35,10 +35,10 @@ namespace GridFunctions
 
 		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
-			int top_x = rand() % (rows - 3);
-			int top_y = rand() % (columns - 3);
-			top_x += 2;
-			top_y += 2;
+			int top_x = rand() % (rows);
+			int top_y = rand() % (columns);
+			//top_x += 2;
+			//top_y += 2;
 			float top_height = 1.2f * height_power;
 
 			// top
