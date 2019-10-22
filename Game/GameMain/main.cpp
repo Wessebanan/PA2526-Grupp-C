@@ -357,7 +357,7 @@ int main()
 				wnd.Close();
 			}
 			ecs.update(timer.GetFrameTime());
-			
+
 			ecs::TypeFilter army_filter;
 			army_filter.addRequirement(ecs::components::UnitComponent::typeID);
 			army_filter.addRequirement(ecs::components::TransformComponent::typeID);
