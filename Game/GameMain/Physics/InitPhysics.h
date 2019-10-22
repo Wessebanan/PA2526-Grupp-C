@@ -110,7 +110,6 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 		if (!current->hasComponentOfType<EquipmentComponent>())
 		{
 			// Setting melee range here (arm length) hoping that any unit mesh is either facing x or z on load.
-			//dynamic_cast<ObjectCollisionComponent*>(rEcs.getComponent(ObjectCollisionComponent::typeID, current->getComponentID(ObjectCollisionComponent::typeID)));
 			ObjectCollisionComponent* p_object_collision = dynamic_cast<ObjectCollisionComponent*>(rEcs.getComponent(ObjectCollisionComponent::typeID, current->getComponentID(ObjectCollisionComponent::typeID)));
 			XMFLOAT3 extents = p_object_collision->mAABB.Extents;
 			equipment_component.mMeleeRange = extents.x > extents.z ? extents.x : extents.z;

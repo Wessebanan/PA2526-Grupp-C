@@ -161,7 +161,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	
 	// If a unit collides with an unowned weapon, set colliding unit to weapon owner
 	// and colliding unit equipment to weapon.
-	if (weapon_component->mOwnerEntity == 0 && collided_unit != 0)
+	if (weapon_component->mOwnerEntity == 0 && intersect)
 	{
 		EquipmentComponent *equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
 		// Delete current weapon if any.
@@ -174,10 +174,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		equipment_component->mEquippedWeapon = weapon->getID();
 		weapon_component->mOwnerEntity = collided_unit;
-		return;
 	}
-
-	if (intersect)
+	else if (intersect)
 	{
 		// Calculating velocity on weapon.
 		float movement = CalculateDistance(weapon_component->mPreviousPos, weapon_transform_component->position);
