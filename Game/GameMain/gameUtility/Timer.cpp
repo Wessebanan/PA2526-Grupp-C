@@ -32,7 +32,8 @@ float Timer::GetRoundTime()
 
 float Timer::GetFrameTime()
 {	
-	duration<float> frame_time = high_resolution_clock::now() - mFrameTime;
-	mFrameTime = high_resolution_clock::now();
+	high_resolution_clock::time_point now = high_resolution_clock::now();
+	duration<float> frame_time = now - mFrameTime;
+	mFrameTime = now;
 	return frame_time.count();
 }
