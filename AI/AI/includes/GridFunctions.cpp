@@ -297,7 +297,7 @@ namespace GridFunctions
 		{
 			while (pos_x > TILE_RADIUS)
 			{
-				pos_x -= TILE_RADIUS * 2;
+				pos_x -= TILE_RADIUS * 1.5f;
 				steps++;
 			}
 			if (steps > ARENA_COLUMNS - 1)
@@ -310,43 +310,28 @@ namespace GridFunctions
 			}
 		}
 		steps = 0;
+		if (index.x % 2 != 0)
+		{
+			pos_z += mid_to_side;
+		}
 		if (pos_z < mid_to_side)
 		{
 			index.y = 0;
 		}
 		else
 		{
-			if (index.x % 2 == 0)
+			while (pos_z > mid_to_side)
 			{
-				while (pos_z > mid_to_side)
-				{
-					pos_z -= mid_to_side * 2;
-					steps++;
-				}
-				if (steps > ARENA_ROWS - 1)
-				{
-					index.y = ARENA_ROWS - 1;
-				}
-				else
-				{
-					index.y = steps;
-				}
+				pos_z -= mid_to_side * 2;
+				steps++;
+			}
+			if (steps > ARENA_ROWS - 1)
+			{
+				index.y = ARENA_ROWS - 1;
 			}
 			else
 			{
-				while (pos_z > mid_to_side * 2)
-				{
-					pos_z -= mid_to_side * 2;
-					steps++;
-				}
-				if (steps > ARENA_ROWS - 1)
-				{
-					index.y = ARENA_ROWS - 1;
-				}
-				else
-				{
-					index.y = steps;
-				}
+				index.y = steps;
 			}
 		}
 		return index;

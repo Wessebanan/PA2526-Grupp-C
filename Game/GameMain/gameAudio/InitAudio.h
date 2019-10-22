@@ -23,7 +23,7 @@ bool InitSound(ecs::EntityComponentSystem& rECS)
 
 	{
 		ecs::events::PlaySubMusic m_event;
-		m_event.audioName = AudioName::CC_TEST_SONG;
+		m_event.audioName = AudioName::CC_TEST_SONG_DRUMS;
 		rECS.createEvent(m_event);
 	}
 
