@@ -27,7 +27,7 @@ namespace GridEcsFunctions
 		const int mapsze = ARENA_ROWS*ARENA_ROWS; // Max size
 		//const int mapsze = Columns * Rows;
 		float height_map[mapsze];
-		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 2.0f, Rows*Columns / 80);
+		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 2.0f, Rows*Columns / 60);
 		//for (int i = 0; i < rows; i++)
 		//{
 		//	ArenaProperties::gridLogic[0][i].entityID = i;
