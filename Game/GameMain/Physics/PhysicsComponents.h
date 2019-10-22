@@ -169,6 +169,11 @@ namespace ecs
 		{
 			void* pTree;
 		};
+
+		COMP(EquipmentComponent)
+		{
+			ID mEquippedWeapon = 0;
+		};
 	} // components
 } // ecs
 

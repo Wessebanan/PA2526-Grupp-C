@@ -35,8 +35,14 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	MeshComponent* mesh_component = getComponentFromKnownEntity<MeshComponent>(entity->getID());
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(entity->getID());
-	std::vector<XMFLOAT3> *vertices = mesh_component->mMesh->GetVertexPositionVector();
+	std::vector<XMFLOAT3>* vertices = nullptr;
 
+	// Fist has no mesh.
+	if (weapon_component->mType != FIST)
+	{
+		vertices = mesh_component->mMesh->GetVertexPositionVector();
+	}
+	
 	switch (weapon_component->mType)
 	{
 	// DirectXCollision is aggressive as f when making OBBs so I make
@@ -50,24 +56,27 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		aabb.CreateFromPoints(aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
 		obb->CreateFromBoundingBox(*(BoundingOrientedBox*)obb, aabb);
 
-		// Finding greatest extent in obb and setting that to attack range (for now).
-		XMFLOAT3 extents = obb->Extents;
-		weapon_component->mAttackRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
+		// Applying scale to aabb to find actual range.
+		aabb.Transform(UtilityEcsFunctions::GetWorldMatrix(*transform_component));
 
+		// Finding greatest extent in obb and setting that (*2) to attack range (for now).
+		XMFLOAT3 extents = aabb.Extents;
+		weapon_component->mAttackRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
+		weapon_component->mAttackRange *= 2;
 		weapon_component->mBaseDamage = BASE_SWORD_DAMAGE;
 		break;
 	}
 
 	case FIST:
 	{
-		// No vertex groups so fist is entire dude.
-		weapon_component->mBoundingVolume = new AABB;
-		AABB *aabb = static_cast<AABB*>(weapon_component->mBoundingVolume);
-		aabb->CreateFromPoints(*aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
-
-		// Finding greatest extent in aabb and setting that to attack range (for now).
-		XMFLOAT3 extents = aabb->Extents;
-		weapon_component->mAttackRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
+		// Fist is only a unit sphere, supposed to get hand transform.
+		weapon_component->mBoundingVolume = new Sphere;
+		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
+		sphere->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		sphere->Radius = 1.0f;
+		
+		// TODO: Get arm length and set to attack range.
+		weapon_component->mAttackRange = 1.0f;
 
 		weapon_component->mBaseDamage = BASE_FIST_DAMAGE;
 		break;
@@ -93,12 +102,6 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	Entity* weapon = _entityInfo.entity;
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(weapon->getID());
 	TransformComponent* weapon_transform_component = getComponentFromKnownEntity<TransformComponent>(weapon->getID());
-	// Check if weapon has an owner
-	if (weapon_component->mOwnerEntity == 0)
-	{
-		return;
-	}
-
 
 	// FILL OUT WITH OTHER WEAPONS LATER
 	// Making a copy of the bounding volume for weapon.
@@ -139,8 +142,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		{
 			continue;
 		}
-		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(units.entities.at(i).entity->getID());
-		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(units.entities.at(i).entity->getID());
+		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(current_unit);
+		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(current_unit);
 
 		// Grabbing copy of AABB from current and transforming to world space.
 		AABB current_aabb = p_current_collision->mAABB;
@@ -156,6 +159,13 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		}
 	}
 	
+	// If a unit collides with an unowned weapon, set colliding unit to weapon owner.
+	if (weapon_component->mOwnerEntity == 0)
+	{
+		weapon_component->mOwnerEntity = collided_unit;
+		return;
+	}
+
 	if (intersect)
 	{
 		// Calculating velocity on weapon.

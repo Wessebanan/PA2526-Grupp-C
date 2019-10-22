@@ -75,6 +75,9 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 	GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
 	HealthComponent health_component;
+	EquipmentComponent equipment_component;
+	
+
 
 	for (int i = 0; i < it.entities.size(); i++)
 	{
@@ -102,6 +105,14 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 		if (!current->hasComponentOfType<HealthComponent>())
 		{
 			rEcs.createComponent<HealthComponent>(current->getID(), health_component);
+		}
+
+		// Initializing with fist weapons.
+		if (!current->hasComponentOfType<EquipmentComponent>())
+		{
+			ecs::Entity* weapon_entity = CreateWeaponEntity(rEcs, nullptr, FIST);
+			equipment_component.mEquippedWeapon = weapon_entity->getID();
+			rEcs.createComponent<EquipmentComponent>(current->getID(), equipment_component);
 		}
 	}
 }
@@ -138,8 +149,21 @@ inline ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLo
 
 	weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	weapon_component.mType = weaponType;
-	ModelLoader::Mesh sword("Physics/TestModel/sword.fbx");
-	weapon_mesh_component.mMesh = pMesh;
+	switch (weaponType)
+	{
+	case SWORD:
+	{
+		ModelLoader::Mesh sword("Physics/TestModel/sword.fbx");
+		weapon_mesh_component.mMesh = pMesh;
+		break;
+	}
+	case FIST:
+		weapon_mesh_component.mMesh = pMesh;
+		break;
+	case PROJECTILE:
+		MessageBoxA(NULL, "NO PROJECTILE FOR YOU", NULL, MB_YESNO);
+		break;
+	}
 
 	return rEcs.createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
 }
