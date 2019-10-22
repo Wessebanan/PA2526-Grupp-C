@@ -35,41 +35,12 @@ namespace GridFunctions
 
 		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
-			int top_x = rand() % (rows - 8);
-			int top_y = rand() % (columns - 8);
-			top_x += 4;
-			top_y += 4;
+			int top_x = rand() % (rows - 3);
+			int top_y = rand() % (columns - 3);
+			top_x += 2;
+			top_y += 2;
 			float top_height = 1.2f * height_power;
 			float slope = 0.7f;
-
-
-			//// i = layers forom center
-			//for (size_t i = 0; i < 3; i++)
-			//{
-			//	top_height *= 0.99f;
-	
-			//	// tiles from corner to alined to center
-			//	// Will be one more step to the corner than to hte layer
-			//	for (size_t j = i + 1; j > 0; j--)
-			//	{
-			//		height_values[top_x - i][top_y + j] = top_height;
-			//		height_values[top_x - i][top_y - j] = top_height;
-
-			//		height_values[top_x + i][top_y + j] = top_height;
-			//		height_values[top_x + i][top_y - j] = top_height;
-
-			//		height_values[top_x + j][top_y + i] = top_height;
-			//		height_values[top_x - j][top_y + i] = top_height;
-
-			//		//height_values[top_x + j][top_y - i] = top_height;
-			//		//height_values[top_x - j][top_y - i] = top_height;
-
-
-			//	}
-			//}
-
-			//top_x = 8;
-			//top_y = 8;
 			
 			// top
 			height_values[top_x][top_y] = top_height;
