@@ -179,5 +179,9 @@ void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	// Applying force in the direction of the movement.
 	movement_component->mForce.x = movement_component->mDirection.x * movement_component->mMovementForce;
 	movement_component->mForce.z = movement_component->mDirection.z * movement_component->mMovementForce;
+
+	// Rotate entity to face the same direction as movement.
+	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
+
 }
 #pragma endregion
