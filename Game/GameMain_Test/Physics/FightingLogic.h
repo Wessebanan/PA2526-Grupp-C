@@ -143,6 +143,7 @@ TEST(DamageDealing, DealDamage)
 {
 	ecs::EntityComponentSystem ecs;
 
+	ecs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
 	ecs.createSystem<ecs::systems::WeaponInitSystem>();
 	ecs.createSystem<ecs::systems::DamageSystem>();
 
@@ -151,7 +152,7 @@ TEST(DamageDealing, DealDamage)
 	ObjectCollisionComponent	unit_collision_component;
 	DynamicMovementComponent	unit_movement_component;
 	TransformComponent			unit_transform_component;
-	HealthComponent		unit_constitution_component;
+	HealthComponent				unit_constitution_component;
 
 	ModelLoader::Mesh dude("Physics/TestModel/dude2.fbx");
 	unit_mesh_component.mMesh = &dude;
@@ -171,6 +172,8 @@ TEST(DamageDealing, DealDamage)
 
 	ecs::Entity* attacking_unit_entity = ecs.createEntity(component_list);
 	ecs::Entity* attacked_unit_entity = ecs.createEntity(component_list);
+
+	ObjectCollisionComponent *test = dynamic_cast<ObjectCollisionComponent*>(ecs.getComponent(ObjectCollisionComponent::typeID, attacking_unit_entity->getComponentID(ObjectCollisionComponent::typeID)));
 
 	// Creating weapon (sword).
 	WeaponComponent		weapon_component;

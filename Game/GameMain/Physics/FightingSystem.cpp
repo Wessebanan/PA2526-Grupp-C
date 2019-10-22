@@ -36,6 +36,15 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(entity->getID());
 	std::vector<XMFLOAT3>* vertices = nullptr;
+	//ModelLoader::Skeleton *skel = mesh_component->mMesh->GetSkeleton();
+	
+	if (mesh_component->mMesh->HasSkeleton())
+	{
+		ModelLoader::Skeleton* skeleton = mesh_component->mMesh->GetSkeleton();
+		XMFLOAT4X4 right_hand = skeleton->GetOffsetMatrixUsingJointName("Hand.r", 0);
+		XMFLOAT4X4 right_collar = skeleton->GetOffsetMatrixUsingJointName("Collar.r", 0);
+
+	}
 
 	// Fist has no mesh.
 	if (weapon_component->mType != FIST)
@@ -61,8 +70,8 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 		// Finding greatest extent in obb and setting that (*2) to attack range (for now).
 		XMFLOAT3 extents = aabb.Extents;
-		weapon_component->mAttackRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
-		weapon_component->mAttackRange *= 2;
+		weapon_component->mWeaponRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
+		weapon_component->mWeaponRange *= 2;
 		weapon_component->mBaseDamage = BASE_SWORD_DAMAGE;
 		break;
 	}
@@ -74,9 +83,9 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
 		sphere->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
 		sphere->Radius = 1.0f;
-		
+
 		// TODO: Get arm length and set to attack range.
-		weapon_component->mAttackRange = 1.0f;
+		weapon_component->mWeaponRange = 0.0f;
 
 		weapon_component->mBaseDamage = BASE_FIST_DAMAGE;
 		break;
@@ -169,6 +178,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		{
 			removeEntity(equipment_component->mEquippedWeapon);
 		}
+
+		equipment_component->mAttackRange = equipment_component->mMeleeRange + weapon_component->mWeaponRange;
 
 		equipment_component->mEquippedWeapon = weapon->getID();
 		weapon_component->mOwnerEntity = collided_unit;
