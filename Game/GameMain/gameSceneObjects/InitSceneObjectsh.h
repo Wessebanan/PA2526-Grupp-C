@@ -37,18 +37,29 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 
 	int mapsize = p_gp->GetSize().x * p_gp->GetSize().y;
 
+	// Randoms where the sceneobjects should be placed on the map
+	int sceneobject_locations[12];
+	int kk = 0;
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+
 	for (size_t i = 0; i < mapsize; i++)
 	{
 		// Pass over all tiles
 		ecs::components::TileComponent* tile_comp = (ecs::components::TileComponent*)itt.next();
 		
-
-		int sceneobject_locations[12];
-		for (size_t kk = 0; kk < 12; kk++)
-		{
-			sceneobject_locations[kk] = (rand() % mapsize);
-		}
-
 		// Look for what tiles the sceneobjects should be placed on
 		if (
 			sceneobject_locations[0] == i ||
