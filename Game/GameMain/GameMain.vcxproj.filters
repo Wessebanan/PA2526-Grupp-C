@@ -42,6 +42,9 @@
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp">
       <Filter>Init</Filter>
     </ClCompile>
+    <ClCompile Include="gameUtility\Timer.cpp">
+      <Filter>Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -166,6 +169,9 @@
     </ClInclude>
     <ClInclude Include="gameAnimation\InitAnimation.h">
       <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\Timer.h">
+      <Filter>Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
