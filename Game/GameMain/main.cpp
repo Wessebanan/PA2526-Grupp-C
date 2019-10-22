@@ -152,7 +152,7 @@ int main()
 	graphics::MeshRegion mesh_region_rock		= UploadMeshToGPU(mesh_rock, mesh_manager);
 	graphics::MeshRegion mesh_region_dude		= UploadMeshToGPU(mesh_dude, mesh_manager);
 
-
+	// Will be moved to a system
 	UINT pipeline_shadow_map;
 	{
 		graphics::SHADOW_MAP_PIPELINE_DESC desc;
@@ -166,6 +166,7 @@ int main()
 			&desc);
 	}
 
+	// Will be moved to a system
 	UINT pipeline_forward;
 	{
 		graphics::FORWARD_RENDERING_PIPELINE_DESC desc;
@@ -191,12 +192,12 @@ int main()
 	const std::string ps = GetShaderFilepath("PS_Default.cso");
 	const std::string vs_skin = GetShaderFilepath("VS_Skinning.cso");
 
-	UINT shader_index0 = renderer.CreateShaderProgram(
+	UINT shader_position_color = renderer.CreateShaderProgram(
 		vs.c_str(), 
 		ps.c_str(), 
 		sizeof(ShaderProgramInput));
 
-	UINT shader_index1 = renderer.CreateShaderProgram(
+	UINT shader_skinning = renderer.CreateShaderProgram(
 		vs_skin.c_str(),
 		ps.c_str(),
 		sizeof(SkinningShaderProgramInput));
@@ -213,24 +214,6 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TileComponent>(300);
 
 	InitSound(ecs);
-
-	{
-		ecs::events::PlayMusic m_event;
-		m_event.audioName = AudioName::CC_TEST_SONG;
-		ecs.createEvent(m_event);
-	}
-
-	{
-		ecs::events::PlaySubMusic m_event;
-		m_event.audioName = AudioName::CC_TEST_SONG;
-		ecs.createEvent(m_event);
-	}
-
-	{
-		ecs::events::SubMusicSetVolume m_event;
-		m_event.volume = 0.0f;
-		ecs.createEvent(m_event);
-	}
 
 	ecs.createSystem<ecs::systems::PathfindingStateSystem>(5);
 	ecs.createSystem<ecs::systems::IdleStateSystem>(5);
@@ -264,11 +247,11 @@ int main()
 
 
 
-	graphics::ShaderModelLayout layout = { 0 };
-	layout.MeshCount			= 3;
-	layout.Meshes[0]			= (mesh_region_hexagon);
-	layout.Meshes[1]			= (mesh_region_tree);
-	layout.Meshes[2]			= (mesh_region_rock);
+	graphics::ShaderModelLayout layout_scenery = { 0 };
+	layout_scenery.MeshCount		= 3;
+	layout_scenery.Meshes[0]		= (mesh_region_hexagon);
+	layout_scenery.Meshes[1]		= (mesh_region_tree);
+	layout_scenery.Meshes[2]		= (mesh_region_rock);
 
 	graphics::ShaderModelLayout layout_skin = { 0 };
 	layout_skin.MeshCount			= 1;
@@ -283,16 +266,17 @@ int main()
 	sizeOfPdata = 2496;
 	ZeroMemory(pData, sizeOfPdata);
 
-	layout.InstanceCounts[0] = tile_count;
-	layout.InstanceCounts[1] = 6;
-	layout.InstanceCounts[2] = 6;
+	layout_scenery.InstanceCounts[0] = tile_count;
+	layout_scenery.InstanceCounts[1] = 6;
+	layout_scenery.InstanceCounts[2] = 6;
 
 
-	for (UINT i = 0; i < layout.MeshCount; i++)
+	for (UINT i = 0; i < layout_scenery.MeshCount; i++)
 	{
-		layout.TotalModels += layout.InstanceCounts[i];
+		layout_scenery.TotalModels += layout_scenery.InstanceCounts[i];
 	}
 
+	// Map tiles will be uploaded with ocean meshes
 	UINT index = 0;
 	while (tileComp = (ecs::components::TileComponent*)itt.next())
 	{
@@ -352,8 +336,8 @@ int main()
 	InitAnimation(skeleton, skin_shader_program_input);
 
 
-	renderer.SetShaderModelLayout(shader_index0, layout);
-	renderer.SetShaderModelLayout(shader_index1, layout_skin);
+	renderer.SetShaderModelLayout(shader_position_color, layout_scenery);
+	renderer.SetShaderModelLayout(shader_skinning, layout_skin);
 
 	char* pInstanceData = (char*)malloc(skin_size + sizeOfPdata);
 	memcpy(pInstanceData, pData, sizeOfPdata);
@@ -437,7 +421,7 @@ int main()
 	//for (int i = 0; i < Mesh::N_MESHES; i++) delete pp_meshes[i];
 	//delete[] pp_meshes;
 
-	//mesh_manager.Destroy();
-	//renderer.Destroy();
+	mesh_manager.Destroy();
+	renderer.Destroy();
 	return 0;
 }
