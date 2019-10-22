@@ -217,6 +217,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
 
 	InitSound(ecs);
+	InitSong(ecs);
 
 	ecs.createSystem<ecs::systems::PathfindingStateSystem>(5);
 	ecs.createSystem<ecs::systems::IdleStateSystem>(5);

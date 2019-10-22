@@ -1,4 +1,5 @@
 #include "AudioMixer.h"
+#include <iostream>
 
 void Audio::Mixer::Fill(Samples start, Samples count, float* pData)
 {
@@ -15,6 +16,7 @@ void Audio::Mixer::Fill(Samples start, Samples count, float* pData)
 			}
 		}
 	}
+
 	mMusicManager.Fill(start, count, pData, 2, voice_data);
 }
 
