@@ -30,28 +30,28 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 		switch (p_tile_comp->biome)
 		{
 		case SNOW:
-			p_tile_tansf_comp->position.y += 0.2f + (color_offset / 200.0f);
-			p_tile_tansf_comp->position.y *= 2.4f;
+			p_tile_tansf_comp->position.y += 0.3f;// +(color_offset / 200.0f);
+			p_tile_tansf_comp->position.y *= 1.8f;
 			p_tile_color_comp->red =	220 + color_offset;
 			p_tile_color_comp->green =	220 + color_offset;
 			p_tile_color_comp->blue =	220 + color_offset;
 			break;
 		case MOUNTAIN:
-			p_tile_tansf_comp->position.y += 0.2f + (color_offset / 200.0f);
-			p_tile_tansf_comp->position.y *= 2.6f;
+			p_tile_tansf_comp->position.y += 0.3f;// + (color_offset / 200.0f);
+			p_tile_tansf_comp->position.y *= 1.9f;
 			p_tile_color_comp->red = 50 + color_offset;
 			p_tile_color_comp->green = 50 + color_offset;
 			p_tile_color_comp->blue = 50 + color_offset;
 			break;
 		case FIELD:
-			p_tile_tansf_comp->position.y += 0.2f + (color_offset / 300.0f);
-			p_tile_tansf_comp->position.y *= 1.4f;
+			p_tile_tansf_comp->position.y += 0.2f;// + (color_offset / 300.0f);
+			p_tile_tansf_comp->position.y *= 1.2f;
 			p_tile_color_comp->red = 0;
 			p_tile_color_comp->green = 150 + color_offset;
 			p_tile_color_comp->blue = 0;
 			break;
 		case DESERT:
-			p_tile_tansf_comp->position.y += 0.1f + (color_offset / 300.0f);
+			p_tile_tansf_comp->position.y += 0.1f;// + (color_offset / 300.0f);
 			p_tile_tansf_comp->position.y *= 1.1f;
 			p_tile_color_comp->red = 100 + color_offset;
 			p_tile_color_comp->green = 100 + color_offset;
@@ -60,6 +60,12 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 		default:
 			break;
 		}
+		//////// To have a default biome on the whole map
+		//p_tile_tansf_comp->position.y += 0.1f;// + (color_offset / 300.0f);
+		//p_tile_tansf_comp->position.y *= 1.1f;
+		//p_tile_color_comp->red = 100 + color_offset;
+		//p_tile_color_comp->green = 100 + color_offset;
+		//p_tile_color_comp->blue = 0;
 
 	}
 	

@@ -35,36 +35,119 @@ namespace GridFunctions
 
 		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
-			int top_x = rand() % (rows);
-			int top_y = rand() % (columns);
-			//top_x += 2;
-			//top_y += 2;
+			int top_x = rand() % (rows - 8);
+			int top_y = rand() % (columns - 8);
+			top_x += 4;
+			top_y += 4;
 			float top_height = 1.2f * height_power;
+			float slope = 0.7f;
 
+
+			//// i = layers forom center
+			//for (size_t i = 0; i < 3; i++)
+			//{
+			//	top_height *= 0.99f;
+	
+			//	// tiles from corner to alined to center
+			//	// Will be one more step to the corner than to hte layer
+			//	for (size_t j = i + 1; j > 0; j--)
+			//	{
+			//		height_values[top_x - i][top_y + j] = top_height;
+			//		height_values[top_x - i][top_y - j] = top_height;
+
+			//		height_values[top_x + i][top_y + j] = top_height;
+			//		height_values[top_x + i][top_y - j] = top_height;
+
+			//		height_values[top_x + j][top_y + i] = top_height;
+			//		height_values[top_x - j][top_y + i] = top_height;
+
+			//		//height_values[top_x + j][top_y - i] = top_height;
+			//		//height_values[top_x - j][top_y - i] = top_height;
+
+
+			//	}
+			//}
+
+			//top_x = 8;
+			//top_y = 8;
+			
 			// top
 			height_values[top_x][top_y] = top_height;
 
-			// second circle
-			top_height *= 0.6f;
-			height_values[top_x - 1][	top_y] = top_height;
-			height_values[top_x + 1][	top_y] = top_height;
-			height_values[top_x - 1][top_y	- 1] = top_height;
-			height_values[top_x][top_y		- 1] = top_height;
-			height_values[top_x + 1][top_y	- 1] = top_height;
-			height_values[top_x - 1][top_y	+ 1] = top_height;
-			height_values[top_x][top_y		+ 1] = top_height;
-			height_values[top_x + 1][top_y	+ 1] = top_height;
+			if (false/*top_x % 2*/)
+			{
 
-			// third circle
-			top_height *= 0.6f;
-			height_values[top_x - 2][top_y] = top_height;
-			height_values[top_x + 2][top_y] = top_height;
-			height_values[top_x - 2][top_y	- 2] = top_height;
-			height_values[top_x][top_y		- 2] = top_height;
-			height_values[top_x + 2][top_y	- 2] = top_height;
-			height_values[top_x - 2][top_y	+ 2] = top_height;
-			height_values[top_x][top_y		+ 2] = top_height;
-			height_values[top_x + 2][top_y	+ 2] = top_height;
+			}
+			else
+			{
+				// first circle
+				top_height *= slope;
+
+				height_values[top_x - 1][top_y] = top_height;
+				height_values[top_x + 1][top_y] = top_height;
+
+				height_values[top_x]	[top_y - 1] = top_height;
+				height_values[top_x + 1][top_y - 1] = top_height;
+				height_values[top_x - 1][top_y - 1] = top_height;
+
+				height_values[top_x][top_y + 1] = top_height;
+
+				//------
+
+
+				// second circle
+				top_height *= slope;
+
+				height_values[top_x - 2][top_y] = top_height;
+				height_values[top_x + 2][top_y] = top_height;
+				height_values[top_x - 2][top_y - 1] = top_height;
+				height_values[top_x + 2][top_y - 1] = top_height;
+				height_values[top_x - 2][top_y + 1] = top_height;
+				height_values[top_x + 2][top_y + 1] = top_height;
+
+				height_values[top_x - 1][top_y + 1] = top_height;
+				height_values[top_x + 1][top_y + 1] = top_height;
+
+				height_values[top_x][top_y + 2] = top_height;
+
+				height_values[top_x][top_y - 2] = top_height;
+				height_values[top_x - 1][top_y - 2] = top_height;
+				height_values[top_x + 1][top_y - 2] = top_height;
+
+				//------
+
+				// third circle
+				top_height *= slope;
+
+				height_values[top_x - 3][top_y] = top_height;
+				height_values[top_x + 3][top_y] = top_height;
+
+				height_values[top_x - 3][top_y - 1] = top_height;
+				height_values[top_x + 3][top_y - 1] = top_height;
+				height_values[top_x - 3][top_y + 1] = top_height;
+				height_values[top_x + 3][top_y + 1] = top_height;
+				height_values[top_x - 3][top_y - 2] = top_height;
+				height_values[top_x + 3][top_y - 2] = top_height;
+
+				height_values[top_x - 1][top_y + 2] = top_height;
+				height_values[top_x - 2][top_y + 2] = top_height;
+				height_values[top_x + 1][top_y + 2] = top_height;
+				height_values[top_x + 2][top_y + 2] = top_height;
+
+				height_values[top_x][top_y + 3] = top_height;
+
+				height_values[top_x - 2][top_y - 2] = top_height;
+				height_values[top_x + 2][top_y - 2] = top_height;
+
+				height_values[top_x][top_y - 3] = top_height;
+				height_values[top_x - 1][top_y - 3] = top_height;
+				height_values[top_x + 1][top_y - 3] = top_height;
+				//------
+			}
+
+
+
+			
 		}
 
 
@@ -97,7 +180,7 @@ namespace GridFunctions
 		for (int i = 0; i < rows; i++)
 		{
 			for (int j = 0; j < columns; j++)
-				Arr[j + i * ARENA_ROWS] = height_values[i][j];
+				Arr[i + j * ARENA_ROWS] = height_values[i][j];
 		}
 	}
 

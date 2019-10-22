@@ -12,7 +12,7 @@
 
 void InitGrid(ecs::EntityComponentSystem& rECS)
 {
-	int rows = 24;
+	int rows = 20;
 	int columns = 20;
 
 	GridEcsFunctions::CreateGrid(rECS, rows, columns, 1.0f);
