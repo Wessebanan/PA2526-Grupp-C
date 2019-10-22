@@ -69,49 +69,6 @@ namespace graphics
 	}
 
 
-	HRESULT CreateSwapChain(
-		ID3D11Device4* pDevice4,
-		IDXGIFactory6* pFactory6,
-		HWND hWnd,
-		IDXGISwapChain4** ppSwapChain4)
-	{
-		HRESULT hr = S_OK;
-
-		{
-			IDXGISwapChain1* pTemp = NULL;
-
-			DXGI_SWAP_CHAIN_DESC1 desc = { 0 };
-			desc.Width			= 0;
-			desc.Height			= 0;
-			desc.Format			= DXGI_FORMAT_R8G8B8A8_UNORM;
-			desc.Stereo			= FALSE;
-			desc.SampleDesc		= { 1, 0 };
-			desc.BufferUsage	= DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			desc.BufferCount	= 2;
-			desc.Scaling		= DXGI_SCALING_NONE;
-			desc.SwapEffect		= DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-			desc.AlphaMode		= DXGI_ALPHA_MODE_UNSPECIFIED;
-			desc.Flags			= 0;
-
-			hr = pFactory6->CreateSwapChainForHwnd(
-				pDevice4,
-				hWnd,
-				&desc,
-				NULL,
-				NULL,
-				&pTemp);
-
-			if (FAILED(hr)) return hr;
-
-			pTemp->QueryInterface(IID_PPV_ARGS(ppSwapChain4));
-			pTemp->Release();
-
-			pFactory6->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER);
-		}
-
-		return hr;
-	}
-
 	HRESULT CreateVertexBuffer(
 		ID3D11Device4* pDevice4, 
 		const void* pData, 
@@ -328,105 +285,81 @@ namespace graphics
 
 	namespace internal
 	{
-		ID3D11Device4* gpDevice4				= NULL;
-		ID3D11DeviceContext4* gpDeviceContext4	= NULL;
+		static ID3D11Device4* gpDevice4					= NULL;
+		static ID3D11DeviceContext4* gpDeviceContext4	= NULL;
+		
+		static IDXGIFactory6* gpFactory6				= NULL;
+		static IDXGIAdapter4* gpAdapter4				= NULL;
+		
+		static IDXGISwapChain4* gpSwapChain4			= NULL;
+		static ID3D11RenderTargetView* gpBackBuffer		= NULL;
+	
+		static bool gIsActive							= false;
 
-		IDXGIFactory6* gpFactory6				= NULL;
-		IDXGIAdapter4* gpAdapter4				= NULL;
-
-		bool gIsActive							= false;
-		UINT gCountsActivated					= 0;		// if activated more than once (don't destroy at first call)
-
-
-		HRESULT InitializeD3D11()
+		HRESULT CreateSwapChain(const HWND hWnd)
 		{
-			if (gIsActive)
+			HRESULT hr = S_OK;
+
 			{
-				gCountsActivated++;
-				return S_OK;
+				IDXGISwapChain1* pTemp = NULL;
+
+				DXGI_SWAP_CHAIN_DESC1 desc = { 0 };
+				desc.Width = 0;
+				desc.Height = 0;
+				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+				desc.Stereo = FALSE;
+				desc.SampleDesc = { 1, 0 };
+				desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+				desc.BufferCount = 2;
+				desc.Scaling = DXGI_SCALING_NONE;
+				desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+				desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+				desc.Flags = 0;
+
+				hr = gpFactory6->CreateSwapChainForHwnd(
+					gpDevice4,
+					hWnd,
+					&desc,
+					NULL,
+					NULL,
+					&pTemp);
+
+				if (FAILED(hr)) return hr;
+
+				pTemp->QueryInterface(IID_PPV_ARGS(&gpSwapChain4));
+				pTemp->Release();
+
+				gpFactory6->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER);
 			}
 
-			HRESULT hr			= S_OK;
-			UINT device_flag	= 0;
-			UINT factory_flag	= 0;
-
-#ifdef _DEBUG
-			device_flag		|= D3D11_CREATE_DEVICE_DEBUG;
-			factory_flag	|= DXGI_CREATE_FACTORY_DEBUG;
-#endif // _DEBUG
-
-			hr = CreateDXGIFactory2(
-				factory_flag,
-				IID_PPV_ARGS(&gpFactory6));
-
-			if (FAILED(hr)) return hr;
-
-			hr = gpFactory6->EnumAdapterByGpuPreference(
-				0,
-				DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-				IID_PPV_ARGS(&gpAdapter4));
-
-			if (FAILED(hr))
 			{
-				gpFactory6->Release();
-				return hr;
+				ID3D11Texture2D* pTexture = NULL;
+
+				hr = gpSwapChain4->GetBuffer(
+					0,
+					IID_PPV_ARGS(&pTexture));
+
+				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
+				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+				desc.Texture2D.MipSlice = 0;
+
+				if (!pTexture) return E_INVALIDARG;
+
+				gpDevice4->CreateRenderTargetView(
+					pTexture,
+					&desc,
+					&gpBackBuffer);
+
+				pTexture->Release();
 			}
 
-			ID3D11Device* pDeviceTemp = NULL;
-			ID3D11DeviceContext* pContextTemp = NULL;
-
-			D3D11CreateDevice(
-				gpAdapter4,
-				D3D_DRIVER_TYPE_UNKNOWN,
-				NULL,
-				device_flag,
-				NULL,
-				0,
-				D3D11_SDK_VERSION,
-				&pDeviceTemp,
-				NULL,
-				&pContextTemp);
-
-			if (FAILED(hr))
-			{
-				gpFactory6->Release();
-				gpAdapter4->Release();
-				return hr;
-			}
-
-			pDeviceTemp->QueryInterface(IID_PPV_ARGS(&gpDevice4));
-			pContextTemp->QueryInterface(IID_PPV_ARGS(&gpDeviceContext4));
-
-			pDeviceTemp->Release();
-			pContextTemp->Release();
-
-			hr = CreateAndSetInputLayout(gpDevice4, gpDeviceContext4);
-			if (FAILED(hr)) return hr;
-
-			hr = CreateAndSetVertexBuffers(gpDevice4, gpDeviceContext4);
-			if (FAILED(hr)) return hr;
-
-			gIsActive = true;
 			return hr;
 		}
 
-		void DestroyD3D11()
+		void GetBackBuffer(ID3D11RenderTargetView** ppBackBuffer)
 		{
-			if (gIsActive)
-			{
-				if (gCountsActivated > 0)
-				{
-					gCountsActivated--;
-				}
-				else
-				{
-					gIsActive = false;
-					SafeRelease((IUnknown**)&gpDevice4);
-					SafeRelease((IUnknown**)&gpDeviceContext4);
-					SafeRelease((IUnknown**)&gpFactory6);
-					SafeRelease((IUnknown**)&gpAdapter4);
-				}
-			}
+			*ppBackBuffer = gpBackBuffer;
 		}
 
 		void GetD3D11(D3D11_DEVICE_HANDLE* pHandle)
@@ -437,9 +370,7 @@ namespace graphics
 			pHandle->pAdapter4			= gpAdapter4;
 		}
 
-		HRESULT CreateAndSetInputLayout(
-			ID3D11Device4* pDevice4,
-			ID3D11DeviceContext4* pContext4)
+		HRESULT CreateAndSetInputLayout()
 		{
 			HRESULT hr;
 			ID3D11InputLayout* pInputLayout = NULL;
@@ -458,7 +389,7 @@ namespace graphics
 
 			hr = graphics::CompileShader(
 				gDummyVertexShader.c_str(),
-				gDummyVertexShader.length(),
+				(UINT)gDummyVertexShader.length(),
 				"vs_5_0",
 				&pVSBlob);
 
@@ -482,7 +413,7 @@ namespace graphics
 			element_desc[1].SemanticIndex = 0;
 			element_desc[1].SemanticName = "InstanceStart";
 
-			hr = pDevice4->CreateInputLayout(
+			hr = gpDevice4->CreateInputLayout(
 				element_desc,
 				2,
 				pVSBlob->GetBufferPointer(),
@@ -495,7 +426,7 @@ namespace graphics
 				return hr;
 			}
 
-			pContext4->IASetInputLayout(pInputLayout);
+			gpDeviceContext4->IASetInputLayout(pInputLayout);
 
 			pInputLayout->Release();
 			pVSBlob->Release();
@@ -505,12 +436,13 @@ namespace graphics
 
 		HRESULT CreateAndSetVertexBuffers(
 			ID3D11Device4* pDevice4, 
-			ID3D11DeviceContext4* pContext4)
+			ID3D11DeviceContext4* pContext4,
+			const UINT maximumVertexCountPerDraw)
 		{
 			HRESULT hr;
 
 			// maximum indices in vertex shader (vertex data and instance data)
-			constexpr UINT maximum_indices = 65536;
+			const UINT maximum_indices = maximumVertexCountPerDraw;
 
 			ID3D11Buffer* pBuffer = NULL;
 			{
@@ -557,5 +489,97 @@ namespace graphics
 
 			return S_OK;
 		}
+	}
+
+	HRESULT InitializeD3D11()
+	{
+		if (internal::gIsActive) return S_OK;
+
+		HRESULT hr = S_OK;
+		UINT device_flag = 0;
+		UINT factory_flag = 0;
+
+#ifdef _DEBUG
+		device_flag |= D3D11_CREATE_DEVICE_DEBUG;
+		factory_flag |= DXGI_CREATE_FACTORY_DEBUG;
+#endif // _DEBUG
+
+		hr = CreateDXGIFactory2(
+			factory_flag,
+			IID_PPV_ARGS(&internal::gpFactory6));
+
+		if (FAILED(hr)) return hr;
+
+		hr = internal::gpFactory6->EnumAdapterByGpuPreference(
+			0,
+			DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+			IID_PPV_ARGS(&internal::gpAdapter4));
+
+		if (FAILED(hr))
+		{
+			internal::gpFactory6->Release();
+			return hr;
+		}
+
+		ID3D11Device* pDeviceTemp = NULL;
+		ID3D11DeviceContext* pContextTemp = NULL;
+
+		D3D11CreateDevice(
+			internal::gpAdapter4,
+			D3D_DRIVER_TYPE_UNKNOWN,
+			NULL,
+			device_flag,
+			NULL,
+			0,
+			D3D11_SDK_VERSION,
+			&pDeviceTemp,
+			NULL,
+			&pContextTemp);
+
+		if (FAILED(hr))
+		{
+			internal::gpFactory6->Release();
+			internal::gpAdapter4->Release();
+			return hr;
+		}
+
+		pDeviceTemp->QueryInterface(IID_PPV_ARGS(&internal::gpDevice4));
+		pContextTemp->QueryInterface(IID_PPV_ARGS(&internal::gpDeviceContext4));
+
+		pDeviceTemp->Release();
+		pContextTemp->Release();
+
+		hr = internal::CreateAndSetInputLayout();
+		if (FAILED(hr)) return hr;
+
+		internal::gIsActive = true;
+		return hr;
+	}
+
+	void DestroyD3D11()
+	{
+		if (internal::gIsActive)
+		{
+			internal::gIsActive = false;
+
+			SafeRelease((IUnknown**)& internal::gpBackBuffer);
+			SafeRelease((IUnknown**)& internal::gpSwapChain4);
+
+			SafeRelease((IUnknown**)& internal::gpFactory6);
+			SafeRelease((IUnknown**)& internal::gpAdapter4);
+
+			SafeRelease((IUnknown**)& internal::gpDevice4);
+			SafeRelease((IUnknown**)& internal::gpDeviceContext4);
+		}
+	}
+
+	HRESULT AttachHwndToSwapChain(const HWND hWnd)
+	{
+		return internal::CreateSwapChain(hWnd);
+	}
+
+	void Present(const UINT syncInterval)
+	{
+		internal::gpSwapChain4->Present(syncInterval, 0);
 	}
 }

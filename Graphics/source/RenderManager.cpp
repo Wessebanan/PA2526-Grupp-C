@@ -1,56 +1,37 @@
 
 #include "../includes/RenderManager.h"
-#include "../includes/Pipeline.h"
-
-#define MAX_BYTES_PER_DRAW 131072
 
 namespace graphics
 {
 	RenderManager::RenderManager()
 	{
+		m_clientWidth = 0;
+		m_clientHeight = 0;
+
+		m_firstTimeUpload = TRUE;
 	}
 
 	RenderManager::~RenderManager()
 	{
 	}
 
-	HRESULT RenderManager::Initialize(const HWND hWnd)
+	HRESULT RenderManager::Initialize(const UINT totalBytesPerExecute)
 	{
 		HRESULT hr = S_OK;
-
-		m_clientWidth	= window::GetClientResolution(hWnd).x;
-		m_clientHeight	= window::GetClientResolution(hWnd).y;
-
-		hr = graphics::internal::InitializeD3D11();
 
 		graphics::internal::D3D11_DEVICE_HANDLE handle;
 		graphics::internal::GetD3D11(&handle);
 		m_pDevice4	= handle.pDevice4;
 		m_pContext4 = handle.pDeviceContext4;
-		m_pFactory6	= handle.pFactory6;
-		m_pAdapter4	= handle.pAdapter4;
-
-		if (FAILED(hr)) return hr;
-
-		hr = graphics::CreateSwapChain(
-			m_pDevice4,
-			m_pFactory6,
-			hWnd,
-			&m_pSwapChain);
-
-		if (FAILED(hr)) return hr;
-
-		hr = m_pSwapChain->GetBuffer(
-			0, 
-			IID_PPV_ARGS(&m_data.pBackBufferTexture));
-
-		if (FAILED(hr)) return hr;
 
 		// Per Model Buffer
 		{
+			UINT bytes = totalBytesPerExecute;
+			bytes += 256 - (bytes % 256);
+
 			D3D11_BUFFER_DESC desc = { 0 };
 			desc.BindFlags		= D3D11_BIND_CONSTANT_BUFFER;
-			desc.ByteWidth		= MAX_BYTES_PER_DRAW;
+			desc.ByteWidth		= bytes;
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			desc.Usage			= D3D11_USAGE_DYNAMIC;
 
@@ -60,12 +41,22 @@ namespace graphics
 		return FAILED(hr) ? hr : S_OK;
 	}
 
+	UINT RenderManager::GetNumShaderPrograms()
+	{
+		return (UINT)m_shaders.size();
+	}
+
+	UINT RenderManager::GetNumPipelines()
+	{
+		return (UINT)m_pipelines.size();
+	}
+
 	void RenderManager::Destroy()
 	{
-		for (UINT i = 0; i < m_shaderPrograms.size(); i++)
+		for (UINT i = 0; i < m_shaders.size(); i++)
 		{
-			m_shaderPrograms[i].pVertexShader->Release();
-			m_shaderPrograms[i].pPixelShader->Release();
+			m_shaders[i].Program.pVertexShader->Release();
+			m_shaders[i].Program.pPixelShader->Release();
 		}
 
 		for (UINT i = 0; i < m_pipelines.size(); i++)
@@ -74,11 +65,6 @@ namespace graphics
 		}
 
 		m_pPerObjectBuffer->Release();
-
-		m_data.pBackBufferTexture->Release();
-		m_pSwapChain->Release();
-
-		graphics::internal::DestroyD3D11();
 	}
 
 	UINT RenderManager::CreatePipeline(GraphicsPipeline* pPipeline, const void* pDescription)
@@ -87,7 +73,7 @@ namespace graphics
 		if (FAILED(hr)) return UINT_MAX;
 
 		m_pipelines.push_back(pPipeline);
-		return m_pipelines.size() - 1;
+		return (UINT)m_pipelines.size() - 1;
 	}
 
 	UINT RenderManager::CreateShaderProgram(
@@ -106,21 +92,49 @@ namespace graphics
 		
 		program.PerObjectByteWidth = perObjectByteWidth;
 
-		m_shaderPrograms.push_back(program);
-		m_shaderModelLayouts.push_back(ShaderModelLayout());
+		m_shaders.push_back({ShaderModelLayout(), program});
 
-		return m_shaderPrograms.size() - 1;
+		return (UINT)m_shaders.size() - 1;
 	}
 
-	void RenderManager::SetModelData(const void* pData, const UINT byteWidth)
+	void RenderManager::UploadPerInstanceData(
+		const void* pData, 
+		const UINT byteWidth,
+		const UINT offset)
 	{
-		m_pData = pData;
-		m_dataByteWidth = byteWidth;
+		switch (m_firstTimeUpload)
+		{
+		case TRUE:
+			graphics::UploadToDynamicBuffer(
+				m_pContext4,
+				m_pPerObjectBuffer,
+				D3D11_MAP_WRITE_DISCARD,
+				pData,
+				byteWidth,
+				offset);
+			m_firstTimeUpload = FALSE;
+			break;
+
+		default:
+			graphics::UploadToDynamicBuffer(
+				m_pContext4,
+				m_pPerObjectBuffer,
+				D3D11_MAP_WRITE_NO_OVERWRITE,
+				pData,
+				byteWidth,
+				offset);
+			break;
+		}
 	}
 
 	void RenderManager::SetShaderModelLayout(const UINT shader, const ShaderModelLayout& rLayout)
 	{
-		m_shaderModelLayouts[shader] = rLayout;
+		m_shaders[shader].Layout = rLayout;
+	}
+
+	void RenderManager::BeginUpload()
+	{
+		m_firstTimeUpload = TRUE;
 	}
 
 	void RenderManager::UpdatePipeline(const UINT pipeline, const void* pPipelineData)
@@ -130,46 +144,53 @@ namespace graphics
 
 	void RenderManager::ExecutePipeline(const UINT pipeline)
 	{
+		this->ExecutePipeline(pipeline, 0, (UINT)m_shaders.size());
+	}
+
+	void RenderManager::ExecutePipeline(
+		const UINT pipeline, 
+		const UINT programStartIndex, 
+		const UINT programEndIndex)
+	{
 		GraphicsPipeline* pPipeline = m_pipelines[pipeline];
 
 		pPipeline->Begin(m_pContext4);
 
-		graphics::UploadToDynamicBuffer(
-			m_pContext4,
-			m_pPerObjectBuffer,
-			m_pData,
-			m_dataByteWidth,
-			0);
-
 		UINT data_location = 0;
-		UINT shader_count = (UINT)m_shaderPrograms.size();
-		for (UINT i = 0; i < shader_count; i++)
-		{
-			ShaderModelLayout& layout = m_shaderModelLayouts[i];
+		const UINT shader_count = (UINT)m_shaders.size();
 
-			pPipeline->PreExecute(
-				m_pContext4, 
-				m_shaderPrograms[i].pVertexShader, 
-				m_shaderPrograms[i].pPixelShader);
+		const UINT start	= max(programStartIndex, 0);
+		const UINT end		= min(programEndIndex, shader_count);
+
+		for (UINT i = start; i < end; i++)
+		{
+			ShaderModelLayout& layout	= m_shaders[i].Layout;
+			RenderProgram& program		= m_shaders[i].Program;
+
+			UINT total_models = 0;
+			for (UINT i = 0; i < layout.MeshCount; i++)
+			{
+				total_models += layout.pInstanceCountPerMesh[i];
+			}
+
+			pPipeline->PreProcess(
+				m_pContext4,
+				program.pVertexShader,
+				program.pPixelShader);
 
 			graphics::DrawMeshes(
 				m_pContext4,
 				m_pPerObjectBuffer,
 				data_location,
-				m_shaderPrograms[i].PerObjectByteWidth,
+				program.PerObjectByteWidth,
 				layout.MeshCount,
-				layout.Meshes,
-				layout.InstanceCounts);
+				layout.pMeshes,
+				layout.pInstanceCountPerMesh);
 
-			data_location += layout.TotalModels * m_shaderPrograms[i].PerObjectByteWidth;
-			data_location = (UINT)ceil(data_location / 256.0f) * 256;
+			data_location += total_models * program.PerObjectByteWidth;
+			data_location += 256 - (data_location % 256);
 		}
 
-		pPipeline->End(m_pContext4, &m_data);
-	}
-
-	void RenderManager::Present()
-	{
-		m_pSwapChain->Present(1, 0);
+		pPipeline->End(m_pContext4);
 	}
 }
