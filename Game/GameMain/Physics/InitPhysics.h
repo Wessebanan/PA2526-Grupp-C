@@ -161,10 +161,10 @@ inline ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLo
 		weapon_mesh_component.mMesh = pMesh;
 		break;
 	case PROJECTILE:
-		MessageBoxA(NULL, "NO PROJECTILE FOR YOU", NULL, MB_YESNO);
+		MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
 		break;
 	}
-
+	 
 	return rEcs.createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
 }
 

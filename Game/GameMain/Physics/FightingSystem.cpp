@@ -159,9 +159,18 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		}
 	}
 	
-	// If a unit collides with an unowned weapon, set colliding unit to weapon owner.
-	if (weapon_component->mOwnerEntity == 0)
+	// If a unit collides with an unowned weapon, set colliding unit to weapon owner
+	// and colliding unit equipment to weapon.
+	if (weapon_component->mOwnerEntity == 0 && getEntity(collided_unit)->hasComponentOfType(EquipmentComponent::typeID))
 	{
+		EquipmentComponent *equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
+		// Delete current weapon if any.
+		if (equipment_component->mEquippedWeapon == 0)
+		{
+			removeEntity(equipment_component->mEquippedWeapon);
+		}
+
+		equipment_component->mEquippedWeapon = weapon->getID();
 		weapon_component->mOwnerEntity = collided_unit;
 		return;
 	}
