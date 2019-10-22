@@ -30,21 +30,21 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 		switch (p_tile_comp->biome)
 		{
 		case SNOW:
-			p_tile_tansf_comp->position.y += 0.4f;
+			p_tile_tansf_comp->position.y += 0.2f;
 			p_tile_tansf_comp->position.y *= 2.4f;
 			p_tile_color_comp->red =	220 + color_offset;
 			p_tile_color_comp->green =	220 + color_offset;
 			p_tile_color_comp->blue =	220 + color_offset;
 			break;
 		case MOUNTAIN:
-			p_tile_tansf_comp->position.y += 0.4f;
-			p_tile_tansf_comp->position.y *= 2.2f;
+			p_tile_tansf_comp->position.y += 0.2f + (((rand() % 3)+ 1) / 5);
+			p_tile_tansf_comp->position.y *= 2.6f;
 			p_tile_color_comp->red = 50 + color_offset;
 			p_tile_color_comp->green = 50 + color_offset;
 			p_tile_color_comp->blue = 50 + color_offset;
 			break;
 		case FIELD:
-			p_tile_tansf_comp->position.y += 0.2f;
+			p_tile_tansf_comp->position.y += 0.1f;
 			p_tile_tansf_comp->position.y *= 1.4f;
 			p_tile_color_comp->red = 0;
 			p_tile_color_comp->green = 150 + color_offset;
