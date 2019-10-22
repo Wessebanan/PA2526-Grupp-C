@@ -96,9 +96,6 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(_entityInfo.entity->getID());
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
 
-	// Saving the current position for comparison later.
-	//DirectX::XMFLOAT3 position_pre_movement = transform_component->position;
-
 	// Starting off with movement in the x-z-plane.
 
 	UpdateAcceleration(movement_component->mAcceleration, movement_component->mForce, movement_component->mWeight, movement_component->mVelocity, movement_component->mDeceleration);
@@ -182,6 +179,12 @@ void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	// Rotate entity to face the same direction as movement.
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
+
+	// NOTE: No way of finding default direction of mesh so it's hard coded.
+	XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
+	XMFLOAT3* movement_forward = &movement_component->mDirection;
+	XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
+	transform_component->rotation.y = acos(XMVectorGetX(cos_angle));
 
 }
 #pragma endregion
