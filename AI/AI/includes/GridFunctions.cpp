@@ -27,7 +27,7 @@ namespace GridFunctions
 		for (size_t i = 0; i < rows; i++)
 			for (size_t j = 0; j < columns; j++)
 			{
-				height_values[i][j] = 0.f;
+				height_values[i][j] = 1.f;
 			}
 
 

@@ -59,7 +59,7 @@ namespace GridEcsFunctions
 				transform.position.x = current_pos.x;
 				transform.position.y = height_map[(i*ARENA_ROWS)+j];
 				transform.position.z = current_pos.z;
-				if (transform.position.y == -1.f)
+				if (transform.position.y <= -1.f)
 				{
 					tile.tileType = WATER;
 					color.blue = 150.0f;
@@ -68,7 +68,7 @@ namespace GridEcsFunctions
 					p_gp->mGrid[i][j].isPassable = false;
 					p_gp->mGrid[i][j].biome = -1;
 				}
-				else if (transform.position.y == 3)
+				else if (transform.position.y >= 3)
 				{
 					tile.tileType = GAME_FIELD;
 					tile.impassable = false;
