@@ -42,6 +42,12 @@
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp">
       <Filter>Init</Filter>
     </ClCompile>
+    <ClCompile Include="MeshContainer\MeshContainer.cpp">
+      <Filter>Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderers\Renderers.cpp">
+      <Filter>Renderers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -51,7 +57,6 @@
   <ItemGroup>
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameUtility\DebugInfo.h" />
-    <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />
     <ClInclude Include="gameAI\AIComponents.h">
       <Filter>AI</Filter>
@@ -113,9 +118,6 @@
     <ClInclude Include="gameAI\InitArmy.h">
       <Filter>Init</Filter>
     </ClInclude>
-    <ClInclude Include="gameAudio\InitAudio.h">
-      <Filter>Init</Filter>
-    </ClInclude>
     <ClInclude Include="gameAI\InitGrid.h">
       <Filter>Init</Filter>
     </ClInclude>
@@ -167,6 +169,19 @@
     <ClInclude Include="gameAnimation\InitAnimation.h">
       <Filter>Animation</Filter>
     </ClInclude>
+    <ClInclude Include="gameAI\InitAI.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshContainer\MeshContainer.h">
+      <Filter>Meshes</Filter>
+    </ClInclude>
+    <ClInclude Include="Input\InterpretWebEvents.h" />
+    <ClInclude Include="gameAudio\InitAudio.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderers\Renderers.h">
+      <Filter>Renderers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -207,6 +222,12 @@
     </Filter>
     <Filter Include="Audio">
       <UniqueIdentifier>{bee80657-4969-4ce7-820b-750fd99b274e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Meshes">
+      <UniqueIdentifier>{b43641df-c9f7-4816-bf0e-0f6fee589731}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderers">
+      <UniqueIdentifier>{bac684d7-875a-4898-a729-4aca9e0b09fa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

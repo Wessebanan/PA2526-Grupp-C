@@ -10,6 +10,7 @@
 
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
+#include "gameAI/InitAI.h"
 #include "AIGlobals.h"
 
 #include "Input/InitInterpreter.h"
@@ -35,15 +36,25 @@
 
 #include "gameAnimation/InitAnimation.h"
 
+#include "MeshContainer/MeshContainer.h"
+
+#include "Renderers/Renderers.h"
+
 //#include "../../Graphics/includes/ForwardRenderingPipeline.h"
 
 #include <time.h>
 
-inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3) {
+inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3)
+{
 	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
+}				
+
+inline uint32_t PAD(const uint32_t size, const uint32_t alignment)
+{
+	return size + (alignment - (size % alignment));
 }
 
-//using namespace ecs;				
+void InitAll(EntityComponentSystem& rECS);
 
 void SetViewMatrix(
 	DirectX::XMFLOAT4X4& rViewMatrix,
@@ -116,7 +127,6 @@ int main()
 {
 	srand(time(0));
 
-
 	/*
 		-- Client Resolution --
 	*/
@@ -144,16 +154,16 @@ int main()
 	/*
 		-- Meshes --
 	*/
-	ModelLoader::Mesh mesh_hexagon("../meshes/hexagon_tile5.fbx");
-	ModelLoader::Mesh mesh_rock("../meshes/rock.fbx");
-	ModelLoader::Mesh mesh_tree("../meshes/tree2.fbx");
-	ModelLoader::Mesh mesh_dude("../RunningCustom2.fbx");
 
+	MeshContainer::LoadMesh(MESH_TYPE_TILE, "../meshes/hexagon_tile5.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_ROCK, "../meshes/rock.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_TREE, "../meshes/tree2.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../RunningCustom2.fbx");
 
-	graphics::MeshRegion mesh_region_hexagon	= UploadMeshToGPU(mesh_hexagon, mesh_manager);
-	graphics::MeshRegion mesh_region_tree		= UploadMeshToGPU(mesh_tree, mesh_manager);
-	graphics::MeshRegion mesh_region_rock		= UploadMeshToGPU(mesh_rock, mesh_manager);
-	graphics::MeshRegion mesh_region_dude		= UploadMeshToGPU(mesh_dude, mesh_manager);
+	graphics::MeshRegion mesh_region_hexagon	= UploadMeshToGPU(*MeshContainer::GetMesh(MESH_TYPE_TILE), mesh_manager);
+	graphics::MeshRegion mesh_region_tree		= UploadMeshToGPU(*MeshContainer::GetMesh(MESH_TYPE_TREE), mesh_manager);
+	graphics::MeshRegion mesh_region_rock		= UploadMeshToGPU(*MeshContainer::GetMesh(MESH_TYPE_ROCK), mesh_manager);
+	graphics::MeshRegion mesh_region_dude		= UploadMeshToGPU(*MeshContainer::GetMesh(MESH_TYPE_UNIT), mesh_manager);
 
 	// Will be moved to a system
 	UINT pipeline_shadow_map;
@@ -212,56 +222,20 @@ int main()
 	ecs::EntityComponentSystem ecs;
 
 	//Tiles + sceneobjects + units + camera
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(4000);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(4000);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(4000);
 
-	InitSound(ecs);
-
-	ecs.createSystem<ecs::systems::PathfindingStateSystem>(5);
-	ecs.createSystem<ecs::systems::IdleStateSystem>(5);
-	ecs.createSystem<ecs::systems::MoveStateSystem>(5);
-	ecs.createSystem<ecs::systems::AttackStateSystem>(5);
-	ecs.createSystem<ecs::systems::SwitchStateSystem>(4);
-	//ecs.createSystem<ecs::systems::DynamicMovementSystem>();
-	//ecs.createSystem<ecs::systems::GroundCollisionSystem>();
-
-	InitInput(ecs);
-	InitInterpreter(ecs);
-
-	InitGrid(ecs);
-	InitArmy(ecs);
-	InitSceneObjects(ecs);
-
-	InitCamera(ecs);
-
-	InitPhysics(ecs, &mesh_dude);
+	InitAll(ecs);
 
 	// to get components in the loop
-	ecs::ComponentIterator itt;
-
-	itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
-	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
-
-	itt = ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID);
-	ecs::components::TileComponent* tileComp;
+	ecs::components::CameraComponent* p_cam_comp = (components::CameraComponent*)ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
+	ecs::components::TileComponent* tileComp = (components::TileComponent*)ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID).next();
 
 	/* ECS END */
 
 	size_t tile_count = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
 
-	UINT instance_count_scenery[] = { tile_count, 6, 6 };
-	graphics::MeshRegion mesh_regions[] = { mesh_region_hexagon, mesh_region_tree, mesh_region_rock };
-	graphics::ShaderModelLayout layout_scenery = { 0 };
-	layout_scenery.MeshCount				= 3;
-	layout_scenery.pMeshes					= mesh_regions;
-	layout_scenery.pInstanceCountPerMesh	= instance_count_scenery;
-
-	UINT instance_count_buddies = 12;
-	graphics::ShaderModelLayout layout_skin = { 0 };
-	layout_skin.MeshCount					= 1;
-	layout_skin.pMeshes						= &mesh_region_dude;
-	layout_skin.pInstanceCountPerMesh		= &instance_count_buddies;
 
 
 	ShaderProgramInput* pData	= new ShaderProgramInput[tile_count + 6 + 6];
@@ -270,73 +244,117 @@ int main()
 	ZeroMemory(pData, sizeOfPdata);
 
 
-	// Map tiles will be uploaded with ocean meshes
-	UINT index = 0;
-	while (tileComp = (ecs::components::TileComponent*)itt.next())
-	{
-		ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(tileComp->getEntityID());
-		ecs::components::ColorComponent* color_comp = ecs.getComponentFromEntity<ecs::components::ColorComponent>(tileComp->getEntityID());
-
-		pData[index].x = trComp->position.x;
-		pData[index].y = trComp->position.y;
-		pData[index].z = trComp->position.z;
-
-		int random = rand() % 101;
-		int color_offset = -50 + random;
-		switch (tileComp->tileType)
-		{
-		case TileTypes::GAME_FIELD:
-			pData[index].Color = PACK(color_comp->red, color_comp->green, color_comp->blue, 0);
-			break;
-		case TileTypes::WATER:
-			pData[index].Color = PACK(0, 0, 200 + color_offset, 0);
-			break;
-		case TileTypes::UNDEFINED:
-			pData[index].Color = PACK(0, 0, 0, 255);
-			break;
-		default:
-			pData[index].Color = PACK(255, 255, 255, 255);
-			break;
-		}
-
-		index++;
-	}
-
-	UINT scene_objects_index = tile_count;
-	itt = ecs.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
-	ecs::components::SceneObjectComponent* scene_comp;
-	while (scene_comp = (ecs::components::SceneObjectComponent*)itt.next())
-	{
-		ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(scene_comp->getEntityID());
-		ecs::components::ColorComponent* color_comp = ecs.getComponentFromEntity<ecs::components::ColorComponent>(scene_comp->getEntityID());
-
-		pData[scene_objects_index].x = trComp->position.x;
-		pData[scene_objects_index].y = trComp->position.y;
-		pData[scene_objects_index].z = trComp->position.z;
-
-		pData[scene_objects_index].Color = PACK(color_comp->red, color_comp->green, color_comp->blue, 0);
+	TypeFilter tile_filter;
+	tile_filter.addRequirement(components::TileComponent::typeID);
+	tile_filter.addRequirement(components::ColorComponent::typeID);
+	tile_filter.addRequirement(components::TransformComponent::typeID);
+	EntityIterator tile_iterator = ecs.getEntititesByFilter(tile_filter);
 
 
-		scene_objects_index++;
-	}
+
+	/*
+		Set GPU buffer
+	*/
+
+	const UINT gpu_memory_max = 1000000;
+	UINT gpu_memory_usage = 0;
+	char* p_gpu_memory = (char*)malloc(gpu_memory_max);
+
+	UINT offset = 0;
+	graphics::MeshRegion mesh_regions[] = { mesh_region_hexagon, mesh_region_tree, mesh_region_rock };
+
+	// World tiles and scenery
+	UINT instance_count_scenery[] = { tile_count, 6, 6 };
+	graphics::ShaderModelLayout layout_scenery = { 0 };
+	layout_scenery.MeshCount = 3;
+	layout_scenery.pMeshes = mesh_regions;
+	layout_scenery.pInstanceCountPerMesh = instance_count_scenery;
+
+	systems::TileRenderSystem* p_tile_renderer = ecs.createSystem<systems::TileRenderSystem>(9);
+	systems::SceneObjectRenderSystem* p_scenery_renderer = ecs.createSystem<systems::SceneObjectRenderSystem>(9);
+
+	// Units
+	UINT instance_count_buddies = 12;
+	graphics::ShaderModelLayout layout_skin = { 0 };
+	layout_skin.MeshCount = 1;
+	layout_skin.pMeshes = &mesh_region_dude;
+	layout_skin.pInstanceCountPerMesh = &instance_count_buddies;
 
 
-	sizeOfPdata += (256 - (sizeOfPdata % 256));
+	systems::UnitRenderSystem* p_unit_renderer = ecs.createSystem<systems::UnitRenderSystem>(9);
 
-	SkinningShaderProgramInput* skin_shader_program_input = new SkinningShaderProgramInput[12];
-	UINT skin_size = sizeof(SkinningShaderProgramInput) * 12;
-	ModelLoader::Skeleton* skeleton = mesh_dude.GetSkeleton();
 
-	InitAnimation(skeleton, skin_shader_program_input);
+	//// Map tiles will be uploaded with ocean meshes
+	//UINT index = 0;
+	//for (FilteredEntity tile: tile_iterator.entities)
+	//{
+	//	components::TileComponent* p_tile_comp = tile.getComponent<components::TileComponent>();
+	//	components::TransformComponent* p_transform_comp = tile.getComponent<components::TransformComponent>();
+	//	components::ColorComponent* p_color_comp = tile.getComponent<components::ColorComponent>();
+
+	//	pData[index].x = p_transform_comp->position.x;
+	//	pData[index].y = p_transform_comp->position.y;
+	//	pData[index].z = p_transform_comp->position.z;
+
+	//	int random = rand() % 101;
+	//	int color_offset = -50 + random;
+	//	switch (p_tile_comp->tileType)
+	//	{
+	//	case TileTypes::GAME_FIELD:
+	//		pData[index].Color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+	//		break;
+	//	case TileTypes::WATER:
+	//		pData[index].Color = PACK(0, 0, 200 + color_offset, 0);
+	//		break;
+	//	case TileTypes::UNDEFINED:
+	//		pData[index].Color = PACK(0, 0, 0, 255);
+	//		break;
+	//	default:
+	//		pData[index].Color = PACK(255, 255, 255, 255);
+	//		break;
+	//	}
+
+	//	index++;
+	//}
+
+	//TypeFilter scene_object_filter;
+	//scene_object_filter.addRequirement(components::SceneObjectComponent::typeID);
+	//scene_object_filter.addRequirement(components::TransformComponent::typeID);
+	//scene_object_filter.addRequirement(components::ColorComponent::typeID);
+	//EntityIterator scene_object_iterator = ecs.getEntititesByFilter(scene_object_filter);
+
+	//UINT scene_objects_index = tile_count;
+	//for (FilteredEntity object : scene_object_iterator.entities)
+	//{
+	//	components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
+	//	components::TransformComponent* p_transform_comp = object.getComponent<components::TransformComponent>();
+	//	components::ColorComponent* p_color_comp = object.getComponent<components::ColorComponent>();
+
+	//	pData[scene_objects_index].x = p_transform_comp->position.x;
+	//	pData[scene_objects_index].y = p_transform_comp->position.y;
+	//	pData[scene_objects_index].z = p_transform_comp->position.z;
+
+	//	pData[scene_objects_index].Color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+	//	scene_objects_index++;
+	//}
+
+
+	//sizeOfPdata += (256 - (sizeOfPdata % 256));
+
+	//SkinningShaderProgramInput* skin_shader_program_input = new SkinningShaderProgramInput[12];
+	//UINT skin_size = sizeof(SkinningShaderProgramInput) * 12;
+	//ModelLoader::Skeleton* skeleton = MeshContainer::GetMesh(MESH_TYPE_UNIT)->GetSkeleton();
+
+	//InitAnimation(skeleton, skin_shader_program_input);
 
 
 	renderer.SetShaderModelLayout(shader_position_color, layout_scenery);
 	renderer.SetShaderModelLayout(shader_skinning, layout_skin);
 
-	char* pInstanceData = (char*)malloc(skin_size + sizeOfPdata);
-	memcpy(pInstanceData, pData, sizeOfPdata);
+	//char* pInstanceData = (char*)malloc(skin_size + sizeOfPdata);
+	//memcpy(pInstanceData, pData, sizeOfPdata);
 
-	memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
+	//memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
 	
 	unsigned long long int frame_count = 0;
 	unsigned long long int frame_count2 = 0;
@@ -350,34 +368,49 @@ int main()
 			{
 				wnd.Close();
 			}
+			
+
+
+			//TypeFilter army_filter;
+			//army_filter.addRequirement(components::UnitComponent::typeID);
+			//army_filter.addRequirement(components::TransformComponent::typeID);
+			//EntityIterator unit_iterator = ecs.getEntititesByFilter(army_filter);
+
+			//int unitIndex = 0;
+			//for (FilteredEntity unit : unit_iterator.entities)
+			//{
+			//	components::TransformComponent* p_transform_comp = unit.getComponent<ecs::components::TransformComponent>();
+
+			//	XMMATRIX world = XMMatrixIdentity();
+			//	world *= XMMatrixScaling(p_transform_comp->scale.x, p_transform_comp->scale.y, p_transform_comp->scale.z);
+			//	world *= XMMatrixRotationRollPitchYaw(p_transform_comp->rotation.x, p_transform_comp->rotation.y, p_transform_comp->rotation.z);
+			//	world *= XMMatrixTranslation(p_transform_comp->position.x, p_transform_comp->position.y, p_transform_comp->position.z);
+
+			//	XMStoreFloat4x4(&skin_shader_program_input[unitIndex++].world, world);
+			//}
+
+			//UpdateAnimation(skeleton, skin_shader_program_input, frame_count2);
+
+			//memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
+
+			gpu_memory_usage = 0;
+
+			p_tile_renderer->SetBegin(p_gpu_memory);
+			gpu_memory_usage += ecs.getComponentCountOfType(components::TileComponent::typeID) * sizeof(float) * 4;
+			p_scenery_renderer->SetBegin(p_gpu_memory + gpu_memory_usage);
+			gpu_memory_usage += ecs.getComponentCountOfType(components::SceneObjectComponent::typeID) * sizeof(float) * 4;
+
+			gpu_memory_usage = PAD(gpu_memory_usage, 256);
+
+			p_unit_renderer->SetBegin(p_gpu_memory + gpu_memory_usage);
+			gpu_memory_usage += ecs.getComponentCountOfType(components::UnitComponent::typeID) * sizeof(SkinningShaderProgramInput);
+
 			ecs.update(0.002f);
-			int armyIndex = 0;
-			itt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
-			ecs::components::ArmyComponent* armComp;
-			while (armComp = (ecs::components::ArmyComponent*)itt.next())
-			{
-				// over alla units in the army
-				for (size_t i = 0; i < 3; i++)
-				{
-					ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(armComp->unitIDs[i]);
 
-					XMMATRIX world = XMMatrixIdentity();
-					world *= XMMatrixScaling(trComp->scale.x, trComp->scale.y, trComp->scale.z);
-					world *= XMMatrixRotationRollPitchYaw(trComp->rotation.x, trComp->rotation.y, trComp->rotation.z);
-					world *= XMMatrixTranslation(trComp->position.x, trComp->position.y, trComp->position.z);
-
-					XMStoreFloat4x4(&skin_shader_program_input[armyIndex].world, world);
-
-					armyIndex++;
-				}
-			}
-
-			UpdateAnimation(skeleton, skin_shader_program_input, frame_count2);
-
-			memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
 
 			renderer.BeginUpload();
-			renderer.UploadPerInstanceData(pInstanceData, sizeOfPdata + skin_size, 0);
+			//renderer.UploadPerInstanceData(pInstanceData, sizeOfPdata + skin_size, 0);
+			renderer.UploadPerInstanceData(p_gpu_memory, gpu_memory_usage, 0);
 
 			{	
 				DirectX::XMFLOAT4X4 shadow_matrix;
@@ -425,4 +458,22 @@ int main()
 	graphics::DestroyD3D11();
 
 	return 0;
+}
+
+void InitAll(EntityComponentSystem& rECS)
+{
+	InitSound(rECS);
+
+	InitAI(rECS);
+
+	InitInput(rECS);
+	InitInterpreter(rECS);
+
+	InitGrid(rECS);
+	InitArmy(rECS);
+	InitSceneObjects(rECS);
+
+	InitCamera(rECS);
+
+	InitPhysics(rECS, MeshContainer::GetMesh(MESH_TYPE_UNIT));
 }
