@@ -19,7 +19,7 @@ TEST(SoundAPI, ExtremeSoundEffectSpam)
 	// Setup engine
 	SetupEngine(engine, mixer, pa_init);
 
-	std::cout << "WARNING!!!\n*********LOWER THE VOLUME!!!\nLOUD NOISES!!!\n";
+	std::cout << "This may cause loud noises!\n";
 	Pa_Sleep(3000);
 	for (int i = 0; i < 10000000; i++)
 	{
