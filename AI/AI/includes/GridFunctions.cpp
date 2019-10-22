@@ -8,7 +8,7 @@ using namespace DirectX;
 
 namespace GridFunctions
 {
-	void CreateHeightmap(float* Arr, int rows, int columns) //Creates a array that is used to change the hight for the map and remove chunks for water
+	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains) //Creates a array that is used to change the hight for the map and remove chunks for water
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
 
@@ -33,13 +33,13 @@ namespace GridFunctions
 
 		// Create 2 mountains
 
-		for (size_t mountain = 0; mountain < 4; mountain++)
+		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
 			int top_x = rand() % (rows - 3);
 			int top_y = rand() % (columns - 3);
 			top_x += 2;
 			top_y += 2;
-			float top_height = 1.2f;
+			float top_height = 1.2f * height_power;
 
 			// top
 			height_values[top_x][top_y] = top_height;

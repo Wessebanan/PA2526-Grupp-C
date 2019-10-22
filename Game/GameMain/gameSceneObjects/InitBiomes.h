@@ -37,7 +37,7 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 			p_tile_color_comp->blue =	220 + color_offset;
 			break;
 		case MOUNTAIN:
-			p_tile_tansf_comp->position.y += 0.2f + (((rand() % 3)+ 1) / 5);
+			p_tile_tansf_comp->position.y += 0.2f + (((rand() % 3)+ 1) / 6);
 			p_tile_tansf_comp->position.y *= 2.6f;
 			p_tile_color_comp->red = 50 + color_offset;
 			p_tile_color_comp->green = 50 + color_offset;
