@@ -20,6 +20,7 @@ TEST(ObjectBoundingVolumes, CreateObjectEntity)
 	// Making sure there are no entities or components.
 	EXPECT_EQ(ecs.getTotalEntityCount(), 0);
 	EXPECT_EQ(ecs.getTotalComponentCount(), 0);
+	ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 	// Creating the dude that is supposed to collide with objects.
 	MeshComponent mesh_component;
@@ -43,6 +44,7 @@ TEST(ObjectBoundingVolumes, TestBoundingVolume)
 	ecs::EntityComponentSystem ecs;
 	
 	ecs::systems::ObjectBoundingVolumeInitSystem* ground_collision_component_init_system = ecs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
+	ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 	MeshComponent mesh_component;
 	mesh_component.mMesh = &dude;
@@ -91,6 +93,7 @@ TEST(ObjectCollisionCheck, CreateCompleteEntity)
 	// Making sure there are no entities or components.
 	EXPECT_EQ(ecs.getTotalEntityCount(), 0);
 	EXPECT_EQ(ecs.getTotalComponentCount(), 0);
+	ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 	// Creating the components that the entity needs to be
 	// able to collide with other entities.
@@ -130,6 +133,7 @@ TEST(ObjectCollisionCheck, CheckCollision)
 	ecs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
 	ecs.createSystem<ecs::systems::ObjectCollisionSystem>();
 	ecs.createSystem<ecs::systems::DynamicMovementSystem>();
+	ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 	MeshComponent mesh_component;
 	mesh_component.mMesh = &dude;
@@ -204,6 +208,7 @@ TEST(ObjectCollisionHandling, HandleCollision)
 	ecs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
 	ecs.createSystem<ecs::systems::ObjectCollisionSystem>();
 	ecs.createSystem<ecs::systems::DynamicMovementSystem>();
+	ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 	MeshComponent mesh_component;
 	mesh_component.mMesh = &dude;

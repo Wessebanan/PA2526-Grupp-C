@@ -97,7 +97,7 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
 
 	// Saving the current position for comparison later.
-	DirectX::XMFLOAT3 position_pre_movement = transform_component->position;
+	//DirectX::XMFLOAT3 position_pre_movement = transform_component->position;
 
 	// Starting off with movement in the x-z-plane.
 
@@ -106,9 +106,21 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	// If the max velocity is not exceeded:
 	if (CalculateVectorLength(movement_component->mVelocity) < movement_component->mMaxVelocity)
 	{
+		int prev_sign_x = Sign(movement_component->mVelocity.x);
+		int prev_sign_z = Sign(movement_component->mVelocity.z);
 		// v = v_0 + a*delta_t
 		movement_component->mVelocity.x += movement_component->mAcceleration.x * _delta;
 		movement_component->mVelocity.z += movement_component->mAcceleration.z * _delta;
+		
+		// If this velocity change changed the sign of the velocity and there was no input: reset velocity to 0.
+		if (prev_sign_x != Sign(movement_component->mVelocity.x) && fabs(movement_component->mForce.x) < 0.01f)
+		{
+			movement_component->mVelocity.x = 0.0f;
+		}
+		if (prev_sign_z != Sign(movement_component->mVelocity.z) && fabs(movement_component->mForce.z) < 0.01f)
+		{
+			movement_component->mVelocity.z = 0.0f;
+		}			
 	}
 
 	// d = d_0 + v*delta_t
@@ -134,7 +146,7 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	const float ABS_ERROR = (float)pow(10.0, -10.0);
 
 	// If the difference after movement is more than negligible...
-	if (CalculateDistance(transform_component->position, position_pre_movement) > ABS_ERROR &&
+	if (CalculateDistance(transform_component->position, movement_component->mPreviousPos) > ABS_ERROR &&
 		_entityInfo.entity->hasComponentOfType(ObjectCollisionComponent::typeID))
 	{
 		// ...make a potential collision event.
@@ -142,8 +154,8 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 		potential_collision.mEntityID = _entityInfo.entity->getID();
 		potential_collision.mDelta = _delta;
 		createEvent(potential_collision);
-
 	}
+	movement_component->mPreviousPos = transform_component->position;
 }
 
 void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)

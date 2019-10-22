@@ -1,6 +1,5 @@
 #include "CollisionSystem.h"
-#include "QuadTree.h"
-
+#include "..//gameAudio/AudioECSEvents.h"
 #pragma region ObjectCollisionSystem
 ecs::systems::ObjectCollisionSystem::ObjectCollisionSystem()
 {
@@ -234,8 +233,13 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		TypeID current_tile = mTiles.entities.at(i).entity->getID();
 
 		TransformComponent* tile_transform = mppTileTransforms[i];
-	
-		float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_transform->position, obb.Center);
+		
+		XMFLOAT3 obb_center_no_height = obb.Center;
+		obb_center_no_height.y = 0.0f;
+		XMFLOAT3 tile_transform_position_no_height = tile_transform->position;
+		tile_transform_position_no_height.y = 0.0f;
+
+		float distance_to_tile = PhysicsHelpers::CalculateDistance(tile_transform_position_no_height, obb_center_no_height);
 		// Setting the ID to the closest tile.
 		if (closest_distance > distance_to_tile)
 		{
@@ -244,9 +248,16 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		}
 	}
 
-	// Grabbing the closest tile.
+	//// Getting closest tile to unit.
+	//XMFLOAT3 unit_position = p_transform_component->position;
+	//int2 closest_tile_index = GridFunctions::GetTileFromWorldPos(unit_position.x, unit_position.z);
+	//
+	//GridProp* grid_prop = GridProp::GetInstance();
+	//TileData tile_data = grid_prop->mGrid[closest_tile_index.y][closest_tile_index.x];
+	//
+	//// Grabbing the closest tile.
+	//TransformComponent* closest_tile = getComponentFromKnownEntity<TransformComponent>(tile_data.Id);
 	TransformComponent* closest_tile = getComponentFromKnownEntity<TransformComponent>(closest_tile_id);
-
 	// Grabbing the height (y value).
 	float tile_height = closest_tile->position.y;
 
@@ -292,6 +303,12 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		
 		// If the object moved, it is now on the ground level.
 		on_ground = true;
+
+		// TEMP GROUND HIT SOUND
+		//ecs::events::PlaySound sound_event;
+		//sound_event.audioName = AudioName::COIN_TEST_SOUND;
+		//sound_event.soundFlags = SoundFlags::SF_NONE;
+		//createEvent(sound_event);
 	}
 
 	// Break if entity does not move dynamically.

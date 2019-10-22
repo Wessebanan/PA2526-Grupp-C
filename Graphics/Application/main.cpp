@@ -1,4 +1,5 @@
 
+
 #include "../includes/GraphicsInterface.h"
 #include "../includes/Window.h"
 #include "../includes/ForwardRenderingPipeline.h"
@@ -6,10 +7,6 @@
 #include "../includes/MeshManager.h"
 #include "../includes/RenderManager.h"
 #include "../includes/ComputeManager.h"
-
-#include <memory>
-#include <DirectXMath.h>
-#include <vector>
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>

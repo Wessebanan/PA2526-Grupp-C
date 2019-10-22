@@ -15,7 +15,6 @@
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp">
       <Filter>Camera</Filter>
     </ClCompile>
-    <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
@@ -27,6 +26,21 @@
     </ClCompile>
     <ClCompile Include="Physics\QuadTree.cpp">
       <Filter>QuadTree</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics\FightingSystem.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="gameAudio\AudioECSSystems.cpp">
+      <Filter>Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp">
+      <Filter>Init</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +143,30 @@
     <ClInclude Include="Physics\QuadTree.h">
       <Filter>QuadTree</Filter>
     </ClInclude>
+    <ClInclude Include="Physics\FightingSystem.h">
+      <Filter>Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAudio\AudioECSEvents.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAudio\AudioECSSystems.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAudio\AudioGlobals.h">
+      <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\ForwardRenderingPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\ShadowMapPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicsComponents.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAnimation\InitAnimation.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -158,6 +196,18 @@
     <Filter Include="Init">
       <UniqueIdentifier>{3adc6f81-bab9-4577-aa3a-be10876437ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{724c72ba-3715-496d-b900-0dfa1e60ab71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics">
+      <UniqueIdentifier>{26314c13-6838-471b-aa52-20b6f3999b9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Animation">
+      <UniqueIdentifier>{d0dc9ea9-6fa1-4c18-81dc-be9ad461bf9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Audio">
+      <UniqueIdentifier>{bee80657-4969-4ce7-820b-750fd99b274e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SceneObjects">
@@ -166,12 +216,24 @@
     <Filter Include="Biomes">
       <UniqueIdentifier>{f368533f-c702-46d5-8541-7f0346618310}</UniqueIdentifier>
     </Filter>
-    <ClInclude Include="gameAudio\AudioECSEvents.h" />
-    <ClInclude Include="gameAudio\AudioECSSystems.h" />
-    <ClInclude Include="gameAudio\AudioGlobals.h" />
     <ClInclude Include="gameAudio\InitAudio.h" />
     <Filter Include="QuadTree">
       <UniqueIdentifier>{c2f1b431-1005-4d56-9006-6038545ef7cd}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="gameGraphics\Shaders\VS_Default.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Default.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\VS_Transformation.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\PS_Transformation.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl" />
   </ItemGroup>
 </Project>

@@ -52,5 +52,8 @@
     <None Include="scripts\script.js">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="mobileSite.html">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
