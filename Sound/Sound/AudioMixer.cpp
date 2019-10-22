@@ -37,7 +37,10 @@ void Audio::Mixer::NewSoundVoice(Plugin::Plugin* pEntryPlugin)
 
 void Audio::Mixer::AddSoundMessage(Sound::Message message)
 {
-	mSoundMessageBuffer.insert(&message);
+	if (!mSoundMessageBuffer.insert(&message))
+	{
+		delete message.pEntry;
+	}
 }
 
 void Audio::Mixer::AddMusicMessage(Music::Message message)
