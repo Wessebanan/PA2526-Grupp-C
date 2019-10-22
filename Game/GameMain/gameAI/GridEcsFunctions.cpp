@@ -25,14 +25,14 @@ namespace GridEcsFunctions
 		ecs::Entity* current_tile;
 		float height_map[ARENA_COLUMNS*ARENA_ROWS];
 		GridFunctions::CreateHeightmap(height_map);
-		//for (int i = 0; i < rows; i++)
-		//{
-		//	ArenaProperties::gridLogic[0][i].entityID = i;
-		//}
-		//for (int i = 0; i < rows; i++)
-		//{
-		//	std::cout << ArenaProperties::gridLogic[0][i].entityID << std::endl;
-		//}
+		/*for (int i = 0; i < rows; i++)
+		{
+			ArenaProperties::gridLogic[0][i].entityID = i;
+		}
+		for (int i = 0; i < rows; i++)
+		{
+			std::cout << ArenaProperties::gridLogic[0][i].entityID << std::endl;
+		}*/
 		
 		GridProp* p_gp = GridProp::GetInstance();
 
