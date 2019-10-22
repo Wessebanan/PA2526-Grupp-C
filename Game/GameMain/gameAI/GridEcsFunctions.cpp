@@ -96,7 +96,7 @@ namespace GridEcsFunctions
 
 				//Create the new entity
 				current_tile = rEcs.createEntity(transform, color, tile);
-				p_gp->mGrid[i][j].Id = current_tile->getID();
+				p_gp->mGrid[i][j].Id = current_tile->getID(); // Crashes here is likley from not having engough components allocated
 				p_gp->mGrid[i][j].height = transform.position.y;
 				//Update the x-position of the next tile in this row.
 				current_pos.x += 1.5f * Radius;
