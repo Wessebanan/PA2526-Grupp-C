@@ -151,7 +151,7 @@ namespace GridFunctions
 		for (int i = 0; i < rows; i++)
 		{
 			for (int j = 0; j < columns; j++)
-				Arr[i + j * ARENA_ROWS] = height_values[i][j];
+				Arr[i + j * MAX_ARENA_ROWS] = height_values[i][j];
 		}
 	}
 
