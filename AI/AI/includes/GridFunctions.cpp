@@ -12,8 +12,8 @@ namespace GridFunctions
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
 
-		const int max_rows = ARENA_ROWS;
-		const int max_columns = ARENA_COLUMNS;
+		const int max_rows = MAX_ARENA_ROWS;
+		const int max_columns = MAX_ARENA_COLUMNS;
 
 
 		float height_values[max_rows][max_columns];
@@ -71,7 +71,7 @@ namespace GridFunctions
 		for (int i = 0; i < rows; i++)
 		{
 			for (int j = 0; j < columns; j++)
-				Arr[j + i * ARENA_ROWS] = height_values[i][j];
+				Arr[j + i * MAX_ARENA_ROWS] = height_values[i][j];
 		}
 	}
 
@@ -103,8 +103,8 @@ namespace GridFunctions
 		GridProp* p_gp = GridProp::GetInstance();
 		bool returnValue = false;
 		//Check if the given index is a valid index and check so that the height difference between the tiles is not to large.
-		if (neighbourIndex.x >= 0 && neighbourIndex.x < ARENA_COLUMNS
-			&& neighbourIndex.y >= 0 && neighbourIndex.y < ARENA_ROWS
+		if (neighbourIndex.x >= 0 && neighbourIndex.x < MAX_ARENA_COLUMNS
+			&& neighbourIndex.y >= 0 && neighbourIndex.y < MAX_ARENA_ROWS
 			&& p_gp->mGrid[currentTile.x][currentTile.y].height -
 			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1)
 			returnValue = true;
@@ -118,9 +118,9 @@ namespace GridFunctions
 		int2 current_tile;
 		int2 neighbour_tile;
 		int neighbour_counter;
-		for (int i = 0; i < ARENA_ROWS; i++)
+		for (int i = 0; i < MAX_ARENA_ROWS; i++)
 		{
-			for (int j = 0; j < ARENA_COLUMNS; j++)
+			for (int j = 0; j < MAX_ARENA_COLUMNS; j++)
 			{
 				neighbour_counter = 0;
 				current_tile = int2(i, j);
@@ -234,7 +234,7 @@ namespace GridFunctions
 		}
 	}
 
-	int2 FindStartingTile(PLAYER Id, int Rows, int Colums)
+	int2 FindStartingTile(PLAYER Id, int Rows, int Columns)
 	{
 		/*
 		Picture of which corner the players should spawn in
@@ -251,7 +251,7 @@ namespace GridFunctions
 
 		//Initialize variables
 		int rows = Rows;
-		int columns = Colums;
+		int columns = Columns;
 		int2 index(-1, -1);
 		int min_x, min_y;
 		GridProp* p_gp = GridProp::GetInstance();
@@ -319,9 +319,9 @@ namespace GridFunctions
 				pos_x -= TILE_RADIUS * 2;
 				steps++;
 			}
-			if (steps > ARENA_COLUMNS - 1)
+			if (steps > MAX_ARENA_COLUMNS - 1)
 			{
-				index.x = ARENA_COLUMNS - 1;
+				index.x = MAX_ARENA_COLUMNS - 1;
 			}
 			else
 			{
@@ -342,9 +342,9 @@ namespace GridFunctions
 					pos_z -= mid_to_side * 2;
 					steps++;
 				}
-				if (steps > ARENA_ROWS - 1)
+				if (steps > MAX_ARENA_ROWS - 1)
 				{
-					index.y = ARENA_ROWS - 1;
+					index.y = MAX_ARENA_ROWS - 1;
 				}
 				else
 				{
@@ -358,9 +358,9 @@ namespace GridFunctions
 					pos_z -= mid_to_side * 2;
 					steps++;
 				}
-				if (steps > ARENA_ROWS - 1)
+				if (steps > MAX_ARENA_ROWS - 1)
 				{
-					index.y = ARENA_ROWS - 1;
+					index.y = MAX_ARENA_ROWS - 1;
 				}
 				else
 				{

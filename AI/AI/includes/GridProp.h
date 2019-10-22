@@ -21,8 +21,8 @@ private:
 	GridProp& operator = (GridProp const& copy); // Not Implemented
 	~GridProp() {};
 public:
-	TileData mGrid[ARENA_COLUMNS][ARENA_ROWS];
-	int mSceneObjects[ARENA_COLUMNS][ARENA_ROWS];
+	TileData mGrid[MAX_ARENA_COLUMNS][MAX_ARENA_ROWS];
+	int mSceneObjects[MAX_ARENA_COLUMNS][MAX_ARENA_ROWS];
 
 	int2 GetSize() { return this->mMapSize; };
 	void SetSize(int rows, int columns) { this->mMapSize.x = rows; this->mMapSize.y = columns; };

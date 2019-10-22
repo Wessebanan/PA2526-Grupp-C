@@ -212,9 +212,9 @@ int main()
 	ecs::EntityComponentSystem ecs;
 
 	//Tiles + sceneobjects + units + camera
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(ARENA_ROWS * ARENA_COLUMNS + 12 + 12 + 1);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(ARENA_ROWS* ARENA_COLUMNS + 12 + 12);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(ARENA_ROWS* ARENA_COLUMNS);
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(MAX_ARENA_ROWS * MAX_ARENA_COLUMNS + 12 + 12 + 1);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(MAX_ARENA_ROWS* MAX_ARENA_COLUMNS + 12 + 12);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(MAX_ARENA_ROWS* MAX_ARENA_COLUMNS);
 
 	InitSound(ecs);
 
