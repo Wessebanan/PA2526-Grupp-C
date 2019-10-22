@@ -21,6 +21,7 @@ private:
 	~GridProp() {};
 public:
 	TileData mGrid[ARENA_COLUMNS][ARENA_ROWS];
+	int mSceneObjects[ARENA_COLUMNS][ARENA_ROWS];
 	static GridProp* GetInstance()
 	{
 		{

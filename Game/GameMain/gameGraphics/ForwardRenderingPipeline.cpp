@@ -68,29 +68,6 @@ namespace graphics
 		}
 
 		{
-			D3D11_TEXTURE2D_DESC texture_desc = { 0 };
-			texture_desc.Width = m_clientWidth;
-			texture_desc.Height = m_clientHeight;
-			texture_desc.ArraySize = 1;
-			texture_desc.BindFlags = D3D11_BIND_RENDER_TARGET;
-			texture_desc.CPUAccessFlags = 0;
-			texture_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-			texture_desc.SampleDesc = { 1, 0 };
-			texture_desc.Usage = D3D11_USAGE_DEFAULT;
-			texture_desc.MipLevels = 1;
-
-			pDevice4->CreateTexture2D(&texture_desc, NULL, &m_pTargetTexture);
-
-			D3D11_RENDER_TARGET_VIEW_DESC target_desc = {};
-			target_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-			target_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-			target_desc.Texture2D.MipSlice = 0;
-
-			pDevice4->CreateRenderTargetView(m_pTargetTexture, &target_desc, &m_pRenderTarget);
-		}
-
-
-		{
 			DirectX::XMFLOAT4X4 proj_matrix;
 			SetProjectionMatrix(
 				proj_matrix,
@@ -121,6 +98,8 @@ namespace graphics
 			pDevice4->CreateBuffer(&desc, NULL, &m_pMatrixBuffers[0]);
 		}
 
+		internal::GetBackBuffer(&m_pRenderTarget);
+
 		return S_OK;
 	}
 
@@ -131,25 +110,25 @@ namespace graphics
 		graphics::UploadToDynamicBuffer(
 			pContext4,
 			m_pMatrixBuffers[0],
+			D3D11_MAP_WRITE_DISCARD,
 			&pData->ViewMatrix,
 			sizeof(pData->ViewMatrix),
 			0);
 
 		float color[4] = { pData->Red, pData->Green, pData->Blue, 1.0f };
 		pContext4->ClearRenderTargetView(m_pRenderTarget, color);
+		pContext4->ClearDepthStencilView(m_pDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
 	void ForwardRenderingPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
-		pContext4->ClearDepthStencilView(m_pDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
 		graphics::SetViewport(pContext4, 0, 0, m_clientWidth, m_clientHeight);
 		pContext4->OMSetRenderTargets(1, &m_pRenderTarget, m_pDepthBuffer);
 
 		pContext4->VSSetConstantBuffers(1, 2, m_pMatrixBuffers);
 	}
 
-	void ForwardRenderingPipeline::PreExecute(
+	void ForwardRenderingPipeline::PreProcess(
 		ID3D11DeviceContext4* pContext4,
 		ID3D11VertexShader* pVertexShader,
 		ID3D11PixelShader* pPixelShader)
@@ -158,18 +137,14 @@ namespace graphics
 		pContext4->PSSetShader(pPixelShader, NULL, 0);
 	}
 
-	void ForwardRenderingPipeline::End(ID3D11DeviceContext4* pContext4, RenderManagerData* pData)
+	void ForwardRenderingPipeline::End(ID3D11DeviceContext4* pContext4)
 	{
-		pContext4->CopyResource(pData->pBackBufferTexture, m_pTargetTexture);
 	}
 
 	void ForwardRenderingPipeline::Destroy()
 	{
 		m_pDepthBuffer->Release();
 		m_pDepthTexture->Release();
-
-		m_pRenderTarget->Release();
-		m_pTargetTexture->Release();
 
 		m_pMatrixBuffers[0]->Release();
 		m_pMatrixBuffers[1]->Release();

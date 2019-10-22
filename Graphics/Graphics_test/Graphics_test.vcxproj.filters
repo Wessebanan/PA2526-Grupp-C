@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <FxCompile Include="ComputeShader.hlsl">
+      <Filter>Files</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelShader.hlsl">
+      <Filter>Files</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexShader.hlsl">
+      <Filter>Files</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pch.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Application\ForwardRenderingPipeline.cpp">
+      <Filter>Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Files">
+      <UniqueIdentifier>{b3f1ca68-8fdf-4268-ba61-9d95f6f7c3de}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Application\ForwardRenderingPipeline.h">
+      <Filter>Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

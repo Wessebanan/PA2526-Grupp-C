@@ -202,6 +202,16 @@ namespace GridEcsFunctions
 			}
 		}
 
+
+		for (int i = 0; i < Rows; i++)
+		{
+			for (int j = 0; j < Columns; j++)
+			{
+				// sets no object (-1)
+				p_gp->mSceneObjects[i][j] = -1;
+			}
+		}
+
 		CreatePotentialField(rEcs);
 		GridFunctions::StoreNeighbours();
 		LoadNeighboursToComponents(rEcs);
