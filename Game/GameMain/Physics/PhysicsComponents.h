@@ -113,7 +113,10 @@ namespace ecs
 
 			~ObjectCollisionComponent()
 			{
-				delete[] mSpheres;
+				if (mSpheres)
+				{
+					delete[] mSpheres;
+				}
 			}
 		};
 
@@ -143,7 +146,7 @@ namespace ecs
 			
 			// Base damage for multiplier on hit based on weapon type.
 			float mBaseDamage = 0.0f;
-			float mAttackRange = 0.0f;
+			float mWeaponRange = 0.0f;
 
 			~WeaponComponent()
 			{				
@@ -168,6 +171,16 @@ namespace ecs
 		COMP(QuadTreeComponent)
 		{
 			void* pTree;
+		};
+
+		COMP(EquipmentComponent)
+		{
+			ID mEquippedWeapon = 0;
+			// Melee range is arm length.
+			float mMeleeRange = 0.0f;
+
+			// Attack range is sum of weapon range and melee range.
+			float mAttackRange = 0.0f;
 		};
 	} // components
 } // ecs
