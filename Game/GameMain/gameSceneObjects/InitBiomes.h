@@ -14,9 +14,9 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 	itt = rECS.getAllComponentsOfType(ecs::components::TileComponent::typeID);
 
 
-	int tiles_count = Rows * Columns;
+	int tile_count = Rows * Columns;
 	//Loop over each tile
-	for (size_t i = 0; i < tiles_count; i++)
+	for (size_t i = 0; i < tile_count; i++)
 	{
 		ecs::components::TileComponent* p_tile_comp = (ecs::components::TileComponent*)itt.next();
 		
@@ -63,4 +63,24 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 
 	}
 	
+
+	GridProp* p_gp = GridProp::GetInstance();
+
+	for (size_t i = 1; i < Rows-1; i++)
+		for (size_t j = 1; j < Columns-1; j++)
+		{
+			float avg = 0.0f;
+			avg += p_gp->mGrid[i][j].height;
+			avg += p_gp->mGrid[i-1][j].height;
+			avg += p_gp->mGrid[i+1][j].height;
+			avg += p_gp->mGrid[i][j+1].height;
+			avg += p_gp->mGrid[i-1][j+1].height;
+			avg += p_gp->mGrid[i+1][j+1].height;
+			avg += p_gp->mGrid[i][j-1].height;
+
+			avg /= 7;
+
+			p_gp->mGrid[i][j].height = avg;
+		}
+
 }
