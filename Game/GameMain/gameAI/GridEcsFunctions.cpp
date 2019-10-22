@@ -23,19 +23,17 @@ namespace GridEcsFunctions
 		ColorComponent color;
 		TileComponent tile;
 		ecs::Entity* current_tile;
-		float height_map[ARENA_COLUMNS*ARENA_ROWS];
-		GridFunctions::CreateHeightmap(height_map);
-		//for (int i = 0; i < rows; i++)
-		//{
-		//	ArenaProperties::gridLogic[0][i].entityID = i;
-		//}
-		//for (int i = 0; i < rows; i++)
-		//{
-		//	std::cout << ArenaProperties::gridLogic[0][i].entityID << std::endl;
-		//}
-		
+
+		const int mapsze = MAX_ARENA_ROWS*MAX_ARENA_ROWS; // Max size
+		float height_map[mapsze];
+		GridFunctions::CreateHeightmap(height_map, Rows, Columns);
+
+
 		GridProp* p_gp = GridProp::GetInstance();
 
+		p_gp->SetSize(Rows,Columns);
+
+		// The default color, this will be applied to tiles without any biome
 		color.red = 0;
 		color.green = 0;
 		color.blue = 0;
@@ -51,18 +49,17 @@ namespace GridEcsFunctions
 				
 				//Save the calculated values into the PositionComponent.
 				transform.position.x = current_pos.x;
-				transform.position.y = height_map[(i*12)+j];
+				transform.position.y = height_map[(i*MAX_ARENA_ROWS)+j];
 				transform.position.z = current_pos.z;
-				if (transform.position.y == -1.f)
+				if (transform.position.y <= -1.f)
 				{
 					tile.tileType = WATER;
-					color.blue = 150.0f;
 					tile.impassable = true;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = false;
 					p_gp->mGrid[i][j].biome = -1;
 				}
-				else if (transform.position.y == 3)
+				else if (transform.position.y >= 3)
 				{
 					tile.tileType = GAME_FIELD;
 					tile.impassable = false;
@@ -90,7 +87,7 @@ namespace GridEcsFunctions
 
 				//Create the new entity
 				current_tile = rEcs.createEntity(transform, color, tile);
-				p_gp->mGrid[i][j].Id = current_tile->getID();
+				p_gp->mGrid[i][j].Id = current_tile->getID(); // Crashes here is likley from not having engough components allocated
 				p_gp->mGrid[i][j].height = transform.position.y;
 				//Update the x-position of the next tile in this row.
 				current_pos.x += 1.5f * Radius;
@@ -140,7 +137,7 @@ namespace GridEcsFunctions
 				}
 				else if (random_biome == 1)
 				{
-					for (int it = 11; it > 0 && !found; it--)
+					for (int it = Rows-1; it > 0 && !found; it--)
 					{
 						for (int jt = 0; jt < Columns && !found; jt++)
 						{
@@ -158,7 +155,7 @@ namespace GridEcsFunctions
 				{
 					for (int it = 0; it < Rows && !found; it++)
 					{
-						for (int jt = 11; jt > 0 && !found; jt--)
+						for (int jt = Columns - 1; jt > 0 && !found; jt--)
 						{
 							if (p_gp->mGrid[it][jt].biome == -1)
 							{
@@ -172,9 +169,9 @@ namespace GridEcsFunctions
 				}
 				else if (random_biome == 3)
 				{
-					for (int it = 11; it > 0 && !found; it--)
+					for (int it = Rows - 1; it > 0 && !found; it--)
 					{
-						for (int jt = 11; jt > 0 && !found; jt--)
+						for (int jt = Columns - 1; jt > 0 && !found; jt--)
 						{
 							if (p_gp->mGrid[it][jt].biome == -1)
 							{
@@ -313,9 +310,11 @@ namespace GridEcsFunctions
 	{
 		GridProp* p_gp = GridProp::GetInstance();
 		components::TileComponent* temp_component = nullptr;
-		for (int i = 0; i < ARENA_ROWS; i++)
+		int rows = p_gp->GetSize().x;
+		int columns = p_gp->GetSize().y;
+		for (int i = 0; i < rows; i++)
 		{
-			for (int j = 0; j < ARENA_COLUMNS; j++)
+			for (int j = 0; j < columns; j++)
 			{
 				temp_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[i][j].Id);
 				for (int k = 0; k < 6; k++)

@@ -6,15 +6,17 @@
 #include "..//gameUtility/UtilityComponents.h"
 #include "..//gameSceneObjects/SceneObjectGlobals.h"
 
-void InitBiomes(ecs::EntityComponentSystem& rECS)
+void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Columns)
 {
 
 	ecs::ComponentIterator itt;
 
 	itt = rECS.getAllComponentsOfType(ecs::components::TileComponent::typeID);
 
+
+	int tiles_count = Rows * Columns;
 	//Loop over each tile
-	for (size_t i = 0; i < 144; i++)
+	for (size_t i = 0; i < tiles_count; i++)
 	{
 		ecs::components::TileComponent* p_tile_comp = (ecs::components::TileComponent*)itt.next();
 		

@@ -214,9 +214,9 @@ int main()
 	ecs::EntityComponentSystem ecs;
 
 	//Tiles + sceneobjects + units + camera
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1 + 100);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(MAX_ARENA_ROWS * MAX_ARENA_COLUMNS + 12 + 12 + 1);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(MAX_ARENA_ROWS* MAX_ARENA_COLUMNS + 12 + 12);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(MAX_ARENA_ROWS* MAX_ARENA_COLUMNS);
 
 	InitSound(ecs);
 
@@ -268,7 +268,6 @@ int main()
 
 	ShaderProgramInput* pData	= new ShaderProgramInput[tile_count + 6 + 6];
 	UINT sizeOfPdata			= (UINT)(sizeof(ShaderProgramInput) * (tile_count + 6 + 6));
-	sizeOfPdata = 2496;
 	ZeroMemory(pData, sizeOfPdata);
 
 
