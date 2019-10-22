@@ -27,12 +27,12 @@ namespace graphics
 		virtual void Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData) override;
 		virtual void Begin(ID3D11DeviceContext4* pContext4) override;
 
-		virtual void PreExecute(
+		virtual void PreProcess(
 			ID3D11DeviceContext4* pContext4,
 			ID3D11VertexShader* pVertexShader,
 			ID3D11PixelShader* pPixelShader) override;
 
-		virtual void End(ID3D11DeviceContext4* pContext4, RenderManagerData* pData) override;
+		virtual void End(ID3D11DeviceContext4* pContext4) override;
 
 
 	private:

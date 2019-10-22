@@ -2,8 +2,6 @@
 
 #include "RenderContext.h"
 
-class Pipeline;
-
 namespace graphics
 {
 	constexpr UINT VERTEX_BUFFER_COUNT = 5;
@@ -19,7 +17,6 @@ namespace graphics
 
 	class MeshManager
 	{
-		friend class Pipeline;
 
 	public:
 		MeshManager();
@@ -36,7 +33,24 @@ namespace graphics
 			Create a mesh region to store meshes
 			: Returns 0 in size if failed
 		*/
-		MeshRegion CreateMeshRegion(const UINT vertexCount, const UINT indexCount);
+		graphics::MeshRegion CreateMeshRegion(
+			const UINT vertexCount, 
+			const UINT indexCount);
+
+		/*
+			Sets Vertex Buffer for polling at
+				gVertexPositions		: register (t0); 
+				gVertexNormals			: register (t1);
+				gVertexTexCoords		: register (t2);
+				pVertexBlendWeights		: register (t2);
+				pVertexBlendIndices		: register (t2);
+		*/
+		void SetVertexBuffers();
+
+		/*
+			Clear all data to enable overwrites
+		*/
+		void Clear();
 
 		/*
 			Upload mesh data to a region
@@ -49,7 +63,6 @@ namespace graphics
 		void Destroy();
 
 	private:
-		void EnableVertexBuffers();
 
 		HRESULT m_UploadVertexData(
 			const UINT index, 

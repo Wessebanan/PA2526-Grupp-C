@@ -26,12 +26,13 @@ namespace graphics
 	inline void UploadToDynamicBuffer(
 		ID3D11DeviceContext4* pContext4,
 		ID3D11Buffer* pBuffer,
+		const D3D11_MAP mapType,
 		const void* pData,
 		const UINT byteWidth,
 		const UINT offset)
 	{
 		D3D11_MAPPED_SUBRESOURCE map;
-		pContext4->Map(pBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &map);
+		pContext4->Map(pBuffer, 0, mapType, 0, &map);
 		memcpy((char*)map.pData + offset, pData, byteWidth);
 		pContext4->Unmap(pBuffer, 0);
 	}
@@ -99,8 +100,8 @@ namespace graphics
 		const UINT instanceStart,
 		const BufferRegion& rMeshRegion)
 	{
-		UINT vertexCountPerInstance = rMeshRegion.Size;// / (sizeof(float) * 3);
-		UINT startVertexLocation = rMeshRegion.Location;// / (sizeof(float) * 3);
+		UINT vertexCountPerInstance = rMeshRegion.Size;
+		UINT startVertexLocation = rMeshRegion.Location;
 
 		pContext4->DrawInstanced(
 			vertexCountPerInstance,
@@ -116,10 +117,10 @@ namespace graphics
 		const BufferRegion& rMeshRegion,
 		const BufferRegion& rIndexRegion)
 	{
-		UINT indexCountPerInstance = rIndexRegion.Size;// / sizeof(int);
+		UINT indexCountPerInstance = rIndexRegion.Size;
 
-		UINT startIndexLocation = rIndexRegion.Location;// / sizeof(int);
-		UINT startVertexLocation = rMeshRegion.Location;// / (sizeof(float) * 3);
+		UINT startIndexLocation = rIndexRegion.Location;
+		UINT startVertexLocation = rMeshRegion.Location;
 
 		pContext4->DrawIndexedInstanced(
 			indexCountPerInstance,
@@ -128,7 +129,6 @@ namespace graphics
 			startVertexLocation,
 			instanceStart);
 	}
-
 
 	void DrawMeshes(
 		ID3D11DeviceContext4* pContext4,

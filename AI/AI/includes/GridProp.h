@@ -22,6 +22,7 @@ private:
 	~GridProp() {};
 public:
 	TileData mGrid[ARENA_COLUMNS][ARENA_ROWS];
+	int mSceneObjects[ARENA_COLUMNS][ARENA_ROWS];
 
 	int2 GetSize() { return this->mMapSize; };
 	void SetSize(int rows, int columns) { this->mMapSize.x = rows; this->mMapSize.y = columns; };
