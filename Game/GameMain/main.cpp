@@ -39,6 +39,8 @@
 
 #include <time.h>
 
+#include "gameUtility/Timer.h"
+
 inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3) {
 	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
 }
@@ -344,6 +346,9 @@ int main()
 	unsigned long long int frame_count2 = 0;
 	wnd.Open();
 
+	Timer timer;
+
+	timer.StartGame();
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
@@ -352,8 +357,8 @@ int main()
 			{
 				wnd.Close();
 			}
-			ecs.update(0.002f);
-
+			ecs.update(timer.GetFrameTime());
+			
 			ecs::TypeFilter army_filter;
 			army_filter.addRequirement(ecs::components::UnitComponent::typeID);
 			army_filter.addRequirement(ecs::components::TransformComponent::typeID);
