@@ -62,7 +62,7 @@ namespace GridEcsFunctions
 				if (transform.position.y <= -1.f)
 				{
 					tile.tileType = WATER;
-					color.blue = 150.0f;
+					//color.blue = 150.0f;
 					tile.impassable = true;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = false;
@@ -146,7 +146,7 @@ namespace GridEcsFunctions
 				}
 				else if (random_biome == 1)
 				{
-					for (int it = 11; it > 0 && !found; it--)
+					for (int it = Rows-1; it > 0 && !found; it--)
 					{
 						for (int jt = 0; jt < Columns && !found; jt++)
 						{
@@ -164,7 +164,7 @@ namespace GridEcsFunctions
 				{
 					for (int it = 0; it < Rows && !found; it++)
 					{
-						for (int jt = 11; jt > 0 && !found; jt--)
+						for (int jt = Columns - 1; jt > 0 && !found; jt--)
 						{
 							if (p_gp->mGrid[it][jt].biome == -1)
 							{
@@ -178,9 +178,9 @@ namespace GridEcsFunctions
 				}
 				else if (random_biome == 3)
 				{
-					for (int it = 11; it > 0 && !found; it--)
+					for (int it = Rows - 1; it > 0 && !found; it--)
 					{
-						for (int jt = 11; jt > 0 && !found; jt--)
+						for (int jt = Columns - 1; jt > 0 && !found; jt--)
 						{
 							if (p_gp->mGrid[it][jt].biome == -1)
 							{
