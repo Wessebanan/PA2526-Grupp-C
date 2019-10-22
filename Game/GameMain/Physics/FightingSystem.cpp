@@ -36,15 +36,6 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(entity->getID());
 	std::vector<XMFLOAT3>* vertices = nullptr;
-	//ModelLoader::Skeleton *skel = mesh_component->mMesh->GetSkeleton();
-	
-	if (mesh_component->mMesh->HasSkeleton())
-	{
-		ModelLoader::Skeleton* skeleton = mesh_component->mMesh->GetSkeleton();
-		XMFLOAT4X4 right_hand = skeleton->GetOffsetMatrixUsingJointName("Hand.r", 0);
-		XMFLOAT4X4 right_collar = skeleton->GetOffsetMatrixUsingJointName("Collar.r", 0);
-
-	}
 
 	// Fist has no mesh.
 	if (weapon_component->mType != FIST)
@@ -170,7 +161,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	
 	// If a unit collides with an unowned weapon, set colliding unit to weapon owner
 	// and colliding unit equipment to weapon.
-	if (weapon_component->mOwnerEntity == 0 && getEntity(collided_unit)->hasComponentOfType(EquipmentComponent::typeID))
+	if (weapon_component->mOwnerEntity == 0 && collided_unit != 0)
 	{
 		EquipmentComponent *equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
 		// Delete current weapon if any.
