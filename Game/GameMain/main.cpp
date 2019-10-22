@@ -347,7 +347,7 @@ int main()
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
-		{
+		{ 
 			if (GetAsyncKeyState(VK_ESCAPE))
 			{
 				wnd.Close();
