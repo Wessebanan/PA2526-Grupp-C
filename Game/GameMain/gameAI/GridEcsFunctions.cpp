@@ -24,25 +24,18 @@ namespace GridEcsFunctions
 		TileComponent tile;
 		ecs::Entity* current_tile;
 
-		const int mapsze = ARENA_ROWS*ARENA_ROWS; // Max size
-		//const int mapsze = Columns * Rows;
+		const int mapsze = MAX_ARENA_ROWS*MAX_ARENA_ROWS; // Max size
 		float height_map[mapsze];
-		//GridFunctions::CreateHeightmap(height_map, Rows, Columns, 2.0f, 1);
+
+
 		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60);
-		//for (int i = 0; i < rows; i++)
-		//{
-		//	ArenaProperties::gridLogic[0][i].entityID = i;
-		//}
-		//for (int i = 0; i < rows; i++)
-		//{
-		//	std::cout << ArenaProperties::gridLogic[0][i].entityID << std::endl;
-		//}
+
 		
 		GridProp* p_gp = GridProp::GetInstance();
 
 		p_gp->SetSize(Rows,Columns);
 
-
+		// The default color, this will be applied to tiles without any biome
 		color.red = 0;
 		color.green = 0;
 		color.blue = 0;
@@ -58,12 +51,11 @@ namespace GridEcsFunctions
 				
 				//Save the calculated values into the PositionComponent.
 				transform.position.x = current_pos.x;
-				transform.position.y = height_map[(i*ARENA_ROWS)+j];
+				transform.position.y = height_map[(i*MAX_ARENA_ROWS)+j];
 				transform.position.z = current_pos.z;
 				if (transform.position.y <= -1.f)
 				{
 					tile.tileType = WATER;
-					//color.blue = 150.0f;
 					tile.impassable = true;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = false;

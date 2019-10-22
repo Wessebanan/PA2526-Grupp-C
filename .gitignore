@@ -330,3 +330,4 @@ ASALocalRun/
 .mfractor/
 /Lib_d/libfbxsdk-md.lib
 /Lib_d/ModelLoader.lib
+*.cso

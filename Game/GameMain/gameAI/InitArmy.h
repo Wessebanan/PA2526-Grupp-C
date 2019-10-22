@@ -52,8 +52,8 @@ void InitArmy(ecs::EntityComponentSystem& rECS)
 //
 //int2 FindStartingTile(PLAYER Id)
 //{
-//	int rows = ARENA_ROWS;
-//	int columns = ARENA_COLUMNS;
+//	int rows = MAX_ARENA_ROWS;
+//	int columns = MAX_ARENA_COLUMNS;
 //	int2 index;
 //	index.x = -1;
 //	index.y = -1;

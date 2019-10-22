@@ -39,6 +39,8 @@
 
 #include <time.h>
 
+#include "gameUtility/Timer.h"
+
 inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3) {
 	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
 }
@@ -212,9 +214,9 @@ int main()
 	ecs::EntityComponentSystem ecs;
 
 	//Tiles + sceneobjects + units + camera
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(ARENA_ROWS * ARENA_COLUMNS + 12 + 12 + 1);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(ARENA_ROWS* ARENA_COLUMNS + 12 + 12);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(ARENA_ROWS* ARENA_COLUMNS);
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(MAX_ARENA_ROWS * MAX_ARENA_COLUMNS + 12 + 12 + 1);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(MAX_ARENA_ROWS* MAX_ARENA_COLUMNS + 12 + 12);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(MAX_ARENA_ROWS* MAX_ARENA_COLUMNS);
 
 	InitSound(ecs);
 
@@ -267,6 +269,8 @@ int main()
 	ShaderProgramInput* pData	= new ShaderProgramInput[tile_count + 6 + 6];
 	UINT sizeOfPdata			= (UINT)(sizeof(ShaderProgramInput) * (tile_count + 6 + 6));
 	ZeroMemory(pData, sizeOfPdata);
+
+
 
 
 	// Map tiles will be uploaded with ocean meshes
@@ -341,34 +345,65 @@ int main()
 	unsigned long long int frame_count2 = 0;
 	wnd.Open();
 
+	Timer timer;
+
+	timer.StartGame();
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
-		{
+		{ 
 			if (GetAsyncKeyState(VK_ESCAPE))
 			{
 				wnd.Close();
 			}
-			ecs.update(0.002f);
+			ecs.update(timer.GetFrameTime());
+			
+			ecs::TypeFilter army_filter;
+			army_filter.addRequirement(ecs::components::UnitComponent::typeID);
+			army_filter.addRequirement(ecs::components::TransformComponent::typeID);
+			army_filter.addRequirement(ecs::components::ColorComponent::typeID);
+
+			ecs::EntityIterator ei = ecs.getEntititesByFilter(army_filter);
+
 			int armyIndex = 0;
-			itt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
-			ecs::components::ArmyComponent* armComp;
-			while (armComp = (ecs::components::ArmyComponent*)itt.next())
+			ecs::components::ColorComponent* p_color_component;
+			ecs::components::TransformComponent* p_transform_component;
+			for (ecs::FilteredEntity unit : ei.entities)
 			{
-				// over alla units in the army
-				for (size_t i = 0; i < 3; i++)
-				{
-					ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(armComp->unitIDs[i]);
+				p_transform_component = unit.getComponent<ecs::components::TransformComponent>();
+				p_color_component = unit.getComponent<ecs::components::ColorComponent>();
 
-					XMMATRIX world = XMMatrixIdentity();
-					world *= XMMatrixScaling(trComp->scale.x, trComp->scale.y, trComp->scale.z);
-					world *= XMMatrixRotationRollPitchYaw(trComp->rotation.x, trComp->rotation.y, trComp->rotation.z);
-					world *= XMMatrixTranslation(trComp->position.x, trComp->position.y, trComp->position.z);
+				XMMATRIX world = XMMatrixIdentity();
+				world *= XMMatrixScaling(p_transform_component->scale.x, p_transform_component->scale.y, p_transform_component->scale.z);
+				world *= XMMatrixRotationRollPitchYaw(p_transform_component->rotation.x, p_transform_component->rotation.y, p_transform_component->rotation.z);
+				world *= XMMatrixTranslation(p_transform_component->position.x, p_transform_component->position.y, p_transform_component->position.z);
 
-					XMStoreFloat4x4(&skin_shader_program_input[armyIndex].world, world);
+				// Set World Matrix For a Unit
+				XMStoreFloat4x4(&skin_shader_program_input[armyIndex].world, world);
 
-					armyIndex++;
-				}
+				// Pack Color Into A Homogeneous Coordinate In The Matrix (is that correct?)
+				// (this value is always a 1.0f in the matrix)
+				/*
+						   _ Float4x4 _
+					| 1.0f, 0.0f, 0.0f, 0.0f |
+					| 0.0f, 1.0f, 0.0f, 0.0f |
+					| 0.0f, 0.0f, 1.0f, 0.0f |
+					| 0.0f, 0.0f, 0.0f, 1.0f | <- this number (1.0f) is used for color
+					
+					color :
+						8bit - red
+						8bit - green
+						8bit - blue
+						8bit - other (not used)
+				*/
+
+				skin_shader_program_input[armyIndex].world._44 = PACK(
+					p_color_component->red, 
+					p_color_component->green, 
+					p_color_component->blue,
+					0);
+
+				armyIndex++;
 			}
 
 			UpdateAnimation(skeleton, skin_shader_program_input, frame_count2);
