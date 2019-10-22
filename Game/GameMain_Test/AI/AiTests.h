@@ -43,7 +43,7 @@ TEST(AISystemTests, TestFightLoop)
 	ecs.createSystem<ecs::systems::AttackStateSystem>();
 	ecs.createSystem<ecs::systems::SwitchStateSystem>();
 	//Create the grid and the player armies.
-	GridEcsFunctions::CreateGrid(ecs, ARENA_ROWS, ARENA_COLUMNS, TILE_RADIUS);
+	GridEcsFunctions::CreateGrid(ecs, MAX_ARENA_ROWS, MAX_ARENA_COLUMNS, TILE_RADIUS);
 	AIEcsFunctions::CreatePlayerArmies(ecs);
 	//Create the event and dispatch it in the ecs.
 	ecs::events::ChangeUserStateEvent test_event;
@@ -88,7 +88,7 @@ TEST(AISystemTests, TestIdleLoop)
 	ecs.createSystem<ecs::systems::IdleStateSystem>();
 	ecs.createSystem<ecs::systems::SwitchStateSystem>();
 	//Create the grid and the player armies.
-	GridEcsFunctions::CreateGrid(ecs, ARENA_ROWS, ARENA_COLUMNS, TILE_RADIUS);
+	GridEcsFunctions::CreateGrid(ecs, MAX_ARENA_ROWS, MAX_ARENA_COLUMNS, TILE_RADIUS);
 	AIEcsFunctions::CreatePlayerArmies(ecs);
 	//Check how many pathfinding components that is inside the system should be 12 since every army starts in idle
 	int number_of_idle_comps = ecs.getComponentCountOfType(ecs::components::IdleStateComponent::typeID);
@@ -133,7 +133,7 @@ TEST(AISystemTests, TestLootLoop)
 	ecs.createSystem<ecs::systems::SwitchStateSystem>();
 
 	//Create the grid and the player armies.
-	GridEcsFunctions::CreateGrid(ecs, ARENA_ROWS, ARENA_COLUMNS, TILE_RADIUS);
+	GridEcsFunctions::CreateGrid(ecs, MAX_ARENA_ROWS, MAX_ARENA_COLUMNS, TILE_RADIUS);
 	AIEcsFunctions::CreatePlayerArmies(ecs);
 	//Create the event and dispatch it in the ecs.
 	ecs::events::ChangeUserStateEvent test_event;
