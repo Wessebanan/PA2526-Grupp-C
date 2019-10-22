@@ -2,6 +2,8 @@
 
 Timer::Timer()
 {
+	// Calling once here to kind of initialize it.
+	GetFrameTime();
 }
 
 Timer::~Timer()
