@@ -115,7 +115,7 @@ namespace AIEcsFunctions
 			}
 			//Create the user entity
 			rEcs.createEntity(army);
-			//Clear the army vector before we start creating the next players army.
+		//	//Clear the army vector before we start creating the next players army.
 			army.unitIDs.clear(); 
 		}
 	}
