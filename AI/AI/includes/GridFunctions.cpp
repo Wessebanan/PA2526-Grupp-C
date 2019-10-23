@@ -302,21 +302,21 @@ namespace GridFunctions
 		index.x = -1;
 		index.y = -1;
 		GridProp* p_gp = GridProp::GetInstance();
-		float pos_x = x;
-		float pos_z = z;
+		float pos_x = 0.0f;
+		float pos_z = 0.0f;
 		float pi = 3.1415f;
 		float mid_to_side = cos(30 * pi / 180) * TILE_RADIUS; //Calculate length between the center position and a side. 
 		int steps = 0;
 
-		if (pos_x < TILE_RADIUS)
+		if (x - pos_x  < TILE_RADIUS)
 		{
 			index.x = 0;
 		}
 		else
 		{
-			while (pos_x > TILE_RADIUS)
+			while (x - pos_x > TILE_RADIUS)
 			{
-				pos_x -= TILE_RADIUS * 1.5f;
+				pos_x += TILE_RADIUS * 1.5f;
 				steps++;
 			}
 			if (steps > MAX_ARENA_COLUMNS - 1)
@@ -333,15 +333,15 @@ namespace GridFunctions
 		{
 			pos_z += mid_to_side;
 		}
-		if (pos_z < mid_to_side)
+		if (z - pos_z < mid_to_side)
 		{
 			index.y = 0;
 		}
 		else
 		{
-			while (pos_z > mid_to_side)
+			while (z - pos_z > mid_to_side)
 			{
-				pos_z -= mid_to_side * 2;
+				pos_z += mid_to_side * 2;
 				steps++;
 			}
 			if (steps > MAX_ARENA_ROWS - 1)
