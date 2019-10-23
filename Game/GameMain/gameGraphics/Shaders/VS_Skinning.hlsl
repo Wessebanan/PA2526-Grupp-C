@@ -1,5 +1,18 @@
 static const int MAX_AFFECTING_BONES = 4;
 static const int MAX_BONE_MATRICES = 63;
+
+uint4 unpack(const uint packedData)
+{
+	uint4 unpacked_data;
+
+	unpacked_data.x = (packedData) >> 24;
+	unpacked_data.y = (packedData & 0x00ff0000) >> 16;
+	unpacked_data.z = (packedData & 0x0000ff00) >> 8;
+	unpacked_data.w = (packedData & 0x000000ff);
+
+	return unpacked_data;
+}
+
 struct PerObjectData
 {
 	float4x4 World;
@@ -30,18 +43,28 @@ StructuredBuffer<float3> gVertexNormals			: register (t1);
 StructuredBuffer<float2> gVertexTexCoords		: register (t2);
 StructuredBuffer<float3> gVertexBlendWeight		: register (t3);
 StructuredBuffer<int4>   gVertexBlendIndices	: register (t4);
+
 struct VSOut
 {
 	float4 pos			: SV_POSITION;
 	float4 sunPos		: POSITION1;
+
 	float3 color		: COLOR0;
 	float3 normal		: NORMAL0;
 };
+
 VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 {
 	VSOut output = (VSOut)0;
-	float4x4 wvpCam = mul(gPerspective, mul(gView, gMesh[InstanceID].World));
-	float4x4 wvpSun = mul(gOrtographicsSun, mul(gViewSun, gMesh[InstanceID].World));
+
+	// Get Color from matrix and restore Matrix
+	float4x4 world_matrix	= gMesh[InstanceID].World;
+	uint color				= (uint)world_matrix[3][3];
+	world_matrix[3][3]		= 1.0f;
+
+	float4x4 wvpCam = mul(gPerspective, mul(gView, world_matrix));
+	float4x4 wvpSun = mul(gOrtographicsSun, mul(gViewSun, world_matrix));
+
 	float lastWeight = 1.0f;
 	float4 v = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	float3 norm = float3(0.0f, 0.0f, 0.0f);
@@ -56,9 +79,12 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 	norm += (lastWeight * mul(float4(gVertexNormals[VertexID], 1.0f), gMesh[InstanceID].gBoneTransforms[gVertexBlendIndices[VertexID][MAX_AFFECTING_BONES - 1]])).xyz;
 	v.w = 1.0f;
 
-	output.pos = mul(wvpCam, v);
-	output.sunPos = mul(wvpSun, v);
-	output.color = float3(1.0f, 1.0f, 1.0f);
-	output.normal = mul(gMesh[InstanceID].World, float4(gVertexNormals[VertexID], 0.0f)).xyz;
+	// Output Data
+	output.pos			= mul(wvpCam, v);
+	output.sunPos		= mul(wvpSun, v);
+
+	output.color.rgb	= (float3)unpack(color).rgb / 255.0f;
+	output.normal		= mul(gMesh[InstanceID].World, float4(gVertexNormals[VertexID], 0.0f)).xyz;
+
 	return output;
 }

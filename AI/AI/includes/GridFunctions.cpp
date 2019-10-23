@@ -8,51 +8,150 @@ using namespace DirectX;
 
 namespace GridFunctions
 {
-	void CreateHeightmap(float* Arr) //Creates a array that is used to change the hight for the map and remove chunks for water
+	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains) //Creates a array that is used to change the hight for the map and remove chunks for water
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
-		float height_values[12][12] =
+
+		const int max_rows = MAX_ARENA_ROWS;
+		const int max_columns = MAX_ARENA_COLUMNS;
+
+
+		float height_values[max_rows][max_columns];
+
+		for (size_t i = 0; i < max_rows; i++)
+			for (size_t j = 0; j < max_columns; j++)
+			{
+				height_values[i][j] = -1.f;
+			}
+
+		for (size_t i = 0; i < rows; i++)
+			for (size_t j = 0; j < columns; j++)
+			{
+				height_values[i][j] = 0.f;
+			}
+
+
+		// Create 2 mountains
+
+		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
-			{	-1.f,-1.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,-1.f,-1.f,-1.f},
-			{	-1.f,0.f,0.f,0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,-1.f},
-			{	0.f,0.f,0.f,0.f,0.f,1.f,1.f,1.f,0.f,0.f,0.f,0.f},
-			{	0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f},
-			{	-1.f,-1.f,-1.f,-1.f,-1.f,0.f,0.f,-1.f,-1.f,-1.f,-1.f,-1.f},
-			{	0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f},
-			{	0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f},
-			{	0.f,0.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f},
-			{	0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,2.f,0.f,0.f},
-			{	0.f,1.f,2.f,3.f,2.f,1.f,0.f,0.f,-2.f,0.f,0.f,-1.f},
-			{	0.f,0.f,1.f,2.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,-1.f},
-			{	-1.f,-1.f,0.f,1.f,0.f,0.f,0.f,0.f,0.f,0.f,0.f,-1.f}
-		};
+			int top_x = rand() % (rows - 3);
+			int top_y = rand() % (columns - 3);
+			top_x += 2;
+			top_y += 2;
+			float top_height = 1.2f * height_power;
+			float slope = 0.7f;
+			
+			// top
+			height_values[top_x][top_y] = top_height;
+
+			if (false/*top_x % 2*/)
+			{
+
+			}
+			else
+			{
+				// first circle
+				top_height *= slope;
+
+				height_values[top_x - 1][top_y] = top_height;
+				height_values[top_x + 1][top_y] = top_height;
+
+				height_values[top_x]	[top_y - 1] = top_height;
+				height_values[top_x + 1][top_y - 1] = top_height;
+				height_values[top_x - 1][top_y - 1] = top_height;
+
+				height_values[top_x][top_y + 1] = top_height;
+
+				//------
+
+
+				// second circle
+				top_height *= slope;
+
+				height_values[top_x - 2][top_y] = top_height;
+				height_values[top_x + 2][top_y] = top_height;
+				height_values[top_x - 2][top_y - 1] = top_height;
+				height_values[top_x + 2][top_y - 1] = top_height;
+				height_values[top_x - 2][top_y + 1] = top_height;
+				height_values[top_x + 2][top_y + 1] = top_height;
+
+				height_values[top_x - 1][top_y + 1] = top_height;
+				height_values[top_x + 1][top_y + 1] = top_height;
+
+				height_values[top_x][top_y + 2] = top_height;
+
+				height_values[top_x][top_y - 2] = top_height;
+				height_values[top_x - 1][top_y - 2] = top_height;
+				height_values[top_x + 1][top_y - 2] = top_height;
+
+				//------
+
+				// third circle
+				top_height *= slope;
+
+				height_values[top_x - 3][top_y] = top_height;
+				height_values[top_x + 3][top_y] = top_height;
+
+				height_values[top_x - 3][top_y - 1] = top_height;
+				height_values[top_x + 3][top_y - 1] = top_height;
+				height_values[top_x - 3][top_y + 1] = top_height;
+				height_values[top_x + 3][top_y + 1] = top_height;
+				height_values[top_x - 3][top_y - 2] = top_height;
+				height_values[top_x + 3][top_y - 2] = top_height;
+
+				height_values[top_x - 1][top_y + 2] = top_height;
+				height_values[top_x - 2][top_y + 2] = top_height;
+				height_values[top_x + 1][top_y + 2] = top_height;
+				height_values[top_x + 2][top_y + 2] = top_height;
+
+				height_values[top_x][top_y + 3] = top_height;
+
+				height_values[top_x - 2][top_y - 2] = top_height;
+				height_values[top_x + 2][top_y - 2] = top_height;
+
+				height_values[top_x][top_y - 3] = top_height;
+				height_values[top_x - 1][top_y - 3] = top_height;
+				height_values[top_x + 1][top_y - 3] = top_height;
+				//------
+			}
+
+
+
+			
+		}
+
+
+
+
+
 
 		// Removes chunks from each side of the map
-		int side0 = rand() % 9;
-		int side1 = rand() % 9;
-		int side2 = rand() % 9;
-		int side3 = rand() % 9;
+		int side0 = rand() % (rows - 3);
+		int side1 = rand() % (columns - 3);
+		int side2 = rand() % (rows - 3);
+		int side3 = rand() % (columns - 3);
 
 		// removed 3 on each side
 		for (size_t i = 0; i < 3; i++)
 		{
 			height_values[0][(side0 + i)] = -1.0f;
-			height_values[11][(side1 + i)] = -1.0f;
+			height_values[rows - 1][(side1 + i)] = -1.0f;
 			height_values[(side2 + i)][0] = -1.0f;
-			height_values[(side3 + i)][11] = -1.0f;
+			height_values[(side3 + i)][columns - 1] = -1.0f;
 		}
 
 		// removes 2 more from 2 sides one layer close to the center
 		for (size_t i = 0; i < 2; i++)
 		{
 			height_values[1][(side0 + i)] = -1.0f;
-			height_values[10][(side1 + i)] = -1.0f;
+			height_values[rows - 2][(side1 + i)] = -1.0f;
 		}
 
-		for (int i = 0; i < 12; i++)
+		for (int i = 0; i < rows; i++)
 		{
-			for (int j = 0; j < 12; j++)
-				Arr[j + i * 12] = height_values[i][j];
+			for (int j = 0; j < columns; j++)
+				Arr[i + j * MAX_ARENA_ROWS] = height_values[i][j];
 		}
 	}
 
@@ -84,8 +183,8 @@ namespace GridFunctions
 		GridProp* p_gp = GridProp::GetInstance();
 		bool returnValue = false;
 		//Check if the given index is a valid index and check so that the height difference between the tiles is not to large.
-		if (neighbourIndex.x >= 0 && neighbourIndex.x < ARENA_COLUMNS
-			&& neighbourIndex.y >= 0 && neighbourIndex.y < ARENA_ROWS
+		if (neighbourIndex.x >= 0 && neighbourIndex.x < MAX_ARENA_COLUMNS
+			&& neighbourIndex.y >= 0 && neighbourIndex.y < MAX_ARENA_ROWS
 			&& p_gp->mGrid[currentTile.x][currentTile.y].height -
 			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1)
 			returnValue = true;
@@ -99,9 +198,9 @@ namespace GridFunctions
 		int2 current_tile;
 		int2 neighbour_tile;
 		int neighbour_counter;
-		for (int i = 0; i < ARENA_ROWS; i++)
+		for (int i = 0; i < MAX_ARENA_ROWS; i++)
 		{
-			for (int j = 0; j < ARENA_COLUMNS; j++)
+			for (int j = 0; j < MAX_ARENA_COLUMNS; j++)
 			{
 				neighbour_counter = 0;
 				current_tile = int2(i, j);
@@ -215,7 +314,7 @@ namespace GridFunctions
 		}
 	}
 
-	int2 FindStartingTile(PLAYER Id)
+	int2 FindStartingTile(PLAYER Id, int Rows, int Columns)
 	{
 		/*
 		Picture of which corner the players should spawn in
@@ -231,8 +330,8 @@ namespace GridFunctions
 		*/
 
 		//Initialize variables
-		int rows = ARENA_ROWS;
-		int columns = ARENA_COLUMNS;
+		int rows = Rows;
+		int columns = Columns;
 		int2 index(-1, -1);
 		int min_x, min_y;
 		GridProp* p_gp = GridProp::GetInstance();
@@ -300,9 +399,9 @@ namespace GridFunctions
 				pos_x -= TILE_RADIUS * 2;
 				steps++;
 			}
-			if (steps > ARENA_COLUMNS - 1)
+			if (steps > MAX_ARENA_COLUMNS - 1)
 			{
-				index.x = ARENA_COLUMNS - 1;
+				index.x = MAX_ARENA_COLUMNS - 1;
 			}
 			else
 			{
@@ -323,9 +422,9 @@ namespace GridFunctions
 					pos_z -= mid_to_side * 2;
 					steps++;
 				}
-				if (steps > ARENA_ROWS - 1)
+				if (steps > MAX_ARENA_ROWS - 1)
 				{
-					index.y = ARENA_ROWS - 1;
+					index.y = MAX_ARENA_ROWS - 1;
 				}
 				else
 				{
@@ -339,9 +438,9 @@ namespace GridFunctions
 					pos_z -= mid_to_side * 2;
 					steps++;
 				}
-				if (steps > ARENA_ROWS - 1)
+				if (steps > MAX_ARENA_ROWS - 1)
 				{
-					index.y = ARENA_ROWS - 1;
+					index.y = MAX_ARENA_ROWS - 1;
 				}
 				else
 				{

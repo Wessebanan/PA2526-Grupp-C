@@ -44,14 +44,13 @@
 
 #include <time.h>
 
+#include "gameUtility/Timer.h"
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
 
-/*inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3)
-{
-	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
-}	*/			
+			
 
 
 
@@ -163,11 +162,11 @@ int main()
 	UINT pipeline_shadow_map;
 	{
 		graphics::SHADOW_MAP_PIPELINE_DESC desc;
-		desc.PixelsWidth = 1024;
-		desc.Width = 25.0f;
-		desc.Height = 40.0f;
-		desc.NearPlane = 1.0f;
-		desc.FarPlane = 40.0f;
+		desc.PixelsWidth	= 2048;
+		desc.Width			= 45.0f;
+		desc.Height			= 80.0f;
+		desc.NearPlane		=  1.0f;
+		desc.FarPlane		= 40.0f;
 		pipeline_shadow_map = renderer.CreatePipeline(
 			new graphics::ShadowMapPipeline,
 			&desc);
@@ -203,10 +202,12 @@ int main()
 	ecs::EntityComponentSystem ecs;
 
 	//Tiles + sceneobjects + units + camera
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(4000);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(4000);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(4000);
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(5000);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
 
+	InitSound(ecs);
+	InitSong(ecs);
 	InitAll(ecs);
 
 	// to get components in the loop
@@ -235,13 +236,77 @@ int main()
 	unsigned long long int frame_count2 = 0;
 	wnd.Open();
 
+	Timer timer;
+
+	timer.StartGame();
+
+	ChangeUserStateEvent e;
+	e.newState = ATTACK;
+	e.playerId = PLAYER1;
+	ecs.createEvent(e);
+	e.playerId = PLAYER2;
+	ecs.createEvent(e);
+	e.playerId = PLAYER3;
+	ecs.createEvent(e);
+	e.playerId = PLAYER4;
+	ecs.createEvent(e);
+
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
-		{
+		{ 
 			if (GetAsyncKeyState(VK_ESCAPE))
 			{
 				wnd.Close();
+			}
+			ecs.update(timer.GetFrameTime());
+
+			ecs::TypeFilter army_filter;
+			army_filter.addRequirement(ecs::components::UnitComponent::typeID);
+			army_filter.addRequirement(ecs::components::TransformComponent::typeID);
+			army_filter.addRequirement(ecs::components::ColorComponent::typeID);
+
+			ecs::EntityIterator ei = ecs.getEntititesByFilter(army_filter);
+
+			int armyIndex = 0;
+			ecs::components::ColorComponent* p_color_component;
+			ecs::components::TransformComponent* p_transform_component;
+			for (ecs::FilteredEntity unit : ei.entities)
+			{
+				p_transform_component = unit.getComponent<ecs::components::TransformComponent>();
+				p_color_component = unit.getComponent<ecs::components::ColorComponent>();
+
+				XMMATRIX world = XMMatrixIdentity();
+				world *= XMMatrixScaling(p_transform_component->scale.x, p_transform_component->scale.y, p_transform_component->scale.z);
+				world *= XMMatrixRotationRollPitchYaw(p_transform_component->rotation.x, p_transform_component->rotation.y, p_transform_component->rotation.z);
+				world *= XMMatrixTranslation(p_transform_component->position.x, p_transform_component->position.y, p_transform_component->position.z);
+
+				// Set World Matrix For a Unit
+				XMStoreFloat4x4(&skin_shader_program_input[armyIndex].world, world);
+
+				// Pack Color Into A Homogeneous Coordinate In The Matrix (is that correct?)
+				// (this value is always a 1.0f in the matrix)
+				/*
+						   _ Float4x4 _
+					| 1.0f, 0.0f, 0.0f, 0.0f |
+					| 0.0f, 1.0f, 0.0f, 0.0f |
+					| 0.0f, 0.0f, 1.0f, 0.0f |
+					| 0.0f, 0.0f, 0.0f, 1.0f | <- this number (1.0f) is used for color
+					
+					color :
+						8bit - red
+						8bit - green
+						8bit - blue
+						8bit - other (not used)
+				*/
+
+				skin_shader_program_input[armyIndex].world._44 = PACK(
+					p_color_component->red, 
+					p_color_component->green, 
+					p_color_component->blue,
+					0);
+
+				armyIndex++;
 			}
 
 			renderBuffer.Reset();
