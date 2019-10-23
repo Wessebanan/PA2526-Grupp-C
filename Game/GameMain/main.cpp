@@ -345,6 +345,11 @@ int main()
 	unsigned long long int frame_count2 = 0;
 	wnd.Open();
 
+	ecs::events::ChangeUserStateEvent e;
+	e.playerId = PLAYER::PLAYER1;
+	e.newState = STATE::ATTACK;
+	ecs.createEvent(e);
+
 	Timer timer;
 
 	timer.StartGame();

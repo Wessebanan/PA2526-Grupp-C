@@ -344,9 +344,9 @@ namespace GridFunctions
 				pos_z -= mid_to_side * 2;
 				steps++;
 			}
-			if (steps > ARENA_ROWS - 1)
+			if (steps > MAX_ARENA_ROWS - 1)
 			{
-				index.y = ARENA_ROWS - 1;
+				index.y = MAX_ARENA_ROWS - 1;
 			}
 			else
 			{

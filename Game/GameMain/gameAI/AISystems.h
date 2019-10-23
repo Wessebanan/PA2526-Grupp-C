@@ -218,6 +218,8 @@ namespace ecs
 				updateType = EntityUpdate;
 				typeFilter.addRequirement(components::IdleStateComponent::typeID);
 				typeFilter.addRequirement(components::UnitComponent::typeID);
+				typeFilter.addRequirement(components::EquipmentComponent::typeID);
+				typeFilter.addRequirement(components::TransformComponent::typeID);
 			}
 			virtual ~IdleStateSystem() {}
 
@@ -225,21 +227,19 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
-				/**********************************************************/
-				/**********************************************************/
-				/* FILL OUT WITH LOGIC FOR IDLE ANIMATION IN ANOTHER TASK */
-				/**********************************************************/
-				/**********************************************************/
-
-				//Check if there is an enemy within fighting range.
-				float attack_range = 0.0f; //SHOULD BE BASED ON EQUIPED WEAPON LATER WHEN ITEMS IS IMPLEMENTED.
+				//Initialize variables.
+				bool enemy_in_range = false;
 				float distance = 1000.0f;
-				ecs::components::UnitComponent* current_unit = entity.getComponent<ecs::components::UnitComponent>();
-				ecs::components::UnitComponent* other_unit;
-				ecs::components::TransformComponent* current_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(current_unit->getEntityID());
-				ecs::components::TransformComponent* other_unit_transform;
-				ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType<ecs::components::UnitComponent>();
 				ecs::components::AttackStateComponent atk_state;
+				//Fetch data of current entity.
+				ecs::components::UnitComponent* current_unit = entity.getComponent<ecs::components::UnitComponent>();
+				ecs::components::TransformComponent* current_unit_transform = entity.getComponent<ecs::components::TransformComponent>();
+				ecs::components::EquipmentComponent* equipment_comp = entity.getComponent<ecs::components::EquipmentComponent>();
+				//Initialize data for other unit.
+				ecs::components::UnitComponent* other_unit;
+				ecs::components::TransformComponent* other_unit_transform;
+				//Get an iterator for every unit alive.
+				ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType<ecs::components::UnitComponent>();
 				while (other_unit = static_cast<ecs::components::UnitComponent*>(it.next()))
 				{
 					//Check so that the unit we are looking at isn't a friendly unit
@@ -248,16 +248,26 @@ namespace ecs
 						other_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(other_unit->getEntityID());
 						distance = PhysicsHelpers::CalculateDistance(current_unit_transform->position, other_unit_transform->position);
 						//Check if the enemy is within attack range.
-						if (distance < attack_range)
+						if (distance < equipment_comp->mAttackRange)
 						{
 							//If the enemy is within attack range switch to a AttackStateComponent
 							atk_state.enemyEntityId = other_unit->getEntityID();
-							atk_state.previousState = STATE::IDLE;
+							atk_state.goalState = STATE::IDLE;
 							ecs::ECSUser::removeComponent(current_unit->getEntityID(), ecs::components::IdleStateComponent::typeID);
 							ecs::ECSUser::createComponent(current_unit->getEntityID(), atk_state);
+							enemy_in_range = true;
 							break;
 						}
 					}
+				}
+				//If no enemy is in range continue with idle animation.
+				if (!enemy_in_range) 
+				{
+					/**********************************************************/
+					/**********************************************************/
+					/* FILL OUT WITH LOGIC FOR IDLE ANIMATION IN ANOTHER TASK */
+					/**********************************************************/
+					/**********************************************************/
 				}
 			}
 		};
@@ -274,6 +284,7 @@ namespace ecs
 				typeFilter.addRequirement(components::MoveStateComponent::typeID);
 				typeFilter.addRequirement(components::TransformComponent::typeID);
 				typeFilter.addRequirement(components::DynamicMovementComponent::typeID);
+				typeFilter.addRequirement(components::EquipmentComponent::typeID);
 			}
 			virtual ~MoveStateSystem() {}
 
@@ -331,11 +342,12 @@ namespace ecs
 				ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
 				ecs::components::DynamicMovementComponent* dyn_move = entity.getComponent<ecs::components::DynamicMovementComponent>();
 				ecs::components::MoveStateComponent* move_comp = entity.getComponent<ecs::components::MoveStateComponent>();
+				ecs::components::EquipmentComponent* equipment_comp = entity.getComponent<ecs::components::EquipmentComponent>();
 				//Set the minimum distance to required to the goal for a state switch to occure.
 				switch (move_comp->goalState)
 				{
 				case STATE::ATTACK:
-					mMinimumDist = 0.0f; //Should be range of equiped weapon.
+					mMinimumDist = 1000.0f;//equipment_comp->mAttackRange;
 					returnState = STATE::ATTACK;
 					break;
 				case STATE::LOOT:
@@ -381,7 +393,7 @@ namespace ecs
 					case ATTACK:
 					{
 						ecs::components::AttackStateComponent atk_state;
-						atk_state.previousState = move_comp->goalState;
+						atk_state.goalState = move_comp->goalState;
 						atk_state.enemyEntityId = move_comp->goalID;
 						ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
 						break;
@@ -447,6 +459,9 @@ namespace ecs
 				typeFilter.addRequirement(components::AttackStateComponent::typeID);
 				typeFilter.addRequirement(components::UnitComponent::typeID);
 				typeFilter.addRequirement(components::TransformComponent::typeID);
+				typeFilter.addRequirement(components::EquipmentComponent::typeID);
+				typeFilter.addRequirement(components::DynamicMovementComponent::typeID);
+				
 			}
 			virtual ~AttackStateSystem() {}
 
@@ -454,70 +469,78 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
-				/*****************************************************/
-				/****************************************************/
-				/*   FILL OUT WITH ATTACK LOGIC IN ANOTHER TASK    */
-				/**************************************************/
-				/*************************************************/
-
-				//Check if there is an enemy within fighting range.
-				float attack_range = 0.01f; //SHOULD BE BASED ON EQUIPED WEAPON LATER WHEN ITEMS IS IMPLEMENTED.
-				float distance = 1000.0f;
+				//Fetch data of our current unit.
 				ecs::components::UnitComponent* current_unit = entity.getComponent<ecs::components::UnitComponent>();
-				ecs::components::UnitComponent* other_unit;
 				ecs::components::TransformComponent* current_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(current_unit->getEntityID());
-				ecs::components::TransformComponent* other_unit_transform;
-
-				//Get entity of enemy unit from our current AttackStateComponent.
 				ecs::components::AttackStateComponent* atk_state = entity.getComponent<ecs::components::AttackStateComponent>();
-				ecs::components::PathfindingStateComponent path_state;
-				ecs::components::IdleStateComponent idle_state;
-				ecs::Entity* target_entity = ecs::ECSUser::getEntity(atk_state->enemyEntityId);
-				//Check if the enemy is still alive
-				if (target_entity)
-				{
-					other_unit = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::UnitComponent>(atk_state->enemyEntityId);
-					other_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(atk_state->enemyEntityId);
-					other_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(other_unit->getEntityID());
-					distance = PhysicsHelpers::CalculateDistance(current_unit_transform->position, other_unit_transform->position);
-					//If the enemy is within attack range make an attack else switch to pathfinding state
-					if (distance < attack_range)
-					{
-						/********************************************************/
-						/*******************************************************/
-						/*****  FILL OUT WITH ATTACK LOGIC IN ANOTHER TASK ****/
-						/*****************************************************/
-						/****************************************************/
-					}
-					else
-					{
-						//If the enemy is to far away: give a new pathfind component to find a route to the closest enemy.
-						ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::AttackStateComponent::typeID);
-						path_state.goalState = STATE::ATTACK;
-						ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
-					}
+				ecs::components::EquipmentComponent* equipment_comp = entity.getComponent<ecs::components::EquipmentComponent>();
+				ecs::components::DynamicMovementComponent* dynamic_move_comp = entity.getComponent<ecs::components::DynamicMovementComponent>();
 
-				}
-				else
+				//Enemy unit data
+				ecs::Entity* enemy_entity = ecs::ECSUser::getEntity(atk_state->enemyEntityId);
+				ecs::components::UnitComponent* enemy_unit;
+				ecs::components::TransformComponent* enemy_unit_transform;
+
+				//Distance to the enemy unit.
+				float distance = 1000.0f;
+				float length;
+				DirectX::XMFLOAT3 direction;
+				//Check if the enemy unit still exists
+				if (enemy_entity)
 				{
-					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::AttackStateComponent::typeID);
-					//Return to idle state if the previous state was idle and the unit is dead
-					if (atk_state->previousState == STATE::IDLE)
+					//Fetch the enemy units data
+					enemy_unit = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::UnitComponent>(atk_state->enemyEntityId);
+					enemy_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(enemy_entity->getID());
+					//Calculate distance to the enemy unit
+					distance = PhysicsHelpers::CalculateDistance(current_unit_transform->position, enemy_unit_transform->position);
+					//If the enemy is within attack range make an attack else switch to pathfinding state
+					if (distance < 1000.0f/*equipment_comp->mAttackRange*/)
 					{
-						ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::AttackStateComponent::typeID);
-						ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
+						//Calculate the direction of the enemy and normalize the vector.
+						direction.x = enemy_unit_transform->position.x - current_unit_transform->position.x;
+						direction.y = enemy_unit_transform->position.y - current_unit_transform->position.y;
+						direction.z = enemy_unit_transform->position.z - current_unit_transform->position.z;
+						length = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
+						direction.x /= length;
+						direction.y /= length;
+						direction.z /= length;
+						//Set the direction.
+						dynamic_move_comp->mForward = direction;
+						//Create an event to move the unit towards the enemy.
+						MovementInputEvent move_event;
+						move_event.mInput = FORWARD;
+						move_event.mEntityID = entity.entity->getID();
+						createEvent(move_event);
 					}
 					else
 					{
-						//If the current command is a attack and the enemy unit died give the unit a new pathfinding component
-						//to find a new target.
-						ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::AttackStateComponent::typeID);
-						path_state.goalState = STATE::ATTACK;
-						ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
+						SwitchState(entity, atk_state->goalState);
 					}
-				}				
-				
+				}			
 			}
+		private:
+			//Switch to the next units next state
+			void SwitchState(FilteredEntity& entity, STATE newState)
+			{
+				ecs::components::AttackStateComponent* atk_comp = entity.getComponent<ecs::components::AttackStateComponent>();
+				switch (newState)
+				{
+					case ATTACK: //If the cucrent command is Attack we want to find a new target to attack.
+					{
+						ecs::components::PathfindingStateComponent path_state;
+						path_state.goalState = atk_comp->goalState;
+						ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
+						break;
+					}
+					default: //If there is no current command we want the unit to go idle.
+					{
+						ecs::components::IdleStateComponent idle_state;
+						ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
+						break;
+					}
+				}
+				ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::AttackStateComponent::typeID);
+			};
 		
 		};
 
