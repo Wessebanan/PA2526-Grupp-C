@@ -173,22 +173,26 @@ namespace graphics
 				total_models += layout.pInstanceCountPerMesh[i];
 			}
 
-			pPipeline->PreProcess(
-				m_pContext4,
-				program.pVertexShader,
-				program.pPixelShader);
+			if (total_models > 0)
+			{
+				pPipeline->PreProcess(
+					m_pContext4,
+					program.pVertexShader,
+					program.pPixelShader);
 
-			graphics::DrawMeshes(
-				m_pContext4,
-				m_pPerObjectBuffer,
-				data_location,
-				program.PerObjectByteWidth,
-				layout.MeshCount,
-				layout.pMeshes,
-				layout.pInstanceCountPerMesh);
+				graphics::DrawMeshes(
+					m_pContext4,
+					m_pPerObjectBuffer,
+					data_location,
+					program.PerObjectByteWidth,
+					layout.MeshCount,
+					layout.pMeshes,
+					layout.pInstanceCountPerMesh);
+			}
 
 			data_location += total_models * program.PerObjectByteWidth;
-			data_location += 256 - (data_location % 256);
+			data_location = (UINT)(ceil(data_location / 256.f) * 256);
+			//data_location += 256 - (data_location % 256);
 		}
 
 		pPipeline->End(m_pContext4);

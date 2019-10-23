@@ -51,7 +51,8 @@ inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3)
 
 inline uint32_t PAD(const uint32_t size, const uint32_t alignment)
 {
-	return size + (alignment - (size % alignment));
+	//return size + (alignment - (size % alignment));
+	return (uint32_t) (ceil(size / (float)alignment) * alignment);
 }
 
 void InitAll(EntityComponentSystem& rECS);
