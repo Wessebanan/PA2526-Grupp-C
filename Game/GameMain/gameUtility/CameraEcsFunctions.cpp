@@ -10,15 +10,24 @@ namespace CameraEcsFunctions
 {
 	void CreateDevCamera(ecs::EntityComponentSystem& rEcs)
 	{
+		GridProp* p_gp = GridProp::GetInstance();
+		int2 arena_size = p_gp->GetSize();
 		//Initialize components
 		TransformComponent transform;
-		transform.position = CameraDefines::originalPosition;
+		//transform.position = {10.0f, 1.0f, 0.0f};
+		transform.position = {((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS, (arena_size.x + arena_size.y) / 3.0f, TILE_RADIUS * 3  };
+//		transform.position = CameraDefines::originalPosition;
 		transform.rotation = CameraDefines::originalRotation;
 		transform.scale = CameraDefines::originalScale;
 		CameraComponent camera;
-		camera.target = CameraDefines::originalTarget;
+		camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS , 0.0f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) - TILE_RADIUS) / 2.0f, 0.0f };
+//		camera.target = CameraDefines::originalTarget;
 		camera.up = CameraDefines::originalUp;
-		camera.forward = CameraDefines::originalForward;
+		//camera.forward = CameraDefines::originalForward;
+		camera.forward.x = camera.target.x - transform.position.x;
+		camera.forward.y = camera.target.y - transform.position.y;
+		camera.forward.z = camera.target.z - transform.position.z;
+		
 		camera.right = CameraDefines::originalRight;
 		XMVECTOR cam_pos = XMVectorSet(transform.position.x, transform.position.y, transform.position.z, 0.0f);
 		XMVECTOR target = XMLoadFloat4(&camera.target);

@@ -168,8 +168,8 @@ namespace GridFunctions
 		GridProp* p_gp = GridProp::GetInstance();
 		bool returnValue = false;
 		//Check if the given index is a valid index and check so that the height difference between the tiles is not to large.
-		if (neighbourIndex.x >= 0 && neighbourIndex.x < p_gp->GetSize().y
-			&& neighbourIndex.y >= 0 && neighbourIndex.y < p_gp->GetSize().x
+		if (neighbourIndex.x >= 0 && neighbourIndex.x < p_gp->GetSize().x
+			&& neighbourIndex.y >= 0 && neighbourIndex.y < p_gp->GetSize().y
 			&& p_gp->mGrid[currentTile.x][currentTile.y].height -
 			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1)
 			returnValue = true;
