@@ -30,8 +30,8 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 		columns = 18;
 		break;
 	case 2:
-		rows = 24;
-		columns = 20;
+		rows = 20;
+		columns = 24;
 		break;
 	default:
 		// For testing the map can be set to close to maximum
