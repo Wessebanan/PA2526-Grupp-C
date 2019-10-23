@@ -9,26 +9,26 @@
 
 bool GetLocalIp4(std::string& stringToFill)
 {
-	PIP_ADAPTER_INFO pAdapterInfo;
-	DWORD dwRetVal = 0;
+	PIP_ADAPTER_INFO p_adapter_info;
+	DWORD ret_val = 0;
 	UINT i;
 
 	// Allocate how much memory we think is necessary
-	ULONG ulOutBufLen = sizeof(IP_ADAPTER_INFO);
-	pAdapterInfo = (IP_ADAPTER_INFO*)MALLOC(sizeof(IP_ADAPTER_INFO));
-	if (pAdapterInfo == nullptr)
+	ULONG out_buf_len = sizeof(IP_ADAPTER_INFO);
+	p_adapter_info = (IP_ADAPTER_INFO*)MALLOC(sizeof(IP_ADAPTER_INFO));
+	if (p_adapter_info == nullptr)
 	{
 		std::cout << "Error when fetching IP: Error allocating memory!\n";
 		return false;
 	}
 	// Make an initial call to GetAdaptersInfo to get
 	// the necessary size into the ulOutBufLen variable
-	if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW)
+	if (GetAdaptersInfo(p_adapter_info, &out_buf_len) == ERROR_BUFFER_OVERFLOW)
 	{
 		// If we guessed wrong, resize
-		FREE(pAdapterInfo);
-		pAdapterInfo = (IP_ADAPTER_INFO*)MALLOC(ulOutBufLen);
-		if (pAdapterInfo == nullptr)
+		FREE(p_adapter_info);
+		p_adapter_info = (IP_ADAPTER_INFO*)MALLOC(out_buf_len);
+		if (p_adapter_info == nullptr)
 		{
 			std::cout << "Error when fetching IP: Error allocating memory (First call)!\n";
 			return false;
@@ -36,17 +36,17 @@ bool GetLocalIp4(std::string& stringToFill)
 	}
 
 	// Make sure we don't get any errors
-	if ((dwRetVal = GetAdaptersInfo(pAdapterInfo, &ulOutBufLen)) != NO_ERROR) {
+	if ((ret_val = GetAdaptersInfo(p_adapter_info, &out_buf_len)) != NO_ERROR) {
 		std::cout << "Error when fetching IP: Error getting adapters info (Second call)!\n"
-			<< dwRetVal << std::endl;
+			<< ret_val << std::endl;
 		return false;
 	}
 	// Fill the string with the IP adress
-	stringToFill.assign(pAdapterInfo->IpAddressList.IpAddress.String);
+	stringToFill.assign(p_adapter_info->IpAddressList.IpAddress.String);
 
 	// Free memory
-	if (pAdapterInfo)
-		FREE(pAdapterInfo);
+	if (p_adapter_info)
+		FREE(p_adapter_info);
 
 	return true;
 }
