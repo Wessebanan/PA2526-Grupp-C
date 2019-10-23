@@ -151,7 +151,6 @@ int main()
 
 	ecs::EntityComponentSystem ecs;
 
-	//Tiles + sceneobjects + units + camera
 	ecs.reserveComponentCount<ecs::components::TransformComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
