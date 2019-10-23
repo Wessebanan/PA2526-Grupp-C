@@ -46,9 +46,13 @@ namespace ecs
 
 		void UnitRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
+			// Update object count to render
 			mUnitCount = (UINT)_entities.entities.size();
+
+			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mUnitCount * GetPerInstanceSize());
 
+			// Iterate all units and write their data to the RenderBuffer
 			int index = 0;
 			for (FilteredEntity unit : _entities.entities)
 			{
@@ -72,8 +76,9 @@ namespace ecs
 				index++;
 			}
 
+			// Update animation every 5th frame
 			mFrameCounter++;
-			if (mFrameCounter % 10 == 0)
+			if (mFrameCounter % 5 == 0)
 			{
 				mFrameCounter = 0;
 				mAnimationFrameCounter = ++mAnimationFrameCounter % mpSkeleton->frameCount;
@@ -127,8 +132,11 @@ namespace ecs
 		void TileRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
 			mTileCount = (UINT)_entities.entities.size();
+
+			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mTileCount * GetPerInstanceSize());
 
+			// Iterate all tiles and write their data to the RenderBuffer
 			uint32_t index = 0;
 			for (FilteredEntity tile: _entities.entities)
 			{
@@ -208,9 +216,23 @@ namespace ecs
 
 		void SceneObjectRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
+			/*
+				We don't know the order of entities EntityIterator, meaning that we can't expect
+				the entities to be ordered by mesh type like we want them to be in the RenderBuffer
+				(output of this function).
+
+				So, this function first calculate how many instances we have of each mesh. With this,
+				we can calculate from which index in the RenderBuffer we can start writing each mesh
+				to. Each mesh we care about in this function, that is tree, stone etc., has its own
+				index counter.
+			*/
+
 			mObjectCount = _entities.entities.size();
+
+			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::SceneObjectRenderSystem::GetPerInstanceSize());
 
+			// Count how many instances we have per scene object mesh
 			ZeroMemory(mObjectTypeCount, SCENE_OBJECT_COUNT * sizeof(UINT));
 			for (FilteredEntity object : _entities.entities)
 			{
@@ -218,6 +240,7 @@ namespace ecs
 				mObjectTypeCount[p_obj_comp->mObject]++;
 			}
 
+			// Set index to write to in RenderBuffer, per mesh
 			UINT object_type_individual_index[SCENE_OBJECT_COUNT] = { 0 };
 
 			for (int i = 1; i < SCENE_OBJECT_COUNT; i++)
@@ -225,12 +248,14 @@ namespace ecs
 				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
 			}
 
+			// Iterate all objects and write their data to the RenderBuffer
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
 				components::TransformComponent* p_transform_comp = object.getComponent<components::TransformComponent>();
 				components::ColorComponent* p_color_comp = object.getComponent<components::ColorComponent>();
 
+				// Get index, depending on mesh type
 				UINT& index = object_type_individual_index[p_obj_comp->mObject];
 
 				mpBuffer[index].x = p_transform_comp->position.x;
@@ -249,6 +274,10 @@ namespace ecs
 		{
 			mpRenderMgr = pRenderMgr;
 
+			/*
+				This is a temporary map, until we have ONE mesh enum that everyone reads from.
+				This converts the SCENE_OBJECT mesh enum to MESH_TYPE enum in MeshContainer.
+			*/
 			mMeshMap[SCENE_OBJECT::SNOWMAN]		= MESH_TYPE::MESH_TYPE_TREE;
 			mMeshMap[SCENE_OBJECT::ANGEL]		= MESH_TYPE::MESH_TYPE_TREE;
 			mMeshMap[SCENE_OBJECT::IGLOO]		= MESH_TYPE::MESH_TYPE_TREE;

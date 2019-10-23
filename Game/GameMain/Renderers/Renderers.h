@@ -11,6 +11,24 @@ namespace ecs
 {
 	namespace systems
 	{
+		/*
+			-- Render Systems
+			These ecs systems has the responsibility for rendering
+			one or more meshes on the screen.
+
+			Note that all these systems only write data to a
+			RenderBuffer. The render calls happen in the game loop.
+
+			Each render system fetch a pointer in the RenderBuffer
+			for where they will write their data to. RenderBuffer
+			is cleared every frame, so these pointers has to be
+			fetched every update. This is because we want a dynamic
+			reading of objects in the world. If we want an object
+			to vanish, we just delete its entity from the ECS
+			and the render systems never finds them.
+			It.just.works.
+		*/
+
 		class UnitRenderSystem : public ECSSystem<UnitRenderSystem>
 		{
 		public:
