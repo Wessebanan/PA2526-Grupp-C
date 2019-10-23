@@ -38,8 +38,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	BoundingBox colliding_aabb;
 
-	BoundingSphere colliding_sphere;
-	BoundingSphere closest_sphere;
+	std::vector<AABB> collided_aabb_vector;
 
 	for (int i = 0; i < it.entities.size(); i++)
 	{
@@ -53,49 +52,20 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(it.entities.at(i).entity->getID());
 		
 		// Grabbing copy of AABB from current and transforming to world space.
-		BoundingBox current_aabb = p_current_collision->mAABB;
+		AABB current_aabb = p_current_collision->mAABB;
 		XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
-		current_aabb.Transform(current_aabb, current_world_transform);
+		current_aabb.BoundingBox::Transform(current_aabb, current_world_transform);
 
 		// If the objects' bounding volumes intersect.
 		if(aabb.Intersects(current_aabb))
 		{
-			//// Finding the sphere closest to colliding aabb center.
-			//float closest_dist_to_current = INFINITY;
-			//
-			//for (int i = 0; i < p_collision->mSphereCount; i++)
-			//{
-			//	BoundingSphere sphere = p_collision->mSpheres[i];
-			//	sphere.Transform(sphere, world_transform);
-			//	float dist = CalculateDistance(sphere.Center, current_aabb.Center);
-			//	if (dist < closest_dist_to_current)
-			//	{
-			//		closest_dist_to_current = dist;
-			//		closest_sphere = sphere;
-			//	}
-			//}
-			//// Checking intersection for closest sphere against all spheres of colliding entity.
-			//for (int i = 0; i < p_current_collision->mSphereCount; i++)
-			//{
-			//	BoundingSphere current_sphere = p_current_collision->mSpheres[i];
-			//	current_sphere.Transform(current_sphere, current_world_transform);
-
-			//	if (closest_sphere.Intersects(current_sphere))
-			//	{
-			//		intersect = true;
-			//		colliding_sphere = current_sphere;
-			//		break;
-			//	}
-			//}
-
-
 			// Set the intersection bool and stop checking
 			// because any collision means the movement should revert.
 			intersect = true;
 
 			// Saving the transformed aabb from the collided entity.
-			colliding_aabb = current_aabb;
-			break;
+			//colliding_aabb = current_aabb;
+			collided_aabb_vector.push_back(current_aabb);
 		}
 	}
 	p_collision->mIntersect = intersect;
@@ -105,20 +75,14 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	// DynamicMovementComponent.
 	if (intersect)
 	{
-		// If the last movement action resulted in collsion, revert the movement and reset velocity.
-		//DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
-		//
-		//XMVECTOR center = XMLoadFloat3(&closest_sphere.Center);
-		//XMVECTOR colliding_center = XMLoadFloat3(&colliding_sphere.Center);
-		//
-		//RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
-
 		DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
+		XMVECTOR center	= XMLoadFloat3(&aabb.Center);
+		for (int i = 0; i < collided_aabb_vector.size(); i++)
+		{
+			XMVECTOR colliding_center	= XMLoadFloat3(&collided_aabb_vector.at(i).Center);
 
-		XMVECTOR center				= XMLoadFloat3(&aabb.Center);
-		XMVECTOR colliding_center	= XMLoadFloat3(&colliding_aabb.Center);
-
-		RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
+			RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
+		}
 	}
 }
 #pragma endregion
