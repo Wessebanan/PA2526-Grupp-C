@@ -48,6 +48,9 @@
     <ClCompile Include="Renderers\Renderers.cpp">
       <Filter>Renderers</Filter>
     </ClCompile>
+    <ClCompile Include="gameGraphics\RenderBuffer.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -181,6 +184,9 @@
     </ClInclude>
     <ClInclude Include="Renderers\Renderers.h">
       <Filter>Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\RenderBuffer.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

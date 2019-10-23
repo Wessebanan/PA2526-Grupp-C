@@ -27,7 +27,7 @@ namespace graphics
 		// Per Model Buffer
 		{
 			UINT bytes = totalBytesPerExecute;
-			bytes += 256 - (bytes % 256);
+			bytes = (UINT)(ceil(bytes / 256.f) * 256);
 
 			D3D11_BUFFER_DESC desc = { 0 };
 			desc.BindFlags		= D3D11_BIND_CONSTANT_BUFFER;

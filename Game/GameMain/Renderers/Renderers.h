@@ -4,6 +4,7 @@
 #include "ecsSystemIncludes.h"
 #include "../MeshContainer/MeshContainer.h"
 #include "../../Graphics/includes/RenderManager.h"
+#include "../gameGraphics/RenderBuffer.h"
 
 namespace ecs
 {
@@ -18,9 +19,7 @@ namespace ecs
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
-			void Initialize(graphics::RenderManager* pRenderMgr);
-
-			void SetBegin(void* pBufferStart);
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
 
 			static uint32_t GetPerInstanceSize();
 
@@ -42,6 +41,8 @@ namespace ecs
 			graphics::RenderManager* mpRenderMgr;
 			graphics::ShaderModelLayout mInstanceLayout;
 
+			graphics::RenderBuffer* mpRenderBuffer;
+
 			UINT mUnitCount;
 			graphics::MeshRegion mUnitMeshRegion;
 		};
@@ -55,9 +56,7 @@ namespace ecs
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
-			void Initialize(graphics::RenderManager* pRenderMgr);
-
-			void SetBegin(void* pBufferStart);
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
 
 			static uint32_t GetPerInstanceSize();
 
@@ -74,6 +73,8 @@ namespace ecs
 			UINT mRenderProgram;
 			graphics::RenderManager* mpRenderMgr;
 			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
 
 			UINT mTileCount;
 			graphics::MeshRegion mTileMeshRegion;
@@ -88,9 +89,7 @@ namespace ecs
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
-			void Initialize(graphics::RenderManager* pRenderMgr);
-
-			void SetBegin(void* pBufferStart);
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
 
 			static uint32_t GetPerInstanceSize();
 
@@ -107,6 +106,8 @@ namespace ecs
 			UINT mRenderProgram;
 			graphics::RenderManager* mpRenderMgr;
 			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
 
 			UINT mObjectCount;
 			graphics::MeshRegion mObjectMeshRegion;

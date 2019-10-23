@@ -27,7 +27,7 @@ namespace ecs
 	namespace systems
 	{
 #pragma region UnitRenderSystem
-		UnitRenderSystem::UnitRenderSystem() : mFrameCounter(0), mAnimationFrameCounter(0), mUnitCount(0)
+		UnitRenderSystem::UnitRenderSystem() : mFrameCounter(0), mAnimationFrameCounter(0), mUnitCount(0), mpRenderBuffer(0)
 		{
 			updateType = SystemUpdateType::MultiEntityUpdate;
 			typeFilter.addRequirement(components::UnitComponent::typeID);
@@ -46,6 +46,9 @@ namespace ecs
 
 		void UnitRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
+			mUnitCount = (UINT)_entities.entities.size();
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mUnitCount * GetPerInstanceSize());
+
 			int index = 0;
 			for (FilteredEntity unit : _entities.entities)
 			{
@@ -69,11 +72,10 @@ namespace ecs
 				mAnimationFrameCounter = ++mAnimationFrameCounter % mpSkeleton->frameCount;
 			}
 
-			mUnitCount = (UINT)_entities.entities.size();
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
-		void UnitRenderSystem::Initialize(graphics::RenderManager* pRenderMgr)
+		void UnitRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
 			mUnitMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_UNIT);
@@ -89,11 +91,8 @@ namespace ecs
 				vs_skin.c_str(),
 				ps.c_str(),
 				systems::UnitRenderSystem::GetPerInstanceSize());
-		}
 
-		void UnitRenderSystem::SetBegin(void* pBufferStart)
-		{
-			mpBuffer = (InputLayout*)pBufferStart;
+			mpRenderBuffer = pRenderBuffer;
 		}
 
 		uint32_t UnitRenderSystem::GetPerInstanceSize()
@@ -120,10 +119,12 @@ namespace ecs
 
 		void TileRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
+			mTileCount = (UINT)_entities.entities.size();
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mTileCount * GetPerInstanceSize());
+
 			uint32_t index = 0;
 			for (FilteredEntity tile: _entities.entities)
 			{
-
 				components::TileComponent* p_tile_comp = tile.getComponent<components::TileComponent>();
 				components::TransformComponent* p_transform_comp = tile.getComponent<components::TransformComponent>();
 				components::ColorComponent* p_color_comp = tile.getComponent<components::ColorComponent>();
@@ -152,9 +153,11 @@ namespace ecs
 
 				index++;
 			}
+
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
-		void TileRenderSystem::Initialize(graphics::RenderManager* pRenderMgr)
+		void TileRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
 			mTileMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TILE);
@@ -170,12 +173,10 @@ namespace ecs
 				vs.c_str(),
 				ps.c_str(),
 				systems::TileRenderSystem::GetPerInstanceSize());
+
+			mpRenderBuffer = pRenderBuffer;
 		}
 
-		void TileRenderSystem::SetBegin(void* pBufferStart)
-		{
-			mpBuffer = (InputLayout*)pBufferStart;
-		}
 		uint32_t TileRenderSystem::GetPerInstanceSize()
 		{
 			return sizeof(InputLayout);
@@ -200,6 +201,8 @@ namespace ecs
 
 		void SceneObjectRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
+			mObjectCount = _entities.entities.size();
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::SceneObjectRenderSystem::GetPerInstanceSize());
 
 			uint32_t index = 0;
 			for (FilteredEntity object : _entities.entities)
@@ -215,12 +218,13 @@ namespace ecs
 				mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
 				index++;
 			}
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
-		void SceneObjectRenderSystem::Initialize(graphics::RenderManager* pRenderMgr)
+		void SceneObjectRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
-			mObjectMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TILE);
+			mObjectMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TREE);
 
 			mInstanceLayout.MeshCount = 1;
 			mInstanceLayout.pMeshes = &mObjectMeshRegion;
@@ -233,12 +237,10 @@ namespace ecs
 				vs.c_str(),
 				ps.c_str(),
 				systems::SceneObjectRenderSystem::GetPerInstanceSize());
+
+			mpRenderBuffer = pRenderBuffer;
 		}
 
-		void SceneObjectRenderSystem::SetBegin(void* pBufferStart)
-		{
-			mpBuffer = (InputLayout*)pBufferStart;
-		}
 		uint32_t SceneObjectRenderSystem::GetPerInstanceSize()
 		{
 			return sizeof(InputLayout);
