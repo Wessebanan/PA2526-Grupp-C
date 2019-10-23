@@ -42,7 +42,7 @@ bool Audio::Engine::OpenStream(PaDeviceIndex index)
 		&output_parameters,
 		SOUND_SAMPLE_RATE,			// Sample rate of 44100 hz (standard)
 		SOUND_FRAMES_PER_BUFFER,
-		paClipOff,		// we won't output out of range samples so don't bother clipping them
+		paNoFlag,		// Use default clipping removal
 		&Audio::Engine::PaCallback,
 		this            // Using 'this' for userData so we can cast to Engine* in paCallback method
 	);

@@ -219,6 +219,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TileComponent>(MAX_ARENA_ROWS* MAX_ARENA_COLUMNS);
 
 	InitSound(ecs);
+	InitSong(ecs);
 
 	ecs.createSystem<ecs::systems::PathfindingStateSystem>(5);
 	ecs.createSystem<ecs::systems::IdleStateSystem>(5);

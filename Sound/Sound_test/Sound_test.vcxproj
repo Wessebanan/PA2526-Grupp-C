@@ -31,7 +31,10 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="TestHelpers.hpp" />
     <ClInclude Include="TestPlugins.h" />
+    <ClInclude Include="TestSuite1.hpp" />
+    <ClInclude Include="TestSuite2.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp" />
