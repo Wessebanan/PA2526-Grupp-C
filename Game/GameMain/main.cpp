@@ -348,6 +348,18 @@ int main()
 	Timer timer;
 
 	timer.StartGame();
+
+	ChangeUserStateEvent e;
+	e.newState = ATTACK;
+	e.playerId = PLAYER1;
+	ecs.createEvent(e);
+	e.playerId = PLAYER2;
+	ecs.createEvent(e);
+	e.playerId = PLAYER3;
+	ecs.createEvent(e);
+	e.playerId = PLAYER4;
+	ecs.createEvent(e);
+
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())

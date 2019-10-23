@@ -173,6 +173,11 @@ namespace ecs
 			void* pTree;
 		};
 
+		/*
+		* Holds the ID of the equipped weapon entity, as
+		* well as the owner unit's melee range (arm length)
+		* and the total attack range (melee + weapon range).
+		*/
 		COMP(EquipmentComponent)
 		{
 			ID mEquippedWeapon = 0;
