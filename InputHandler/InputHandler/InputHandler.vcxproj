@@ -147,6 +147,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ConnectionHelper.cpp" />
     <ClCompile Include="includes\sha1.cpp" />
     <ClCompile Include="InputBackend.cpp" />
     <ClCompile Include="PingingWebsite.cpp">
@@ -156,6 +157,7 @@
     <ClCompile Include="webConnection.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="includes\ConnectionHelper.h" />
     <ClInclude Include="includes\InputBackend.h" />
     <ClInclude Include="includes\sha1.h" />
     <ClInclude Include="includes\webConnection.h" />
