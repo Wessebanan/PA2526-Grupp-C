@@ -50,10 +50,6 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
-			
-
-
-
 void InitAll(EntityComponentSystem& rECS);
 
 void SetViewMatrix(
@@ -73,54 +69,6 @@ void SetViewMatrix(
 	));
 }
 
-//const std::string GetShaderFilepath(const char* pFilename)
-//{
-//	std::string filepath = "..//";
-//
-//#ifdef _DEBUG
-//	filepath.append("shaders_d//");
-//#else
-//	filepath.append("shaders//");
-//#endif // _DEBUG
-//
-//	//filepath.append("shaders_d//");
-//
-//	filepath.append(pFilename);
-//
-//	return filepath;
-//}
-
-
-//graphics::MeshRegion UploadMeshToGPU(ModelLoader::Mesh& mesh, graphics::MeshManager& rMng)
-//{
-//	graphics::MeshRegion mesh_region;
-//
-//	{
-//		mesh_region = rMng.CreateMeshRegion(
-//			mesh.GetVertexPositionVector()->size(),
-//			mesh.GetIndexVector()->size());
-//
-//		{
-//			graphics::VERTEX_DATA data = { NULL };
-//			data.pVertexPositions		= mesh.GetVertexPositionVector()->data();
-//			data.pVertexNormals			= mesh.GetNormalVector()->data();
-//			data.pVertexTexCoords		= mesh.GetUVVector()->data();
-//			if (mesh.HasSkeleton())
-//			{
-//				data.pVertexBlendWeights = mesh.GetBlendWeights()->data();
-//				data.pVertexBlendIndices = mesh.GetBlendIndices()->data();
-//			}
-//
-//
-//			rMng.UploadData(
-//				mesh_region,
-//				data,
-//				mesh.GetIndexVector()->data());
-//		}
-//	}
-//
-//	return mesh_region;
-//}
 
 
 int main()
@@ -206,8 +154,6 @@ int main()
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
 
-	InitSound(ecs);
-	InitSong(ecs);
 	InitAll(ecs);
 
 	// to get components in the loop
@@ -259,59 +205,10 @@ int main()
 			{
 				wnd.Close();
 			}
-			ecs.update(timer.GetFrameTime());
-
-			ecs::TypeFilter army_filter;
-			army_filter.addRequirement(ecs::components::UnitComponent::typeID);
-			army_filter.addRequirement(ecs::components::TransformComponent::typeID);
-			army_filter.addRequirement(ecs::components::ColorComponent::typeID);
-
-			ecs::EntityIterator ei = ecs.getEntititesByFilter(army_filter);
-
-			int armyIndex = 0;
-			ecs::components::ColorComponent* p_color_component;
-			ecs::components::TransformComponent* p_transform_component;
-			for (ecs::FilteredEntity unit : ei.entities)
-			{
-				p_transform_component = unit.getComponent<ecs::components::TransformComponent>();
-				p_color_component = unit.getComponent<ecs::components::ColorComponent>();
-
-				XMMATRIX world = XMMatrixIdentity();
-				world *= XMMatrixScaling(p_transform_component->scale.x, p_transform_component->scale.y, p_transform_component->scale.z);
-				world *= XMMatrixRotationRollPitchYaw(p_transform_component->rotation.x, p_transform_component->rotation.y, p_transform_component->rotation.z);
-				world *= XMMatrixTranslation(p_transform_component->position.x, p_transform_component->position.y, p_transform_component->position.z);
-
-				// Set World Matrix For a Unit
-				XMStoreFloat4x4(&skin_shader_program_input[armyIndex].world, world);
-
-				// Pack Color Into A Homogeneous Coordinate In The Matrix (is that correct?)
-				// (this value is always a 1.0f in the matrix)
-				/*
-						   _ Float4x4 _
-					| 1.0f, 0.0f, 0.0f, 0.0f |
-					| 0.0f, 1.0f, 0.0f, 0.0f |
-					| 0.0f, 0.0f, 1.0f, 0.0f |
-					| 0.0f, 0.0f, 0.0f, 1.0f | <- this number (1.0f) is used for color
-					
-					color :
-						8bit - red
-						8bit - green
-						8bit - blue
-						8bit - other (not used)
-				*/
-
-				skin_shader_program_input[armyIndex].world._44 = PACK(
-					p_color_component->red, 
-					p_color_component->green, 
-					p_color_component->blue,
-					0);
-
-				armyIndex++;
-			}
 
 			renderBuffer.Reset();
 
-			ecs.update(0.002f);
+			ecs.update(timer.GetFrameTime());
 
 			renderer.BeginUpload();
 			renderer.UploadPerInstanceData(renderBuffer.GetStartAddress(), renderBuffer.GetUsedMemory(), 0);
@@ -341,18 +238,11 @@ int main()
 
 			mesh_manager.SetVertexBuffers();
 
-			if(frame_count % 2 == 0)
-				renderer.ExecutePipeline(pipeline_shadow_map);
+			renderer.ExecutePipeline(pipeline_shadow_map);
 
 			renderer.ExecutePipeline(pipeline_forward);
 
 			graphics::Present(0);
-
-			frame_count++;
-			if (frame_count % 3 == 0)
-			{
-				frame_count2++;
-			}
 		}
 	}
 
@@ -371,6 +261,7 @@ int main()
 void InitAll(EntityComponentSystem& rECS)
 {
 	InitSound(rECS);
+	InitSong(rECS);
 
 	InitAI(rECS);
 

@@ -5,6 +5,7 @@
 #include "../MeshContainer/MeshContainer.h"
 #include "../../Graphics/includes/RenderManager.h"
 #include "../gameGraphics/RenderBuffer.h"
+#include "../gameSceneObjects/SceneObjectGlobals.h"
 
 namespace ecs
 {
@@ -101,6 +102,7 @@ namespace ecs
 				uint32_t color;
 			};
 
+
 			InputLayout* mpBuffer;
 
 			UINT mRenderProgram;
@@ -110,7 +112,10 @@ namespace ecs
 			graphics::RenderBuffer* mpRenderBuffer;
 
 			UINT mObjectCount;
-			graphics::MeshRegion mObjectMeshRegion;
+			graphics::MeshRegion mObjectMeshRegion[SCENE_OBJECT_COUNT];
+
+			UINT mObjectTypeCount[SCENE_OBJECT_COUNT];
+			UINT mMeshMap[SCENE_OBJECT_COUNT];
 		};
 	}
 }

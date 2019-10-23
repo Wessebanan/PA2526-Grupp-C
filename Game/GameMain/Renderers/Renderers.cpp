@@ -32,7 +32,7 @@ namespace ecs
 			updateType = SystemUpdateType::MultiEntityUpdate;
 			typeFilter.addRequirement(components::UnitComponent::typeID);
 			typeFilter.addRequirement(components::TransformComponent::typeID);
-			//typeFilter.addRequirement(components::Color::typeID);
+			typeFilter.addRequirement(components::ColorComponent::typeID);
 
 			mInstanceLayout = { 0 };
 
@@ -53,9 +53,16 @@ namespace ecs
 			for (FilteredEntity unit : _entities.entities)
 			{
 				components::TransformComponent* p_transform_comp = unit.getComponent<ecs::components::TransformComponent>();
+				components::ColorComponent* p_color_comp = unit.getComponent<ecs::components::ColorComponent>();
 				DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 
 				XMStoreFloat4x4(&mpBuffer[index].world, world);
+
+				mpBuffer[index].world._44 = PACK(
+					p_color_comp->red,
+					p_color_comp->green,
+					p_color_comp->blue,
+					0);
 
 				memcpy(
 					mpBuffer[index].boneMatrices,
@@ -204,12 +211,27 @@ namespace ecs
 			mObjectCount = _entities.entities.size();
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::SceneObjectRenderSystem::GetPerInstanceSize());
 
-			uint32_t index = 0;
+			ZeroMemory(mObjectTypeCount, SCENE_OBJECT_COUNT * sizeof(UINT));
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
+				mObjectTypeCount[p_obj_comp->mObject]++;
+			}
+
+			UINT object_type_individual_index[SCENE_OBJECT_COUNT] = { 0 };
+
+			for (int i = 1; i < SCENE_OBJECT_COUNT; i++)
+			{
+				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
+			}
+
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
 				components::TransformComponent* p_transform_comp = object.getComponent<components::TransformComponent>();
 				components::ColorComponent* p_color_comp = object.getComponent<components::ColorComponent>();
+
+				UINT& index = object_type_individual_index[p_obj_comp->mObject];
 
 				mpBuffer[index].x = p_transform_comp->position.x;
 				mpBuffer[index].y = p_transform_comp->position.y;
@@ -218,16 +240,36 @@ namespace ecs
 				mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
 				index++;
 			}
+
+			mInstanceLayout.pInstanceCountPerMesh = mObjectTypeCount;
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
 		void SceneObjectRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
-			mObjectMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TREE);
 
-			mInstanceLayout.MeshCount = 1;
-			mInstanceLayout.pMeshes = &mObjectMeshRegion;
+			mMeshMap[SCENE_OBJECT::SNOWMAN]		= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::ANGEL]		= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::IGLOO]		= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::CLIFF]		= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::ROCKS]		= MESH_TYPE::MESH_TYPE_ROCK;
+			mMeshMap[SCENE_OBJECT::CAMP]		= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::TREES]		= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::FLOWERS]		= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::VILAGE]		= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::SANDSTONE]	= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::PALMS]		= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::PYRAMIDS]	= MESH_TYPE::MESH_TYPE_TREE;
+
+
+			for (int i = 0; i < SCENE_OBJECT_COUNT; i++)
+			{
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(mMeshMap[i]);
+			}
+
+			mInstanceLayout.MeshCount = SCENE_OBJECT_COUNT;
+			mInstanceLayout.pMeshes = mObjectMeshRegion;
 			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
 
 			const std::string vs = GetShaderFilepath("VS_Default.cso");
