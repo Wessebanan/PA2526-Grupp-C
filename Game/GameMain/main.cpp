@@ -295,6 +295,15 @@ int main()
 
 void InitAll(EntityComponentSystem& rECS)
 {
+	/*
+		List all Init functions that will create ECS systems.
+		Remember to syncronize layers between systems. A system
+		will only recieve an event if the system that creates
+		the events exist in a layer previous to the listener;
+		as all events are cleared at the end of each ecs update,
+		after all ecs systems has been updated.
+	*/
+
 	InitSound(rECS);
 	InitSong(rECS);
 
