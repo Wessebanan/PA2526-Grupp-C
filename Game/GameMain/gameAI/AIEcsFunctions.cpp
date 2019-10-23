@@ -56,7 +56,7 @@ namespace AIEcsFunctions
 			p_transform = rEcs.getComponentFromEntity<ecs::components::TransformComponent>(temp_id);
 			//Set current players enum ID for this armies units.
 			unit.playerID = (PLAYER)i;
-			int divider = 2;
+			int divider = 3;
 			for (int u = 0; u < PlayerProperties::numberOfUnits; u++)
 			{
 				//Set the starting position of the unit depending on the center position of the units starting tile. Needs to
