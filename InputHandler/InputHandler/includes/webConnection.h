@@ -13,7 +13,7 @@
 #pragma comment (lib, "Ws2_32.lib")
 
 #define DEFAULT_BUFLEN  512
-#define DEFAULT_PORT    "80"
+#define DEFAULT_PORT    "8080"
 #define WEBSOCKET_KEY   "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 
 // thread includes
