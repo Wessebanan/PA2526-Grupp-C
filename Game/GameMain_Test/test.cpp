@@ -5,9 +5,9 @@
 #include "Physics/MovementLogic.h"
 #include "Physics/ObjectCollision.h"
 #include "Physics/FightingLogic.h"
-//#include "Physics/QuadTreeTests.h"
-//#include "Sound/SoundTests.h"
-//#include "AiTests.h"
+#include "Physics/QuadTreeTests.h"
+#include "Sound/SoundTests.h"
+#include "AiTests.h"
 #include <crtdbg.h>
 
 int main(int argc, char** argv) 
