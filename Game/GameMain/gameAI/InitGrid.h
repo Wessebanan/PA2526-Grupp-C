@@ -12,8 +12,8 @@
 
 void InitGrid(ecs::EntityComponentSystem& rECS)
 {
-	int rows = 20;
-	int columns = 20;
+	int rows = 24;
+	int columns = 16;
 
 	GridEcsFunctions::CreateGrid(rECS, rows, columns, 1.0f);
 	InitBiomes(rECS, rows, columns);
