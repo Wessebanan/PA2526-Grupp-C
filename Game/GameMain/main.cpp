@@ -94,7 +94,7 @@ int main()
 		graphics::WINDOW_STYLE::BORDERLESS);
 
 	/*
-		Initialize graphics
+		-- Initialize Graphics --
 	*/
 
 	graphics::InitializeD3D11();
@@ -106,7 +106,6 @@ int main()
 	graphics::MeshManager mesh_manager;
 	mesh_manager.Initialize(10000, 10000);
 
-	// Will be moved to a system
 	UINT pipeline_shadow_map;
 	{
 		graphics::SHADOW_MAP_PIPELINE_DESC desc;
@@ -120,7 +119,6 @@ int main()
 			&desc);
 	}
 
-	// Will be moved to a system
 	UINT pipeline_forward;
 	{
 		graphics::FORWARD_RENDERING_PIPELINE_DESC desc;
@@ -136,7 +134,9 @@ int main()
 
 
 	/*
-		-- Meshes --
+		-- Load Meshes --
+		
+		MeshContainer is a singleton, and is visible for everyone.
 	*/
 
 	MeshContainer::Initialize(&mesh_manager);
@@ -145,7 +145,9 @@ int main()
 	MeshContainer::LoadMesh(MESH_TYPE_TREE, "../meshes/tree2.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../RunningCustom2.fbx");
 
-	/* ECS BEGIN */
+	/*
+		-- Initialize ECS --
+	*/
 
 	ecs::EntityComponentSystem ecs;
 
@@ -154,17 +156,17 @@ int main()
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
 
+	/*
+		InitAll is a list of ecs system Init-functions.
+		If you with to add your own Init-function, please add in
+		in InitAll().
+	*/
+
 	InitAll(ecs);
-
-	// to get components in the loop
-	ecs::components::CameraComponent* p_cam_comp = (components::CameraComponent*)ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
-
-	/* ECS END */
-
 
 
 	/*
-		Set GPU buffer
+		-- Initialize Mesh Renderers --
 	*/
 
 	graphics::RenderBuffer renderBuffer;
@@ -177,42 +179,68 @@ int main()
 	p_unit_renderer->Initialize(&renderer, &renderBuffer);
 	p_scenery_renderer->Initialize(&renderer, &renderBuffer);
 	p_tile_renderer->Initialize(&renderer, &renderBuffer);
-	
-	unsigned long long int frame_count = 0;
-	unsigned long long int frame_count2 = 0;
+
+
+
+
+	/*
+		 #############################                                                    ############################# 
+		#######################   From here on, all initialization is expected to be finished.   #######################
+		 #############################                                                    ############################# 
+	*/
+
+
+
+
+	/*
+		-- Show Window --
+	*/
+
 	wnd.Open();
 
-	Timer timer;
+	/*
+		-- Create Timer for update loop --
+	*/
 
+	Timer timer;
 	timer.StartGame();
 
-	ChangeUserStateEvent e;
-	e.newState = ATTACK;
-	e.playerId = PLAYER1;
-	ecs.createEvent(e);
-	e.playerId = PLAYER2;
-	ecs.createEvent(e);
-	e.playerId = PLAYER3;
-	ecs.createEvent(e);
-	e.playerId = PLAYER4;
-	ecs.createEvent(e);
+	/*
+		-- Update Loop, while window is open --
+	*/
 
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
 		{ 
+			// Close window when user press Esc
 			if (GetAsyncKeyState(VK_ESCAPE))
 			{
 				wnd.Close();
 			}
 
+			/*
+				Clear all data from render buffer. This buffer will be filled each frame with
+				per vertex data for all objects that will render, and then be uploaded to the GPU
+				all together.
+			*/
 			renderBuffer.Reset();
 
+			/*
+				Update all ECS systems, and give them the delta time.
+			*/
 			ecs.update(timer.GetFrameTime());
 
+			/*
+				Upload renderBuffer to the GPU.
+				RenderBuffer contains ALL vertex data for rendering.
+			*/
 			renderer.BeginUpload();
 			renderer.UploadPerInstanceData(renderBuffer.GetStartAddress(), renderBuffer.GetUsedMemory(), 0);
 
+			/*
+				Update shadow map for graphics engine
+			*/
 			{	
 				DirectX::XMFLOAT4X4 shadow_matrix;
 				SetViewMatrix(
@@ -226,7 +254,11 @@ int main()
 				renderer.UpdatePipeline(pipeline_shadow_map, &data);
 			}
 
+			/*
+				Update camera for graphics engine
+			*/
 			{
+				CameraComponent* p_cam_comp = (CameraComponent*)ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
 				graphics::FORWARD_RENDERING_PIPELINE_DATA data;
 				data.ViewMatrix = p_cam_comp->viewMatrix;
 				data.Red	= 0.25f;
@@ -239,12 +271,15 @@ int main()
 			mesh_manager.SetVertexBuffers();
 
 			renderer.ExecutePipeline(pipeline_shadow_map);
-
 			renderer.ExecutePipeline(pipeline_forward);
 
 			graphics::Present(0);
 		}
 	}
+
+	/*
+		-- Cleanup Memory --
+	*/
 
 	mesh_manager.Destroy();
 	renderer.Destroy();
@@ -275,4 +310,15 @@ void InitAll(EntityComponentSystem& rECS)
 	InitCamera(rECS);
 
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
+
+	ChangeUserStateEvent e;
+	e.newState = ATTACK;
+	e.playerId = PLAYER1;
+	rECS.createEvent(e);
+	e.playerId = PLAYER2;
+	rECS.createEvent(e);
+	e.playerId = PLAYER3;
+	rECS.createEvent(e);
+	e.playerId = PLAYER4;
+	rECS.createEvent(e);
 }
