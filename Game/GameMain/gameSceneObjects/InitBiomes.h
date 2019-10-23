@@ -69,18 +69,23 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 	for (size_t i = 1; i < Rows-1; i++)
 		for (size_t j = 1; j < Columns-1; j++)
 		{
-			float avg = 0.0f;
-			avg += p_gp->mGrid[i][j].height;
-			avg += p_gp->mGrid[i-1][j].height;
-			avg += p_gp->mGrid[i+1][j].height;
-			avg += p_gp->mGrid[i][j+1].height;
-			avg += p_gp->mGrid[i-1][j+1].height;
-			avg += p_gp->mGrid[i+1][j+1].height;
-			avg += p_gp->mGrid[i][j-1].height;
+			// not do avarage with water
+			if (p_gp->mGrid[i][j].height > -0.2f)
+			{
+				float avg = 0.0f;
+				avg += p_gp->mGrid[i][j].height;
+				avg += p_gp->mGrid[i - 1][j].height;
+				avg += p_gp->mGrid[i + 1][j].height;
+				avg += p_gp->mGrid[i][j + 1].height;
+				avg += p_gp->mGrid[i - 1][j + 1].height;
+				avg += p_gp->mGrid[i + 1][j + 1].height;
+				avg += p_gp->mGrid[i][j - 1].height;
 
-			avg /= 7;
+				avg /= 7;
 
-			p_gp->mGrid[i][j].height = avg;
+				p_gp->mGrid[i][j].height = avg;
+			}
+			
 		}
 
 }

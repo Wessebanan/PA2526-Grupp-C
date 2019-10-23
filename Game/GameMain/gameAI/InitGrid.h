@@ -12,11 +12,12 @@
 
 void InitGrid(ecs::EntityComponentSystem& rECS)
 {
-	int random_map = 1;
-	//int random_map = rand() % 3;
+	int random_map = rand() % 3;
 
-	int rows = 4;
-	int columns = 4;
+	int rows = 0;
+	int columns = 0;
+
+	// 3 preset mapsizes
 
 	switch (random_map)
 	{
@@ -33,6 +34,9 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 		columns = 20;
 		break;
 	default:
+		// For testing the map can be set to close to maximum
+		rows = MAX_ARENA_ROWS - 3;
+		columns = MAX_ARENA_COLUMNS - 3;
 		break;
 	}
 
