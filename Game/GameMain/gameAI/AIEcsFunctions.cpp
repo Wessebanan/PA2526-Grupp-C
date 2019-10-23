@@ -87,24 +87,24 @@ namespace AIEcsFunctions
 
 				// roate them 90deg
 				//transform.rotation.x = -1.57079633f;
-				switch (i)
-				{
-				case 0:
-					transform.rotation.y = (1.57079633f / 2.0f);
-					break;
-				case 1:
-					transform.rotation.y = (-1.57079633f * 1) + (1.57079633f / 2.0f);
-					break;
-				case 2:
-					transform.rotation.y = (1.57079633f * 1) + (1.57079633f / 2.0f);
-					break;
-				case 3:
-					transform.rotation.y = (1.57079633f * 2) + (1.57079633f / 2.0f);
-					break;
-				default:
-					transform.rotation.y = (1.57079633f * i) + (1.57079633f / 2.0f);
-					break;
-				}
+				//switch (i)
+				//{
+				//case 0:
+				//	transform.rotation.y = (1.57079633f / 2.0f);
+				//	break;
+				//case 1:
+				//	transform.rotation.y = (-1.57079633f * 1) + (1.57079633f / 2.0f);
+				//	break;
+				//case 2:
+				//	transform.rotation.y = (1.57079633f * 1) + (1.57079633f / 2.0f);
+				//	break;
+				//case 3:
+				//	transform.rotation.y = (1.57079633f * 2) + (1.57079633f / 2.0f);
+				//	break;
+				//default:
+				//	transform.rotation.y = (1.57079633f * i) + (1.57079633f / 2.0f);
+				//	break;
+				//}
 
 				color_comp.red		= army_colors[i].r;	
 				color_comp.green	= army_colors[i].g;
