@@ -43,88 +43,73 @@ namespace GridFunctions
 			float slope = 0.7f;
 			
 			// top
-			height_values[top_x][top_y] = top_height;
-
-			if (false/*top_x % 2*/)
-			{
-
-			}
-			else
-			{
-				// first circle
-				top_height *= slope;
-
-				height_values[top_x - 1][top_y] = top_height;
-				height_values[top_x + 1][top_y] = top_height;
-
-				height_values[top_x]	[top_y - 1] = top_height;
-				height_values[top_x + 1][top_y - 1] = top_height;
-				height_values[top_x - 1][top_y - 1] = top_height;
-
-				height_values[top_x][top_y + 1] = top_height;
-
-				//------
-
-
-				// second circle
-				top_height *= slope;
-
-				height_values[top_x - 2][top_y] = top_height;
-				height_values[top_x + 2][top_y] = top_height;
-				height_values[top_x - 2][top_y - 1] = top_height;
-				height_values[top_x + 2][top_y - 1] = top_height;
-				height_values[top_x - 2][top_y + 1] = top_height;
-				height_values[top_x + 2][top_y + 1] = top_height;
-
-				height_values[top_x - 1][top_y + 1] = top_height;
-				height_values[top_x + 1][top_y + 1] = top_height;
-
-				height_values[top_x][top_y + 2] = top_height;
-
-				height_values[top_x][top_y - 2] = top_height;
-				height_values[top_x - 1][top_y - 2] = top_height;
-				height_values[top_x + 1][top_y - 2] = top_height;
-
-				//------
-
-				// third circle
-				top_height *= slope;
-
-				height_values[top_x - 3][top_y] = top_height;
-				height_values[top_x + 3][top_y] = top_height;
-
-				height_values[top_x - 3][top_y - 1] = top_height;
-				height_values[top_x + 3][top_y - 1] = top_height;
-				height_values[top_x - 3][top_y + 1] = top_height;
-				height_values[top_x + 3][top_y + 1] = top_height;
-				height_values[top_x - 3][top_y - 2] = top_height;
-				height_values[top_x + 3][top_y - 2] = top_height;
-
-				height_values[top_x - 1][top_y + 2] = top_height;
-				height_values[top_x - 2][top_y + 2] = top_height;
-				height_values[top_x + 1][top_y + 2] = top_height;
-				height_values[top_x + 2][top_y + 2] = top_height;
-
-				height_values[top_x][top_y + 3] = top_height;
-
-				height_values[top_x - 2][top_y - 2] = top_height;
-				height_values[top_x + 2][top_y - 2] = top_height;
-
-				height_values[top_x][top_y - 3] = top_height;
-				height_values[top_x - 1][top_y - 3] = top_height;
-				height_values[top_x + 1][top_y - 3] = top_height;
-				//------
-			}
-
-
+			height_values[top_y][top_x] = top_height;
 
 			
+			// first circle
+			top_height *= slope;
+
+			height_values[top_y][top_x - 1] = top_height;
+			height_values[top_y][top_x + 1] = top_height;
+
+			height_values	[top_y - 1][top_x] = top_height;
+			height_values[top_y - 1][top_x + 1] = top_height;
+			height_values[top_y - 1][top_x - 1] = top_height;
+
+			height_values[top_y + 1][top_x] = top_height;
+
+			//------
+
+
+			// second circle
+			top_height *= slope;
+
+			height_values[top_y][top_x - 2] = top_height;
+			height_values[top_y][top_x + 2] = top_height;
+			height_values[top_y - 1][top_x - 2] = top_height;
+			height_values[top_y - 1][top_x + 2] = top_height;
+			height_values[top_y + 1][top_x - 2] = top_height;
+			height_values[top_y + 1][top_x + 2] = top_height;
+
+			height_values[top_y + 1][top_x - 1] = top_height;
+			height_values[top_y + 1][top_x + 1] = top_height;
+
+			height_values[top_y + 2][top_x] = top_height;
+
+			height_values[top_y - 2][top_x] = top_height;
+			height_values[top_y - 2][top_x - 1] = top_height;
+			height_values[top_y - 2][top_x + 1] = top_height;
+
+			//------
+
+			// third circle
+			top_height *= slope;
+
+			height_values[top_y][top_x - 3] = top_height;
+			height_values[top_y][top_x + 3] = top_height;
+
+			height_values[top_y - 1][top_x - 3] = top_height;
+			height_values[top_y - 1][top_x + 3] = top_height;
+			height_values[top_y + 1][top_x - 3] = top_height;
+			height_values[top_y + 1][top_x + 3] = top_height;
+			height_values[top_y - 2][top_x - 3] = top_height;
+			height_values[top_y - 2][top_x + 3] = top_height;
+
+			height_values[top_y + 2][top_x - 1] = top_height;
+			height_values[top_y + 2][top_x - 2] = top_height;
+			height_values[top_y + 2][top_x + 1] = top_height;
+			height_values[top_y + 2][top_x + 2] = top_height;
+
+			height_values[top_y + 3][top_x] = top_height;
+
+			height_values[top_y - 2][top_x - 2] = top_height;
+			height_values[top_y - 2][top_x + 2] = top_height;
+
+			height_values[top_y - 3][top_x] = top_height;
+			height_values[top_y - 3][top_x - 1] = top_height;
+			height_values[top_y - 3][top_x + 1] = top_height;
+			//------
 		}
-
-
-
-
-
 
 		// Removes chunks from each side of the map
 		int side0 = rand() % (rows - 3);
@@ -151,7 +136,7 @@ namespace GridFunctions
 		for (int i = 0; i < rows; i++)
 		{
 			for (int j = 0; j < columns; j++)
-				Arr[i + j * MAX_ARENA_ROWS] = height_values[i][j];
+				Arr[j + i * MAX_ARENA_ROWS] = height_values[i][j];
 		}
 	}
 
@@ -183,8 +168,8 @@ namespace GridFunctions
 		GridProp* p_gp = GridProp::GetInstance();
 		bool returnValue = false;
 		//Check if the given index is a valid index and check so that the height difference between the tiles is not to large.
-		if (neighbourIndex.x >= 0 && neighbourIndex.x < MAX_ARENA_COLUMNS
-			&& neighbourIndex.y >= 0 && neighbourIndex.y < MAX_ARENA_ROWS
+		if (neighbourIndex.x >= 0 && neighbourIndex.x < p_gp->GetSize().y
+			&& neighbourIndex.y >= 0 && neighbourIndex.y < p_gp->GetSize().x
 			&& p_gp->mGrid[currentTile.x][currentTile.y].height -
 			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1
 			&& p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].isPassable)
@@ -199,9 +184,9 @@ namespace GridFunctions
 		int2 current_tile;
 		int2 neighbour_tile;
 		int neighbour_counter;
-		for (int i = 0; i < MAX_ARENA_ROWS; i++)
+		for (int i = 0; i < p_gp->GetSize().x; i++)
 		{
-			for (int j = 0; j < MAX_ARENA_COLUMNS; j++)
+			for (int j = 0; j < p_gp->GetSize().y; j++)
 			{
 				neighbour_counter = 0;
 				current_tile = int2(i, j);
@@ -400,9 +385,9 @@ namespace GridFunctions
 				pos_x += TILE_RADIUS * 1.5f;
 				steps++;
 			}
-			if (steps > MAX_ARENA_COLUMNS - 1)
+			if (steps > p_gp->GetSize().y - 1)
 			{
-				index.x = MAX_ARENA_COLUMNS - 1;
+				index.x = p_gp->GetSize().y - 1;
 			}
 			else
 			{
