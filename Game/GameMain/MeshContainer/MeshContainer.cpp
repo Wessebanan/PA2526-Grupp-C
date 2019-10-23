@@ -2,6 +2,11 @@
 
 MeshContainer* MeshContainer::mpInstance = nullptr;
 
+void MeshContainer::Initialize(graphics::MeshManager* pMeshMgr)
+{
+	GetInstance().InitializeInternal(pMeshMgr);
+}
+
 MeshContainer& MeshContainer::GetInstance() // static
 {
 	if (!mpInstance)
@@ -16,9 +21,14 @@ ModelLoader::Mesh* MeshContainer::LoadMesh(MeshType meshType, std::string filePa
 	return GetInstance().LoadMeshInternal(meshType, filePath);
 }
 
-ModelLoader::Mesh* MeshContainer::GetMesh(MeshType meshType) // static
+ModelLoader::Mesh* MeshContainer::GetMeshCPU(MeshType meshType) // static
 {
-	return GetInstance().GetMeshInternal(meshType);
+	return GetInstance().GetMeshCPUInternal(meshType);
+}
+
+graphics::MeshRegion MeshContainer::GetMeshGPU(MeshType meshType)
+{
+	return GetInstance().GetMeshGPUInternal(meshType);
 }
 
 void MeshContainer::Terminate() // static
@@ -31,12 +41,17 @@ void MeshContainer::Terminate() // static
 
 MeshContainer::MeshContainer()
 {
-	mMeshList.reserve((sizeof(ModelLoader::Mesh*) + sizeof(MeshType)) * MESH_TYPE_COUNT);
+	mMeshList.reserve(MESH_TYPE_COUNT);
 }
 
 MeshContainer::~MeshContainer()
 {
 	TerminateInternal();
+}
+
+void MeshContainer::InitializeInternal(graphics::MeshManager* pMeshMgr)
+{
+	mpMeshMgr = pMeshMgr;
 }
 
 ModelLoader::Mesh* MeshContainer::LoadMeshInternal(MeshType meshType, std::string filePath)
@@ -48,21 +63,49 @@ ModelLoader::Mesh* MeshContainer::LoadMeshInternal(MeshType meshType, std::strin
 	}
 
 	// Create mesh from file
-	ModelLoader::Mesh* newMesh = new ModelLoader::Mesh(filePath);
+	ModelLoader::Mesh* p_new_mesh = new ModelLoader::Mesh(filePath);
 
 	// Sanity check creation
-	if (!newMesh)
+	if (!p_new_mesh)
 	{
 		return nullptr;
 	}
 
 	// Push new mesh into list (map)
-	mMeshList[meshType] = newMesh;
+	mMeshList[meshType] = p_new_mesh;
 
-	return newMesh;
+	// Create GPU region for mesh
+	graphics::MeshRegion mesh_region;
+
+	{
+		mesh_region = mpMeshMgr->CreateMeshRegion(
+			p_new_mesh->GetVertexPositionVector()->size(),
+			p_new_mesh->GetIndexVector()->size());
+
+		{
+			graphics::VERTEX_DATA data = { NULL };
+			data.pVertexPositions = p_new_mesh->GetVertexPositionVector()->data();
+			data.pVertexNormals = p_new_mesh->GetNormalVector()->data();
+			data.pVertexTexCoords = p_new_mesh->GetUVVector()->data();
+			if (p_new_mesh->HasSkeleton())
+			{
+				data.pVertexBlendWeights = p_new_mesh->GetBlendWeights()->data();
+				data.pVertexBlendIndices = p_new_mesh->GetBlendIndices()->data();
+			}
+
+
+			mpMeshMgr->UploadData(
+				mesh_region,
+				data,
+				p_new_mesh->GetIndexVector()->data());
+		}
+	}
+	mMeshRegions[meshType] = mesh_region;
+
+	return p_new_mesh;
 }
 
-ModelLoader::Mesh* MeshContainer::GetMeshInternal(MeshType meshType)
+ModelLoader::Mesh* MeshContainer::GetMeshCPUInternal(MeshType meshType)
 {
 	// Check if mesh is exist
 	if (!mMeshList.count(meshType))
@@ -71,6 +114,16 @@ ModelLoader::Mesh* MeshContainer::GetMeshInternal(MeshType meshType)
 	}
 
 	return mMeshList[meshType];
+}
+
+graphics::MeshRegion MeshContainer::GetMeshGPUInternal(MeshType meshType)
+{
+	if (!mMeshRegions.count(meshType))
+	{
+		return { 0, 0 };
+	}
+
+	return mMeshRegions[meshType];
 }
 
 void MeshContainer::TerminateInternal()

@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include "ecsSystemIncludes.h"
 #include "../MeshContainer/MeshContainer.h"
+#include "../../Graphics/includes/RenderManager.h"
 
 namespace ecs
 {
@@ -17,7 +18,11 @@ namespace ecs
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
+			void Initialize(graphics::RenderManager* pRenderMgr);
+
 			void SetBegin(void* pBufferStart);
+
+			static uint32_t GetPerInstanceSize();
 
 		private:
 
@@ -32,6 +37,13 @@ namespace ecs
 
 			int mFrameCounter;
 			int mAnimationFrameCounter;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			UINT mUnitCount;
+			graphics::MeshRegion mUnitMeshRegion;
 		};
 
 		class TileRenderSystem : public ECSSystem<TileRenderSystem>
@@ -43,7 +55,11 @@ namespace ecs
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
+			void Initialize(graphics::RenderManager* pRenderMgr);
+
 			void SetBegin(void* pBufferStart);
+
+			static uint32_t GetPerInstanceSize();
 
 		private:
 
@@ -54,6 +70,13 @@ namespace ecs
 			};
 
 			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			UINT mTileCount;
+			graphics::MeshRegion mTileMeshRegion;
 		};
 
 		class SceneObjectRenderSystem : public ECSSystem<SceneObjectRenderSystem>
@@ -65,7 +88,11 @@ namespace ecs
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
+			void Initialize(graphics::RenderManager* pRenderMgr);
+
 			void SetBegin(void* pBufferStart);
+
+			static uint32_t GetPerInstanceSize();
 
 		private:
 
@@ -76,6 +103,13 @@ namespace ecs
 			};
 
 			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			UINT mObjectCount;
+			graphics::MeshRegion mObjectMeshRegion;
 		};
 	}
 }

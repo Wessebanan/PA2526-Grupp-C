@@ -155,15 +155,17 @@ int main()
 		-- Meshes --
 	*/
 
+	MeshContainer::Initialize(&mesh_manager);
+
 	MeshContainer::LoadMesh(MESH_TYPE_TILE, "../meshes/hexagon_tile5.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_ROCK, "../meshes/rock.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_TREE, "../meshes/tree2.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../RunningCustom2.fbx");
 
-	graphics::MeshRegion mesh_region_hexagon	= UploadMeshToGPU(*MeshContainer::GetMesh(MESH_TYPE_TILE), mesh_manager);
-	graphics::MeshRegion mesh_region_tree		= UploadMeshToGPU(*MeshContainer::GetMesh(MESH_TYPE_TREE), mesh_manager);
-	graphics::MeshRegion mesh_region_rock		= UploadMeshToGPU(*MeshContainer::GetMesh(MESH_TYPE_ROCK), mesh_manager);
-	graphics::MeshRegion mesh_region_dude		= UploadMeshToGPU(*MeshContainer::GetMesh(MESH_TYPE_UNIT), mesh_manager);
+	graphics::MeshRegion mesh_region_hexagon	= MeshContainer::GetMeshGPU(MESH_TYPE_TILE);
+	graphics::MeshRegion mesh_region_tree		= MeshContainer::GetMeshGPU(MESH_TYPE_TREE);
+	graphics::MeshRegion mesh_region_rock		= MeshContainer::GetMeshGPU(MESH_TYPE_ROCK);
+	graphics::MeshRegion mesh_region_dude		= MeshContainer::GetMeshGPU(MESH_TYPE_UNIT);
 
 	// Will be moved to a system
 	UINT pipeline_shadow_map;
@@ -193,12 +195,6 @@ int main()
 			&desc);
 	}
 
-	struct ShaderProgramInput
-	{
-		float x, y, z;
-		uint32_t Color;
-	};
-
 
 
 	const std::string vs = GetShaderFilepath("VS_Default.cso");
@@ -208,12 +204,12 @@ int main()
 	UINT shader_position_color = renderer.CreateShaderProgram(
 		vs.c_str(), 
 		ps.c_str(), 
-		sizeof(ShaderProgramInput));
+		systems::SceneObjectRenderSystem::GetPerInstanceSize());
 
-	UINT shader_skinning = renderer.CreateShaderProgram(
-		vs_skin.c_str(),
-		ps.c_str(),
-		sizeof(SkinningShaderProgramInput));
+	//UINT shader_skinning = renderer.CreateShaderProgram(
+	//	vs_skin.c_str(),
+	//	ps.c_str(),
+	//	systems::UnitRenderSystem::GetPerInstanceSize());
 
 
 
@@ -230,27 +226,8 @@ int main()
 
 	// to get components in the loop
 	ecs::components::CameraComponent* p_cam_comp = (components::CameraComponent*)ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
-	ecs::components::TileComponent* tileComp = (components::TileComponent*)ecs.getAllComponentsOfType(ecs::components::TileComponent::typeID).next();
 
 	/* ECS END */
-
-	size_t tile_count = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
-
-
-
-	ShaderProgramInput* pData	= new ShaderProgramInput[tile_count + 6 + 6];
-	UINT sizeOfPdata			= (UINT)(sizeof(ShaderProgramInput) * (tile_count + 6 + 6));
-	sizeOfPdata = 2496;
-	ZeroMemory(pData, sizeOfPdata);
-
-
-	TypeFilter tile_filter;
-	tile_filter.addRequirement(components::TileComponent::typeID);
-	tile_filter.addRequirement(components::ColorComponent::typeID);
-	tile_filter.addRequirement(components::TransformComponent::typeID);
-	EntityIterator tile_iterator = ecs.getEntititesByFilter(tile_filter);
-
-
 
 	/*
 		Set GPU buffer
@@ -264,7 +241,7 @@ int main()
 	graphics::MeshRegion mesh_regions[] = { mesh_region_hexagon, mesh_region_tree, mesh_region_rock };
 
 	// World tiles and scenery
-	UINT instance_count_scenery[] = { tile_count, 6, 6 };
+	UINT instance_count_scenery[] = { ecs.getComponentCountOfType(components::TileComponent::typeID), 6, 6 };
 	graphics::ShaderModelLayout layout_scenery = { 0 };
 	layout_scenery.MeshCount = 3;
 	layout_scenery.pMeshes = mesh_regions;
@@ -274,14 +251,15 @@ int main()
 	systems::SceneObjectRenderSystem* p_scenery_renderer = ecs.createSystem<systems::SceneObjectRenderSystem>(9);
 
 	// Units
-	UINT instance_count_buddies = 12;
-	graphics::ShaderModelLayout layout_skin = { 0 };
-	layout_skin.MeshCount = 1;
-	layout_skin.pMeshes = &mesh_region_dude;
-	layout_skin.pInstanceCountPerMesh = &instance_count_buddies;
+	//UINT instance_count_buddies = 12;
+	//graphics::ShaderModelLayout layout_skin = { 0 };
+	//layout_skin.MeshCount = 1;
+	//layout_skin.pMeshes = &mesh_region_dude;
+	//layout_skin.pInstanceCountPerMesh = &instance_count_buddies;
 
 
 	systems::UnitRenderSystem* p_unit_renderer = ecs.createSystem<systems::UnitRenderSystem>(9);
+	p_unit_renderer->Initialize(&renderer);
 
 
 	//// Map tiles will be uploaded with ocean meshes
@@ -349,7 +327,7 @@ int main()
 
 
 	renderer.SetShaderModelLayout(shader_position_color, layout_scenery);
-	renderer.SetShaderModelLayout(shader_skinning, layout_skin);
+	//renderer.SetShaderModelLayout(shader_skinning, layout_skin);
 
 	//char* pInstanceData = (char*)malloc(skin_size + sizeOfPdata);
 	//memcpy(pInstanceData, pData, sizeOfPdata);
@@ -475,5 +453,5 @@ void InitAll(EntityComponentSystem& rECS)
 
 	InitCamera(rECS);
 
-	InitPhysics(rECS, MeshContainer::GetMesh(MESH_TYPE_UNIT));
+	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
 }

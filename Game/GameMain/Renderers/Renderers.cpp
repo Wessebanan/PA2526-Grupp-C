@@ -4,8 +4,22 @@
 #include "../gameUtility/UtilityEcsFunctions.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
 
-inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3) {
+static inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3) {
 	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
+}
+
+static const std::string GetShaderFilepath(const char* pFilename)
+{
+	std::string filepath = "..//";
+
+#ifdef _DEBUG
+	filepath.append("shaders_d//");
+#else
+	filepath.append("shaders//");
+#endif // _DEBUG
+	filepath.append(pFilename);
+
+	return filepath;
 }
 
 namespace ecs
@@ -13,14 +27,16 @@ namespace ecs
 	namespace systems
 	{
 #pragma region UnitRenderSystem
-		UnitRenderSystem::UnitRenderSystem() : mFrameCounter(0), mAnimationFrameCounter(0)
+		UnitRenderSystem::UnitRenderSystem() : mFrameCounter(0), mAnimationFrameCounter(0), mUnitCount(0)
 		{
 			updateType = SystemUpdateType::MultiEntityUpdate;
 			typeFilter.addRequirement(components::UnitComponent::typeID);
 			typeFilter.addRequirement(components::TransformComponent::typeID);
 			//typeFilter.addRequirement(components::Color::typeID);
 
-			mpSkeleton = MeshContainer::GetMesh(MESH_TYPE_UNIT)->GetSkeleton();
+			mInstanceLayout = { 0 };
+
+			mpSkeleton = MeshContainer::GetMeshCPU(MESH_TYPE_UNIT)->GetSkeleton();
 		}
 
 		UnitRenderSystem::~UnitRenderSystem()
@@ -52,11 +68,37 @@ namespace ecs
 				mFrameCounter = 0;
 				mAnimationFrameCounter = ++mAnimationFrameCounter % mpSkeleton->frameCount;
 			}
+
+			mUnitCount = (UINT)_entities.entities.size();
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		}
+
+		void UnitRenderSystem::Initialize(graphics::RenderManager* pRenderMgr)
+		{
+			mpRenderMgr = pRenderMgr;
+			mUnitMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_UNIT);
+
+			mInstanceLayout.MeshCount = 1;
+			mInstanceLayout.pMeshes = &mUnitMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mUnitCount;
+
+			const std::string ps = GetShaderFilepath("PS_Default.cso");
+			const std::string vs_skin = GetShaderFilepath("VS_Skinning.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs_skin.c_str(),
+				ps.c_str(),
+				systems::UnitRenderSystem::GetPerInstanceSize());
 		}
 
 		void UnitRenderSystem::SetBegin(void* pBufferStart)
 		{
 			mpBuffer = (InputLayout*)pBufferStart;
+		}
+
+		uint32_t UnitRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(InputLayout);
 		}
 #pragma endregion UnitRenderSystem
 
@@ -67,6 +109,8 @@ namespace ecs
 			typeFilter.addRequirement(components::TileComponent::typeID);
 			typeFilter.addRequirement(components::TransformComponent::typeID);
 			typeFilter.addRequirement(components::ColorComponent::typeID);
+
+			mInstanceLayout = { 0 };
 		}
 
 		TileRenderSystem::~TileRenderSystem()
@@ -110,9 +154,31 @@ namespace ecs
 			}
 		}
 
+		void TileRenderSystem::Initialize(graphics::RenderManager* pRenderMgr)
+		{
+			mpRenderMgr = pRenderMgr;
+			mTileMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TILE);
+
+			mInstanceLayout.MeshCount = 1;
+			mInstanceLayout.pMeshes = &mTileMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mTileCount;
+
+			const std::string vs = GetShaderFilepath("VS_Default.cso");
+			const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				systems::TileRenderSystem::GetPerInstanceSize());
+		}
+
 		void TileRenderSystem::SetBegin(void* pBufferStart)
 		{
 			mpBuffer = (InputLayout*)pBufferStart;
+		}
+		uint32_t TileRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(InputLayout);
 		}
 #pragma endregion TileRenderSystem
 
@@ -123,6 +189,8 @@ namespace ecs
 			typeFilter.addRequirement(components::SceneObjectComponent::typeID);
 			typeFilter.addRequirement(components::TransformComponent::typeID);
 			typeFilter.addRequirement(components::ColorComponent::typeID);
+
+			mInstanceLayout = { 0 };
 		}
 
 		SceneObjectRenderSystem::~SceneObjectRenderSystem()
@@ -149,9 +217,31 @@ namespace ecs
 			}
 		}
 
+		void SceneObjectRenderSystem::Initialize(graphics::RenderManager* pRenderMgr)
+		{
+			mpRenderMgr = pRenderMgr;
+			mObjectMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TILE);
+
+			mInstanceLayout.MeshCount = 1;
+			mInstanceLayout.pMeshes = &mObjectMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
+
+			const std::string vs = GetShaderFilepath("VS_Default.cso");
+			const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				systems::SceneObjectRenderSystem::GetPerInstanceSize());
+		}
+
 		void SceneObjectRenderSystem::SetBegin(void* pBufferStart)
 		{
 			mpBuffer = (InputLayout*)pBufferStart;
+		}
+		uint32_t SceneObjectRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(InputLayout);
 		}
 #pragma endregion SceneObjectRenderSystem
 	}
