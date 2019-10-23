@@ -26,7 +26,7 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 		int random = rand() % 50;
 		int color_offset = -25 + random;
 
-		// Here the effect each biome has i applied
+		 //Here the effect each biome has i applied
 		switch (p_tile_comp->biome)
 		{
 		case SNOW:
@@ -60,6 +60,7 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 		default:
 			break;
 		}
+
 
 	}
 	

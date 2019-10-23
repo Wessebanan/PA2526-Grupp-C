@@ -122,7 +122,7 @@ namespace ecs
 
 				NodeInfo start_node;
 				start_node.id = startID;
-				start_node.parent_id = 0;
+				start_node.parent_id = startID;
 				start_node.move_cost = 0;
 				closed_list[current_tile_id] = start_node;
 				while (current_tile_id != goalID)
@@ -147,7 +147,7 @@ namespace ecs
 							{
 								current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
 								current_neighbour_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i]);
-								dist_to_goal = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z, //calc dist from goal
+								dist_to_goal = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z, //calc neighbour dist from goal
 									goal_tile_transfrom->position.x, goal_tile_transfrom->position.z);
 								cost = current_neighbour_tile->niceness + dist_to_goal + closed_list[current_tile_id].move_cost; //calc cost for move
 								if (cost < open_list.at(pos_in_open_list).move_cost) // if move cost is better then last time, update it
@@ -171,28 +171,26 @@ namespace ecs
 							}
 						}
 					}
-					if (current_tile_id != goalID)
+					
+					pos_in_open_list = 0;
+					best_neighbour_cost = 999;
+					for (int i = 0; i < open_list.size(); i++) // check for the best neighbour
 					{
-						pos_in_open_list = 0;
-						best_neighbour_cost = 999;
-						for (int i = 0; i < open_list.size(); i++) // check for the best neighbour
+						if (open_list.at(i).move_cost < best_neighbour_cost)
 						{
-							if (open_list.at(i).move_cost < best_neighbour_cost)
-							{
-								best_neighbour_cost = open_list.at(i).move_cost;
-								next_tile_id = open_list.at(i).id;
-								parent_id = open_list.at(i).parent_id;
-								pos_in_open_list = i;
-								//cost_so_far			= open_list.at(i).move_cost;
-							}
+							best_neighbour_cost = open_list.at(i).move_cost;
+							next_tile_id = open_list.at(i).id;
+							parent_id = open_list.at(i).parent_id;
+							pos_in_open_list = i;
 						}
-						current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
-						closed_list[next_tile_id].id = next_tile_id;			//its own id
-						closed_list[next_tile_id].parent_id = parent_id;			//parent id
-						closed_list[next_tile_id].move_cost = best_neighbour_cost;	//its movecost
-						open_list.erase(open_list.begin() + pos_in_open_list);		//remove from openlist
-						current_tile_id = next_tile_id;
 					}
+					closed_list[next_tile_id].id = next_tile_id;				//its own id
+					closed_list[next_tile_id].parent_id = parent_id;			//parent id
+					closed_list[next_tile_id].move_cost = best_neighbour_cost;	//its movecost
+					open_list.erase(open_list.begin() + pos_in_open_list);		//remove from openlist
+					current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
+					current_tile_id = next_tile_id;
+					
 				}
 				current_tile_id = goalID;
 				to_return.push_back(current_tile_id);
@@ -332,7 +330,7 @@ namespace ecs
 				if (move_comp->path.size() > 0)
 				{
 					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());
-					if (abs(goal->position.x - transform->position.x) < 0.05f && abs(goal->position.z - transform->position.z) < 0.05f)
+					if (abs(goal->position.x - transform->position.x) < 0.25f && abs(goal->position.z - transform->position.z) < 0.25f)
 					{
 						move_comp->path.pop_back();
 					}
@@ -362,7 +360,7 @@ namespace ecs
 						ecs::components::IdleStateComponent idle_state;
 						//Calculate distance to goal and add the frame time to the total travel time
 						float distance = PhysicsHelpers::CalculateDistance(transform->position, move_comp->goalPos);
-						float max_traveltime = 0.5f;
+						float max_traveltime = 100.f;
 						move_comp->time += delta;
 						//Check if we are close enought to the goal to switch state
 						if (distance < 0.1f)
