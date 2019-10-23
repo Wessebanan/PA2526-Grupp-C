@@ -114,3 +114,18 @@ TEST(SuccessTesting, Gather_Hitbox_Info_From_Joint) {
 	// First bone has 46 connected vertices
 	EXPECT_EQ(testMesh.GetSkeleton()->joints[1].mConnectedVertexIndices.size(), 46);
 }
+
+TEST(SuccessTesting, Get_Offset_Matrix_From_Joint_Name) {
+	ModelLoader::Mesh testMesh("WackyRunning.fbx");
+	ASSERT_TRUE(testMesh.HasSkeleton());
+	DirectX::XMFLOAT4X4 jointMatrix = testMesh.GetSkeleton()->GetOffsetMatrixUsingJointName(std::string("Hand.l"), 7);
+	EXPECT_TRUE((jointMatrix._13 - -0.0516937599f) < 0.00005f);
+}
+
+TEST(FailureTesting, Get_Offset_Matrix_From_Joint_Name) {
+	ModelLoader::Mesh testMesh("WackyRunning.fbx");
+	ASSERT_TRUE(testMesh.HasSkeleton());
+	// Bad joint name, expect matrix filled with -1.0f
+	DirectX::XMFLOAT4X4 jointMatrix = testMesh.GetSkeleton()->GetOffsetMatrixUsingJointName(std::string("rtwjregjirgjlvrh8u0340btn"), 7);
+	EXPECT_TRUE((jointMatrix._13 - -1.0f) < 0.00005f);
+}

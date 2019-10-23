@@ -48,8 +48,7 @@ float4 main(PSIN input) : SV_TARGET
 
 	float in_shadow = shadow(input.sunPos.xy, input.sunPos.z);
 
-	float3 finalColor = input.color;// *sun_color.rgb* sun_color.a;
+	float3 finalColor = input.color;
 
-	//return float4(input.normal, 1.0f);
 	return float4(finalColor.xyz * in_shadow + finalColor.xyz * 0.1f, 1.0f);
 }

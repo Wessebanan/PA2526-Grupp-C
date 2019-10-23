@@ -18,9 +18,6 @@
     <ClCompile Include="..\..\AI\AI\includes\GridFunctions.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\AI\AI\includes\GridProp.cpp">
-      <Filter>AI</Filter>
-    </ClCompile>
     <ClCompile Include="..\GameMain\gameUtility\CameraEcsFunctions.cpp">
       <Filter>Utility</Filter>
     </ClCompile>

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-
+    <meta name="viewport" content= "width=device-width, user-scalable=no">
     <title>TEST</title>
 
 
@@ -13,6 +13,7 @@
             background-color: #000;
             text-align: center;
             color: white;
+            width: 90%;
         }
 
         button
@@ -39,7 +40,7 @@
         {
             margin-top: 10px;
             height: 40px;
-            width: 100px;
+            width: 300px;
             color: black;
         }
 
@@ -53,10 +54,16 @@
             border-color: #fff;
         }
 
+        #CommandButton
+        {
+            width: 95%;
+            height: 100px;
+        }
+
         #commandField
         {
-            height: 205px;
-            width: 305px;
+            height: 445px;
+            width: 90%;
         }
 
         #prepField
@@ -164,9 +171,9 @@
        var selectedButtonMsg = "0002100";
 
        var lastTileSelected = "0,0";
-       var lastTileColor = document.getElementById("0,0").style.backgroundColor;
+       //var lastTileColor = document.getElementById("0,0").style.backgroundColor;
        var lastButtonSelected = "b0";
-       var lastButtonColor = document.getElementById("b0").style.backgroundColor;
+       //var lastButtonColor = document.getElementById("b0").style.backgroundColor;
 
        // SOCKET FUNCTIONS
        socket.onopen = function (event)
@@ -177,6 +184,8 @@
        socket.onmessage = function(e)
        {
            var msg = e.data;
+
+           console.log(msg);
 
            if (msg == "name")
            {
@@ -197,6 +206,20 @@
            else if(msg[0] == 3)
            {
                document.getElementById("clientMsg3").innerHTML = msg;
+               if (msg.charAt(msg.length - 1) == '0')
+               {
+                    document.body.style.backgroundColor = "red";
+               }
+               else if (msg.charAt(msg.length - 1) == '1')
+               {
+                    document.body.style.backgroundColor = "green";
+               }if (msg.charAt(msg.length - 1) == '2')
+               {
+                    document.body.style.backgroundColor = "blue";
+               }if (msg.charAt(msg.length - 1) == '3')
+               {
+                    document.body.style.backgroundColor = "orange";
+               }
            }
            else if(msg[0] == 4)
            {
@@ -315,13 +338,8 @@
     </script>
 </head>
 <body>
-    <button onclick="location.reload()">Reload game</button>
-    <button onclick="openPrep()">DEV: show prep</button>
-    <button onclick="openCommand()">DEV: show Commands</button>
 
     <p id='clientMsg0'>0. No msg yet</p>
-    <p id='clientMsg1'>1. No msg yet</p>
-    <p id='clientMsg2'>2. No msg yet</p>
     <p id='clientMsg3'>3. No msg yet</p>
 
 
@@ -543,10 +561,16 @@
         <button id='CommandButton' onclick="setCommand('attack')">ATTACK</button>
         </br>
         <button id='CommandButton' onclick="setCommand('loot')">LOOT</button>
+        </br>
+        <button id='CommandButton' onclick="setCommand('flee')">FLEE</button>
     </div>
     </br>
+        <button onclick="location.reload()">Reload game</button>
+        <button onclick="openPrep()">DEV: show prep</button>
+        <button onclick="openCommand()">DEV: show Commands</button>
+        <p id='clientMsg1'>1. No msg yet</p>
+        <p id='clientMsg2'>2. No msg yet</p>
     </br>
-    <button onclick="generateGrid(5,3)">Add Button game</button>
 
 </body>
 

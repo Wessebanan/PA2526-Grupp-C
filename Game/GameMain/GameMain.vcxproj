@@ -105,6 +105,7 @@
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
+    <ClCompile Include="gameUtility\Timer.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
     <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="gameUtility\DebugInfo.h" />
     <ClInclude Include="gameUtility\GlobalsCamera.h" />
     <ClInclude Include="gameUtility\InitCamera.h" />
+    <ClInclude Include="gameUtility\Timer.h" />
     <ClInclude Include="gameUtility\UtilityComponents.h" />
     <ClInclude Include="gameUtility\UtilityEvents.h" />
     <ClInclude Include="gameUtility\UtilityEcsFunctions.h" />

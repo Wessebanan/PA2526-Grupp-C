@@ -29,8 +29,6 @@ namespace graphics
 
 		if (vertexCountCapacity == 0 || indexCountCapacity == 0) return E_INVALIDARG;
 
-		hr = graphics::internal::InitializeD3D11();
-
 		graphics::internal::D3D11_DEVICE_HANDLE handle;
 		graphics::internal::GetD3D11(&handle);
 		m_pDevice4	= handle.pDevice4;
@@ -69,7 +67,14 @@ namespace graphics
 			desc.Usage = D3D11_USAGE_DEFAULT;
 
 			hr = m_pDevice4->CreateBuffer(&desc, NULL, &m_pIndexBuffer);
+
+			if (FAILED(hr)) return hr;
 		}
+
+		hr = internal::CreateAndSetVertexBuffers(
+			m_pDevice4, 
+			m_pContext4, 
+			vertexCountCapacity);
 
 		if (FAILED(hr)) return hr;
 
@@ -79,12 +84,10 @@ namespace graphics
 		m_sizeI		= 0;
 		m_capacityI = indexCountCapacity;
 
-		this->EnableVertexBuffers();
-
 		return S_OK;
 	}
 
-	MeshRegion MeshManager::CreateMeshRegion(
+	graphics::MeshRegion MeshManager::CreateMeshRegion(
 		const UINT vertexCount, 
 		const UINT indexCount)
 	{
@@ -104,11 +107,17 @@ namespace graphics
 		return mesh;
 	}
 
-	void MeshManager::EnableVertexBuffers()
+	void MeshManager::SetVertexBuffers()
 	{
 		m_pContext4->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		m_pContext4->VSSetShaderResources(0, VERTEX_BUFFER_COUNT, m_pVertexBufferViews);
 		m_pContext4->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	}
+
+	void MeshManager::Clear()
+	{
+		m_sizeV = 0;
+		m_sizeI = 0;
 	}
 
 	void MeshManager::Destroy()
@@ -120,8 +129,6 @@ namespace graphics
 		}
 
 		graphics::SafeRelease((IUnknown**)&m_pIndexBuffer);
-
-		graphics::internal::DestroyD3D11();
 	}
 
 	HRESULT MeshManager::UploadData(

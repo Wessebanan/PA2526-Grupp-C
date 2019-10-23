@@ -39,6 +39,8 @@
 
 #include <time.h>
 
+#include "gameUtility/Timer.h"
+
 inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3) {
 	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
 }
@@ -121,8 +123,8 @@ int main()
 		-- Client Resolution --
 	*/
 	const UINT
-		client_width = 1920,
-		client_height = 1080;
+		client_width = graphics::GetDisplayResolution().x,
+		client_height = graphics::GetDisplayResolution().y;
 
 	graphics::Window wnd;
 	wnd.Initialize(
@@ -131,8 +133,11 @@ int main()
 		"Couch Commanders",
 		graphics::WINDOW_STYLE::BORDERLESS);
 
+	graphics::InitializeD3D11();
+	graphics::AttachHwndToSwapChain(wnd);
+
 	graphics::RenderManager renderer;
-	renderer.Initialize(wnd);
+	renderer.Initialize(131072);
 
 	graphics::MeshManager mesh_manager;
 	mesh_manager.Initialize(10000, 10000);
@@ -156,7 +161,7 @@ int main()
 	UINT pipeline_shadow_map;
 	{
 		graphics::SHADOW_MAP_PIPELINE_DESC desc;
-		desc.PixelsWidth	= 4096;
+		desc.PixelsWidth	= 1024;
 		desc.Width			= 25.0f;
 		desc.Height			= 40.0f;
 		desc.NearPlane		=  1.0f;
@@ -209,9 +214,9 @@ int main()
 	ecs::EntityComponentSystem ecs;
 
 	//Tiles + sceneobjects + units + camera
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(144 + 12 + 12 + 1);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(144 + 12 + 12);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(144);
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(MAX_ARENA_ROWS * MAX_ARENA_COLUMNS + 12 + 12 + 1);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(MAX_ARENA_ROWS* MAX_ARENA_COLUMNS + 12 + 12);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(MAX_ARENA_ROWS* MAX_ARENA_COLUMNS);
 
 	InitSound(ecs);
 
@@ -245,36 +250,28 @@ int main()
 
 	/* ECS END */
 
-
-
-	graphics::ShaderModelLayout layout_scenery = { 0 };
-	layout_scenery.MeshCount		= 3;
-	layout_scenery.Meshes[0]		= (mesh_region_hexagon);
-	layout_scenery.Meshes[1]		= (mesh_region_tree);
-	layout_scenery.Meshes[2]		= (mesh_region_rock);
-
-	graphics::ShaderModelLayout layout_skin = { 0 };
-	layout_skin.MeshCount			= 1;
-	layout_skin.Meshes[0]			= (mesh_region_dude);
-	layout_skin.InstanceCounts[0]	= 12;
-	layout_skin.TotalModels			= 12;
-
 	size_t tile_count = ecs.getComponentCountOfType(ecs::components::TileComponent::typeID);
+
+	UINT instance_count_scenery[] = { tile_count, 6, 6 };
+	graphics::MeshRegion mesh_regions[] = { mesh_region_hexagon, mesh_region_tree, mesh_region_rock };
+	graphics::ShaderModelLayout layout_scenery = { 0 };
+	layout_scenery.MeshCount				= 3;
+	layout_scenery.pMeshes					= mesh_regions;
+	layout_scenery.pInstanceCountPerMesh	= instance_count_scenery;
+
+	UINT instance_count_buddies = 12;
+	graphics::ShaderModelLayout layout_skin = { 0 };
+	layout_skin.MeshCount					= 1;
+	layout_skin.pMeshes						= &mesh_region_dude;
+	layout_skin.pInstanceCountPerMesh		= &instance_count_buddies;
+
 
 	ShaderProgramInput* pData	= new ShaderProgramInput[tile_count + 6 + 6];
 	UINT sizeOfPdata			= (UINT)(sizeof(ShaderProgramInput) * (tile_count + 6 + 6));
-	sizeOfPdata = 2496;
 	ZeroMemory(pData, sizeOfPdata);
 
-	layout_scenery.InstanceCounts[0] = tile_count;
-	layout_scenery.InstanceCounts[1] = 6;
-	layout_scenery.InstanceCounts[2] = 6;
 
 
-	for (UINT i = 0; i < layout_scenery.MeshCount; i++)
-	{
-		layout_scenery.TotalModels += layout_scenery.InstanceCounts[i];
-	}
 
 	// Map tiles will be uploaded with ocean meshes
 	UINT index = 0;
@@ -327,7 +324,7 @@ int main()
 	}
 
 
-	sizeOfPdata = sizeOfPdata + (256 - (sizeOfPdata % 256));
+	sizeOfPdata += (256 - (sizeOfPdata % 256));
 
 	SkinningShaderProgramInput* skin_shader_program_input = new SkinningShaderProgramInput[12];
 	UINT skin_size = sizeof(SkinningShaderProgramInput) * 12;
@@ -348,40 +345,73 @@ int main()
 	unsigned long long int frame_count2 = 0;
 	wnd.Open();
 
+	Timer timer;
+
+	timer.StartGame();
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
-		{
+		{ 
 			if (GetAsyncKeyState(VK_ESCAPE))
 			{
 				wnd.Close();
 			}
-			ecs.update(0.002f);
+			ecs.update(timer.GetFrameTime());
+
+			ecs::TypeFilter army_filter;
+			army_filter.addRequirement(ecs::components::UnitComponent::typeID);
+			army_filter.addRequirement(ecs::components::TransformComponent::typeID);
+			army_filter.addRequirement(ecs::components::ColorComponent::typeID);
+
+			ecs::EntityIterator ei = ecs.getEntititesByFilter(army_filter);
+
 			int armyIndex = 0;
-			itt = ecs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
-			ecs::components::ArmyComponent* armComp;
-			while (armComp = (ecs::components::ArmyComponent*)itt.next())
+			ecs::components::ColorComponent* p_color_component;
+			ecs::components::TransformComponent* p_transform_component;
+			for (ecs::FilteredEntity unit : ei.entities)
 			{
-				// over alla units in the army
-				for (size_t i = 0; i < 3; i++)
-				{
-					ecs::components::TransformComponent* trComp = ecs.getComponentFromEntity<ecs::components::TransformComponent>(armComp->unitIDs[i]);
+				p_transform_component = unit.getComponent<ecs::components::TransformComponent>();
+				p_color_component = unit.getComponent<ecs::components::ColorComponent>();
 
-					XMMATRIX world = XMMatrixIdentity();
-					world *= XMMatrixScaling(trComp->scale.x, trComp->scale.y, trComp->scale.z);
-					world *= XMMatrixRotationRollPitchYaw(trComp->rotation.x, trComp->rotation.y, trComp->rotation.z);
-					world *= XMMatrixTranslation(trComp->position.x, trComp->position.y, trComp->position.z);
+				XMMATRIX world = XMMatrixIdentity();
+				world *= XMMatrixScaling(p_transform_component->scale.x, p_transform_component->scale.y, p_transform_component->scale.z);
+				world *= XMMatrixRotationRollPitchYaw(p_transform_component->rotation.x, p_transform_component->rotation.y, p_transform_component->rotation.z);
+				world *= XMMatrixTranslation(p_transform_component->position.x, p_transform_component->position.y, p_transform_component->position.z);
 
-					XMStoreFloat4x4(&skin_shader_program_input[armyIndex].world, world);
+				// Set World Matrix For a Unit
+				XMStoreFloat4x4(&skin_shader_program_input[armyIndex].world, world);
 
-					armyIndex++;
-				}
+				// Pack Color Into A Homogeneous Coordinate In The Matrix (is that correct?)
+				// (this value is always a 1.0f in the matrix)
+				/*
+						   _ Float4x4 _
+					| 1.0f, 0.0f, 0.0f, 0.0f |
+					| 0.0f, 1.0f, 0.0f, 0.0f |
+					| 0.0f, 0.0f, 1.0f, 0.0f |
+					| 0.0f, 0.0f, 0.0f, 1.0f | <- this number (1.0f) is used for color
+					
+					color :
+						8bit - red
+						8bit - green
+						8bit - blue
+						8bit - other (not used)
+				*/
+
+				skin_shader_program_input[armyIndex].world._44 = PACK(
+					p_color_component->red, 
+					p_color_component->green, 
+					p_color_component->blue,
+					0);
+
+				armyIndex++;
 			}
 
 			UpdateAnimation(skeleton, skin_shader_program_input, frame_count2);
 
 			memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
-			renderer.SetModelData(pInstanceData, sizeOfPdata + skin_size);
+
+			renderer.BeginUpload();
+			renderer.UploadPerInstanceData(pInstanceData, sizeOfPdata + skin_size, 0);
 
 			{	
 				DirectX::XMFLOAT4X4 shadow_matrix;
@@ -406,10 +436,15 @@ int main()
 				renderer.UpdatePipeline(pipeline_forward, &data);
 			}
 
-			renderer.ExecutePipeline(pipeline_shadow_map);
+			mesh_manager.SetVertexBuffers();
+
+			if(frame_count % 2 == 0)
+				renderer.ExecutePipeline(pipeline_shadow_map);
+
 			renderer.ExecutePipeline(pipeline_forward);
 
-			renderer.Present();
+			graphics::Present(0);
+
 			frame_count++;
 			if (frame_count % 3 == 0)
 			{
@@ -417,11 +452,11 @@ int main()
 			}
 		}
 	}
-	
-	//for (int i = 0; i < Mesh::N_MESHES; i++) delete pp_meshes[i];
-	//delete[] pp_meshes;
 
 	mesh_manager.Destroy();
 	renderer.Destroy();
+
+	graphics::DestroyD3D11();
+
 	return 0;
 }
