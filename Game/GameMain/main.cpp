@@ -161,9 +161,9 @@ int main()
 	UINT pipeline_shadow_map;
 	{
 		graphics::SHADOW_MAP_PIPELINE_DESC desc;
-		desc.PixelsWidth	= 1024;
-		desc.Width			= 25.0f;
-		desc.Height			= 40.0f;
+		desc.PixelsWidth	= 2024;
+		desc.Width			= 45.0f;
+		desc.Height			= 80.0f;
 		desc.NearPlane		=  1.0f;
 		desc.FarPlane		= 40.0f;
 		pipeline_shadow_map = renderer.CreatePipeline(

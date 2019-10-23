@@ -14,9 +14,9 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 	itt = rECS.getAllComponentsOfType(ecs::components::TileComponent::typeID);
 
 
-	int tiles_count = Rows * Columns;
+	int tile_count = Rows * Columns;
 	//Loop over each tile
-	for (size_t i = 0; i < tiles_count; i++)
+	for (size_t i = 0; i < tile_count; i++)
 	{
 		ecs::components::TileComponent* p_tile_comp = (ecs::components::TileComponent*)itt.next();
 		
@@ -30,28 +30,28 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 		switch (p_tile_comp->biome)
 		{
 		case SNOW:
-			p_tile_tansf_comp->position.y += 0.4f;
-			p_tile_tansf_comp->position.y *= 2.4f;
+			p_tile_tansf_comp->position.y += 0.3f;// +(color_offset / 200.0f);
+			p_tile_tansf_comp->position.y *= 1.8f;
 			p_tile_color_comp->red =	220 + color_offset;
 			p_tile_color_comp->green =	220 + color_offset;
 			p_tile_color_comp->blue =	220 + color_offset;
 			break;
 		case MOUNTAIN:
-			p_tile_tansf_comp->position.y += 0.4f;
-			p_tile_tansf_comp->position.y *= 2.2f;
+			p_tile_tansf_comp->position.y += 0.3f;// + (color_offset / 200.0f);
+			p_tile_tansf_comp->position.y *= 1.9f;
 			p_tile_color_comp->red = 50 + color_offset;
 			p_tile_color_comp->green = 50 + color_offset;
 			p_tile_color_comp->blue = 50 + color_offset;
 			break;
 		case FIELD:
-			p_tile_tansf_comp->position.y += 0.2f;
-			p_tile_tansf_comp->position.y *= 1.4f;
+			p_tile_tansf_comp->position.y += 0.2f;// + (color_offset / 300.0f);
+			p_tile_tansf_comp->position.y *= 1.2f;
 			p_tile_color_comp->red = 0;
 			p_tile_color_comp->green = 150 + color_offset;
 			p_tile_color_comp->blue = 0;
 			break;
 		case DESERT:
-			p_tile_tansf_comp->position.y += 0.1f;
+			p_tile_tansf_comp->position.y += 0.1f;// + (color_offset / 300.0f);
 			p_tile_tansf_comp->position.y *= 1.1f;
 			p_tile_color_comp->red = 100 + color_offset;
 			p_tile_color_comp->green = 100 + color_offset;
@@ -63,4 +63,24 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 
 	}
 	
+
+	GridProp* p_gp = GridProp::GetInstance();
+
+	for (size_t i = 1; i < Rows-1; i++)
+		for (size_t j = 1; j < Columns-1; j++)
+		{
+			float avg = 0.0f;
+			avg += p_gp->mGrid[i][j].height;
+			avg += p_gp->mGrid[i-1][j].height;
+			avg += p_gp->mGrid[i+1][j].height;
+			avg += p_gp->mGrid[i][j+1].height;
+			avg += p_gp->mGrid[i-1][j+1].height;
+			avg += p_gp->mGrid[i+1][j+1].height;
+			avg += p_gp->mGrid[i][j-1].height;
+
+			avg /= 7;
+
+			p_gp->mGrid[i][j].height = avg;
+		}
+
 }
