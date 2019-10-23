@@ -60,12 +60,6 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 		default:
 			break;
 		}
-		//////// To have a default biome on the whole map
-		//p_tile_tansf_comp->position.y += 0.1f;// + (color_offset / 300.0f);
-		//p_tile_tansf_comp->position.y *= 1.1f;
-		//p_tile_color_comp->red = 100 + color_offset;
-		//p_tile_color_comp->green = 100 + color_offset;
-		//p_tile_color_comp->blue = 0;
 
 	}
 	
