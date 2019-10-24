@@ -99,9 +99,9 @@ namespace ecs
 					unsigned int id;
 					unsigned int parent_id;
 				};
-				std::vector<NodeInfo> open_list;
+				std::vector<NodeInfo> open_list; //open list for all the potential new tiles to visit 
 				std::vector<unsigned int> to_return;
-				std::unordered_map<unsigned int, NodeInfo> closed_list; //key is its own ID and data is nodeinfo struct
+				std::unordered_map<unsigned int, NodeInfo> closed_list; //key is its own ID and data is nodeinfo struct, used for tiles that have been visited
 				components::TileComponent* current_tile = nullptr;
 				components::TileComponent* current_neighbour_tile = nullptr;
 				components::TransformComponent* current_neighbour_transfrom = nullptr;
@@ -117,20 +117,20 @@ namespace ecs
 				unsigned int current_tile_id = startID;
 
 				current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(startID);
-				current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(startID);
 				goal_tile_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(goalID);
 
+				//Add the start tile to the closed list
 				NodeInfo start_node;
 				start_node.id = startID;
 				start_node.parent_id = startID;
 				start_node.move_cost = 0;
 				closed_list[current_tile_id] = start_node;
-				while (current_tile_id != goalID)
+				while (current_tile_id != goalID) 
 				{
 					for (int i = 0; i < 6; i++) // put new neighbours in open list or maybe update old neighbour move cost
 					{
 						if (current_tile->neighboursIDArray[i] != 0 &&
-							!closed_list.count(current_tile->neighboursIDArray[i]))
+							!closed_list.count(current_tile->neighboursIDArray[i])) //check so that the neightbour is valid and not in the closed list
 						{
 							pos_in_open_list = 0;
 							in_open_list = false;
@@ -143,7 +143,7 @@ namespace ecs
 								}
 								pos_in_open_list++;
 							}
-							if (in_open_list)
+							if (in_open_list) //if the neighbour is in the open list we might update its move_cost if the cost is lower this time
 							{
 								current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
 								current_neighbour_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i]);
@@ -155,7 +155,7 @@ namespace ecs
 									open_list.at(pos_in_open_list).move_cost = cost;
 								}
 							}
-							else if (!in_open_list)
+							else if (!in_open_list) //if the neighbour is valid and not in the closed or open list we add it to the open list
 							{
 								current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
 								current_neighbour_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i]);
@@ -164,17 +164,18 @@ namespace ecs
 								cost = current_neighbour_tile->niceness + dist_to_goal + closed_list[current_tile_id].move_cost; //calc cost for move
 
 								NodeInfo to_insert;
-								to_insert.id = current_tile->neighboursIDArray[i];
-								to_insert.parent_id = current_tile_id;
-								to_insert.move_cost = cost;
-								open_list.push_back(to_insert); //insert new tile into openlist
+								to_insert.id = current_tile->neighboursIDArray[i]; //give it its id
+								to_insert.parent_id = current_tile_id;			  //give it its parents id
+								to_insert.move_cost = cost;						 //give it the move_cost it would be if we were to move to it
+								open_list.push_back(to_insert);					//insert new tile into openlist
 							}
 						}
 					}
 					
 					pos_in_open_list = 0;
 					best_neighbour_cost = 999;
-					for (int i = 0; i < open_list.size(); i++) // check for the best neighbour
+					//we go through all the potential tiles we can go to and find the one with the lowest cost to move to, this usually means it is closer to the goal
+					for (int i = 0; i < open_list.size(); i++) 
 					{
 						if (open_list.at(i).move_cost < best_neighbour_cost)
 						{
@@ -184,21 +185,24 @@ namespace ecs
 							pos_in_open_list = i;
 						}
 					}
+					//when we have found the best next move we add it to the closed list and remove it from the open list and then make this new tile our current tile
 					closed_list[next_tile_id].id = next_tile_id;				//its own id
-					closed_list[next_tile_id].parent_id = parent_id;			//parent id
-					closed_list[next_tile_id].move_cost = best_neighbour_cost;	//its movecost
+					closed_list[next_tile_id].parent_id = parent_id;		   //parent id
+					closed_list[next_tile_id].move_cost = best_neighbour_cost;//its movecost
 					if(open_list.size() > 0 )
 					{
-						open_list.erase(open_list.begin() + pos_in_open_list);		//remove from openlist
+						open_list.erase(open_list.begin() + pos_in_open_list);	//remove from openlist
 					}
 					current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
 					current_tile_id = next_tile_id;
 					
 				}
+				//when we have found the goal we start to build the path by starting with the goal tile then we add that tiles parent tile and do this until we come to the start tile
+				//parent tile in this function is the tile that was used to get to the child tile, so when we find the goal we just the go backwards using the parents
 				current_tile_id = goalID;
 				to_return.push_back(current_tile_id);
 				while (current_tile_id != startID)
-				{ //take the parent from the goal and then that parent and so on
+				{ 
 					current_tile_id = closed_list[current_tile_id].parent_id;
 					to_return.push_back(current_tile_id);
 				}
