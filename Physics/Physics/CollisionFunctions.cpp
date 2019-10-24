@@ -1,13 +1,14 @@
 #include "CollisionFunctions.h"
 
-void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const XMVECTOR& center_world, const XMVECTOR& colliding_center_world, const float& delta)
+void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const AABB* colliding_world, const AABB* collided_world, const float& delta)
 {
 	// Getting a vector between the centers of the bounding volumes.
-	DirectX::XMVECTOR v_diff = DirectX::XMVectorSubtract(center_world, colliding_center_world);
+	DirectX::XMVECTOR v_diff = DirectX::XMVectorSubtract(XMLoadFloat3(&colliding_world->Center), XMLoadFloat3(&collided_world->Center));
 	DirectX::XMFLOAT3 diff;
 	DirectX::XMStoreFloat3(&diff, v_diff);
 
-	diff = XMFLOAT3(fabs(diff.x), fabs(diff.y), fabs(diff.z));
+	// Getting the magnitude of the differences in each direction.
+	XMFLOAT3 fabs_diff = XMFLOAT3(fabs(diff.x), fabs(diff.y), fabs(diff.z));
 
 	// Checking that the object is not trying to move away from the colliding object.
 	XMVECTOR v_velocity = XMLoadFloat3(&velocity);
@@ -24,28 +25,33 @@ void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const XMVECTOR& cent
 		return;
 	}
 
-	// Saving a 1 in the direction of the largest component in the vector.
 	bool x = false;
 	bool y = false;
 	bool z = false;
 
-	if (diff.x > diff.y && diff.x > diff.z)
+	float overlap = 0.0f;
+	int sign = 0;
+	// Saving a 1 in the direction of the largest component in the vector and getting the overlap in that direction.
+	if (fabs_diff.x > fabs_diff.y && fabs_diff.x > fabs_diff.z)
 	{
+		overlap = colliding_world->Extents.x + collided_world->Extents.x - fabs_diff.x;
 		x = true;
 	}
-	else if (diff.y > diff.x && diff.y > diff.z)
+	else if (fabs_diff.y > fabs_diff.x && fabs_diff.y > fabs_diff.z)
 	{
+		overlap = colliding_world->Extents.y + collided_world->Extents.y - fabs_diff.y;
 		y = true;
 	}
 	else
 	{
+		overlap = colliding_world->Extents.z + collided_world->Extents.z - fabs_diff.z;
 		z = true;
 	}
 
 	// Reverting the movement in that direction.
-	position.x -= velocity.x * delta * (float)x;
-	position.y -= velocity.y * delta * (float)y;
-	position.z -= velocity.z * delta * (float)z;
+	position.x += (float)Sign(diff.x) * overlap * (float)x;
+	position.y += (float)Sign(diff.y) * overlap * (float)y;
+	position.z += (float)Sign(diff.z) * overlap * (float)z;
 
 	// Resetting the velocity in that direction.
 	velocity.x *= (float)!x;

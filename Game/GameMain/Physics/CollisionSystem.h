@@ -35,6 +35,11 @@ namespace ecs
 			ObjectCollisionSystem();
 			~ObjectCollisionSystem();
 			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
+		private:
+			// Separates units from each other, colliding being the unit that moved and collided is the unit that colliding unit collided with.
+			void RevertIntersection(ObjectCollisionComponent *colliding, TransformComponent * colliding_transform, DynamicMovementComponent * colliding_movement,
+									ObjectCollisionComponent *collided, TransformComponent* collided_transform, const float &delta);
+			
 		};
 
 		/** GroundCollisionComponentInitSystem:
