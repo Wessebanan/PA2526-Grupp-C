@@ -44,6 +44,12 @@ namespace ecs
 			unsigned int goalID;
 		};
 
+		struct FleeStateComponent : public ECSComponent<FleeStateComponent>
+		{
+			/*FILLED OUT WITH DATA IN ANOTHER TASK.*/
+			int data = 0;
+		};
+
 		struct LootStateComponent : public ECSComponent<LootStateComponent>
 		{
 			int data = 0;
