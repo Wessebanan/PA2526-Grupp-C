@@ -48,23 +48,6 @@
 
 void InitAll(EntityComponentSystem& rECS);
 
-void SetViewMatrix(
-	DirectX::XMFLOAT4X4& rViewMatrix,
-	const float x,
-	const float y,
-	const float z,
-	const float dx,
-	const float dy,
-	const float dz)
-{
-	DirectX::XMStoreFloat4x4(&rViewMatrix,
-		DirectX::XMMatrixLookToLH(
-			{ x, y, z },
-			{ dx, dy,  dz },
-			{ 0.0f, 1.0f,  0.0f }
-	));
-}
-
 const UINT g_RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
 
