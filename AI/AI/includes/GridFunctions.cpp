@@ -11,7 +11,7 @@ namespace GridFunctions
 	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains) //Creates a array that is used to change the hight for the map and remove chunks for water
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
-		const int holme_space = 5;
+		const int holme_space = 3;
 
 		// The maximum amount of allowed tiles
 		const int max_rows = MAX_ARENA_ROWS; // Adds 10 in the end to allow a holme
@@ -28,8 +28,8 @@ namespace GridFunctions
 			}
 
 		// Default the map to be flat
-		for (size_t i = 0; i < rows; i++)
-			for (size_t j = 0; j < columns; j++)
+		for (size_t i = holme_space; i < rows - holme_space; i++)
+			for (size_t j = holme_space; j < columns - holme_space; j++)
 			{
 				height_values[i][j] = 0.f;
 			}
@@ -39,10 +39,10 @@ namespace GridFunctions
 
 		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
-			int top_x = rand() % (rows - 3);
-			int top_y = rand() % (columns - 3);
-			top_x += 2;
-			top_y += 2;
+			int top_x = rand() % (rows - 3 - holme_space);
+			int top_y = rand() % (columns - 3 - holme_space);
+			top_x += 2 + holme_space;
+			top_y += 2 + holme_space;
 			float top_height = 1.2f * height_power;
 			float slope = 0.7f;
 			
@@ -119,30 +119,35 @@ namespace GridFunctions
 
 		// Removes chunks from each side of the map
 		int chunk_size = rows / 4;
-		int side0 = rand() % (rows - chunk_size);
-		int side1 = rand() % (columns - chunk_size);
-		int side2 = rand() % (rows - chunk_size);
-		int side3 = rand() % (columns - chunk_size);
+		int side0 = rand() % (rows - chunk_size - holme_space);
+		int side1 = rand() % (columns - chunk_size - holme_space);
+		int side2 = rand() % (rows - chunk_size - holme_space);
+		int side3 = rand() % (columns - chunk_size - holme_space);
+
+		side0 += holme_space;
+		side1 += holme_space;
+		side2 += holme_space;
+		side3 += holme_space;
 
 		// removed 3 on each side
 		for (size_t i = 0; i < chunk_size; i++)
 		{
-			height_values[0][(side0 + i)] = -1.0f;
-			height_values[rows - 1][(side1 + i)] = -1.0f;
-			height_values[(side2 + i)][0] = -1.0f;
-			height_values[(side3 + i)][columns - 1] = -1.0f;
+			height_values[holme_space][(side0 + i)] = -1.0f;
+			height_values[rows - 1 - holme_space][(side1 + i)] = -1.0f;
+			height_values[(side2 + i)][holme_space] = -1.0f;
+			height_values[(side3 + i)][columns - 1 - holme_space] = -1.0f;
 		}
 
 		// removes 2 more from 2 sides one layer close to the center
 		for (size_t i = 0; i < chunk_size-1; i++)
 		{
-			height_values[1][(side0 + i)] = -1.0f;
-			height_values[rows - 2][(side1 + i)] = -1.0f;
+			height_values[1 + holme_space][(side0 + i)] = -1.0f;
+			height_values[rows - 2 - holme_space][(side1 + i)] = -1.0f;
 		}
 		
 
 		// If the map is big enough more is removed
-		if (rows > 16 && columns > 16)
+		if (rows > 16 + holme_space && columns > 16 + holme_space)
 		{
 			for (size_t j = 0; j < 2; j++)
 			{
