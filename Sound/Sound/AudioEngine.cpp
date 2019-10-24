@@ -42,7 +42,7 @@ bool Audio::Engine::OpenStream(PaDeviceIndex index)
 		&output_parameters,
 		SOUND_SAMPLE_RATE,			// Sample rate of 44100 hz (standard)
 		SOUND_FRAMES_PER_BUFFER,
-		paClipOff,		// we won't output out of range samples so don't bother clipping them
+		paNoFlag,		// Use default clipping removal
 		&Audio::Engine::PaCallback,
 		this            // Using 'this' for userData so we can cast to Engine* in paCallback method
 	);
@@ -227,7 +227,6 @@ inline Audio::Samples Audio::Engine::GetWorkerCurrentSampleCount()
 {
 	// To get the desired precision, the duration is casted
 	// to nanoseconds and then converted back to seconds
-	float temp = std::chrono::duration_cast<std::chrono::nanoseconds>
-		(std::chrono::steady_clock::now() - mWorkThreadStartTime).count() * 0.000000001f;
+	float temp = (std::chrono::steady_clock::now() - mWorkThreadStartTime).count() * 0.000000001f;
 	return Audio::ToSamples(temp);
 }

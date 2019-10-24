@@ -19,12 +19,6 @@ namespace graphics
 		const char* pTarget,
 		ID3DBlob** ppBlob);
 
-	HRESULT CreateSwapChain(
-		ID3D11Device4* pDevice4,
-		IDXGIFactory6* pFactory6,
-		HWND hWnd,
-		IDXGISwapChain4** ppSwapChain4);
-
 	HRESULT CreateVertexBuffer(
 		ID3D11Device4* pDevice4,
 		const void* pData,
@@ -68,67 +62,32 @@ namespace graphics
 		const char* pFilepath,
 		ID3D11ComputeShader** ppComputeShader);
 
-	namespace window
-	{
-		struct CLIENT_INT2
-		{
-			int x, y;
-		};
-
-		inline CLIENT_INT2 GetWorkAreaResolution()
-		{
-			RECT r;
-			SystemParametersInfoA(SPI_GETWORKAREA, 0, &r, 0);
-
-			return { 
-				r.right - r.left, 
-				r.bottom - r.top 
-			};
-		}
-
-		inline CLIENT_INT2 GetDisplayResolution()
-		{
-			return { 
-				GetSystemMetrics(SM_CXSCREEN), 
-				GetSystemMetrics(SM_CYSCREEN) 
-			};
-		}
-
-		inline CLIENT_INT2 GetClientResolution(const HWND hWnd)
-		{
-			RECT r;
-			GetClientRect(hWnd, &r);
-
-			return { 
-				r.right - r.left, 
-				r.bottom - r.top 
-			};
-		}
-	}
-
 	namespace internal
 	{
-		HRESULT InitializeD3D11();
-
-		void DestroyD3D11();
-
 		struct D3D11_DEVICE_HANDLE
 		{
 			ID3D11Device4* pDevice4;
 			ID3D11DeviceContext4* pDeviceContext4;
-			
+
 			IDXGIFactory6* pFactory6;
 			IDXGIAdapter4* pAdapter4;
 		};
 
-		void GetD3D11(D3D11_DEVICE_HANDLE* pHandle);
+		void GetBackBuffer(ID3D11RenderTargetView** ppBackBuffer);
 
-		HRESULT CreateAndSetInputLayout(
-			ID3D11Device4* pDevice4,
-			ID3D11DeviceContext4* pContext4);
+
+		void GetD3D11(D3D11_DEVICE_HANDLE* pHandle);
 
 		HRESULT CreateAndSetVertexBuffers(
 			ID3D11Device4* pDevice4,
-			ID3D11DeviceContext4* pContext4);
+			ID3D11DeviceContext4* pContext4,
+			const UINT maximumVertexCountPerDraw);
 	}
+
+	HRESULT InitializeD3D11();
+	void DestroyD3D11();
+
+	HRESULT AttachHwndToSwapChain(const HWND hWnd);
+
+	void Present(const UINT syncInterval);
 }

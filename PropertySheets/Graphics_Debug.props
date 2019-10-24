@@ -6,6 +6,7 @@
   <ItemDefinitionGroup>
     <FxCompile>
       <ShaderModel>5.0</ShaderModel>
+      <ObjectFileOutput>$(SolutionDir)shaders_d\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <Link>
       <AdditionalDependencies>Graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>

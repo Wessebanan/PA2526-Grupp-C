@@ -9,9 +9,6 @@
     <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
-    <ClCompile Include="..\GameMain\UI\UISystems.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="..\GameMain\gameAI\AIEcsFunctions.cpp">
       <Filter>AI</Filter>
     </ClCompile>
@@ -19,9 +16,6 @@
       <Filter>AI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\AI\AI\includes\GridFunctions.cpp">
-      <Filter>AI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\AI\AI\includes\GridProp.cpp">
       <Filter>AI</Filter>
     </ClCompile>
     <ClCompile Include="..\GameMain\gameUtility\CameraEcsFunctions.cpp">
@@ -34,6 +28,9 @@
       <Filter>Sound</Filter>
     </ClCompile>
     <ClCompile Include="..\GameMain\Physics\QuadTree.cpp">
+      <Filter>Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GameMain\Physics\FightingSystem.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -126,20 +123,17 @@
     <ClInclude Include="..\GameMain\Physics\QuadTree.h">
       <Filter>Physics</Filter>
     </ClInclude>
-    <ClInclude Include="UI\UIEcsTest.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="Physics\FightingLogic.h">
+      <Filter>Physics\Test Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\UI\InitUI.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="Physics\QuadTreeTests.h">
+      <Filter>Physics\Test Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\UI\UIComponents.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="..\GameMain\Physics\FightingSystem.h">
+      <Filter>Physics</Filter>
     </ClInclude>
-    <ClInclude Include="..\GameMain\UI\UIEvents.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\GameMain\UI\UISystems.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="AI\AiTests.h">
+      <Filter>AI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -148,12 +142,6 @@
     </Filter>
     <Filter Include="Physics\Test Files">
       <UniqueIdentifier>{7c1aab98-ef41-4a09-a0ee-2452692177d8}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-    <Filter Include="UI">
-      <UniqueIdentifier>{715b9bde-568d-4ee5-81c7-32635a37e315}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

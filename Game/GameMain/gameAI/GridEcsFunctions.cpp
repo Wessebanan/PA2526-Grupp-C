@@ -23,19 +23,16 @@ namespace GridEcsFunctions
 		ColorComponent color;
 		TileComponent tile;
 		ecs::Entity* current_tile;
-		float height_map[ARENA_COLUMNS*ARENA_ROWS];
-		GridFunctions::CreateHeightmap(height_map);
-		//for (int i = 0; i < rows; i++)
-		//{
-		//	ArenaProperties::gridLogic[0][i].entityID = i;
-		//}
-		//for (int i = 0; i < rows; i++)
-		//{
-		//	std::cout << ArenaProperties::gridLogic[0][i].entityID << std::endl;
-		//}
-		
+
+		const int mapsze = MAX_ARENA_ROWS*MAX_ARENA_ROWS; // Max size
+		float height_map[mapsze];
+		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60);
+
 		GridProp* p_gp = GridProp::GetInstance();
 
+		p_gp->SetSize(Rows,Columns);
+
+		// The default color, this will be applied to tiles without any biome
 		color.red = 0;
 		color.green = 0;
 		color.blue = 0;
@@ -51,18 +48,17 @@ namespace GridEcsFunctions
 				
 				//Save the calculated values into the PositionComponent.
 				transform.position.x = current_pos.x;
-				transform.position.y = height_map[(i*12)+j];
+				transform.position.y = height_map[(i*MAX_ARENA_ROWS)+j];
 				transform.position.z = current_pos.z;
-				if (transform.position.y == -1.f)
+				if (transform.position.y <= -1.f)
 				{
 					tile.tileType = WATER;
-					color.blue = 150.0f;
 					tile.impassable = true;
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = false;
 					p_gp->mGrid[i][j].biome = -1;
 				}
-				else if (transform.position.y == 3)
+				else if (transform.position.y >= 3)
 				{
 					tile.tileType = GAME_FIELD;
 					tile.impassable = false;
@@ -90,7 +86,7 @@ namespace GridEcsFunctions
 
 				//Create the new entity
 				current_tile = rEcs.createEntity(transform, color, tile);
-				p_gp->mGrid[i][j].Id = current_tile->getID();
+				p_gp->mGrid[i][j].Id = current_tile->getID(); // Crashes here is likley from not having engough components allocated
 				p_gp->mGrid[i][j].height = transform.position.y;
 				//Update the x-position of the next tile in this row.
 				current_pos.x += 1.5f * Radius;
@@ -116,6 +112,7 @@ namespace GridEcsFunctions
 			{
 				// Randoms what biome to take next
 				int random_biome = rand() % 4;
+				int random_dirr = rand() % 2;
 
 				bool found = false;
 
@@ -123,32 +120,73 @@ namespace GridEcsFunctions
 				// Should be changed later to have them spread, but rigth now not needed
 				if (random_biome == 0)
 				{
-					// Loop until a empty tile is found
-					for (int it = 0; it < Rows && !found; it++)
+					if (random_dirr)
 					{
-						for (int jt = 0; jt < Columns && !found; jt++)
+						// Loop until a empty tile is found
+						for (int it = 0; it < Rows && !found; it++)
 						{
-							if (p_gp->mGrid[it][jt].biome == -1)
+							for (int jt = 0; jt < Columns && !found; jt++)
 							{
-								// Apply the biome, set later
-								p_gp->mGrid[it][jt].biome = random_biome;
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									// Apply the biome, set later
+									p_gp->mGrid[it][jt].biome = random_biome;
 
-								found = true;
+									found = true;
+								}
 							}
 						}
 					}
+					else
+					{
+						// Loop until a empty tile is found
+						for (int jt = 0; jt < Columns && !found; jt++)
+						{
+							for (int it = 0; it < Rows && !found; it++)
+							{
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									// Apply the biome, set later
+									p_gp->mGrid[it][jt].biome = random_biome;
+
+									found = true;
+								}
+							}
+						}
+					}
+					
 				}
 				else if (random_biome == 1)
 				{
-					for (int it = 11; it > 0 && !found; it--)
+					if (random_dirr)
 					{
+
+						for (int it = Rows - 1; it > 0 && !found; it--)
+						{
+							for (int jt = 0; jt < Columns && !found; jt++)
+							{
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
+
+									found = true;
+								}
+							}
+						}
+					}
+					else
+					{
+
 						for (int jt = 0; jt < Columns && !found; jt++)
 						{
-							if (p_gp->mGrid[it][jt].biome == -1)
+							for (int it = Rows - 1; it > 0 && !found; it--)
 							{
-								p_gp->mGrid[it][jt].biome = random_biome;
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
 
-								found = true;
+									found = true;
+								}
 							}
 						}
 					}
@@ -156,15 +194,33 @@ namespace GridEcsFunctions
 				}
 				else if (random_biome == 2)
 				{
-					for (int it = 0; it < Rows && !found; it++)
+					if (random_dirr)
 					{
-						for (int jt = 11; jt > 0 && !found; jt--)
+						for (int it = 0; it < Rows && !found; it++)
 						{
-							if (p_gp->mGrid[it][jt].biome == -1)
+							for (int jt = Columns - 1; jt > 0 && !found; jt--)
 							{
-								p_gp->mGrid[it][jt].biome = random_biome;
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
 
-								found = true;
+									found = true;
+								}
+							}
+						}
+					}
+					else
+					{
+						for (int jt = Columns - 1; jt > 0 && !found; jt--)
+						{
+							for (int it = 0; it < Rows && !found; it++)
+							{
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
+
+									found = true;
+								}
 							}
 						}
 					}
@@ -172,18 +228,37 @@ namespace GridEcsFunctions
 				}
 				else if (random_biome == 3)
 				{
-					for (int it = 11; it > 0 && !found; it--)
+					if (random_dirr)
 					{
-						for (int jt = 11; jt > 0 && !found; jt--)
+						for (int it = Rows - 1; it > 0 && !found; it--)
 						{
-							if (p_gp->mGrid[it][jt].biome == -1)
+							for (int jt = Columns - 1; jt > 0 && !found; jt--)
 							{
-								p_gp->mGrid[it][jt].biome = random_biome;
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
 
-								found = true;
+									found = true;
+								}
 							}
 						}
 					}
+					else
+					{
+						for (int jt = Columns - 1; jt > 0 && !found; jt--)
+						{
+							for (int it = Rows - 1; it > 0 && !found; it--)
+							{
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
+
+									found = true;
+								}
+							}
+						}
+					}
+					
 
 				}
 			}
@@ -202,8 +277,19 @@ namespace GridEcsFunctions
 			}
 		}
 
+
+		for (int i = 0; i < Rows; i++)
+		{
+			for (int j = 0; j < Columns; j++)
+			{
+				// sets no object (-1)
+				p_gp->mSceneObjects[i][j] = -1;
+			}
+		}
+
 		CreatePotentialField(rEcs);
 		GridFunctions::StoreNeighbours();
+		LoadNeighboursToComponents(rEcs);
 	}
 
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs)
@@ -245,13 +331,13 @@ namespace GridEcsFunctions
 						entry.getComponent<ecs::components::TileComponent>()->niceness += GridFunctions::CreateCharge(e_x, e_z, o_x, o_z, 10);
 						nr_of_obstacles++;
 					}
-					if (other.getComponent<ecs::components::TransformComponent>()->position.y == -2.f)
-					{
-						//this is the tile with an attractive charge(goal node)
-						o_x = other.getComponent<ecs::components::TransformComponent>()->position.x;
-						o_z = other.getComponent<ecs::components::TransformComponent>()->position.z;
-						dist = GridFunctions::GetDistance(e_x, e_z, o_x, o_z);
-					}
+					//if (other.getComponent<ecs::components::TransformComponent>()->position.y == -2.f)
+					//{
+					//	//this is the tile with an attractive charge(goal node)
+					//	o_x = other.getComponent<ecs::components::TransformComponent>()->position.x;
+					//	o_z = other.getComponent<ecs::components::TransformComponent>()->position.z;
+					//	dist = GridFunctions::GetDistance(e_x, e_z, o_x, o_z);
+					//}
 				}
 				entry.getComponent<ecs::components::TileComponent>()->niceness = entry.getComponent<ecs::components::TileComponent>()->niceness / nr_of_obstacles;
 				entry.getComponent<ecs::components::TileComponent>()->niceness += dist;
@@ -270,11 +356,12 @@ namespace GridEcsFunctions
 		unsigned int next_tile_id = 0;
 		unsigned int current_tile_id = startID;
 		unsigned int last_tile_id = 0;
-		float niceTry;
+		float niceTry = 999.f;
+		float lastNice = 500.f;
 		current_tile = rEcs.getComponentFromEntity<components::TileComponent>(startID);
-		while (current_tile_id != endID)
+		while (/*current_tile_id != endID*/lastNice != niceTry)
 		{
-			niceTry = 999.f;
+			lastNice = niceTry;
 			for (int i = 0; i < 6; i++)
 			{	//check if neighbour is not 0 or was the last visited tile
 				if(current_tile->neighboursIDArray[i] != 0 && current_tile->neighboursIDArray[i] != last_tile_id)
@@ -286,7 +373,7 @@ namespace GridEcsFunctions
 					}
 				}
 			}
-			if (next_tile_id != 0)
+			if (lastNice != niceTry)
 			{
 				current_tile = rEcs.getComponentFromEntity<components::TileComponent>(next_tile_id);
 				to_return.push_back(next_tile_id);
@@ -297,151 +384,21 @@ namespace GridEcsFunctions
 		return to_return;
 	}
 
-	void StoreNeighbours(ecs::EntityComponentSystem& rEcs)
+	void LoadNeighboursToComponents(ecs::EntityComponentSystem& rEcs)
 	{
 		GridProp* p_gp = GridProp::GetInstance();
-		int2 current_tile;
-		int2 neighbour_tile;
-		int neighbour_counter;
-		components::TileComponent* p_tile_component = nullptr;
-		for (int i = 0; i < ARENA_ROWS; i++)
+		components::TileComponent* temp_component = nullptr;
+		int rows = p_gp->GetSize().x;
+		int columns = p_gp->GetSize().y;
+		for (int i = 0; i < rows; i++)
 		{
-			for (int j = 0; j < ARENA_COLUMNS; j++)
+			for (int j = 0; j < columns; j++)
 			{
-				neighbour_counter = 0;
-				current_tile = int2(i, j);
-				/*     __
-                    __/  \__
-                   /  \__/  \ <-- top row
-                   \__/  \__/
-                   /  \__/  \ <-- bottom row
-                   \__/  \__/
-				Check if bottom row or top row	*/
-				if (j % 2 != 0)
-				{
-					neighbour_tile = int2(i + 1, j - 1); //Top left neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{ 
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-						p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id; // If everything is okey we push it into this id array of neighbours.
-						//find tilecomponent from entity with id from GridProp singelton 
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						//Update tile components neighbours
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
-
-					neighbour_counter++;//iterate through the neigbours so they come in the right pos in the array
-					neighbour_tile = int2(i + 1, j); //Top neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
-
-					neighbour_counter++;
-					neighbour_tile = int2(i + 1, j + 1); //Top right neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
-
-					neighbour_counter++;
-					neighbour_tile = int2(i, j - 1); //Bottom left neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{ 
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
-
-					neighbour_counter++;
-					neighbour_tile = int2(i - 1, j); //Bottom neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{ 
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
-
-					neighbour_counter++;
-					neighbour_tile = int2(i, j + 1); //Bottom right neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
+				temp_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[i][j].Id);
+				for (int k = 0; k < 6; k++)
+				{					
+					temp_component->neighboursIDArray[k] = p_gp->mGrid[i][j].neighbourIDArray[k];
 				}
-				else
-				{
-					neighbour_tile = int2(i, j - 1); //Top left neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
-
-					neighbour_counter++;
-					neighbour_tile = int2(i + 1, j); //Top neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{ 
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
-
-					neighbour_counter++;
-					neighbour_tile = int2(i, j + 1); //Top right neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
-
-					neighbour_counter++;
-					neighbour_tile = int2(i - 1, j - 1); //Bottom left neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
-
-					neighbour_counter++;
-					neighbour_tile = int2(i - 1, j); //Bottom neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
-
-					neighbour_counter++;
-					neighbour_tile = int2(i - 1, j + 1); //Bottom right neighbor
-					if (GridFunctions::CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{
-						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-						p_tile_component = rEcs.getComponentFromEntity<components::TileComponent>(p_gp->mGrid[current_tile.x][current_tile.y].Id);
-						p_tile_component->neighboursIDArray[neighbour_counter] = p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
-					}
-				}
-
 			}
 		}
 	}

@@ -13,15 +13,88 @@ namespace Audio
 	namespace Music
 	{
 		// Flags to signal what should be done with the plugin
-		enum MessageFlags
+		enum MessageFlags : unsigned int
 		{
-			M_NONE = 0x0,
-			M_REPLACE = 0x1
+			// Choose what this will modify
+			M_TARGET_MAIN =				0,
+			M_TARGET_SUB =				1,
+			M_TARGET_MASK =				0b1,
+			// What to do with the data pointer
+			M_DATA_NO_DATA =			0,
+			M_DATA_AS_PARAMETER =		(1 << 1),
+			M_DATA_MASK =				(0b1 << 1),
+			// If the data was a pointer, it may have to be deleted
+			M_DATA_TEARDOWN_NOTHING =	0,
+			M_DATA_TEARDOWN_DELETE =	(1 << 2),
+			M_DATA_TEARDOWN_MASK =		(0b1 << 2),
+			// Syncs
+			M_SYNC_NO_SYNC =			0,
+			M_SYNC_THIS_WITH_OTHER =	(1 << 3),
+			M_SYNC_OTHER_WITH_THIS =	(2 << 3),
+			M_SYNC_MASK =				(0b11 << 3),
+			// Functions
+			M_FUNC_NOTHING =			0,
+			M_FUNC_REPLACE_MUSIC =		(1 << 5),
+			M_FUNC_SET_GAIN =			(2 << 5),
+			M_FUNC_FADE_IN =			(3 << 5),
+			M_FUNC_FADE_OUT =			(4 << 5),
+			M_FUNC_MASK =				(0b111 << 5)
+
+		};
+		union MessageDataUnion
+		{
+			MessageDataUnion()
+			{
+				_void = 0;
+			}
+			MessageDataUnion(float Float)
+			{
+				_float = Float;
+			}
+			MessageDataUnion(Audio::FileData* FileData)
+			{
+				_FileData = FileData;
+			}
+			MessageDataUnion(unsigned long Long)
+			{
+				_ulong = Long;
+			}
+			void* _void;
+			Audio::FileData* _FileData;
+			float _float;
+			unsigned long _ulong;
 		};
 		struct Message
 		{
-			Plugin::Plugin* pEntry;
-			MessageFlags flags;
+			MessageDataUnion data;
+			unsigned int flags;
+		};
+
+		class Manager
+		{
+		public:
+			Manager();
+			void AddMusicMessage(Music::Message message);
+			void ProcessMusicMessages();
+			void Fill(Samples start, Samples sampleCount, float* pData, int channelCount, float* pVoiceData);
+		private:
+			struct MusicVoiceData
+			{
+				Plugin::Plugin* Entry;
+				Plugin::Gain Gain;
+				Plugin::Sampler Sampler;
+			};
+
+			//void NewMusicVoice(Plugin::Plugin* pEntryPlugin, bool replace);
+			void ReplaceMusic(Message& rMessage, MusicVoiceData* pTarget);
+			void SetGain(Message& rMessage, MusicVoiceData* pTarget);
+			void FadeIn(Message& rMessage, MusicVoiceData* pTarget);
+			void FadeOut(Message& rMessage, MusicVoiceData* pTarget);
+
+			Ringbuffer<Music::Message, SOUND_MAX_MUSIC_MESSAGES> mMusicMessageBuffer;
+			//Voice mMusicVoices[SOUND_MAX_MUSIC_VOICES];
+			MusicVoiceData mMainData;
+			MusicVoiceData mSubData;
 		};
 	}
 	class Mixer
@@ -38,17 +111,17 @@ namespace Audio
 		void ProcessMessages();
 	private:
 		void ProcessSoundMessages();
-		void ProcessMusicMessages();
+		//void ProcessMusicMessages();
 
 		// Adds voices to sound and music respectively
 		void NewSoundVoice(Plugin::Plugin* pEntryPlugin);
-		void NewMusicVoice(Plugin::Plugin* pEntryPlugin, bool replace);
+		
 
+		Music::Manager mMusicManager;
 		// Voices for sound and music
 		Voice mSoundVoices[SOUND_MAX_SOUND_VOICES];
-		Voice mMusicVoices[SOUND_MAX_MUSIC_VOICES];
+		// Voice mMusicVoices[SOUND_MAX_MUSIC_VOICES];
 		// Ring buffer to contain sound and music messages
 		Ringbuffer<Sound::Message, SOUND_MAX_SOUND_MESSAGES> mSoundMessageBuffer;
-		Ringbuffer<Music::Message, SOUND_MAX_MUSIC_MESSAGES> mMusicMessageBuffer;
 	};
 }
