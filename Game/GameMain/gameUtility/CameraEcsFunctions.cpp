@@ -14,13 +14,30 @@ namespace CameraEcsFunctions
 		int2 arena_size = p_gp->GetSize();
 		//Initialize components
 		TransformComponent transform;
+		CameraComponent camera;
 		//transform.position = {10.0f, 1.0f, 0.0f};
-		transform.position = {((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS, (arena_size.x + arena_size.y) / 3.0f, TILE_RADIUS * 3  };
+		switch (p_gp->mCurrentMap)
+		{
+		case 0:
+			transform.position = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS, (arena_size.x + arena_size.y) / 2.5f, TILE_RADIUS * 1 };
+			camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS , 0.0f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) - TILE_RADIUS) / 2.0f + TILE_RADIUS, 0.0f };
+			break;
+		case 1:
+			transform.position = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS, (arena_size.x + arena_size.y) / 3.0f, TILE_RADIUS * 2 };
+			camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS , 0.0f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) - TILE_RADIUS) / 2.0f, 0.0f };
+			break;
+		case 2:
+			transform.position = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS, (arena_size.x + arena_size.y) / 3.0f, TILE_RADIUS * 3 };
+			camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS , 0.0f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) - TILE_RADIUS) / 2.0f + TILE_RADIUS, 0.0f };
+			break;
+		default:
+			transform.position = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS, (arena_size.x + arena_size.y) / 3.0f, TILE_RADIUS * 3 };
+			camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS , 0.0f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) - TILE_RADIUS) / 2.0f + TILE_RADIUS, 0.0f };
+			break;
+		}
 //		transform.position = CameraDefines::originalPosition;
 		transform.rotation = CameraDefines::originalRotation;
 		transform.scale = CameraDefines::originalScale;
-		CameraComponent camera;
-		camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS , 0.0f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) - TILE_RADIUS) / 2.0f + TILE_RADIUS, 0.0f };
 //		camera.target = CameraDefines::originalTarget;
 		camera.up = CameraDefines::originalUp;
 		//camera.forward = CameraDefines::originalForward;
