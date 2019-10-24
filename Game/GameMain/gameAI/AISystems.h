@@ -337,7 +337,7 @@ namespace ecs
 				if (move_comp->path.size() > 0)
 				{
 					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());
-					if (abs(goal->position.x - transform->position.x) < 0.25f && abs(goal->position.z - transform->position.z) < 0.25f)
+					if (abs(goal->position.x - transform->position.x) < 1.f && abs(goal->position.z - transform->position.z) < 1.f)
 					{
 						move_comp->path.pop_back();
 					}
@@ -367,7 +367,7 @@ namespace ecs
 						ecs::components::IdleStateComponent idle_state;
 						//Calculate distance to goal and add the frame time to the total travel time
 						float distance = PhysicsHelpers::CalculateDistance(transform->position, move_comp->goalPos);
-						float max_traveltime = 2.f;
+						float max_traveltime = 1.f;
 						move_comp->time += delta;
 						//Check if we are close enought to the goal to switch state
 						if (distance < 0.1f)
