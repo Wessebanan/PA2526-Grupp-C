@@ -272,8 +272,9 @@ namespace GridFunctions
 		}
 
 		// -------------- REMOVE 3 LAYERS ON EACH SIDE
-		// removed 3 layers on each side
-		for (size_t l = 0; l < 3; l++)
+		int layers = 3;
+		// removed layers on each side
+		for (size_t l = 0; l < layers; l++)
 		{
 			for (size_t i = 0; i < rows; i++)
 			{
@@ -286,8 +287,59 @@ namespace GridFunctions
 				height_values[(i)][l] = -1.0f;
 				height_values[(i)][columns - 1 - l] = -1.0f;
 			}
-
 		}
+
+		// Add the holmes
+		int start0 = rows / 2;
+		int start1 = columns / 2;
+		int start2 = start1;
+		int start3 = start2;
+
+
+		size_t i = 0;
+		int start = 0;
+
+		// first side
+		start = start0;
+		height_values[start + 1][0] = 0.0f;
+		height_values[start - 1][0] = 0.0f;
+		height_values[start - 1][1] = 0.0f;
+		for (i = 0; height_values[start][i] < -0.5f; i++)
+		{
+			height_values[start][i] = 0.0f;
+		}
+
+
+		// second side
+		start = start0;
+		height_values[0][start + 1] = 0.0f;
+		height_values[0][start - 1] = 0.0f;
+		height_values[1][start - 1] = 0.0f;
+		for (i = 0; height_values[i][start] < -0.5f; i++)
+		{
+			height_values[i][start] = 0.0f;
+		}
+
+		// third side
+		start = start1;
+		height_values[start + 1][columns - 1] = 0.0f;
+		height_values[start - 1][columns - 1] = 0.0f;
+		height_values[start - 1][columns - 2] = 0.0f;
+		for (i = 0; height_values[start][columns - 1 - i] < -0.5f; i++)
+		{
+			height_values[start][columns - 1 - i] = 0.0f;
+		}
+
+		// forth side
+		start = start1;
+		height_values[rows - 1][start + 1] = 0.0f;
+		height_values[rows - 1][start - 1] = 0.0f;
+		height_values[rows - 2][start - 1] = 0.0f;
+		for (i = 0; height_values[rows - 1 - i][start] < -0.5f; i++)
+		{
+			height_values[rows - 1 - i][start] = 0.0f;
+		}
+
 
 
 		for (int i = 0; i < rows; i++)
