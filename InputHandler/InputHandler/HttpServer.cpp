@@ -10,7 +10,7 @@ using namespace httplib;
 #define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
 #define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
 
-bool GetLocalIp4(std::string& rStringToFill)
+bool HttpServer::GetLocalIp4(std::string& rStringToFill)
 {
 	PIP_ADAPTER_INFO p_adapter_info;
 	DWORD ret_val = 0;
@@ -60,7 +60,7 @@ Server gServer;
 void HttpServerThread();
 bool GetContentAsString(std::string rPath, std::string& rStringToFill, bool binary);
 
-void RunHttpServer()
+void HttpServer::RunHttpServer()
 {
 	if (!gServer.is_valid()) {
 		std::cout << "The server has an error...\n";
@@ -69,7 +69,7 @@ void RunHttpServer()
 	gServerThread = new std::thread(HttpServerThread);
 }
 
-void StopHttpServer()
+void HttpServer::StopHttpServer()
 {
 	gServer.stop();
 	gServerThread->join();
@@ -174,7 +174,7 @@ void HttpServerThread()
 #endif
 
 	std::string ip;
-	GetLocalIp4(ip);
+	HttpServer::GetLocalIp4(ip);
 
 	gServer.listen(ip.c_str(), 80);
 }
