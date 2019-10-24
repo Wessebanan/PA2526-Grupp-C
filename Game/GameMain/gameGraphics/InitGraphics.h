@@ -85,5 +85,5 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(MESH_TYPE_TILE, "../meshes/hexagon_tile5.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_ROCK, "../meshes/rock.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_TREE, "../meshes/tree2.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../RunningCustom2.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../DudeMesh1.fbx");
 }

@@ -37,6 +37,7 @@ namespace ecs
 			mInstanceLayout = { 0 };
 
 			mpSkeleton = MeshContainer::GetMeshCPU(MESH_TYPE_UNIT)->GetSkeleton();
+			mpSkeleton->StartAnimation(ModelLoader::ANIMATION_TYPE::MOVE);
 		}
 
 		UnitRenderSystem::~UnitRenderSystem()
@@ -51,6 +52,9 @@ namespace ecs
 
 			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mUnitCount * GetPerInstanceSize());
+
+			// Update animation in skeleton
+			mpSkeleton->UpdateAnimation(_delta);
 
 			// Iterate all units and write their data to the RenderBuffer
 			int index = 0;

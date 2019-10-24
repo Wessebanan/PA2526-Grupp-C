@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <DirectXMath.h>
 #include <memory>
+#include <algorithm>
+#include <locale>
 
 #define MAX_NUM_WEIGHTS_PER_VERTEX 4
 
@@ -65,11 +67,88 @@ namespace ModelLoader
 		}
 	};
 
-	struct Skeleton {
-		std::vector<Joint> joints;
+	enum ANIMATION_TYPE
+	{
+		IDLE,
+		MOVE,
+		ATTACK,
+		ANIMATION_COUNT
+	};
+
+	struct AnimationSet
+	{
 		DirectX::XMFLOAT4X4* animationData;
-		unsigned int jointCount;
 		unsigned int frameCount;
+		unsigned int activeFrame = 0;
+		std::string animationName;
+	};
+
+
+
+	struct Skeleton {
+	private:
+		float mCurrentTime = 0;
+
+	public:
+		std::vector<Joint> joints;
+		DirectX::XMFLOAT4X4* animationData; // LEGACY, please use UpdateAnimation and frameData instead
+		DirectX::XMFLOAT4X4* frameData;
+		unsigned int jointCount = 0;
+		unsigned int frameCount = 0;
+		AnimationSet animations[ANIMATION_COUNT];
+		int animationFlags[ANIMATION_COUNT]; // -1 : missing animation
+											 // 0  : disabled
+											 // 1  : enabled
+		Skeleton()
+		{
+			// Initialize the animation flags with -1 for missing animation
+			std::fill(animationFlags, animationFlags + ANIMATION_COUNT, -1);
+		}
+		// Currently does not blend animations, simply updates the global animationData with info from the first enabled animation.
+		void UpdateAnimation(float dtInSeconds)
+		{
+
+			for (int i = 0; i < ANIMATION_COUNT; ++i)
+			{
+				if (this->animationFlags[i] == 1)
+				{
+					this->animationData = animations[i].animationData;
+					this->frameCount = animations[i].frameCount;
+					this->mCurrentTime = this->mCurrentTime + dtInSeconds;
+					int frame_to_set = (int)std::round(fmod(this->mCurrentTime * 24.0f, this->frameCount)) % this->frameCount;
+					// Get frame data from animationData vector
+					memcpy(this->frameData, &animations[i].animationData[frame_to_set * this->jointCount], this->jointCount * sizeof(DirectX::XMFLOAT4X4));
+					break; // This break will disappear when animation blending is implemented
+				}
+			}
+		}
+		// Returns false if requested animation does not exist
+		bool StartAnimation(ANIMATION_TYPE anim_type)
+		{
+			if (anim_type < ANIMATION_COUNT)
+			{
+				if (this->animationFlags[anim_type] != -1)
+				{
+					this->animationFlags[anim_type] = 1;
+					this->animations[anim_type].activeFrame = 0;
+					return true;
+				}
+			}
+			return false;
+		}
+		// Returns false if requested animation does not exist
+		bool StopAnimation(ANIMATION_TYPE anim_type)
+		{
+			if (anim_type < ANIMATION_COUNT)
+			{
+				if (this->animationFlags[anim_type] != -1)
+				{
+					this->animationFlags[anim_type] = 0;
+					return true;
+				}
+			}
+			return false;
+		}
 		DirectX::XMFLOAT4X4 GetOffsetMatrixUsingJointName(const std::string& inJointName, const unsigned int frameCount)
 		{
 			int joint_index = -1;
@@ -93,6 +172,68 @@ namespace ModelLoader
 				// Return error matrix
 				return DirectX::XMFLOAT4X4(-1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f);
 			}
+		}
+	};
+
+	struct UniqueSkeletonData
+	{
+	private:
+		float mCurrentTime = 0.0f;
+
+	public:
+
+		Skeleton* parentSkeleton;
+		DirectX::XMFLOAT4X4* frameData;
+		int animationFlags[ANIMATION_COUNT];
+		UniqueSkeletonData(Skeleton* parentSkeleton)
+		{
+			this->parentSkeleton = parentSkeleton;
+			this->frameData = new DirectX::XMFLOAT4X4[parentSkeleton->jointCount];
+			memcpy(parentSkeleton->animationFlags, this->animationFlags, sizeof(int) * ANIMATION_COUNT);
+		}
+		void UpdateAnimation(float dtInSeconds)
+		{
+
+			for (int i = 0; i < ANIMATION_COUNT; ++i)
+			{
+				if (this->animationFlags[i] == 1)
+				{
+					int frame_count = this->parentSkeleton->animations[i].frameCount;
+					int joint_count = this->parentSkeleton->jointCount;
+					this->mCurrentTime = this->mCurrentTime + dtInSeconds;
+					int frame_to_set = (int)std::round(fmod(this->mCurrentTime * 24.0f, frame_count)) % frame_count;
+					// Get frame data from animationData vector
+					memcpy(this->frameData, &this->parentSkeleton->animations[i].animationData[frame_to_set * joint_count], joint_count * sizeof(DirectX::XMFLOAT4X4));
+					break; // This break will disappear when animation blending is implemented
+				}
+			}
+		}
+		// Returns false if requested animation does not exist
+		bool StartAnimation(ANIMATION_TYPE anim_type)
+		{
+			if (anim_type < ANIMATION_COUNT)
+			{
+				if (this->animationFlags[anim_type] != -1)
+				{
+					this->animationFlags[anim_type] = 1;
+					this->mCurrentTime = 0.0f;
+					return true;
+				}
+			}
+			return false;
+		}
+		// Returns false if requested animation does not exist
+		bool StopAnimation(ANIMATION_TYPE anim_type)
+		{
+			if (anim_type < ANIMATION_COUNT)
+			{
+				if (this->animationFlags[anim_type] != -1)
+				{
+					this->animationFlags[anim_type] = 0;
+					return true;
+				}
+			}
+			return false;
 		}
 	};
 
