@@ -1,5 +1,6 @@
 #include "HttpServer.h"
 #define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
 #include <iphlpapi.h>
 #include <iostream>
@@ -56,16 +57,20 @@ bool HttpServer::GetLocalIp4(std::string& rStringToFill)
 
 std::thread* gServerThread = nullptr;
 Server gServer;
+std::string gPathToHtml;
+std::string gPathToFavicon;
 
 void HttpServerThread();
 bool GetContentAsString(std::string rPath, std::string& rStringToFill, bool binary);
 
-void HttpServer::RunHttpServer()
+void HttpServer::RunHttpServer(std::string pathToHtml, std::string pathToFavicon)
 {
 	if (!gServer.is_valid()) {
 		std::cout << "The server has an error...\n";
 		return;
 	}
+	gPathToHtml = pathToHtml;
+	gPathToFavicon = pathToFavicon;
 	gServerThread = new std::thread(HttpServerThread);
 }
 
@@ -137,17 +142,24 @@ void HttpServerThread()
 	gServer.Get("/", [=](const Request& /*rRequest*/, Response& rResponse)
 	{
 		std::string buf;
-		if (!GetContentAsString("mobileSite.html", buf, false))
+		if (!GetContentAsString(gPathToHtml, buf, false))
 		{
 			buf = "<p>Error: <span style='color:red;'>mobileSite.html could not be found</span></p>";
+			rResponse.set_content(buf, "text/html");
 		}
-		rResponse.set_content(buf, "text/html");
+		else
+		{
+			std::string ip;
+			HttpServer::GetLocalIp4(ip);
+			buf.insert(0, "<script>var ip_address=\"" + ip + "\";</script>\n");
+			rResponse.set_content(buf, "text/html");
+		}
 	});
 
 	gServer.Get("/favicon.ico", [=](const Request& /*rRequest*/, Response& rResponse)
 	{
 		std::string buf;
-		if (!GetContentAsString("favicon.ico", buf, true))
+		if (!GetContentAsString(gPathToFavicon, buf, true))
 		{
 			buf = "<p>Error 404: <span style='color:red;'>favicon.ico could not be found</span></p>";
 			rResponse.set_content(buf, "text/html");
