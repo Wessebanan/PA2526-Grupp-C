@@ -28,6 +28,7 @@ namespace GridEcsFunctions
 		float height_map[mapsze];
 		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60);
 
+
 		GridProp* p_gp = GridProp::GetInstance();
 
 		p_gp->SetSize(Rows,Columns);
