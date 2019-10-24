@@ -19,7 +19,7 @@ void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const XMVECTOR& cent
 	XMVECTOR dot = XMVector3Dot(v_velocity, v_diff);
 
 	// If the dot product is positive, do not revert movement.
-	if (XMVectorGetX(dot) > 0.0f)
+	if (XMVectorGetX(dot) >= 0.0f)
 	{
 		return;
 	}
@@ -43,14 +43,14 @@ void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const XMVECTOR& cent
 	}
 
 	// Reverting the movement in that direction.
-	position.x -= velocity.x * delta * x;
-	position.y -= velocity.y * delta * y;
-	position.z -= velocity.z * delta * z;
+	position.x -= velocity.x * delta * (float)x;
+	position.y -= velocity.y * delta * (float)y;
+	position.z -= velocity.z * delta * (float)z;
 
 	// Resetting the velocity in that direction.
-	velocity.x *= !x;
-	velocity.y *= !y;
-	velocity.z *= !z;
+	velocity.x *= (float)!x;
+	velocity.y *= (float)!y;
+	velocity.z *= (float)!z;
 }
 
 //void CreateOBB(DirectX::XMFLOAT3(&vertices)[8], const DirectX::XMFLOAT3& min_point, const DirectX::XMFLOAT3& max_point)
