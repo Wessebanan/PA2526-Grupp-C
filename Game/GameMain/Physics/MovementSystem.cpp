@@ -182,9 +182,12 @@ void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	// NOTE: No way of finding default direction of mesh so it's hard coded.
 	XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	XMFLOAT3* movement_forward = &movement_component->mDirection;
-	XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
-	transform_component->rotation.y = acos(XMVectorGetX(cos_angle));
+	XMFLOAT3* movement_forward = &movement_component->mForward;
 
+	// Finding the angle between default forward and movement forward direction.
+	XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
+
+	// Using Sign to find if the angle is negative or positive relative to default forward.
+	transform_component->rotation.y = -Sign(movement_forward->x) * acos(XMVectorGetX(cos_angle));
 }
 #pragma endregion
