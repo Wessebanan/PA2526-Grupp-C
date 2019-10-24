@@ -422,7 +422,7 @@ namespace ecs
 		};
 
 		/*
-			A system that makes a unit loot an area
+			A system that makes a unit flee from enemy units.
 		*/
 		class FleeStateSystem : public ECSSystem<FleeStateSystem>
 		{
