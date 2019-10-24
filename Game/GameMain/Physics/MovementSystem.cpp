@@ -187,13 +187,14 @@ void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
 
 	// NOTE: No way of finding default direction of mesh so it's hard coded.
-	XMVECTOR default_forward = XMVectorZero();
-	default_forward = XMVectorSetZ(default_forward, -1.0f);
-	//XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	XMVECTOR movement_forward = XMLoadFloat3(&movement_component->mForward);
-	//XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
-	XMVECTOR angle = XMVector3AngleBetweenVectors(default_forward, movement_forward);
-	transform_component->rotation.y = -XMVectorGetX(angle);
+	XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
+	XMFLOAT3* movement_forward = &movement_component->mForward;
+
+	// Finding the angle between default forward and movement forward direction.
+	XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
+
+	// Using Sign to find if the angle is negative or positive relative to default forward.
+	transform_component->rotation.y = -Sign(movement_forward->x) * acos(XMVectorGetX(cos_angle));
 
 }
 #pragma endregion
@@ -228,13 +229,5 @@ void ecs::systems::DynamicMovementInitSystem::onEvent(TypeID _typeID, ecs::BaseE
 	movement_component->mMovementForce	*= scale;
 	movement_component->mDeceleration	*= scale;
 	movement_component->mWeight			*= scale;
-	XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	XMFLOAT3* movement_forward = &movement_component->mForward;
-
-	// Finding the angle between default forward and movement forward direction.
-	XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
-
-	// Using Sign to find if the angle is negative or positive relative to default forward.
-	transform_component->rotation.y = -Sign(movement_forward->x) * acos(XMVectorGetX(cos_angle));
 }
 #pragma endregion

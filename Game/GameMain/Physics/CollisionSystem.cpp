@@ -38,20 +38,17 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	bool intersect = false;
 
-	BoundingBox colliding_aabb;
-
-	std::vector<AABB> collided_aabb_vector;
-
 	for (int i = 0; i < it.entities.size(); i++)
 	{
+		ID current_entity_id = it.entities.at(i).entity->getID();
 		// Skip yourself.
-		if (it.entities.at(i).entity->getID() == p_entity->getID())
+		if (current_entity_id == p_entity->getID())
 		{
 			continue;
 		}
 		// Grabbing the collision and transform component from the current entity.
-		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(it.entities.at(i).entity->getID());
-		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(it.entities.at(i).entity->getID());
+		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(current_entity_id);
+		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(current_entity_id);
 		
 		// Grabbing copy of AABB from current and transforming to world space.
 		AABB current_aabb = p_current_collision->mAABB;
@@ -64,40 +61,26 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			// Set the intersection bool because it may be useful.
 			intersect = true;
 
+			XMFLOAT3 velocity_pre_revert = p_movement->mVelocity;
+
 			XMVECTOR colliding_center = XMLoadFloat3(&current_aabb.Center);
 			RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
+
+			if (getEntity(current_entity_id)->hasComponentOfType(DynamicMovementComponent::typeID))
+			{
+				DynamicMovementComponent* colliding_movement = getComponentFromKnownEntity<DynamicMovementComponent>(current_entity_id);
+				colliding_movement->mVelocity.x += (velocity_pre_revert.x - p_movement->mVelocity.x) * 3.0f;
+				colliding_movement->mVelocity.y += (velocity_pre_revert.y - p_movement->mVelocity.y) * 3.0f;
+				colliding_movement->mVelocity.z += (velocity_pre_revert.z - p_movement->mVelocity.z) * 3.0f;
+			}
 
 			// Transforming the aabb again since the position has changed.
 			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
 			aabb.Transform(aabb, world_transform);
 			center = XMLoadFloat3(&aabb.Center);
-			// Saving the transformed aabb from the collided entity.
-			//colliding_aabb = current_aabb;
-			//collided_aabb_vector.push_back(current_aabb);
 		}
 	}
 	p_collision->mIntersect = intersect;
-
-	// Since the event that triggers this system is created in
-	// DynamicMovementSystem, we can assume that the entity has a 
-	// DynamicMovementComponent.
-	//if (intersect)
-	//{
-	//	DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
-	//	XMVECTOR center	= XMLoadFloat3(&aabb.Center);
-	//	for (int i = 0; i < collided_aabb_vector.size(); i++)
-	//	{
-	//		XMVECTOR colliding_center = XMLoadFloat3(&collided_aabb_vector.at(i).Center);
-	//
-	//		XMVECTOR position_change = XMLoadFloat3(&p_transform->position);
-	//
-	//		RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
-	//
-	//		world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
-	//		aabb.Transform(aabb, world_transform);
-	//		center = XMLoadFloat3(&aabb.Center);
-	//	}
-	//}
 }
 #pragma endregion
 #pragma region GroundCollisionComponentInitSystem
