@@ -357,7 +357,7 @@ namespace GridFunctions
 		float dist = sqrt(x * x + z * z);//get the distance from start to end
 		dist = dist / ((TILE_RADIUS)*4);//scale the distance for better values
 		int sign = (int)(fabs(Charge) / Charge);//get the sign from charge variable "+" or "-"
-		to_return = sign*pow(fabs(Charge), 1 / (dist + 1.2f));//return a exponentially decreasing value depending on distance
+		to_return = sign*pow(fabs(Charge), 1.2 / (dist + 1.f));//return a exponentially decreasing value depending on distance
 
 		return to_return;
 	}
@@ -377,10 +377,11 @@ namespace GridFunctions
 		GridProp* p_gp = GridProp::GetInstance();
 		bool returnValue = false;
 		//Check if the given index is a valid index and check so that the height difference between the tiles is not to large.
-		if (neighbourIndex.x >= 0 && neighbourIndex.x < p_gp->GetSize().y
-			&& neighbourIndex.y >= 0 && neighbourIndex.y < p_gp->GetSize().x
+		if (neighbourIndex.x >= 0 && neighbourIndex.x < p_gp->GetSize().x
+			&& neighbourIndex.y >= 0 && neighbourIndex.y < p_gp->GetSize().y
 			&& p_gp->mGrid[currentTile.x][currentTile.y].height -
-			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1)
+			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1
+			&& p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].isPassable)
 			returnValue = true;
 
 		return returnValue;
@@ -576,21 +577,21 @@ namespace GridFunctions
 		index.x = -1;
 		index.y = -1;
 		GridProp* p_gp = GridProp::GetInstance();
-		float pos_x = x;
-		float pos_z = z;
+		float pos_x = 0;
+		float pos_z = 0;
 		float pi = 3.1415f;
 		float mid_to_side = cos(30 * pi / 180) * TILE_RADIUS; //Calculate length between the center position and a side. 
 		int steps = 0;
 
-		if (pos_x < TILE_RADIUS)
+		if (x - pos_x < TILE_RADIUS)
 		{
 			index.x = 0;
 		}
 		else
 		{
-			while (pos_x > TILE_RADIUS)
+			while (x - pos_x > TILE_RADIUS)
 			{
-				pos_x -= TILE_RADIUS * 2;
+				pos_x += TILE_RADIUS * 1.5f;
 				steps++;
 			}
 			if (steps > p_gp->GetSize().y - 1)
@@ -603,43 +604,28 @@ namespace GridFunctions
 			}
 		}
 		steps = 0;
-		if (pos_z < mid_to_side)
+		if (index.x % 2 != 0)
+		{
+			pos_z += mid_to_side;
+		}
+		if (z - pos_z < mid_to_side)
 		{
 			index.y = 0;
 		}
 		else
 		{
-			if (index.x % 2 == 0)
+			while (z - pos_z > mid_to_side)
 			{
-				while (pos_z > mid_to_side)
-				{
-					pos_z -= mid_to_side * 2;
-					steps++;
-				}
-				if (steps > p_gp->GetSize().x - 1)
-				{
-					index.y = p_gp->GetSize().x - 1;
-				}
-				else
-				{
-					index.y = steps;
-				}
+				pos_z += mid_to_side * 2;
+				steps++;
+			}
+			if (steps > MAX_ARENA_ROWS - 1)
+			{
+				index.y = MAX_ARENA_ROWS - 1;
 			}
 			else
 			{
-				while (pos_z > mid_to_side * 2)
-				{
-					pos_z -= mid_to_side * 2;
-					steps++;
-				}
-				if (steps > p_gp->GetSize().x - 1)
-				{
-					index.y = p_gp->GetSize().x - 1;
-				}
-				else
-				{
-					index.y = steps;
-				}
+				index.y = steps;
 			}
 		}
 		return index;
