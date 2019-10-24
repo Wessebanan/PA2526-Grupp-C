@@ -363,7 +363,7 @@ namespace ecs
 						ecs::components::IdleStateComponent idle_state;
 						//Calculate distance to goal and add the frame time to the total travel time
 						float distance = PhysicsHelpers::CalculateDistance(transform->position, move_comp->goalPos);
-						float max_traveltime = 1.f;
+						float max_traveltime = 2.f;
 						move_comp->time += delta;
 						//Check if we are close enought to the goal to switch state
 						if (distance < 0.1f)
