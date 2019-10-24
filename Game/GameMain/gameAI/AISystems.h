@@ -187,7 +187,10 @@ namespace ecs
 					closed_list[next_tile_id].id = next_tile_id;				//its own id
 					closed_list[next_tile_id].parent_id = parent_id;			//parent id
 					closed_list[next_tile_id].move_cost = best_neighbour_cost;	//its movecost
-					open_list.erase(open_list.begin() + pos_in_open_list);		//remove from openlist
+					if(open_list.size() > 0 )
+					{
+						open_list.erase(open_list.begin() + pos_in_open_list);		//remove from openlist
+					}
 					current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
 					current_tile_id = next_tile_id;
 					
@@ -360,7 +363,7 @@ namespace ecs
 						ecs::components::IdleStateComponent idle_state;
 						//Calculate distance to goal and add the frame time to the total travel time
 						float distance = PhysicsHelpers::CalculateDistance(transform->position, move_comp->goalPos);
-						float max_traveltime = 100.f;
+						float max_traveltime = 1.f;
 						move_comp->time += delta;
 						//Check if we are close enought to the goal to switch state
 						if (distance < 0.1f)
