@@ -82,12 +82,6 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	}
 	p_collision->mIntersect = intersect;
 }
-void ecs::systems::ObjectCollisionSystem::RevertIntersection(
-	ObjectCollisionComponent* colliding,	TransformComponent* colliding_transform,	DynamicMovementComponent* colliding_movement,
-	ObjectCollisionComponent* collided,		TransformComponent* collided_transform,		const float& delta)
-{
-
-}
 #pragma endregion
 #pragma region GroundCollisionComponentInitSystem
 ecs::systems::GroundCollisionComponentInitSystem::GroundCollisionComponentInitSystem()
