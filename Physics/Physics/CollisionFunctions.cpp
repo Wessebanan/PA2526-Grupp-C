@@ -34,24 +34,29 @@ void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const AABB* collidin
 	// Saving a 1 in the direction of the largest component in the vector and getting the overlap in that direction.
 	if (fabs_diff.x > fabs_diff.y && fabs_diff.x > fabs_diff.z)
 	{
+		sign = Sign(diff.x);
 		overlap = colliding_world->Extents.x + collided_world->Extents.x - fabs_diff.x;
 		x = true;
 	}
 	else if (fabs_diff.y > fabs_diff.x && fabs_diff.y > fabs_diff.z)
 	{
+		sign = Sign(diff.y);
 		overlap = colliding_world->Extents.y + collided_world->Extents.y - fabs_diff.y;
 		y = true;
 	}
 	else
 	{
+		sign = Sign(diff.z);
 		overlap = colliding_world->Extents.z + collided_world->Extents.z - fabs_diff.z;
 		z = true;
 	}
 
+	float movement = sign * overlap;
+
 	// Reverting the movement in that direction.
-	position.x += (float)Sign(diff.x) * overlap * (float)x;
-	position.y += (float)Sign(diff.y) * overlap * (float)y;
-	position.z += (float)Sign(diff.z) * overlap * (float)z;
+	position.x += movement * (float)x;
+	position.y += movement * (float)y;
+	position.z += movement * (float)z;
 
 	// Resetting the velocity in that direction.
 	velocity.x *= (float)!x;
