@@ -208,6 +208,7 @@ void InitAll(EntityComponentSystem& rECS)
 
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
 
+	InitGraphicsRenderSystems(rECS);
 	InitGraphicsPostRenderSystems(rECS);
 
 	ChangeUserStateEvent e;

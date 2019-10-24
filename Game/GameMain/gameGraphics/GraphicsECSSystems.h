@@ -16,11 +16,11 @@ namespace ecs
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
-		class UploadGPUDataSystem : public ECSSystem<UploadGPUDataSystem>
+		class UploadRenderBufferSystem : public ECSSystem<UploadRenderBufferSystem>
 		{
 		public:
-			UploadGPUDataSystem();
-			virtual ~UploadGPUDataSystem() {}
+			UploadRenderBufferSystem();
+			virtual ~UploadRenderBufferSystem() {}
 
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};

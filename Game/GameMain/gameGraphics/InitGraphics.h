@@ -9,12 +9,17 @@ using namespace ecs::systems;
 
 void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, UINT clientWidth, UINT clientHeight)
 {
+	rEcs.reserveComponentCount<RenderManagerComponent>(1);
+	rEcs.reserveComponentCount<MeshManagerComponent>(1);
+	rEcs.reserveComponentCount<RenderBufferComponent>(1);
+	rEcs.reserveComponentCount<PipelineShadowMapComponent>(1);
+	rEcs.reserveComponentCount<PipelineForwardComponent>(1);
+
 	components::RenderManagerComponent rmDummy;
 	components::MeshManagerComponent mmDummy;
 	components::RenderBufferComponent rbDummy;
 	components::PipelineShadowMapComponent psmDummy;
 	components::PipelineForwardComponent pfDummy;
-
 
 	ID graphics_entity_id = rEcs.createEntity(rmDummy, mmDummy, rbDummy, psmDummy, pfDummy)->getID();
 
@@ -51,11 +56,8 @@ void InitGraphicsPreRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::RenderBufferResetSystem>(0);
 }
 
-void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
+void InitGraphicsRenderSystems(EntityComponentSystem& rEcs)
 {
-	/*
-	-- Initialize Mesh Renderers --
-*/
 	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(rEcs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
 
@@ -66,8 +68,11 @@ void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
 	p_unit_renderer->Initialize(&render_manager, &render_buffer);
 	p_scenery_renderer->Initialize(&render_manager, &render_buffer);
 	p_tile_renderer->Initialize(&render_manager, &render_buffer);
+}
 
-	rEcs.createSystem<systems::UploadGPUDataSystem>(9);
+void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
+{
+	rEcs.createSystem<systems::UploadRenderBufferSystem>(9);
 	rEcs.createSystem<systems::PipelineShadowMapSystem>(9);
 	rEcs.createSystem<systems::PipelineForwardSystem>(9);
 	rEcs.createSystem<systems::ExecuteGPURenderSystem>(9);

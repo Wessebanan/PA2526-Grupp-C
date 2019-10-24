@@ -5,43 +5,9 @@ namespace ecs
 {
 	namespace systems
 	{
-		RenderBufferResetSystem::RenderBufferResetSystem()
-		{
-			updateType = EntityUpdate;
-			typeFilter.addRequirement(components::RenderBufferComponent::typeID);
-		}
-
-		void RenderBufferResetSystem::updateEntity(FilteredEntity& entity, float delta)
-		{
-			components::RenderBufferComponent* p_buffer = entity.getComponent<components::RenderBufferComponent>();
-			p_buffer->buffer.Reset();
-		}
-
-
-
-
-
-		UploadGPUDataSystem::UploadGPUDataSystem()
-		{
-			updateType = EntityUpdate;
-			typeFilter.addRequirement(components::RenderManagerComponent::typeID);
-			typeFilter.addRequirement(components::RenderBufferComponent::typeID);
-		}
-		
-		void UploadGPUDataSystem::updateEntity(FilteredEntity& entity, float delta)
-		{
-			components::RenderManagerComponent* p_mgr = entity.getComponent<components::RenderManagerComponent>();
-			components::RenderBufferComponent* p_buffer = entity.getComponent<components::RenderBufferComponent>();
-
-			p_mgr->mgr.BeginUpload();
-			p_mgr->mgr.UploadPerInstanceData(p_buffer->buffer.GetStartAddress(), p_buffer->buffer.GetUsedMemory(), 0);
-		}
-
-
-
-
-
-
+		/*
+			Help function
+		*/
 		void SetViewMatrix(
 			DirectX::XMFLOAT4X4& rViewMatrix,
 			const float x,
@@ -58,6 +24,44 @@ namespace ecs
 					{ 0.0f, 1.0f,  0.0f }
 			));
 		}
+
+
+
+		RenderBufferResetSystem::RenderBufferResetSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::RenderBufferComponent::typeID);
+		}
+
+		void RenderBufferResetSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
+			components::RenderBufferComponent* p_buffer = entity.getComponent<components::RenderBufferComponent>();
+			p_buffer->buffer.Reset();
+		}
+
+
+
+
+
+		UploadRenderBufferSystem::UploadRenderBufferSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::RenderManagerComponent::typeID);
+			typeFilter.addRequirement(components::RenderBufferComponent::typeID);
+		}
+		
+		void UploadRenderBufferSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
+			components::RenderManagerComponent* p_mgr = entity.getComponent<components::RenderManagerComponent>();
+			components::RenderBufferComponent* p_buffer = entity.getComponent<components::RenderBufferComponent>();
+
+			p_mgr->mgr.BeginUpload();
+			p_mgr->mgr.UploadPerInstanceData(p_buffer->buffer.GetStartAddress(), p_buffer->buffer.GetUsedMemory(), 0);
+		}
+
+
+
+
 
 		PipelineShadowMapSystem::PipelineShadowMapSystem()
 		{
