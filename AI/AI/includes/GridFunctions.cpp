@@ -11,7 +11,8 @@ namespace GridFunctions
 	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains) //Creates a array that is used to change the hight for the map and remove chunks for water
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
-		const int holme_space = 0;
+		int layers = 3;
+		int holme_space = 0;
 
 		// The maximum amount of allowed tiles
 		const int max_rows = MAX_ARENA_ROWS; // Adds 10 in the end to allow a holme
@@ -116,7 +117,7 @@ namespace GridFunctions
 
 
 		// ------------ TAKE OUT PARTS OF THE MAP
-
+		holme_space = layers * 2;
 		// Removes chunks from each side of the map
 		int chunk_size = rows / 4;
 		int side0 = rand() % (rows - chunk_size - holme_space);
@@ -124,30 +125,30 @@ namespace GridFunctions
 		int side2 = rand() % (rows - chunk_size - holme_space);
 		int side3 = rand() % (columns - chunk_size - holme_space);
 
-		side0 += holme_space;
-		side1 += holme_space;
-		side2 += holme_space;
-		side3 += holme_space;
+		side0 += layers;
+		side1 += layers;
+		side2 += layers;
+		side3 += layers;
 
 		// removed 3 on each side
 		for (size_t i = 0; i < chunk_size; i++)
 		{
-			height_values[holme_space][(side0 + i)] = -1.0f;
-			height_values[rows - 1 - holme_space][(side1 + i)] = -1.0f;
-			height_values[(side2 + i)][holme_space] = -1.0f;
-			height_values[(side3 + i)][columns - 1 - holme_space] = -1.0f;
+			height_values[layers][(side0 + i)] = -1.0f;
+			height_values[rows - 1 - layers][(side1 + i)] = -1.0f;
+			height_values[(side2 + i)][layers] = -1.0f;
+			height_values[(side3 + i)][columns - 1 - layers] = -1.0f;
 		}
 
 		// removes 2 more from 2 sides one layer close to the center
 		for (size_t i = 0; i < chunk_size-1; i++)
 		{
-			height_values[1 + holme_space][(side0 + i)] = -1.0f;
-			height_values[rows - 2 - holme_space][(side1 + i)] = -1.0f;
+			height_values[1 + layers][(side0 + i)] = -1.0f;
+			height_values[rows - 2 - layers][(side1 + i)] = -1.0f;
 		}
 		
 
 		// If the map is big enough more is removed
-		if (rows > 16 + holme_space && columns > 16 + holme_space)
+		if (rows > 16 + layers && columns > 16 + layers)
 		{
 			for (size_t j = 0; j < 2; j++)
 			{
@@ -190,20 +191,20 @@ namespace GridFunctions
 						switch (random_lakeside)
 						{
 						case 0:
-							x = (starting_tile)+i + k;
-							y = k;
+							x = (starting_tile) + i + k;
+							y = k + layers;
 							break;
 						case 1:
-							x = k;
+							x = k + layers;
 							y = (starting_tile) + i + k;
 							break;
 						case 2:
 							x = (starting_tile) + i + k;
-							y = columns - k - 1;
+							y = columns - k - 1 - layers;
 							break;
 						case 3:
-							x = rows - 1 - k;
-							y = (starting_tile)+i + k;
+							x = rows - 1 - k - layers;
+							y = (starting_tile) + i + k;
 							break;
 						default:
 							break;
@@ -228,26 +229,28 @@ namespace GridFunctions
 						{
 						case 0:
 							x = (starting_tile) + i + (depth / 2);
-							y = depth + k;
+							y = depth + k + layers;
 							break;
 						case 1:
-							x = depth + k;
+							x = depth + k + layers;
 							y = (starting_tile) + i + (depth / 2);
 							break;
 						case 2:
 							x = (starting_tile) + i + (depth / 2);
-							y = columns - (depth + k) - 1;
+							y = columns - (depth + k) - 1 - layers;
 							break;
 						case 3:
-							x = rows - 1 - (depth + k);
+							x = rows - 1 - (depth + k) - layers;
 							y = (starting_tile) + i + (depth / 2);
 							break;
 						default:
 							break;
 						}
 
-						x = abs(x);
-						y = abs(y);
+						if (x < 0)
+							x = 0;
+						if (y < 0)
+							y = 0;
 						height_values[x][y] = -1.f;
 					}
 				}
@@ -272,7 +275,6 @@ namespace GridFunctions
 		}
 
 		// -------------- REMOVE 3 LAYERS ON EACH SIDE
-		int layers = 3;
 		// removed layers on each side
 		for (size_t l = 0; l < layers; l++)
 		{
@@ -345,7 +347,7 @@ namespace GridFunctions
 		for (int i = 0; i < rows; i++)
 		{
 			for (int j = 0; j < columns; j++)
-				Arr[(j + holme_space) + (i + holme_space) * MAX_ARENA_ROWS] = height_values[i][j];
+				Arr[(j) + (i) * MAX_ARENA_ROWS] = height_values[i][j];
 		}
 	}
 
