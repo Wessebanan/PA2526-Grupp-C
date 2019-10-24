@@ -11,8 +11,10 @@ namespace GridFunctions
 	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains) //Creates a array that is used to change the hight for the map and remove chunks for water
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
+		const int holme_space = 5;
 
-		const int max_rows = MAX_ARENA_ROWS;
+		// The maximum amount of allowed tiles
+		const int max_rows = MAX_ARENA_ROWS; // Adds 10 in the end to allow a holme
 		const int max_columns = MAX_ARENA_COLUMNS;
 
 
@@ -33,7 +35,7 @@ namespace GridFunctions
 			}
 
 
-		// ------------------ ADD MOUNTINS TO HTE MAP
+		// ------------------ ADD MOUNTINS TO THE MAP
 
 		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
@@ -268,7 +270,7 @@ namespace GridFunctions
 		for (int i = 0; i < rows; i++)
 		{
 			for (int j = 0; j < columns; j++)
-				Arr[j + i * MAX_ARENA_ROWS] = height_values[i][j];
+				Arr[(j + holme_space) + (i + holme_space) * MAX_ARENA_ROWS] = height_values[i][j];
 		}
 	}
 
