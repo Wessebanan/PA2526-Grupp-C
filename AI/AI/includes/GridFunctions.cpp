@@ -18,12 +18,14 @@ namespace GridFunctions
 
 		float height_values[max_rows][max_columns];
 
+		// evrything outside of hte map should be water
 		for (size_t i = 0; i < max_rows; i++)
 			for (size_t j = 0; j < max_columns; j++)
 			{
 				height_values[i][j] = -1.f;
 			}
 
+		// Default the map to be flat
 		for (size_t i = 0; i < rows; i++)
 			for (size_t j = 0; j < columns; j++)
 			{
@@ -31,7 +33,7 @@ namespace GridFunctions
 			}
 
 
-		// Create 2 mountains
+		// ------------------ ADD MOUNTINS TO HTE MAP
 
 		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
@@ -59,7 +61,6 @@ namespace GridFunctions
 			height_values[top_y + 1][top_x] = top_height;
 
 			//------
-
 
 			// second circle
 			top_height *= slope;
@@ -111,14 +112,18 @@ namespace GridFunctions
 			//------
 		}
 
+
+		// ------------ TAKE OUT PARTS OF THE MAP
+
 		// Removes chunks from each side of the map
-		int side0 = rand() % (rows - 3);
-		int side1 = rand() % (columns - 3);
-		int side2 = rand() % (rows - 3);
-		int side3 = rand() % (columns - 3);
+		int chunk_size = rows / 4;
+		int side0 = rand() % (rows - chunk_size);
+		int side1 = rand() % (columns - chunk_size);
+		int side2 = rand() % (rows - chunk_size);
+		int side3 = rand() % (columns - chunk_size);
 
 		// removed 3 on each side
-		for (size_t i = 0; i < 3; i++)
+		for (size_t i = 0; i < chunk_size; i++)
 		{
 			height_values[0][(side0 + i)] = -1.0f;
 			height_values[rows - 1][(side1 + i)] = -1.0f;
@@ -127,11 +132,138 @@ namespace GridFunctions
 		}
 
 		// removes 2 more from 2 sides one layer close to the center
-		for (size_t i = 0; i < 2; i++)
+		for (size_t i = 0; i < chunk_size-1; i++)
 		{
 			height_values[1][(side0 + i)] = -1.0f;
 			height_values[rows - 2][(side1 + i)] = -1.0f;
 		}
+		
+
+		// If the map is big enough more is removed
+		if (rows > 16 && columns > 16)
+		{
+			for (size_t j = 0; j < 2; j++)
+			{
+				// lake things
+				//int random_lakeside = 3;
+				int random_lakeside = rand() % 4;
+
+				int depth = columns / 6;
+				int starting_width = rows / 3;
+				int starting_tile = 4;// (rand() % rows) - (starting_width);
+
+				switch (random_lakeside)
+				{
+				case 0:
+				case 2:
+					depth = columns / 6;
+					starting_width = rows / 3;
+					starting_tile = (rand() % rows) - (starting_width);
+					break;
+				case 1:
+				case 3:
+					depth = rows / 6;
+					starting_width = columns / 3;
+					starting_tile = (rand() % columns) - (starting_width);
+					break;
+				default:
+					break;
+				}
+
+
+				// How Deep
+				for (size_t k = 0; k < depth; k++)
+				{
+					// next layer
+					for (size_t i = 0; i < starting_width - (2 * k); i++)
+					{
+						int x = 0;
+						int y = 0;
+
+						switch (random_lakeside)
+						{
+						case 0:
+							x = (starting_tile)+i + k;
+							y = k;
+							break;
+						case 1:
+							x = k;
+							y = (starting_tile) + i + k;
+							break;
+						case 2:
+							x = (starting_tile) + i + k;
+							y = columns - k - 1;
+							break;
+						case 3:
+							x = rows - 1 - k;
+							y = (starting_tile)+i + k;
+							break;
+						default:
+							break;
+						}
+
+						x = abs(x);
+						y = abs(y);
+						height_values[x][y] = -1.f;
+					}
+				}
+
+				// How deep
+				for (size_t k = 0; k < depth; k++)
+				{
+					// How wide
+					for (size_t i = 0; i < starting_width - (depth) - 1; i++)
+					{
+						int x = 0;
+						int y = 0;
+
+						switch (random_lakeside)
+						{
+						case 0:
+							x = (starting_tile) + i + (depth / 2);
+							y = depth + k;
+							break;
+						case 1:
+							x = depth + k;
+							y = (starting_tile) + i + (depth / 2);
+							break;
+						case 2:
+							x = (starting_tile) + i + (depth / 2);
+							y = columns - (depth + k) - 1;
+							break;
+						case 3:
+							x = rows - 1 - (depth + k);
+							y = (starting_tile) + i + (depth / 2);
+							break;
+						default:
+							break;
+						}
+
+						x = abs(x);
+						y = abs(y);
+						height_values[x][y] = -1.f;
+					}
+				}
+			}
+
+
+			// More chunks
+			side0 = rand() % (rows - chunk_size);
+			side1 = rand() % (columns - chunk_size);
+			side2 = rand() % (rows - chunk_size);
+			side3 = rand() % (columns - chunk_size);
+
+			// removed 3 on each side
+			for (size_t i = 0; i < chunk_size; i++)
+			{
+				height_values[0][(side0 + i)] = -1.0f;
+				height_values[rows - 1][(side1 + i)] = -1.0f;
+				height_values[(side2 + i)][0] = -1.0f;
+				height_values[(side3 + i)][columns - 1] = -1.0f;
+			}
+
+		}
+
 
 		for (int i = 0; i < rows; i++)
 		{
