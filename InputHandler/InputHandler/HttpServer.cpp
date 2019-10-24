@@ -10,9 +10,6 @@ using namespace httplib;
 #define MALLOC(x) HeapAlloc(GetProcessHeap(), 0, (x))
 #define FREE(x) HeapFree(GetProcessHeap(), 0, (x))
 
-std::thread* gServerThread = nullptr;
-Server gServer;
-
 bool GetLocalIp4(std::string& rStringToFill)
 {
 	PIP_ADAPTER_INFO p_adapter_info;
@@ -57,6 +54,12 @@ bool GetLocalIp4(std::string& rStringToFill)
 	return true;
 }
 
+std::thread* gServerThread = nullptr;
+Server gServer;
+
+void HttpServerThread();
+bool GetContentAsString(std::string rPath, std::string& rStringToFill, bool binary);
+
 void RunHttpServer()
 {
 	if (!gServer.is_valid()) {
@@ -75,11 +78,11 @@ void StopHttpServer()
 
 #ifdef _DEBUG
 #pragma region Logging
-std::string dump_headers(const Headers& headers) {
+std::string dump_headers(const Headers& rHeaders) {
 	std::string s;
 	char buf[BUFSIZ];
 
-	for (auto it = headers.begin(); it != headers.end(); ++it) {
+	for (auto it = rHeaders.begin(); it != rHeaders.end(); ++it) {
 		const auto& x = *it;
 		snprintf(buf, sizeof(buf), "%s: %s\n", x.first.c_str(), x.second.c_str());
 		s += buf;
@@ -88,37 +91,39 @@ std::string dump_headers(const Headers& headers) {
 	return s;
 }
 
-std::string log(const Request& req, const Response& res) {
+std::string log(const Request& rRequest, const Response& rResponse) {
 	std::string s;
 	char buf[BUFSIZ];
 
 	s += "================================\n";
 
-	snprintf(buf, sizeof(buf), "%s %s %s", req.method.c_str(),
-		req.version.c_str(), req.path.c_str());
+	snprintf(buf, sizeof(buf), "%s %s %s", rRequest.method.c_str(),
+		rRequest.version.c_str(), rRequest.path.c_str());
 	s += buf;
 
 	std::string query;
-	for (auto it = req.params.begin(); it != req.params.end(); ++it) {
+	for (auto it = rRequest.params.begin(); it != rRequest.params.end(); ++it) {
 		const auto& x = *it;
 		snprintf(buf, sizeof(buf), "%c%s=%s",
-			(it == req.params.begin()) ? '?' : '&', x.first.c_str(),
+			(it == rRequest.params.begin()) ? '?' : '&', x.first.c_str(),
 			x.second.c_str());
 		query += buf;
 	}
 	snprintf(buf, sizeof(buf), "%s\n", query.c_str());
 	s += buf;
 
-	s += dump_headers(req.headers);
+	s += dump_headers(rRequest.headers);
 
 	s += "--------------------------------\n";
 
-	snprintf(buf, sizeof(buf), "%d %s\n", res.status, res.version.c_str());
+	snprintf(buf, sizeof(buf), "%d %s\n", rResponse.status, rResponse.version.c_str());
 	s += buf;
-	s += dump_headers(res.headers);
+	s += dump_headers(rResponse.headers);
 	s += "\n";
 
-	if (!res.body.empty()) { s += res.body; }
+	if (!rResponse.body.empty()) {
+		s += rResponse.body;
+	}
 
 	s += "\n";
 
@@ -132,7 +137,7 @@ void HttpServerThread()
 	gServer.Get("/", [=](const Request& /*rRequest*/, Response& rResponse)
 	{
 		std::string buf;
-		if (!GetContentAsString("mobileSite.html", buf))
+		if (!GetContentAsString("mobileSite.html", buf, false))
 		{
 			buf = "<p>Error: <span style='color:red;'>mobileSite.html could not be found</span></p>";
 		}
