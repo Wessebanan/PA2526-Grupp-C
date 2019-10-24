@@ -33,6 +33,7 @@
 
 #include "gameGraphics/ForwardRenderingPipeline.h"
 #include "gameGraphics/ShadowMapPipeline.h"
+#include "gameGraphics/SSAOPipeline.h"
 
 #include "gameAnimation/InitAnimation.h"
 
@@ -134,7 +135,20 @@ int main()
 			&desc);
 	}
 
+	graphics::RenderManager renderer_ssao;
+	renderer_ssao.Initialize(0);
+	UINT pipeline_ssao;
+	{
+		graphics::SSAO_PIPELINE_DESC desc = { };
+		pipeline_ssao = renderer_ssao.CreatePipeline(
+			new graphics::SSAOPipeline,
+			&desc);
+	}
 
+	UINT shader_ssao_noise = renderer_ssao.CreateShaderProgram(
+		GetShaderFilepath("VS_SSAO.cso").c_str(), 
+		GetShaderFilepath("PS_SSAO.cso").c_str(), 
+		0);
 	/*
 		-- Meshes --
 	*/
@@ -144,6 +158,7 @@ int main()
 	MeshContainer::LoadMesh(MESH_TYPE_ROCK, "../meshes/rock.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_TREE, "../meshes/tree2.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../RunningCustom2.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_TRIANGLE, "../meshes/screen_space_triangle.fbx");
 
 	/* ECS BEGIN */
 
@@ -241,6 +256,8 @@ int main()
 			renderer.ExecutePipeline(pipeline_shadow_map);
 
 			renderer.ExecutePipeline(pipeline_forward);
+
+			renderer_ssao.ExecutePipeline(pipeline_ssao);
 
 			graphics::Present(0);
 		}

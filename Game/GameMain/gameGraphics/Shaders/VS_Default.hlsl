@@ -54,6 +54,8 @@ struct VSOUT
 
 	float3 color		: COLOR0;
 	float3 normal		: NORMAL0;
+
+	float2 uv			: TEXCOORD0;
 };
 
 VSOUT main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
@@ -68,6 +70,8 @@ VSOUT main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 	float4 clr		= unpack(gMesh[InstanceID].color) / 255.0f;
 	output.color	= clr.rgb;
 	output.normal	= gVertexNormals[VertexID];
+
+	output.uv	= gVertexTexCoords[VertexID];
 
 	return output;
 }

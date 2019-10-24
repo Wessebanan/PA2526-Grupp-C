@@ -36,9 +36,11 @@ struct PSIN
 {
 	float4 pos			: SV_POSITION;
 	float4 sunPos		: POSITION1;
-
+	
 	float3 color		: COLOR0;
 	float3 normal		: NORMAL0;
+
+	float2 uv			: TEXCOORD0;
 };
 
 float4 main(PSIN input) : SV_TARGET

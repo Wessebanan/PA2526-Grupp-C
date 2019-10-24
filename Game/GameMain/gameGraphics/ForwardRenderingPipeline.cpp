@@ -98,7 +98,63 @@ namespace graphics
 			pDevice4->CreateBuffer(&desc, NULL, &m_pMatrixBuffers[0]);
 		}
 
-		internal::GetBackBuffer(&m_pRenderTarget);
+		internal::GetBackBuffer(&m_pRenderTargets[0]);
+
+		// Normal Render Target
+		{
+			ID3D11Texture2D* pTexture = NULL;
+			{
+				D3D11_TEXTURE2D_DESC desc = { 0 };
+				desc.Width = pDesc->ClientWidth;
+				desc.Height = pDesc->ClientHeight;
+				desc.ArraySize = 1;
+				desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+				desc.CPUAccessFlags = 0;
+				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.MipLevels = 0;
+				desc.MiscFlags = 0;
+				desc.SampleDesc = { 1, 0 };
+				desc.Usage = D3D11_USAGE_DEFAULT;
+
+				pDevice4->CreateTexture2D(NULL, NULL, &pTexture);
+			}
+			{
+				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
+				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.Texture2D.MipSlice = 0;
+
+				pDevice4->CreateRenderTargetView(pTexture, &desc, &m_pRenderTargets[1]);
+			}
+		}
+
+		// Position Render Target
+		{
+			ID3D11Texture2D* pTexture = NULL;
+			{
+				D3D11_TEXTURE2D_DESC desc = { 0 };
+				desc.Width = pDesc->ClientWidth;
+				desc.Height = pDesc->ClientHeight;
+				desc.ArraySize = 1;
+				desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+				desc.CPUAccessFlags = 0;
+				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.MipLevels = 0;
+				desc.MiscFlags = 0;
+				desc.SampleDesc = { 1, 0 };
+				desc.Usage = D3D11_USAGE_DEFAULT;
+
+				pDevice4->CreateTexture2D(NULL, NULL, &pTexture);
+			}
+			{
+				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
+				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.Texture2D.MipSlice = 0;
+
+				pDevice4->CreateRenderTargetView(pTexture, &desc, &m_pRenderTargets[2]);
+			}
+		}
 
 		return S_OK;
 	}
@@ -116,14 +172,18 @@ namespace graphics
 			0);
 
 		float color[4] = { pData->Red, pData->Green, pData->Blue, 1.0f };
-		pContext4->ClearRenderTargetView(m_pRenderTarget, color);
+		float color_clear[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		pContext4->ClearRenderTargetView(m_pRenderTargets[0], color);
+		pContext4->ClearRenderTargetView(m_pRenderTargets[1], color_clear);
+		pContext4->ClearRenderTargetView(m_pRenderTargets[2], color_clear);
+
 		pContext4->ClearDepthStencilView(m_pDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
 	void ForwardRenderingPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
 		graphics::SetViewport(pContext4, 0, 0, m_clientWidth, m_clientHeight);
-		pContext4->OMSetRenderTargets(1, &m_pRenderTarget, m_pDepthBuffer);
+		pContext4->OMSetRenderTargets(3, m_pRenderTargets, m_pDepthBuffer);
 
 		pContext4->VSSetConstantBuffers(1, 2, m_pMatrixBuffers);
 	}
@@ -145,6 +205,9 @@ namespace graphics
 	{
 		m_pDepthBuffer->Release();
 		m_pDepthTexture->Release();
+
+		m_pRenderTargets[1]->Release();
+		m_pRenderTargets[2]->Release();
 
 		m_pMatrixBuffers[0]->Release();
 		m_pMatrixBuffers[1]->Release();
