@@ -20,7 +20,7 @@ namespace CameraEcsFunctions
 		transform.rotation = CameraDefines::originalRotation;
 		transform.scale = CameraDefines::originalScale;
 		CameraComponent camera;
-		camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS , 0.0f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) - TILE_RADIUS) / 2.0f, 0.0f };
+		camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS , 0.0f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) - TILE_RADIUS) / 2.0f + TILE_RADIUS, 0.0f };
 //		camera.target = CameraDefines::originalTarget;
 		camera.up = CameraDefines::originalUp;
 		//camera.forward = CameraDefines::originalForward;
