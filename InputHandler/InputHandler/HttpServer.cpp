@@ -145,8 +145,15 @@ void HttpServerThread()
 		if (!GetContentAsString(gPathToHtml, buf, false))
 		{
 			buf = "<p>Error: <span style='color:red;'>mobileSite.html could not be found</span></p>";
+			rResponse.set_content(buf, "text/html");
 		}
-		rResponse.set_content(buf, "text/html");
+		else
+		{
+			std::string ip;
+			HttpServer::GetLocalIp4(ip);
+			buf.insert(0, "<script>var ip_address=\"" + ip + "\";</script>\n");
+			rResponse.set_content(buf, "text/html");
+		}
 	});
 
 	gServer.Get("/favicon.ico", [=](const Request& /*rRequest*/, Response& rResponse)
