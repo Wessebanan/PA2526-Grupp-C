@@ -29,13 +29,17 @@ namespace graphics
 			UINT bytes = totalBytesPerExecute;
 			bytes = (UINT)(ceil(bytes / 256.f) * 256);
 
-			D3D11_BUFFER_DESC desc = { 0 };
-			desc.BindFlags		= D3D11_BIND_CONSTANT_BUFFER;
-			desc.ByteWidth		= bytes;
-			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-			desc.Usage			= D3D11_USAGE_DYNAMIC;
+			if (bytes > 0)
+			{
 
-			hr = m_pDevice4->CreateBuffer(&desc, NULL, &m_pPerObjectBuffer);
+				D3D11_BUFFER_DESC desc = { 0 };
+				desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+				desc.ByteWidth = bytes;
+				desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+				desc.Usage = D3D11_USAGE_DYNAMIC;
+
+				hr = m_pDevice4->CreateBuffer(&desc, NULL, &m_pPerObjectBuffer);
+			}
 		}
 
 		return FAILED(hr) ? hr : S_OK;
@@ -64,7 +68,7 @@ namespace graphics
 			m_pipelines[i]->Delete();
 		}
 
-		m_pPerObjectBuffer->Release();
+		SafeRelease((IUnknown**)&m_pPerObjectBuffer);
 	}
 
 	UINT RenderManager::CreatePipeline(GraphicsPipeline* pPipeline, const void* pDescription)
@@ -192,7 +196,6 @@ namespace graphics
 
 			data_location += total_models * program.PerObjectByteWidth;
 			data_location = (UINT)(ceil(data_location / 256.f) * 256);
-			//data_location += 256 - (data_location % 256);
 		}
 
 		pPipeline->End(m_pContext4);
