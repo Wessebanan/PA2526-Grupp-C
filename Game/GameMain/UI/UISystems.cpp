@@ -122,6 +122,6 @@ void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, floa
 	{
 	components::UITextComponent* UITextComp = _entityInfo.getComponent<components::UITextComponent>();
 
-	mpD2D->PrintDebug(UITextComp->mStrText);
+	//mpD2D->PrintDebug(UITextComp->mStrText);
 	}
 }

@@ -12,6 +12,8 @@
 #include <iostream>
 #include "../../Physics/includes/PhysicsHelperFunctions.h"
 
+#include "../UI/UIComponents.h"
+
 namespace ecs
 {
 	namespace systems
@@ -506,6 +508,33 @@ namespace ecs
 					p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
 					i++;
 				}
+
+
+				// Chagne the command on the UI
+				ecs::BaseComponent* p_base_comp = getComponentFromKnownEntity<ecs::components::UITextComponent>(p_army->getEntityID());
+
+				ecs::components::UITextComponent* text_comp = static_cast<ecs::components::UITextComponent*>(p_base_comp);
+				
+				switch (state)
+				{
+				case STATE::IDLE:
+					text_comp->mStrText = "IDLE";
+					break;
+				case STATE::LOOT:
+					text_comp->mStrText = "LOOT";
+					break;
+				case STATE::ATTACK:
+					text_comp->mStrText = "ATTACK";
+					break;
+				case STATE::MOVE:
+					text_comp->mStrText = "MOVE";
+					break;
+				default:
+					text_comp->mStrText = "no case for state";
+					break;
+				}
+
+
 				//Loop through the players units and remove their old state component.
 				ecs::Entity* unit;
 				for (int u = 0; u < p_army->unitIDs.size(); u++)

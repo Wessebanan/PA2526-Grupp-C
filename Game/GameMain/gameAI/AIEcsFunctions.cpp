@@ -4,6 +4,7 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "GridEcsFunctions.h"
 #include "../../AI/includes/GridFunctions.h"
+#include "../UI/UIComponents.h"
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -34,6 +35,10 @@ namespace AIEcsFunctions
 		std::srand(std::time(nullptr));
 		//Create Components for a "User" entity.
 		ecs::components::ArmyComponent army;
+		ecs::components::UITextComponent command_text_comp;
+		command_text_comp.mStrText = "NOT SET YET";
+		ecs::components::UIDrawPosComponent text_pos_comp;
+		ecs::components::UIDrawColorComponent text_color_comp;
 		//Create Components for a "Unit" entity.
 		ecs::components::TransformComponent transform;
 		ecs::components::UnitComponent unit;
@@ -113,8 +118,69 @@ namespace AIEcsFunctions
 				temp_entity = rEcs.createEntity(transform, unit, idle_state, color_comp); //
 				army.unitIDs.push_back(temp_entity->getID());
 			}
+
+			HWND hwnd = GetActiveWindow();
+			LPRECT rect = nullptr;
+			GetClientRect(hwnd, rect);
+
+
+			FLOAT client_width = 1800;
+			FLOAT client_height = 1000;
+
+			if (rect != nullptr)
+			{
+				client_width = rect->right;
+				client_height = rect->bottom;
+			}
+
+			FLOAT text_height = 100;
+			FLOAT text_width = 200;
+			switch (i)
+			{
+			case 0:
+				text_pos_comp.mDrawArea.top = 0;
+				text_pos_comp.mDrawArea.bottom = text_height;
+				text_pos_comp.mDrawArea.left = 0;
+				text_pos_comp.mDrawArea.right = text_width;
+
+				text_color_comp.mColor = brushColors::Red;
+				break;
+			case 1:
+				text_pos_comp.mDrawArea.top = 0;
+				text_pos_comp.mDrawArea.bottom = text_height;
+				text_pos_comp.mDrawArea.left = client_width - text_width;
+				text_pos_comp.mDrawArea.right = client_width;
+
+				text_color_comp.mColor = brushColors::Green;
+				break;
+			case 2:
+				text_pos_comp.mDrawArea.top = client_height - text_height;
+				text_pos_comp.mDrawArea.bottom = client_height;
+				text_pos_comp.mDrawArea.left = 0;
+				text_pos_comp.mDrawArea.right = text_width;
+
+				text_color_comp.mColor = brushColors::Blue;
+				break;
+			case 3:
+				text_pos_comp.mDrawArea.top = client_height - text_height;
+				text_pos_comp.mDrawArea.bottom = client_height;
+				text_pos_comp.mDrawArea.left = client_width - text_width;
+				text_pos_comp.mDrawArea.right = client_width;
+
+				text_color_comp.mColor = brushColors::Purple;
+				break;
+			default:
+				text_pos_comp.mDrawArea.top = 100;
+				text_pos_comp.mDrawArea.bottom = 200;
+				text_pos_comp.mDrawArea.left = 100;
+				text_pos_comp.mDrawArea.right = 200;
+
+				text_color_comp.mColor = brushColors::Black;
+				break;
+			}
+
 			//Create the user entity
-			rEcs.createEntity(army);
+			rEcs.createEntity(army, command_text_comp, text_pos_comp, text_color_comp);
 		//	//Clear the army vector before we start creating the next players army.
 			army.unitIDs.clear(); 
 		}

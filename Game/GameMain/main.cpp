@@ -127,7 +127,6 @@ int main()
 	const UINT
 		client_width = graphics::GetDisplayResolution().x,
 		client_height = graphics::GetDisplayResolution().y;
-	Direct2D* my_d2d = new Direct2D;
 
 	graphics::Window wnd;
 	wnd.Initialize(
@@ -145,6 +144,8 @@ int main()
 	graphics::MeshManager mesh_manager;
 	mesh_manager.Initialize(10000, 10000);
 
+	Direct2D* my_d2d = new Direct2D;
+	my_d2d->CreateHwndRenderTarget(wnd, client_width, client_height);
 
 	/*
 		-- Meshes --
@@ -214,7 +215,7 @@ int main()
 
 	/* ECS BEGIN */
 
-	EntityComponentSystem ecs;
+	ecs::EntityComponentSystem ecs;
 	TempUISystemPtrs my_UI_systems;
 
 	//Tiles + sceneobjects + units + camera
@@ -237,6 +238,7 @@ int main()
 	InitInterpreter(ecs);
 	InitUI(ecs, &my_d2d, my_UI_systems);
 	
+
 	//CameraFunctions::CreateDevCamera(ecs);
 
 
@@ -428,7 +430,6 @@ int main()
 			}
 
 			UpdateAnimation(skeleton, skin_shader_program_input, frame_count2);
-			my_d2d->CreateHwndRenderTarget(*pWnd, 1600, 900);
 
 			memcpy(pInstanceData + sizeOfPdata, skin_shader_program_input, skin_size);
 
