@@ -4,6 +4,7 @@
 #include "UtilityComponents.h"
 #include "../Input/InitInputComponents.h"
 #include "GlobalsCamera.h"
+#include "GridProp.h"
 #include <iostream>
 
 using namespace DirectX;
@@ -25,6 +26,7 @@ namespace ecs
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
 				//Initialize standard values.
+				GridProp* p_gp = GridProp::GetInstance();
 				float speed = 0.20f;
 				float sensitivity = 0.01f;
 				DirectX::XMVECTOR world_forward = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
