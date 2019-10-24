@@ -347,19 +347,24 @@ int main()
 	wnd.Open();
 
 	Timer timer;
-
 	timer.StartGame();
 
-	ChangeUserStateEvent e;
-	e.newState = ATTACK;
-	e.playerId = PLAYER1;
+	ecs::events::ChangeUserStateEvent e;
+	e.playerId = PLAYER::PLAYER1;
+	e.newState = STATE::ATTACK;
 	ecs.createEvent(e);
-	e.playerId = PLAYER2;
-	ecs.createEvent(e);
-	e.playerId = PLAYER3;
-	ecs.createEvent(e);
-	e.playerId = PLAYER4;
-	ecs.createEvent(e);
+	ecs::events::ChangeUserStateEvent e2;
+	e2.playerId = PLAYER::PLAYER2;
+	e2.newState = STATE::ATTACK;
+	ecs.createEvent(e2);
+	ecs::events::ChangeUserStateEvent e3;
+	e3.playerId = PLAYER::PLAYER3;
+	e3.newState = STATE::ATTACK;
+	ecs.createEvent(e3);
+	ecs::events::ChangeUserStateEvent e4;
+	e4.playerId = PLAYER::PLAYER4;
+	e4.newState = STATE::ATTACK;
+	ecs.createEvent(e4);
 
 	while (wnd.IsOpen())
 	{
