@@ -54,6 +54,9 @@
     <ClCompile Include="gameGraphics\RenderBuffer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp">
+      <Filter>Graphics\ECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -194,6 +197,15 @@
     <ClInclude Include="gameGraphics\RenderBuffer.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="gameGraphics\GraphicsECSComponents.h">
+      <Filter>Graphics\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\GraphicsECSSystems.h">
+      <Filter>Graphics\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\InitGraphics.h">
+      <Filter>Init</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -240,6 +252,9 @@
     </Filter>
     <Filter Include="Renderers">
       <UniqueIdentifier>{bac684d7-875a-4898-a729-4aca9e0b09fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\ECS">
+      <UniqueIdentifier>{f1adda67-25ce-4149-be22-e09dd443c570}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

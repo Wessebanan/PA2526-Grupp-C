@@ -31,16 +31,12 @@
 #include "../../Graphics/includes/RenderManager.h"
 #include "../../Graphics/includes/MeshManager.h"
 
-#include "gameGraphics/ForwardRenderingPipeline.h"
-#include "gameGraphics/ShadowMapPipeline.h"
-
 #include "gameAnimation/InitAnimation.h"
-
-#include "MeshContainer/MeshContainer.h"
 
 #include "Renderers/Renderers.h"
 
-//#include "../../Graphics/includes/ForwardRenderingPipeline.h"
+#include "gameGraphics/GraphicsECSSystems.h"
+#include "gameGraphics/InitGraphics.h"
 
 #include <time.h>
 
@@ -69,13 +65,13 @@ void SetViewMatrix(
 	));
 }
 
+const UINT g_RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
 
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	const UINT RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
 	srand(time(0));
 
@@ -100,51 +96,6 @@ int main()
 	graphics::InitializeD3D11();
 	graphics::AttachHwndToSwapChain(wnd);
 
-	graphics::RenderManager renderer;
-	renderer.Initialize(RENDER_BUFFER_SIZE);
-
-	graphics::MeshManager mesh_manager;
-	mesh_manager.Initialize(10000, 10000);
-
-	UINT pipeline_shadow_map;
-	{
-		graphics::SHADOW_MAP_PIPELINE_DESC desc;
-		desc.PixelsWidth	= 2048;
-		desc.Width			= 45.0f;
-		desc.Height			= 80.0f;
-		desc.NearPlane		=  1.0f;
-		desc.FarPlane		= 40.0f;
-		pipeline_shadow_map = renderer.CreatePipeline(
-			new graphics::ShadowMapPipeline,
-			&desc);
-	}
-
-	UINT pipeline_forward;
-	{
-		graphics::FORWARD_RENDERING_PIPELINE_DESC desc;
-		desc.ClientWidth = client_width;
-		desc.ClientHeight = client_height;
-		desc.Fov = 3.14f / 2.0f;
-		desc.NearPlane = 0.1f;
-		desc.FarPlane = 100.0f;
-		pipeline_forward = renderer.CreatePipeline(
-			new graphics::ForwardRenderingPipeline,
-			&desc);
-	}
-
-
-	/*
-		-- Load Meshes --
-		
-		MeshContainer is a singleton, and is visible for everyone.
-	*/
-
-	MeshContainer::Initialize(&mesh_manager);
-	MeshContainer::LoadMesh(MESH_TYPE_TILE, "../meshes/hexagon_tile5.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_ROCK, "../meshes/rock.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_TREE, "../meshes/tree2.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../RunningCustom2.fbx");
-
 	/*
 		-- Initialize ECS --
 	*/
@@ -163,32 +114,11 @@ int main()
 
 	InitAll(ecs);
 
-
-	/*
-		-- Initialize Mesh Renderers --
-	*/
-
-	graphics::RenderBuffer renderBuffer;
-	renderBuffer.Initialize(RENDER_BUFFER_SIZE, 256);
-
-	systems::UnitRenderSystem* p_unit_renderer = ecs.createSystem<systems::UnitRenderSystem>(9);
-	systems::SceneObjectRenderSystem* p_scenery_renderer = ecs.createSystem<systems::SceneObjectRenderSystem>(9);
-	systems::TileRenderSystem* p_tile_renderer = ecs.createSystem<systems::TileRenderSystem>(9);
-
-	p_unit_renderer->Initialize(&renderer, &renderBuffer);
-	p_scenery_renderer->Initialize(&renderer, &renderBuffer);
-	p_tile_renderer->Initialize(&renderer, &renderBuffer);
-
-
-
-
 	/*
 		 #############################                                                    ############################# 
 		#######################   From here on, all initialization is expected to be finished.   #######################
 		 #############################                                                    ############################# 
 	*/
-
-
 
 
 	/*
@@ -219,58 +149,9 @@ int main()
 			}
 
 			/*
-				Clear all data from render buffer. This buffer will be filled each frame with
-				per vertex data for all objects that will render, and then be uploaded to the GPU
-				all together.
-			*/
-			renderBuffer.Reset();
-
-			/*
 				Update all ECS systems, and give them the delta time.
 			*/
 			ecs.update(timer.GetFrameTime());
-
-			/*
-				Upload renderBuffer to the GPU.
-				RenderBuffer contains ALL vertex data for rendering.
-			*/
-			renderer.BeginUpload();
-			renderer.UploadPerInstanceData(renderBuffer.GetStartAddress(), renderBuffer.GetUsedMemory(), 0);
-
-			/*
-				Update shadow map for graphics engine
-			*/
-			{	
-				DirectX::XMFLOAT4X4 shadow_matrix;
-				SetViewMatrix(
-					shadow_matrix,
-					6.0f,  4.0f, -5.0f,
-					0.0f, -1.0f, 1.0f);
-
-				graphics::SHADOW_MAP_PIPELINE_DATA data;
-				data.ViewMatrix = shadow_matrix;
-
-				renderer.UpdatePipeline(pipeline_shadow_map, &data);
-			}
-
-			/*
-				Update camera for graphics engine
-			*/
-			{
-				CameraComponent* p_cam_comp = (CameraComponent*)ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
-				graphics::FORWARD_RENDERING_PIPELINE_DATA data;
-				data.ViewMatrix = p_cam_comp->viewMatrix;
-				data.Red	= 0.25f;
-				data.Green	= 0.25f;
-				data.Blue	= 1.0f;
-
-				renderer.UpdatePipeline(pipeline_forward, &data);
-			}
-
-			mesh_manager.SetVertexBuffers();
-
-			renderer.ExecutePipeline(pipeline_shadow_map);
-			renderer.ExecutePipeline(pipeline_forward);
 
 			graphics::Present(0);
 		}
@@ -280,13 +161,17 @@ int main()
 		-- Cleanup Memory --
 	*/
 
+	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
+	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
+	graphics::RenderBuffer& render_buffer = static_cast<components::RenderBufferComponent*>(ecs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
+
 	mesh_manager.Destroy();
-	renderer.Destroy();
+	render_manager.Destroy();
 
 	graphics::DestroyD3D11();
 
 	MeshContainer::Terminate();
-	renderBuffer.Terminate();
+	render_buffer.Terminate();
 
 	return 0;
 
@@ -303,6 +188,10 @@ void InitAll(EntityComponentSystem& rECS)
 		after all ecs systems has been updated.
 	*/
 
+	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
+	InitMeshes(rECS);
+	InitGraphicsPreRenderSystems(rECS);
+
 	InitSound(rECS);
 	InitSong(rECS);
 
@@ -318,6 +207,8 @@ void InitAll(EntityComponentSystem& rECS)
 	InitCamera(rECS);
 
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
+
+	InitGraphicsPostRenderSystems(rECS);
 
 	ChangeUserStateEvent e;
 	e.newState = ATTACK;

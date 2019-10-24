@@ -103,6 +103,7 @@
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
+    <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
@@ -134,6 +135,9 @@
     <ClInclude Include="gameAudio\AudioGlobals.h" />
     <ClInclude Include="gameAudio\InitAudio.h" />
     <ClInclude Include="gameGraphics\ForwardRenderingPipeline.h" />
+    <ClInclude Include="gameGraphics\GraphicsECSComponents.h" />
+    <ClInclude Include="gameGraphics\GraphicsECSSystems.h" />
+    <ClInclude Include="gameGraphics\InitGraphics.h" />
     <ClInclude Include="gameGraphics\RenderBuffer.h" />
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
