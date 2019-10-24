@@ -18,7 +18,7 @@ TEST(HttpServer, GetLocalIP) {
 
 TEST(HttpServer, HostServer)
 {
-	HttpServer::RunHttpServer();
+	HttpServer::RunHttpServer("../InputHandler/mobileSite.html","../InputHandler/favicon.ico");
 	std::string ip;
 	HttpServer::GetLocalIp4(ip);
 	std::cout << "Server open for 20 sec at adress: " << ip << std::endl;

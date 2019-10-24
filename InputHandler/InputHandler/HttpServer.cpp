@@ -56,16 +56,20 @@ bool HttpServer::GetLocalIp4(std::string& rStringToFill)
 
 std::thread* gServerThread = nullptr;
 Server gServer;
+std::string gPathToHtml;
+std::string gPathToFavicon;
 
 void HttpServerThread();
 bool GetContentAsString(std::string rPath, std::string& rStringToFill, bool binary);
 
-void HttpServer::RunHttpServer()
+void HttpServer::RunHttpServer(std::string pathToHtml, std::string pathToFavicon)
 {
 	if (!gServer.is_valid()) {
 		std::cout << "The server has an error...\n";
 		return;
 	}
+	gPathToHtml = pathToHtml;
+	gPathToFavicon = pathToFavicon;
 	gServerThread = new std::thread(HttpServerThread);
 }
 
@@ -137,7 +141,7 @@ void HttpServerThread()
 	gServer.Get("/", [=](const Request& /*rRequest*/, Response& rResponse)
 	{
 		std::string buf;
-		if (!GetContentAsString("mobileSite.html", buf, false))
+		if (!GetContentAsString(gPathToHtml, buf, false))
 		{
 			buf = "<p>Error: <span style='color:red;'>mobileSite.html could not be found</span></p>";
 		}
@@ -147,7 +151,7 @@ void HttpServerThread()
 	gServer.Get("/favicon.ico", [=](const Request& /*rRequest*/, Response& rResponse)
 	{
 		std::string buf;
-		if (!GetContentAsString("favicon.ico", buf, true))
+		if (!GetContentAsString(gPathToFavicon, buf, true))
 		{
 			buf = "<p>Error 404: <span style='color:red;'>favicon.ico could not be found</span></p>";
 			rResponse.set_content(buf, "text/html");
