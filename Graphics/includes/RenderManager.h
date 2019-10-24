@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "RenderContext.h"
+#include "Pipeline.h"
 
 #include <vector>
 #include <DirectXMath.h>
@@ -16,12 +16,10 @@ namespace graphics
 	*/
 	struct ShaderModelLayout
 	{
-		UINT MeshCount;				// Total Meshes Within This Struct
-		MeshRegion Meshes[10];		// Which Meshes To Be Drawn
+		UINT MeshCount;					// Total Meshes Within This Struct
 
-		UINT InstanceCounts[10];	// Total Instances Per Mesh
-
-		UINT TotalModels;
+		MeshRegion* pMeshes;			// Which Meshes To Be Drawn
+		UINT* pInstanceCountPerMesh;	// Total Instances Per Mesh
 	};
 
 	/*
@@ -34,12 +32,10 @@ namespace graphics
 		UINT PerObjectByteWidth;
 	};
 
-	/*
-		Internal Data Structure Used For Communicating Between Pipelines
-	*/
-	struct RenderManagerData
+	struct RenderShader
 	{
-		ID3D11Texture2D* pBackBufferTexture;
+		ShaderModelLayout Layout;
+		RenderProgram Program;
 	};
 
 	class RenderManager
@@ -50,8 +46,9 @@ namespace graphics
 
 		/*
 			Initialize with a window that will be the back buffer
+				_IN_ totalBytesPerExecute : How large model data can be at setModelData()  
 		*/
-		HRESULT Initialize(const HWND hWnd);
+		HRESULT Initialize(const UINT totalBytesPerExecute);
 
 		/*
 			Create a shader program to be called on every ExecutePipeline()
@@ -76,12 +73,18 @@ namespace graphics
 		/*
 			Execute desired pipeline (will use all created programs)
 		*/
+		void ExecutePipeline(const UINT pipeline, const UINT shaderStart, const UINT shaderEnd);
 		void ExecutePipeline(const UINT pipeline);
 
 		/*
-			Set the model data for all pipelines in one go (Must be update when data is changed)
+			Set the model data for all shaders.
+			New data can be pushed in intervals if needed.
+			The placements of the shaders determine the order of the data.
 		*/
-		void SetModelData(const void* pData, const UINT byteWidth);
+		void UploadPerInstanceData(
+			const void* pData, 
+			const UINT byteWidth,
+			const UINT offset);
 
 		/*
 			Set shader model layout for a shader (Can be set once or every frame)
@@ -89,31 +92,29 @@ namespace graphics
 		void SetShaderModelLayout(const UINT shader, const ShaderModelLayout& rLayout);
 
 		/*
-			Preset back buffer
+			Must be called before upload
 		*/
-		void Present();
+		void BeginUpload();
+
+		/*
+			Get number of shader programs
+		*/
+		UINT GetNumShaderPrograms();
+		UINT GetNumPipelines();
 
 		void Destroy();
+
 	private:
-		ID3D11Device4* m_pDevice4;
-		ID3D11DeviceContext4* m_pContext4;
+		std::vector<RenderShader>		m_shaders;
+		std::vector<GraphicsPipeline*>	m_pipelines;
 
-		IDXGIFactory6* m_pFactory6;
-		IDXGIAdapter4* m_pAdapter4;
-
-		IDXGISwapChain4* m_pSwapChain;
+		ID3D11Device4*			m_pDevice4;
+		ID3D11DeviceContext4*	m_pContext4;
 
 		ID3D11Buffer* m_pPerObjectBuffer;
-		const void* m_pData;
-		UINT m_dataByteWidth;
 
-		UINT m_clientWidth, m_clientHeight;
-
-		RenderManagerData m_data;
-
-		std::vector<ShaderModelLayout> m_shaderModelLayouts;
-
-		std::vector<RenderProgram> m_shaderPrograms;
-		std::vector<GraphicsPipeline*> m_pipelines;
+		UINT m_clientWidth, 
+			m_clientHeight,
+			m_firstTimeUpload;
 	};
 }

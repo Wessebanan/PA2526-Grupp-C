@@ -82,7 +82,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)includes;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>JSONFILEPLAYER="$(SolutionDir.Replace(\,/))../InputHandler/InputHandler/json/playerMode.json";_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -97,7 +97,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)includes;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>JSONFILEPLAYER="$(SolutionDir.Replace(\,/))../InputHandler/InputHandler/json/playerMode.json";_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -114,7 +114,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)includes;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>JSONFILEPLAYER="$(SolutionDir.Replace(\,/))../InputHandler/InputHandler/json/playerMode.json";_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -133,7 +133,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)includes;%(AdditionalIncludeDirectories);</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>JSONFILEPLAYER="$(SolutionDir.Replace(\,/))../InputHandler/InputHandler/json/playerMode.json";_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_MBCS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,15 +147,20 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="HttpServer.cpp" />
     <ClCompile Include="includes\sha1.cpp" />
     <ClCompile Include="InputBackend.cpp" />
     <ClCompile Include="PingingWebsite.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="webConnection.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="includes\HttpServer.h" />
+    <ClInclude Include="includes\httplib.h" />
     <ClInclude Include="includes\InputBackend.h" />
     <ClInclude Include="includes\sha1.h" />
     <ClInclude Include="includes\webConnection.h" />

@@ -18,12 +18,20 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ForwardRenderingPipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\shaders\PS_Default.hlsl">
+    <ClInclude Include="ForwardRenderingPipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="PS_Default.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
-    <FxCompile Include="..\shaders\VS_Default.hlsl">
+    <FxCompile Include="VS_Default.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

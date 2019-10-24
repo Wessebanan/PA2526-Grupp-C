@@ -120,6 +120,7 @@ namespace graphics
 		graphics::UploadToDynamicBuffer(
 			pContext4,
 			m_pMatrixBuffers[0],
+			D3D11_MAP_WRITE_DISCARD,
 			&pData->ViewMatrix,
 			sizeof(pData->ViewMatrix),
 			0);
@@ -138,7 +139,7 @@ namespace graphics
 		pContext4->VSSetConstantBuffers(1, 2, m_pMatrixBuffers);
 	}
 
-	void ShadowMapPipeline::PreExecute(
+	void ShadowMapPipeline::PreProcess(
 		ID3D11DeviceContext4* pContext4,
 		ID3D11VertexShader* pVertexShader,
 		ID3D11PixelShader* pPixelShader)
@@ -147,7 +148,7 @@ namespace graphics
 		pContext4->PSSetShader(NULL, NULL, 0);
 	}
 
-	void ShadowMapPipeline::End(ID3D11DeviceContext4* pContext4, RenderManagerData* pData)
+	void ShadowMapPipeline::End(ID3D11DeviceContext4* pContext4)
 	{
 		pContext4->OMSetRenderTargets(0, NULL, NULL);
 		pContext4->PSSetSamplers(0, 1, &m_pSamplerState);

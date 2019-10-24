@@ -8,9 +8,9 @@
 
 // A bunch of default values.
 #define DEFAULT_MOVEMENT_FORCE 500.0f
-#define DEFAULT_DECELERATION 10.0f
-#define DEFAULT_MAX_VELOCITY 100.0f
-#define DEFAULT_WEIGHT 50.0f
+#define DEFAULT_DECELERATION 200.0f
+#define DEFAULT_MAX_VELOCITY 20.0f
+#define DEFAULT_WEIGHT 250.0f
 #define DEFAULT_GRAVITY 9.82f
 #define DEFAULT_HEALTH 100.0f
 
@@ -54,7 +54,7 @@ namespace ecs
 			DirectX::XMFLOAT3 mForce		= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mAcceleration = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mVelocity		= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-			DirectX::XMFLOAT3 mForward		= DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mForward		= DirectX::XMFLOAT3(0.0f, 0.0f, -1.0f);
 
 			// Assuming objects are equal in
 			// density all over.
@@ -113,7 +113,10 @@ namespace ecs
 
 			~ObjectCollisionComponent()
 			{
-				delete[] mSpheres;
+				if (mSpheres)
+				{
+					delete[] mSpheres;
+				}
 			}
 		};
 
@@ -143,7 +146,7 @@ namespace ecs
 			
 			// Base damage for multiplier on hit based on weapon type.
 			float mBaseDamage = 0.0f;
-			float mAttackRange = 0.0f;
+			float mWeaponRange = 0.0f;
 
 			~WeaponComponent()
 			{				
@@ -168,6 +171,21 @@ namespace ecs
 		COMP(QuadTreeComponent)
 		{
 			void* pTree;
+		};
+
+		/*
+		* Holds the ID of the equipped weapon entity, as
+		* well as the owner unit's melee range (arm length)
+		* and the total attack range (melee + weapon range).
+		*/
+		COMP(EquipmentComponent)
+		{
+			ID mEquippedWeapon = 0;
+			// Melee range is arm length.
+			float mMeleeRange = 0.0f;
+
+			// Attack range is sum of weapon range and melee range.
+			float mAttackRange = 0.0f;
 		};
 	} // components
 } // ecs

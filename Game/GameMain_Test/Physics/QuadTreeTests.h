@@ -13,9 +13,9 @@ TEST(QuadTreeTests, AddObjectsToTree)
 	float pi = 3.1415f;
 	float tilecenter_to_side = cos(30 * pi / 180) * TILE_RADIUS;
 	float arena_min_x = -TILE_RADIUS;
-	float arena_max_x = (TILE_RADIUS * 2) * ARENA_COLUMNS - TILE_RADIUS;
+	float arena_max_x = (TILE_RADIUS * 2) * MAX_ARENA_COLUMNS - TILE_RADIUS;
 	float arena_min_z = - tilecenter_to_side;
-	float arena_max_z = (tilecenter_to_side * 2) * ARENA_ROWS - TILE_RADIUS;
+	float arena_max_z = (tilecenter_to_side * 2) * MAX_ARENA_ROWS - TILE_RADIUS;
 	
 	//Create the quadtree with its min and max values.
 	QuadTree tree(0, arena_min_x, arena_max_x, arena_min_z, arena_max_z, nullptr);
@@ -92,9 +92,9 @@ TEST(QuadTreeTests, ClearTree)
 	float pi = 3.1415f;
 	float tilecenter_to_side = cos(30 * pi / 180) * TILE_RADIUS;
 	float arena_min_x = -TILE_RADIUS;
-	float arena_max_x = (TILE_RADIUS * 2) * ARENA_COLUMNS - TILE_RADIUS;
+	float arena_max_x = (TILE_RADIUS * 2) * MAX_ARENA_COLUMNS - TILE_RADIUS;
 	float arena_min_z = -tilecenter_to_side;
-	float arena_max_z = (tilecenter_to_side * 2) * ARENA_ROWS - TILE_RADIUS;
+	float arena_max_z = (tilecenter_to_side * 2) * MAX_ARENA_ROWS - TILE_RADIUS;
 
 	//Create the quadtree with its min and max values.
 	QuadTree tree(0, arena_min_x, arena_max_x, arena_min_z, arena_max_z, nullptr);
@@ -177,9 +177,9 @@ TEST(QuadTreeTests, GeTCollisionList)
 	float pi = 3.1415f;
 	float tilecenter_to_side = cos(30 * pi / 180) * TILE_RADIUS;
 	float arena_min_x = -TILE_RADIUS;
-	float arena_max_x = (TILE_RADIUS * 2) * ARENA_COLUMNS - TILE_RADIUS;
+	float arena_max_x = (TILE_RADIUS * 2) * MAX_ARENA_COLUMNS - TILE_RADIUS;
 	float arena_min_z = -tilecenter_to_side;
-	float arena_max_z = (tilecenter_to_side * 2) * ARENA_ROWS - TILE_RADIUS;
+	float arena_max_z = (tilecenter_to_side * 2) * MAX_ARENA_ROWS - TILE_RADIUS;
 
 	//Create the quadtree with its min and max values.
 	QuadTree tree(0, arena_min_x, arena_max_x, arena_min_z, arena_max_z, nullptr);
@@ -257,9 +257,9 @@ TEST(QuadTreeTests, FillQuadTreeSystem)
 	float pi = 3.1415f;
 	float tilecenter_to_side = cos(30 * pi / 180) * TILE_RADIUS;
 	float arena_min_x = -TILE_RADIUS;
-	float arena_max_x = (TILE_RADIUS * 2) * ARENA_COLUMNS - TILE_RADIUS;
+	float arena_max_x = (TILE_RADIUS * 2) * MAX_ARENA_COLUMNS - TILE_RADIUS;
 	float arena_min_z = -tilecenter_to_side;
-	float arena_max_z = (tilecenter_to_side * 2) * ARENA_ROWS - TILE_RADIUS;
+	float arena_max_z = (tilecenter_to_side * 2) * MAX_ARENA_ROWS - TILE_RADIUS;
 	//Create the quadtree with its min and max values.
 	QuadTree tree(0, arena_min_x, arena_max_x, arena_min_z, arena_max_z, nullptr);
 	ecs::components::QuadTreeComponent my_tree;

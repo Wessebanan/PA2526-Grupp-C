@@ -51,8 +51,6 @@ Audio::Plugin::Status Audio::Plugin::Sampler::Process(Samples start, Samples sam
 			// For both channels...
 			for (j = 0; j < channelCount; j++)
 			{
-				// Read the data from the file
-				*(pData++) = data_pointer[mReadPointer++];
 				// If we've reached the end of the file
 				if (mReadPointer >= sample_count)
 				{
@@ -66,6 +64,8 @@ Audio::Plugin::Status Audio::Plugin::Sampler::Process(Samples start, Samples sam
 					}
 					mRepeatAmount--;
 				}
+				// Read the data from the file
+				*(pData++) = data_pointer[mReadPointer++];
 			}
 		}
 	}

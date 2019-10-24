@@ -14,7 +14,11 @@ bool InitSound(ecs::EntityComponentSystem& rECS)
 		rECS.removeSystem<ecs::systems::SoundMessageSystem>();
 		return false;
 	}
+	return true;
+}
 
+void InitSong(ecs::EntityComponentSystem& rECS)
+{
 	{
 		ecs::events::PlayMusic m_event;
 		m_event.audioName = AudioName::CC_TEST_SONG;
@@ -23,7 +27,7 @@ bool InitSound(ecs::EntityComponentSystem& rECS)
 
 	{
 		ecs::events::PlaySubMusic m_event;
-		m_event.audioName = AudioName::CC_TEST_SONG;
+		m_event.audioName = AudioName::CC_TEST_SONG_DRUMS;
 		rECS.createEvent(m_event);
 	}
 
@@ -32,6 +36,4 @@ bool InitSound(ecs::EntityComponentSystem& rECS)
 		m_event.volume = 0.0f;
 		rECS.createEvent(m_event);
 	}
-
-	return true;
 }
