@@ -585,6 +585,8 @@ namespace GridFunctions
 	{
 		GridProp* p_gp = GridProp::GetInstance();
 		int2 index(-1, -1);
+
+
 		// finds each holme and sets them to it
 		if (Setting == 1)
 		{
@@ -638,11 +640,17 @@ namespace GridFunctions
 				break;
 			}
 		}
-		else 
+		else // Default is spawn in thier part of the map
 		{
 			index = FindStartingTile(Id, Rows, Columns);
 		}
 		
+		// Failsafe if the setting didnt work
+		if (index.x == -1 || index.y == -1)
+		{
+			index = FindStartingTile(Id, Rows, Columns);
+		}
+
 		return index;
 	}
 	int2 GetTileFromWorldPos(float x, float z)
