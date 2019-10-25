@@ -99,6 +99,39 @@ namespace ecs
 			graphics::MeshRegion mTileMeshRegion;
 		};
 
+		class OceanRenderSystem : public ECSSystem<OceanRenderSystem>
+		{
+		public:
+
+			OceanRenderSystem();
+			~OceanRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				float x, y, z;
+				uint32_t color;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mTileCount;
+			graphics::MeshRegion mTileMeshRegion;
+		};
+
 		class SceneObjectRenderSystem : public ECSSystem<SceneObjectRenderSystem>
 		{
 		public:

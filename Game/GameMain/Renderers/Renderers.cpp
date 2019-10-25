@@ -3,6 +3,7 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameUtility/UtilityEcsFunctions.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
+#include "../gameWorld/OceanComponents.h"
 
 static inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3) {
 	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
@@ -197,6 +198,75 @@ namespace ecs
 			return sizeof(InputLayout);
 		}
 #pragma endregion TileRenderSystem
+
+#pragma region OceanRenderSystem
+	OceanRenderSystem::OceanRenderSystem()
+	{
+		updateType = SystemUpdateType::MultiEntityUpdate;
+		typeFilter.addRequirement(components::OceanTileComponent::typeID);
+		typeFilter.addRequirement(components::TransformComponent::typeID);
+		typeFilter.addRequirement(components::ColorComponent::typeID);
+
+		mInstanceLayout = { 0 };
+	}
+
+	OceanRenderSystem::~OceanRenderSystem()
+	{
+
+	}
+
+	void OceanRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+	{
+		mTileCount = (UINT)_entities.entities.size();
+
+		// Fetch pointer to write data to in RenderBuffer
+		mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mTileCount * OceanRenderSystem::GetPerInstanceSize());
+
+		// Iterate all tiles and write their data to the RenderBuffer
+		uint32_t index = 0;
+		for (FilteredEntity tile : _entities.entities)
+		{
+			components::TileComponent* p_tile_comp = tile.getComponent<components::TileComponent>();
+			components::TransformComponent* p_transform_comp = tile.getComponent<components::TransformComponent>();
+			components::ColorComponent* p_color_comp = tile.getComponent<components::ColorComponent>();
+
+			mpBuffer[index].x = p_transform_comp->position.x;
+			mpBuffer[index].y = p_transform_comp->position.y;
+			mpBuffer[index].z = p_transform_comp->position.z;
+
+			mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+
+			index++;
+		}
+
+		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+	}
+
+	void OceanRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+	{
+		mpRenderMgr = pRenderMgr;
+		mTileMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TILE);
+
+		mInstanceLayout.MeshCount = 1;
+		mInstanceLayout.pMeshes = &mTileMeshRegion;
+		mInstanceLayout.pInstanceCountPerMesh = &mTileCount;
+
+		const std::string vs = GetShaderFilepath("VS_Default.cso");
+		const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+		mRenderProgram = mpRenderMgr->CreateShaderProgram(
+			vs.c_str(),
+			ps.c_str(),
+			systems::TileRenderSystem::GetPerInstanceSize());
+
+		mpRenderBuffer = pRenderBuffer;
+	}
+
+	uint32_t OceanRenderSystem::GetPerInstanceSize()
+	{
+		return sizeof(InputLayout);
+	}
+#pragma endregion OceanRenderSystem
 
 #pragma region SceneObjectRenderSystem
 		SceneObjectRenderSystem::SceneObjectRenderSystem()
