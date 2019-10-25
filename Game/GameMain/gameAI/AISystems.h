@@ -12,6 +12,9 @@
 #include <iostream>
 #include "../../Physics/includes/PhysicsHelperFunctions.h"
 
+#include "../../AI/includes/AIGlobals.h"
+
+
 namespace ecs
 {
 	namespace systems
@@ -63,7 +66,7 @@ namespace ecs
 				std::vector<unsigned int> path;
 				GridProp* g_prop = GridProp::GetInstance();
 				components::TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
-				ecs::components::TransformComponent* goal_transform;
+				ecs::components::TransformComponent* goal_transform = nullptr;
 				start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
 				unsigned int start_tile_id = g_prop->mGrid[start_tile.y][start_tile.x].Id;
 				unsigned int goal_id = 0;
@@ -83,6 +86,7 @@ namespace ecs
 				else if (path_comp->goalState == STATE::LOOT)
 				{
 					goal_id = 117;
+					goal_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(goal_id);
 				}
 				if(g_prop->mGrid[start_tile.y][start_tile.x].isPassable)
 				{
@@ -93,6 +97,7 @@ namespace ecs
 				move_comp.path = path;
 				move_comp.goalID = goal_id;
 				move_comp.goalState = entity.getComponent<PathfindingStateComponent>()->goalState;
+				move_comp.goalPos = goal_transform->position;
 				ecs::ECSUser::createComponent(entity.entity->getID(), move_comp);
 				//Remove the PathfindingStateComponent
 				ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::PathfindingStateComponent::typeID);
@@ -407,7 +412,7 @@ namespace ecs
 				switch (move_comp->goalState)
 				{
 				case STATE::ATTACK:
-					mMinimumDist = 1000.0f;//equipment_comp->mAttackRange;
+					mMinimumDist = equipment_comp->mAttackRange;
 					returnState = STATE::ATTACK;
 					break;
 				case STATE::LOOT:
@@ -441,39 +446,41 @@ namespace ecs
 			//Switch to the next units next state
 			void SwitchState(FilteredEntity& entity, STATE newState)
 			{
+				bool state_switched = false;
 				ecs::components::MoveStateComponent* move_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::MoveStateComponent>(entity.entity->getID());
-				switch (newState)
+
+				if (newState == STATE::PATHFINDING)
 				{
-				case IDLE:
+					ecs::components::PathfindingStateComponent path_state;
+					path_state.goalState = move_comp->goalState;
+					ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
+					state_switched = true;
+				}
+				else if (newState == STATE::IDLE)
 				{
 					ecs::components::IdleStateComponent idle_state;
 					ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
-					break;
+					state_switched = true;
 				}
-				case ATTACK:
+				else if (newState == STATE::ATTACK)
 				{
 					ecs::components::AttackStateComponent atk_state;
 					atk_state.goalState = move_comp->goalState;
 					atk_state.enemyEntityId = move_comp->goalID;
 					ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
-					break;
+					state_switched = true;
 				}
-				case LOOT:
+				else if (newState == STATE::LOOT)
 				{
 					ecs::components::LootStateComponent loot_state;
 					ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
-					break;
+					state_switched = true;
 				}
-				case PATHFINDING:
+				
+				if (state_switched)
 				{
-					ecs::components::PathfindingStateComponent path_state;
-					path_state.goalState = move_comp->goalState;
-					break;
+					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
 				}
-				default:
-					break;
-				}
-				ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
 			}
 		};
 
