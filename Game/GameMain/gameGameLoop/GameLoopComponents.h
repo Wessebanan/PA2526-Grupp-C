@@ -7,6 +7,8 @@ namespace ecs
 	{
 		struct GameLoopComponent : public ecs::ECSComponent<GameLoopComponent>
 		{
+			bool mRoundOver;
+
 			float mRoundTime;
 			
 			int mPlayerPoints[4];

@@ -144,6 +144,7 @@
     <ClInclude Include="gameGraphics\InitGraphics.h" />
     <ClInclude Include="gameGraphics\RenderBuffer.h" />
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
+    <ClInclude Include="GameLoopEvents.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameSceneObjects\InitBiomes.h" />

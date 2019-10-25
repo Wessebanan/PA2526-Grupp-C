@@ -227,6 +227,9 @@
     <ClInclude Include="gameGameLoop\GameLoopComponents.h">
       <Filter>GameECS</Filter>
     </ClInclude>
+    <ClInclude Include="GameLoopEvents.h">
+      <Filter>GameECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
