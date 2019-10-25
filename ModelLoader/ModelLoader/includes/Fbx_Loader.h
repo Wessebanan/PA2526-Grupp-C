@@ -149,30 +149,6 @@ namespace ModelLoader
 			}
 			return false;
 		}
-		DirectX::XMFLOAT4X4 GetOffsetMatrixUsingJointName(const std::string& inJointName, const unsigned int frameCount)
-		{
-			int joint_index = -1;
-			for (unsigned int i = 0; i < this->joints.size(); ++i)
-			{
-				if (this->joints[i].mName == inJointName)
-				{
-					joint_index = i;
-					break;
-				}
-			}
-			unsigned int frame_count = frameCount % this->frameCount; // avoid frame overflow, loop anim
-			if (joint_index >= 0) // if joint name existed
-			{
-				// Animation data layout reminder:
-				// [[[ |FRAME 0| joint0mat joint1mat joint2mat ... jointnmat |FRAME 1| joint0mat joint1mat joint2mat ... jointnmat |FRAME 2| ....... ]]]
-				return this->animationData[frame_count * this->jointCount + joint_index];
-			}
-			else
-			{
-				// Return error matrix
-				return DirectX::XMFLOAT4X4(-1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f);
-			}
-		}
 	};
 
 	struct UniqueSkeletonData
@@ -233,6 +209,30 @@ namespace ModelLoader
 				}
 			}
 			return false;
+		}
+		DirectX::XMFLOAT4X4 GetOffsetMatrixUsingJointName(const std::string& inJointName)
+		{
+			int joint_index = -1;
+			for (unsigned int i = 0; i < this->parentSkeleton->joints.size(); ++i)
+			{
+				if (this->parentSkeleton->joints[i].mName == inJointName)
+				{
+					joint_index = i;
+					break;
+				}
+			}
+			
+			if (joint_index >= 0) // if joint name existed
+			{
+				// Animation data layout reminder:
+				// [[[ |FRAME 0| joint0mat joint1mat joint2mat ... jointnmat |FRAME 1| joint0mat joint1mat joint2mat ... jointnmat |FRAME 2| ....... ]]]
+				return this->frameData[joint_index];
+			}
+			else
+			{
+				// Return error matrix
+				return DirectX::XMFLOAT4X4(-1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f);
+			}
 		}
 	};
 

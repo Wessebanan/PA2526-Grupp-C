@@ -42,8 +42,6 @@ namespace AIEcsFunctions
 		ecs::components::IdleStateComponent idle_state;
 		ecs::components::ColorComponent color_comp;
 		ecs::components::SkeletonComponent skeleton_comp;
-		
-
 		//Temporary entity pointer so that we can fetch the units IDs so that we can store
 		//them in the army component.
 		ecs::Entity* temp_entity;

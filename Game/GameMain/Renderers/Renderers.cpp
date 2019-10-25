@@ -77,11 +77,6 @@ namespace ecs
 					p_color_comp->blue,
 					0);
 
-				/*memcpy(
-					mpBuffer[index].boneMatrices,
-					&mpSkeleton->animationData[mAnimationFrameCounter * mpSkeleton->jointCount],
-					mpSkeleton->jointCount * sizeof(DirectX::XMFLOAT4X4));*/
-
 				memcpy(
 					mpBuffer[index].boneMatrices,
 					p_skeleton_comp->skeletonData.frameData,
@@ -89,15 +84,6 @@ namespace ecs
 
 				index++;
 			}
-
-			//// Update animation every 5th frame
-			//mFrameCounter++;
-			//if (mFrameCounter % 5 == 0)
-			//{
-			//	mFrameCounter = 0;
-			//	mAnimationFrameCounter = ++mAnimationFrameCounter % mpSkeleton->frameCount;
-			//}
-
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 

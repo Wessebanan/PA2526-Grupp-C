@@ -618,15 +618,10 @@ namespace ecs
 					{
 					case STATE::IDLE:
 						ecs::ECSUser::createComponent(entity_id, idle);
-						
-						//ecs::ECSUser::getComponent<ecs::components::SkeletonComponent>(skeleton_id)->skeletonData.StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
-						//ecs::ECSUser::getComponent<ecs::components::SkeletonComponent>(skeleton_id)->skeletonData.StopAnimation(ModelLoader::ANIMATION_TYPE::MOVE);
 						break;
 					default:
 						//Defaults to a path since every other command relies on moving to a destination
 						ecs::ECSUser::createComponent(entity_id, path);
-						//ecs::ECSUser::getComponent<ecs::components::SkeletonComponent>(skeleton_id)->skeletonData.StartAnimation(ModelLoader::ANIMATION_TYPE::MOVE);
-						//ecs::ECSUser::getComponent<ecs::components::SkeletonComponent>(skeleton_id)->skeletonData.StopAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
 						break;
 					}
 					/*Used for debugging*/
