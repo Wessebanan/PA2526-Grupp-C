@@ -127,6 +127,8 @@ namespace ecs
 				current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(startID);
 				goal_tile_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(goalID);
 
+				GridProp* p_gp = GridProp::GetInstance();
+
 				//Add the start tile to the closed list
 				NodeInfo start_node;
 				start_node.id = startID;
@@ -418,6 +420,31 @@ namespace ecs
 			float x;
 			float z;
 			float length;
+		};
+
+		/*
+			A system that makes a unit flee from enemy units.
+		*/
+		class FleeStateSystem : public ECSSystem<FleeStateSystem>
+		{
+		public:
+			FleeStateSystem()
+			{
+				updateType = EntityUpdate;
+				typeFilter.addRequirement(components::FleeStateComponent::typeID);
+			}
+			virtual ~FleeStateSystem() {}
+
+			//Update function that prints the center position of every tile in the order they 
+			//were created.
+			void updateEntity(FilteredEntity& entity, float delta) override
+			{
+				/*****************************************************/
+				/****************************************************/
+				/*    FILL OUT WITH LOOT LOGIC IN ANOTHER TASK     */
+				/**************************************************/
+				/*************************************************/
+			}
 		};
 
 		/*

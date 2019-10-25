@@ -207,6 +207,15 @@
     <ClInclude Include="gameGraphics\InitGraphics.h">
       <Filter>Init</Filter>
     </ClInclude>
+    <ClInclude Include="gameWorld\InitWorld.h">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="gameWorld\WorldSettings.h">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="gameWorld\OceanComponents.h">
+      <Filter>World</Filter>
+    </ClInclude>
     <ClInclude Include="gameAnimation\AnimationComponents.h">
       <Filter>Animation</Filter>
     </ClInclude>
@@ -262,6 +271,9 @@
     </Filter>
     <Filter Include="Graphics\ECS">
       <UniqueIdentifier>{f1adda67-25ce-4149-be22-e09dd443c570}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="World">
+      <UniqueIdentifier>{fae0abe8-5c29-41c8-8287-956242c68193}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

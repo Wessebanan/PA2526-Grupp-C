@@ -64,10 +64,12 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs)
 	systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(9);
 	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);
 	systems::TileRenderSystem* p_tile_renderer = rEcs.createSystem<systems::TileRenderSystem>(9);
+	systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<systems::OceanRenderSystem>(9);
 
 	p_unit_renderer->Initialize(&render_manager, &render_buffer);
 	p_scenery_renderer->Initialize(&render_manager, &render_buffer);
 	p_tile_renderer->Initialize(&render_manager, &render_buffer);
+	p_ocean_renderer->Initialize(&render_manager, &render_buffer);
 }
 
 void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
