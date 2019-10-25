@@ -57,7 +57,9 @@
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp">
       <Filter>Graphics\ECS</Filter>
     </ClCompile>
-    <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
+    <ClCompile Include="gameAnimation\AnimationSystems.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
