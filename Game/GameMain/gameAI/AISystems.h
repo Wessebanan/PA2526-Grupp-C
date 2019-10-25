@@ -357,7 +357,7 @@ namespace ecs
 				if (move_comp->path.size() > 0)
 				{
 					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());
-					if(goal != nullptr)
+					if (goal != nullptr)
 					{
 						if (abs(goal->position.x - transform->position.x) < 1.f && abs(goal->position.z - transform->position.z) < 1.f)
 						{
@@ -374,17 +374,18 @@ namespace ecs
 							dyn_move->mForward.x = this->x;
 							dyn_move->mForward.z = this->z;
 
-						MovementInputEvent kek;
-						kek.mInput = FORWARD;
-						kek.mEntityID = entity.entity->getID();
-						createEvent(kek);//creates an event to physics to move character
-					}
-					//Check if it's time to switch state or if we are supposed to stay in the current one.
-					STATE newState = CheckIfGoalIsMet(entity, delta);
-					//Switch state if a new state was determined in the CheckIfGoalIsMet function.
-					if (newState != STATE::NONE)
-					{
-						SwitchState(entity, newState);
+							MovementInputEvent kek;
+							kek.mInput = FORWARD;
+							kek.mEntityID = entity.entity->getID();
+							createEvent(kek);//creates an event to physics to move character
+						}
+						//Check if it's time to switch state or if we are supposed to stay in the current one.
+						STATE newState = CheckIfGoalIsMet(entity, delta);
+						//Switch state if a new state was determined in the CheckIfGoalIsMet function.
+						if (newState != STATE::NONE)
+						{
+							SwitchState(entity, newState);
+						}
 					}
 				}
 			}
@@ -436,44 +437,44 @@ namespace ecs
 				}
 				//Return the new state.
 				return returnState;
-			};
+			}
 			//Switch to the next units next state
 			void SwitchState(FilteredEntity& entity, STATE newState)
 			{
 				ecs::components::MoveStateComponent* move_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::MoveStateComponent>(entity.entity->getID());
 				switch (newState)
 				{
-					case IDLE:
-					{
-						ecs::components::IdleStateComponent idle_state;
-						ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
-						break;
-					}
-					case ATTACK:
-					{
-						ecs::components::AttackStateComponent atk_state;
-						atk_state.goalState = move_comp->goalState;
-						atk_state.enemyEntityId = move_comp->goalID;
-						ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
-						break;
-					}
-					case LOOT:
-					{
-						ecs::components::LootStateComponent loot_state;
-						ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
-						break;
-					}
-					case PATHFINDING:
-					{
-						ecs::components::PathfindingStateComponent path_state;
-						path_state.goalState = move_comp->goalState;
-						break;
-					}
-					default:
-						break;
+				case IDLE:
+				{
+					ecs::components::IdleStateComponent idle_state;
+					ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
+					break;
+				}
+				case ATTACK:
+				{
+					ecs::components::AttackStateComponent atk_state;
+					atk_state.goalState = move_comp->goalState;
+					atk_state.enemyEntityId = move_comp->goalID;
+					ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
+					break;
+				}
+				case LOOT:
+				{
+					ecs::components::LootStateComponent loot_state;
+					ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
+					break;
+				}
+				case PATHFINDING:
+				{
+					ecs::components::PathfindingStateComponent path_state;
+					path_state.goalState = move_comp->goalState;
+					break;
+				}
+				default:
+					break;
 				}
 				ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
-			};
+			}
 		};
 
 		/*
@@ -578,7 +579,7 @@ namespace ecs
 					//Calculate distance to the enemy unit
 					distance = PhysicsHelpers::CalculateDistance(current_unit_transform->position, enemy_unit_transform->position);
 					//If the enemy is within attack range make an attack else switch to pathfinding state
-					if (distance < 1000.0f/*equipment_comp->mAttackRange*/)
+					if (distance < 5/*equipment_comp->mAttackRange*/)
 					{
 						//Calculate the direction of the enemy and normalize the vector.
 						direction.x = enemy_unit_transform->position.x - current_unit_transform->position.x;
