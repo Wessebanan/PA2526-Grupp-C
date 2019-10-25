@@ -57,6 +57,9 @@
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp">
       <Filter>Graphics\ECS</Filter>
     </ClCompile>
+    <ClCompile Include="UI\UISystems.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -215,6 +218,18 @@
     <ClInclude Include="gameWorld\OceanComponents.h">
       <Filter>World</Filter>
     </ClInclude>
+    <ClInclude Include="UI\UISystems.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIEvents.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIComponents.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\InitUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -267,6 +282,9 @@
     </Filter>
     <Filter Include="World">
       <UniqueIdentifier>{fae0abe8-5c29-41c8-8287-956242c68193}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{47b76722-9cbf-4a22-a294-52a4957e09a3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

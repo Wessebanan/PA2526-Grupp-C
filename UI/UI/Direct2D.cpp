@@ -254,8 +254,10 @@ bool Direct2D::PrintDebug(std::string text)
 	
 	if (this->mHwndRenderTargetCreated)
 	{
-		this->mpHwndRenderTarget->FillRectangle(rect, this->mpColorDraw);
-		this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpDebugTextFormat, rect, this->mColorBrushes[Red]);
+		//this->mpHwndRenderTarget->FillRectangle(rect, this->mpColorDraw);
+		//this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpDebugTextFormat, rect, this->mColorBrushes[Red]);
+		this->mpContext->FillRectangle(rect, this->mpColorDraw);
+		this->mpContext->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpDebugTextFormat, rect, this->mColorBrushes[Red]);
 	}
 	return this->mHwndRenderTargetCreated;
 }

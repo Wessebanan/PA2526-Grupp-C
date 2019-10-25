@@ -1,5 +1,5 @@
 
-//#include "Input/InitInput.h"
+#include "Input/InitInput.h"
 #include "../../Graphics/includes/Window.h"
 #include "ecs.h"
 
@@ -50,7 +50,7 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
-void InitAll(EntityComponentSystem& rECS);
+void InitAll(EntityComponentSystem& rECS, HWND window);
 
 const UINT g_RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
@@ -59,7 +59,7 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-
+	
 	srand(time(0));
 
 	/*
@@ -101,7 +101,7 @@ int main()
 		in InitAll().
 	*/
 
-	InitAll(ecs);
+	InitAll(ecs, HWND(wnd));
 
 	/*
 		 #############################                                                    ############################# 
@@ -166,7 +166,7 @@ int main()
 
 }
 
-void InitAll(EntityComponentSystem& rECS)
+void InitAll(EntityComponentSystem& rECS, HWND window)
 {
 	/*
 		List all Init functions that will create ECS systems.
@@ -176,7 +176,8 @@ void InitAll(EntityComponentSystem& rECS)
 		as all events are cleared at the end of each ecs update,
 		after all ecs systems has been updated.
 	*/
-
+	
+	TempUISystemPtrs ui_systems;
 	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
 	InitMeshes(rECS);
 	InitGraphicsPreRenderSystems(rECS);
@@ -185,6 +186,7 @@ void InitAll(EntityComponentSystem& rECS)
 	InitSong(rECS);
 
 	InitAI(rECS);
+	
 
 	InitInput(rECS);
 	InitInterpreter(rECS);
@@ -202,6 +204,7 @@ void InitAll(EntityComponentSystem& rECS)
 	InitGraphicsRenderSystems(rECS);
 	InitGraphicsPostRenderSystems(rECS);
 
+	InitUI(rECS, ui_systems, window);
 	ChangeUserStateEvent e;
 	e.newState = ATTACK;
 	e.playerId = PLAYER1;
