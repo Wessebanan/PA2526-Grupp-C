@@ -1,4 +1,6 @@
 #pragma once
+
+#pragma once
 #pragma once
 
 #include "../../Graphics/includes/Pipeline.h"
@@ -6,23 +8,20 @@
 
 namespace graphics
 {
-	struct SSAO_PIPELINE_DESC
+	struct COMBINE_PIPELINE_DESC
 	{
 		UINT Width, Height;
-
-		void* pRandomNormals;
-		UINT ByteWidthNormals;
 	};
 
-	struct SSAO_PIPELINE_DATA
+	struct COMBINE_PIPELINE_DATA
 	{
 	};
 
-	class SSAOPipeline : public GraphicsPipeline
+	class CombinePipeline : public GraphicsPipeline
 	{
 	public:
-		SSAOPipeline();
-		virtual ~SSAOPipeline() override;
+		CombinePipeline();
+		virtual ~CombinePipeline() override;
 
 		virtual HRESULT Initialize(ID3D11Device4* pDevice4, const void* pDescription) override;
 		virtual void Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData) override;
@@ -39,10 +38,8 @@ namespace graphics
 	private:
 		virtual void Destroy() override;
 
-		ID3D11RenderTargetView* m_pSSAOTarget;
-		ID3D11ShaderResourceView* m_pSSAOResource;
-
-		ID3D11ShaderResourceView* m_pRandomNormals;
+		ID3D11RenderTargetView* m_pBackBuffer;
+		ID3D11SamplerState* m_pSamplerState;
 
 		UINT m_width, m_height;
 	};

@@ -98,7 +98,48 @@ namespace graphics
 			pDevice4->CreateBuffer(&desc, NULL, &m_pMatrixBuffers[0]);
 		}
 
-		internal::GetBackBuffer(&m_pRenderTargets[0]);
+		//internal::GetBackBuffer(&m_pRenderTargets[0]);
+
+		// Shading Render Target
+		{
+			ID3D11Texture2D* pTexture = NULL;
+			{
+				D3D11_TEXTURE2D_DESC desc = { 0 };
+				desc.Width = pDesc->ClientWidth;
+				desc.Height = pDesc->ClientHeight;
+				desc.ArraySize = 1;
+				desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+				desc.CPUAccessFlags = 0;
+				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.MipLevels = 1;
+				desc.MiscFlags = 0;
+				desc.SampleDesc = { 1, 0 };
+				desc.Usage = D3D11_USAGE_DEFAULT;
+
+				pDevice4->CreateTexture2D(&desc, NULL, &pTexture);
+			}
+			{
+				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
+				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.Texture2D.MipSlice = 0;
+
+				pDevice4->CreateRenderTargetView(pTexture, &desc, &m_pRenderTargets[0]);
+			}
+			{
+				D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
+				desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.Texture2D.MipLevels = 1;
+				desc.Texture2D.MostDetailedMip = 0;
+
+				pDevice4->CreateShaderResourceView(
+					pTexture,
+					&desc,
+					&m_pShaderResources[0]);
+			}
+			pTexture->Release();
+		}
 
 		// Normal Render Target
 		{
@@ -110,22 +151,35 @@ namespace graphics
 				desc.ArraySize = 1;
 				desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 				desc.CPUAccessFlags = 0;
-				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-				desc.MipLevels = 0;
+				desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
+				desc.MipLevels = 1;
 				desc.MiscFlags = 0;
 				desc.SampleDesc = { 1, 0 };
 				desc.Usage = D3D11_USAGE_DEFAULT;
 
-				pDevice4->CreateTexture2D(NULL, NULL, &pTexture);
+				pDevice4->CreateTexture2D(&desc, NULL, &pTexture);
 			}
 			{
 				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
 				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
 				desc.Texture2D.MipSlice = 0;
 
 				pDevice4->CreateRenderTargetView(pTexture, &desc, &m_pRenderTargets[1]);
 			}
+			{
+				D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
+				desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+				desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
+				desc.Texture2D.MipLevels = 1;
+				desc.Texture2D.MostDetailedMip = 0;
+
+				pDevice4->CreateShaderResourceView(
+					pTexture,
+					&desc,
+					&m_pShaderResources[1]);
+			}
+			pTexture->Release();
 		}
 
 		// Position Render Target
@@ -138,22 +192,46 @@ namespace graphics
 				desc.ArraySize = 1;
 				desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 				desc.CPUAccessFlags = 0;
-				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-				desc.MipLevels = 0;
+				desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+				desc.MipLevels = 1;
 				desc.MiscFlags = 0;
 				desc.SampleDesc = { 1, 0 };
 				desc.Usage = D3D11_USAGE_DEFAULT;
 
-				pDevice4->CreateTexture2D(NULL, NULL, &pTexture);
+				pDevice4->CreateTexture2D(&desc, NULL, &pTexture);
 			}
 			{
 				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
 				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 				desc.Texture2D.MipSlice = 0;
 
 				pDevice4->CreateRenderTargetView(pTexture, &desc, &m_pRenderTargets[2]);
+			} 
+			{
+				D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
+				desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+				desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+				desc.Texture2D.MipLevels = 1;
+				desc.Texture2D.MostDetailedMip = 0;
+
+				pDevice4->CreateShaderResourceView(
+					pTexture,
+					&desc,
+					&m_pShaderResources[2]);
 			}
+			pTexture->Release();
+		}
+
+		{
+			D3D11_SAMPLER_DESC desc = {};
+
+			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+			desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+			desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+			desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+
+			pDevice4->CreateSamplerState(&desc, &m_pSamplerState);
 		}
 
 		return S_OK;
@@ -182,7 +260,11 @@ namespace graphics
 
 	void ForwardRenderingPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
+		ID3D11ShaderResourceView* pNULLView[3] = { NULL };
+		pContext4->PSSetShaderResources(1, 3, pNULLView);
+
 		graphics::SetViewport(pContext4, 0, 0, m_clientWidth, m_clientHeight);
+
 		pContext4->OMSetRenderTargets(3, m_pRenderTargets, m_pDepthBuffer);
 
 		pContext4->VSSetConstantBuffers(1, 2, m_pMatrixBuffers);
@@ -199,6 +281,12 @@ namespace graphics
 
 	void ForwardRenderingPipeline::End(ID3D11DeviceContext4* pContext4)
 	{
+		ID3D11RenderTargetView* pNULLView[3] = { NULL };
+		pContext4->OMSetRenderTargets(3, pNULLView, NULL);
+
+		pContext4->PSSetConstantBuffers(0, 2, m_pMatrixBuffers);
+		pContext4->PSSetShaderResources(1, 3, m_pShaderResources);
+		pContext4->PSSetSamplers(1, 1, &m_pSamplerState);
 	}
 
 	void ForwardRenderingPipeline::Destroy()
@@ -209,7 +297,12 @@ namespace graphics
 		m_pRenderTargets[1]->Release();
 		m_pRenderTargets[2]->Release();
 
+		m_pShaderResources[0]->Release();
+		m_pShaderResources[1]->Release();
+
 		m_pMatrixBuffers[0]->Release();
 		m_pMatrixBuffers[1]->Release();
+
+		m_pSamplerState->Release();
 	}
 }
