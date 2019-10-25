@@ -21,16 +21,16 @@ StructuredBuffer<Vertex> gVertices : register (t0);
 
 struct VSOUT
 {
-	float4 position		: SV_POSITION;
-	//float4 sunPos		: POSITION1;
-
-	float3 color		: COLOR0;
-
 	/*
 		TODO:
+		normal
+		sun pos
 		View pos
 		Proj pos
 	*/
+
+	float4 position		: SV_POSITION;
+	float3 color		: COLOR0;
 };
 
 VSOUT main(uint VertexID : VertexStart)
