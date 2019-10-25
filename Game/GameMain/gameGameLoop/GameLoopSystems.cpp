@@ -1,7 +1,10 @@
 #include "GameLoopSystems.h"
 #include "GameLoopComponents.h"
+#include "GameLoopEvents.h"
 #include "../gameAI/AIComponents.h"
 #include "../Physics/PhysicsComponents.h"
+
+#include "..//gameUtility/Timer.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -21,6 +24,8 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
 	
 	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
+
+	Timer
 
 	ArmyComponent* p_army_comp;
 
@@ -94,6 +99,8 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 
 	if (!check_any_live)
 	{
-		p_gl->mRoundOver = true;
+		events::RoundEvent eve;
+		createEvent(eve);
+		
 	}
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "ecsComponentIncludes.h"
+#include "ecsComponentIncludes.h"#include "../gameUtility/Timer.h"
 
 namespace ecs
 {
@@ -9,7 +9,7 @@ namespace ecs
 		{
 			bool mRoundOver;
 
-			float mRoundTime;
+			Timer mRoundTime;
 			
 			int mPlayerPoints[4];
 
