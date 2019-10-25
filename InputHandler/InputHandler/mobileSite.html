@@ -164,7 +164,7 @@
     </script>
     <script>
 
-        var socket = new WebSocket("ws://192.168.1.45:80");
+        var socket = new WebSocket("ws://"+ip_address+":1337");
 
        // GLOBALS
        var selectedTileMsg = "0001100100";
@@ -572,6 +572,7 @@
         <p id='clientMsg2'>2. No msg yet</p>
     </br>
 
+    <p>Connected to: <script>document.write(ip_address);</script></p>
 </body>
 
 </html>

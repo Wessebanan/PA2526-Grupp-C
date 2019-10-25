@@ -16,9 +16,9 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 	for (size_t i = 0; i < OBJECTCOUNT; i++)
 	{
 		// Simplefier to handle what object it is
-		p_scene_obj.mObject = (SCENEOBJECT)(i%12);
+		p_scene_obj.mObject = (SCENE_OBJECT)(i%12);
 		// Assigns the property of the sceneobject
-		p_scene_obj.mObjectType = (OBJECTTYPE)(i%3);
+		p_scene_obj.mObjectType = (OBJECT_TYPE)(i%3);
 		// assign the filepath to
 		p_scene_obj.AssignModel();
 
@@ -32,17 +32,48 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 	ecs::ComponentIterator itt2;
 	itt2 = rECS.getAllComponentsOfType(ecs::components::SceneObjectComponent::typeID);
 
-	for (size_t i = 0; i < 144; i++)
+
+	GridProp* p_gp = GridProp::GetInstance();
+
+	int mapsize = p_gp->GetSize().x * p_gp->GetSize().y;
+
+	// Randoms where the sceneobjects should be placed on the map
+	int sceneobject_locations[12];
+	int kk = 0;
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+	sceneobject_locations[kk++] = (rand() % mapsize);
+
+	for (size_t i = 0; i < mapsize; i++)
 	{
 		// Pass over all tiles
 		ecs::components::TileComponent* tile_comp = (ecs::components::TileComponent*)itt.next();
 		
 		// Look for what tiles the sceneobjects should be placed on
 		if (
-				i == 125|| i == 45 || i == 85
-			||	i == 15 || i == 44 || i == 95
-			||	i == 25 || i == 65 || i == 105
-			||	i == 35 || i == 75 || i == 115
+			sceneobject_locations[0] == i ||
+			sceneobject_locations[1] == i ||
+			sceneobject_locations[2] == i ||
+			sceneobject_locations[3] == i ||
+			sceneobject_locations[4] == i ||
+			sceneobject_locations[5] == i ||
+			sceneobject_locations[6] == i ||
+			sceneobject_locations[7] == i ||
+			sceneobject_locations[8] == i ||
+			sceneobject_locations[9] == i ||
+			sceneobject_locations[10] == i ||
+			sceneobject_locations[11] == i
 			)
 		{
 			ecs::components::TransformComponent* p_tile_transf_comp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(tile_comp->getEntityID());
@@ -66,16 +97,13 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 			p_scene_comp->ChangeModelByBiome(tile_comp->biome);
 
 
-			GridProp* p_gp = GridProp::GetInstance();
-
-
 			p_gp->mSceneObjects[(i % 12)][(i / 12) - 1] = p_scene_comp->mObjectType;
 
-			if (p_scene_comp->mObjectType == OBJECTTYPE::IMPASSABLE)
+			if (p_scene_comp->mObjectType == OBJECT_TYPE::IMPASSABLE)
 			{
 				tile_comp->impassable = true;
 			}
-			else if (p_scene_comp->mObjectType == OBJECTTYPE::INTERESTING)
+			else if (p_scene_comp->mObjectType == OBJECT_TYPE::INTERESTING)
 			{
 				// Place it in the grids list of interesting sceneobjects
 			}

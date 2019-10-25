@@ -1,4 +1,4 @@
- var socket = new WebSocket("ws://192.168.1.45:80");
+ var socket = new WebSocket("ws://192.168.1.45:8080");
 
 // GLOBALS
 var selectedTileMsg = "0001100100";

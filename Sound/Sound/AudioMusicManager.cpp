@@ -108,7 +108,6 @@ void Audio::Music::Manager::ProcessMusicMessages()
 void Audio::Music::Manager::Fill(Samples start, Samples sampleCount, float* pData, int channelCount, float* pVoiceData)
 {
 	int i, j;
-	//float voice_data[SOUND_FRAMES_PER_BUFFER * 2];
 
 	mMainData.Entry->Process(start, sampleCount, pVoiceData, channelCount);
 	for (j = 0; j < sampleCount * 2; j++)

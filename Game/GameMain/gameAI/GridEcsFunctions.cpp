@@ -26,7 +26,7 @@ namespace GridEcsFunctions
 
 		const int mapsze = MAX_ARENA_ROWS*MAX_ARENA_ROWS; // Max size
 		float height_map[mapsze];
-		GridFunctions::CreateHeightmap(height_map, Rows, Columns);
+		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60);
 
 
 		GridProp* p_gp = GridProp::GetInstance();
@@ -113,6 +113,7 @@ namespace GridEcsFunctions
 			{
 				// Randoms what biome to take next
 				int random_biome = rand() % 4;
+				int random_dirr = rand() % 2;
 
 				bool found = false;
 
@@ -120,32 +121,73 @@ namespace GridEcsFunctions
 				// Should be changed later to have them spread, but rigth now not needed
 				if (random_biome == 0)
 				{
-					// Loop until a empty tile is found
-					for (int it = 0; it < Rows && !found; it++)
+					if (random_dirr)
 					{
-						for (int jt = 0; jt < Columns && !found; jt++)
+						// Loop until a empty tile is found
+						for (int it = 0; it < Rows && !found; it++)
 						{
-							if (p_gp->mGrid[it][jt].biome == -1)
+							for (int jt = 0; jt < Columns && !found; jt++)
 							{
-								// Apply the biome, set later
-								p_gp->mGrid[it][jt].biome = random_biome;
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									// Apply the biome, set later
+									p_gp->mGrid[it][jt].biome = random_biome;
 
-								found = true;
+									found = true;
+								}
 							}
 						}
 					}
+					else
+					{
+						// Loop until a empty tile is found
+						for (int jt = 0; jt < Columns && !found; jt++)
+						{
+							for (int it = 0; it < Rows && !found; it++)
+							{
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									// Apply the biome, set later
+									p_gp->mGrid[it][jt].biome = random_biome;
+
+									found = true;
+								}
+							}
+						}
+					}
+					
 				}
 				else if (random_biome == 1)
 				{
-					for (int it = Rows-1; it > 0 && !found; it--)
+					if (random_dirr)
 					{
+
+						for (int it = Rows - 1; it > 0 && !found; it--)
+						{
+							for (int jt = 0; jt < Columns && !found; jt++)
+							{
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
+
+									found = true;
+								}
+							}
+						}
+					}
+					else
+					{
+
 						for (int jt = 0; jt < Columns && !found; jt++)
 						{
-							if (p_gp->mGrid[it][jt].biome == -1)
+							for (int it = Rows - 1; it > 0 && !found; it--)
 							{
-								p_gp->mGrid[it][jt].biome = random_biome;
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
 
-								found = true;
+									found = true;
+								}
 							}
 						}
 					}
@@ -153,15 +195,33 @@ namespace GridEcsFunctions
 				}
 				else if (random_biome == 2)
 				{
-					for (int it = 0; it < Rows && !found; it++)
+					if (random_dirr)
+					{
+						for (int it = 0; it < Rows && !found; it++)
+						{
+							for (int jt = Columns - 1; jt > 0 && !found; jt--)
+							{
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
+
+									found = true;
+								}
+							}
+						}
+					}
+					else
 					{
 						for (int jt = Columns - 1; jt > 0 && !found; jt--)
 						{
-							if (p_gp->mGrid[it][jt].biome == -1)
+							for (int it = 0; it < Rows && !found; it++)
 							{
-								p_gp->mGrid[it][jt].biome = random_biome;
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
 
-								found = true;
+									found = true;
+								}
 							}
 						}
 					}
@@ -169,18 +229,37 @@ namespace GridEcsFunctions
 				}
 				else if (random_biome == 3)
 				{
-					for (int it = Rows - 1; it > 0 && !found; it--)
+					if (random_dirr)
 					{
-						for (int jt = Columns - 1; jt > 0 && !found; jt--)
+						for (int it = Rows - 1; it > 0 && !found; it--)
 						{
-							if (p_gp->mGrid[it][jt].biome == -1)
+							for (int jt = Columns - 1; jt > 0 && !found; jt--)
 							{
-								p_gp->mGrid[it][jt].biome = random_biome;
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
 
-								found = true;
+									found = true;
+								}
 							}
 						}
 					}
+					else
+					{
+						for (int jt = Columns - 1; jt > 0 && !found; jt--)
+						{
+							for (int it = Rows - 1; it > 0 && !found; it--)
+							{
+								if (p_gp->mGrid[it][jt].biome == -1)
+								{
+									p_gp->mGrid[it][jt].biome = random_biome;
+
+									found = true;
+								}
+							}
+						}
+					}
+					
 
 				}
 			}

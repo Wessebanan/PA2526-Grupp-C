@@ -1,7 +1,7 @@
 #pragma once
 
-#define MAX_ARENA_ROWS 24
-#define MAX_ARENA_COLUMNS 24
+#define MAX_ARENA_ROWS 30
+#define MAX_ARENA_COLUMNS 30
 #define TILE_RADIUS 1
 
 using TileType = unsigned int;
@@ -16,7 +16,7 @@ enum TileTypes //enum used in AIcomponents right now
 
 enum STATE
 {
-	NONE, MOVE, IDLE, ATTACK, LOOT, PATHFINDING
+	NONE, MOVE, IDLE, ATTACK, LOOT, PATHFINDING, FLEE
 };
 
 enum PLAYER

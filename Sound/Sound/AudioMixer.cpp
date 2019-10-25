@@ -1,4 +1,5 @@
 #include "AudioMixer.h"
+#include <iostream>
 
 void Audio::Mixer::Fill(Samples start, Samples count, float* pData)
 {
@@ -15,6 +16,7 @@ void Audio::Mixer::Fill(Samples start, Samples count, float* pData)
 			}
 		}
 	}
+
 	mMusicManager.Fill(start, count, pData, 2, voice_data);
 }
 
@@ -35,7 +37,10 @@ void Audio::Mixer::NewSoundVoice(Plugin::Plugin* pEntryPlugin)
 
 void Audio::Mixer::AddSoundMessage(Sound::Message message)
 {
-	mSoundMessageBuffer.insert(&message);
+	if (!mSoundMessageBuffer.insert(&message))
+	{
+		delete message.pEntry;
+	}
 }
 
 void Audio::Mixer::AddMusicMessage(Music::Message message)
