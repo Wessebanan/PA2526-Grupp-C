@@ -89,9 +89,9 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 			p_scene_tranf_comp->position.z = p_tile_transf_comp->position.z;
 
 			// A little darker color
-			p_scene_color_comp->red = p_tile_color_comp->red *0.8f;
-			p_scene_color_comp->green = p_tile_color_comp->green *0.8f;
-			p_scene_color_comp->blue = p_tile_color_comp->blue *0.8f;
+			p_scene_color_comp->red = 255 - p_tile_color_comp->red *0.8f;
+			p_scene_color_comp->green = 255 - p_tile_color_comp->green *0.8f;
+			p_scene_color_comp->blue = 255 - p_tile_color_comp->blue *0.8f;
 
 			// Changes the modle depening on the biome
 			p_scene_comp->ChangeModelByBiome(tile_comp->biome);

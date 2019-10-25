@@ -26,40 +26,40 @@ namespace ecs
 				switch (this->mObject)
 				{
 				case SCENE_OBJECT::SNOWMAN:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				case SCENE_OBJECT::ANGEL:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				case SCENE_OBJECT::IGLOO:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				case SCENE_OBJECT::CLIFF:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				case SCENE_OBJECT::ROCKS:
-					this->mFilepath = "gameSceneObjects/models/rock.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				case SCENE_OBJECT::CAMP:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				case SCENE_OBJECT::TREES:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				case SCENE_OBJECT::FLOWERS:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				case SCENE_OBJECT::VILAGE:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				case SCENE_OBJECT::SANDSTONE:
-					this->mFilepath = "gameSceneObjects/models/rock.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				case SCENE_OBJECT::PALMS:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				case SCENE_OBJECT::PYRAMIDS:
-					this->mFilepath = "gameSceneObjects/models/tree.fbx";
+					this->mFilepath = "gameSceneObjects/models/Snowmen.fbx";
 					break;
 				default:
 					// returns false if the sceneobject fails to assign

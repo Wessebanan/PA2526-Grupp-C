@@ -82,8 +82,20 @@ void InitMeshes(EntityComponentSystem& rEcs)
 {
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	MeshContainer::Initialize(&mesh_manager);
-	MeshContainer::LoadMesh(MESH_TYPE_TILE, "../meshes/hexagon_tile5.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_ROCK, "../meshes/rock.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_TREE, "../meshes/tree2.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../RunningCustom2.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_TILE,		"../meshes/hexagon_tile5.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_ROCK,		"../meshes/rock.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_TREE,		"../meshes/tree2.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_UNIT,		"../RunningCustom2.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_SNOWMAN,	"../meshes/environment/Snowmen.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_ANGEL,	"../meshes/environment/SnowyForest.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_IGLOO,	"../meshes/environment/Mountain.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_CLIFF,	"../meshes/environment/RockyEdge.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_ROCKS,	"../meshes/environment/RocksInWater.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_CAMP,		"../meshes/environment/Village.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_TREES,	"../meshes/environment/Forest.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_FLOWERS,	"../meshes/environment/Flowers.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_VILAGE,	"../meshes/environment/Town.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_SANDSTONE,"../meshes/environment/Desert.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_PALMS,	"../meshes/environment/PalmTrees.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_PYRAMIDS, "../meshes/environment/Pyramids.fbx");
 }
