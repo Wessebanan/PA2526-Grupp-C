@@ -7,13 +7,14 @@
 
 #include "../gameAI/AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
+#include "../gameUtility/UtilityGraphics.h"
 #include "../MeshContainer/MeshContainer.h"
 
 using namespace DirectX;
 using namespace ecs;
 using namespace ecs::components;
 
-TransformComponent* GetCenterMapTileTransform(EntityComponentSystem& rEcs)
+static TransformComponent* GetCenterMapTileTransform(EntityComponentSystem& rEcs)
 {
 	// Fetch all existing tile entities
 	TypeFilter type_filter;
@@ -58,7 +59,7 @@ TransformComponent* GetCenterMapTileTransform(EntityComponentSystem& rEcs)
 	return p_most_center_transform;
 }
 
-void InitOceanEntities(EntityComponentSystem& rEcs)
+static void InitOceanEntities(EntityComponentSystem& rEcs)
 {
 	/*
 		Generates tiles for the ocean, using hexa-grid positions.
@@ -128,15 +129,12 @@ void InitOceanEntities(EntityComponentSystem& rEcs)
 	}
 }
 
-void GenerateWorldMesh(EntityComponentSystem& rEcs, void** ppVertexBuffer, UINT& rVertexBufferSize)
+static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer, UINT& rVertexBufferSize)
 {
 	struct Vertex
 	{
 		// TODO: Add normal
-		struct Position
-		{
-			float x, y, z;
-		} position;
+		XMFLOAT3 position;
 		UINT color;
 	};
 
@@ -147,10 +145,14 @@ void GenerateWorldMesh(EntityComponentSystem& rEcs, void** ppVertexBuffer, UINT&
 	TypeFilter ocean_filter;
 
 	map_filter.addRequirement(TileComponent::typeID);
+	map_filter.addRequirement(ColorComponent::typeID);
 	map_filter.addRequirement(TransformComponent::typeID);
+
+	ocean_filter.addRequirement(ColorComponent::typeID);
 	ocean_filter.addRequirement(OceanTileComponent::typeID);
 	ocean_filter.addRequirement(TransformComponent::typeID);
 
+	// Fetch iterators on order to retrieve position of existing tiles
 	EntityIterator map_tiles = rEcs.getEntititesByFilter(map_filter);
 	EntityIterator ocean_tiles = rEcs.getEntititesByFilter(ocean_filter);
 
@@ -159,10 +161,11 @@ void GenerateWorldMesh(EntityComponentSystem& rEcs, void** ppVertexBuffer, UINT&
 	UINT total_tile_count = map_tile_count + ocean_tile_count;
 
 	// Create a vertex buffer to write all tile vertex data to
-	Vertex* vertexBuffer = new Vertex[r_mesh_indices.size() * total_tile_count];
+	Vertex* vertex_buffer = new Vertex[r_mesh_indices.size() * total_tile_count];
 	UINT index_counter = 0;
 
 	// Pre define variables used for calculations in entity loops
+	XMVECTOR xm_pos;
 	XMMATRIX xm_world;
 	ColorComponent* p_color;
 	TransformComponent* p_transform;
@@ -175,7 +178,12 @@ void GenerateWorldMesh(EntityComponentSystem& rEcs, void** ppVertexBuffer, UINT&
 
 		for (int i : r_mesh_indices)
 		{
-			
+			xm_pos = XMLoadFloat3(&r_mesh_vertices[i]);
+			xm_pos = XMVector3Transform(xm_pos, xm_world);
+
+			XMStoreFloat3(&vertex_buffer[index_counter].position, xm_pos);
+			vertex_buffer[index_counter].color = PACK(p_color->red, p_color->green, p_color->blue, 1.f);
+			index_counter++;
 		}
 	}
 
@@ -183,5 +191,19 @@ void GenerateWorldMesh(EntityComponentSystem& rEcs, void** ppVertexBuffer, UINT&
 	{
 		p_color = r_map_tile.getComponent<ColorComponent>();
 		p_transform = r_map_tile.getComponent<TransformComponent>();
+		xm_world = XMMatrixTranslation(p_transform->position.x, p_transform->position.y, p_transform->position.z);
+
+		for (int i : r_mesh_indices)
+		{
+			xm_pos = XMLoadFloat3(&r_mesh_vertices[i]);
+			xm_pos = XMVector3Transform(xm_pos, xm_world);
+
+			XMStoreFloat3(&vertex_buffer[index_counter].position, xm_pos);
+			vertex_buffer[index_counter].color = PACK(p_color->red, p_color->green, p_color->blue, 1.f);
+			index_counter++;
+		}
 	}
+
+	*pVertexBuffer = (void*)vertex_buffer;
+	rVertexBufferSize = index_counter * sizeof(Vertex);
 }

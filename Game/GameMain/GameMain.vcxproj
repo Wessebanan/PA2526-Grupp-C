@@ -157,6 +157,7 @@
     <ClInclude Include="gameUtility\UtilityComponents.h" />
     <ClInclude Include="gameUtility\UtilityEvents.h" />
     <ClInclude Include="gameUtility\UtilityEcsFunctions.h" />
+    <ClInclude Include="gameUtility\UtilityGraphics.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
     <ClInclude Include="gameWorld\InitWorld.h" />
     <ClInclude Include="gameWorld\OceanComponents.h" />

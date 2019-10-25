@@ -215,6 +215,9 @@
     <ClInclude Include="gameWorld\OceanComponents.h">
       <Filter>World</Filter>
     </ClInclude>
+    <ClInclude Include="gameUtility\UtilityGraphics.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
