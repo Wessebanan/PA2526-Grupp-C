@@ -69,12 +69,8 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			if (getEntity(current_entity_id)->hasComponentOfType(DynamicMovementComponent::typeID))
 			{
 				DynamicMovementComponent* colliding_movement = getComponentFromKnownEntity<DynamicMovementComponent>(current_entity_id);
-				//colliding_movement->mVelocity.x += 1.0f / (velocity_pre_revert.x - p_movement->mVelocity.x + 0.001f);
-				//colliding_movement->mVelocity.y += 1.0f / (velocity_pre_revert.y - p_movement->mVelocity.y + 0.001f);
-				//colliding_movement->mVelocity.z += 1.0f / (velocity_pre_revert.z - p_movement->mVelocity.z + 0.001f);
-				colliding_movement->mVelocity.x -= (velocity_pre_revert.x - p_movement->mVelocity.x)*colliding_movement->mMaxVelocity;
-				colliding_movement->mVelocity.y -= (velocity_pre_revert.y - p_movement->mVelocity.y)*colliding_movement->mMaxVelocity;
-				colliding_movement->mVelocity.z -= (velocity_pre_revert.z - p_movement->mVelocity.z)*colliding_movement->mMaxVelocity;
+				colliding_movement->mVelocity.x += (velocity_pre_revert.x - p_movement->mVelocity.x)*colliding_movement->mMaxVelocity;
+				colliding_movement->mVelocity.z += (velocity_pre_revert.z - p_movement->mVelocity.z)*colliding_movement->mMaxVelocity;
 			}
 			// Transforming the aabb again since the position has changed.
 			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
