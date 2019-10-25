@@ -23,6 +23,7 @@ private:
 public:
 	TileData mGrid[MAX_ARENA_COLUMNS][MAX_ARENA_ROWS];
 	int mSceneObjects[MAX_ARENA_COLUMNS][MAX_ARENA_ROWS];
+	int mCurrentMap;
 
 	int2 GetSize() { return this->mMapSize; };
 	void SetSize(int rows, int columns) { this->mMapSize.x = rows; this->mMapSize.y = columns; };

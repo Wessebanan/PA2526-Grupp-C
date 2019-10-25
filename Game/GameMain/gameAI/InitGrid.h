@@ -12,11 +12,12 @@
 
 void InitGrid(ecs::EntityComponentSystem& rECS)
 {
+	GridProp* p_gp = GridProp::GetInstance();
 	int random_map = rand() % 3;
 
 	int rows = 0;
 	int columns = 0;
-
+	p_gp->mCurrentMap = random_map;
 	// 3 preset mapsizes
 
 	switch (random_map)

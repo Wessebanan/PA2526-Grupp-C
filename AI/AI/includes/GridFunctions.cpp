@@ -402,19 +402,19 @@ namespace GridFunctions
 				neighbour_counter = 0;
 				current_tile = int2(i, j);
 				/*     __
-                    __/  \__
-                   /  \__/  \ <-- top row
-                   \__/  \__/
-                   /  \__/  \ <-- bottom row
-                   \__/  \__/
+					__/  \__
+				   /  \__/  \ <-- top row
+				   \__/  \__/
+				   /  \__/  \ <-- bottom row
+				   \__/  \__/
 				Check if bottom row or top row	*/
 				if (j % 2 != 0)
 				{
 					neighbour_tile = int2(i + 1, j - 1); //Top left neighbor
 					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{ 
+					{
 						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
-						p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id; // If everything is okey we push it into this id array of neighbours.
+							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id; // If everything is okey we push it into this id array of neighbours.
 					}
 
 					neighbour_counter++;//iterate through the neigbours so they come in the right pos in the array
@@ -436,7 +436,7 @@ namespace GridFunctions
 					neighbour_counter++;
 					neighbour_tile = int2(i, j - 1); //Bottom left neighbor
 					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{ 
+					{
 						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
 							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
 					}
@@ -444,7 +444,7 @@ namespace GridFunctions
 					neighbour_counter++;
 					neighbour_tile = int2(i - 1, j); //Bottom neighbor
 					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{ 
+					{
 						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
 							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
 					}
@@ -469,7 +469,7 @@ namespace GridFunctions
 					neighbour_counter++;
 					neighbour_tile = int2(i + 1, j); //Top neighbor
 					if (CheckIfValidNeighbour(current_tile, neighbour_tile))
-					{ 
+					{
 						p_gp->mGrid[current_tile.x][current_tile.y].neighbourIDArray[neighbour_counter] =
 							p_gp->mGrid[neighbour_tile.x][neighbour_tile.y].Id;
 					}
