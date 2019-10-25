@@ -309,6 +309,7 @@ namespace GridFunctions
 		for (i = 0; height_values[start][i] < -0.5f; i++)
 		{
 			height_values[start][i] = 0.0f;
+			height_values[start + 1][i] = 0.0f;
 		}
 
 
@@ -320,6 +321,7 @@ namespace GridFunctions
 		for (i = 0; height_values[i][start] < -0.5f; i++)
 		{
 			height_values[i][start] = 0.0f;
+			height_values[i][start + 1] = 0.0f;
 		}
 
 		// third side
@@ -330,6 +332,7 @@ namespace GridFunctions
 		for (i = 0; height_values[start][columns - 1 - i] < -0.5f; i++)
 		{
 			height_values[start][columns - 1 - i] = 0.0f;
+			height_values[start + 1][columns - 1 - i] = 0.0f;
 		}
 
 		// forth side
@@ -340,6 +343,7 @@ namespace GridFunctions
 		for (i = 0; height_values[rows - 1 - i][start] < -0.5f; i++)
 		{
 			height_values[rows - 1 - i][start] = 0.0f;
+			height_values[rows - 1 - i][start + 1] = 0.0f;
 		}
 
 
