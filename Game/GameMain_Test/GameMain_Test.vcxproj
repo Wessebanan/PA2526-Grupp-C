@@ -34,6 +34,7 @@
     <Import Project="..\..\PropertySheets\Utility_Debug.props" />
     <Import Project="AudioIncludesFromGame.props" />
     <Import Project="..\..\PropertySheets\Sound_Debug.props" />
+    <Import Project="..\..\PropertySheets\UI_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
@@ -47,6 +48,7 @@
     <Import Project="..\..\PropertySheets\Utility_Release.props" />
     <Import Project="AudioIncludesFromGame.props" />
     <Import Project="..\..\PropertySheets\Sound_Release.props" />
+    <Import Project="..\..\PropertySheets\UI_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>

@@ -120,8 +120,8 @@ void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, floa
 	
 	if (this->toRender)
 	{
-	components::UITextComponent* UITextComp = _entityInfo.getComponent<components::UITextComponent>();
+		components::UITextComponent* UITextComp = _entityInfo.getComponent<components::UITextComponent>();
 
-	//mpD2D->PrintDebug(UITextComp->mStrText);
+		mpD2D->PrintDebug(UITextComp->mStrText);
 	}
 }

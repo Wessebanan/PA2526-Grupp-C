@@ -1,5 +1,5 @@
 
-#include "Input/InitInput.h"
+//#include "Input/InitInput.h"
 #include "../../Graphics/includes/Window.h"
 #include "ecs.h"
 
@@ -144,8 +144,8 @@ int main()
 	graphics::MeshManager mesh_manager;
 	mesh_manager.Initialize(10000, 10000);
 
-	Direct2D* my_d2d = new Direct2D;
-	my_d2d->CreateHwndRenderTarget(wnd, client_width, client_height);
+	//Direct2D* my_d2d;
+
 
 	/*
 		-- Meshes --
@@ -236,7 +236,8 @@ int main()
 
 	//InitInput(ecs);
 	InitInterpreter(ecs);
-	InitUI(ecs, &my_d2d, my_UI_systems);
+	//InitUI(ecs, &my_d2d, my_UI_systems);
+	//my_d2d->CreateHwndRenderTarget(wnd, client_width, client_height);
 	
 
 	//CameraFunctions::CreateDevCamera(ecs);

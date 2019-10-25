@@ -10,7 +10,7 @@ struct TempUISystemPtrs
 	ecs::systems::UITextSystem* UITextSys;
 	ecs::systems::UIDebugSystem* UIDebugSys;
 	ecs::systems::UIPostRenderSystem* UIpostSys;
-	//ecs::systems::UIRectSystem* UIrectSys;
+	ecs::systems::UIRectSystem* UIrectSys;
 };
 
 void InitUI(ecs::EntityComponentSystem& rECS, Direct2D** D2D, TempUISystemPtrs& rSystemPointers)
@@ -18,13 +18,14 @@ void InitUI(ecs::EntityComponentSystem& rECS, Direct2D** D2D, TempUISystemPtrs& 
 	rSystemPointers.UIpreSys	= rECS.createSystem<ecs::systems::UIPreRenderSystem>(7);
 	rSystemPointers.UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>(8);
 	rSystemPointers.UITextSys	= rECS.createSystem<ecs::systems::UITextSystem>(8);
-	//rSystemPointers.UIrectSys	= rECS.createSystem<ecs::systems::UIRectSystem>(8);
+	rSystemPointers.UIrectSys	= rECS.createSystem<ecs::systems::UIRectSystem>(8);
 	rSystemPointers.UIDebugSys	= rECS.createSystem<ecs::systems::UIDebugSystem>(8);
 	rSystemPointers.UIpostSys	= rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
-	//*D2D = new Direct2D;
+	*D2D = new Direct2D;
 	rSystemPointers.UIpreSys->mpD2D			= 
 		rSystemPointers.UITextSys->mpD2D	= 
-		//rSystemPointers.UIpostSys->mpD2D	= 
+		rSystemPointers.UIpostSys->mpD2D	= 
+		rSystemPointers.UIrectSys->mpD2D	=
 		rSystemPointers.UIBitmapSys->mpD2D  = 
 		rSystemPointers.UIDebugSys->mpD2D	= *D2D;
 
@@ -41,9 +42,10 @@ void InitUI(ecs::EntityComponentSystem& rECS, Direct2D** D2D, TempUISystemPtrs& 
 
 
 	rECS.createEntity(text_comp, pos_comp, color_comp);
+	rECS.createEntity(text_comp);
 
 	ecs::components::UIThicknessComponent thick_comp;
-	thick_comp.mThickness = 0;
+	thick_comp.mThickness = 1;
 
 	rECS.createEntity(thick_comp, pos_comp, color_comp);
 
