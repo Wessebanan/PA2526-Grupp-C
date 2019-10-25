@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "HttpServer.h"
+#include "InputBackend.h"
 
 int main(int argc, char** argv)
 {
@@ -18,10 +19,11 @@ TEST(HttpServer, GetLocalIP) {
 
 TEST(HttpServer, HostServer)
 {
-	HttpServer::RunHttpServer();
+	new InputBackend();
+	HttpServer::RunHttpServer("../InputHandler/mobileSite.html","../InputHandler/favicon.ico");
 	std::string ip;
 	HttpServer::GetLocalIp4(ip);
 	std::cout << "Server open for 20 sec at adress: " << ip << std::endl;
-	Sleep(20000);
+	Sleep(60000);
 	HttpServer::StopHttpServer();
 }

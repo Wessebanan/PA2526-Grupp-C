@@ -38,6 +38,8 @@
 #include "gameGraphics/GraphicsECSSystems.h"
 #include "gameGraphics/InitGraphics.h"
 
+#include "gameWorld/InitWorld.h"
+
 #include <time.h>
 
 #include "gameUtility/Timer.h"
@@ -88,6 +90,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TransformComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
+	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(5000);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -186,6 +189,8 @@ void InitAll(EntityComponentSystem& rECS)
 	InitGrid(rECS);
 	InitArmy(rECS);
 	InitSceneObjects(rECS);
+
+	InitOceanEntities(rECS);
 
 	InitCamera(rECS);
 
