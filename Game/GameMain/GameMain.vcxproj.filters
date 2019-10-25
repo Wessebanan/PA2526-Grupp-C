@@ -57,6 +57,7 @@
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp">
       <Filter>Graphics\ECS</Filter>
     </ClCompile>
+    <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -205,6 +206,12 @@
     </ClInclude>
     <ClInclude Include="gameGraphics\InitGraphics.h">
       <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAnimation\AnimationComponents.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAnimation\AnimationSystems.h">
+      <Filter>Animation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

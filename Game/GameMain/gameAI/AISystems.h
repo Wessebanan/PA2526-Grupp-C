@@ -11,6 +11,7 @@
 #include "../Physics/PhysicsEvents.h"
 #include <iostream>
 #include "../../Physics/includes/PhysicsHelperFunctions.h"
+#include "../gameAnimation/AnimationComponents.h"
 
 namespace ecs
 {
@@ -581,15 +582,24 @@ namespace ecs
 					ecs::components::PathfindingStateComponent path;
 					path.goalState = state;
 					ecs::components::IdleStateComponent idle;
+
+					// Fetch the skeleton ID to start animations based on state
+					ID skeleton_id = unit->getComponentID<ecs::components::SkeletonComponent>();
+
 					//Give the unit the new state component.
 					switch (state)
 					{
 					case STATE::IDLE:
 						ecs::ECSUser::createComponent(entity_id, idle);
+						
+						//ecs::ECSUser::getComponent<ecs::components::SkeletonComponent>(skeleton_id)->skeletonData.StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
+						//ecs::ECSUser::getComponent<ecs::components::SkeletonComponent>(skeleton_id)->skeletonData.StopAnimation(ModelLoader::ANIMATION_TYPE::MOVE);
 						break;
 					default:
 						//Defaults to a path since every other command relies on moving to a destination
 						ecs::ECSUser::createComponent(entity_id, path);
+						//ecs::ECSUser::getComponent<ecs::components::SkeletonComponent>(skeleton_id)->skeletonData.StartAnimation(ModelLoader::ANIMATION_TYPE::MOVE);
+						//ecs::ECSUser::getComponent<ecs::components::SkeletonComponent>(skeleton_id)->skeletonData.StopAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
 						break;
 					}
 					/*Used for debugging*/
