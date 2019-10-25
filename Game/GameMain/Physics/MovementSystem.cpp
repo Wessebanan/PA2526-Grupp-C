@@ -130,8 +130,6 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	transform_component->position.x += movement_component->mVelocity.x * _delta;
 	transform_component->position.z += movement_component->mVelocity.z * _delta;
 
-	// Reset movement force to 0 after since it should be 0 if no further input.
-	movement_component->mForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	// GRAVITY
 	
@@ -158,6 +156,11 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 		potential_collision.mDelta = _delta;
 		createEvent(potential_collision);
 	}
+	
+	// Reset movement force to 0 after since it should be 0 if no further input.
+	movement_component->mForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	
+	// Saving previous position for later comparison.
 	movement_component->mPreviousPos = transform_component->position;
 }
 
@@ -180,8 +183,8 @@ void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	SetDirection(movement_component->mDirection, movement_component->mForward, input_event.mInput);
 
 	// Applying force in the direction of the movement.
-	movement_component->mForce.x = movement_component->mDirection.x * movement_component->mMovementForce;
-	movement_component->mForce.z = movement_component->mDirection.z * movement_component->mMovementForce;
+	movement_component->mForce.x += movement_component->mDirection.x * movement_component->mMovementForce;
+	movement_component->mForce.z += movement_component->mDirection.z * movement_component->mMovementForce;
 
 	// Rotate entity to face the same direction as movement.
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());

@@ -38,17 +38,17 @@ void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const AABB* collidin
 		overlap = colliding_world->Extents.x + collided_world->Extents.x - fabs_diff.x;
 		x = true;
 	}
-	else if (fabs_diff.y > fabs_diff.x && fabs_diff.y > fabs_diff.z)
-	{
-		sign = Sign(diff.y);
-		overlap = colliding_world->Extents.y + collided_world->Extents.y - fabs_diff.y;
-		y = true;
-	}
-	else
+	else if (fabs_diff.z > fabs_diff.x && fabs_diff.z > fabs_diff.y)
 	{
 		sign = Sign(diff.z);
 		overlap = colliding_world->Extents.z + collided_world->Extents.z - fabs_diff.z;
 		z = true;
+	}
+	else
+	{
+		sign = Sign(diff.y);
+		overlap = colliding_world->Extents.y + collided_world->Extents.y - fabs_diff.y;
+		y = true;
 	}
 
 	float movement = sign * overlap;
@@ -58,10 +58,10 @@ void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const AABB* collidin
 	position.y += movement * (float)y;
 	position.z += movement * (float)z;
 
-	// Resetting the velocity in that direction.
-	velocity.x *= (float)!x;
-	velocity.y *= (float)!y;
-	velocity.z *= (float)!z;
+	// Flipping the velocity in that direction.
+	velocity.x *= (float)(!x*2.0f)-1.0f;
+	velocity.y *= (float)(!y*2.0f)-1.0f;
+	velocity.z *= (float)(!z*2.0f)-1.0f;
 }
 
 //void CreateOBB(DirectX::XMFLOAT3(&vertices)[8], const DirectX::XMFLOAT3& min_point, const DirectX::XMFLOAT3& max_point)

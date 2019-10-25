@@ -69,15 +69,23 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			if (getEntity(current_entity_id)->hasComponentOfType(DynamicMovementComponent::typeID))
 			{
 				DynamicMovementComponent* colliding_movement = getComponentFromKnownEntity<DynamicMovementComponent>(current_entity_id);
-				colliding_movement->mVelocity.x += (velocity_pre_revert.x - p_movement->mVelocity.x);
-				colliding_movement->mVelocity.y += (velocity_pre_revert.y - p_movement->mVelocity.y);
-				colliding_movement->mVelocity.z += (velocity_pre_revert.z - p_movement->mVelocity.z);
+				//colliding_movement->mVelocity.x += 1.0f / (velocity_pre_revert.x - p_movement->mVelocity.x + 0.001f);
+				//colliding_movement->mVelocity.y += 1.0f / (velocity_pre_revert.y - p_movement->mVelocity.y + 0.001f);
+				//colliding_movement->mVelocity.z += 1.0f / (velocity_pre_revert.z - p_movement->mVelocity.z + 0.001f);
+				colliding_movement->mVelocity.x -= (velocity_pre_revert.x - p_movement->mVelocity.x)*colliding_movement->mMaxVelocity;
+				colliding_movement->mVelocity.y -= (velocity_pre_revert.y - p_movement->mVelocity.y)*colliding_movement->mMaxVelocity;
+				colliding_movement->mVelocity.z -= (velocity_pre_revert.z - p_movement->mVelocity.z)*colliding_movement->mMaxVelocity;
 			}
-
 			// Transforming the aabb again since the position has changed.
 			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
 			aabb.BoundingBox::Transform(aabb, world_transform);
 			center = XMLoadFloat3(&aabb.Center);
+
+			// TEMP GROUND HIT SOUND
+			ecs::events::PlaySound sound_event;
+			sound_event.audioName = AudioName::COIN_TEST_SOUND;
+			sound_event.soundFlags = SoundFlags::SF_NONE;
+			createEvent(sound_event);
 		}
 	}
 	p_collision->mIntersect = intersect;
@@ -185,7 +193,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	TypeID closest_tile_id = -1;
 
 	// Distance to closest tile.
-	float closest_distance = INFINITY;
+	float closest_distance = FLT_MAX;
 
 	// For each tile, check which is closest to the ground collision component.
 	// This is bad, and will likely be optimized in the future.	
@@ -267,10 +275,10 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		on_ground = true;
 
 		// TEMP GROUND HIT SOUND
-		ecs::events::PlaySound sound_event;
-		sound_event.audioName = AudioName::COIN_TEST_SOUND;
-		sound_event.soundFlags = SoundFlags::SF_NONE;
-		createEvent(sound_event);
+		//ecs::events::PlaySound sound_event;
+		//sound_event.audioName = AudioName::COIN_TEST_SOUND;
+		//sound_event.soundFlags = SoundFlags::SF_NONE;
+		//createEvent(sound_event);
 	}
 
 	// Break if entity does not move dynamically.
@@ -327,7 +335,10 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 	
 
 	object_collision_component->mAABB.CreateFromPoints(object_collision_component->mAABB, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
-	
+
+	// Scaling bv for tighter collision.
+	object_collision_component->mAABB.Transform(XMMatrixScaling(0.3f, 1.0f, 0.9f));
+
 	/** TODO:
 	* Set ObjectCollisionComponent::mSphereCount to number of bones.
 	* Allocate memory for mSphereCount number of DirectX::BoundingSphere(s).

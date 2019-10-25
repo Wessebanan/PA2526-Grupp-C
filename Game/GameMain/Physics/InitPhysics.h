@@ -27,6 +27,7 @@ void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs);
 // Create every necessary component for entities with unit components.
 void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh *pMesh);
 
+// LEAVING THIS FOR NOW, MAY BE UNNECCESARY.
 void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh);
 
 // Creates a weapon out of a mesh and weapon type. (weapon, transform and mesh components)
@@ -129,6 +130,23 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 
 inline void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh)
 {
+	TypeFilter filter;
+	filter.addRequirement(SceneObjectComponent::typeID);
+
+	EntityIterator it = rEcs.getEntititesByFilter(filter);
+	for (int i = 0; i < it.entities.size(); i++)
+	{
+		ID current_id = it.entities.at(i).entity->getID();
+		TransformComponent* scene_transform = static_cast<TransformComponent*>(rEcs.getComponent(TransformComponent::typeID, current_id));
+		int2 scene_tile_index = GridFunctions::GetTileFromWorldPos(scene_transform->position.x, scene_transform->position.z);
+
+		TileData tile_data = GridProp::GetInstance()->mGrid[scene_tile_index.y][scene_tile_index.x];
+		// If tile is made not passable by scene object, add collision to scene object.
+		if (!tile_data.isPassable)
+		{
+			SceneObjectComponent* scene_component = static_cast<SceneObjectComponent*>(rEcs.getComponent(SceneObjectComponent::typeID, current_id));
+		}
+	}
 	// TODO : Get scene objects and add object collision components to them.
 }
 
