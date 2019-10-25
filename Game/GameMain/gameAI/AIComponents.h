@@ -59,7 +59,7 @@ namespace ecs
 		struct AttackStateComponent : public ECSComponent<AttackStateComponent>
 		{
 			int enemyEntityId = 0;
-			STATE previousState = STATE::IDLE;
+			STATE goalState = STATE::IDLE;
 		};
 
 		struct UnitComponent : public ECSComponent<UnitComponent>

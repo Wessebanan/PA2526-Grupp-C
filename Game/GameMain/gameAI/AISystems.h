@@ -363,7 +363,7 @@ namespace ecs
 						{
 							//If the enemy is within attack range switch to a AttackStateComponent
 							atk_state.enemyEntityId = other_unit->getEntityID();
-							atk_state.previousState = STATE::IDLE;
+							atk_state.goalState = STATE::IDLE;
 							ecs::ECSUser::removeComponent(current_unit->getEntityID(), ecs::components::IdleStateComponent::typeID);
 							ecs::ECSUser::createComponent(current_unit->getEntityID(), atk_state);
 							break;
@@ -374,8 +374,8 @@ namespace ecs
 		};
 
 		/*
-			A system that moves a unit along a path calculated in the PathfindingSystem.
-		*/
+		A system that moves a unit along a path calculated in the PathfindingSystem.
+	*/
 		class MoveStateSystem : public ECSSystem<MoveStateSystem>
 		{
 		public:
@@ -385,6 +385,7 @@ namespace ecs
 				typeFilter.addRequirement(components::MoveStateComponent::typeID);
 				typeFilter.addRequirement(components::TransformComponent::typeID);
 				typeFilter.addRequirement(components::DynamicMovementComponent::typeID);
+				typeFilter.addRequirement(components::EquipmentComponent::typeID);
 			}
 			virtual ~MoveStateSystem() {}
 
@@ -394,77 +395,127 @@ namespace ecs
 			{
 				//Fetch the move and transform component of the entity
 				ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
-
 				ecs::components::DynamicMovementComponent* dyn_move = entity.getComponent<ecs::components::DynamicMovementComponent>();
 				ecs::components::MoveStateComponent* move_comp = entity.getComponent<ecs::components::MoveStateComponent>();
+				//Move the unit along its path.
 				if (move_comp->path.size() > 0)
 				{
-					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());
-					if(goal != nullptr)
+					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
+					if (abs(goal->position.x - transform->position.x) < 0.3f && abs(goal->position.z - transform->position.z) < 0.3f)
 					{
-						if (abs(goal->position.x - transform->position.x) < 1.f && abs(goal->position.z - transform->position.z) < 1.f)
-						{
-							move_comp->path.pop_back();
-						}
-						if (move_comp->path.size() > 0)
-						{
-							goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());
-							this->x = goal->position.x - transform->position.x;
-							this->z = goal->position.z - transform->position.z;
-							this->length = sqrt(x * x + z * z);
-							this->x = this->x / this->length;
-							this->z = this->z / this->length;
-							dyn_move->mForward.x = this->x;
-							dyn_move->mForward.z = this->z;
-
-							MovementInputEvent kek;
-							kek.mInput = FORWARD;
-							kek.mEntityID = entity.entity->getID();
-							createEvent(kek);//creates an event to physics to move character
+						move_comp->path.erase(move_comp->path.begin());
 					}
+					if (move_comp->path.size() > 0)
+					{
+						goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
+						this->x = goal->position.x - transform->position.x;
+						this->z = goal->position.z - transform->position.z;
+						this->length = sqrt(x * x + z * z);
+						this->x = this->x / this->length;
+						this->z = this->z / this->length;
+						dyn_move->mForward.x = this->x;
+						dyn_move->mForward.z = this->z;
 
-						//Create the possible states we could switch to
-						ecs::components::AttackStateComponent atk_state;
-						atk_state.previousState = move_comp->goalState;
-						atk_state.enemyEntityId = move_comp->goalID;
-						ecs::components::LootStateComponent loot_state;
-						ecs::components::PathfindingStateComponent path_state;
-						path_state.goalState = move_comp->goalState;
-						ecs::components::IdleStateComponent idle_state;
-						//Calculate distance to goal and add the frame time to the total travel time
-						float distance = PhysicsHelpers::CalculateDistance(transform->position, move_comp->goalPos);
-						float max_traveltime = 1.f;
-						move_comp->time += delta;
-						//Check if we are close enought to the goal to switch state
-						if (distance < 0.1f)
-						{
-							ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
-							switch (move_comp->goalState)
-							{
-							case LOOT:
-								ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
-								break;
-							case ATTACK:
-								ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
-								break;
-							default:
-								ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
-								break;
-							}
-						}
-						//Check if it is time to recalculate the path since we did it last time
-						else if (move_comp->time > max_traveltime)
-						{
-							ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
-							ecs::ECSUser::createComponent(entity.entity->getID(), path_state);
-						}
-					}
+						MovementInputEvent kek;
+						kek.mInput = FORWARD;
+						kek.mEntityID = entity.entity->getID();
+						createEvent(kek);//creates an event to physics to move character
+					}	
+				}
+				//Check if it's time to switch state or if we are supposed to stay in the current one.
+				STATE newState = CheckIfGoalIsMet(entity, delta);
+				//Switch state if a new state was determined in the CheckIfGoalIsMet function.
+				if (newState != STATE::NONE)
+				{
+					SwitchState(entity, newState);
 				}
 			}
 		private:
 			float x;
 			float z;
 			float length;
+			float mMinimumDist;
+			//Returns the new state of the unit or STATE::NONE if it is supposed to stay in this state for the next update.
+			STATE CheckIfGoalIsMet(FilteredEntity& entity, float delta)
+			{
+				STATE returnState;
+				//Fetch the move and transform component of the entity
+				ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
+				ecs::components::DynamicMovementComponent* dyn_move = entity.getComponent<ecs::components::DynamicMovementComponent>();
+				ecs::components::MoveStateComponent* move_comp = entity.getComponent<ecs::components::MoveStateComponent>();
+				ecs::components::EquipmentComponent* equipment_comp = entity.getComponent<ecs::components::EquipmentComponent>();
+				//Set the minimum distance to required to the goal for a state switch to occure.
+				switch (move_comp->goalState)
+				{
+				case STATE::ATTACK:
+					mMinimumDist = equipment_comp->mAttackRange;
+					returnState = STATE::ATTACK;
+					break;
+				case STATE::LOOT:
+					mMinimumDist = TILE_RADIUS / 2.0f;
+					returnState = STATE::LOOT;
+					break;
+				default:
+					mMinimumDist = TILE_RADIUS / 2.0f;
+					returnState = STATE::IDLE;
+					break;
+				}
+				//Check if we are close enough to our goal and return if we are. If not we set the returnState to NONE.
+				float distance = PhysicsHelpers::CalculateDistance(transform->position, move_comp->goalPos);
+				if (distance <= mMinimumDist)
+				{
+					return returnState;
+				}
+				else
+				{
+					returnState = STATE::NONE;
+				}
+				//Check if enough time has passed for us to calculate a new path to the goal.
+				move_comp->time += delta;
+				if (move_comp->time > 5.0f) //Should discuss how long we should wait and if it should be frames or time?
+				{
+					returnState = STATE::PATHFINDING;
+				}
+				//Return the new state.
+				return returnState;
+			};
+			//Switch to the next units next state
+			void SwitchState(FilteredEntity& entity, STATE newState)
+			{
+				ecs::components::MoveStateComponent* move_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::MoveStateComponent>(entity.entity->getID());
+				switch (newState)
+				{
+				case IDLE:
+				{
+					ecs::components::IdleStateComponent idle_state;
+					ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
+					break;
+				}
+				case ATTACK:
+				{
+					ecs::components::AttackStateComponent atk_state;
+					atk_state.goalState = move_comp->goalState;
+					atk_state.enemyEntityId = move_comp->goalID;
+					ecs::ECSUser::createComponent(entity.entity->getID(), atk_state);
+					break;
+				}
+				case LOOT:
+				{
+					ecs::components::LootStateComponent loot_state;
+					ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
+					break;
+				}
+				case PATHFINDING:
+				{
+					ecs::components::PathfindingStateComponent path_state;
+					path_state.goalState = move_comp->goalState;
+					break;
+				}
+				default:
+					break;
+				}
+				ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::MoveStateComponent::typeID);
+			};
 		};
 
 		/*
@@ -589,7 +640,7 @@ namespace ecs
 				{
 					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::AttackStateComponent::typeID);
 					//Return to idle state if the previous state was idle and the unit is dead
-					if (atk_state->previousState == STATE::IDLE)
+					if (atk_state->goalState == STATE::IDLE)
 					{
 						ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::AttackStateComponent::typeID);
 						ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
