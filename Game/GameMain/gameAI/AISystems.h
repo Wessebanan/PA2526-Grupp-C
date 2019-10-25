@@ -385,14 +385,14 @@ namespace ecs
 							kek.mEntityID = entity.entity->getID();
 							createEvent(kek);//creates an event to physics to move character
 						}
-						//Check if it's time to switch state or if we are supposed to stay in the current one.
-						STATE newState = CheckIfGoalIsMet(entity, delta);
-						//Switch state if a new state was determined in the CheckIfGoalIsMet function.
-						if (newState != STATE::NONE)
-						{
-							SwitchState(entity, newState);
-						}
 					}
+				}
+				//Check if it's time to switch state or if we are supposed to stay in the current one.
+				STATE newState = CheckIfGoalIsMet(entity, delta);
+				//Switch state if a new state was determined in the CheckIfGoalIsMet function.
+				if (newState != STATE::NONE)
+				{
+					SwitchState(entity, newState);
 				}
 			}
 		private:
