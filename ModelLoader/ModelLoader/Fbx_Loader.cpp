@@ -200,13 +200,17 @@ namespace {
 		if (curr_mesh)
 		{
 			unsigned int num_deformers = curr_mesh->GetDeformerCount();
+			if (num_deformers > 1)
+			{
+				throw std::exception("Mesh contains more than one deformer, the engine does not support this.");
+			}
 			// geometry transform is potentially something included with the model
 			// not all modeling programs provide this
 			// including it for safety because I don't know if blender does or not
 			//FbxAMatrix geometry_transform = GetGeometryTransformation(inNode);
 			std::vector<std::vector<ModelLoader::IndexWeightPair>> temp(jointData->size(), std::vector<ModelLoader::IndexWeightPair>());
 
-			unsigned int animation_length = 0;
+			//unsigned long long animation_length = 0;
 
 			// Loop through deformers
 			// Deformer is basically a skeleton
@@ -219,11 +223,13 @@ namespace {
 				{
 					continue;
 				}
-
 				// Clusters contain links, which are basically joints
 				unsigned int num_of_clusters = curr_skin->GetClusterCount();
 				FbxNode* boneRootNode = curr_skin->GetCluster(0)->GetLink();
 				skeleton->joints[0].mBoneGlobalTransform = boneRootNode->EvaluateGlobalTransform();
+				// -----------------------------------------------
+				// Process joints
+				// -----------------------------------------------
 				for (unsigned int cluster_index = 0; cluster_index < num_of_clusters; ++cluster_index)
 				{
 					// Collect info about the current joint
@@ -245,47 +251,109 @@ namespace {
 						curr_index_weight_pair.index = curr_joint_index;
 						curr_index_weight_pair.weight = curr_cluster->GetControlPointWeights()[i];
 						temp[curr_cluster->GetControlPointIndices()[i]].push_back(curr_index_weight_pair);
-						// Add index to joint for physics engine to construct bone-based bounding boxes
 						curr_joint->mConnectedVertexIndices.push_back(curr_joint_index);
 					}
-
+					int anim_stack_count = inNode->GetScene()->GetSrcObjectCount<FbxAnimStack>();
 					FbxAnimStack* curr_anim_stack = FbxCast<FbxAnimStack>(inNode->GetScene()->GetSrcObject<FbxAnimStack>());
+				}
 
-					// If file has animation, parse it
-					// Currently only gets the first animation available in the file
-					if (curr_anim_stack)
+				// -----------------------------------------------
+				// Process Animations
+				// -----------------------------------------------
+				int anim_stack_count = inNode->GetScene()->GetSrcObjectCount<FbxAnimStack>();
+
+				// Before we calculate any offset matrices we need to find the TPOSE and calculate the bindpose inverse matrices
+				bool has_tpose = false;
+				// Find the TPOSE animation and calculate matrices
+				for (int anim_stack_index = 0; anim_stack_index < anim_stack_count && !has_tpose; ++anim_stack_index)
+				{
+					FbxAnimStack* curr_anim_stack = FbxCast<FbxAnimStack>(inNode->GetScene()->GetSrcObject<FbxAnimStack>(anim_stack_index));
+					FbxString anim_stack_name = curr_anim_stack->GetName();
+					std::string animation_name = anim_stack_name.Buffer();
+					std::string ending = animation_name.substr(animation_name.length() - 5);
+					// convert to uppercase in case animator forgot
+					std::transform(ending.begin(), ending.end(), ending.begin(), ::toupper);
+					if (ending == std::string("TPOSE"))
 					{
-						// Get animation information
-						std::string animation_name;
-						FbxString anim_stack_name = curr_anim_stack->GetName();
-						animation_name = anim_stack_name.Buffer();
-						FbxTakeInfo* take_info = inNode->GetScene()->GetTakeInfo(anim_stack_name);
-						FbxTime start = curr_anim_stack->GetLocalTimeSpan().GetStart();
-						FbxTime end = curr_anim_stack->GetLocalTimeSpan().GetStop();
-						animation_length = (unsigned int)(end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1);
-
-						// Evaluate the baseline global transform for the joint at t = 0 and create the global bindpose inverse matrix
-						FbxDouble3 rot = curr_cluster->GetLink()->LclRotation.EvaluateValue((fbxsdk::FbxLongLong)0.0f);
-						FbxDouble3 transl = curr_cluster->GetLink()->LclTranslation.EvaluateValue((fbxsdk::FbxLongLong)0.0f);
-						FbxAMatrix bone_local_transform;
-						bone_local_transform = FbxAMatrix(transl, rot, FbxVector4(1.0f, 1.0f, 1.0f));
-
-						if (curr_joint_index == 0)
+						has_tpose = true;
+						for (unsigned int cluster_index = 0; cluster_index < num_of_clusters; ++cluster_index)
 						{
-							curr_joint->mBoneGlobalTransform = bone_local_transform;
-						}
-						else
-						{
-							// FbxAMatrix performs matrix multiplication in REVERSE order, M1 * M2 is multiplied with M2 from the left
-							curr_joint->mBoneGlobalTransform = skeleton->joints[skeleton->joints[curr_joint_index].mParentIndex].mBoneGlobalTransform * bone_local_transform;
+							// Collect info about the current joint
+							FbxCluster* curr_cluster = curr_skin->GetCluster(cluster_index);
+							std::string curr_joint_name = curr_cluster->GetLink()->GetName();
+							unsigned int curr_joint_index = FindJointIndexUsingName(curr_joint_name, skeleton);
+							ModelLoader::Joint* curr_joint = &skeleton->joints[curr_joint_index];
 
+							// Evaluate the baseline global transform for the joint at t = 0 and create the global bindpose inverse matrix
+							FbxDouble3 rotInf = curr_cluster->GetLink()->LclRotation.EvaluateValue(FBXSDK_TIME_INFINITE);
+							FbxDouble3 translInf = curr_cluster->GetLink()->LclTranslation.EvaluateValue(FBXSDK_TIME_INFINITE);
+							FbxAMatrix bone_local_transform;
+							bone_local_transform = FbxAMatrix(translInf, rotInf, FbxVector4(1.0f, 1.0f, 1.0f));
+
+							if (curr_joint_index == 0)
+							{
+								curr_joint->mBoneGlobalTransform = bone_local_transform;
+							}
+							else
+							{
+								// FbxAMatrix performs matrix multiplication in REVERSE order, M1 * M2 is multiplied with M2 from the left
+								curr_joint->mBoneGlobalTransform = skeleton->joints[skeleton->joints[curr_joint_index].mParentIndex].mBoneGlobalTransform * bone_local_transform;
+
+							}
+							curr_joint->mGlobalBindposeInverse = curr_joint->mBoneGlobalTransform.Inverse() * FbxAMatrix(FbxVector4(0.0f, 0.0f, 0.0f), FbxVector4(-90.0f, 0.0f, 0.0f), FbxVector4(1.0f, -1.0f, 1.0f));
 						}
-						curr_joint->mGlobalBindposeInverse = curr_joint->mBoneGlobalTransform.Inverse() * FbxAMatrix(FbxVector4(0.0f, 0.0f, 0.0f), FbxVector4(-90.0f, 0.0f, 0.0f), FbxVector4(1.0f, -1.0f, 1.0f));
+					}
+
+				}
+				// If the mesh is animated but does not contain a TPOSE animation, throw an error
+				if (anim_stack_count > 0 && !has_tpose)
+				{
+					throw std::exception("Animated mesh does not have a 1 frame tpose animation/action named \"TPOSE\", please create this animation.");
+				}
+				std::vector<ModelLoader::AnimationSet> tempAnimationSetsVector;
+				tempAnimationSetsVector.reserve(anim_stack_count - 1);
+
+				// Process each animation stack in the file
+				for (int anim_stack_index = 0; anim_stack_index < anim_stack_count; ++anim_stack_index)
+				{
+					FbxAnimStack* curr_anim_stack = FbxCast<FbxAnimStack>(inNode->GetScene()->GetSrcObject<FbxAnimStack>(anim_stack_index));
+					FbxString anim_stack_name = curr_anim_stack->GetName();
+					std::string animation_name = anim_stack_name.Buffer();
+					std::string ending = animation_name.substr(animation_name.length() - 5);
+					// convert to uppercase in case animator forgot
+					std::transform(ending.begin(), ending.end(), ending.begin(), ::toupper);
+					// Skip the TPOSE "animation", we don't want it as a useable animation
+					if (ending == std::string("TPOSE"))
+					{
+						continue;
+					}
+
+					// Get animation information
+					FbxTime start = curr_anim_stack->GetLocalTimeSpan().GetStart();
+					FbxTime end = curr_anim_stack->GetLocalTimeSpan().GetStop();
+					unsigned long long animation_length = (unsigned long long)(end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1);
+
+					// Create the AnimationSet for this animation
+					ModelLoader::AnimationSet tempAnimSet;
+					tempAnimSet.frameCount = (unsigned int)animation_length;
+					tempAnimSet.animationName = animation_name;
+
+					std::vector<DirectX::XMFLOAT4X4> tempJointOffsetMatrixVector;
+
+					// bindposes have already been calculated at this point, we just need the offset matrices for each joint
+					for (unsigned int cluster_index = 0; cluster_index < num_of_clusters; ++cluster_index)
+					{
+						// Collect info about the current joint
+						FbxCluster* curr_cluster = curr_skin->GetCluster(cluster_index);
+						std::string curr_joint_name = curr_cluster->GetLink()->GetName();
+						unsigned int curr_joint_index = FindJointIndexUsingName(curr_joint_name, skeleton);
+						ModelLoader::Joint* curr_joint = &skeleton->joints[curr_joint_index];
+						skeleton->joints[curr_joint_index].mNode = curr_cluster->GetLink();
 
 						// Pre-reserve slots in the vector for the keyframes
-						curr_joint->mAnimationVector.reserve(animation_length);
+						curr_joint->mAnimationVector.reserve(animation_length); // LEGACY CODE
 
-						unsigned int loop_counter = 0;
+						unsigned int loopCounter = 0;
 						for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
 						{
 							ModelLoader::KeyFrame current_keyframe;
@@ -296,8 +364,9 @@ namespace {
 							current_keyframe.mFrameNum = i;
 
 							// Evaluate the local transform of the joint at the current time
-							rot = curr_cluster->GetLink()->LclRotation.EvaluateValue(curr_time);
-							transl = curr_cluster->GetLink()->LclTranslation.EvaluateValue(curr_time);
+							inNode->GetScene()->SetCurrentAnimationStack(curr_anim_stack);
+							FbxDouble3 rot = curr_cluster->GetLink()->LclRotation.EvaluateValue(curr_time, true);
+							FbxDouble3 transl = curr_cluster->GetLink()->LclTranslation.EvaluateValue(curr_time, true);
 							current_keyframe.mLocalTransform = FbxAMatrix(transl, rot, FbxVector4(1.0f, 1.0f, 1.0f));
 							// If joint is root, use local transform as global
 							// else, multiply with parent global first
@@ -308,42 +377,48 @@ namespace {
 							else
 							{
 								// FbxAMatrix performs matrix multiplication in REVERSE order, M1 * M2 is multiplied with M2 from the left
-								current_keyframe.mGlobalTransform = skeleton->joints[skeleton->joints[curr_joint_index].mParentIndex].mAnimationVector[loop_counter].mGlobalTransform * current_keyframe.mLocalTransform;
+								current_keyframe.mGlobalTransform = skeleton->joints[skeleton->joints[curr_joint_index].mParentIndex].mAnimationVector[loopCounter].mGlobalTransform * current_keyframe.mLocalTransform;
 							}
 							FbxAMatrix offset_matrix;
 							// FbxAMatrix performs matrix multiplication in REVERSE order, M1 * M2 is multiplied with M2 from the left
 							offset_matrix = FbxAMatrix(FbxVector4(0.0f, 0.0f, 0.0f), FbxVector4(-90.0f, 0.0f, 0.0f), FbxVector4(1.0f, -1.0f, 1.0f)) * (current_keyframe.mGlobalTransform * curr_joint->mGlobalBindposeInverse);
-
-
 							// Matrix needs to be transposed before sending to the GPU
-							current_keyframe.mOffsetMatrix = FbxAMatrixToXMFLOAT4X4(&(offset_matrix.Transpose()));
-							curr_joint->mAnimationVector.push_back(current_keyframe);
-							loop_counter++;
+							current_keyframe.mOffsetMatrix = FbxAMatrixToXMFLOAT4X4(&(offset_matrix.Transpose())); // LEGACY
+							curr_joint->mAnimationVector.push_back(current_keyframe); // LEGACY
+
+							tempJointOffsetMatrixVector.push_back(FbxAMatrixToXMFLOAT4X4(&(offset_matrix.Transpose())));
+							skeleton->joints[curr_joint_index].mAnimationVector[loopCounter].mGlobalTransform = current_keyframe.mGlobalTransform;
+							loopCounter++;
 						}
 					}
 
-
+					// Fill the Animation Set with the collected data
+					tempAnimSet.animationData = new DirectX::XMFLOAT4X4[animation_length * num_of_clusters];
+					for (unsigned int frame_index = 0; frame_index < (unsigned int)animation_length; ++frame_index)
+					{
+						for (unsigned int joint_index = 0; joint_index < num_of_clusters; ++joint_index)
+						{
+							tempAnimSet.animationData[frame_index * num_of_clusters + joint_index] = tempJointOffsetMatrixVector[joint_index * animation_length + frame_index];
+						}
+					}
+					tempAnimationSetsVector.push_back(tempAnimSet);
 				}
-			}
-			// Convert keyframes to better format for loading to the GPU
-			skeleton->jointCount = (unsigned int)skeleton->joints.size();
-			skeleton->frameCount = animation_length;
-			skeleton->animationData = new DirectX::XMFLOAT4X4[skeleton->jointCount * animation_length];
-			for (unsigned int i = 0; i < skeleton->jointCount; ++i)
-			{
-				for (unsigned int j = 0; j < animation_length; ++j)
+				// Save the processed animation data in the skeleton
+				for (int i = 0; i < tempAnimationSetsVector.size(); ++i)
 				{
-					skeleton->animationData[j * skeleton->jointCount + i] = (skeleton->joints[i].mAnimationVector[j].mOffsetMatrix);
+					skeleton->animations[i] = tempAnimationSetsVector[i];
+					skeleton->animationFlags[i] = 0;
 				}
 			}
-
+			skeleton->jointCount = (unsigned int)skeleton->joints.size();
+			skeleton->frameData = new DirectX::XMFLOAT4X4[skeleton->jointCount];
 			// Check if any vertex has more than 4 weights assigned
 			for (unsigned int i = 0; i < temp.size(); ++i)
 			{
-				for (unsigned int j = 0; j < temp[i].size(); ++j)
+				for (unsigned int frame_index = 0; frame_index < temp[i].size(); ++frame_index)
 				{
-					(*jointData)[i].weightPairs[j] = temp[i][j];
-					if (j >= MAX_NUM_WEIGHTS_PER_VERTEX)
+					(*jointData)[i].weightPairs[frame_index] = temp[i][frame_index];
+					if (frame_index >= MAX_NUM_WEIGHTS_PER_VERTEX)
 					{
 						throw std::exception("Mesh contains vertices with more than 4 bone weights. The engine does not support this.");
 					}

@@ -128,7 +128,11 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	weapon_bv->Transform(weapon_world);
 
 	// Grab all entities with a constitution component (units).
-	EntityIterator units = getEntitiesWithComponent<HealthComponent>();
+	TypeFilter filter;
+	filter.addRequirement(HealthComponent::typeID);
+	filter.addRequirement(ObjectCollisionComponent::typeID);
+	filter.addRequirement(TransformComponent::typeID);
+	EntityIterator units = getEntitiesByFilter(filter);
 
 	// Check collision against entities that could take damage.
 	bool intersect = false;

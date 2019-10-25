@@ -35,3 +35,10 @@ namespace PlayerProperties
 	constexpr int numberOfUnits = 3;
 	constexpr float unitHealth = 100.0f;
 }
+
+// Declares in what way the map 
+enum MAPINITSETTING
+{
+	HOLMES, // Small islands on each side
+	NOHOLMES // without them can change name later if needed
+};

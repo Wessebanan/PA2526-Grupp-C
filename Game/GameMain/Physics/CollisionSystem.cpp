@@ -20,13 +20,15 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	// Grabbing the entity's object collision component 
 	// and transform component.
-	ObjectCollisionComponent* p_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(p_entity->getID());
-	TransformComponent* p_transform = getComponentFromKnownEntity<TransformComponent>(p_entity->getID());
+	ObjectCollisionComponent* p_collision	= getComponentFromKnownEntity<ObjectCollisionComponent>(p_entity->getID());
+	TransformComponent* p_transform			= getComponentFromKnownEntity<TransformComponent>(p_entity->getID());
+	DynamicMovementComponent* p_movement	= getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
 
 	// Grabbing a copy of AABB and transforming to world space.
-	BoundingBox aabb = p_collision->mAABB;
+	AABB aabb = p_collision->mAABB;
 	XMMATRIX world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
-	aabb.Transform(aabb, world_transform);
+	aabb.BoundingBox::Transform(aabb, world_transform);
+	XMVECTOR center = XMLoadFloat3(&aabb.Center);
 
 	// Grabbing the entities it could collide with.
 	TypeFilter filter;
@@ -36,20 +38,17 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	bool intersect = false;
 
-	BoundingBox colliding_aabb;
-
-	std::vector<AABB> collided_aabb_vector;
-
 	for (int i = 0; i < it.entities.size(); i++)
 	{
+		ID current_entity_id = it.entities.at(i).entity->getID();
 		// Skip yourself.
-		if (it.entities.at(i).entity->getID() == p_entity->getID())
+		if (current_entity_id == p_entity->getID())
 		{
 			continue;
 		}
 		// Grabbing the collision and transform component from the current entity.
-		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(it.entities.at(i).entity->getID());
-		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(it.entities.at(i).entity->getID());
+		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(current_entity_id);
+		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(current_entity_id);
 		
 		// Grabbing copy of AABB from current and transforming to world space.
 		AABB current_aabb = p_current_collision->mAABB;
@@ -57,33 +56,29 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		current_aabb.BoundingBox::Transform(current_aabb, current_world_transform);
 
 		// If the objects' bounding volumes intersect.
-		if(aabb.Intersects(current_aabb))
+		if(aabb.BoundingBox::Intersects(current_aabb))
 		{
-			// Set the intersection bool and stop checking
-			// because any collision means the movement should revert.
+			// Set the intersection bool because it may be useful.
 			intersect = true;
 
-			// Saving the transformed aabb from the collided entity.
-			//colliding_aabb = current_aabb;
-			collided_aabb_vector.push_back(current_aabb);
+			XMFLOAT3 velocity_pre_revert = p_movement->mVelocity;
+
+			XMVECTOR colliding_center = XMLoadFloat3(&current_aabb.Center);
+			RevertMovement(p_transform->position, p_movement->mVelocity, &aabb, &current_aabb, p_event->mDelta);
+
+			if (getEntity(current_entity_id)->hasComponentOfType(DynamicMovementComponent::typeID))
+			{
+				DynamicMovementComponent* colliding_movement = getComponentFromKnownEntity<DynamicMovementComponent>(current_entity_id);
+				colliding_movement->mVelocity.x += (velocity_pre_revert.x - p_movement->mVelocity.x)*colliding_movement->mMaxVelocity;
+				colliding_movement->mVelocity.z += (velocity_pre_revert.z - p_movement->mVelocity.z)*colliding_movement->mMaxVelocity;
+			}
+			// Transforming the aabb again since the position has changed.
+			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
+			aabb.BoundingBox::Transform(aabb, world_transform);
+			center = XMLoadFloat3(&aabb.Center);
 		}
 	}
 	p_collision->mIntersect = intersect;
-
-	// Since the event that triggers this system is created in
-	// DynamicMovementSystem, we can assume that the entity has a 
-	// DynamicMovementComponent.
-	if (intersect)
-	{
-		DynamicMovementComponent* p_movement = getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
-		XMVECTOR center	= XMLoadFloat3(&aabb.Center);
-		for (int i = 0; i < collided_aabb_vector.size(); i++)
-		{
-			XMVECTOR colliding_center	= XMLoadFloat3(&collided_aabb_vector.at(i).Center);
-
-			RevertMovement(p_transform->position, p_movement->mVelocity, center, colliding_center, p_event->mDelta);
-		}
-	}
 }
 #pragma endregion
 #pragma region GroundCollisionComponentInitSystem
@@ -188,7 +183,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	TypeID closest_tile_id = -1;
 
 	// Distance to closest tile.
-	float closest_distance = INFINITY;
+	float closest_distance = FLT_MAX;
 
 	// For each tile, check which is closest to the ground collision component.
 	// This is bad, and will likely be optimized in the future.	
@@ -211,8 +206,9 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 			closest_tile_id = current_tile;
 		}
 	}
+	TransformComponent* closest_tile = getComponentFromKnownEntity<TransformComponent>(closest_tile_id);
 
-	//// Getting closest tile to unit.
+	// Getting closest tile to unit.
 	//XMFLOAT3 unit_position = p_transform_component->position;
 	//int2 closest_tile_index = GridFunctions::GetTileFromWorldPos(unit_position.x, unit_position.z);
 	//
@@ -221,7 +217,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	//
 	//// Grabbing the closest tile.
 	//TransformComponent* closest_tile = getComponentFromKnownEntity<TransformComponent>(tile_data.Id);
-	TransformComponent* closest_tile = getComponentFromKnownEntity<TransformComponent>(closest_tile_id);
+	
 	// Grabbing the height (y value).
 	float tile_height = closest_tile->position.y;
 
@@ -267,12 +263,6 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		
 		// If the object moved, it is now on the ground level.
 		on_ground = true;
-
-		// TEMP GROUND HIT SOUND
-		ecs::events::PlaySound sound_event;
-		sound_event.audioName = AudioName::COIN_TEST_SOUND;
-		sound_event.soundFlags = SoundFlags::SF_NONE;
-		createEvent(sound_event);
 	}
 
 	// Break if entity does not move dynamically.
@@ -329,7 +319,10 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 	
 
 	object_collision_component->mAABB.CreateFromPoints(object_collision_component->mAABB, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
-	
+
+	// Scaling bv for tighter collision.
+	object_collision_component->mAABB.Transform(XMMatrixScaling(0.3f, 1.0f, 0.9f));
+
 	/** TODO:
 	* Set ObjectCollisionComponent::mSphereCount to number of bones.
 	* Allocate memory for mSphereCount number of DirectX::BoundingSphere(s).
@@ -338,7 +331,6 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 
 }
 #pragma endregion
-
 #pragma region FillQuadTreeSystemRegion
 ecs::systems::FillQuadTreeSystem::FillQuadTreeSystem()
 {
