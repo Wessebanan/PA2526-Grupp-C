@@ -44,6 +44,8 @@
 
 #include "gameUtility/Timer.h"
 
+#include "gameGameLoop/InitGameLoop.h"
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -195,6 +197,10 @@ void InitAll(EntityComponentSystem& rECS)
 	InitCamera(rECS);
 
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
+
+
+
+
 
 	InitGraphicsRenderSystems(rECS);
 	InitGraphicsPostRenderSystems(rECS);

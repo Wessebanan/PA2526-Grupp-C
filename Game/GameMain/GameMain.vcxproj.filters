@@ -57,6 +57,9 @@
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp">
       <Filter>Graphics\ECS</Filter>
     </ClCompile>
+    <ClCompile Include="gameGameLoop\GameLoopSystems.cpp">
+      <Filter>GameECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -215,6 +218,15 @@
     <ClInclude Include="gameWorld\OceanComponents.h">
       <Filter>World</Filter>
     </ClInclude>
+    <ClInclude Include="gameGameLoop\GameLoopSystems.h">
+      <Filter>GameECS</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGameLoop\InitGameLoop.h">
+      <Filter>GameECS</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGameLoop\GameLoopComponents.h">
+      <Filter>GameECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -267,6 +279,9 @@
     </Filter>
     <Filter Include="World">
       <UniqueIdentifier>{fae0abe8-5c29-41c8-8287-956242c68193}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameECS">
+      <UniqueIdentifier>{b1eee58b-8b0f-4bb1-becf-267e569d85e3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

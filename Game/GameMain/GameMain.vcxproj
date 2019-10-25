@@ -102,6 +102,7 @@
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
+    <ClCompile Include="gameGameLoop\GameLoopSystems.cpp" />
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
@@ -134,6 +135,9 @@
     <ClInclude Include="gameAudio\AudioECSSystems.h" />
     <ClInclude Include="gameAudio\AudioGlobals.h" />
     <ClInclude Include="gameAudio\InitAudio.h" />
+    <ClInclude Include="gameGameLoop\GameLoopComponents.h" />
+    <ClInclude Include="gameGameLoop\GameLoopSystems.h" />
+    <ClInclude Include="gameGameLoop\InitGameLoop.h" />
     <ClInclude Include="gameGraphics\ForwardRenderingPipeline.h" />
     <ClInclude Include="gameGraphics\GraphicsECSComponents.h" />
     <ClInclude Include="gameGraphics\GraphicsECSSystems.h" />
