@@ -127,3 +127,61 @@ void InitOceanEntities(EntityComponentSystem& rEcs)
 		}
 	}
 }
+
+void GenerateWorldMesh(EntityComponentSystem& rEcs, void** ppVertexBuffer, UINT& rVertexBufferSize)
+{
+	struct Vertex
+	{
+		// TODO: Add normal
+		struct Position
+		{
+			float x, y, z;
+		} position;
+		UINT color;
+	};
+
+	std::vector<XMFLOAT3>& r_mesh_vertices = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetVertexPositionVector();
+	std::vector<int>& r_mesh_indices = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetIndexVector();
+
+	TypeFilter map_filter;
+	TypeFilter ocean_filter;
+
+	map_filter.addRequirement(TileComponent::typeID);
+	map_filter.addRequirement(TransformComponent::typeID);
+	ocean_filter.addRequirement(OceanTileComponent::typeID);
+	ocean_filter.addRequirement(TransformComponent::typeID);
+
+	EntityIterator map_tiles = rEcs.getEntititesByFilter(map_filter);
+	EntityIterator ocean_tiles = rEcs.getEntititesByFilter(ocean_filter);
+
+	UINT map_tile_count = (UINT)map_tiles.entities.size();
+	UINT ocean_tile_count = (UINT)ocean_tiles.entities.size();
+	UINT total_tile_count = map_tile_count + ocean_tile_count;
+
+	// Create a vertex buffer to write all tile vertex data to
+	Vertex* vertexBuffer = new Vertex[r_mesh_indices.size() * total_tile_count];
+	UINT index_counter = 0;
+
+	// Pre define variables used for calculations in entity loops
+	XMMATRIX xm_world;
+	ColorComponent* p_color;
+	TransformComponent* p_transform;
+
+	for (FilteredEntity& r_ocean_tile : ocean_tiles.entities)
+	{
+		p_color = r_ocean_tile.getComponent<ColorComponent>();
+		p_transform = r_ocean_tile.getComponent<TransformComponent>();
+		xm_world = XMMatrixTranslation(p_transform->position.x, p_transform->position.y, p_transform->position.z);
+
+		for (int i : r_mesh_indices)
+		{
+			
+		}
+	}
+
+	for (FilteredEntity& r_map_tile : map_tiles.entities)
+	{
+		p_color = r_map_tile.getComponent<ColorComponent>();
+		p_transform = r_map_tile.getComponent<TransformComponent>();
+	}
+}
