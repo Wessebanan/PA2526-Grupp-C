@@ -186,7 +186,7 @@ namespace ModelLoader
 		int animationFlags[ANIMATION_COUNT];
 		UniqueSkeletonData()
 		{
-			
+
 		}
 		void Init(Skeleton* parentSkeleton)
 		{
@@ -199,20 +199,6 @@ namespace ModelLoader
 		}
 		void UpdateAnimation(float dtInSeconds, ANIMATION_TYPE animType)
 		{
-
-			//for (int i = 0; i < ANIMATION_COUNT; ++i)
-			//{
-			//	if (this->animationFlags[i] == 1)
-			//	{
-			//		int frame_count = this->parentSkeleton->animations[i].frameCount;
-			//		int joint_count = this->parentSkeleton->jointCount;
-			//		this->mCurrentTime = this->mCurrentTime + dtInSeconds;
-			//		int frame_to_set = (int)std::round(fmod(this->mCurrentTime * 24.0f, frame_count)) % frame_count;
-			//		// Get frame data from animationData vector
-			//		memcpy(this->frameData, &this->parentSkeleton->animations[i].animationData[frame_to_set * joint_count], joint_count * sizeof(DirectX::XMFLOAT4X4));
-			//		break; // This break will disappear when animation blending is implemented
-			//	}
-			//}
 			int frame_count = this->parentSkeleton->animations[animType].frameCount;
 			int joint_count = this->parentSkeleton->jointCount;
 			this->mCurrentTime = this->mCurrentTime + dtInSeconds;
