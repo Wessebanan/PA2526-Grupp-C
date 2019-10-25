@@ -102,6 +102,7 @@
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
+    <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
@@ -129,6 +130,8 @@
     <ClInclude Include="gameAI\InitAI.h" />
     <ClInclude Include="gameAI\InitArmy.h" />
     <ClInclude Include="gameAI\InitGrid.h" />
+    <ClInclude Include="gameAnimation\AnimationComponents.h" />
+    <ClInclude Include="gameAnimation\AnimationSystems.h" />
     <ClInclude Include="gameAnimation\InitAnimation.h" />
     <ClInclude Include="gameAudio\AudioECSEvents.h" />
     <ClInclude Include="gameAudio\AudioECSSystems.h" />
