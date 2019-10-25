@@ -13,21 +13,21 @@
   <ItemGroup>
     <ClInclude Include="..\includes\ComputeManager.h" />
     <ClInclude Include="..\includes\D3D11Header.h" />
-    <ClInclude Include="..\includes\ForwardRenderingPipeline.h" />
     <ClInclude Include="..\includes\GraphicsInterface.h" />
     <ClInclude Include="..\includes\RenderContext.h" />
     <ClInclude Include="..\includes\MeshManager.h" />
     <ClInclude Include="..\includes\Pipeline.h" />
     <ClInclude Include="..\includes\RenderManager.h" />
+    <ClInclude Include="..\includes\StateManager.h" />
     <ClInclude Include="..\includes\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\ComputeManager.cpp" />
-    <ClCompile Include="..\source\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="..\source\GraphicsInterface.cpp" />
     <ClCompile Include="..\source\RenderContext.cpp" />
     <ClCompile Include="..\source\MeshManager.cpp" />
     <ClCompile Include="..\source\RenderManager.cpp" />
+    <ClCompile Include="..\source\StateManager.cpp" />
     <ClCompile Include="..\source\Window.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -57,9 +57,11 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Standard Modules Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Standard Modules Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -74,6 +76,9 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -88,6 +93,9 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile />
+      <PrecompiledHeaderOutputFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

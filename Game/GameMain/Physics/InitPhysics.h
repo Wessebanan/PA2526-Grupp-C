@@ -1,9 +1,13 @@
 #pragma once
 #include "ecs.h"
+
 #include "MovementSystem.h"
 #include "CollisionSystem.h"
+#include "FightingSystem.h"
+
 #include "PhysicsComponents.h"
 #include "PhysicsEvents.h"
+
 namespace Mesh
 {
 	enum MESHES
@@ -13,8 +17,9 @@ namespace Mesh
 		N_MESHES,
 	};
 }
+
 // Must be called after InitMesh and InitArmy.
-void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh **ppMmeshes);
+void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh *ppMmeshes);
 
 // Create every system needed for physics.
 void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs);
@@ -22,8 +27,10 @@ void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs);
 // Create every necessary component for entities with unit components.
 void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh *pMesh);
 
-// Creates an entity with mesh component and collision component for an object (eg. tree).
-ecs::Entity* CreateEntityForObject(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh *pMesh);
+void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh);
+
+// Creates a weapon out of a mesh and weapon type. (weapon, transform and mesh components)
+ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType);
 
 // Set parameter direction to movement component forward and move forward.
 void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, XMFLOAT3 direction);
@@ -31,10 +38,10 @@ void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, XMFLOAT3 directio
 // Move in direction of parameter input while keeping forward.
 void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, MovementInputs input);
 
-inline void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh** ppMeshes)
+inline void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* ppMeshes)
 {
 	CreatePhysicsSystems(rEcs);
-	CreatePhysicsComponentsForUnits(rEcs, ppMeshes[Mesh::DUDE]);
+	CreatePhysicsComponentsForUnits(rEcs, ppMeshes);
 }
 
 inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
@@ -46,9 +53,13 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 
 	// Collision
 	rEcs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
-	rEcs.createSystem<ecs::systems::ObjectCollisionSystem>();
 	rEcs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
+	rEcs.createSystem<ecs::systems::ObjectCollisionSystem>();
 	rEcs.createSystem<ecs::systems::GroundCollisionSystem>();
+
+	// Fighting
+	rEcs.createSystem<ecs::systems::WeaponInitSystem>();
+	rEcs.createSystem<ecs::systems::DamageSystem>();
 }
 
 inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh * pMesh)
@@ -62,6 +73,10 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 	ObjectCollisionComponent object_collision;
 	GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
+	HealthComponent health_component;
+	EquipmentComponent equipment_component;
+	
+
 
 	for (int i = 0; i < it.entities.size(); i++)
 	{
@@ -85,31 +100,64 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 		{
 			rEcs.createComponent<DynamicMovementComponent>(current->getID(), movement_component);
 		}
+
+		if (!current->hasComponentOfType<HealthComponent>())
+		{
+			rEcs.createComponent<HealthComponent>(current->getID(), health_component);
+		}
+
+		// Initializing with fist weapons.
+		if (!current->hasComponentOfType<EquipmentComponent>())
+		{
+			// Setting melee range here (arm length) hoping that any unit mesh is either facing x or z on load.
+			ObjectCollisionComponent* p_object_collision = dynamic_cast<ObjectCollisionComponent*>(rEcs.getComponent(ObjectCollisionComponent::typeID, current->getComponentID(ObjectCollisionComponent::typeID)));
+			XMFLOAT3 extents = p_object_collision->mAABB.Extents;
+			equipment_component.mMeleeRange = extents.x > extents.z ? extents.x : extents.z;
+			TransformComponent* p_transform = dynamic_cast<TransformComponent*>(rEcs.getComponent(TransformComponent::typeID, current->getComponentID(TransformComponent::typeID)));
+			
+			// Assume uniform scale (pain otherwise).
+			equipment_component.mMeleeRange *= p_transform->scale.x;
+			
+			// Set attack range to melee range since fist adds no range.
+			equipment_component.mAttackRange = equipment_component.mMeleeRange;
+
+			ecs::Entity* weapon_entity = CreateWeaponEntity(rEcs, nullptr, FIST);
+			equipment_component.mEquippedWeapon = weapon_entity->getID();
+			rEcs.createComponent<EquipmentComponent>(current->getID(), equipment_component);
+		}
 	}
 }
 
-inline ecs::Entity* CreateEntityForObject(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh)
+inline void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh)
 {
-	// Create components.
-	MeshComponent mesh_component;
-	mesh_component.mMesh = pMesh;
-	ObjectCollisionComponent collsion_component;
-	TransformComponent transform_component;
-	transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	// TODO : Get scene objects and add object collision components to them.
+}
 
-	// Make list.
-	ecs::ComponentList component_list;
-	ecs::BaseComponent* list[] =
+inline ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType)
+{
+	WeaponComponent		weapon_component;
+	TransformComponent	weapon_transform_component;
+	MeshComponent		weapon_mesh_component;
+
+	weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+	weapon_component.mType = weaponType;
+	switch (weaponType)
 	{
-		&mesh_component,
-		&transform_component,
-		&collsion_component
-	};
-	component_list.componentCount = 3;
-	component_list.initialInfo = list;
-
-	// Create component.
-	return rEcs.createEntity(component_list);
+	case SWORD:
+	{
+		ModelLoader::Mesh sword("Physics/TestModel/sword.fbx");
+		weapon_mesh_component.mMesh = pMesh;
+		break;
+	}
+	case FIST:
+		weapon_mesh_component.mMesh = pMesh;
+		break;
+	case PROJECTILE:
+		MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
+		break;
+	}
+	 
+	return rEcs.createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
 }
 
 inline void MoveEntity(ecs::EntityComponentSystem &rEcs, ID entityID, XMFLOAT3 direction)

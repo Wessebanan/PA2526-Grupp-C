@@ -1,9 +1,10 @@
 #include "AudioMixer.h"
+#include <iostream>
 
 void Audio::Mixer::Fill(Samples start, Samples count, float* pData)
 {
 	int i, j;
-	float voice_data[SOUND_FRAMES_PER_BUFFER*2];
+	float voice_data[SOUND_FRAMES_PER_BUFFER * 2] = {0.0f};
 	for (i = 0; i < SOUND_MAX_SOUND_VOICES; i++)
 	{
 		if (mSoundVoices[i].IsActive())
@@ -15,18 +16,10 @@ void Audio::Mixer::Fill(Samples start, Samples count, float* pData)
 			}
 		}
 	}
-	for (i = 0; i < SOUND_MAX_MUSIC_VOICES; i++)
-	{
-		if (mMusicVoices[i].IsActive())
-		{
-			mMusicVoices[i].Fill(start, count, voice_data);
-			for (j = 0; j < count * 2; j++)
-			{
-				pData[j] += voice_data[j];
-			}
-		}
-	}
+
+	mMusicManager.Fill(start, count, pData, 2, voice_data);
 }
+
 
 void Audio::Mixer::NewSoundVoice(Plugin::Plugin* pEntryPlugin)
 {
@@ -42,25 +35,17 @@ void Audio::Mixer::NewSoundVoice(Plugin::Plugin* pEntryPlugin)
 	delete pEntryPlugin;
 }
 
-void Audio::Mixer::NewMusicVoice(Plugin::Plugin* pEntryPlugin, bool replace)
-{
-	if (replace || !mMusicVoices[0].IsActive())
-	{
-		mMusicVoices[0].New(pEntryPlugin);
-		return;
-	}
-	// Failed to find space for the music, delete
-	delete pEntryPlugin;
-}
-
 void Audio::Mixer::AddSoundMessage(Sound::Message message)
 {
-	mSoundMessageBuffer.insert(&message);
+	if (!mSoundMessageBuffer.insert(&message))
+	{
+		delete message.pEntry;
+	}
 }
 
 void Audio::Mixer::AddMusicMessage(Music::Message message)
 {
-	mMusicMessageBuffer.insert(&message);
+	mMusicManager.AddMusicMessage(message);
 }
 
 void Audio::Mixer::ProcessMessages()
@@ -69,10 +54,10 @@ void Audio::Mixer::ProcessMessages()
 	{
 		ProcessSoundMessages();
 	}
-	if (!mMusicMessageBuffer.isEmpty())
-	{
-		ProcessMusicMessages();
-	}
+	//if (!mMusicMessageBuffer.isEmpty())
+	//{
+	mMusicManager.ProcessMusicMessages();
+	//}
 }
 
 void Audio::Mixer::ProcessSoundMessages()
@@ -81,15 +66,5 @@ void Audio::Mixer::ProcessSoundMessages()
 	while (mSoundMessageBuffer.remove(&temp_message))
 	{
 		NewSoundVoice(temp_message.pEntry);
-	}
-}
-
-void Audio::Mixer::ProcessMusicMessages()
-{
-	Music::Message temp_message;
-	while (mMusicMessageBuffer.remove(&temp_message))
-	{
-		NewMusicVoice(temp_message.pEntry,
-			temp_message.flags & Music::M_REPLACE);
 	}
 }

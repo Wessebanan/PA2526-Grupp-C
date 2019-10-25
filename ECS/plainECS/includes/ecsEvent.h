@@ -31,13 +31,5 @@ namespace ecs
 			ID componentID = 0;
 			TypeID componentTypeID = 0;
 		};
-
-
-
-
-		struct MessageStringEvent : public ECSEvent<MessageStringEvent>
-		{
-			std::string messageString = "";
-		};
 	}
 }

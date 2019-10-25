@@ -1,11 +1,13 @@
 
+
 #include "../includes/GraphicsInterface.h"
 #include "../includes/Window.h"
-#include "../includes/ForwardRenderingPipeline.h"
 
 #include "../includes/MeshManager.h"
 #include "../includes/RenderManager.h"
 #include "../includes/ComputeManager.h"
+
+#include "ForwardRenderingPipeline.h"
 
 #include <memory>
 #include <DirectXMath.h>
@@ -47,18 +49,21 @@ int main()
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	UINT
-		clientWidth		= 1600,
-		clientHeight	= 900;
+		clientWidth		= graphics::GetDisplayResolution().x,
+		clientHeight	= graphics::GetDisplayResolution().y;
 
 	graphics::Window wnd;
 	wnd.Initialize(
 		clientWidth,
 		clientHeight,
 		"Couch Commanders",
-		graphics::WINDOW_STYLE::BORDER);
+		graphics::WINDOW_STYLE::BORDERLESS);
+
+	graphics::InitializeD3D11();
+	graphics::AttachHwndToSwapChain(wnd);
 
 	graphics::RenderManager r_mng;
-	r_mng.Initialize(wnd);
+	r_mng.Initialize(65536);
 
 	graphics::MeshManager m_mng;
 	m_mng.Initialize(999, 999);
@@ -80,10 +85,15 @@ int main()
 			&desc);
 	}
 
+	struct float4
+	{
+		float x, y, z, w;
+	};
+
 	UINT shaderIndex0 = r_mng.CreateShaderProgram(
 		"VS_Default.cso", 
 		"PS_Default.cso", 
-		sizeof(float) * 4);
+		sizeof(float4));
 
 	struct float3
 	{
@@ -111,34 +121,27 @@ int main()
 		0, 1, 2,
 	};
 
-	graphics::MeshRegion meshIndex0 = m_mng.CreateMeshRegion(3, 0);
+	graphics::MeshRegion mesh_regions[2];
+	UINT instance_counts[2] = { 2, 2 };
+
+	mesh_regions[0] = m_mng.CreateMeshRegion(3, 0);
 	{
 		graphics::VERTEX_DATA vd = { NULL };
 		vd.pVertexPositions = triangle;
-		m_mng.UploadData(meshIndex0, vd, NULL);
+		m_mng.UploadData(mesh_regions[0], vd, NULL);
 	}
 
-	graphics::MeshRegion meshIndex1 = m_mng.CreateMeshRegion(6, 6);
+	mesh_regions[1] = m_mng.CreateMeshRegion(6, 6);
 	{
 		graphics::VERTEX_DATA vd = { NULL };
 		vd.pVertexPositions = quad;
-		m_mng.UploadData(meshIndex1, vd, quad_indices);
+		m_mng.UploadData(mesh_regions[1], vd, quad_indices);
 	}
 
 	graphics::ShaderModelLayout layout;
-	layout.Meshes[0] = (meshIndex0);
-	layout.Meshes[1] = (meshIndex1);
-
-	layout.InstanceCounts[0] = (2);
-	layout.InstanceCounts[1] = (2);
-
-	layout.MeshCount	= 2;
-	layout.TotalModels	= 4;
-
-	struct float4
-	{
-		float x, y, z, w;
-	};
+	layout.MeshCount				= 2;
+	layout.pMeshes					= mesh_regions;
+	layout.pInstanceCountPerMesh	= instance_counts;
 
 	float4 pos[4] = {
 		{  0.0f,  0.0f, 0.0f, 0.0f },
@@ -147,26 +150,31 @@ int main()
 		{ -1.0f,  0.0f, 0.0f, 0.0f },
 	};
 
-	r_mng.SetModelData(pos, sizeof(pos));
+	r_mng.BeginUpload();
+	r_mng.UploadPerInstanceData(pos, sizeof(float4) * 2, 0);
+	r_mng.UploadPerInstanceData(pos, sizeof(float4) * 2, sizeof(float4) * 2);
 	r_mng.SetShaderModelLayout(shaderIndex0, layout);
 
 	float x = 0.0f, y = 0.0f, z = -1.0f;
 	DirectX::XMFLOAT4X4 m_cameraMatrix;
 
+
 	wnd.Open();
 	while (wnd.IsOpen())
 	{
-		if (!wnd.Update())
+		if (!wnd.Update() && graphics::HasFocus(wnd))
 		{
 			float moveSpeed = 0.1f;
 			if (GetAsyncKeyState(VK_UP))
 			{
 				z += moveSpeed;
 			}
+
 			if (GetAsyncKeyState(VK_DOWN))
 			{
 				z -= moveSpeed;
 			}
+
 			if (GetAsyncKeyState(VK_ESCAPE))
 			{
 				wnd.Close();
@@ -181,15 +189,18 @@ int main()
 				r_mng.UpdatePipeline(pipelineIndex0, &data);
 			} 
 
+			m_mng.SetVertexBuffers();
 			r_mng.ExecutePipeline(pipelineIndex0);
 
-			r_mng.Present();
+			graphics::Present(0);
 		}
 	}
 
 	c_mng.Destroy();
 	m_mng.Destroy();
 	r_mng.Destroy();
+
+	graphics::DestroyD3D11();
 
 	return 0;
 }

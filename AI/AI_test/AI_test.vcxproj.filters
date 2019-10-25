@@ -9,6 +9,9 @@
     <ClCompile Include="..\..\Game\GameMain\gameAI\GridEcsFunctions.cpp">
       <Filter>GameFiles</Filter>
     </ClCompile>
+    <ClCompile Include="..\AI\includes\GridFunctions.cpp">
+      <Filter>GameFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -34,6 +37,9 @@
       <Filter>GameFiles</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Game\GameMain\gameUtility\UtilityComponents.h">
+      <Filter>GameFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="..\AI\includes\GridFunctions.h">
       <Filter>GameFiles</Filter>
     </ClInclude>
   </ItemGroup>

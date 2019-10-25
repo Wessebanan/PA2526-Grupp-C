@@ -27,6 +27,9 @@
     <ClCompile Include="webConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ConnectionHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\InputBackend.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="includes\webConnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\ConnectionHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,6 +56,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="scripts\script.js">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="mobileSite.html">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

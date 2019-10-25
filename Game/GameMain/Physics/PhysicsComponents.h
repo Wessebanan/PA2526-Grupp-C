@@ -3,7 +3,7 @@
 #include <DirectXMath.h>
 #include "Mesh.h"
 #include <DirectXCollision.h>
-
+#include "BoundingVolume.h"
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
 // A bunch of default values.
@@ -13,35 +13,17 @@
 #define DEFAULT_WEIGHT 50.0f
 #define DEFAULT_GRAVITY 9.82f
 #define DEFAULT_HEALTH 100.0f
-#define DEFAULT_BASE_DAMAGE 10.0f
+
+#define BASE_SWORD_DAMAGE 10.0f
+#define BASE_FIST_DAMAGE 1.0f
 
 // WEAPON_TYPE decides what bounding volume to use.
 enum WEAPON_TYPE
 {
-	MELEE,
+	SWORD,
 	PROJECTILE,
-	DEFAULT
+	FIST
 };
-
-// Inheritance structure for unspecific bounding volumes.
-#pragma region BoundingVolume
-struct BoundingVolume 
-{
-	virtual ~BoundingVolume() {}
-};
-struct Sphere : public BoundingVolume
-{
-	DirectX::BoundingSphere mSphere;
-};
-struct OBB : public BoundingVolume
-{
-	DirectX::BoundingOrientedBox mOBB;
-};
-struct AABB : public BoundingVolume
-{
-	DirectX::BoundingBox mAABB;
-};
-#pragma endregion
 
 namespace ecs
 {
@@ -78,6 +60,9 @@ namespace ecs
 			// density all over.
 			DirectX::XMFLOAT3 mMassCenter;
 
+			// Position pre-movement to determine if the object moved since last update.
+			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+
 			// If object is on ground.
 			bool mOnGround = false;
 		};
@@ -102,7 +87,7 @@ namespace ecs
 		*/
 		COMP(GroundCollisionComponent)
 		{
-			DirectX::BoundingOrientedBox mOBB;
+			OBB mOBB;
 
 			// Storing last y values to avoid unneccesary checks.
 			float mLastY = INFINITY;
@@ -117,9 +102,9 @@ namespace ecs
 		*/
 		COMP(ObjectCollisionComponent)
 		{
-			DirectX::BoundingBox mAABB;
+			AABB mAABB;
 
-			DirectX::BoundingSphere *mSpheres = nullptr;
+			Sphere *mSpheres = nullptr;
 			unsigned int mSphereCount = 0;
 
 			// States if the last movement resulted in collision
@@ -128,7 +113,10 @@ namespace ecs
 
 			~ObjectCollisionComponent()
 			{
-				delete[] mSpheres;
+				if (mSpheres)
+				{
+					delete[] mSpheres;
+				}
 			}
 		};
 
@@ -147,15 +135,26 @@ namespace ecs
 		*/
 		COMP(WeaponComponent)
 		{
-			WEAPON_TYPE mType = DEFAULT;
+			// When an entity gets the weapon, give owner entity id to component.
+			ID mOwnerEntity = 0;			
 
+			WEAPON_TYPE mType = FIST;
 			BoundingVolume* mBoundingVolume = nullptr;
-
+			
 			// Previous position to calculate velocity for damage.
 			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			
 			// Base damage for multiplier on hit based on weapon type.
-			float mBaseDamage = DEFAULT_BASE_DAMAGE;
+			float mBaseDamage = 0.0f;
+			float mWeaponRange = 0.0f;
+
+			~WeaponComponent()
+			{				
+				if (mBoundingVolume)
+				{
+					delete mBoundingVolume;
+				}
+			}
 		};
 
 		/*
@@ -163,7 +162,7 @@ namespace ecs
 		* might hold strength, stamina, speed etc. in the future so constitution
 		* is a good name.
 		*/
-		COMP(ConstitutionComponent)
+		COMP(HealthComponent)
 		{
 			float mBaseHealth	= DEFAULT_HEALTH;
 			float mHealth		= DEFAULT_HEALTH;
@@ -172,6 +171,21 @@ namespace ecs
 		COMP(QuadTreeComponent)
 		{
 			void* pTree;
+		};
+
+		/*
+		* Holds the ID of the equipped weapon entity, as
+		* well as the owner unit's melee range (arm length)
+		* and the total attack range (melee + weapon range).
+		*/
+		COMP(EquipmentComponent)
+		{
+			ID mEquippedWeapon = 0;
+			// Melee range is arm length.
+			float mMeleeRange = 0.0f;
+
+			// Attack range is sum of weapon range and melee range.
+			float mAttackRange = 0.0f;
 		};
 	} // components
 } // ecs

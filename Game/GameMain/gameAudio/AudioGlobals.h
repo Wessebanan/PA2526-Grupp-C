@@ -19,12 +19,16 @@ enum MusicFlags
 enum AudioName
 {
 	COIN_TEST_SOUND,
-	CC_TEST_SONG
+	CC_TEST_SONG,
+	CC_TEST_SONG_DRUMS,
+	SILENCE_SOUND
 };
 
 const std::string AUDIO_NAME_PATHS[] =
 {
 	"../AudioFiles/coin.wav",
-	"../AudioFiles/cc_song.wav"
+	"../AudioFiles/cc_song.wav",
+	"../AudioFiles/cc_drums.wav",
+	"../AudioFiles/silence.wav"
 };
 

@@ -46,6 +46,7 @@
     <Import Project="..\..\PropertySheets\AI_Debug.props" />
     <Import Project="..\..\PropertySheets\Utility_Debug.props" />
     <Import Project="..\..\PropertySheets\Sound_Debug.props" />
+    <Import Project="..\..\PropertySheets\Graphics_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -60,9 +61,15 @@
     <Import Project="..\..\PropertySheets\AI_Release.props" />
     <Import Project="..\..\PropertySheets\Utility_Release.props" />
     <Import Project="..\..\PropertySheets\Sound_Release.props" />
+    <Import Project="..\..\PropertySheets\Graphics_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -96,9 +103,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
+    <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
+    <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
+    <ClCompile Include="gameUtility\Timer.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
     <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
@@ -106,6 +117,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="UI\UISystems.cpp" />
     <ClCompile Include="Physics\CollisionSystem.cpp" />
+    <ClCompile Include="Physics\FightingSystem.cpp" />
     <ClCompile Include="Physics\MovementSystem.cpp" />
     <ClCompile Include="Physics\QuadTree.cpp" />
   </ItemGroup>
@@ -117,10 +129,13 @@
     <ClInclude Include="gameAI\GridEcsFunctions.h" />
     <ClInclude Include="gameAI\InitArmy.h" />
     <ClInclude Include="gameAI\InitGrid.h" />
+    <ClInclude Include="gameAnimation\InitAnimation.h" />
     <ClInclude Include="gameAudio\AudioECSEvents.h" />
     <ClInclude Include="gameAudio\AudioECSSystems.h" />
     <ClInclude Include="gameAudio\AudioGlobals.h" />
     <ClInclude Include="gameAudio\InitAudio.h" />
+    <ClInclude Include="gameGraphics\ForwardRenderingPipeline.h" />
+    <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameSceneObjects\InitBiomes.h" />
@@ -134,14 +149,17 @@
     <ClInclude Include="gameUtility\DebugInfo.h" />
     <ClInclude Include="gameUtility\GlobalsCamera.h" />
     <ClInclude Include="gameUtility\InitCamera.h" />
+    <ClInclude Include="gameUtility\Timer.h" />
     <ClInclude Include="gameUtility\UtilityComponents.h" />
     <ClInclude Include="gameUtility\UtilityEvents.h" />
     <ClInclude Include="gameUtility\UtilityEcsFunctions.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
+    <ClInclude Include="GraphicsComponents.h" />
     <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />
     <ClInclude Include="Physics\CollisionSystem.h" />
+    <ClInclude Include="Physics\FightingSystem.h" />
     <ClInclude Include="Physics\InitPhysics.h" />
     <ClInclude Include="Physics\MovementSystem.h" />
     <ClInclude Include="Physics\PhysicsComponents.h" />
@@ -155,6 +173,28 @@
     <ClInclude Include="UI\UIComponents.h" />
     <ClInclude Include="UI\UIEvents.h" />
     <ClInclude Include="UI\UISystems.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="gameGraphics\PS_Transformation.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Default.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Default.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\VS_Transformation.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
