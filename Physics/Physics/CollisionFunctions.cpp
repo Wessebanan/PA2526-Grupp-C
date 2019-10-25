@@ -32,13 +32,13 @@ void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const AABB* collidin
 	float overlap = 0.0f;
 	int sign = 0;
 	// Saving a 1 in the direction of the largest component in the vector and getting the overlap in that direction.
-	if (fabs_diff.x > fabs_diff.y && fabs_diff.x > fabs_diff.z)
+	if (/*fabs_diff.x > fabs_diff.y &&*/ fabs_diff.x > fabs_diff.z)
 	{
 		sign = Sign(diff.x);
 		overlap = colliding_world->Extents.x + collided_world->Extents.x - fabs_diff.x;
 		x = true;
 	}
-	else if (fabs_diff.z > fabs_diff.x && fabs_diff.z > fabs_diff.y)
+	else if (fabs_diff.z > fabs_diff.x /*&& fabs_diff.z > fabs_diff.y*/)
 	{
 		sign = Sign(diff.z);
 		overlap = colliding_world->Extents.z + collided_world->Extents.z - fabs_diff.z;
