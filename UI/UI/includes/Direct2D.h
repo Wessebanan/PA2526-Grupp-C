@@ -111,6 +111,8 @@ private:
 	ID2D1DeviceContext6* mpContext;
 
 	RECT* mpRect;
+	int width;
+	int height;
 	std::wstring mfont;
 	unsigned int mfontSize;
 	bool mFailBitMapLoaded = false;

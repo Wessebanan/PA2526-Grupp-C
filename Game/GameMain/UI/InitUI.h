@@ -18,11 +18,11 @@ void InitUI(ecs::EntityComponentSystem& rECS, Direct2D** D2D, TempUISystemPtrs& 
 	rSystemPointers.UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>();
 	rSystemPointers.UITextSys	= rECS.createSystem<ecs::systems::UITextSystem>();
 	rSystemPointers.UIDebugSys	= rECS.createSystem<ecs::systems::UIDebugSystem>(5);
-	rSystemPointers.UIpostSys	= rECS.createSystem<ecs::systems::UIPostRenderSystem>(6);
+	//rSystemPointers.UIpostSys	= rECS.createSystem<ecs::systems::UIPostRenderSystem>(6);
 	*D2D = new Direct2D;
 	rSystemPointers.UIpreSys->mpD2D			= 
 		rSystemPointers.UITextSys->mpD2D	= 
-		rSystemPointers.UIpostSys->mpD2D	= 
+		//rSystemPointers.UIpostSys->mpD2D	= 
 		rSystemPointers.UIBitmapSys->mpD2D  = 
 		rSystemPointers.UIDebugSys->mpD2D	= *D2D;
 }

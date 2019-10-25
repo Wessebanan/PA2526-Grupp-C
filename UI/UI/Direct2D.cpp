@@ -19,6 +19,8 @@ Direct2D::Direct2D()
 	this->mpHwndRenderTarget = nullptr;
 	this->mTrimmer.granularity = DWRITE_TRIMMING_GRANULARITY_CHARACTER;
 	this->mTrimmer = {};
+	this->width = 100;
+	this->height = 100;
 	this->mfont = L"Arial";
 	this->mfontSize = 40;
 	this->mInit();
@@ -103,6 +105,8 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a re
 		this->mpColorText->AddRef();
 		this->mpColorDraw->AddRef();
 		this->mpRect = rect;
+		this->width = rect->right;
+		this->height = rect->bottom;
 	};
 	
 	return hr;
@@ -132,6 +136,8 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, int width, int height)
 		//this->mpTextFormat->AddRef();
 		this->mpColorText->AddRef();
 		this->mpColorDraw->AddRef();
+		this->width = width;
+		this->height = height;
 	};
 
 	return hr;
@@ -244,7 +250,7 @@ bool Direct2D::PrintText(std::string text, RECT rect) //draws text with format, 
 bool Direct2D::PrintDebug(std::string text)
 {
 	std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
-	D2D1_RECT_F rect = D2D1::RectF(this->mpRect->right - (this->mpRect->right / 4), 0, this->mpRect->right, this->mpRect->bottom - (2*this->mpRect->bottom / 3)); // probably will need adjustment later on 
+	D2D1_RECT_F rect = D2D1::RectF(this->width - (this->width / 4), 0, this->width, this->height - (2*this->height / 3)); // probably will need adjustment later on 
 	
 	if (this->mHwndRenderTargetCreated)
 	{

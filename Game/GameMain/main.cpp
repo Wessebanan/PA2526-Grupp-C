@@ -5,7 +5,7 @@
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
 
-#include "Input/InitInput.h"
+//#include "Input/InitInput.h"
 #include "Input/InitInterpreter.h"
 #include "UI/InitUI.h"
 #include "Direct2D.h"
@@ -38,7 +38,7 @@ int main()
 
 	InitSound(ecs);
 
-	InitInput(ecs);
+	//InitInput(ecs);
 	InitInterpreter(ecs);
 	InitUI(ecs, &my_d2d, my_UI_systems);
 	
@@ -84,7 +84,10 @@ int main()
 	itt = ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID);
 	ecs::components::CameraComponent* p_cam_comp = (ecs::components::CameraComponent*)itt.next();
 
-
+	ecs::components::UITextComponent test_text;
+	test_text.mStrText = "test";
+	ecs.createEntity(test_text);
+	
 	pMng->SetViewMatrix(p_cam_comp->viewMatrix);
 	pWnd->Show();
 	ecs.update(0.1f);
