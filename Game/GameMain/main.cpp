@@ -198,6 +198,7 @@ void InitAll(EntityComponentSystem& rECS)
 	e.newState = ATTACK;
 	e.playerId = PLAYER1;
 	rECS.createEvent(e);
+	e.newState = FLEE;
 	e.playerId = PLAYER2;
 	rECS.createEvent(e);
 	e.playerId = PLAYER3;

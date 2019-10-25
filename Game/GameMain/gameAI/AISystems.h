@@ -84,6 +84,10 @@ namespace ecs
 				{
 					goal_id = 117;
 				}
+				else if (path_comp->goalState == STATE::FLEE)
+				{
+					goal_id = this->FindSafeTile(entity.entity);
+				}
 				if(g_prop->mGrid[start_tile.y][start_tile.x].isPassable)
 				{
 					path = GetPath(start_tile_id, goal_id);
@@ -262,14 +266,56 @@ namespace ecs
 				}
 				return enemy_id;
 			}
-				/*****************************************************/
-				/****************************************************/
-				/* FILL OUT WITH PATHFINDING LOGIC IN ANOTHER TASK */
-				/**************************************************/
-				/*************************************************/
 
-				
-			
+			unsigned int FindSafeTile(ecs::Entity* current_unit)
+			{
+				ecs::components::UnitComponent* current_unit_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::UnitComponent>(current_unit->getID());
+				std::vector<ArmyComponent*> armies;
+				ecs::components::UnitComponent* other_unit_comp;
+				ecs::BaseComponent* p_base_comp;
+				ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::ArmyComponent::typeID);
+				ecs::components::TransformComponent* current_tile_transform;
+				ecs::components::TransformComponent* other_unit_transform;
+				GridProp* p_gp = GridProp::GetInstance();
+				float best_safe_value = 0;
+				float safe_value = 0;
+				unsigned int other_unit_id;
+				unsigned int goal_id;
+				while (p_base_comp = it.next())
+				{
+					armies.push_back(static_cast<ecs::components::ArmyComponent*>(p_base_comp));
+				}
+				for (int y = 0; y < MAX_ARENA_ROWS; y++)
+				{
+					for (int x = 0; x < MAX_ARENA_COLUMNS; x++)
+					{
+						if (p_gp->mGrid[y][x].isPassable)
+						{
+							for (int a = 0; a < armies.size(); a++)
+							{
+								for (int u = 0; u < armies[a]->unitIDs.size(); u++)
+								{
+									other_unit_id = armies[a]->unitIDs[u];
+									other_unit_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::UnitComponent>(other_unit_id);
+									if (current_unit_comp->playerID != other_unit_comp->playerID)
+									{
+										other_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(other_unit_id);
+										current_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
+										safe_value += abs(PhysicsHelpers::CalculateDistance(current_tile_transform->position, other_unit_transform->position));
+									}
+								}
+							}
+							if (safe_value > best_safe_value)
+							{
+								best_safe_value = safe_value;
+								goal_id = p_gp->mGrid[y][x].Id;
+							}
+						}
+						safe_value = 0;
+					}
+				}
+				return goal_id;
+			}
 		};
 
 		/*
@@ -438,10 +484,10 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
-				/*****************************************************/
-				/****************************************************/
-				/*    FILL OUT WITH LOOT LOGIC IN ANOTHER TASK     */
-				/**************************************************/
+				    /*************************************************/
+				   /*************************************************/
+				  /*   FILL OUT WITH FLEE LOGIC IN ANOTHER TASK    */
+				 /*************************************************/
 				/*************************************************/
 			}
 		};
@@ -603,21 +649,25 @@ namespace ecs
 					ecs::ECSUser::removeComponent(entity_id, ecs::components::PathfindingStateComponent::typeID);
 					ecs::ECSUser::removeComponent(entity_id, ecs::components::AttackStateComponent::typeID);
 					ecs::ECSUser::removeComponent(entity_id, ecs::components::LootStateComponent::typeID);
+					ecs::ECSUser::removeComponent(entity_id, ecs::components::FleeStateComponent::typeID);
 
-					//Create one instance of each possible component to use in the switch case (Ugly will have to find a better way later).
-					ecs::components::PathfindingStateComponent path;
-					path.goalState = state;
-					ecs::components::IdleStateComponent idle;
 					//Give the unit the new state component.
 					switch (state)
 					{
-					case STATE::IDLE:
-						ecs::ECSUser::createComponent(entity_id, idle);
-						break;
-					default:
-						//Defaults to a path since every other command relies on moving to a destination
-						ecs::ECSUser::createComponent(entity_id, path);
-						break;
+						case STATE::IDLE:
+						{
+							ecs::components::IdleStateComponent idle;
+							ecs::ECSUser::createComponent(entity_id, idle);
+							break;
+						}
+						default:
+						{
+							//Defaults to a path since every other command relies on moving to a destination
+							ecs::components::PathfindingStateComponent path;
+							path.goalState = state;
+							ecs::ECSUser::createComponent(entity_id, path);
+							break;
+						}
 					}
 					/*Used for debugging*/
 					//std::cout << "Changing state of player: " << player << " which has the entityID: " << p_army->getEntityID() << std::endl;
