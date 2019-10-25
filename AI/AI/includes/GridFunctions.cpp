@@ -388,7 +388,7 @@ namespace GridFunctions
 		if (neighbourIndex.x >= 0 && neighbourIndex.x < p_gp->GetSize().x
 			&& neighbourIndex.y >= 0 && neighbourIndex.y < p_gp->GetSize().y
 			&& p_gp->mGrid[currentTile.x][currentTile.y].height -
-			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1
+			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1.0f
 			&& p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].isPassable)
 			returnValue = true;
 

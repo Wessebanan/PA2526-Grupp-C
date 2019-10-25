@@ -11,6 +11,7 @@
 #include "../Physics/PhysicsEvents.h"
 #include <iostream>
 #include "../../Physics/includes/PhysicsHelperFunctions.h"
+#include "../gameAnimation/AnimationComponents.h"
 
 namespace ecs
 {
@@ -608,6 +609,10 @@ namespace ecs
 					ecs::components::PathfindingStateComponent path;
 					path.goalState = state;
 					ecs::components::IdleStateComponent idle;
+
+					// Fetch the skeleton ID to start animations based on state
+					ID skeleton_id = unit->getComponentID<ecs::components::SkeletonComponent>();
+
 					//Give the unit the new state component.
 					switch (state)
 					{
