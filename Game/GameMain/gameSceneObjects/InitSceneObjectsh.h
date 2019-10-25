@@ -16,9 +16,9 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 	for (size_t i = 0; i < OBJECTCOUNT; i++)
 	{
 		// Simplefier to handle what object it is
-		p_scene_obj.mObject = (SCENEOBJECT)(i%12);
+		p_scene_obj.mObject = (SCENE_OBJECT)(i%12);
 		// Assigns the property of the sceneobject
-		p_scene_obj.mObjectType = (OBJECTTYPE)(i%3);
+		p_scene_obj.mObjectType = (OBJECT_TYPE)(i%3);
 		// assign the filepath to
 		p_scene_obj.AssignModel();
 
@@ -99,11 +99,11 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 
 			p_gp->mSceneObjects[(i % 12)][(i / 12) - 1] = p_scene_comp->mObjectType;
 
-			if (p_scene_comp->mObjectType == OBJECTTYPE::IMPASSABLE)
+			if (p_scene_comp->mObjectType == OBJECT_TYPE::IMPASSABLE)
 			{
 				tile_comp->impassable = true;
 			}
-			else if (p_scene_comp->mObjectType == OBJECTTYPE::INTERESTING)
+			else if (p_scene_comp->mObjectType == OBJECT_TYPE::INTERESTING)
 			{
 				// Place it in the grids list of interesting sceneobjects
 			}

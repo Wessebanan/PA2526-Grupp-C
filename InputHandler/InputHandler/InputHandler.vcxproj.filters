@@ -27,7 +27,7 @@
     <ClCompile Include="webConnection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ConnectionHelper.cpp">
+    <ClCompile Include="HttpServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +41,10 @@
     <ClInclude Include="includes\webConnection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\ConnectionHelper.h">
+    <ClInclude Include="includes\httplib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="includes\HttpServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

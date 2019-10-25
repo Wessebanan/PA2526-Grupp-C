@@ -9,13 +9,13 @@ namespace ecs
 		struct SceneObjectComponent : public ECSComponent<SceneObjectComponent>
 		{
 		public:
-			SCENEOBJECT mObject;
-			OBJECTTYPE mObjectType;
+			SCENE_OBJECT mObject;
+			OBJECT_TYPE mObjectType;
 
 			// change the object depending on the biome
 			void ChangeModelByBiome(BIOME bio)
 			{
-				this->mObject = (SCENEOBJECT)((int)(this->mObjectType) + ((int)(bio) * 3));
+				this->mObject = (SCENE_OBJECT)((int)(this->mObjectType) + ((int)(bio) * 3));
 
 				this->AssignModel();
 			}
@@ -25,40 +25,40 @@ namespace ecs
 			{
 				switch (this->mObject)
 				{
-				case SCENEOBJECT::SNOWMAN:
+				case SCENE_OBJECT::SNOWMAN:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::ANGEL:
+				case SCENE_OBJECT::ANGEL:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::IGLOO:
+				case SCENE_OBJECT::IGLOO:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::CLIFF:
+				case SCENE_OBJECT::CLIFF:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::ROCKS:
+				case SCENE_OBJECT::ROCKS:
 					this->mFilepath = "gameSceneObjects/models/rock.fbx";
 					break;
-				case SCENEOBJECT::CAMP:
+				case SCENE_OBJECT::CAMP:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::TREES:
+				case SCENE_OBJECT::TREES:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::FLOWERS:
+				case SCENE_OBJECT::FLOWERS:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::VILAGE:
+				case SCENE_OBJECT::VILAGE:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::SANDSTONE:
+				case SCENE_OBJECT::SANDSTONE:
 					this->mFilepath = "gameSceneObjects/models/rock.fbx";
 					break;
-				case SCENEOBJECT::PALMS:
+				case SCENE_OBJECT::PALMS:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
-				case SCENEOBJECT::PYRAMIDS:
+				case SCENE_OBJECT::PYRAMIDS:
 					this->mFilepath = "gameSceneObjects/models/tree.fbx";
 					break;
 				default:

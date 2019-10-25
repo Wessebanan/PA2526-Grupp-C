@@ -76,13 +76,20 @@ namespace ecs
 					goal_id = this->FindClosestEnemy(entity.entity);
 					goal_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, goal_id));
 					goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
-					goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].Id;
+					if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
+					{
+						goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].Id;
+					}
+					
 				}
 				else if (path_comp->goalState == STATE::LOOT)
 				{
 					goal_id = 117;
 				}
-				path = GetPath(start_tile_id, goal_id);
+				if(g_prop->mGrid[start_tile.y][start_tile.x].isPassable)
+				{
+					path = GetPath(start_tile_id, goal_id);
+				}
 
 				components::MoveStateComponent move_comp;
 				move_comp.path = path;
@@ -95,80 +102,130 @@ namespace ecs
 			}
 			std::vector<unsigned int> GetPath(unsigned int startID, unsigned int goalID)
 			{
+				struct NodeInfo
+				{
+					float move_cost;
+					unsigned int id;
+					unsigned int parent_id;
+				};
+				std::vector<NodeInfo> open_list; //open list for all the potential new tiles to visit 
 				std::vector<unsigned int> to_return;
-				std::unordered_map<unsigned int, bool> have_visited;
-				ecs::ComponentIterator comp_itt;
-				BaseComponent* p_base_comp;
+				std::unordered_map<unsigned int, NodeInfo> closed_list; //key is its own ID and data is nodeinfo struct, used for tiles that have been visited
 				components::TileComponent* current_tile = nullptr;
+				components::TileComponent* current_neighbour_tile = nullptr;
 				components::TransformComponent* current_neighbour_transfrom = nullptr;
 				components::TransformComponent* goal_tile_transfrom = nullptr;
-				comp_itt = ecs::ECSUser::getComponentsOfType<components::TileComponent>();
-				while (p_base_comp = comp_itt.next())
-				{
-					current_tile = static_cast<components::TileComponent*>(p_base_comp);
-					have_visited[current_tile->getEntityID()] = false;
-				}
+
+				float cost = 999.f;
+				bool in_open_list = false;
+				float dist_to_goal = 0.f;
+				int pos_in_open_list = 0;
+				unsigned int parent_id = 0;
 				unsigned int next_tile_id = 0;
+				float best_neighbour_cost = 999.f;
 				unsigned int current_tile_id = startID;
-				unsigned int last_tile_id = 0;
-				float niceTry = 999.f;
-				//float lastNice = 500.f;
-				float dist = 0.f;
+
 				current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(startID);
-				current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(startID);
 				goal_tile_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(goalID);
-				while (current_tile_id != goalID /*lastNice != niceTry*/)
+
+				GridProp* p_gp = GridProp::GetInstance();
+
+				//Add the start tile to the closed list
+				NodeInfo start_node;
+				start_node.id = startID;
+				start_node.parent_id = startID;
+				start_node.move_cost = 0;
+				closed_list[current_tile_id] = start_node;
+				if(current_tile != nullptr && goal_tile_transfrom != nullptr) // maybe remove later because they should never be sent to pathfinding of they are null
 				{
-					if(current_tile_id != last_tile_id)
+					while (current_tile_id != goalID) 
 					{
-						have_visited[current_tile_id] = true;
-						niceTry = 999.f;
-						for (int i = 0; i < 6; i++)
-						{	//check if neighbour is not 0 or have been visited before
-							if (current_tile->neighboursIDArray[i] != 0 &&  !have_visited[current_tile->neighboursIDArray[i]])
-							{	//check for the lowest niceness then that is the next tile
-								current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
-								dist = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z,
-									goal_tile_transfrom->position.x, goal_tile_transfrom->position.z);
-								if (ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness + dist < niceTry)
-								{
-									niceTry = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i])->niceness + dist;
-									next_tile_id = current_tile->neighboursIDArray[i];
-								}
-							}
-						}
-						if (current_tile_id != goalID)
+						for (int i = 0; i < 6; i++) // put new neighbours in open list or maybe update old neighbour move cost
 						{
-							current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
-							to_return.push_back(next_tile_id);
-							last_tile_id = current_tile_id;
-							current_tile_id = next_tile_id;
-						}
-					}
-					else
-					{
-						for (int i = 0; i < 6; i++)
-						{
-							if (current_tile->neighboursIDArray[i] != 0)
+							if (current_tile->neighboursIDArray[i] != 0 &&
+								!closed_list.count(current_tile->neighboursIDArray[i])) //check so that the neightbour is valid and not in the closed list
 							{
-								//check for the lowest niceness then that is the next tile
-								current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
-								dist = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z,
-									goal_tile_transfrom->position.x, goal_tile_transfrom->position.z);
-								if (dist < niceTry)
+								pos_in_open_list = 0;
+								in_open_list = false;
+								for (NodeInfo j : open_list) // check if the neighbour is in the open list
 								{
-									niceTry = dist;
-									next_tile_id = current_tile->neighboursIDArray[i];
+									if (j.id == current_tile->neighboursIDArray[i])
+									{
+										in_open_list = true;
+										break;
+									}
+									pos_in_open_list++;
+								}
+								if (in_open_list) //if the neighbour is in the open list we might update its move_cost if the cost is lower this time
+								{
+									current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
+									current_neighbour_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i]);
+									dist_to_goal = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z, //calc neighbour dist from goal
+										goal_tile_transfrom->position.x, goal_tile_transfrom->position.z);
+									cost = current_neighbour_tile->niceness + dist_to_goal + closed_list[current_tile_id].move_cost; //calc cost for move
+									if (cost < open_list.at(pos_in_open_list).move_cost) // if move cost is better then last time, update it
+									{
+										open_list.at(pos_in_open_list).move_cost = cost;
+									}
+								}
+								else if (!in_open_list) //if the neighbour is valid and not in the closed or open list we add it to the open list
+								{
+									current_neighbour_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(current_tile->neighboursIDArray[i]);
+									current_neighbour_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(current_tile->neighboursIDArray[i]);
+									dist_to_goal = GridFunctions::GetDistance(current_neighbour_transfrom->position.x, current_neighbour_transfrom->position.z,
+										goal_tile_transfrom->position.x, goal_tile_transfrom->position.z);
+									cost = current_neighbour_tile->niceness + dist_to_goal + closed_list[current_tile_id].move_cost; //calc cost for move
+
+									NodeInfo to_insert;
+									to_insert.id = current_tile->neighboursIDArray[i]; //give it its id
+									to_insert.parent_id = current_tile_id;			  //give it its parents id
+									to_insert.move_cost = cost;						 //give it the move_cost it would be if we were to move to it
+									open_list.push_back(to_insert);					//insert new tile into openlist
 								}
 							}
-							current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
-							to_return.push_back(next_tile_id);
-							last_tile_id = current_tile_id;
-							current_tile_id = next_tile_id;
 						}
+						
+						pos_in_open_list = 0;
+						best_neighbour_cost = 999;
+						//we go through all the potential tiles we can go to and find the one with the lowest cost to move to, this usually means it is closer to the goal
+						for (int i = 0; i < open_list.size(); i++) 
+						{
+							if (open_list.at(i).move_cost < best_neighbour_cost)
+							{
+								best_neighbour_cost = open_list.at(i).move_cost;
+								next_tile_id = open_list.at(i).id;
+								parent_id = open_list.at(i).parent_id;
+								pos_in_open_list = i;
+							}
+						}
+						//when we have found the best next move we add it to the closed list and remove it from the open list and then make this new tile our current tile
+						closed_list[next_tile_id].id = next_tile_id;				//its own id
+						closed_list[next_tile_id].parent_id = parent_id;		   //parent id
+						closed_list[next_tile_id].move_cost = best_neighbour_cost;//its movecost
+						if(open_list.size() > 0 )
+						{
+							open_list.erase(open_list.begin() + pos_in_open_list);	//remove from openlist
+						}
+						current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(next_tile_id);
+						current_tile_id = next_tile_id;
+						
 					}
+					//when we have found the goal we start to build the path by starting with the goal tile then we add that tiles parent tile and do this until we come to the start tile
+					//parent tile in this function is the tile that was used to get to the child tile, so when we find the goal we just the go backwards using the parents
+					current_tile_id = goalID;
+					to_return.push_back(current_tile_id);
+					while (current_tile_id != startID)
+					{ 
+						current_tile_id = closed_list[current_tile_id].parent_id;
+						to_return.push_back(current_tile_id);
+					}
+					return to_return;
 				}
-				return to_return;
+				else
+				{
+					to_return.push_back(startID);
+					return to_return;
+				}
 			}
 		private:
 			unsigned int FindClosestEnemy(ecs::Entity* current_unit)
@@ -298,26 +355,29 @@ namespace ecs
 				ecs::components::MoveStateComponent* move_comp = entity.getComponent<ecs::components::MoveStateComponent>();
 				if (move_comp->path.size() > 0)
 				{
-					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
-					if (abs(goal->position.x - transform->position.x) < 0.005f && abs(goal->position.z - transform->position.z) < 0.005f)
+					ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());
+					if(goal != nullptr)
 					{
-						move_comp->path.erase(move_comp->path.begin());
-					}
-					if (move_comp->path.size() > 0)
-					{
-						goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.front());
-						this->x = goal->position.x - transform->position.x;
-						this->z = goal->position.z - transform->position.z;
-						this->length = sqrt(x * x + z * z);
-						this->x = this->x / this->length;
-						this->z = this->z / this->length;
-						dyn_move->mForward.x = this->x;
-						dyn_move->mForward.z = this->z;
+						if (abs(goal->position.x - transform->position.x) < 1.f && abs(goal->position.z - transform->position.z) < 1.f)
+						{
+							move_comp->path.pop_back();
+						}
+						if (move_comp->path.size() > 0)
+						{
+							goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());
+							this->x = goal->position.x - transform->position.x;
+							this->z = goal->position.z - transform->position.z;
+							this->length = sqrt(x * x + z * z);
+							this->x = this->x / this->length;
+							this->z = this->z / this->length;
+							dyn_move->mForward.x = this->x;
+							dyn_move->mForward.z = this->z;
 
-						MovementInputEvent kek;
-						kek.mInput = FORWARD;
-						kek.mEntityID = entity.entity->getID();
-						createEvent(kek);//creates an event to physics to move character
+							MovementInputEvent kek;
+							kek.mInput = FORWARD;
+							kek.mEntityID = entity.entity->getID();
+							createEvent(kek);//creates an event to physics to move character
+					}
 
 						//Create the possible states we could switch to
 						ecs::components::AttackStateComponent atk_state;
@@ -329,7 +389,7 @@ namespace ecs
 						ecs::components::IdleStateComponent idle_state;
 						//Calculate distance to goal and add the frame time to the total travel time
 						float distance = PhysicsHelpers::CalculateDistance(transform->position, move_comp->goalPos);
-						float max_traveltime = 100.0f;
+						float max_traveltime = 1.f;
 						move_comp->time += delta;
 						//Check if we are close enought to the goal to switch state
 						if (distance < 0.1f)
@@ -361,6 +421,31 @@ namespace ecs
 			float x;
 			float z;
 			float length;
+		};
+
+		/*
+			A system that makes a unit flee from enemy units.
+		*/
+		class FleeStateSystem : public ECSSystem<FleeStateSystem>
+		{
+		public:
+			FleeStateSystem()
+			{
+				updateType = EntityUpdate;
+				typeFilter.addRequirement(components::FleeStateComponent::typeID);
+			}
+			virtual ~FleeStateSystem() {}
+
+			//Update function that prints the center position of every tile in the order they 
+			//were created.
+			void updateEntity(FilteredEntity& entity, float delta) override
+			{
+				/*****************************************************/
+				/****************************************************/
+				/*    FILL OUT WITH LOOT LOGIC IN ANOTHER TASK     */
+				/**************************************************/
+				/*************************************************/
+			}
 		};
 
 		/*
