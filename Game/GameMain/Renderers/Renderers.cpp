@@ -251,6 +251,79 @@ namespace ecs
 	}
 #pragma endregion OceanRenderSystem
 
+
+#pragma region OceanRenWorldRenderSystemderSystem
+	WorldRenderSystem::WorldRenderSystem()
+	{
+		updateType = SystemUpdateType::MultiEntityUpdate;
+		typeFilter.addRequirement(components::OceanTileComponent::typeID);
+		typeFilter.addRequirement(components::TransformComponent::typeID);
+		typeFilter.addRequirement(components::ColorComponent::typeID);
+
+		mInstanceLayout = { 0 };
+	}
+
+	WorldRenderSystem::~WorldRenderSystem()
+	{
+
+	}
+
+	void WorldRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+	{
+		// Fetch pointer to write data to in RenderBuffer
+		mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mTileCount * OceanRenderSystem::GetPerInstanceSize());
+
+		// Iterate all tiles and write their data to the RenderBuffer
+		uint32_t index = 0;
+		for (FilteredEntity tile : _entities.entities)
+		{
+			components::TileComponent* p_tile_comp = tile.getComponent<components::TileComponent>();
+			components::TransformComponent* p_transform_comp = tile.getComponent<components::TransformComponent>();
+			components::ColorComponent* p_color_comp = tile.getComponent<components::ColorComponent>();
+
+			mpBuffer[index].x = p_transform_comp->position.x;
+			mpBuffer[index].y = p_transform_comp->position.y;
+			mpBuffer[index].z = p_transform_comp->position.z;
+
+			mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+
+			index++;
+		}
+
+		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+	}
+
+	void WorldRenderSystem::Initialize(
+		graphics::RenderManager* pRenderMgr,
+		graphics::RenderBuffer* pRenderBuffer,
+		void* pWorldMesh,
+		UINT worldMeshVertexCount,
+		UINT worldBufferSize)
+	{
+		mInstanceCount = 1;
+
+		mpRenderMgr = pRenderMgr;
+
+		mMeshRegion = { 0 };
+		mMeshRegion.VertexRegion.Size = worldMeshVertexCount;
+
+		mInstanceLayout.MeshCount = 1;
+		mInstanceLayout.pMeshes = &mMeshRegion;
+		mInstanceLayout.pInstanceCountPerMesh = &mInstanceCount;
+
+		const std::string vs = GetShaderFilepath("VS_Tile.cso");
+		const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+		mRenderProgram = mpRenderMgr->CreateShaderProgram(
+			vs.c_str(),
+			ps.c_str(),
+			0);
+
+		mpRenderBuffer = pRenderBuffer;
+	}
+#pragma endregion WorldRenderSystem
+
+
 #pragma region SceneObjectRenderSystem
 		SceneObjectRenderSystem::SceneObjectRenderSystem()
 		{

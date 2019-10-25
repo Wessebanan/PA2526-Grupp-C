@@ -6,6 +6,7 @@
 #include "../../Graphics/includes/RenderManager.h"
 #include "../gameGraphics/RenderBuffer.h"
 #include "../gameSceneObjects/SceneObjectGlobals.h"
+#include "../../Graphics/includes/StateManager.h"
 
 namespace ecs
 {
@@ -130,6 +131,37 @@ namespace ecs
 
 			UINT mTileCount;
 			graphics::MeshRegion mTileMeshRegion;
+		};
+
+		class WorldRenderSystem : public ECSSystem<WorldRenderSystem>
+		{
+		public:
+
+			WorldRenderSystem();
+			~WorldRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+			void Initialize(
+				graphics::RenderManager* pRenderMgr,
+				graphics::RenderBuffer* pRenderBuffer,
+				graphics::StateManager* pStateMgr,
+				void* pWorldMesh,
+				UINT worldMeshVertexCount,
+				UINT worldBufferSize);
+
+		private:
+
+			void* mpBuffer;
+			UINT mInstanceCount;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+			graphics::RenderBuffer* mpRenderBuffer;
+			graphics::MeshRegion mMeshRegion;
+
+			void* mpWorldVertices;
+			UINT mWorldBufferSize;
 		};
 
 		class SceneObjectRenderSystem : public ECSSystem<SceneObjectRenderSystem>
