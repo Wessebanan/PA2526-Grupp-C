@@ -13,7 +13,7 @@ using namespace DirectX;
 namespace GridEcsFunctions
 {
 	//Calculates the centerposition of all the tiles in the grid.
-	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int Rows, const int Columns, const float Radius)
+	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int Rows, const int Columns, const float Radius, bool holmes)
 	{
 		float pi = 3.1415f;
 		XMFLOAT3 starting_pos = { 0.0f, 0.0f, 0.0f };
@@ -26,7 +26,7 @@ namespace GridEcsFunctions
 
 		const int mapsze = MAX_ARENA_ROWS*MAX_ARENA_ROWS; // Max size
 		float height_map[mapsze];
-		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60);
+		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60, holmes);
 
 
 		GridProp* p_gp = GridProp::GetInstance();

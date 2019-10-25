@@ -8,7 +8,7 @@ using namespace DirectX;
 
 namespace GridFunctions
 {
-	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains) //Creates a array that is used to change the hight for the map and remove chunks for water
+	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains, bool holmes) //Creates a array that is used to change the hight for the map and remove chunks for water
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
 		int layers = 3;
@@ -291,67 +291,69 @@ namespace GridFunctions
 			}
 		}
 
-		// Add the holmes
-		int start0 = rows / 2;
-		int start1 = columns / 2;
-		int start2 = start1;
-		int start3 = start2;
-
-
-		size_t i = 0;
-		int start = 0;
-
-		// first side
-		start = start0;
-		height_values[start + 1][0] = 0.0f;
-		height_values[start - 1][0] = 0.0f;
-		height_values[start - 1][1] = 0.0f;
-		for (i = 0; height_values[start][i] < -0.5f; i++)
+		if (holmes)
 		{
-			height_values[start][i] = 0.0f;
-			height_values[start + 1][i] = 0.0f;
+			// Add the holmes
+			int start0 = rows / 2;
+			int start1 = columns / 2;
+			int start2 = start1;
+			int start3 = start2;
+
+
+			size_t i = 0;
+			int start = 0;
+
+			// first side
+			start = start0;
+			height_values[start + 1][0] = 0.0f;
+			height_values[start - 1][0] = 0.0f;
+			height_values[start - 1][1] = 0.0f;
+			for (i = 0; height_values[start][i] < -0.5f; i++)
+			{
+				height_values[start][i] = 0.0f;
+				height_values[start + 1][i] = 0.0f;
+			}
+
+
+			// second side
+			start = start0;
+			height_values[0][start + 1] = 0.0f;
+			height_values[0][start - 1] = 0.0f;
+			height_values[1][start - 1] = 0.0f;
+			for (i = 0; height_values[i][start] < -0.5f; i++)
+			{
+				height_values[i][start] = 0.0f;
+				height_values[i][start + 1] = 0.0f;
+			}
+
+			// third side
+			start = start1;
+			height_values[start + 1][columns - 1] = 0.0f;
+			height_values[start - 1][columns - 1] = 0.0f;
+			height_values[start - 1][columns - 2] = 0.0f;
+			for (i = 0; height_values[start][columns - 1 - i] < -0.5f; i++)
+			{
+				height_values[start][columns - 1 - i] = 0.0f;
+				height_values[start + 1][columns - 1 - i] = 0.0f;
+			}
+
+			// forth side
+			start = start1;
+			height_values[rows - 1][start + 1] = 0.0f;
+			height_values[rows - 1][start - 1] = 0.0f;
+			height_values[rows - 2][start - 1] = 0.0f;
+			for (i = 0; height_values[rows - 1 - i][start] < -0.5f; i++)
+			{
+				height_values[rows - 1 - i][start] = 0.0f;
+				height_values[rows - 1 - i][start + 1] = 0.0f;
+			}
 		}
-
-
-		// second side
-		start = start0;
-		height_values[0][start + 1] = 0.0f;
-		height_values[0][start - 1] = 0.0f;
-		height_values[1][start - 1] = 0.0f;
-		for (i = 0; height_values[i][start] < -0.5f; i++)
-		{
-			height_values[i][start] = 0.0f;
-			height_values[i][start + 1] = 0.0f;
-		}
-
-		// third side
-		start = start1;
-		height_values[start + 1][columns - 1] = 0.0f;
-		height_values[start - 1][columns - 1] = 0.0f;
-		height_values[start - 1][columns - 2] = 0.0f;
-		for (i = 0; height_values[start][columns - 1 - i] < -0.5f; i++)
-		{
-			height_values[start][columns - 1 - i] = 0.0f;
-			height_values[start + 1][columns - 1 - i] = 0.0f;
-		}
-
-		// forth side
-		start = start1;
-		height_values[rows - 1][start + 1] = 0.0f;
-		height_values[rows - 1][start - 1] = 0.0f;
-		height_values[rows - 2][start - 1] = 0.0f;
-		for (i = 0; height_values[rows - 1 - i][start] < -0.5f; i++)
-		{
-			height_values[rows - 1 - i][start] = 0.0f;
-			height_values[rows - 1 - i][start + 1] = 0.0f;
-		}
-
 
 
 		for (int i = 0; i < rows; i++)
 		{
 			for (int j = 0; j < columns; j++)
-				Arr[(j) + (i) * MAX_ARENA_ROWS] = height_values[i][j];
+				Arr[(j)+(i)* MAX_ARENA_ROWS] = height_values[i][j];
 		}
 	}
 

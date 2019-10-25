@@ -17,6 +17,7 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 
 	int rows = 0;
 	int columns = 0;
+	bool holmes = true;
 	p_gp->mCurrentMap = random_map;
 	// 3 preset mapsizes
 
@@ -41,7 +42,6 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 		break;
 	}
 
-
-	GridEcsFunctions::CreateGrid(rECS, rows, columns, 1.0f);
+	GridEcsFunctions::CreateGrid(rECS, rows, columns, 1.0f, holmes);
 	InitBiomes(rECS, rows, columns);
 }
