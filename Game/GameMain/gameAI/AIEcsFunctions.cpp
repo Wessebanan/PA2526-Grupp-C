@@ -51,7 +51,7 @@ namespace AIEcsFunctions
 		for (int i = 0; i < 4; i++)
 		{
 			////Fetch the index of the starting tile for this player.
-			starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i, size.x,size.y);
+			starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i, size.x,size.y, 1);
 			temp_id = p_gp->mGrid[starting_tile_index.y][starting_tile_index.x].Id;
 			p_transform = rEcs.getComponentFromEntity<ecs::components::TransformComponent>(temp_id);
 			//Set current players enum ID for this armies units.

@@ -573,6 +573,72 @@ namespace GridFunctions
 		}
 		return index;
 	}
+
+	// Setting will set it as one of the ways to start
+	int2 FindStartingTile(PLAYER Id, int Rows, int Columns, int Setting)
+	{
+		GridProp* p_gp = GridProp::GetInstance();
+		int2 index(-1, -1);
+		// finds each holme and sets them to it
+		if (Setting == 1)
+		{
+			switch (Id)
+			{
+			case PLAYER1:
+				for (size_t i = 0; i < Rows; i++)
+				{
+					if (p_gp->mGrid[i][0].isPassable)
+					{
+						index.x = i;
+						index.y = 0;
+						break;
+					}
+				}
+				break;
+			case PLAYER2:
+				for (size_t i = 0; i < Columns; i++)
+				{
+					if (p_gp->mGrid[0][i].isPassable)
+					{
+						index.x = 0;
+						index.y = i;
+						break;
+					}
+				}
+				break;
+			case PLAYER3:
+				for (size_t i = 0; i < Rows; i++)
+				{
+					if (p_gp->mGrid[i][Columns - 1].isPassable)
+					{
+						index.x = i;
+						index.y = Columns - 1;
+						break;
+					}
+				}
+				break;
+			case PLAYER4:
+				for (size_t i = 0; i < Columns; i++)
+				{
+					if (p_gp->mGrid[Rows - 1][i].isPassable)
+					{
+						index.x = Rows - 1;
+						index.y = i;
+						break;
+					}
+				}
+				break;
+			default:
+				break;
+			}
+		}
+		else 
+		{
+			index = FindStartingTile(Id, Rows, Columns);
+		}
+		
+		return index;
+	}
 	int2 GetTileFromWorldPos(float x, float z)
 	{
 		int2 index;
