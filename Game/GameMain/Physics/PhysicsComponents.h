@@ -17,7 +17,6 @@
 #define BASE_SWORD_DAMAGE 10.0f
 #define BASE_FIST_DAMAGE 1.0f
 
-
 // WEAPON_TYPE decides what bounding volume to use.
 enum WEAPON_TYPE
 {

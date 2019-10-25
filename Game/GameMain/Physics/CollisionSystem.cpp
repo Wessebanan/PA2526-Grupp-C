@@ -76,12 +76,6 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
 			aabb.BoundingBox::Transform(aabb, world_transform);
 			center = XMLoadFloat3(&aabb.Center);
-
-			// TEMP GROUND HIT SOUND
-			ecs::events::PlaySound sound_event;
-			sound_event.audioName = AudioName::COIN_TEST_SOUND;
-			sound_event.soundFlags = SoundFlags::SF_NONE;
-			createEvent(sound_event);
 		}
 	}
 	p_collision->mIntersect = intersect;
@@ -269,12 +263,6 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		
 		// If the object moved, it is now on the ground level.
 		on_ground = true;
-
-		// TEMP GROUND HIT SOUND
-		//ecs::events::PlaySound sound_event;
-		//sound_event.audioName = AudioName::COIN_TEST_SOUND;
-		//sound_event.soundFlags = SoundFlags::SF_NONE;
-		//createEvent(sound_event);
 	}
 
 	// Break if entity does not move dynamically.
