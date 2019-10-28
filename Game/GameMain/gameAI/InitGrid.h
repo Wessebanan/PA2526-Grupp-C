@@ -19,8 +19,8 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 	int columns = 0;
 	bool holmes = true;
 	p_gp->mCurrentMap = random_map;
+	
 	// 3 preset mapsizes
-
 	switch (random_map)
 	{
 	case 0:
@@ -32,7 +32,7 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 		columns = 22;
 		break;
 	case 2:
-		rows = 24;
+		rows = 28;
 		columns = 28;
 		break;
 	default:

@@ -51,7 +51,7 @@ namespace GridEcsFunctions
 				transform.position.x = current_pos.x;
 				transform.position.y = height_map[(i*MAX_ARENA_ROWS)+j];
 				transform.position.z = current_pos.z;
-				if (transform.position.y <= -1.f)
+				if (transform.position.y <= -0.9f)
 				{
 					tile.tileType = WATER;
 					tile.impassable = true;
@@ -70,11 +70,10 @@ namespace GridEcsFunctions
 				else if (transform.position.y == -2)
 				{
 					tile.tileType = WATER;
-					color.blue = 150.0f;
-					tile.impassable = false;
-					p_gp->mGrid[i][j].isPassable = true;
+					tile.impassable = true;
+					tile.goal = false;
+					p_gp->mGrid[i][j].isPassable = false;
 					p_gp->mGrid[i][j].biome = -1;
-					tile.goal = true;
 				}
 				else
 				{
