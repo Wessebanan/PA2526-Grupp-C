@@ -217,7 +217,8 @@ void InitAll(EntityComponentSystem& rECS)
 	TypeFilter unit_filter;
 	unit_filter.addRequirement(UnitComponent::typeID);
 	EntityIterator it = rECS.getEntititesByFilter(unit_filter);
+	ID sword_unit_id = it.entities.at(0).entity->getID();
 
-	TransformComponent* unit_transform = it.entities.at(0).getComponent<TransformComponent>();
+	TransformComponent* unit_transform = static_cast<TransformComponent*>(rECS.getComponentFromEntity(TransformComponent::typeID, sword_unit_id));
 	sword_transform->position = unit_transform->position;
 }
