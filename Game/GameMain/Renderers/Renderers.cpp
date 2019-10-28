@@ -3,6 +3,8 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameUtility/UtilityEcsFunctions.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
+#include "../gameWorld/OceanComponents.h"
+#include "../gameAnimation/AnimationComponents.h"
 
 namespace ecs
 {
@@ -15,10 +17,12 @@ namespace ecs
 			typeFilter.addRequirement(components::UnitComponent::typeID);
 			typeFilter.addRequirement(components::TransformComponent::typeID);
 			typeFilter.addRequirement(components::ColorComponent::typeID);
+			typeFilter.addRequirement(components::SkeletonComponent::typeID);
 
 			mInstanceLayout = { 0 };
 
 			mpSkeleton = MeshContainer::GetMeshCPU(MESH_TYPE_UNIT)->GetSkeleton();
+			mpSkeleton->StartAnimation(ModelLoader::ANIMATION_TYPE::MOVE);
 		}
 
 		UnitRenderSystem::~UnitRenderSystem()
@@ -28,14 +32,23 @@ namespace ecs
 
 		void UnitRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
+			// Update object count to render
 			mUnitCount = (UINT)_entities.entities.size();
+
+			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mUnitCount * GetPerInstanceSize());
 
+			// Update animation in skeleton
+			mpSkeleton->UpdateAnimation(_delta);
+
+			// Iterate all units and write their data to the RenderBuffer
 			int index = 0;
+
 			for (FilteredEntity unit : _entities.entities)
 			{
 				components::TransformComponent* p_transform_comp = unit.getComponent<ecs::components::TransformComponent>();
 				components::ColorComponent* p_color_comp = unit.getComponent<ecs::components::ColorComponent>();
+				components::SkeletonComponent* p_skeleton_comp = unit.getComponent<ecs::components::SkeletonComponent>();
 				DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 
 				XMStoreFloat4x4(&mpBuffer[index].world, world);
@@ -48,19 +61,11 @@ namespace ecs
 
 				memcpy(
 					mpBuffer[index].boneMatrices,
-					&mpSkeleton->animationData[mAnimationFrameCounter * mpSkeleton->jointCount],
+					p_skeleton_comp->skeletonData.frameData,
 					mpSkeleton->jointCount * sizeof(DirectX::XMFLOAT4X4));
 
 				index++;
 			}
-
-			mFrameCounter++;
-			if (mFrameCounter % 10 == 0)
-			{
-				mFrameCounter = 0;
-				mAnimationFrameCounter = ++mAnimationFrameCounter % mpSkeleton->frameCount;
-			}
-
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
@@ -109,8 +114,11 @@ namespace ecs
 		void TileRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
 			mTileCount = (UINT)_entities.entities.size();
+
+			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mTileCount * GetPerInstanceSize());
 
+			// Iterate all tiles and write their data to the RenderBuffer
 			uint32_t index = 0;
 			for (FilteredEntity tile: _entities.entities)
 			{
@@ -172,6 +180,75 @@ namespace ecs
 		}
 #pragma endregion TileRenderSystem
 
+#pragma region OceanRenderSystem
+	OceanRenderSystem::OceanRenderSystem()
+	{
+		updateType = SystemUpdateType::MultiEntityUpdate;
+		typeFilter.addRequirement(components::OceanTileComponent::typeID);
+		typeFilter.addRequirement(components::TransformComponent::typeID);
+		typeFilter.addRequirement(components::ColorComponent::typeID);
+
+		mInstanceLayout = { 0 };
+	}
+
+	OceanRenderSystem::~OceanRenderSystem()
+	{
+
+	}
+
+	void OceanRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+	{
+		mTileCount = (UINT)_entities.entities.size();
+
+		// Fetch pointer to write data to in RenderBuffer
+		mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mTileCount * OceanRenderSystem::GetPerInstanceSize());
+
+		// Iterate all tiles and write their data to the RenderBuffer
+		uint32_t index = 0;
+		for (FilteredEntity tile : _entities.entities)
+		{
+			components::TileComponent* p_tile_comp = tile.getComponent<components::TileComponent>();
+			components::TransformComponent* p_transform_comp = tile.getComponent<components::TransformComponent>();
+			components::ColorComponent* p_color_comp = tile.getComponent<components::ColorComponent>();
+
+			mpBuffer[index].x = p_transform_comp->position.x;
+			mpBuffer[index].y = p_transform_comp->position.y;
+			mpBuffer[index].z = p_transform_comp->position.z;
+
+			mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+
+			index++;
+		}
+
+		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+	}
+
+	void OceanRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+	{
+		mpRenderMgr = pRenderMgr;
+		mTileMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TILE);
+
+		mInstanceLayout.MeshCount = 1;
+		mInstanceLayout.pMeshes = &mTileMeshRegion;
+		mInstanceLayout.pInstanceCountPerMesh = &mTileCount;
+
+		const std::string vs = GetShaderFilepath("VS_Default.cso");
+		const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+		mRenderProgram = mpRenderMgr->CreateShaderProgram(
+			vs.c_str(),
+			ps.c_str(),
+			systems::TileRenderSystem::GetPerInstanceSize());
+
+		mpRenderBuffer = pRenderBuffer;
+	}
+
+	uint32_t OceanRenderSystem::GetPerInstanceSize()
+	{
+		return sizeof(InputLayout);
+	}
+#pragma endregion OceanRenderSystem
+
 #pragma region SceneObjectRenderSystem
 		SceneObjectRenderSystem::SceneObjectRenderSystem()
 		{
@@ -190,9 +267,23 @@ namespace ecs
 
 		void SceneObjectRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
+			/*
+				We don't know the order of entities EntityIterator, meaning that we can't expect
+				the entities to be ordered by mesh type like we want them to be in the RenderBuffer
+				(output of this function).
+
+				So, this function first calculate how many instances we have of each mesh. With this,
+				we can calculate from which index in the RenderBuffer we can start writing each mesh
+				to. Each mesh we care about in this function, that is tree, stone etc., has its own
+				index counter.
+			*/
+
 			mObjectCount = _entities.entities.size();
+
+			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::SceneObjectRenderSystem::GetPerInstanceSize());
 
+			// Count how many instances we have per scene object mesh
 			ZeroMemory(mObjectTypeCount, SCENE_OBJECT_COUNT * sizeof(UINT));
 			for (FilteredEntity object : _entities.entities)
 			{
@@ -200,6 +291,7 @@ namespace ecs
 				mObjectTypeCount[p_obj_comp->mObject]++;
 			}
 
+			// Set index to write to in RenderBuffer, per mesh
 			UINT object_type_individual_index[SCENE_OBJECT_COUNT] = { 0 };
 
 			for (int i = 1; i < SCENE_OBJECT_COUNT; i++)
@@ -207,12 +299,14 @@ namespace ecs
 				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
 			}
 
+			// Iterate all objects and write their data to the RenderBuffer
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
 				components::TransformComponent* p_transform_comp = object.getComponent<components::TransformComponent>();
 				components::ColorComponent* p_color_comp = object.getComponent<components::ColorComponent>();
 
+				// Get index, depending on mesh type
 				UINT& index = object_type_individual_index[p_obj_comp->mObject];
 
 				mpBuffer[index].x = p_transform_comp->position.x;
@@ -231,6 +325,10 @@ namespace ecs
 		{
 			mpRenderMgr = pRenderMgr;
 
+			/*
+				This is a temporary map, until we have ONE mesh enum that everyone reads from.
+				This converts the SCENE_OBJECT mesh enum to MESH_TYPE enum in MeshContainer.
+			*/
 			mMeshMap[SCENE_OBJECT::SNOWMAN]		= MESH_TYPE::MESH_TYPE_TREE;
 			mMeshMap[SCENE_OBJECT::ANGEL]		= MESH_TYPE::MESH_TYPE_TREE;
 			mMeshMap[SCENE_OBJECT::IGLOO]		= MESH_TYPE::MESH_TYPE_TREE;

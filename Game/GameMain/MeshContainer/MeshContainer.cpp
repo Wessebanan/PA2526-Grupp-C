@@ -2,7 +2,7 @@
 
 MeshContainer* MeshContainer::mpInstance = nullptr;
 
-void MeshContainer::Initialize(graphics::MeshManager* pMeshMgr)
+void MeshContainer::Initialize(graphics::MeshManager* pMeshMgr) // static
 {
 	GetInstance().InitializeInternal(pMeshMgr);
 }
@@ -42,6 +42,7 @@ void MeshContainer::Terminate() // static
 MeshContainer::MeshContainer()
 {
 	mMeshList.reserve(MESH_TYPE_COUNT);
+	mMeshRegions.reserve(MESH_TYPE_COUNT);
 }
 
 MeshContainer::~MeshContainer()
@@ -107,7 +108,7 @@ ModelLoader::Mesh* MeshContainer::LoadMeshInternal(MeshType meshType, std::strin
 
 ModelLoader::Mesh* MeshContainer::GetMeshCPUInternal(MeshType meshType)
 {
-	// Check if mesh is exist
+	// Check if mesh exist, else return null
 	if (!mMeshList.count(meshType))
 	{
 		return nullptr;
@@ -118,6 +119,7 @@ ModelLoader::Mesh* MeshContainer::GetMeshCPUInternal(MeshType meshType)
 
 graphics::MeshRegion MeshContainer::GetMeshGPUInternal(MeshType meshType)
 {
+	// Check if region exist, else return null
 	if (!mMeshRegions.count(meshType))
 	{
 		return { 0, 0 };
@@ -128,9 +130,11 @@ graphics::MeshRegion MeshContainer::GetMeshGPUInternal(MeshType meshType)
 
 void MeshContainer::TerminateInternal()
 {
+	// Free all allocated memory
 	for (std::pair<MeshType, ModelLoader::Mesh*> mesh_pair : mMeshList)
 	{
 		delete mesh_pair.second;
 	}
 	mMeshList.clear();
+	mMeshRegions.clear();
 }

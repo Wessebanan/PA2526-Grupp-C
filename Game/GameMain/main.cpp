@@ -38,10 +38,12 @@
 
 #include "gameAnimation/InitAnimation.h"
 
-#include "MeshContainer/MeshContainer.h"
-
 #include "Renderers/Renderers.h"
 
+#include "gameGraphics/GraphicsECSSystems.h"
+#include "gameGraphics/InitGraphics.h"
+
+#include "gameWorld/InitWorld.h"
 
 #include <time.h>
 
@@ -53,30 +55,13 @@
 
 void InitAll(EntityComponentSystem& rECS);
 
-void SetViewMatrix(
-	DirectX::XMFLOAT4X4& rViewMatrix,
-	const float x,
-	const float y,
-	const float z,
-	const float dx,
-	const float dy,
-	const float dz)
-{
-	DirectX::XMStoreFloat4x4(&rViewMatrix,
-		DirectX::XMMatrixLookToLH(
-			{ x, y, z },
-			{ dx, dy,  dz },
-			{ 0.0f, 1.0f,  0.0f }
-	));
-}
-
+const UINT g_RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
 
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	const UINT RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
 	srand(time(0));
 
@@ -95,46 +80,13 @@ int main()
 		graphics::WINDOW_STYLE::BORDERLESS);
 
 	/*
-		Initialize graphics
+		-- Initialize Graphics --
 	*/
 
 	graphics::InitializeD3D11();
 	graphics::AttachHwndToSwapChain(wnd);
 
-	graphics::RenderManager renderer;
-	renderer.Initialize(RENDER_BUFFER_SIZE);
-
-	graphics::MeshManager mesh_manager;
-	mesh_manager.Initialize(10000, 10000);
-
-	// Will be moved to a system
-	UINT pipeline_shadow_map;
-	{
-		graphics::SHADOW_MAP_PIPELINE_DESC desc;
-		desc.PixelsWidth	= 2048;
-		desc.Width			= 45.0f;
-		desc.Height			= 80.0f;
-		desc.NearPlane		=  1.0f;
-		desc.FarPlane		= 40.0f;
-		pipeline_shadow_map = renderer.CreatePipeline(
-			new graphics::ShadowMapPipeline,
-			&desc);
-	}
-
-	// Will be moved to a system
-	UINT pipeline_forward;
-	{
-		graphics::FORWARD_RENDERING_PIPELINE_DESC desc;
-		desc.ClientWidth = client_width;
-		desc.ClientHeight = client_height;
-		desc.Fov = 3.14f / 2.0f;
-		desc.NearPlane = 0.1f;
-		desc.FarPlane = 100.0f;
-		pipeline_forward = renderer.CreatePipeline(
-			new graphics::ForwardRenderingPipeline,
-			&desc);
-	}
-
+	
 	graphics::RenderManager renderer_ssao;
 	renderer_ssao.Initialize(0);
 	UINT pipeline_ssao;
@@ -167,67 +119,47 @@ int main()
 		GetShaderFilepath("PS_Combine.cso").c_str(),
 		1);
 	/*
-		-- Meshes --
+		-- Initialize ECS --
 	*/
-
-	MeshContainer::Initialize(&mesh_manager);
-	MeshContainer::LoadMesh(MESH_TYPE_TILE, "../meshes/hexagon_tile6.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_ROCK, "../meshes/rock.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_TREE, "../meshes/tree2.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../RunningCustom2.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_TRIANGLE, "../meshes/screen_space_triangle.fbx");
-
-	/* ECS BEGIN */
 
 	ecs::EntityComponentSystem ecs;
 
-	//Tiles + sceneobjects + units + camera
 	ecs.reserveComponentCount<ecs::components::TransformComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
+	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(5000);
+
+	/*
+		InitAll is a list of ecs system Init-functions.
+		If you with to add your own Init-function, please add in
+		in InitAll().
+	*/
 
 	InitAll(ecs);
 
-	// to get components in the loop
-	ecs::components::CameraComponent* p_cam_comp = (components::CameraComponent*)ecs.getAllComponentsOfType(ecs::components::CameraComponent::typeID).next();
-
-	/* ECS END */
-
+	/*
+		 #############################                                                    ############################# 
+		#######################   From here on, all initialization is expected to be finished.   #######################
+		 #############################                                                    ############################# 
+	*/
 
 
 	/*
-		Set GPU buffer
+		-- Show Window --
 	*/
 
-	graphics::RenderBuffer renderBuffer;
-	renderBuffer.Initialize(RENDER_BUFFER_SIZE, 256);
-
-	systems::UnitRenderSystem* p_unit_renderer = ecs.createSystem<systems::UnitRenderSystem>(9);
-	systems::SceneObjectRenderSystem* p_scenery_renderer = ecs.createSystem<systems::SceneObjectRenderSystem>(9);
-	systems::TileRenderSystem* p_tile_renderer = ecs.createSystem<systems::TileRenderSystem>(9);
-
-	p_unit_renderer->Initialize(&renderer, &renderBuffer);
-	p_scenery_renderer->Initialize(&renderer, &renderBuffer);
-	p_tile_renderer->Initialize(&renderer, &renderBuffer);
-	
-	unsigned long long int frame_count = 0;
-	unsigned long long int frame_count2 = 0;
 	wnd.Open();
 
-	Timer timer;
+	/*
+		-- Create Timer for update loop --
+	*/
 
+	Timer timer;
 	timer.StartGame();
 
-	ChangeUserStateEvent e;
-	e.newState = ATTACK;
-	e.playerId = PLAYER1;
-	ecs.createEvent(e);
-	e.playerId = PLAYER2;
-	ecs.createEvent(e);
-	e.playerId = PLAYER3;
-	ecs.createEvent(e);
-	e.playerId = PLAYER4;
-	ecs.createEvent(e);
+	/*
+		-- Update Loop, while window is open --
+	*/
 
 	graphics::MeshRegion mesh = mesh_manager.CreateMeshRegion(6, 0);
 	{
@@ -283,13 +215,15 @@ int main()
 	{
 		if (!wnd.Update())
 		{ 
+			// Close window when user press Esc
 			if (GetAsyncKeyState(VK_ESCAPE))
 			{
 				wnd.Close();
 			}
 
-			renderBuffer.Reset();
-
+			/*
+				Update all ECS systems, and give them the delta time.
+			*/
 			ecs.update(timer.GetFrameTime());
 
 			renderer.BeginUpload();
@@ -318,11 +252,9 @@ int main()
 				renderer.UpdatePipeline(pipeline_forward, &data);
 			}
 
-			mesh_manager.SetVertexBuffers();
-
-			renderer.ExecutePipeline(pipeline_shadow_map);
-
-			renderer.ExecutePipeline(pipeline_forward);
+	/*
+		-- Cleanup Memory --
+	*/
 
 
 			// Needs to be fixed (end index is +1, which isn't correct)
@@ -339,15 +271,18 @@ int main()
 			graphics::Present(0);
 		}
 	}
+	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
+	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
+	graphics::RenderBuffer& render_buffer = static_cast<components::RenderBufferComponent*>(ecs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
 
 	renderer_ssao.Destroy();
 	mesh_manager.Destroy();
-	renderer.Destroy();
+	render_manager.Destroy();
 
 	graphics::DestroyD3D11();
 
 	MeshContainer::Terminate();
-	renderBuffer.Terminate();
+	render_buffer.Terminate();
 
 	return 0;
 
@@ -355,6 +290,19 @@ int main()
 
 void InitAll(EntityComponentSystem& rECS)
 {
+	/*
+		List all Init functions that will create ECS systems.
+		Remember to syncronize layers between systems. A system
+		will only recieve an event if the system that creates
+		the events exist in a layer previous to the listener;
+		as all events are cleared at the end of each ecs update,
+		after all ecs systems has been updated.
+	*/
+
+	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
+	InitMeshes(rECS);
+	InitGraphicsPreRenderSystems(rECS);
+
 	InitSound(rECS);
 	InitSong(rECS);
 
@@ -367,7 +315,24 @@ void InitAll(EntityComponentSystem& rECS)
 	InitArmy(rECS);
 	InitSceneObjects(rECS);
 
+	InitOceanEntities(rECS);
+
 	InitCamera(rECS);
 
+	InitAnimation(rECS);
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
+	
+	InitGraphicsRenderSystems(rECS);
+	InitGraphicsPostRenderSystems(rECS);
+
+	ChangeUserStateEvent e;
+	e.newState = ATTACK;
+	e.playerId = PLAYER1;
+	rECS.createEvent(e);
+	e.playerId = PLAYER2;
+	//rECS.createEvent(e);
+	e.playerId = PLAYER3;
+	rECS.createEvent(e);
+	e.playerId = PLAYER4;
+	//rECS.createEvent(e);
 }

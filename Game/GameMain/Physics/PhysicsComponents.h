@@ -8,9 +8,9 @@
 
 // A bunch of default values.
 #define DEFAULT_MOVEMENT_FORCE 500.0f
-#define DEFAULT_DECELERATION 10.0f
-#define DEFAULT_MAX_VELOCITY 100.0f
-#define DEFAULT_WEIGHT 50.0f
+#define DEFAULT_DECELERATION 200.0f
+#define DEFAULT_MAX_VELOCITY 30.0f
+#define DEFAULT_WEIGHT 250.0f
 #define DEFAULT_GRAVITY 9.82f
 #define DEFAULT_HEALTH 100.0f
 
@@ -54,7 +54,7 @@ namespace ecs
 			DirectX::XMFLOAT3 mForce		= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mAcceleration = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mVelocity		= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-			DirectX::XMFLOAT3 mForward		= DirectX::XMFLOAT3(1.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mForward		= DirectX::XMFLOAT3(0.0f, 0.0f, -1.0f);
 
 			// Assuming objects are equal in
 			// density all over.
