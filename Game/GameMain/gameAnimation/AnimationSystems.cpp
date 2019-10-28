@@ -20,12 +20,12 @@ void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float de
 	}
 	else if (getComponentFromKnownEntity<ecs::components::MoveStateComponent>(pSkeleton->getEntityID()))
 	{
-		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::MOVE);
+		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
 	}
 	else
 	{ 
 		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::IDLE);
-		// For testing, replace ANIMATION_TYPE::IDLE with ANIMATION_TYPE::PING
+		// Uncomment the line below to test the ping animation as the "idle" animation
 		//pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
 	}
 }
