@@ -42,7 +42,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	{
 		vertices = mesh_component->mMesh->GetVertexPositionVector();
 	}
-	
+
 	switch (weapon_component->mType)
 	{
 	// DirectXCollision is aggressive as f when making OBBs so I make
@@ -73,7 +73,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		weapon_component->mBoundingVolume = new Sphere;
 		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
 		sphere->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		sphere->Radius = 1.0f;
+		sphere->Radius = 3.0f;
 
 		// TODO: Get arm length and set to attack range.
 		weapon_component->mWeaponRange = 0.0f;
@@ -116,18 +116,37 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	}
 	case FIST:
 	{
-		AABB* aabb = static_cast<AABB*>(weapon_component->mBoundingVolume);
-		weapon_bv = new AABB(*aabb);
+		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
+		weapon_bv = new Sphere(*sphere);
 	}
 	default:
 		break;
 	}
-	
-	// Transforming weapon bv to world space for collision.
-	XMMATRIX weapon_world = UtilityEcsFunctions::GetWorldMatrix(*weapon_transform_component);
-	weapon_bv->Transform(weapon_world);
 
-	// Grab all entities with a constitution component (units).
+	// Army component for checking friendly fire.
+	UnitComponent* owner_unit_component = nullptr;
+
+	// Transforming weapon bv to world space if no owner.
+	if (weapon_component->mOwnerEntity == 0)
+	{
+		XMMATRIX weapon_world = UtilityEcsFunctions::GetWorldMatrix(*weapon_transform_component);
+		weapon_bv->Transform(weapon_world);
+	}
+
+	// Transform weapon to weapon owner right hand position if it has owner, also get army unit IDs.
+	if (weapon_component->mOwnerEntity != 0)
+	{
+		SkeletonComponent* skeleton = getComponentFromKnownEntity<SkeletonComponent>(weapon_component->mOwnerEntity);
+		XMFLOAT4X4 right_hand_offset_matrix = skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");
+		weapon_bv->Transform(XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)));
+		
+		TransformComponent* owner_transform = getComponentFromKnownEntity<TransformComponent>(weapon_component->mOwnerEntity);
+		weapon_bv->Transform(UtilityEcsFunctions::GetWorldMatrix(*owner_transform));
+
+		owner_unit_component = getComponentFromKnownEntity<UnitComponent>(weapon_component->mOwnerEntity);
+	}
+
+	// Grab all entities with a health component (units).
 	TypeFilter filter;
 	filter.addRequirement(HealthComponent::typeID);
 	filter.addRequirement(ObjectCollisionComponent::typeID);
@@ -137,7 +156,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	// Check collision against entities that could take damage.
 	bool intersect = false;
 	ID collided_unit = 0;
-
+	
 	for (int i = 0; i < units.entities.size(); i++)
 	{
 		ID current_unit = units.entities.at(i).entity->getID();
@@ -146,13 +165,23 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		{
 			continue;
 		}
+
+		// Checking for friendly fire.
+		if (owner_unit_component)
+		{
+			if (owner_unit_component->playerID == getComponentFromKnownEntity<UnitComponent>(current_unit)->playerID)
+			{
+				continue;
+			}
+		}
+
 		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(current_unit);
 		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(current_unit);
 
 		// Grabbing copy of AABB from current and transforming to world space.
 		AABB current_aabb = p_current_collision->mAABB;
 		XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
-		current_aabb.BoundingBox::Transform(current_aabb, current_world_transform);		
+		current_aabb.Transform(current_world_transform);		
 
 		// Checking intersection and breaks if intersection.
 		intersect = weapon_bv->Intersects(&current_aabb);
@@ -162,7 +191,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			break;
 		}
 	}
-	
+
 	// If a unit collides with an unowned weapon, set colliding unit to weapon owner
 	// and colliding unit equipment to weapon.
 	if (weapon_component->mOwnerEntity == 0 && intersect)
@@ -182,23 +211,17 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	else if (intersect)
 	{
 		// Calculating velocity on weapon.
-		float movement = CalculateDistance(weapon_component->mPreviousPos, weapon_transform_component->position);
+		float movement = CalculateDistance(weapon_component->mPreviousPos, weapon_bv->GetCenter());
 		float velocity = movement / _delta;
 
 		// Calculating damage by multiplying weapon velocity and the base damage.
 		float damage = velocity * weapon_component->mBaseDamage;
-		// s/t = v
 
 		HealthComponent *collided_constitution = getComponentFromKnownEntity<HealthComponent>(collided_unit);
 
 		collided_constitution->mHealth -= damage;
-
-		// Deleting unit from existence if dead for now.
-		if (collided_constitution->mHealth <= 0.0f)
-		{
-			removeEntity(collided_unit);
-		}
 	}
 	
-	weapon_component->mPreviousPos = weapon_transform_component->position;
+	weapon_component->mPreviousPos = weapon_bv->GetCenter();
+	delete weapon_bv;
 }
