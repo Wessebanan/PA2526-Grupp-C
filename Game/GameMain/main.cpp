@@ -199,6 +199,7 @@ void InitAll(EntityComponentSystem& rECS)
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
 
 
+	InitGameLoop(rECS);
 
 
 

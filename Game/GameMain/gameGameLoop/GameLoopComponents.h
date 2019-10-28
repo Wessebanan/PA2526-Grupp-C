@@ -1,5 +1,6 @@
 #pragma once
-#include "ecsComponentIncludes.h"#include "../gameUtility/Timer.h"
+#include "ecsComponentIncludes.h"
+#include "../gameUtility/Timer.h"
 
 namespace ecs
 {
@@ -7,8 +8,6 @@ namespace ecs
 	{
 		struct GameLoopComponent : public ecs::ECSComponent<GameLoopComponent>
 		{
-			bool mRoundOver;
-
 			Timer mRoundTime;
 			
 			int mPlayerPoints[4];
