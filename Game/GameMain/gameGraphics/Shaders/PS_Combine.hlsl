@@ -1,4 +1,4 @@
-Texture2D<float4> gColorBuffer	: register(t1);
+Texture2D<float3> gColorBuffer	: register(t1);
 Texture2D<float> gOcclusionMap : register(t2);
 
 SamplerState gSampler : register (s2);
@@ -14,5 +14,5 @@ float4 main(PSIN input) : SV_TARGET
 	return 
 		float4(
 		gColorBuffer.Sample(gSampler, input.uv).rgb 
-		- gOcclusionMap.Sample(gSampler, input.uv).rrr, 1.0f);
+		* gOcclusionMap.Sample(gSampler, input.uv).rrr, 1.0f);
 }

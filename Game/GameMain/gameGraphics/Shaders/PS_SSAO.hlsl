@@ -1,25 +1,20 @@
 
 
-Texture2D<float4> gNormalMap		: register (t2);
-Texture2D<float4> gPositionMap		: register (t3);
-
-Texture2D<float4> gRandomMap		: register(t4);
+Texture2D<float3> gNormalMap		: register (t2);
+Texture2D<float4> gRandomMap		: register (t4);
+Texture2D<float> gDepthMap			: register (t5);
 
 SamplerState gSampler				: register (s1);
 
-cbuffer gCam : register (b0)
-{
-	float4x4 gView;
-};
-
-cbuffer gPer : register (b1)
+cbuffer gPer : register (b0)
 {
 	float4x4 gPerspective;
 };
 
-float3 GetPosition(const float2 uv)
+float GetDepth(const float2 uv)
 {
-	return gPositionMap.Sample(gSampler, uv).xyz;
+	const float depth = gDepthMap.Sample(gSampler, uv).r;
+	return depth;
 }
 
 float3 GetNormal(const float2 uv)
@@ -27,38 +22,15 @@ float3 GetNormal(const float2 uv)
 	return normalize(gNormalMap.Sample(gSampler, uv).xyz);
 }
 
-float4 GetNormalAndDepth(const float2 uv)
-{
-	float4 data = gNormalMap.Sample(gSampler, uv).xyzw;
-	float3 normal = data.xyz;
-
-	data.xyz = normalize(normal).xyz;
-
-	return data;
-}
-
 float3 WorldPosFromDepth(const float depth, const float2 uv)
-{/*
-	const float3 screen_pos =
-		float3(
-			uv * float2(2.0f, -2.0f) - float2(1.0f, -1.0f),
-			1.0f - depth);
+{
+	const float2 xy = uv * float2(2.0f, -2.0f) - float2(1.0f, -1.0f);
 
-	float4 world_pos = mul(float4(screen_pos, 1.0f), transpose(gPerspective));
-	world_pos /= world_pos.w;
+	const float4 clip_space_position = float4(xy, depth, 1.0f);
 
-	return world_pos.xyz;*/
+	float4 view_space_position = mul(gPerspective, clip_space_position);
 
-	const float4 clip_space_position =
-		float4(
-			uv * float2(2.0f, -2.0f) - float2(1.0f, -1.0f),
-			1.0f - depth, 1.0f);
-
-	float4 view_space_position = mul(clip_space_position, transpose(gPerspective));
-
-	view_space_position /= view_space_position.w;
-
-	//float4 world_space_position = mul(view_space_position, transpose(gView));
+	view_space_position.xyzw /= view_space_position.w;
 
 	return view_space_position.xyz;
 }
@@ -68,7 +40,10 @@ float2 GetRandom(const float2 uv)
 	const float2 screen_size = float2(1920, 1080);
 	const float2 random_size = float2(64, 64);
 
-	return normalize(gRandomMap.Sample(gSampler, screen_size * uv / random_size).xy * 2.0f - 1.0f);
+	return normalize(
+		gRandomMap.Sample(
+			gSampler, 
+			screen_size * uv / random_size).xy * 2.0f - 1.0f);
 }
 
 float CalculateOcclusion(
@@ -77,11 +52,15 @@ float CalculateOcclusion(
 	const float3 pos,
 	const float3 normal)
 {
-	const float scale = 0.2f;
-	const float bias = 0.2f;
-	const float intensity = 0.5f;
+	const float scale		= 0.2f;
+	const float bias		= 0.2f;
+	const float intensity	= 1.5f;
 
-	const float3 diff	= GetPosition(tcoord + uv) - pos;
+	const float3 occlusion_position = WorldPosFromDepth(
+		GetDepth(tcoord + uv), 
+		tcoord + uv);
+
+	const float3 diff	= occlusion_position - pos;
 	const float3 v		= normalize(diff);
 	const float d		= length(diff) * scale;
 
@@ -109,16 +88,10 @@ float main(PSIN input) : SV_TARGET
 		float2( 0, -1),
 	};
 
-	float3 pos	= GetPosition(input.uv).xyz;
-	float3 normal	= GetNormal(input.uv).xyz;
+	float3 pos		= WorldPosFromDepth(GetDepth(input.uv), input.uv);
+	float3 normal	= GetNormal(input.uv);
 
-	/*float4 data		= GetNormalAndDepth(input.uv);
-	float3 pos		= WorldPosFromDepth(data.w, input.uv);
-	float3 normal	= data.xyz;
-
-	return data.wwww;*/
-
-	float2 random	= GetRandom(input.uv).xy;
+	float2 random	= GetRandom(input.uv);
 	float radius	= sample_radius / pos.z;
 
 	const uint iterations = 4;
@@ -137,5 +110,5 @@ float main(PSIN input) : SV_TARGET
 
 	occlusion /= (float)iterations * 4.0f;
 	
-	return occlusion;
+	return 1.0f - occlusion;
 }

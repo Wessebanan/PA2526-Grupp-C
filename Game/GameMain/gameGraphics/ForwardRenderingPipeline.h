@@ -40,13 +40,14 @@ namespace graphics
 
 		UINT m_clientWidth, m_clientHeight;
 
-		ID3D11Buffer* m_pMatrixBuffers[2];
+		ID3D11Buffer* m_pMatrixBuffers[3];
 
-		ID3D11RenderTargetView* m_pRenderTargets[3];
-		ID3D11ShaderResourceView* m_pShaderResources[3];
+		ID3D11RenderTargetView* m_pRenderTargets[2];
+		ID3D11ShaderResourceView* m_pShaderResources[2];
 
 		ID3D11Texture2D* m_pDepthTexture;
 		ID3D11DepthStencilView* m_pDepthBuffer;
+		ID3D11ShaderResourceView* m_pDepthResource;
 
 		ID3D11SamplerState* m_pSamplerState;
 	};

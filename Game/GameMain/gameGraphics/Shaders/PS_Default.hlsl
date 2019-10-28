@@ -42,7 +42,6 @@ struct PSOUT
 {
 	float4 BackBuffer		: SV_TARGET0;
 	float4 NormalBuffer		: SV_TARGET1;
-	float4 PositionBuffer	: SV_TARGET2;
 };
 
 PSOUT main(PSIN input)
@@ -55,9 +54,8 @@ PSOUT main(PSIN input)
 	float3 ambient = finalColor.xyz * 0.1f;
 	float3 diffuse = finalColor.xyz * in_shadow;
 
-	output.BackBuffer		= float4(ambient + diffuse, 1.0f);
-	output.NormalBuffer		= float4(normalize(input.normalViewSpace), input.pos.z);
-	output.PositionBuffer	= float4(input.positionViewSpace, 1.0f);
+	output.BackBuffer		= float4(ambient + diffuse, 0.0f);
+	output.NormalBuffer		= float4(normalize(input.normalViewSpace), 0.0f);
 
 	return output;
 }
