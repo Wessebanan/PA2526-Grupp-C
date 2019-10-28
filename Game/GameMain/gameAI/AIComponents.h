@@ -69,7 +69,10 @@ namespace ecs
 
 		struct ArmyComponent : public ECSComponent<ArmyComponent>
 		{
+
 			std::vector<int> unitIDs; //Holds the entity IDs of every unit in one players army.
+
+			PLAYER playerID;
 		};
 	}
 }

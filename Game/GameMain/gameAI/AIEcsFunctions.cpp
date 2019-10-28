@@ -10,9 +10,25 @@
 
 namespace AIEcsFunctions
 {
+	void CreatePlayers(ecs::EntityComponentSystem& rEcs)
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			ecs::components::ArmyComponent army;
+			
+			army.playerID = (PLAYER)i;
+
+			//Create the user entity
+			rEcs.createEntity(army);
+		}
+	}
+
+
+
+
 	//Creates and spawns in the army of every player in the arena. Must run AFTER the arena
 	//has been created.
-	void CreatePlayerArmies(ecs::EntityComponentSystem& rEcs)
+	void CreateUnits(ecs::EntityComponentSystem& rEcs)
 	{
 		/* TEAM COLORS */
 		struct uint3
@@ -30,10 +46,6 @@ namespace AIEcsFunctions
 		/* END	*/
 
 
-		//Set seed
-		std::srand(std::time(nullptr));
-		//Create Components for a "User" entity.
-		ecs::components::ArmyComponent army;
 		//Create Components for a "Unit" entity.
 		ecs::components::TransformComponent transform;
 		ecs::components::UnitComponent unit;
@@ -48,14 +60,20 @@ namespace AIEcsFunctions
 		GridProp* p_gp = GridProp::GetInstance();
 		int2 size = p_gp->GetSize();
 		//Loop for every player.
-		for (int i = 0; i < 4; i++)
+		ecs::ComponentIterator itt = rEcs.getAllComponentsOfType(ecs::components::ArmyComponent::typeID);
+		ecs::components::ArmyComponent* p_army;
+		int i = 0;
+		while (p_army = (ecs::components::ArmyComponent*)itt.next())
 		{
+			// Clear it out if there was an
+			p_army->unitIDs.clear();
+
 			////Fetch the index of the starting tile for this player.
-			starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i, size.x,size.y);
+			starting_tile_index = GridFunctions::FindStartingTile(p_army->playerID, size.x,size.y);
 			temp_id = p_gp->mGrid[starting_tile_index.y][starting_tile_index.x].Id;
 			p_transform = rEcs.getComponentFromEntity<ecs::components::TransformComponent>(temp_id);
 			//Set current players enum ID for this armies units.
-			unit.playerID = (PLAYER)i;
+			unit.playerID = p_army->playerID;
 			int divider = 3;
 			for (int u = 0; u < PlayerProperties::numberOfUnits; u++)
 			{
@@ -111,12 +129,9 @@ namespace AIEcsFunctions
 				color_comp.blue		= army_colors[i].b;
 
 				temp_entity = rEcs.createEntity(transform, unit, idle_state, color_comp); //
-				army.unitIDs.push_back(temp_entity->getID());
+				p_army->unitIDs.push_back(temp_entity->getID());
 			}
-			//Create the user entity
-			rEcs.createEntity(army);
-		//	//Clear the army vector before we start creating the next players army.
-			army.unitIDs.clear(); 
+			i++;
 		}
 	}
 }

@@ -96,9 +96,9 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 	// There is one winner
 	if (check_any_live == 1)
 	{
-		events::RoundEndEvent eve;
-		eve.winner = alive_player;
-		createEvent(eve);
+		//events::RoundEndEvent eve;
+		//eve.winner = alive_player;
+		//createEvent(eve);
 		
 	}
 }
