@@ -35,6 +35,7 @@
 #include "gameGraphics/ShadowMapPipeline.h"
 #include "gameGraphics/SSAOPipeline.h"
 #include "gameGraphics/CombineSSAOPipeline.h"
+#include "gameGraphics/BlurPipeline.h"
 
 #include "gameAnimation/InitAnimation.h"
 
@@ -99,6 +100,16 @@ int main()
 			&desc);
 	}
 
+	UINT pipeline_blur;
+	{
+		graphics::BLUR_PIPELINE_DESC desc = { };
+		desc.Width = client_width / 2.0f;
+		desc.Height = client_height / 2.0f;
+		pipeline_blur = renderer_ssao.CreatePipeline(
+			new graphics::BlurPipeline,
+			&desc);
+	}
+
 	UINT pipeline_combine;
 	{
 		graphics::COMBINE_PIPELINE_DESC desc = { };
@@ -117,6 +128,16 @@ int main()
 	UINT shader_combine = renderer_ssao.CreateShaderProgram(
 		GetShaderFilepath("VS_SSAO.cso").c_str(),
 		GetShaderFilepath("PS_Combine.cso").c_str(),
+		1);
+
+	UINT shader_blur_h = renderer_ssao.CreateShaderProgram(
+		GetShaderFilepath("VS_SSAO.cso").c_str(),
+		GetShaderFilepath("PS_Blur_Horizontal.cso").c_str(),
+		1);
+
+	UINT shader_blur_v = renderer_ssao.CreateShaderProgram(
+		GetShaderFilepath("VS_SSAO.cso").c_str(),
+		GetShaderFilepath("PS_Blur_Vertical.cso").c_str(),
 		1);
 	/*
 		-- Initialize ECS --
@@ -143,23 +164,9 @@ int main()
 		 #############################                                                    ############################# 
 	*/
 
-
-	/*
-		-- Show Window --
-	*/
-
-	wnd.Open();
-
-	/*
-		-- Create Timer for update loop --
-	*/
-
-	Timer timer;
-	timer.StartGame();
-
-	/*
-		-- Update Loop, while window is open --
-	*/
+	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
+	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
+	graphics::RenderBuffer& render_buffer = static_cast<components::RenderBufferComponent*>(ecs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
 
 	graphics::MeshRegion mesh = mesh_manager.CreateMeshRegion(6, 0);
 	{
@@ -210,7 +217,24 @@ int main()
 	ssao_layout.pMeshes = &mesh;
 	renderer_ssao.SetShaderModelLayout(pipeline_ssao, ssao_layout);
 	renderer_ssao.SetShaderModelLayout(pipeline_combine, ssao_layout);
+	renderer_ssao.SetShaderModelLayout(pipeline_blur, ssao_layout);
 
+	/*
+		-- Show Window --
+	*/
+
+	wnd.Open();
+
+	/*
+		-- Create Timer for update loop --
+	*/
+
+	Timer timer;
+	timer.StartGame();
+
+	/*
+		-- Update Loop, while window is open --
+	*/
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
@@ -226,42 +250,25 @@ int main()
 			*/
 			ecs.update(timer.GetFrameTime());
 
-			renderer.BeginUpload();
-			renderer.UploadPerInstanceData(renderBuffer.GetStartAddress(), renderBuffer.GetUsedMemory(), 0);
-
-			{	
-				DirectX::XMFLOAT4X4 shadow_matrix;
-				SetViewMatrix(
-					shadow_matrix,
-					6.0f,  4.0f, -5.0f,
-					0.0f, -1.0f, 1.0f);
-
-				graphics::SHADOW_MAP_PIPELINE_DATA data;
-				data.ViewMatrix = shadow_matrix;
-
-				renderer.UpdatePipeline(pipeline_shadow_map, &data);
-			}
-
-			{
-				graphics::FORWARD_RENDERING_PIPELINE_DATA data;
-				data.ViewMatrix = p_cam_comp->viewMatrix;
-				data.Red	= 0.25f;
-				data.Green	= 0.25f;
-				data.Blue	= 1.0f;
-
-				renderer.UpdatePipeline(pipeline_forward, &data);
-			}
-
-	/*
-		-- Cleanup Memory --
-	*/
-
 
 			// Needs to be fixed (end index is +1, which isn't correct)
 			renderer_ssao.ExecutePipeline(
 				pipeline_ssao, 
 				shader_ssao_noise, 
 				shader_ssao_noise + 1);
+
+			//for (UINT i = 0; i < 10; i++)
+			//{
+			//	renderer_ssao.ExecutePipeline(
+			//		pipeline_blur,
+			//		shader_blur_h,
+			//		shader_blur_h + 1);
+
+			//	renderer_ssao.ExecutePipeline(
+			//		pipeline_ssao,
+			//		shader_blur_v,
+			//		shader_blur_v + 1);
+			//}
 
 			renderer_ssao.ExecutePipeline(
 				pipeline_combine,
@@ -271,9 +278,10 @@ int main()
 			graphics::Present(0);
 		}
 	}
-	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
-	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
-	graphics::RenderBuffer& render_buffer = static_cast<components::RenderBufferComponent*>(ecs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
+
+	/*
+	-- Cleanup Memory --
+	*/
 
 	renderer_ssao.Destroy();
 	mesh_manager.Destroy();

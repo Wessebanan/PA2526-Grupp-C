@@ -103,6 +103,7 @@
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
+    <ClCompile Include="gameGraphics\BlurPipeline.cpp" />
     <ClCompile Include="gameGraphics\CombineSSAOPipeline.cpp" />
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
@@ -139,6 +140,7 @@
     <ClInclude Include="gameAudio\AudioECSSystems.h" />
     <ClInclude Include="gameAudio\AudioGlobals.h" />
     <ClInclude Include="gameAudio\InitAudio.h" />
+    <ClInclude Include="gameGraphics\BlurPipeline.h" />
     <ClInclude Include="gameGraphics\CombineSSAOPipeline.h" />
     <ClInclude Include="gameGraphics\ForwardRenderingPipeline.h" />
     <ClInclude Include="gameGraphics\GraphicsECSComponents.h" />
@@ -187,6 +189,14 @@
     <ClInclude Include="Renderers\Renderers.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="gameGraphics\Shaders\PS_Blur_Horizontal.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Blur_Vertical.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\PS_Combine.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

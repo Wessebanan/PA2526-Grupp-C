@@ -84,7 +84,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 {
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	MeshContainer::Initialize(&mesh_manager);
-	MeshContainer::LoadMesh(MESH_TYPE_TILE, "../meshes/hexagon_tile5.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_TILE, "../meshes/hexagon_tile6.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_ROCK, "../meshes/rock.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_TREE, "../meshes/tree2.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../DudeMesh2.fbx");

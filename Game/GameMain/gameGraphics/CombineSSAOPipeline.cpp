@@ -23,16 +23,6 @@ namespace graphics
 
 		internal::GetBackBuffer(&m_pBackBuffer);
 
-		{
-			D3D11_SAMPLER_DESC desc = {};
-			desc.Filter = D3D11_FILTER_ANISOTROPIC;
-			desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-			desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-			desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-			desc.MaxAnisotropy = 16;
-			
-			pDevice4->CreateSamplerState(&desc, &m_pSamplerState);
-		}
 		return S_OK;
 	}
 
@@ -44,7 +34,6 @@ namespace graphics
 	void CombinePipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
 		graphics::SetViewport(pContext4, 0, 0, m_width, m_height);
-		pContext4->PSSetSamplers(2, 1, &m_pSamplerState);
 		pContext4->OMSetRenderTargets(1, &m_pBackBuffer, NULL);
 	}
 

@@ -176,7 +176,7 @@ namespace graphics
 		if (FAILED(hr)) return E_ABORT;
 
 		hr = p_image_factory->CreateDecoderFromFilename(
-			L"../textures/random_normals_texture.png",
+			L"../textures/random_normals_texture.jpg",
 			NULL,
 			GENERIC_READ,
 			WICDecodeMetadataCacheOnLoad,

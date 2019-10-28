@@ -51,9 +51,9 @@ float CalculateOcclusion(
 	const float3 pos,
 	const float3 normal)
 {
-	const float scale		= 0.2f;
+	const float scale		= 1.0f;
 	const float bias		= 0.2f;
-	const float intensity	= 1.5f;
+	const float intensity	= 2.0f;
 
 	const float3 occlusion_position = WorldPosFromDepth(
 		GetDepth(tcoord + uv), 

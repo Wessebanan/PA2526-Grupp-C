@@ -66,6 +66,9 @@
     <ClCompile Include="gameAnimation\AnimationSystems.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
+    <ClCompile Include="gameGraphics\BlurPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -236,6 +239,9 @@
     <ClInclude Include="gameGraphics\CombineSSAOPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="gameGraphics\BlurPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -320,6 +326,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\PS_Combine.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Blur_Horizontal.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Blur_Vertical.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

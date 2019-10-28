@@ -8,20 +8,20 @@
 
 namespace graphics
 {
-	struct COMBINE_PIPELINE_DESC
+	struct BLUR_PIPELINE_DESC
 	{
 		UINT Width, Height;
 	};
 
-	struct COMBINE_PIPELINE_DATA
+	struct BLUR_PIPELINE_DATA
 	{
 	};
 
-	class CombinePipeline : public GraphicsPipeline
+	class BlurPipeline : public GraphicsPipeline
 	{
 	public:
-		CombinePipeline();
-		virtual ~CombinePipeline() override;
+		BlurPipeline();
+		virtual ~BlurPipeline() override;
 
 		virtual HRESULT Initialize(ID3D11Device4* pDevice4, const void* pDescription) override;
 		virtual void Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData) override;
@@ -38,7 +38,10 @@ namespace graphics
 	private:
 		virtual void Destroy() override;
 
-		ID3D11RenderTargetView* m_pBackBuffer;
+		ID3D11SamplerState* m_pSamplerState;
+		ID3D11RenderTargetView* m_pBlurTarget;
+		ID3D11ShaderResourceView* m_pBlurResource;
+
 		UINT m_width, m_height;
 	};
 }
