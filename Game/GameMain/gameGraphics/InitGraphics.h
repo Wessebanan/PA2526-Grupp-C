@@ -88,4 +88,5 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(MESH_TYPE_ROCK, "../meshes/rock.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_TREE, "../meshes/tree2.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../DudeMesh2.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_SWORD, "../meshes/sword.fbx");
 }
