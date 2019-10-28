@@ -12,6 +12,12 @@
       <ShaderModel>5.0</ShaderModel>
       <ObjectFileOutput>$(SolutionDir)shaders\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\Graphics\includes;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Lib>
+      <AdditionalDependencies>Graphics.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

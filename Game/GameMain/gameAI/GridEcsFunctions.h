@@ -8,7 +8,7 @@
 namespace GridEcsFunctions
 {
 	//Calculates the centerposition of all the tiles in the grid and creates them.
-	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int Rows, const int Columns, const float Radius);
+	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int Rows, const int Columns, const float Radius, bool holmes);
 	//Create a system for printing every tiles center position for debugging purposes.
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs);
 	void CreatePotentialField(ecs::EntityComponentSystem& rEcs);
