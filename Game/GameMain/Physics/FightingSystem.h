@@ -6,6 +6,8 @@
 #include "PhysicsHelperFunctions.h"
 #include "..//gameUtility/UtilityComponents.h"
 #include "..//gameUtility/UtilityEcsFunctions.h"
+#include "..//gameAnimation/AnimationComponents.h"
+#include "..//gameAI/AIComponents.h"
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
 namespace ecs

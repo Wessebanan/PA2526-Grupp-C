@@ -205,6 +205,7 @@ void InitAll(EntityComponentSystem& rECS)
 
 	InitCamera(rECS);
 
+	InitAnimation(rECS);
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
 
 

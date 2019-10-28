@@ -4,6 +4,8 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "GridEcsFunctions.h"
 #include "../../AI/includes/GridFunctions.h"
+#include "../gameAnimation/AnimationComponents.h"
+#include "../MeshContainer/MeshContainer.h"
 #include <cstdlib>
 #include <ctime>
 #include <iostream>

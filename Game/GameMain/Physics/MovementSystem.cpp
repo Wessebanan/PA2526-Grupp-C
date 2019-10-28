@@ -130,8 +130,6 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	transform_component->position.x += movement_component->mVelocity.x * _delta;
 	transform_component->position.z += movement_component->mVelocity.z * _delta;
 
-	// Reset movement force to 0 after since it should be 0 if no further input.
-	movement_component->mForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	// GRAVITY
 	
@@ -158,6 +156,11 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 		potential_collision.mDelta = _delta;
 		createEvent(potential_collision);
 	}
+	
+	// Reset movement force to 0 after since it should be 0 if no further input.
+	movement_component->mForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	
+	// Saving previous position for later comparison.
 	movement_component->mPreviousPos = transform_component->position;
 }
 
@@ -180,20 +183,21 @@ void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	SetDirection(movement_component->mDirection, movement_component->mForward, input_event.mInput);
 
 	// Applying force in the direction of the movement.
-	movement_component->mForce.x = movement_component->mDirection.x * movement_component->mMovementForce;
-	movement_component->mForce.z = movement_component->mDirection.z * movement_component->mMovementForce;
+	movement_component->mForce.x += movement_component->mDirection.x * movement_component->mMovementForce;
+	movement_component->mForce.z += movement_component->mDirection.z * movement_component->mMovementForce;
 
 	// Rotate entity to face the same direction as movement.
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
 
 	// NOTE: No way of finding default direction of mesh so it's hard coded.
-	XMVECTOR default_forward = XMVectorZero();
-	default_forward = XMVectorSetZ(default_forward, -1.0f);
-	//XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	XMVECTOR movement_forward = XMLoadFloat3(&movement_component->mForward);
-	//XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
-	XMVECTOR angle = XMVector3AngleBetweenVectors(default_forward, movement_forward);
-	transform_component->rotation.y = -XMVectorGetX(angle);
+	XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
+	XMFLOAT3* movement_forward = &movement_component->mForward;
+
+	// Finding the angle between default forward and movement forward direction.
+	XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
+
+	// Using Sign to find if the angle is negative or positive relative to default forward.
+	transform_component->rotation.y = -Sign(movement_forward->x) * acos(XMVectorGetX(cos_angle));
 
 }
 #pragma endregion

@@ -12,6 +12,4 @@ void InitAI(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::MoveStateSystem>(5);
 	rEcs.createSystem<systems::AttackStateSystem>(5);
 	rEcs.createSystem<systems::SwitchStateSystem>(4);
-	//ecs.createSystem<ecs::systems::DynamicMovementSystem>();
-	//ecs.createSystem<ecs::systems::GroundCollisionSystem>();
 }

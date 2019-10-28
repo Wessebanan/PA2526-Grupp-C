@@ -8,7 +8,7 @@ using namespace DirectX;
 
 namespace GridFunctions
 {
-	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains) //Creates a array that is used to change the hight for the map and remove chunks for water
+	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains, bool holmes) //Creates a array that is used to change the hight for the map and remove chunks for water
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
 		int layers = 3;
@@ -291,63 +291,69 @@ namespace GridFunctions
 			}
 		}
 
-		// Add the holmes
-		int start0 = rows / 2;
-		int start1 = columns / 2;
-		int start2 = start1;
-		int start3 = start2;
-
-
-		size_t i = 0;
-		int start = 0;
-
-		// first side
-		start = start0;
-		height_values[start + 1][0] = 0.0f;
-		height_values[start - 1][0] = 0.0f;
-		height_values[start - 1][1] = 0.0f;
-		for (i = 0; height_values[start][i] < -0.5f; i++)
+		if (holmes)
 		{
-			height_values[start][i] = 0.0f;
+			// Add the holmes
+			int start0 = rows / 2;
+			int start1 = columns / 2;
+			int start2 = start1;
+			int start3 = start2;
+
+
+			size_t i = 0;
+			int start = 0;
+
+			// first side
+			start = start0;
+			height_values[start + 1][0] = 0.0f;
+			height_values[start - 1][0] = 0.0f;
+			height_values[start - 1][1] = 0.0f;
+			for (i = 0; height_values[start][i] < -0.5f; i++)
+			{
+				height_values[start][i] = 0.0f;
+				height_values[start + 1][i] = 0.0f;
+			}
+
+
+			// second side
+			start = start0;
+			height_values[0][start + 1] = 0.0f;
+			height_values[0][start - 1] = 0.0f;
+			height_values[1][start - 1] = 0.0f;
+			for (i = 0; height_values[i][start] < -0.5f; i++)
+			{
+				height_values[i][start] = 0.0f;
+				height_values[i][start + 1] = 0.0f;
+			}
+
+			// third side
+			start = start1;
+			height_values[start + 1][columns - 1] = 0.0f;
+			height_values[start - 1][columns - 1] = 0.0f;
+			height_values[start - 1][columns - 2] = 0.0f;
+			for (i = 0; height_values[start][columns - 1 - i] < -0.5f; i++)
+			{
+				height_values[start][columns - 1 - i] = 0.0f;
+				height_values[start + 1][columns - 1 - i] = 0.0f;
+			}
+
+			// forth side
+			start = start1;
+			height_values[rows - 1][start + 1] = 0.0f;
+			height_values[rows - 1][start - 1] = 0.0f;
+			height_values[rows - 2][start - 1] = 0.0f;
+			for (i = 0; height_values[rows - 1 - i][start] < -0.5f; i++)
+			{
+				height_values[rows - 1 - i][start] = 0.0f;
+				height_values[rows - 1 - i][start + 1] = 0.0f;
+			}
 		}
-
-
-		// second side
-		start = start0;
-		height_values[0][start + 1] = 0.0f;
-		height_values[0][start - 1] = 0.0f;
-		height_values[1][start - 1] = 0.0f;
-		for (i = 0; height_values[i][start] < -0.5f; i++)
-		{
-			height_values[i][start] = 0.0f;
-		}
-
-		// third side
-		start = start1;
-		height_values[start + 1][columns - 1] = 0.0f;
-		height_values[start - 1][columns - 1] = 0.0f;
-		height_values[start - 1][columns - 2] = 0.0f;
-		for (i = 0; height_values[start][columns - 1 - i] < -0.5f; i++)
-		{
-			height_values[start][columns - 1 - i] = 0.0f;
-		}
-
-		// forth side
-		start = start1;
-		height_values[rows - 1][start + 1] = 0.0f;
-		height_values[rows - 1][start - 1] = 0.0f;
-		height_values[rows - 2][start - 1] = 0.0f;
-		for (i = 0; height_values[rows - 1 - i][start] < -0.5f; i++)
-		{
-			height_values[rows - 1 - i][start] = 0.0f;
-		}
-
 
 
 		for (int i = 0; i < rows; i++)
 		{
 			for (int j = 0; j < columns; j++)
-				Arr[(j) + (i) * MAX_ARENA_ROWS] = height_values[i][j];
+				Arr[(j)+(i)* MAX_ARENA_ROWS] = height_values[i][j];
 		}
 	}
 
@@ -382,7 +388,7 @@ namespace GridFunctions
 		if (neighbourIndex.x >= 0 && neighbourIndex.x < p_gp->GetSize().x
 			&& neighbourIndex.y >= 0 && neighbourIndex.y < p_gp->GetSize().y
 			&& p_gp->mGrid[currentTile.x][currentTile.y].height -
-			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1
+			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1.0f
 			&& p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].isPassable)
 			returnValue = true;
 
@@ -511,68 +517,173 @@ namespace GridFunctions
 		}
 	}
 
-	int2 FindStartingTile(PLAYER Id, int Rows, int Columns)
+	// Setting will set it as one of the ways to start
+	int2 FindStartingTile(PLAYER Id, int Rows, int Columns, MAPINITSETTING Setting)
 	{
-		/*
-		Picture of which corner the players should spawn in
-		__________________
-		|        |        |
-		|        |        |
-		|   3    |   4    |
-		|________|________|
-		|        |        |
-		|        |        |
-		|   1    |   2    |
-		|________|________|
-		*/
-
-		//Initialize variables
-		int rows = Rows;
-		int columns = Columns;
-		int2 index(-1, -1);
-		int min_x, min_y;
 		GridProp* p_gp = GridProp::GetInstance();
-		//Set the minimum tile index in x- and y-axis depending on which player it is
-		switch (Id)
+		int2 index(-1, -1);
+		// finds each holme and sets them to it
+		if (Setting == MAPINITSETTING::HOLMES)
 		{
-		case PLAYER1:
-			min_x = min_y = 0;
-			break;
-		case PLAYER2:
-			min_x = columns / 2;
-			min_y = 0;
-			break;
-		case PLAYER3:
-			min_x = 0;
-			min_y = rows / 2;
-			break;
-		case PLAYER4:
-			min_x = columns / 2;
-			min_y = rows / 2;
-			break;
-		default:
-			break;
-		}
-		//Initialize the random number generator
-		bool tileFound = false;
-		int x = 0;
-		int y = 0;
-		//Randomize an index in the players corner and check if it is a passable tile. If so return that tiles index as the starting tile.
-		//The seed is set in AIEcsFunctions.cpp in the CreateArmies function.
-		while (!tileFound)
-		{
-			x = std::rand() % (columns / 2) + min_x;
-			y = std::rand() % (rows / 2) + min_y; 
-			if (p_gp->mGrid[y][x].isPassable)
+			switch (Id)
 			{
-				std::cout << "x: " << x << " y: " << y << std::endl; //Used for debug purpose
-				index.x = x;
-				index.y = y;
-				tileFound = true;
+			case PLAYER1:
+				for (size_t i = 0; i < Rows; i++)
+				{
+					if (p_gp->mGrid[i][0].isPassable)
+					{
+						index.x = i;
+						index.y = 0;
+						break;
+					}
+				}
+				break;
+			case PLAYER2:
+				for (size_t i = 0; i < Columns; i++)
+				{
+					if (p_gp->mGrid[0][i].isPassable)
+					{
+						index.x = 0;
+						index.y = i;
+						break;
+					}
+				}
+				break;
+			case PLAYER3:
+				for (size_t i = 0; i < Rows; i++)
+				{
+					if (p_gp->mGrid[i][Columns - 1].isPassable)
+					{
+						index.x = i;
+						index.y = Columns - 1;
+						break;
+					}
+				}
+				break;
+			case PLAYER4:
+				for (size_t i = 0; i < Columns; i++)
+				{
+					if (p_gp->mGrid[Rows - 1][i].isPassable)
+					{
+						index.x = Rows - 1;
+						index.y = i;
+						break;
+					}
+				}
+				break;
+			default:
+				break;
 			}
 		}
+		else if (Setting == MAPINITSETTING::SQUARE)
+		{
+			/*
+			Picture of which corner the players should spawn in
+			__________________
+			|        |        |
+			|        |        |
+			|   3    |   4    |
+			|________|________|
+			|        |        |
+			|        |        |
+			|   1    |   2    |
+			|________|________|
+			*/
+
+			//Initialize variables
+			int rows = Rows;
+			int columns = Columns;
+			int min_x, min_y;
+			//Set the minimum tile index in x- and y-axis depending on which player it is
+			switch (Id)
+			{
+			case PLAYER1:
+				min_x = min_y = 0;
+				break;
+			case PLAYER2:
+				min_x = columns / 2;
+				min_y = 0;
+				break;
+			case PLAYER3:
+				min_x = 0;
+				min_y = rows / 2;
+				break;
+			case PLAYER4:
+				min_x = columns / 2;
+				min_y = rows / 2;
+				break;
+			default:
+				break;
+			}
+			//Initialize the random number generator
+			bool tileFound = false;
+			int x = 0;
+			int y = 0;
+			//Randomize an index in the players corner and check if it is a passable tile. If so return that tiles index as the starting tile.
+			//The seed is set in AIEcsFunctions.cpp in the CreateArmies function.
+			while (!tileFound)
+			{
+				x = std::rand() % (columns / 2) + min_x;
+				y = std::rand() % (rows / 2) + min_y;
+				if (p_gp->mGrid[y][x].isPassable)
+				{
+					std::cout << "x: " << x << " y: " << y << std::endl; //Used for debug purpose
+					index.x = x;
+					index.y = y;
+					tileFound = true;
+				}
+			}
+		}
+		else // MAPINITSETTING::NOHOLMES
+		{
+			//Initialize variables
+			int rows = Rows;
+			int columns = Columns;
+			int min_x, min_y;
+			//Set the minimum tile index in x- and y-axis depending on which player it is
+			switch (Id)
+			{
+			case PLAYER1:
+				min_x = min_y = 0;
+				break;
+			case PLAYER2:
+				min_x = columns / 2;
+				min_y = 0;
+				break;
+			case PLAYER3:
+				min_x = 0;
+				min_y = rows / 2;
+				break;
+			case PLAYER4:
+				min_x = columns / 2;
+				min_y = rows / 2;
+				break;
+			default:
+				break;
+			}
+			//Initialize the random number generator
+			bool tileFound = false;
+			int x = 0;
+			int y = 0;
+			//Randomize an index in the players corner and check if it is a passable tile. If so return that tiles index as the starting tile.
+			//The seed is set in AIEcsFunctions.cpp in the CreateArmies function.
+			while (!tileFound)
+			{
+				x = std::rand() % (columns / 2) + min_x;
+				y = std::rand() % (rows / 2) + min_y;
+				if (p_gp->mGrid[y][x].isPassable)
+				{
+					std::cout << "x: " << x << " y: " << y << std::endl; //Used for debug purpose
+					index.x = x;
+					index.y = y;
+					tileFound = true;
+				}
+			}
+		}
+
 		return index;
 	}
+
 	int2 GetTileFromWorldPos(float x, float z)
 	{
 		int2 index;
