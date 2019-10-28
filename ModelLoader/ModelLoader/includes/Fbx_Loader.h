@@ -69,6 +69,7 @@ namespace ModelLoader
 
 	enum ANIMATION_TYPE
 	{
+		PING,
 		IDLE,
 		MOVE,
 		ATTACK,
@@ -175,13 +176,15 @@ namespace ModelLoader
 		}
 		void UpdateAnimation(float dtInSeconds, ANIMATION_TYPE animType)
 		{
-			int frame_count = this->parentSkeleton->animations[animType].frameCount;
-			int joint_count = this->parentSkeleton->jointCount;
-			this->mCurrentTime = this->mCurrentTime + dtInSeconds;
-			int frame_to_set = (int)std::round(fmod(this->mCurrentTime * 24.0f, frame_count)) % frame_count;
-			// Get frame data from animationData vector
-			memcpy(this->frameData, &this->parentSkeleton->animations[animType].animationData[frame_to_set * joint_count], joint_count * sizeof(DirectX::XMFLOAT4X4));
-
+			if (this->animationFlags[animType] != -1)
+			{
+				int frame_count = this->parentSkeleton->animations[animType].frameCount;
+				int joint_count = this->parentSkeleton->jointCount;
+				this->mCurrentTime = this->mCurrentTime + dtInSeconds;
+				int frame_to_set = (int)std::round(fmod(this->mCurrentTime * 24.0f, frame_count)) % frame_count;
+				// Get frame data from animationData vector
+				memcpy(this->frameData, &this->parentSkeleton->animations[animType].animationData[frame_to_set * joint_count], joint_count * sizeof(DirectX::XMFLOAT4X4));
+			}
 		}
 		// Returns false if requested animation does not exist
 		bool StartAnimation(ANIMATION_TYPE anim_type)
