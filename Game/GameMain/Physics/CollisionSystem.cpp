@@ -27,7 +27,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	// Grabbing a copy of AABB and transforming to world space.
 	AABB aabb = p_collision->mAABB;
 	XMMATRIX world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
-	aabb.BoundingBox::Transform(aabb, world_transform);
+	aabb.Transform(world_transform);
 	XMVECTOR center = XMLoadFloat3(&aabb.Center);
 
 	// Grabbing the entities it could collide with.
@@ -53,7 +53,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		// Grabbing copy of AABB from current and transforming to world space.
 		AABB current_aabb = p_current_collision->mAABB;
 		XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
-		current_aabb.BoundingBox::Transform(current_aabb, current_world_transform);
+		current_aabb.Transform(current_world_transform);
 
 		// If the objects' bounding volumes intersect.
 		if(aabb.BoundingBox::Intersects(current_aabb))
@@ -74,7 +74,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			}
 			// Transforming the aabb again since the position has changed.
 			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
-			aabb.BoundingBox::Transform(aabb, world_transform);
+			aabb.Transform(world_transform);
 			center = XMLoadFloat3(&aabb.Center);
 		}
 	}

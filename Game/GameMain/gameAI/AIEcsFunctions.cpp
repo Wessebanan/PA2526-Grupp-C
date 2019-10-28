@@ -46,7 +46,7 @@ namespace AIEcsFunctions
 		//them in the army component.
 		ecs::Entity* temp_entity;
 		int2 starting_tile_index;
-		ID temp_id;
+		TypeID temp_id = 0;
 		ecs::components::TransformComponent* p_transform;
 		GridProp* p_gp = GridProp::GetInstance();
 		int2 size = p_gp->GetSize();
@@ -54,39 +54,41 @@ namespace AIEcsFunctions
 		for (int i = 0; i < 4; i++)
 		{
 			////Fetch the index of the starting tile for this player.
-			starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i, size.x,size.y, MAPINITSETTING::HOLMES);
+			starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i, size.x,size.y, MAPINITSETTING::NOHOLMES);
 			temp_id = p_gp->mGrid[starting_tile_index.y][starting_tile_index.x].Id;
-			p_transform = rEcs.getComponentFromEntity<ecs::components::TransformComponent>(temp_id);
-			//Set current players enum ID for this armies units.
-			unit.playerID = (PLAYER)i;
-			int divider = 3;
-			for (int u = 0; u < PlayerProperties::numberOfUnits; u++)
+			if (temp_id)
 			{
-				//Set the starting position of the unit depending on the center position of the units starting tile. Needs to
-				//be updated if the number of units is increased beyond 3.
-				if (u == 0)
+				p_transform = rEcs.getComponentFromEntity<ecs::components::TransformComponent>(temp_id);
+				//Set current players enum ID for this armies units.
+				unit.playerID = (PLAYER)i;
+				int divider = 3;
+				for (int u = 0; u < PlayerProperties::numberOfUnits; u++)
 				{
-					transform.position.x = p_transform->position.x + (float(TILE_RADIUS) / divider);
-					transform.position.y = p_transform->position.y + 1.1f;
-					transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
-				}
-				else if (u == 1)
-				{
-					transform.position.x = p_transform->position.x - (float(TILE_RADIUS) / divider);
-					transform.position.y = p_transform->position.y + 1.1f;
-					transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
-				}
-				else
-				{
-					transform.position.x = p_transform->position.x;
-					transform.position.y = p_transform->position.y + 1.1f;
-					transform.position.z = p_transform->position.z - (float(TILE_RADIUS) / divider);
-				}
+					//Set the starting position of the unit depending on the center position of the units starting tile. Needs to
+					//be updated if the number of units is increased beyond 3.
+					if (u == 0)
+					{
+						transform.position.x = p_transform->position.x + (float(TILE_RADIUS) / divider);
+						transform.position.y = p_transform->position.y + 1.1f;
+						transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
+					}
+					else if (u == 1)
+					{
+						transform.position.x = p_transform->position.x - (float(TILE_RADIUS) / divider);
+						transform.position.y = p_transform->position.y + 1.1f;
+						transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
+					}
+					else
+					{
+						transform.position.x = p_transform->position.x;
+						transform.position.y = p_transform->position.y + 1.1f;
+						transform.position.z = p_transform->position.z - (float(TILE_RADIUS) / divider);
+					}
 
-				// set scale to fit on tile
-				transform.scale.x = 0.1f;
-				transform.scale.y = 0.1f;
-				transform.scale.z = 0.1f;
+					// set scale to fit on tile
+					transform.scale.x = 0.1f;
+					transform.scale.y = 0.1f;
+					transform.scale.z = 0.1f;
 
 				color_comp.red		= army_colors[i].r;	
 				color_comp.green	= army_colors[i].g;
@@ -94,6 +96,9 @@ namespace AIEcsFunctions
 				
 				temp_entity = rEcs.createEntity(transform, unit, idle_state, color_comp, skeleton_comp); //
 				army.unitIDs.push_back(temp_entity->getID());
+			}
+			
+				
 			}
 			//Create the user entity
 			rEcs.createEntity(army);

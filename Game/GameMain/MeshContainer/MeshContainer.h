@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 #include "Mesh.h"
-#include "../../Graphics/includes/MeshManager.h"
+#include "MeshManager.h"
 
 typedef unsigned int MeshType;
 enum MESH_TYPE

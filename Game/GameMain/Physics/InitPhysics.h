@@ -21,7 +21,7 @@ void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoad
 void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh);
 
 // Creates a weapon out of a mesh and weapon type. (weapon, transform and mesh components)
-ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType);
+ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity = 0);
 
 // Set parameter direction to movement component forward and move forward.
 void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, XMFLOAT3 direction);
@@ -65,8 +65,6 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 	DynamicMovementComponent movement_component;
 	HealthComponent health_component;
 	EquipmentComponent equipment_component;
-	
-
 
 	for (int i = 0; i < it.entities.size(); i++)
 	{
@@ -102,6 +100,11 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 			// Setting melee range here (arm length) hoping that any unit mesh is either facing x or z on load.
 			ObjectCollisionComponent* p_object_collision = dynamic_cast<ObjectCollisionComponent*>(rEcs.getComponent(ObjectCollisionComponent::typeID, current->getComponentID(ObjectCollisionComponent::typeID)));
 			XMFLOAT3 extents = p_object_collision->mAABB.Extents;
+			
+			// TEMP multiplying extents by inverse of scale given in init system for object
+			// collision component for a more snug hitbox.
+			extents.x *= 1.0f / 0.3f;
+			extents.z *= 1.0f / 0.9f;
 			equipment_component.mMeleeRange = extents.x > extents.z ? extents.x : extents.z;
 			TransformComponent* p_transform = dynamic_cast<TransformComponent*>(rEcs.getComponent(TransformComponent::typeID, current->getComponentID(TransformComponent::typeID)));
 			
@@ -111,7 +114,7 @@ inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, Mo
 			// Set attack range to melee range since fist adds no range.
 			equipment_component.mAttackRange = equipment_component.mMeleeRange;
 
-			ecs::Entity* weapon_entity = CreateWeaponEntity(rEcs, nullptr, FIST);
+			ecs::Entity* weapon_entity = CreateWeaponEntity(rEcs, nullptr, FIST, current->getID());
 			equipment_component.mEquippedWeapon = weapon_entity->getID();
 			rEcs.createComponent<EquipmentComponent>(current->getID(), equipment_component);
 		}
@@ -140,13 +143,15 @@ inline void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, Mod
 	// TODO : Get scene objects and add object collision components to them.
 }
 
-inline ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType)
+inline ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity)
 {
 	WeaponComponent		weapon_component;
 	TransformComponent	weapon_transform_component;
 	MeshComponent		weapon_mesh_component;
 
 	weapon_component.mType = weaponType;
+	weapon_component.mOwnerEntity = ownerEntity;
+
 	weapon_mesh_component.mMesh = pMesh;
 	switch (weaponType)
 	{
