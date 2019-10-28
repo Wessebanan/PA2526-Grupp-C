@@ -16,7 +16,7 @@ SamplerComparisonState gSmpCmp		: register (s0);
 float shadow(const float2 pos, const float depth)
 {
 	float2 shadowMapUV = float2(
-		(pos.x + 1.0f) * 0.5f,
+		(1.0f + pos.x) * 0.5f,
 		(1.0f - pos.y) * 0.5f
 		);
 
