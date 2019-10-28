@@ -39,6 +39,8 @@ cbuffer gSunOrto : register (b4)
 	float4x4 gOrtographicsSun;
 };
 
+
+
 struct VSOUT
 {
 	/*

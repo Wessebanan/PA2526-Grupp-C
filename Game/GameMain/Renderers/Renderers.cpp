@@ -253,8 +253,7 @@ namespace ecs
 	}
 #pragma endregion OceanRenderSystem
 
-
-#pragma region OceanRenWorldRenderSystemderSystem
+#pragma region WorldRenderSystem
 	WorldRenderSystem::WorldRenderSystem()
 	{
 		updateType = SystemUpdateType::Actor;
@@ -269,30 +268,6 @@ namespace ecs
 
 	void WorldRenderSystem::act(float _delta)
 	{
-		// Fetch pointer to write data to in RenderBuffer
-		//mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mTileCount * OceanRenderSystem::GetPerInstanceSize());
-
-		// Iterate all tiles and write their data to the RenderBuffer
-		//uint32_t index = 0;
-		//for (FilteredEntity tile : _entities.entities)
-		//{
-		//	components::TileComponent* p_tile_comp = tile.getComponent<components::TileComponent>();
-		//	components::TransformComponent* p_transform_comp = tile.getComponent<components::TransformComponent>();
-		//	components::ColorComponent* p_color_comp = tile.getComponent<components::ColorComponent>();
-
-		//	mpBuffer[index].x = p_transform_comp->position.x;
-		//	mpBuffer[index].y = p_transform_comp->position.y;
-		//	mpBuffer[index].z = p_transform_comp->position.z;
-
-		//	mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
-
-		//	index++;
-		//}
-
-		// If data needed
-		//graphics::TILE_RENDERING_PIPELINE_DATA data;
-		//mpStateMgr->UpdatePipelineState(mPipelineState, &data);
-
 		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		mpStateMgr->SetPipelineState(mPipelineState);
 	}
@@ -333,7 +308,6 @@ namespace ecs
 		mPipelineState = mpStateMgr->CreatePipelineState(new graphics::TileRenderingPipeline(), &trpDesc);
 	}
 #pragma endregion WorldRenderSystem
-
 
 #pragma region SceneObjectRenderSystem
 		SceneObjectRenderSystem::SceneObjectRenderSystem()

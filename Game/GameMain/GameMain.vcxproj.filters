@@ -60,6 +60,9 @@
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="gameGraphics\TileUpdatePipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -222,6 +225,9 @@
       <Filter>Utility</Filter>
     </ClInclude>
     <ClInclude Include="gameGraphics\TileRenderingPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\TileUpdatePipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
