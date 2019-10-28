@@ -170,6 +170,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		// Loop and set all health to full
 		while (p_army_comp = (ArmyComponent*)itt.next())
 		{
+			int u = 0;
 
 			// Get each tile that the players will start on
 			starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i, size.x, size.y);
@@ -177,8 +178,6 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 			tile_transform = getComponentFromKnownEntity<ecs::components::TransformComponent>(temp_id);
 
 
-			// index of each unit
-			int u = 0;
 			for (size_t i = 0; i < p_army_comp->unitIDs.size(); i++)
 			{
 				int entID = p_army_comp->unitIDs[i];
