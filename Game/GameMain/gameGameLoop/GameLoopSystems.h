@@ -47,6 +47,7 @@ namespace ecs
 			~RoundStartSystem();
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
+			void CreateUnits();
 		};
 
 		class RoundOverSystem : public ecs::ECSSystem<RoundOverSystem>

@@ -215,14 +215,4 @@ void InitAll(EntityComponentSystem& rECS)
 	InitGraphicsRenderSystems(rECS);
 	InitGraphicsPostRenderSystems(rECS);
 
-	ChangeUserStateEvent e;
-	e.newState = ATTACK;
-	e.playerId = PLAYER1;
-	rECS.createEvent(e);
-	e.playerId = PLAYER2;
-	rECS.createEvent(e);
-	e.playerId = PLAYER3;
-	rECS.createEvent(e);
-	e.playerId = PLAYER4;
-	rECS.createEvent(e);
 }

@@ -7,9 +7,9 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 	rECS.createSystem<ecs::systems::GameLoopSystem>();
 	rECS.createSystem<ecs::systems::GameLoopAliveSystem>(3);
 
-	rECS.createSystem<ecs::systems::GameStartSystem>(5);
-	rECS.createSystem<ecs::systems::RoundOverSystem>(6);
-	rECS.createSystem<ecs::systems::RoundStartSystem>(7);
+	rECS.createSystem<ecs::systems::GameStartSystem>(0);
+	rECS.createSystem<ecs::systems::RoundOverSystem>(0);
+	rECS.createSystem<ecs::systems::RoundStartSystem>(1);
 
 
 

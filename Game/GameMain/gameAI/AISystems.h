@@ -579,48 +579,51 @@ namespace ecs
 			virtual ~SwitchStateSystem() {}
 			void readEvent(BaseEvent& event, float delta) override
 			{
-				//Save values for easier use.
-				int player = static_cast<ecs::events::ChangeUserStateEvent*>(&event)->playerId;
-				STATE state = static_cast<ecs::events::ChangeUserStateEvent*>(&event)->newState;
-				//Find the correct player for the event.
-				int i = 0;
-				ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::ArmyComponent::typeID);
-				ecs::components::ArmyComponent* p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
-				while (i < player)
+				if (event.getTypeID() == ecs::events::ChangeUserStateEvent::typeID)
 				{
-					p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
-					i++;
-				}
-				//Loop through the players units and remove their old state component.
-				ecs::Entity* unit;
-				for (int u = 0; u < p_army->unitIDs.size(); u++)
-				{
-					ID entity_id = p_army->unitIDs[u];
-					unit = ecs::ECSUser::getEntity(entity_id);
-
-					ecs::ECSUser::removeComponent(entity_id, ecs::components::MoveStateComponent::typeID);
-					ecs::ECSUser::removeComponent(entity_id, ecs::components::IdleStateComponent::typeID);
-					ecs::ECSUser::removeComponent(entity_id, ecs::components::PathfindingStateComponent::typeID);
-					ecs::ECSUser::removeComponent(entity_id, ecs::components::AttackStateComponent::typeID);
-					ecs::ECSUser::removeComponent(entity_id, ecs::components::LootStateComponent::typeID);
-
-					//Create one instance of each possible component to use in the switch case (Ugly will have to find a better way later).
-					ecs::components::PathfindingStateComponent path;
-					path.goalState = state;
-					ecs::components::IdleStateComponent idle;
-					//Give the unit the new state component.
-					switch (state)
+					//Save values for easier use.
+					int player = static_cast<ecs::events::ChangeUserStateEvent*>(&event)->playerId;
+					STATE state = static_cast<ecs::events::ChangeUserStateEvent*>(&event)->newState;
+					//Find the correct player for the event.
+					int i = 0;
+					ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::ArmyComponent::typeID);
+					ecs::components::ArmyComponent* p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
+					while (i < player)
 					{
-					case STATE::IDLE:
-						ecs::ECSUser::createComponent(entity_id, idle);
-						break;
-					default:
-						//Defaults to a path since every other command relies on moving to a destination
-						ecs::ECSUser::createComponent(entity_id, path);
-						break;
+						p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
+						i++;
 					}
-					/*Used for debugging*/
-					//std::cout << "Changing state of player: " << player << " which has the entityID: " << p_army->getEntityID() << std::endl;
+					//Loop through the players units and remove their old state component.
+					ecs::Entity* unit;
+					for (int u = 0; u < p_army->unitIDs.size(); u++)
+					{
+						ID entity_id = p_army->unitIDs[u];
+						unit = ecs::ECSUser::getEntity(entity_id);
+
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::MoveStateComponent::typeID);
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::IdleStateComponent::typeID);
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::PathfindingStateComponent::typeID);
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::AttackStateComponent::typeID);
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::LootStateComponent::typeID);
+
+						//Create one instance of each possible component to use in the switch case (Ugly will have to find a better way later).
+						ecs::components::PathfindingStateComponent path;
+						path.goalState = state;
+						ecs::components::IdleStateComponent idle;
+						//Give the unit the new state component.
+						switch (state)
+						{
+						case STATE::IDLE:
+							ecs::ECSUser::createComponent(entity_id, idle);
+							break;
+						default:
+							//Defaults to a path since every other command relies on moving to a destination
+							ecs::ECSUser::createComponent(entity_id, path);
+							break;
+						}
+						/*Used for debugging*/
+						//std::cout << "Changing state of player: " << player << " which has the entityID: " << p_army->getEntityID() << std::endl;
+					}
 				}
 			}
 		};
