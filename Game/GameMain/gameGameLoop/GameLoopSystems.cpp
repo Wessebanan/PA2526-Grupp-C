@@ -10,9 +10,17 @@
 #include "..//gameUtility/Timer.h"
 #include "..//Input/InterpretWebEvents.h"
 
+#include "AIGlobals.h"
+#include "..//gameAnimation/AnimationComponents.h"
+
+#include "..//MeshContainer/MeshContainer.h"	
+
 using namespace ecs;
 using namespace ecs::components;
 
+
+// Creates a weapon out of a mesh and weapon type. (weapon, transform and mesh components)
+ecs::Entity* CreateWeaponEntity(ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity = 0);
 
 /*
 ====================================================
@@ -160,6 +168,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 	if (event.getTypeID() == ecs::events::RoundStartEvent::typeID)
 	{
 		this->CreateUnits();
+		this->CreateUnitPhysics();
 
 		// Start the timer after eveything has been loaded
 		ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
@@ -175,9 +184,9 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		e.playerId = PLAYER1;
 		createEvent(e);
 		e.playerId = PLAYER2;
-		createEvent(e);
+		//createEvent(e);
 		e.playerId = PLAYER3;
-		createEvent(e);
+		//createEvent(e);
 		e.playerId = PLAYER4;
 		createEvent(e);
 
@@ -225,10 +234,19 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 	while (p_army = (ecs::components::ArmyComponent*)itt.next())
 	{
 		// Clear it out if there was an
+		for (size_t kk = 0; kk < p_army->unitIDs.size(); kk++)
+		{
+
+			ecs::components::EquipmentComponent* p_eq = getComponentFromKnownEntity<ecs::components::EquipmentComponent>(p_army->unitIDs[kk]);
+
+			removeEntity(p_eq->mEquippedWeapon);
+			removeEntity(p_army->unitIDs[kk]);
+		}
 		p_army->unitIDs.clear();
 
+
 		////Fetch the index of the starting tile for this player.
-		starting_tile_index = GridFunctions::FindStartingTile(p_army->playerID, size.x, size.y);
+		starting_tile_index = GridFunctions::FindStartingTile(p_army->playerID, size.x, size.y, MAPINITSETTING::HOLMES);
 		temp_id = p_gp->mGrid[starting_tile_index.y][starting_tile_index.x].Id;
 		p_transform = getComponentFromKnownEntity<ecs::components::TransformComponent>(temp_id);
 		//Set current players enum ID for this armies units.
@@ -267,13 +285,141 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			color_comp.green = army_colors[i].g;
 			color_comp.blue = army_colors[i].b;
 
-			temp_entity = createEntity(transform, unit, idle_state, color_comp); //
+			// Create and init skeleton comp
+
+			ecs::components::SkeletonComponent skele_comp;
+
+			//ModelLoader::UniqueSkeletonData* skeletonData = &s.getComponent<ecs::components::SkeletonComponent>()->skeletonData;
+			//skeletonData->Init(MeshContainer::GetMeshCPU(MESH_TYPE::MESH_TYPE_UNIT)->GetSkeleton());
+			//skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
+
+			temp_entity = createEntity(transform, unit, idle_state, color_comp, skele_comp); //
 			p_army->unitIDs.push_back(temp_entity->getID());
 		}
 		i++;
+
+
+	}
+
+	// INIT ANIMATIONS
+
+	ecs::TypeFilter skeleton_filter;
+	skeleton_filter.addRequirement(ecs::components::SkeletonComponent::typeID);
+	ecs::EntityIterator skeletons = getEntitiesByFilter(skeleton_filter);
+
+	// Initalize the skeleton data structs and start the Idle animation as default
+	for (ecs::FilteredEntity s : skeletons.entities)
+	{
+		ModelLoader::UniqueSkeletonData* skeletonData = &s.getComponent<ecs::components::SkeletonComponent>()->skeletonData;
+		skeletonData->Init(MeshContainer::GetMeshCPU(MESH_TYPE::MESH_TYPE_UNIT)->GetSkeleton());
+		skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
+	}
+
+
+}
+
+void ecs::systems::RoundStartSystem::CreateUnitPhysics()
+{
+	ecs::TypeFilter filter;
+	filter.addRequirement(UnitComponent::typeID);
+	ecs::EntityIterator it = getEntitiesByFilter(filter);
+	
+	ModelLoader::Mesh* pMesh = MeshContainer::GetMeshCPU(MESH_TYPE_UNIT);
+
+	MeshComponent mesh_component;
+	mesh_component.mMesh = pMesh;
+	ObjectCollisionComponent object_collision;
+	GroundCollisionComponent ground_collision;
+	DynamicMovementComponent movement_component;
+	HealthComponent health_component;
+	EquipmentComponent equipment_component;
+
+	for (int i = 0; i < it.entities.size(); i++)
+	{
+		ecs::Entity* current = it.entities.at(i).entity;
+		if (!current->hasComponentOfType<MeshComponent>())
+		{
+			createComponent<MeshComponent>(current->getID(), mesh_component);
+		}
+
+		if (!current->hasComponentOfType<ObjectCollisionComponent>())
+		{
+			createComponent<ObjectCollisionComponent>(current->getID(), object_collision);
+		}
+
+		if (!current->hasComponentOfType<GroundCollisionComponent>())
+		{
+			createComponent<GroundCollisionComponent>(current->getID(), ground_collision);
+		}
+
+		if (!current->hasComponentOfType<DynamicMovementComponent>())
+		{
+			createComponent<DynamicMovementComponent>(current->getID(), movement_component);
+		}
+
+		if (!current->hasComponentOfType<HealthComponent>())
+		{
+			createComponent<HealthComponent>(current->getID(), health_component);
+		}
+
+		// Initializing with fist weapons.
+		if (!current->hasComponentOfType<EquipmentComponent>())
+		{
+			// Setting melee range here (arm length) hoping that any unit mesh is either facing x or z on load.
+			ObjectCollisionComponent* p_object_collision = dynamic_cast<ObjectCollisionComponent*>(getComponent(ObjectCollisionComponent::typeID, current->getComponentID(ObjectCollisionComponent::typeID)));
+			XMFLOAT3 extents = p_object_collision->mAABB.Extents;
+
+			// TEMP multiplying extents by inverse of scale given in init system for object
+			// collision component for a more snug hitbox.
+			extents.x *= 1.0f / 0.3f;
+			extents.z *= 1.0f / 0.9f;
+			equipment_component.mMeleeRange = extents.x > extents.z ? extents.x : extents.z;
+			TransformComponent* p_transform = dynamic_cast<TransformComponent*>(getComponent(TransformComponent::typeID, current->getComponentID(TransformComponent::typeID)));
+
+			// Assume uniform scale (pain otherwise).
+			equipment_component.mMeleeRange *= p_transform->scale.x;
+
+			// Set attack range to melee range since fist adds no range.
+			equipment_component.mAttackRange = equipment_component.mMeleeRange;
+
+
+			WeaponComponent		weapon_component;
+			TransformComponent	weapon_transform_component;
+			MeshComponent		weapon_mesh_component;
+
+			WEAPON_TYPE weaponType = WEAPON_TYPE::FIST;
+
+			weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+			weapon_component.mType = FIST;
+			weapon_component.mOwnerEntity = current->getID();
+
+			switch (weaponType)
+			{
+			case SWORD:
+			{
+				ModelLoader::Mesh sword("Physics/TestModel/sword.fbx");
+				weapon_mesh_component.mMesh = pMesh;
+				break;
+			}
+			case FIST:
+				weapon_mesh_component.mMesh = pMesh;
+				break;
+			case PROJECTILE:
+				MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
+				break;
+			}
+
+			ecs::Entity* weapon_entity = createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
+
+			equipment_component.mEquippedWeapon = weapon_entity->getID();
+			createComponent<EquipmentComponent>(current->getID(), equipment_component);
+		}
 	}
 }
 
+inline ecs::Entity* CreateWeaponEntity(ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity)
+{
+}
 ///////////////////
 
 ecs::systems::RoundOverSystem::RoundOverSystem()

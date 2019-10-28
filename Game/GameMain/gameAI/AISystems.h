@@ -607,27 +607,28 @@ namespace ecs
 						ecs::ECSUser::removeComponent(entity_id, ecs::components::AttackStateComponent::typeID);
 						ecs::ECSUser::removeComponent(entity_id, ecs::components::LootStateComponent::typeID);
 
-					//Create one instance of each possible component to use in the switch case (Ugly will have to find a better way later).
-					ecs::components::PathfindingStateComponent path;
-					path.goalState = state;
-					ecs::components::IdleStateComponent idle;
+						//Create one instance of each possible component to use in the switch case (Ugly will have to find a better way later).
+						ecs::components::PathfindingStateComponent path;
+						path.goalState = state;
+						ecs::components::IdleStateComponent idle;
 
-					// Fetch the skeleton ID to start animations based on state
-					ID skeleton_id = unit->getComponentID<ecs::components::SkeletonComponent>();
+						// Fetch the skeleton ID to start animations based on state
+						ID skeleton_id = unit->getComponentID<ecs::components::SkeletonComponent>();
 
-					//Give the unit the new state component.
-					switch (state)
-					{
-					case STATE::IDLE:
-						ecs::ECSUser::createComponent(entity_id, idle);
-						break;
-					default:
-						//Defaults to a path since every other command relies on moving to a destination
-						ecs::ECSUser::createComponent(entity_id, path);
-						break;
+						//Give the unit the new state component.
+						switch (state)
+						{
+						case STATE::IDLE:
+							ecs::ECSUser::createComponent(entity_id, idle);
+							break;
+						default:
+							//Defaults to a path since every other command relies on moving to a destination
+							ecs::ECSUser::createComponent(entity_id, path);
+							break;
+						}
+						/*Used for debugging*/
+						//std::cout << "Changing state of player: " << player << " which has the entityID: " << p_army->getEntityID() << std::endl;
 					}
-					/*Used for debugging*/
-					//std::cout << "Changing state of player: " << player << " which has the entityID: " << p_army->getEntityID() << std::endl;
 				}
 			}
 		};

@@ -2,7 +2,7 @@
 #include "ecsSystemIncludes.h"
 #include "GameLoopComponents.h"
 
-#define ROUNDS_TO_WIN 3
+#define ROUNDS_TO_WIN 300
 
 namespace ecs
 {
@@ -48,6 +48,7 @@ namespace ecs
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
 			void CreateUnits();
+			void CreateUnitPhysics();
 		};
 
 		class RoundOverSystem : public ecs::ECSSystem<RoundOverSystem>
