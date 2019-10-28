@@ -39,21 +39,21 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 
 	// Randoms where the sceneobjects should be placed on the map
 	int sceneobject_locations[12];
-	int kk = 0;
-	sceneobject_locations[kk++] = (rand() % mapsize);
-	sceneobject_locations[kk++] = (rand() % mapsize);
-	sceneobject_locations[kk++] = (rand() % mapsize);
-	sceneobject_locations[kk++] = (rand() % mapsize);
+	//int kk = 0;
+	//sceneobject_locations[kk++] = (rand() % mapsize);
+	//sceneobject_locations[kk++] = (rand() % mapsize);
+	//sceneobject_locations[kk++] = (rand() % mapsize);
+	//sceneobject_locations[kk++] = (rand() % mapsize);
 
-	sceneobject_locations[kk++] = (rand() % mapsize);
-	sceneobject_locations[kk++] = (rand() % mapsize);
-	sceneobject_locations[kk++] = (rand() % mapsize);
-	sceneobject_locations[kk++] = (rand() % mapsize);
+	//sceneobject_locations[kk++] = (rand() % mapsize);
+	//sceneobject_locations[kk++] = (rand() % mapsize);
+	//sceneobject_locations[kk++] = (rand() % mapsize);
+	//sceneobject_locations[kk++] = (rand() % mapsize);
 
-	sceneobject_locations[kk++] = (rand() % mapsize);
-	sceneobject_locations[kk++] = (rand() % mapsize);
-	sceneobject_locations[kk++] = (rand() % mapsize);
-	sceneobject_locations[kk++] = (rand() % mapsize);
+	//sceneobject_locations[kk++] = (rand() % mapsize);
+	//sceneobject_locations[kk++] = (rand() % mapsize);
+	//sceneobject_locations[kk++] = (rand() % mapsize);
+	//sceneobject_locations[kk++] = (rand() % mapsize);
 
 	for (size_t i = 0; i < mapsize; i++)
 	{
@@ -61,7 +61,7 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 		ecs::components::TileComponent* tile_comp = (ecs::components::TileComponent*)itt.next();
 		
 		// Look for what tiles the sceneobjects should be placed on
-		if (
+	/*	if (
 			sceneobject_locations[0] == i ||
 			sceneobject_locations[1] == i ||
 			sceneobject_locations[2] == i ||
@@ -74,6 +74,20 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 			sceneobject_locations[9] == i ||
 			sceneobject_locations[10] == i ||
 			sceneobject_locations[11] == i
+			)*/
+		if (
+			0 == i ||
+			1 == i ||
+			2 == i ||
+			3 == i ||
+			4 == i ||
+			5 == i ||
+			6 == i ||
+			7 == i ||
+			8 == i ||
+			9 == i ||
+			10 == i ||
+			11 == i
 			)
 		{
 			ecs::components::TransformComponent* p_tile_transf_comp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(tile_comp->getEntityID());

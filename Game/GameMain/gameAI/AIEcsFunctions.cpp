@@ -81,9 +81,9 @@ namespace AIEcsFunctions
 				}
 
 				// set scale to fit on tile
-				transform.scale.x = 0.1f;
-				transform.scale.y = 0.1f;
-				transform.scale.z = 0.1f;
+				transform.scale.x = 0.07f;
+				transform.scale.y = 0.07f;
+				transform.scale.z = 0.07f;
 
 				// roate them 90deg
 				//transform.rotation.x = -1.57079633f;

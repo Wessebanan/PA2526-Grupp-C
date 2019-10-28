@@ -26,7 +26,8 @@ namespace GridEcsFunctions
 
 		const int mapsze = MAX_ARENA_ROWS*MAX_ARENA_ROWS; // Max size
 		float height_map[mapsze];
-		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60);
+		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, 0);
+		//GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60);
 
 
 		GridProp* p_gp = GridProp::GetInstance();

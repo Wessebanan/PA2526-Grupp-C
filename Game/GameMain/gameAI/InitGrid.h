@@ -41,6 +41,8 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 		break;
 	}
 
+	rows = 9;
+	columns = 9;
 
 
 	GridEcsFunctions::CreateGrid(rECS, rows, columns, 1.0f);
