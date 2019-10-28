@@ -40,5 +40,6 @@ namespace PlayerProperties
 enum MAPINITSETTING
 {
 	HOLMES, // Small islands on each side
+	SQUARE, // for spawning on thier own part of the map
 	NOHOLMES // without them can change name later if needed
 };
