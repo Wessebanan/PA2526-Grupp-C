@@ -122,10 +122,9 @@ namespace AIEcsFunctions
 			HWND hwnd = GetActiveWindow();
 			LPRECT rect = nullptr;
 			GetClientRect(hwnd, rect);
-
-
-			FLOAT client_width = 1800;
-			FLOAT client_height = 1000;
+			
+			FLOAT client_width = 2048;
+			FLOAT client_height = 1153;
 
 			if (rect != nullptr)
 			{
@@ -134,7 +133,7 @@ namespace AIEcsFunctions
 			}
 
 			FLOAT text_height = 100;
-			FLOAT text_width = 200;
+			FLOAT text_width = 160;
 			switch (i)
 			{
 			case 0:
@@ -159,7 +158,7 @@ namespace AIEcsFunctions
 				text_pos_comp.mDrawArea.left = 0;
 				text_pos_comp.mDrawArea.right = text_width;
 
-				text_color_comp.mColor = brushColors::Blue;
+				text_color_comp.mColor = brushColors::White;
 				break;
 			case 3:
 				text_pos_comp.mDrawArea.top = client_height - text_height;

@@ -50,7 +50,7 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
-void InitAll(EntityComponentSystem& rECS, HWND window);
+void InitAll(EntityComponentSystem& rECS);
 
 const UINT g_RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
@@ -101,7 +101,7 @@ int main()
 		in InitAll().
 	*/
 
-	InitAll(ecs, HWND(wnd));
+	InitAll(ecs);
 
 	/*
 		 #############################                                                    ############################# 
@@ -166,7 +166,7 @@ int main()
 
 }
 
-void InitAll(EntityComponentSystem& rECS, HWND window)
+void InitAll(EntityComponentSystem& rECS)
 {
 	/*
 		List all Init functions that will create ECS systems.
@@ -203,8 +203,8 @@ void InitAll(EntityComponentSystem& rECS, HWND window)
 
 	InitGraphicsRenderSystems(rECS);
 	InitGraphicsPostRenderSystems(rECS);
+	InitUI(rECS, ui_systems);
 
-	InitUI(rECS, ui_systems, window);
 	ChangeUserStateEvent e;
 	e.newState = ATTACK;
 	e.playerId = PLAYER1;

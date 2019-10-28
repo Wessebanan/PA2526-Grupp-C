@@ -69,6 +69,8 @@ public:
 	ID2D1DeviceContext* GetpContext();
 	HRESULT LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
 	ID2D1Bitmap* GetBitmap(char* bitmapName);//returns bitmap
+	ID2D1Bitmap1* GetBackbufferBitmap();
+	void setBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap);
 	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);
 	//ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS
 	bool DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect);
@@ -101,15 +103,16 @@ private:
 	ID2D1SolidColorBrush* mpColorText; //used for color
 	ID2D1SolidColorBrush* mpColorDraw;
 	ID2D1Bitmap* mpFailBitmap;
+	ID2D1Bitmap1* mpBackbufferBitmap;
 	
 	IDWriteFactory7* mpTextFactory; //factory used for text
 	DWRITE_TRIMMING mTrimmer; //used for text format
 	IDWriteTextFormat* mpTextFormat; //things like font and size
 	IDWriteTextFormat* mpDebugTextFormat;
 
-	ID2D1Factory7* mpFactory; //d2d1 factory
-	ID2D1Device6* mpDevice;
-	ID2D1DeviceContext6* mpContext;
+	ID2D1Factory1* mpFactory; //d2d1 factory
+	ID2D1Device* mpDevice;
+	ID2D1DeviceContext* mpContext;
 
 	RECT* mpRect;
 	int width;
@@ -118,6 +121,7 @@ private:
 	unsigned int mfontSize;
 	bool mFailBitMapLoaded = false;
 	bool mHwndRenderTargetCreated = false;
+	bool mDeviceContextCreated = false;
 	//std::vector<BitmapInfo> mBitmapVector;
 
 	using BitmapMap = std::unordered_map<char*, ID2D1Bitmap*>; //unordered map of bitmaps
