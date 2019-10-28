@@ -80,7 +80,7 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 			if (p_hp > 0)
 			{
 				check_alive = true;
-				break;
+				//break;
 			}
 		}
 
@@ -125,12 +125,15 @@ ecs::systems::GameStartSystem::~GameStartSystem()
 
 void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 {
-
-	ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
-	GameLoopComponent* p_gl;
-	while (p_gl = (GameLoopComponent*)itt.next())
+	if (event.getTypeID() == ecs::events::GameStartEvent::typeID)
 	{
-		p_gl->mRoundTime.StartGame();
+
+		ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
+		GameLoopComponent* p_gl;
+		while (p_gl = (GameLoopComponent*)itt.next())
+		{
+			p_gl->mRoundTime.StartGame();
+		}
 	}
 }
 
@@ -150,75 +153,80 @@ ecs::systems::RoundStartSystem::~RoundStartSystem()
 
 void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 {
-	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
-
-	ArmyComponent* p_army_comp;
-	int2 starting_tile_index;
-	ID temp_id;
-	ecs::components::TransformComponent* unit_transform;
-	ecs::components::TransformComponent* tile_transform;
-	GridProp* p_gp = GridProp::GetInstance();
-	int i = 0;
-
-	int2 size = p_gp->GetSize();
-	int divider = 3;
-	// Loop and set all health to full
-	while (p_army_comp = (ArmyComponent*)itt.next())
+	if (event.getTypeID() == ecs::events::RoundStartEvent::typeID)
 	{
-		int u = 0;
+		ComponentIterator itt = getComponentsOfType<ArmyComponent>();
 
-		// Get each tile that the players will start on
-		starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i, size.x, size.y);
-		temp_id = p_gp->mGrid[starting_tile_index.y][starting_tile_index.x].Id;
-		tile_transform = getComponentFromKnownEntity<ecs::components::TransformComponent>(temp_id);
+		ArmyComponent* p_army_comp;
+		int2 starting_tile_index;
+		ID temp_id;
+		ecs::components::TransformComponent* unit_transform;
+		ecs::components::TransformComponent* tile_transform;
+		GridProp* p_gp = GridProp::GetInstance();
+		int i = 0;
 
-
-		for (size_t i = 0; i < p_army_comp->unitIDs.size(); i++)
+		int2 size = p_gp->GetSize();
+		int divider = 3;
+		// Loop and set all health to full
+		while (p_army_comp = (ArmyComponent*)itt.next())
 		{
-			int entID = p_army_comp->unitIDs[i];
-			HealthComponent* p_hp = (HealthComponent*)getComponentFromKnownEntity< HealthComponent>(entID);
-			unit_transform = (TransformComponent*)getComponentFromKnownEntity< TransformComponent>(entID);
+			int u = 0;
 
-			// Set the helth to the original
-			p_hp->mHealth = p_hp->mBaseHealth;
+			// Get each tile that the players will start on
+			starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i, size.x, size.y);
+			temp_id = p_gp->mGrid[starting_tile_index.y][starting_tile_index.x].Id;
+			tile_transform = getComponentFromKnownEntity<ecs::components::TransformComponent>(temp_id);
 
-			// Place the units on the tile
-			// ----------------------- COPIED FROM THE CREATE ARMIES FUNCTION
-			//Set the starting position of the unit depending on the center position of the units starting tile. Needs to
-			//be updated if the number of units is increased beyond 3.
-			if (u == 0)
+
+			for (size_t i = 0; i < p_army_comp->unitIDs.size(); i++)
 			{
-				unit_transform->position.x = tile_transform->position.x + (float(TILE_RADIUS) / divider);
-				unit_transform->position.y = tile_transform->position.y + 1.1f;
-				unit_transform->position.z = tile_transform->position.z + (float(TILE_RADIUS) / divider);
-			}
-			else if (u == 1)
-			{
-				unit_transform->position.x = tile_transform->position.x - (float(TILE_RADIUS) / divider);
-				unit_transform->position.y = tile_transform->position.y + 1.1f;
-				unit_transform->position.z = tile_transform->position.z + (float(TILE_RADIUS) / divider);
-			}
-			else
-			{
-				unit_transform->position.x = tile_transform->position.x;
-				unit_transform->position.y = tile_transform->position.y + 1.1f;
-				unit_transform->position.z = tile_transform->position.z - (float(TILE_RADIUS) / divider);
+				int entID = p_army_comp->unitIDs[i];
+				HealthComponent* p_hp = (HealthComponent*)getComponentFromKnownEntity< HealthComponent>(entID);
+				unit_transform = (TransformComponent*)getComponentFromKnownEntity< TransformComponent>(entID);
+
+				// Set the helth to the original
+				p_hp->mHealth = p_hp->mBaseHealth;
+
+				// Place the units on the tile
+				// ----------------------- COPIED FROM THE CREATE ARMIES FUNCTION
+				//Set the starting position of the unit depending on the center position of the units starting tile. Needs to
+				//be updated if the number of units is increased beyond 3.
+				if (u == 0)
+				{
+					unit_transform->position.x = tile_transform->position.x + (float(TILE_RADIUS) / divider);
+					unit_transform->position.y = tile_transform->position.y + 1.1f;
+					unit_transform->position.z = tile_transform->position.z + (float(TILE_RADIUS) / divider);
+				}
+				else if (u == 1)
+				{
+					unit_transform->position.x = tile_transform->position.x - (float(TILE_RADIUS) / divider);
+					unit_transform->position.y = tile_transform->position.y + 1.1f;
+					unit_transform->position.z = tile_transform->position.z + (float(TILE_RADIUS) / divider);
+				}
+				else
+				{
+					unit_transform->position.x = tile_transform->position.x;
+					unit_transform->position.y = tile_transform->position.y + 1.1f;
+					unit_transform->position.z = tile_transform->position.z - (float(TILE_RADIUS) / divider);
+				}
+
+				u++;
 			}
 
-			u++;
+			i++;
 		}
 
-		i++;
+		// Start the timer after eveything has been loaded
+		itt = getComponentsOfType<GameLoopComponent>();
+		GameLoopComponent* p_gl;
+		while (p_gl = (GameLoopComponent*)itt.next())
+		{
+			p_gl->mRoundTime.StartRound();
+		}
+
 	}
 
-	// Start the timer after eveything has been loaded
-	itt = getComponentsOfType<GameLoopComponent>();
-	GameLoopComponent* p_gl;
-	while (p_gl = (GameLoopComponent*)itt.next())
-	{
-		p_gl->mRoundTime.StartRound();
-	}
-	
+
 }
 
 ///////////////////
@@ -235,19 +243,23 @@ ecs::systems::RoundOverSystem::~RoundOverSystem()
 
 void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 {
-	int winner = static_cast<ecs::events::RoundEndEvent*>(&event)->winner;
-
-	ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
-	GameLoopComponent* p_gl;
-	while (p_gl = (GameLoopComponent*)itt.next())
+	if (event.getTypeID() == ecs::events::RoundEndEvent::typeID)
 	{
-		p_gl->mPlayerPoints[winner]++;
+		int winner = static_cast<ecs::events::RoundEndEvent*>(&event)->winner;
+
+		ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
+		GameLoopComponent* p_gl;
+		while (p_gl = (GameLoopComponent*)itt.next())
+		{
+			p_gl->mPlayerPoints[winner]++;
+		}
+
+		if (p_gl->mPlayerPoints[winner] < 3)
+		{
+			// Can be reworked to start prep phase
+			events::RoundStartEvent eve;
+			createEvent(eve);
+		}
 	}
 
-	if (p_gl->mPlayerPoints[winner] < 3)
-	{
-		// Can be reworked to start prep phase
-		events::RoundStartEvent eve;
-		createEvent(eve);
-	}
 }
