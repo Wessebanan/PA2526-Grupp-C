@@ -8,16 +8,6 @@
 #include "PhysicsComponents.h"
 #include "PhysicsEvents.h"
 
-namespace Mesh
-{
-	enum MESHES
-	{
-		DUDE,
-		TILE,
-		N_MESHES,
-	};
-}
-
 // Must be called after InitMesh and InitArmy.
 void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh *ppMmeshes);
 
@@ -156,18 +146,15 @@ inline ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLo
 	TransformComponent	weapon_transform_component;
 	MeshComponent		weapon_mesh_component;
 
-	weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	weapon_component.mType = weaponType;
+	weapon_mesh_component.mMesh = pMesh;
 	switch (weaponType)
 	{
 	case SWORD:
-	{
-		ModelLoader::Mesh sword("Physics/TestModel/sword.fbx");
-		weapon_mesh_component.mMesh = pMesh;
+		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
 		break;
-	}
 	case FIST:
-		weapon_mesh_component.mMesh = pMesh;
+		weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		break;
 	case PROJECTILE:
 		MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);

@@ -210,4 +210,14 @@ void InitAll(EntityComponentSystem& rECS)
 	rECS.createEvent(e);
 	e.playerId = PLAYER4;
 	//rECS.createEvent(e);
+
+	Entity* sword = CreateWeaponEntity(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_SWORD), SWORD);
+	TransformComponent* sword_transform = static_cast<TransformComponent*>(rECS.getComponentFromEntity(TransformComponent::typeID, sword->getID()));
+	
+	TypeFilter unit_filter;
+	unit_filter.addRequirement(UnitComponent::typeID);
+	EntityIterator it = rECS.getEntititesByFilter(unit_filter);
+
+	TransformComponent* unit_transform = it.entities.at(0).getComponent<TransformComponent>();
+	sword_transform->position = unit_transform->position;
 }
