@@ -139,8 +139,8 @@ int main()
 
 			if (GetAsyncKeyState(VK_HOME))
 			{
-				ecs::events::RoundEndEvent eve;
-				eve.winner = 1;
+				ecs::events::GameStartEvent eve;
+				//eve.winner = 1;
 				ecs.createEvent(eve);
 			}
 			

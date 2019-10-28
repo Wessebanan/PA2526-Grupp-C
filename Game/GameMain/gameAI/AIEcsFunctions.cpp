@@ -14,6 +14,7 @@
 
 namespace AIEcsFunctions
 {
+	// Creates a army component of each player
 	void CreatePlayers(ecs::EntityComponentSystem& rEcs)
 	{
 		for (size_t i = 0; i < 4; i++)
@@ -27,11 +28,9 @@ namespace AIEcsFunctions
 		}
 	}
 
-	//Creates and spawns in the army of every player in the arena. Must run AFTER the arena
-	//has been created.
 	void CreateUnits(ecs::EntityComponentSystem& rEcs)
 	{
-		ecs::events::GameStartEvent eve;
-		rEcs.createEvent(eve);
+		//ecs::events::GameStartEvent eve;
+		//rEcs.createEvent(eve);
 	}
 }

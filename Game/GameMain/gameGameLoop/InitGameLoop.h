@@ -11,8 +11,6 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 	rECS.createSystem<ecs::systems::RoundOverSystem>(0);
 	rECS.createSystem<ecs::systems::RoundStartSystem>(1);
 
-
-
 	ecs::components::GameLoopComponent gameloop_comp;
 	gameloop_comp.mPlayerPoints[0] = 0;
 	gameloop_comp.mPlayerPoints[1] = 0;

@@ -136,7 +136,6 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 {
 	if (event.getTypeID() == ecs::events::GameStartEvent::typeID)
 	{
-
 		ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
 		GameLoopComponent* p_gl;
 		while (p_gl = (GameLoopComponent*)itt.next())
