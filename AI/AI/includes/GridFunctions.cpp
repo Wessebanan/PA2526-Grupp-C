@@ -593,9 +593,7 @@ namespace GridFunctions
 			//Initialize variables
 			int rows = Rows;
 			int columns = Columns;
-			int2 index(-1, -1);
 			int min_x, min_y;
-			GridProp* p_gp = GridProp::GetInstance();
 			//Set the minimum tile index in x- and y-axis depending on which player it is
 			switch (Id)
 			{
@@ -641,9 +639,7 @@ namespace GridFunctions
 			//Initialize variables
 			int rows = Rows;
 			int columns = Columns;
-			int2 index(-1, -1);
 			int min_x, min_y;
-			GridProp* p_gp = GridProp::GetInstance();
 			//Set the minimum tile index in x- and y-axis depending on which player it is
 			switch (Id)
 			{
@@ -675,7 +671,7 @@ namespace GridFunctions
 			{
 				x = std::rand() % (columns / 2) + min_x;
 				y = std::rand() % (rows / 2) + min_y;
-				if (p_gp->mGrid[x][y].isPassable)
+				if (p_gp->mGrid[y][x].isPassable)
 				{
 					std::cout << "x: " << x << " y: " << y << std::endl; //Used for debug purpose
 					index.x = x;

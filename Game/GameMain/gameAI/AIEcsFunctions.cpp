@@ -54,7 +54,7 @@ namespace AIEcsFunctions
 		for (int i = 0; i < 4; i++)
 		{
 			////Fetch the index of the starting tile for this player.
-			starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i, size.x,size.y, MAPINITSETTING::HOLMES);
+			starting_tile_index = GridFunctions::FindStartingTile((PLAYER)i, size.x,size.y, MAPINITSETTING::NOHOLMES);
 			temp_id = p_gp->mGrid[starting_tile_index.y][starting_tile_index.x].Id;
 			if (temp_id)
 			{
