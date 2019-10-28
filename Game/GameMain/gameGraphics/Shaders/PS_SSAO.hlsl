@@ -13,8 +13,7 @@ cbuffer gPer : register (b0)
 
 float GetDepth(const float2 uv)
 {
-	const float depth = gDepthMap.Sample(gSampler, uv).r;
-	return depth;
+	return gDepthMap.Sample(gSampler, uv).r;
 }
 
 float3 GetNormal(const float2 uv)
