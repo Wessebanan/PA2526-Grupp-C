@@ -45,6 +45,7 @@
 #include "gameUtility/Timer.h"
 
 #include "gameGameLoop/InitGameLoop.h"
+#include "gameGameLoop/GameLoopEvents.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -135,6 +136,14 @@ int main()
 			{
 				wnd.Close();
 			}
+
+			if (GetAsyncKeyState(VK_HOME))
+			{
+				ecs::events::RoundEndEvent eve;
+				eve.winner = 1;
+				ecs.createEvent(eve);
+			}
+			
 
 			/*
 				Update all ECS systems, and give them the delta time.

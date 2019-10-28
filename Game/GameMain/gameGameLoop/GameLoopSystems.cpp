@@ -245,21 +245,24 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 {
 	if (event.getTypeID() == ecs::events::RoundEndEvent::typeID)
 	{
-		int winner = static_cast<ecs::events::RoundEndEvent*>(&event)->winner;
+		int winner = dynamic_cast<ecs::events::RoundEndEvent*>(&event)->winner;
 
-		ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
-		GameLoopComponent* p_gl;
-		while (p_gl = (GameLoopComponent*)itt.next())
+		if (winner >= 0)
 		{
-			p_gl->mPlayerPoints[winner]++;
-		}
+			ComponentIterator itt = ecs::ECSUser::getComponentsOfType(ecs::components::GameLoopComponent::typeID);
+			GameLoopComponent* p_gl;
+			while (p_gl = static_cast<GameLoopComponent*>(itt.next()))
+			{
+				p_gl->mPlayerPoints[winner]++;
 
-		if (p_gl->mPlayerPoints[winner] < 3)
-		{
-			// Can be reworked to start prep phase
-			events::RoundStartEvent eve;
-			createEvent(eve);
+				// Check if the winner has won enougth to win the game
+				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN)
+				{
+					// Can be reworked to start prep phase
+					events::RoundStartEvent eve;
+					createEvent(eve);
+				}
+			}
 		}
 	}
-
 }

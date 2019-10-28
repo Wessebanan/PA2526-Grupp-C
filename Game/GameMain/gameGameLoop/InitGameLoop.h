@@ -21,4 +21,5 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 	ecs::components::GameSettingsComponent gameloop_settings_comp;
 	gameloop_settings_comp.mMapSettings = 1; // Holme = 1
 
+	rECS.createEntity(gameloop_comp, gameloop_settings_comp);
 }
