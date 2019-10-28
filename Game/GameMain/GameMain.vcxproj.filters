@@ -307,5 +307,8 @@
     <FxCompile Include="gameUtility\VS_Tile.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Tile_debug.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

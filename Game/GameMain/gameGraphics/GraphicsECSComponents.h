@@ -3,6 +3,7 @@
 #include "ecsComponentIncludes.h"
 #include "../../Graphics/includes/RenderManager.h"
 #include "../../Graphics/includes/MeshManager.h"
+#include "../../Graphics/includes/StateManager.h"
 #include "RenderBuffer.h"
 #include "ShadowMapPipeline.h"
 #include "ForwardRenderingPipeline.h"
@@ -19,6 +20,11 @@ namespace ecs
 		struct MeshManagerComponent : public ECSComponent<MeshManagerComponent>
 		{
 			graphics::MeshManager mgr;
+		};
+
+		struct StateManagerComponent : public ECSComponent<StateManagerComponent>
+		{
+			graphics::StateManager mgr;
 		};
 
 		struct RenderBufferComponent : public ECSComponent<RenderBufferComponent>

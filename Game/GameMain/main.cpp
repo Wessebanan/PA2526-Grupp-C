@@ -192,15 +192,14 @@ void InitAll(EntityComponentSystem& rECS)
 
 	InitOceanEntities(rECS);
 
-	void* vertexBuffer;
-	UINT count;
-	GenerateWorldMesh(rECS, &vertexBuffer, count);
-
 	InitCamera(rECS);
 
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
 
-	InitGraphicsRenderSystems(rECS);
+	WorldMeshData worldMeshData;
+	GenerateWorldMesh(rECS, &worldMeshData.pMesh, worldMeshData.vertexCount);
+
+	InitGraphicsRenderSystems(rECS, worldMeshData);
 	InitGraphicsPostRenderSystems(rECS);
 
 	ChangeUserStateEvent e;

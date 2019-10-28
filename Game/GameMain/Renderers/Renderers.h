@@ -140,24 +140,29 @@ namespace ecs
 			WorldRenderSystem();
 			~WorldRenderSystem();
 
-			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+			void act(float _delta) override;
 			void Initialize(
 				graphics::RenderManager* pRenderMgr,
-				graphics::RenderBuffer* pRenderBuffer,
 				graphics::StateManager* pStateMgr,
 				void* pWorldMesh,
-				UINT worldMeshVertexCount,
-				UINT worldBufferSize);
+				UINT worldMeshVertexCount);
 
 		private:
 
-			void* mpBuffer;
+			struct VertexData
+			{
+				float x, y, z;
+				float nx, ny, nz;
+				uint32_t color;
+			};
+
 			UINT mInstanceCount;
 
 			UINT mRenderProgram;
+			UINT mPipelineState;
 			graphics::RenderManager* mpRenderMgr;
+			graphics::StateManager* mpStateMgr;
 			graphics::ShaderModelLayout mInstanceLayout;
-			graphics::RenderBuffer* mpRenderBuffer;
 			graphics::MeshRegion mMeshRegion;
 
 			void* mpWorldVertices;

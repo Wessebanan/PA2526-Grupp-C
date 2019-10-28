@@ -7,4 +7,4 @@
 #define OCEAN_RADIUS 50.f
 
 // Defines at what y-plane the ocean height starts
-#define OCEAN_START_HEIGHT -1.f
+#define OCEAN_START_HEIGHT -0.9f
