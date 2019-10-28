@@ -68,7 +68,8 @@ namespace ecs
 				GridProp* g_prop = GridProp::GetInstance();
 				components::TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
 				ecs::components::TransformComponent* goal_transform = nullptr;
-				start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
+				//start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
+				start_tile = this->GetClosestTile(*p_transfrom);
 				unsigned int start_tile_id = g_prop->mGrid[start_tile.y][start_tile.x].Id;
 				unsigned int goal_id = 0;
 				unsigned int goal_enemy_id = 0;
@@ -84,7 +85,8 @@ namespace ecs
 						if (goal_enemy_id != 0)
 						{
 							goal_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, goal_enemy_id));
-							goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
+							//goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
+							goal_tile_index = this->GetClosestTile(*goal_transform);
 							if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
 							{
 								goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].Id;
@@ -263,6 +265,50 @@ namespace ecs
 					to_return.push_back(startID);
 					return to_return;
 				}
+			}
+			int2 GetClosestTile(TransformComponent& transform)
+			{
+				int2 return_value;
+				GridProp* p_gp = GridProp::GetInstance();
+				unsigned int tile_index = 0;
+				ecs::BaseComponent* p_base_component;
+				ecs::components::TransformComponent* p_curr_tile_transform;
+				ecs::components::TileComponent* p_curr_tile;
+				ecs::Entity* p_curr_entity;
+				float dist = 1000.0f;
+				float temp_dist = 0.0f;
+				//ecs::ComponentIterator ittr;
+				/*ittr = ecs::ECSUser::getComponentsOfType(ecs::components::TileComponent::typeID);
+				while (p_base_component = ittr.next())
+				{
+					p_curr_tile = static_cast<ecs::components::TileComponent*>(p_base_component);
+					p_curr_entity = ecs::ECSUser::getEntity(p_curr_tile->getEntityID());
+					p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_curr_entity->getID());
+					temp_dist = PhysicsHelpers::CalculateDistance(transform.position, p_curr_tile_transform->position);
+					if (temp_dist < dist)
+					{
+						dist = temp_dist;
+						tile_index = p_curr_entity->getID();
+					}
+				}*/
+				for (int x = 0; x < p_gp->GetSize().x; x++)
+				{
+					for (int y = 0; y < p_gp->GetSize().y; y++)
+					{
+						if (p_gp->mGrid[y][x].isPassable)
+						{
+							p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
+							temp_dist = PhysicsHelpers::CalculateDistance(transform.position, p_curr_tile_transform->position);
+							if (temp_dist < dist)
+							{
+								dist = temp_dist;
+								return_value.x = x;
+								return_value.y = y;
+							}
+						}
+					}
+				}
+				return return_value;
 			}
 		private:
 			unsigned int FindClosestEnemy(ecs::Entity* current_unit)
@@ -452,7 +498,7 @@ namespace ecs
 				switch (move_comp->activeCommand)
 				{
 				case STATE::ATTACK:
-					mMinimumDist = 2.0f;//equipment_comp->mAttackRange;
+					mMinimumDist = TILE_RADIUS * 2;
 					returnState = STATE::ATTACK;
 					break;
 				case STATE::LOOT:
@@ -630,7 +676,7 @@ namespace ecs
 					//Calculate distance to the enemy unit
 					distance = PhysicsHelpers::CalculateDistance(current_unit_transform->position, enemy_unit_transform->position);
 					//If the enemy is within attack range make an attack else switch to pathfinding state
-					if (distance < 2/*equipment_comp->mAttackRange*/)
+					if (distance < TILE_RADIUS * 2/*equipment_comp->mAttackRange*/)
 					{
 						//Calculate the direction of the enemy and normalize the vector.
 						direction.x = enemy_unit_transform->position.x - current_unit_transform->position.x;
@@ -646,7 +692,7 @@ namespace ecs
 						MovementInputEvent move_event;
 						move_event.mInput = FORWARD;
 						move_event.mEntityID = entity.entity->getID();
-						createEvent(move_event);
+						createEvent(move_event);	
 					}
 					else
 					{
@@ -701,15 +747,10 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{	
-				if (ecs::ECSUser::getEntity(entity.entity->getID()))
-				{
-					std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
-					ecs::ECSUser::removeEntity(entity.entity->getID());
-				}
+				std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
+				ecs::ECSUser::removeEntity(entity.entity->getID());
 			}
 		};
-
-
 
 		/*
 			A system that reads events generated when a user sends a command with their phone.
