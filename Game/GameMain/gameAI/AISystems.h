@@ -526,7 +526,7 @@ namespace ecs
 				}
 				//Check if enough time has passed for us to calculate a new path to the goal.
 				move_comp->time += delta;
-				if (move_comp->time > 5.0f) //Should discuss how long we should wait and if it should be frames or time?
+				if (move_comp->time > 1.0f) //Should discuss how long we should wait and if it should be frames or time?
 				{
 					returnState = STATE::PATHFINDING;
 				}
@@ -675,8 +675,8 @@ namespace ecs
 					enemy_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(enemy_entity->getID());
 					//Calculate distance to the enemy unit
 					distance = PhysicsHelpers::CalculateDistance(current_unit_transform->position, enemy_unit_transform->position);
-					//If the enemy is within attack range make an attack else switch to pathfinding state
-					if (distance < TILE_RADIUS * 2/*equipment_comp->mAttackRange*/)
+					//If the enemy is within attack range make an attack
+					if (distance > TILE_RADIUS / 2.0f && distance < TILE_RADIUS * 3)
 					{
 						//Calculate the direction of the enemy and normalize the vector.
 						direction.x = enemy_unit_transform->position.x - current_unit_transform->position.x;
@@ -694,12 +694,12 @@ namespace ecs
 						move_event.mEntityID = entity.entity->getID();
 						createEvent(move_event);	
 					}
-					else
+					else if (distance > TILE_RADIUS * 3) // if the enemy is to far away change state.
 					{
 						SwitchState(entity, atk_state->activeCommand);
 					}
 				}
-				else
+				else //if the enemy doesn't exist anymore, change state.
 				{
 					SwitchState(entity, atk_state->activeCommand);
 				}
