@@ -267,12 +267,6 @@ int main()
 				shader_blur_h,
 				shader_blur_h + 1);
 
-			// Not needed
-			//renderer_ssao.ExecutePipeline(
-			//	pipeline_blur,
-			//	shader_blur_h,
-			//	shader_blur_h + 1);
-
 			renderer_ssao.ExecutePipeline(
 				pipeline_combine,
 				shader_combine,
