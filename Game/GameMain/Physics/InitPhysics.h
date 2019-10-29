@@ -156,7 +156,7 @@ inline ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLo
 	switch (weaponType)
 	{
 	case SWORD:
-		weapon_transform_component.scale = XMFLOAT3(0.05f, 0.05f, 0.05f);
+		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
 		break;
 	case FIST:
 		weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);

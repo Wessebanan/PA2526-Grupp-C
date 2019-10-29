@@ -205,11 +205,11 @@ void InitAll(EntityComponentSystem& rECS)
 	e.playerId = PLAYER1;
 	rECS.createEvent(e);
 	e.playerId = PLAYER2;
-	//rECS.createEvent(e);
+	rECS.createEvent(e);
 	e.playerId = PLAYER3;
 	rECS.createEvent(e);
 	e.playerId = PLAYER4;
-	//rECS.createEvent(e);
+	rECS.createEvent(e);
 
 	Entity* sword = CreateWeaponEntity(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_SWORD), SWORD);
 	TransformComponent* sword_transform = static_cast<TransformComponent*>(rECS.getComponentFromEntity(TransformComponent::typeID, sword->getID()));
@@ -221,6 +221,16 @@ void InitAll(EntityComponentSystem& rECS)
 
 	TransformComponent* unit_transform = static_cast<TransformComponent*>(rECS.getComponentFromEntity(TransformComponent::typeID, sword_unit_id));
 	sword_transform->position = unit_transform->position;
+	
+	GridProp *grid = GridProp::GetInstance();
+
+	int2 grid_size = grid->GetSize();
+
+	TileData some_center_tile = grid->mGrid[grid_size.y / 2][grid_size.x / 2];
+	Entity *center_tile = rECS.getEntity(some_center_tile.Id);
+	TransformComponent* tile_transform = static_cast<TransformComponent*>(rECS.getComponentFromEntity(TransformComponent::typeID, center_tile->getID()));
+
+	sword_transform->position = tile_transform->position;
 
 	ColorComponent sword_color_component;
 	

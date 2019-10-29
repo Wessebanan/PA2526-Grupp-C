@@ -65,7 +65,8 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 	output.pos = mul(wvpCam, world_pos);
 	output.sunPos = mul(wvpSun, world_pos);
 
-	output.color.rgb = float3(1.0f, 1.0f, 1.0f);
+	output.color.rgb = float3(153.f / 255.f, 125.f / 255.f, 58.f / 255.f);
+
 	output.normal = mul(gMesh[InstanceID].World, float4(gVertexNormals[VertexID], 0.0f)).xyz;
 
 	return output;

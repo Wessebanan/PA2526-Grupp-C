@@ -424,59 +424,14 @@ namespace ecs
 				{
 					SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(p_weapon_comp->mOwnerEntity);
 					XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
-					XMFLOAT4X4 right_hand_inverse_bindpose_matrix = p_skeleton->skeletonData.GetInverseBindPoseUsingJointName("Hand.r");
-					TransformComponent* p_owner_transform = getComponentFromKnownEntity<TransformComponent>(p_weapon_comp->mOwnerEntity);	
 					
-					// Weapon scale.
-					XMMATRIX scale = XMMatrixScalingFromVector(XMLoadFloat3(&p_transform_comp->scale));
+					// Hand position in model space.
+					XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
+					XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
 
-					// Unit rotation.
-					XMMATRIX unit_rot = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&p_owner_transform->rotation));
+					// Final world transform.
+					XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 					
-					// Hand rotation (assume no scale).
-					XMFLOAT3X3 hand_rot_temp;
-					XMStoreFloat3x3(&hand_rot_temp, XMLoadFloat4x4(&right_hand_offset_matrix));
-					XMMATRIX hand_rot = XMLoadFloat3x3(&hand_rot_temp);
-
-					// Unit translation.
-					XMMATRIX unit_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&p_owner_transform->position));
-
-					// Hand translation.
-					XMMATRIX hand_trans = XMMatrixTranslation(right_hand_offset_matrix._14, right_hand_offset_matrix._24, right_hand_offset_matrix._34);
-
-					//XMMATRIX origin_to_hand_trans = XMLoadFloat4x4(&right_hand_inverse_bindpose_matrix);
-
-					XMMATRIX origin_to_hand_trans = XMMatrixTranslation(right_hand_inverse_bindpose_matrix._41, right_hand_inverse_bindpose_matrix._42, right_hand_inverse_bindpose_matrix._43);
-
-					// Total transform.
-					//XMMATRIX world = scale * unit_rot * hand_rot * unit_trans * hand_trans;
-					//XMMATRIX world = hand_trans * hand_rot * unit_rot * scale;
-					//world *= unit_trans;
-					//
-					
-					XMMATRIX world = XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * XMMatrixInverse(nullptr, origin_to_hand_trans) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
-
-					//XMMATRIX world = unit_rot */* hand_rot **/ /*XMMatrixInverse(&XMMatrixDeterminant(origin_to_hand_trans), origin_to_hand_trans) **/ hand_trans * scale * unit_trans;
-
-					//right_hand_offset_matrix._14 += p_owner_transform->position.x;
-					//right_hand_offset_matrix._24 += p_owner_transform->position.y;
-					//right_hand_offset_matrix._34 += p_owner_transform->position.z;
-					/*XMMATRIX rotation = XMMatrixRotationRollPitchYawFromVector(XMLoadFloat3(&p_transform_comp->rotation));
-					XMMATRIX scale = XMMatrixScalingFromVector(XMLoadFloat3(&p_transform_comp->scale));
-					XMMATRIX rot_sc = XMMatrixMultiply(rotation, scale);
-					XMFLOAT3 hand_trans;
-					hand_trans.x = right_hand_offset_matrix._14;
-					hand_trans.y = right_hand_offset_matrix._24;
-					hand_trans.z = right_hand_offset_matrix._34;
-
-					XMStoreFloat4x4(&mpBuffer[index].world, XMMatrixTranspose(XMMatrixMultiply(rot_sc, XMLoadFloat4x4(&right_hand_offset_matrix))));
-
-					mpBuffer[index].world._41 += p_owner_transform->position.x + hand_trans.x;
-					mpBuffer[index].world._42 += p_owner_transform->position.y + hand_trans.y;
-					mpBuffer[index].world._43 += p_owner_transform->position.z + hand_trans.z;*/
-					//XMMATRIX weapon_world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
-					/*XMMATRIX true_world = */
-					//XMStoreFloat4x4(&mpBuffer[index].world, XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)));
 					XMStoreFloat4x4(&mpBuffer[index].world, world);
 				}
 				

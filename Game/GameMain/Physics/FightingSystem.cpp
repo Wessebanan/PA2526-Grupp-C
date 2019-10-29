@@ -134,17 +134,25 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	}
 
 	// Transform weapon to weapon owner right hand position if it has owner, also get army unit IDs.
-	if (weapon_component->mOwnerEntity != 0)
-	{
-		SkeletonComponent* skeleton = getComponentFromKnownEntity<SkeletonComponent>(weapon_component->mOwnerEntity);
-		XMFLOAT4X4 right_hand_offset_matrix = skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");
-		weapon_bv->Transform(XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)));
-		
-		TransformComponent* owner_transform = getComponentFromKnownEntity<TransformComponent>(weapon_component->mOwnerEntity);
-		weapon_transform_component->position = owner_transform->position;
-		weapon_transform_component->rotation = owner_transform->rotation;
+	else
+	{		
+		SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(weapon_component->mOwnerEntity);
+		XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
+		TransformComponent* p_owner_transform = getComponentFromKnownEntity<TransformComponent>(weapon_component->mOwnerEntity);
 
-		weapon_bv->Transform(UtilityEcsFunctions::GetWorldMatrix(*weapon_transform_component));
+		// Assigning unit transform component to weapon transform component for now.
+		weapon_transform_component->scale		= p_owner_transform->scale;
+		weapon_transform_component->position	= p_owner_transform->position;
+		weapon_transform_component->rotation	= p_owner_transform->rotation;
+
+		// Hand position in model space.
+		XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
+		XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
+
+		// Final world transform.
+		XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*weapon_transform_component);
+
+		weapon_bv->Transform(world);
 
 		owner_unit_component = getComponentFromKnownEntity<UnitComponent>(weapon_component->mOwnerEntity);
 	}
