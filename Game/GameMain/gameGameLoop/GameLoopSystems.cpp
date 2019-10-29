@@ -41,6 +41,7 @@ ecs::systems::GameLoopSystem::~GameLoopSystem()
 {
 }
 
+// Runs neccesary gameloops, timers etc
 void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
@@ -66,6 +67,7 @@ ecs::systems::GameLoopAliveSystem::~GameLoopAliveSystem()
 {
 }
 
+// 
 void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
@@ -84,29 +86,6 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 			check_any_live++;
 			alive_player = p_army_comp->playerID;
 		}
-
-
-		//bool check_alive = false;
-
-		//for (size_t i = 0; i < p_army_comp->unitIDs.size(); i++)
-		//{
-		//	int entID = p_army_comp->unitIDs[i];
-		//	HealthComponent* p_hp = (HealthComponent*)getComponentFromKnownEntity< HealthComponent>(entID);
-
-		//	if (p_hp > 0)
-		//	{
-		//		check_alive = true;
-		//		//break;
-		//	}
-		//}
-
-		//if (check_alive)
-		//{
-		//	// The armt has a alive unit
-		//	check_any_live++;
-		//	UnitComponent* p_unit = (UnitComponent*)getComponentFromKnownEntity< UnitComponent>(p_army_comp->unitIDs[0]);
-		//	alive_player = p_unit->playerID;
-		//}
 	}
 
 	// There is one winner

@@ -10,6 +10,7 @@ namespace ecs
 	{
 		// ----------- UPDATE SSTEMS ---------------
 
+		// Updates for the current loop, not used for other than updates timers
 		class GameLoopSystem : public ecs::ECSSystem<GameLoopSystem>
 		{
 		public:
@@ -19,6 +20,7 @@ namespace ecs
 		private:
 		};
 
+		// Checks if there is only one player alive then creates a evnt for it
 		class GameLoopAliveSystem : public ecs::ECSSystem<GameLoopAliveSystem>
 		{
 		public:
@@ -31,6 +33,7 @@ namespace ecs
 
 		// ----------- EVENTREADERS -----------------
 
+		// Starts the game, launches the correct phase after reading event
 		class GameStartSystem : public ecs::ECSSystem<GameStartSystem>
 		{
 		public:
@@ -40,6 +43,7 @@ namespace ecs
 		private:
 		};
 
+		// Starts the round and initalizes the units and its components for each army
 		class RoundStartSystem : public ecs::ECSSystem<RoundStartSystem>
 		{
 		public:
@@ -51,6 +55,7 @@ namespace ecs
 			void CreateUnitPhysics();
 		};
 
+		// Ends the round and sets a winner, also cheks if someone has won
 		class RoundOverSystem : public ecs::ECSSystem<RoundOverSystem>
 		{
 		public:
