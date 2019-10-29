@@ -2,6 +2,9 @@
 #include "Mesh.h"
 #include "AnimationSystems.h"
 #include "../MeshContainer/MeshContainer.h"
+
+#include "ecs.h"
+
 struct SkinningShaderProgramInput
 {
 	DirectX::XMFLOAT4X4 world;
@@ -24,4 +27,6 @@ static void UpdateAnimation(ModelLoader::Skeleton* skeleton, SkinningShaderProgr
 static void InitAnimation(ecs::EntityComponentSystem& rECS)
 {
 	rECS.createSystem<ecs::systems::SkeletonSystem>();
+
+	rECS.createSystem<ecs::systems::PingListenerSystem>(7);
 }

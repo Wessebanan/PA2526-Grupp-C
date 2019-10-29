@@ -19,13 +19,22 @@ namespace AIEcsFunctions
 	// Creates a army component of each player
 	void CreatePlayers(ecs::EntityComponentSystem& rEcs)
 	{
+		FLOAT client_width = graphics::GetDisplayResolution().x;
+		FLOAT client_height = graphics::GetDisplayResolution().y;
+
+		FLOAT text_height = 100;
+		FLOAT text_width = 200;
+		FLOAT unit_text_height = 75;
+		FLOAT unit_text_width = 100;
+
 		for (size_t i = 0; i < 4; i++)
 		{
 			ecs::components::ArmyComponent army;
+			ecs::components::UITextComponent command_text_comp;
+			command_text_comp.mStrText = "NO STATE";
+			ecs::components::UIDrawPosComponent text_pos_comp;
+			ecs::components::UIDrawColorComponent text_color_comp;
 			
-				
-			}
-
 			
 			switch (i)
 			{

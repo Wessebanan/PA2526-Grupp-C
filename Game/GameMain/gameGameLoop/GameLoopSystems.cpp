@@ -15,6 +15,8 @@
 
 #include "..//MeshContainer/MeshContainer.h"	
 
+#include "..//gameAnimation/AnimationEvents.h"
+
 using namespace ecs;
 using namespace ecs::components;
 
@@ -299,8 +301,6 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 		skeletonData->Init(MeshContainer::GetMeshCPU(MESH_TYPE::MESH_TYPE_UNIT)->GetSkeleton());
 		skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
 	}
-
-
 }
 
 void ecs::systems::RoundStartSystem::CreateUnitPhysics()
