@@ -856,7 +856,7 @@ namespace ecs
 						{
 							//Defaults to a path since every other command relies on moving to a destination
 							ecs::components::PathfindingStateComponent path;
-							path.goalState = state;
+							path.activeCommand = state;
 							ecs::ECSUser::createComponent(entity_id, path);
 							break;
 						}
