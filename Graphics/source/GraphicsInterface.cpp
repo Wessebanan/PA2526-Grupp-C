@@ -362,6 +362,11 @@ namespace graphics
 			*ppBackBuffer = gpBackBuffer;
 		}
 
+		void GetSwapChain(IDXGISwapChain1** ppSwapChain)
+		{
+			*ppSwapChain = gpSwapChain4;
+		}
+
 		void GetD3D11(D3D11_DEVICE_HANDLE* pHandle)
 		{
 			pHandle->pDevice4			= gpDevice4;
@@ -496,7 +501,7 @@ namespace graphics
 		if (internal::gIsActive) return S_OK;
 
 		HRESULT hr = S_OK;
-		UINT device_flag = 0;
+		UINT device_flag = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 		UINT factory_flag = 0;
 
 #ifdef _DEBUG

@@ -184,14 +184,27 @@ namespace graphics
 					program.pVertexShader,
 					program.pPixelShader);
 
-				graphics::DrawMeshes(
-					m_pContext4,
-					m_pPerObjectBuffer,
-					data_location,
-					program.PerObjectByteWidth,
-					layout.MeshCount,
-					layout.pMeshes,
-					layout.pInstanceCountPerMesh);
+				switch(program.PerObjectByteWidth)
+				{
+				case 0:
+					graphics::DrawMeshes(
+						m_pContext4,
+						layout.MeshCount,
+						layout.pMeshes,
+						layout.pInstanceCountPerMesh);
+					break;
+
+				default:
+					graphics::DrawMeshes(
+						m_pContext4,
+						m_pPerObjectBuffer,
+						data_location,
+						program.PerObjectByteWidth,
+						layout.MeshCount,
+						layout.pMeshes,
+						layout.pInstanceCountPerMesh);
+					break;
+				}
 			}
 
 			data_location += total_models * program.PerObjectByteWidth;

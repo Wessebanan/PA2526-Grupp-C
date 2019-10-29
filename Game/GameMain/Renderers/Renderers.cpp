@@ -2,9 +2,12 @@
 #include "../gameAI/AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameUtility/UtilityEcsFunctions.h"
+#include "../gameUtility/UtilityGraphics.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
 #include "../gameWorld/OceanComponents.h"
 #include "../gameAnimation/AnimationComponents.h"
+
+#include "../gameGraphics/TileRenderingPipeline.h"
 
 namespace ecs
 {
@@ -38,8 +41,6 @@ namespace ecs
 			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mUnitCount * GetPerInstanceSize());
 
-			// Update animation in skeleton
-			mpSkeleton->UpdateAnimation(_delta);
 
 			// Iterate all units and write their data to the RenderBuffer
 			int index = 0;
@@ -248,6 +249,70 @@ namespace ecs
 		return sizeof(InputLayout);
 	}
 #pragma endregion OceanRenderSystem
+
+#pragma region WorldRenderSystem
+	WorldRenderSystem::WorldRenderSystem()
+	{
+		updateType = SystemUpdateType::Actor;
+		mInstanceLayout = { 0 };
+	}
+
+	WorldRenderSystem::~WorldRenderSystem()
+	{
+
+	}
+
+	void WorldRenderSystem::act(float _delta)
+	{
+		/*
+			Set our 'vertex buffer' for the world tile mesh.
+		*/
+
+		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		mpStateMgr->SetPipelineState(mPipelineState);
+	}
+
+	void WorldRenderSystem::Initialize(
+		graphics::RenderManager* pRenderMgr,
+		graphics::StateManager* pStateMgr,
+		void* pWorldMesh,
+		UINT worldMeshVertexCount)
+	{
+		/*
+		
+		*/
+
+		mpRenderMgr = pRenderMgr;
+		mpStateMgr = pStateMgr;
+
+
+		// World is one single mesh
+		mInstanceCount = 1;
+
+		mMeshRegion = { 0 };
+		mMeshRegion.VertexRegion.Size = worldMeshVertexCount;
+
+		mInstanceLayout.MeshCount = 1;
+		mInstanceLayout.pMeshes = &mMeshRegion;
+		mInstanceLayout.pInstanceCountPerMesh = &mInstanceCount;
+
+		const std::string vs = GetShaderFilepath("VS_Tile.cso");
+		const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+		mRenderProgram = mpRenderMgr->CreateShaderProgram(
+			vs.c_str(),
+			ps.c_str(),
+			0);
+
+		const UINT stride = sizeof(VertexData);
+		graphics::TILE_RENDERING_PIPELINE_DESC trpDesc;
+		trpDesc.pWorldMesh = pWorldMesh;
+		trpDesc.stride = stride;
+		trpDesc.size = worldMeshVertexCount * stride;
+
+		mPipelineState = mpStateMgr->CreatePipelineState(new graphics::TileRenderingPipeline(), &trpDesc);
+	}
+#pragma endregion WorldRenderSystem
 
 #pragma region SceneObjectRenderSystem
 		SceneObjectRenderSystem::SceneObjectRenderSystem()

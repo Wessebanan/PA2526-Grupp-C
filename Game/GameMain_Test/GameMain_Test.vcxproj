@@ -35,6 +35,7 @@
     <Import Project="AudioIncludesFromGame.props" />
     <Import Project="..\..\PropertySheets\Sound_Debug.props" />
     <Import Project="..\..\PropertySheets\Graphics_Debug.props" />
+    <Import Project="..\..\PropertySheets\UI_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
@@ -48,6 +49,7 @@
     <Import Project="..\..\PropertySheets\Utility_Release.props" />
     <Import Project="AudioIncludesFromGame.props" />
     <Import Project="..\..\PropertySheets\Sound_Release.props" />
+    <Import Project="..\..\PropertySheets\UI_Release.props" />
     <Import Project="..\..\PropertySheets\Graphics_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -78,6 +80,10 @@
     <ClInclude Include="..\GameMain\Physics\PhysicsComponents.h" />
     <ClInclude Include="..\GameMain\Physics\PhysicsEvents.h" />
     <ClInclude Include="..\GameMain\Physics\QuadTree.h" />
+    <ClInclude Include="..\GameMain\UI\InitUI.h" />
+    <ClInclude Include="..\GameMain\UI\UIComponents.h" />
+    <ClInclude Include="..\GameMain\UI\UIEvents.h" />
+    <ClInclude Include="..\GameMain\UI\UISystems.h" />
     <ClInclude Include="AI\AiTests.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Physics\FightingLogic.h" />
@@ -86,6 +92,7 @@
     <ClInclude Include="Physics\ObjectCollision.h" />
     <ClInclude Include="Sound\SoundTests.h" />
     <ClInclude Include="Physics\QuadTreeTests.h" />
+    <ClInclude Include="UI\UIEcsTest.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\AI\AI\includes\GridFunctions.cpp" />
@@ -98,6 +105,7 @@
     <ClCompile Include="..\GameMain\Physics\FightingSystem.cpp" />
     <ClCompile Include="..\GameMain\Physics\MovementSystem.cpp" />
     <ClCompile Include="..\GameMain\Physics\QuadTree.cpp" />
+    <ClCompile Include="..\GameMain\UI\UISystems.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

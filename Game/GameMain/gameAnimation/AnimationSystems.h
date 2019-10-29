@@ -1,6 +1,7 @@
 #pragma once
 #include "ecsSystemIncludes.h"
 #include "AnimationComponents.h"
+#include "AnimationEvents.h"
 
 namespace ecs {
 
@@ -11,6 +12,18 @@ namespace ecs {
 			virtual ~SkeletonSystem();
 
 			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
+
+		class PingListenerSystem : public ECSSystem<PingListenerSystem>
+		{
+		public:
+			PingListenerSystem()
+			{
+				updateType = EventReader;
+				typeFilter.addRequirement(ecs::events::PingEvent::typeID);
+			}
+			virtual ~PingListenerSystem() {}
+			void readEvent(BaseEvent& event, float delta) override;
 		};
 	}
 }

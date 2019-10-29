@@ -6,6 +6,7 @@
 #include "../../Graphics/includes/RenderManager.h"
 #include "../gameGraphics/RenderBuffer.h"
 #include "../gameSceneObjects/SceneObjectGlobals.h"
+#include "../../Graphics/includes/StateManager.h"
 
 static const std::string GetShaderFilepath(const char* pFilename)
 {
@@ -148,6 +149,42 @@ namespace ecs
 
 			UINT mTileCount;
 			graphics::MeshRegion mTileMeshRegion;
+		};
+
+		class WorldRenderSystem : public ECSSystem<WorldRenderSystem>
+		{
+		public:
+
+			WorldRenderSystem();
+			~WorldRenderSystem();
+
+			void act(float _delta) override;
+			void Initialize(
+				graphics::RenderManager* pRenderMgr,
+				graphics::StateManager* pStateMgr,
+				void* pWorldMesh,
+				UINT worldMeshVertexCount);
+
+		private:
+
+			struct VertexData
+			{
+				float x, y, z;
+				float nx, ny, nz;
+				uint32_t color;
+			};
+
+			UINT mInstanceCount;
+
+			UINT mRenderProgram;
+			UINT mPipelineState;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::StateManager* mpStateMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+			graphics::MeshRegion mMeshRegion;
+
+			void* mpWorldVertices;
+			UINT mWorldBufferSize;
 		};
 
 		class SceneObjectRenderSystem : public ECSSystem<SceneObjectRenderSystem>
