@@ -147,6 +147,7 @@
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameSceneObjects\InitBiomes.h" />
     <ClInclude Include="gameSceneObjects\InitSceneObjectsh.h" />
+    <ClInclude Include="gameSceneObjects\LootSystem.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />

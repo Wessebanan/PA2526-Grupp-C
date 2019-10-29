@@ -418,7 +418,6 @@ namespace ecs
 			{
 				components::WeaponComponent* p_weapon_comp = weapon.getComponent<components::WeaponComponent>();
 				components::TransformComponent* p_transform_comp = weapon.getComponent<components::TransformComponent>();
-				components::ColorComponent* p_color_comp = weapon.getComponent<components::ColorComponent>();
 
 				if (p_weapon_comp->mOwnerEntity != 0)
 				{
@@ -433,8 +432,7 @@ namespace ecs
 					XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 					
 					XMStoreFloat4x4(&mpBuffer[index].world, world);
-				}
-				
+				}				
 				else
 				{
 					XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
