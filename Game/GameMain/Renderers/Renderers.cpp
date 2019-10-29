@@ -257,7 +257,6 @@ namespace ecs
 	WorldRenderSystem::WorldRenderSystem()
 	{
 		updateType = SystemUpdateType::Actor;
-
 		mInstanceLayout = { 0 };
 	}
 
@@ -268,6 +267,10 @@ namespace ecs
 
 	void WorldRenderSystem::act(float _delta)
 	{
+		/*
+			Set our 'vertex buffer' for the world tile mesh.
+		*/
+
 		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		mpStateMgr->SetPipelineState(mPipelineState);
 	}
@@ -278,10 +281,16 @@ namespace ecs
 		void* pWorldMesh,
 		UINT worldMeshVertexCount)
 	{
-		mInstanceCount = 1;
+		/*
+		
+		*/
 
 		mpRenderMgr = pRenderMgr;
 		mpStateMgr = pStateMgr;
+
+
+		// World is one single mesh
+		mInstanceCount = 1;
 
 		mMeshRegion = { 0 };
 		mMeshRegion.VertexRegion.Size = worldMeshVertexCount;
@@ -292,7 +301,6 @@ namespace ecs
 
 		const std::string vs = GetShaderFilepath("VS_Tile.cso");
 		const std::string ps = GetShaderFilepath("PS_Default.cso");
-		//const std::string ps = GetShaderFilepath("PS_Tile_debug.cso");
 
 		mRenderProgram = mpRenderMgr->CreateShaderProgram(
 			vs.c_str(),

@@ -107,7 +107,6 @@
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
-    <ClCompile Include="gameGraphics\TileUpdatePipeline.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
@@ -143,7 +142,6 @@
     <ClInclude Include="gameGraphics\RenderBuffer.h" />
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
     <ClInclude Include="gameGraphics\TileRenderingPipeline.h" />
-    <ClInclude Include="gameGraphics\TileUpdatePipeline.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameSceneObjects\InitBiomes.h" />
@@ -188,10 +186,6 @@
     <FxCompile Include="gameGraphics\PS_Transformation.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="gameGraphics\Shaders\PS_Tile_debug.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\PS_Default.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>

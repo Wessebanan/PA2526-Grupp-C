@@ -12,6 +12,12 @@ namespace ecs
 {
 	namespace components
 	{
+		/*
+			All components below are 'singleton-components'. There exist exactly one
+			of each in the game, all attached to the same entity that we call the
+			graphics entity. He's a cool dude.
+		*/
+
 		struct RenderManagerComponent : public ECSComponent<RenderManagerComponent>
 		{
 			graphics::RenderManager mgr;

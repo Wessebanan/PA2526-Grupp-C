@@ -60,9 +60,6 @@
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="gameGraphics\TileUpdatePipeline.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -227,9 +224,6 @@
     <ClInclude Include="gameGraphics\TileRenderingPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="gameGraphics\TileUpdatePipeline.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -311,9 +305,6 @@
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl" />
     <FxCompile Include="gameUtility\VS_Tile.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="gameGraphics\Shaders\PS_Tile_debug.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

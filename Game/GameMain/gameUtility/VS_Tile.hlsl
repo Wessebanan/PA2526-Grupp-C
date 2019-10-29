@@ -43,14 +43,6 @@ cbuffer gSunOrto : register (b4)
 
 struct VSOUT
 {
-	/*
-		TODO:
-		normal
-		sun pos
-		View pos
-		Proj pos
-	*/
-
 	float4 pos			: SV_POSITION;
 	float4 sunPos		: POSITION1;
 
@@ -63,27 +55,13 @@ VSOUT main(uint VertexID : VertexStart)
 	VSOUT output;
 	Vertex vertex = gVertices[VertexID];
 
-	//output.pos = mul(gPerspective, mul(gView, float4(vertex.position, 1.0f)));
-	//output.sunPos = mul(gOrtographicsSun, mul(gViewSun, float4(vertex.position, 1.0f)));
-
-	////uint4 color = Unpack(vertex.color) / 255.0f;
-	//output.color = vertex.color.rgb;
-	////output.color = float3(1.0f, 0.f, 0.f);
-
-
-
-
-
 	float4 worldPos = float4(vertex.position.xyz, 1.0f);
 
 	output.pos = mul(gPerspective, mul(gView, worldPos));
 	output.sunPos = mul(gOrtographicsSun, mul(gViewSun, worldPos));
 
-	//float4 clr = unpack(gMesh[InstanceID].color) / 255.0f;
 	output.color = Unpack(vertex.color) / 255.0f;
 	output.normal = vertex.normal.xyz;
-	//output.normal = float3(0.f, 0.f, 1.f);
-
 
 	return output;
 }

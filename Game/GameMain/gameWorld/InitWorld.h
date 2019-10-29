@@ -140,8 +140,17 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 		UINT color;
 	};
 
+	/*
+		Fetch the tile mesh, in order to make copies of it into the vertex buffer.
+	*/
+
 	std::vector<XMFLOAT3>& r_mesh_vertices = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetVertexPositionVector();
 	std::vector<int>& r_mesh_indices = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetIndexVector();
+
+	/*
+		Fetch iterators for both map tiles and ocean tiles, so we can iterate them and
+		copy their positions in the world.
+	*/
 
 	TypeFilter map_filter;
 	TypeFilter ocean_filter;
@@ -154,9 +163,12 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 	ocean_filter.addRequirement(OceanTileComponent::typeID);
 	ocean_filter.addRequirement(TransformComponent::typeID);
 
-	// Fetch iterators on order to retrieve position of existing tiles
 	EntityIterator map_tiles = rEcs.getEntititesByFilter(map_filter);
 	EntityIterator ocean_tiles = rEcs.getEntititesByFilter(ocean_filter);
+
+	/*
+		Store count variables, used to calculate size of buffer.
+	*/
 
 	UINT map_tile_count = (UINT)map_tiles.entities.size();
 	UINT ocean_tile_count = (UINT)ocean_tiles.entities.size();
@@ -166,6 +178,11 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 	Vertex* vertex_buffer = new Vertex[r_mesh_indices.size() * total_tile_count];
 	UINT index_counter = 0;
 
+	/*
+		For now, instance_counter is mostly used for debug. With this, we know
+		exacly how many tiles are generated in the vertex buffer.
+		Instance_counter should become the same	number as total_tile_count.
+	*/
 	UINT instance_counter = 0;
 
 	// Pre define variables used for calculations in entity loops
@@ -175,16 +192,31 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 	TransformComponent* p_transform;
 
 	XMVECTOR xm_normal;
-	XMVECTOR xm_triangle[3];
+	XMVECTOR xm_triangle[3]; // Store the last three vertices read, in order to calculate normal
+
+	/*
+		Iterate all ocean tiles, copy their location and place a whole mesh with world position
+		in the vertex buffer.
+	*/
 
 	for (FilteredEntity& r_ocean_tile : ocean_tiles.entities)
 	{
+		/*
+			Create color and world matrix, used for all vertices within this tile.
+		*/
+
 		p_color = r_ocean_tile.getComponent<ColorComponent>();
 		p_transform = r_ocean_tile.getComponent<TransformComponent>();
 		xm_world = XMMatrixTranslation(p_transform->position.x, p_transform->position.y, p_transform->position.z);
 
 		for (int i : r_mesh_indices)
 		{
+			/*
+				Place every vertex in tile into vertex buffer.
+				For every third vertex, calculate the normal using
+				the two previous vertices and set the normal to all
+				three vertices used to calculate the normal.
+			*/
 
 			xm_pos = XMLoadFloat3(&r_mesh_vertices[i]);
 			xm_pos = XMVector3Transform(xm_pos, xm_world);
@@ -213,14 +245,30 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 		instance_counter++;
 	}
 
+	/*
+		Iterate all map tiles, copy their location and place a whole mesh with world position
+		in the vertex buffer.
+	*/
+
 	for (FilteredEntity& r_map_tile : map_tiles.entities)
 	{
+		/*
+			Create color and world matrix, used for all vertices within this tile.
+		*/
+
 		p_color = r_map_tile.getComponent<ColorComponent>();
 		p_transform = r_map_tile.getComponent<TransformComponent>();
 		xm_world = XMMatrixTranslation(p_transform->position.x, p_transform->position.y, p_transform->position.z);
 
 		for (int i : r_mesh_indices)
 		{
+			/*
+				Place every vertex in tile into vertex buffer.
+				For every third vertex, calculate the normal using
+				the two previous vertices and set the normal to all
+				three vertices used to calculate the normal.
+			*/
+
 			xm_pos = XMLoadFloat3(&r_mesh_vertices[i]);
 			xm_pos = XMVector3Transform(xm_pos, xm_world);
 

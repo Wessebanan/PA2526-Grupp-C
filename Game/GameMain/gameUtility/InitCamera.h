@@ -5,10 +5,8 @@
 
 void InitCamera(ecs::EntityComponentSystem& rECS)
 {
-
 	CameraEcsFunctions::CreateDevCamera(rECS);
+#ifdef _DEBUG
 	rECS.createSystem<ecs::systems::UpdateCameraSystem>();
-//#ifdef _DEBUG
-//	rECS.createSystem<ecs::systems::UpdateCameraSystem>();
-//#endif //_DEBUG
+#endif //_DEBUG
 }
