@@ -282,6 +282,7 @@ namespace graphics
 	{
 		graphics::SetViewport(pContext4, 0, 0, m_width, m_height);
 		pContext4->OMSetRenderTargets(1, &m_pSSAOTarget, NULL);
+
 		pContext4->PSSetShaderResources(4, 1, &m_pRandomNormals);
 	}
 

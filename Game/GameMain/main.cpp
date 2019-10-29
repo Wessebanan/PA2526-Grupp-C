@@ -257,18 +257,21 @@ int main()
 				shader_ssao_noise, 
 				shader_ssao_noise + 1);
 
-			//for (UINT i = 0; i < 10; i++)
-			//{
-			//	renderer_ssao.ExecutePipeline(
-			//		pipeline_blur,
-			//		shader_blur_h,
-			//		shader_blur_h + 1);
+			renderer_ssao.ExecutePipeline(
+				pipeline_blur,
+				shader_blur_h,
+				shader_blur_h + 1);
 
-			//	renderer_ssao.ExecutePipeline(
-			//		pipeline_ssao,
-			//		shader_blur_v,
-			//		shader_blur_v + 1);
-			//}
+			renderer_ssao.ExecutePipeline(
+				pipeline_ssao,
+				shader_blur_h,
+				shader_blur_h + 1);
+
+			// Not needed
+			//renderer_ssao.ExecutePipeline(
+			//	pipeline_blur,
+			//	shader_blur_h,
+			//	shader_blur_h + 1);
 
 			renderer_ssao.ExecutePipeline(
 				pipeline_combine,

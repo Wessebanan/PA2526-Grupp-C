@@ -13,6 +13,6 @@ float4 main(PSIN input) : SV_TARGET
 {
 	return 
 		float4(
-		gColorBuffer.Sample(gSampler, input.uv).rgb 
-		* gOcclusionMap.Sample(gSampler, input.uv).rrr, 1.0f);
+		gColorBuffer.Sample(gSampler, input.uv).rgb
+		* (1.0f - gOcclusionMap.Sample(gSampler, input.uv).rrr), 1.0f);
 }

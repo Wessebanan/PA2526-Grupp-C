@@ -13,27 +13,42 @@ struct PSIN
 
 float GetDepth(const float2 uv)
 {
-	return (gDepthMap.Sample(gSampler, uv).r - 0.5f) * 2.0f;
+	return (gDepthMap.Sample(gSampler, uv).r);
 }
 
 float main(PSIN input) : SV_TARGET
 { 
+	//float4 weights = float4(
+	//	0.0702702703, 
+	//	0.3162162162, 
+	//	0.3162162162, 
+	//	0.0702702703
+	//);
+
+	//float offsets[4] =
+	//{
+	//	-3.2307692308,
+	//	-1.3846153846,  
+	//	 1.3846153846,
+	//	 3.2307692308
+	//};
+
 	float4 weights = float4(
-		0.0702702703, 
-		0.3162162162, 
-		0.3162162162, 
-		0.0702702703
+		0.1f,
+		0.4f,
+		0.4f,
+		0.1f
 	);
 
-	float offsets[4] = 
-	{ 
-		-3.2307692308, 
-		-1.3846153846, 
-		 1.3846153846, 
-		 3.2307692308
+	float offsets[4] =
+	{
+		-0.004f,
+		-0.002f,
+		 0.002f,
+		 0.004f
 	};
 
-	float threshold = 0.0001f;
+	float threshold = 0.00001f;
 	float2 dir = float2(0.0f, 1.0f);
 
 	float center_occlusion	= gOcclusionMap.Sample(gSampler, input.uv).r;
@@ -56,5 +71,5 @@ float main(PSIN input) : SV_TARGET
 	float result		= dot(if_replacement * weights, samples);
 	float weigth_sum	= dot(if_replacement, weights);
 
-	return result * (1.0f / weigth_sum);
+	return 1.0f;
 }

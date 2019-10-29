@@ -36,7 +36,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	p_psmComp->pipelineDesc.Width = 35.0f;
 	p_psmComp->pipelineDesc.Height = 80.0f;
 	p_psmComp->pipelineDesc.NearPlane = 1.0f;
-	p_psmComp->pipelineDesc.FarPlane = 40.0f;
+	p_psmComp->pipelineDesc.FarPlane = 100.0f;
 	p_psmComp->pipeline = renderer.CreatePipeline(new graphics::ShadowMapPipeline, &p_psmComp->pipelineDesc);
 
 	p_pfComp->pipelineDesc.ClientWidth = clientWidth;

@@ -250,7 +250,7 @@ namespace graphics
 
 		float color[4] = { pData->Red, pData->Green, pData->Blue, 1.0f };
 		float color_clear[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		pContext4->ClearRenderTargetView(m_pRenderTargets[0], color_clear);
+		pContext4->ClearRenderTargetView(m_pRenderTargets[0], color);
 		pContext4->ClearRenderTargetView(m_pRenderTargets[1], color_clear);
 
 		pContext4->ClearDepthStencilView(m_pDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
