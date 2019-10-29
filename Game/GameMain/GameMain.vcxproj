@@ -47,7 +47,6 @@
     <Import Project="..\..\PropertySheets\Utility_Debug.props" />
     <Import Project="..\..\PropertySheets\Sound_Debug.props" />
     <Import Project="..\..\PropertySheets\Graphics_Debug.props" />
-
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -115,6 +114,7 @@
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
+    <ClCompile Include="gameWorld\UpdateOceanSystem.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
     <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
@@ -173,6 +173,7 @@
     <ClInclude Include="gameUtility\UtilitySystems.h" />
     <ClInclude Include="gameWorld\InitWorld.h" />
     <ClInclude Include="gameWorld\OceanComponents.h" />
+    <ClInclude Include="gameWorld\UpdateOceanSystem.h" />
     <ClInclude Include="gameWorld\WorldSettings.h" />
     <ClInclude Include="GraphicsComponents.h" />
     <ClInclude Include="Input\InitInterpreter.h" />

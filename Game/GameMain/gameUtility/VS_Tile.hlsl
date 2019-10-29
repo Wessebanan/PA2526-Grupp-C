@@ -58,7 +58,7 @@ VSOUT main(uint VertexID : VertexStart)
 	VSOUT output;
 	Vertex vertex = gVertices[VertexID];
 
-	vertex.position.y += (gHeight[floor(VertexID / 96)])[0];
+	vertex.position.y += (gHeight[floor(VertexID / 96.0f)])[0];
 	//vertex.position.y = VertexID / 96;
 
 	float4 worldPos = float4(vertex.position.xyz, 1.0f);

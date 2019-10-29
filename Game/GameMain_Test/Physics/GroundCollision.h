@@ -139,7 +139,7 @@
 		// Creating a grid for the ecs. Choosing a radius 
 		// that kind of makes sense with the model size 
 		// with no scaling of the dude.
-		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f);
+		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f, true);
 
 		// Messing with the y-values since they are all 0 right now.
 		ecs::TypeFilter filter;
@@ -216,7 +216,7 @@
 		// Creating a grid for the ecs. Choosing a radius 
 		// that kind of makes sense with the model size 
 		// with no scaling of the dude.
-		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f);
+		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f, true);
 
 		// Grabbing all tiles.
 		ecs::TypeFilter filter;
@@ -327,7 +327,7 @@
 		// Creating a grid for the ecs. Choosing a radius 
 		// that kind of makes sense with the model size 
 		// with no scaling of the dude.
-		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f);
+		GridEcsFunctions::CreateGrid(ecs, 12, 12, 10.0f, true);
 		ModelLoader::Mesh dude("Physics/TestModel/dude.fbx");
 
 		// Creating the dude that is supposed to collide with ground.
