@@ -94,5 +94,5 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(MESH_TYPE_GIANTSKULL, "../meshes/GiantSkull.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_TOWER, "../meshes/Tower.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../DudeMesh2.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../DudeMesh3.fbx");
 }
