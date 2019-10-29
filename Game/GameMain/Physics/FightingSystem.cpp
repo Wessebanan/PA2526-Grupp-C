@@ -102,6 +102,11 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	Entity* weapon = _entityInfo.entity;
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(weapon->getID());
 	TransformComponent* weapon_transform_component = getComponentFromKnownEntity<TransformComponent>(weapon->getID());
+	Entity* unit_entity = ECSUser::getEntity(weapon_component->mOwnerEntity);
+	if (unit_entity == nullptr)
+	{
+		return;
+	}
 
 	// FILL OUT WITH OTHER WEAPONS LATER
 	// Making a copy of the bounding volume for weapon.
@@ -220,6 +225,14 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		HealthComponent *collided_constitution = getComponentFromKnownEntity<HealthComponent>(collided_unit);
 
 		collided_constitution->mHealth -= damage;
+		if (collided_constitution->mHealth <= 0.0f)
+		{
+			if (!ECSUser::getEntity(collided_unit)->hasComponentOfType(DeadComponent::typeID))
+			{
+				ecs::components::DeadComponent dead_comp;
+				ecs::ECSUser::createComponent(collided_constitution->getEntityID(), dead_comp);
+			}
+		}
 	}
 	
 	weapon_component->mPreviousPos = weapon_bv->GetCenter();
