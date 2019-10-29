@@ -104,6 +104,8 @@ namespace ecs
 					}
 					case STATE::FLEE:
 					{
+						goal_id = FindSafeTile(entity.entity);
+						calc_path = true;
 						break;
 					}
 					default:
@@ -380,12 +382,15 @@ namespace ecs
 								for (int u = 0; u < armies[a]->unitIDs.size(); u++)
 								{
 									other_unit_id = armies[a]->unitIDs[u];
-									other_unit_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::UnitComponent>(other_unit_id);
-									if (current_unit_comp->playerID != other_unit_comp->playerID)
+									if (ecs::ECSUser::getEntity(other_unit_id) != NULL)
 									{
-										other_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(other_unit_id);
-										current_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
-										safe_value += abs(PhysicsHelpers::CalculateDistance(current_tile_transform->position, other_unit_transform->position));
+										other_unit_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::UnitComponent>(other_unit_id);
+										if (current_unit_comp->playerID != other_unit_comp->playerID)
+										{
+											other_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(other_unit_id);
+											current_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
+											safe_value += abs(PhysicsHelpers::CalculateDistance(current_tile_transform->position, other_unit_transform->position));
+										}
 									}
 								}
 							}
