@@ -281,7 +281,7 @@ namespace ecs
 
 		for (FilteredEntity& tile : p_iterator.entities)
 		{
-			height[index++] = tile.getComponent<components::TransformComponent>()->position.y;
+			height[index+=4] = tile.getComponent<components::TransformComponent>()->position.y;
 		}
 
 		TypeFilter map_filter;
@@ -292,7 +292,7 @@ namespace ecs
 
 		for (FilteredEntity& tile : p_iterator.entities)
 		{
-			height[index++] = tile.getComponent<components::TransformComponent>()->position.y;
+			height[index+=4] = tile.getComponent<components::TransformComponent>()->position.y;
 		}
 
 

@@ -207,7 +207,7 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 
 		p_color = r_ocean_tile.getComponent<ColorComponent>();
 		p_transform = r_ocean_tile.getComponent<TransformComponent>();
-		xm_world = XMMatrixTranslation(p_transform->position.x, p_transform->position.y, p_transform->position.z);
+		xm_world = XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
 
 		for (int i : r_mesh_indices)
 		{
@@ -258,7 +258,7 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 
 		p_color = r_map_tile.getComponent<ColorComponent>();
 		p_transform = r_map_tile.getComponent<TransformComponent>();
-		xm_world = XMMatrixTranslation(p_transform->position.x, p_transform->position.y, p_transform->position.z);
+		xm_world = XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
 
 		for (int i : r_mesh_indices)
 		{
