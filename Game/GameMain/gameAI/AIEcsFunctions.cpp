@@ -10,6 +10,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include "..//..//Graphics/includes/Window.h"
+
 
 namespace AIEcsFunctions
 {
@@ -24,25 +26,16 @@ namespace AIEcsFunctions
 		};
 
 		uint3 army_colors[4];
-
+		
 		army_colors[0] = { 200,   0,   0 };	// Red		Army 1
 		army_colors[1] = {  20,  20,  20 };	// Gray		Army 2
 		army_colors[2] = {   0, 100, 100 };	// Cyan		Army 3
 		army_colors[3] = { 100,   0, 100 };	// Purple	Army 4
 
 		/* END	*/
-		HWND hwnd = GetActiveWindow();
-		LPRECT rect = nullptr;
-		GetClientRect(hwnd, rect);
 
-		FLOAT client_width = 2048;
-		FLOAT client_height = 1153;
-
-		if (rect != nullptr)
-		{
-			client_width = rect->right;
-			client_height = rect->bottom;
-		}
+		FLOAT client_width = graphics::GetDisplayResolution().x;
+		FLOAT client_height = graphics::GetDisplayResolution().y;
 
 		FLOAT text_height = 100;
 		FLOAT text_width = 200;
