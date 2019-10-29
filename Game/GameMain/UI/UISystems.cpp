@@ -106,12 +106,12 @@ void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, floa
 	{
 		components::KeyboardComponent* pKeyboard = static_cast<components::KeyboardComponent*>(pBase);
 
-		if (pKeyboard->Q && !this->mPressedLastUpdate)
+		if (pKeyboard->E && !this->mPressedLastUpdate)
 		{
 			toRender = !toRender;
 			this->mPressedLastUpdate = true;
 		}
-		else if (!pKeyboard->Q)
+		else if (!pKeyboard->E)
 		{
 			this->mPressedLastUpdate = false;
 		}
