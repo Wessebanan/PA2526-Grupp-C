@@ -8,5 +8,6 @@
 
 void InitArmy(ecs::EntityComponentSystem& rECS)
 {
-	AIEcsFunctions::CreatePlayerArmies(rECS);
+	AIEcsFunctions::CreatePlayers(rECS);
+	AIEcsFunctions::CreateUnits(rECS);
 }
