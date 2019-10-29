@@ -199,8 +199,9 @@ void InitAll(EntityComponentSystem& rECS)
 
 	InitCamera(rECS);
 
+	InitAnimation(rECS);
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
-
+	
 	InitGraphicsRenderSystems(rECS);
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
@@ -210,9 +211,9 @@ void InitAll(EntityComponentSystem& rECS)
 	e.playerId = PLAYER1;
 	rECS.createEvent(e);
 	e.playerId = PLAYER2;
-	rECS.createEvent(e);
+	//rECS.createEvent(e);
 	e.playerId = PLAYER3;
 	rECS.createEvent(e);
 	e.playerId = PLAYER4;
-	rECS.createEvent(e);
+	//rECS.createEvent(e);
 }

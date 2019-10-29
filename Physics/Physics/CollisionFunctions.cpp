@@ -1,13 +1,14 @@
 #include "CollisionFunctions.h"
 
-void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const XMVECTOR& center_world, const XMVECTOR& colliding_center_world, const float& delta)
+void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const AABB* colliding_world, const AABB* collided_world, const float& delta)
 {
 	// Getting a vector between the centers of the bounding volumes.
-	DirectX::XMVECTOR v_diff = DirectX::XMVectorSubtract(center_world, colliding_center_world);
+	DirectX::XMVECTOR v_diff = DirectX::XMVectorSubtract(XMLoadFloat3(&colliding_world->Center), XMLoadFloat3(&collided_world->Center));
 	DirectX::XMFLOAT3 diff;
 	DirectX::XMStoreFloat3(&diff, v_diff);
 
-	diff = XMFLOAT3(fabs(diff.x), fabs(diff.y), fabs(diff.z));
+	// Getting the magnitude of the differences in each direction.
+	XMFLOAT3 fabs_diff = XMFLOAT3(fabs(diff.x), fabs(diff.y), fabs(diff.z));
 
 	// Checking that the object is not trying to move away from the colliding object.
 	XMVECTOR v_velocity = XMLoadFloat3(&velocity);
@@ -24,33 +25,43 @@ void RevertMovement(XMFLOAT3& position, XMFLOAT3& velocity, const XMVECTOR& cent
 		return;
 	}
 
-	// Saving a 1 in the direction of the largest component in the vector.
 	bool x = false;
 	bool y = false;
 	bool z = false;
 
-	if (diff.x > diff.y && diff.x > diff.z)
+	float overlap = 0.0f;
+	int sign = 0;
+	// Saving a 1 in the direction of the largest component in the vector and getting the overlap in that direction.
+	if (/*fabs_diff.x > fabs_diff.y &&*/ fabs_diff.x > fabs_diff.z)
 	{
+		sign = Sign(diff.x);
+		overlap = colliding_world->Extents.x + collided_world->Extents.x - fabs_diff.x;
 		x = true;
 	}
-	else if (diff.y > diff.x && diff.y > diff.z)
+	else if (fabs_diff.z > fabs_diff.x /*&& fabs_diff.z > fabs_diff.y*/)
 	{
-		y = true;
+		sign = Sign(diff.z);
+		overlap = colliding_world->Extents.z + collided_world->Extents.z - fabs_diff.z;
+		z = true;
 	}
 	else
 	{
-		z = true;
+		sign = Sign(diff.y);
+		overlap = colliding_world->Extents.y + collided_world->Extents.y - fabs_diff.y;
+		y = true;
 	}
 
-	// Reverting the movement in that direction.
-	position.x -= velocity.x * delta * (float)x;
-	position.y -= velocity.y * delta * (float)y;
-	position.z -= velocity.z * delta * (float)z;
+	float movement = sign * overlap;
 
-	// Resetting the velocity in that direction.
-	velocity.x *= (float)!x;
-	velocity.y *= (float)!y;
-	velocity.z *= (float)!z;
+	// Reverting the movement in that direction.
+	position.x += movement * (float)x;
+	position.y += movement * (float)y;
+	position.z += movement * (float)z;
+
+	// Flipping the velocity in that direction.
+	velocity.x *= (float)(!x*2.0f)-1.0f;
+	velocity.y *= (float)(!y*2.0f)-1.0f;
+	velocity.z *= (float)(!z*2.0f)-1.0f;
 }
 
 //void CreateOBB(DirectX::XMFLOAT3(&vertices)[8], const DirectX::XMFLOAT3& min_point, const DirectX::XMFLOAT3& max_point)

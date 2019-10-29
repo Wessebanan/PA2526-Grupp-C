@@ -4,6 +4,7 @@
 #include "../gameUtility/UtilityEcsFunctions.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
 #include "../gameWorld/OceanComponents.h"
+#include "../gameAnimation/AnimationComponents.h"
 
 static inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3) {
 	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
@@ -34,10 +35,12 @@ namespace ecs
 			typeFilter.addRequirement(components::UnitComponent::typeID);
 			typeFilter.addRequirement(components::TransformComponent::typeID);
 			typeFilter.addRequirement(components::ColorComponent::typeID);
+			typeFilter.addRequirement(components::SkeletonComponent::typeID);
 
 			mInstanceLayout = { 0 };
 
 			mpSkeleton = MeshContainer::GetMeshCPU(MESH_TYPE_UNIT)->GetSkeleton();
+			mpSkeleton->StartAnimation(ModelLoader::ANIMATION_TYPE::MOVE);
 		}
 
 		UnitRenderSystem::~UnitRenderSystem()
@@ -53,12 +56,17 @@ namespace ecs
 			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mUnitCount * GetPerInstanceSize());
 
+			// Update animation in skeleton
+			mpSkeleton->UpdateAnimation(_delta);
+
 			// Iterate all units and write their data to the RenderBuffer
 			int index = 0;
+
 			for (FilteredEntity unit : _entities.entities)
 			{
 				components::TransformComponent* p_transform_comp = unit.getComponent<ecs::components::TransformComponent>();
 				components::ColorComponent* p_color_comp = unit.getComponent<ecs::components::ColorComponent>();
+				components::SkeletonComponent* p_skeleton_comp = unit.getComponent<ecs::components::SkeletonComponent>();
 				DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 
 				XMStoreFloat4x4(&mpBuffer[index].world, world);
@@ -71,20 +79,11 @@ namespace ecs
 
 				memcpy(
 					mpBuffer[index].boneMatrices,
-					&mpSkeleton->animationData[mAnimationFrameCounter * mpSkeleton->jointCount],
+					p_skeleton_comp->skeletonData.frameData,
 					mpSkeleton->jointCount * sizeof(DirectX::XMFLOAT4X4));
 
 				index++;
 			}
-
-			// Update animation every 5th frame
-			mFrameCounter++;
-			if (mFrameCounter % 5 == 0)
-			{
-				mFrameCounter = 0;
-				mAnimationFrameCounter = ++mAnimationFrameCounter % mpSkeleton->frameCount;
-			}
-
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 

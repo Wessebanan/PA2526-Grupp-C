@@ -60,6 +60,9 @@
     <ClCompile Include="UI\UISystems.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="gameAnimation\AnimationSystems.cpp">
+      <Filter>Animation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -217,6 +220,12 @@
     </ClInclude>
     <ClInclude Include="gameWorld\OceanComponents.h">
       <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAnimation\AnimationComponents.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAnimation\AnimationSystems.h">
+      <Filter>Animation</Filter>
     </ClInclude>
     <ClInclude Include="UI\UISystems.h">
       <Filter>UI</Filter>
