@@ -450,15 +450,19 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			GameLoopComponent* p_gl;
 			while (p_gl = static_cast<GameLoopComponent*>(itt.next()))
 			{
-				cout << "The round winner is Player " << winner << endl;
 				p_gl->mPlayerPoints[winner]++;
 
 				// Check if the winner has won enougth to win the game
 				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN)
 				{
+					cout << "The round winner is Player " << winner << endl;
 					// Can be reworked to start prep phase
 					events::RoundStartEvent eve;
 					createEvent(eve);
+				}
+				else
+				{
+					// What to do when a player has won
 				}
 			}
 		}
