@@ -206,9 +206,9 @@ void InitAll(EntityComponentSystem& rECS)
 	rECS.createEvent(e);
 	e.newState = FLEE;
 	e.playerId = PLAYER2;
-	//rECS.createEvent(e);
+	rECS.createEvent(e);
 	e.playerId = PLAYER3;
 	rECS.createEvent(e);
 	e.playerId = PLAYER4;
-	//rECS.createEvent(e);
+	rECS.createEvent(e);
 }
