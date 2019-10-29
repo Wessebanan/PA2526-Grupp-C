@@ -178,8 +178,8 @@ void InitAll(EntityComponentSystem& rECS)
 	InitMeshes(rECS);
 	InitGraphicsPreRenderSystems(rECS);
 
-	//InitSound(rECS);
-	//InitSong(rECS);
+	InitSound(rECS);
+	InitSong(rECS);
 
 	InitAI(rECS);
 
