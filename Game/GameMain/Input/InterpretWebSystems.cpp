@@ -1,5 +1,6 @@
 #include "../Input/InterpretWebSystems.h"
 #include "../gameAudio/AudioECSEvents.h"
+#include "../gameAnimation/AnimationEvents.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -27,16 +28,16 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 	{
 		for (size_t i = 0; i < 4; i++)
 		{
+			// CURRENTLY HIJACKED AS THE "PING" bBUTTON
 			if (ucComp->userCommands[i].mCommand == "move" && mCurrStates[i] != STATE::MOVE)
 			{
 				// change state component
-				events::ChangeUserStateEvent cus_event;
-				cus_event.newState = STATE::MOVE;
-				cus_event.playerId = (PLAYER)i;
+				events::PingEvent ping_event;
+				ping_event.playerId = (PLAYER)i;
 
 				mCurrStates[i] = STATE::MOVE;
 
-				createEvent(cus_event);
+				createEvent(ping_event);
 			}
 			else if (ucComp->userCommands[i].mCommand == "idle" && mCurrStates[i] != STATE::IDLE)
 			{

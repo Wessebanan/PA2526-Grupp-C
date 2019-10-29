@@ -13,6 +13,8 @@
 #include "../../Physics/includes/PhysicsHelperFunctions.h"
 #include "../gameAnimation/AnimationComponents.h"
 
+#include "../UI/UIComponents.h"
+
 #include "../../AI/includes/AIGlobals.h"
 
 
@@ -802,7 +804,28 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{	
-				std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
+				// saved fo future use
+				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
+				UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
+
+				ComponentIterator itt = getComponentsOfType<ArmyComponent>();
+
+				ArmyComponent* p_army;
+				while (p_army = (ArmyComponent*)itt.next())
+				{
+
+					if (p_army->playerID == p_unit->playerID)
+					{
+						for (int i = 0; i < p_army->unitIDs.size(); i++)
+						{
+							if (p_army->unitIDs[i] == entity.entity->getID())
+							{
+								p_army->unitIDs.erase(p_army->unitIDs.begin() + i);
+							}
+						}
+					}
+				}
+
 				ecs::ECSUser::removeEntity(entity.entity->getID());
 			}
 		};
@@ -822,24 +845,51 @@ namespace ecs
 			virtual ~SwitchStateSystem() {}
 			void readEvent(BaseEvent& event, float delta) override
 			{
-				//Save values for easier use.
-				int player = static_cast<ecs::events::ChangeUserStateEvent*>(&event)->playerId;
-				STATE state = static_cast<ecs::events::ChangeUserStateEvent*>(&event)->newState;
-				//Find the correct player for the event.
-				int i = 0;
-				ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::ArmyComponent::typeID);
-				ecs::components::ArmyComponent* p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
-				while (i < player)
+				if (event.getTypeID() == ecs::events::ChangeUserStateEvent::typeID)
 				{
-					p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
-					i++;
-				}
-				//Loop through the players units and remove their old state component.
-				ecs::Entity* unit;
-				for (int u = 0; u < p_army->unitIDs.size(); u++)
-				{
-					ID entity_id = p_army->unitIDs[u];
-					unit = ecs::ECSUser::getEntity(entity_id);
+					//Save values for easier use.
+					int player = static_cast<ecs::events::ChangeUserStateEvent*>(&event)->playerId;
+					STATE state = static_cast<ecs::events::ChangeUserStateEvent*>(&event)->newState;
+					//Find the correct player for the event.
+					int i = 0;
+					ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::ArmyComponent::typeID);
+					ecs::components::ArmyComponent* p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
+					while (i < player)
+					{
+						p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
+						i++;
+					}
+
+					// Chagne the command on the UI
+					ecs::BaseComponent* p_base_comp = getComponentFromKnownEntity<ecs::components::UITextComponent>(p_army->getEntityID());
+
+					ecs::components::UITextComponent* p_text_comp = static_cast<ecs::components::UITextComponent*>(p_base_comp);
+
+					switch (state)
+					{
+					case STATE::IDLE:
+						p_text_comp->mStrText = "IDLE";
+						break;
+					case STATE::LOOT:
+						p_text_comp->mStrText = "LOOT";
+						break;
+					case STATE::ATTACK:
+						p_text_comp->mStrText = "ATTACK";
+						break;
+					case STATE::MOVE:
+						p_text_comp->mStrText = "MOVE";
+						break;
+					default:
+						p_text_comp->mStrText = "no case for state";
+						break;
+					}
+
+					//Loop through the players units and remove their old state component.
+					ecs::Entity* unit;
+					for (int u = 0; u < p_army->unitIDs.size(); u++)
+					{
+						ID entity_id = p_army->unitIDs[u];
+						unit = ecs::ECSUser::getEntity(entity_id);
 
 					ecs::ECSUser::removeComponent(entity_id, ecs::components::MoveStateComponent::typeID);
 					ecs::ECSUser::removeComponent(entity_id, ecs::components::IdleStateComponent::typeID);
