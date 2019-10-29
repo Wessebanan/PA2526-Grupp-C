@@ -33,7 +33,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::PipelineForwardComponent* p_pfComp = rEcs.getComponentFromEntity<components::PipelineForwardComponent>(graphics_entity_id);
 
 	p_psmComp->pipelineDesc.PixelsWidth = 2048;
-	p_psmComp->pipelineDesc.Width = 35.0f;
+	p_psmComp->pipelineDesc.Width = 60.0f;
 	p_psmComp->pipelineDesc.Height = 80.0f;
 	p_psmComp->pipelineDesc.NearPlane = 1.0f;
 	p_psmComp->pipelineDesc.FarPlane = 100.0f;

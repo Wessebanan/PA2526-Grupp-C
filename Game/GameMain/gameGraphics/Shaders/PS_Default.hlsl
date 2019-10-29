@@ -49,7 +49,6 @@ PSOUT main(PSIN input)
 	PSOUT output = (PSOUT)0;
 
 	const float3 cam_dir = -float3(1.2f, -0.7f, 1.0f);
-
 	float illu = saturate(dot(cam_dir, input.normal));
 
 	float in_shadow		= shadow(input.sunPos.xy, input.sunPos.z);
