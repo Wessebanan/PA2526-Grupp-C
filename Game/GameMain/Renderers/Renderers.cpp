@@ -56,8 +56,6 @@ namespace ecs
 			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mUnitCount * GetPerInstanceSize());
 
-			// Update animation in skeleton
-			mpSkeleton->UpdateAnimation(_delta);
 
 			// Iterate all units and write their data to the RenderBuffer
 			int index = 0;

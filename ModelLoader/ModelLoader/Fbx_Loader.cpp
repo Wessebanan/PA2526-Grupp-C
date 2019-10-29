@@ -331,7 +331,7 @@ namespace {
 					// Get animation information
 					FbxTime start = curr_anim_stack->GetLocalTimeSpan().GetStart();
 					FbxTime end = curr_anim_stack->GetLocalTimeSpan().GetStop();
-					unsigned long long animation_length = (unsigned long long)(end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1);
+					unsigned long long animation_length = (unsigned long long)(end.GetFrameCount(FbxTime::eFrames60) - start.GetFrameCount(FbxTime::eFrames60) + 1);
 
 					// Create the AnimationSet for this animation
 					ModelLoader::AnimationSet tempAnimSet;
@@ -354,12 +354,12 @@ namespace {
 						curr_joint->mAnimationVector.reserve(animation_length); // LEGACY CODE
 
 						unsigned int loopCounter = 0;
-						for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+						for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames60); i <= end.GetFrameCount(FbxTime::eFrames60); ++i)
 						{
 							ModelLoader::KeyFrame current_keyframe;
 
 							FbxTime curr_time;
-							curr_time.SetFrame(i, FbxTime::eFrames24);
+							curr_time.SetFrame(i, FbxTime::eFrames60);
 
 							current_keyframe.mFrameNum = i;
 
