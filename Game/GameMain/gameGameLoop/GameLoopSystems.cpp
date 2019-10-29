@@ -79,35 +79,42 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 
 	while (p_army_comp = (ArmyComponent*)itt.next())
 	{
-		bool check_alive = false;
-
-		for (size_t i = 0; i < p_army_comp->unitIDs.size(); i++)
+		if (p_army_comp->unitIDs.size() > 0)
 		{
-			int entID = p_army_comp->unitIDs[i];
-			HealthComponent* p_hp = (HealthComponent*)getComponentFromKnownEntity< HealthComponent>(entID);
-
-			if (p_hp > 0)
-			{
-				check_alive = true;
-				//break;
-			}
-		}
-
-		if (check_alive)
-		{
-			// The armt has a alive unit
 			check_any_live++;
-			UnitComponent* p_unit = (UnitComponent*)getComponentFromKnownEntity< UnitComponent>(p_army_comp->unitIDs[0]);
-			alive_player = p_unit->playerID;
+			alive_player = p_army_comp->playerID;
 		}
+
+
+		//bool check_alive = false;
+
+		//for (size_t i = 0; i < p_army_comp->unitIDs.size(); i++)
+		//{
+		//	int entID = p_army_comp->unitIDs[i];
+		//	HealthComponent* p_hp = (HealthComponent*)getComponentFromKnownEntity< HealthComponent>(entID);
+
+		//	if (p_hp > 0)
+		//	{
+		//		check_alive = true;
+		//		//break;
+		//	}
+		//}
+
+		//if (check_alive)
+		//{
+		//	// The armt has a alive unit
+		//	check_any_live++;
+		//	UnitComponent* p_unit = (UnitComponent*)getComponentFromKnownEntity< UnitComponent>(p_army_comp->unitIDs[0]);
+		//	alive_player = p_unit->playerID;
+		//}
 	}
 
 	// There is one winner
 	if (check_any_live == 1)
 	{
-		//events::RoundEndEvent eve;
-		//eve.winner = alive_player;
-		//createEvent(eve);
+		events::RoundEndEvent eve;
+		eve.winner = alive_player;
+		createEvent(eve);
 		
 	}
 }
@@ -183,9 +190,9 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		e.playerId = PLAYER1;
 		createEvent(e);
 		e.playerId = PLAYER2;
-		//createEvent(e);
+		createEvent(e);
 		e.playerId = PLAYER3;
-		//createEvent(e);
+		createEvent(e);
 		e.playerId = PLAYER4;
 		createEvent(e);
 
@@ -443,6 +450,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			GameLoopComponent* p_gl;
 			while (p_gl = static_cast<GameLoopComponent*>(itt.next()))
 			{
+				cout << "The round winner is Player " << winner << endl;
 				p_gl->mPlayerPoints[winner]++;
 
 				// Check if the winner has won enougth to win the game

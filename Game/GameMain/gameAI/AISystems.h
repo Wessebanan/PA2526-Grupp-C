@@ -747,7 +747,28 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{	
-				std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
+				// saved fo future use
+				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
+				UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
+
+				ComponentIterator itt = getComponentsOfType<ArmyComponent>();
+
+				ArmyComponent* p_army;
+				while (p_army = (ArmyComponent*)itt.next())
+				{
+
+					if (p_army->playerID == p_unit->playerID)
+					{
+						for (int i = 0; i < p_army->unitIDs.size(); i++)
+						{
+							if (p_army->unitIDs[i] == entity.entity->getID())
+							{
+								p_army->unitIDs.erase(p_army->unitIDs.begin() + i);
+							}
+						}
+					}
+				}
+
 				ecs::ECSUser::removeEntity(entity.entity->getID());
 			}
 		};

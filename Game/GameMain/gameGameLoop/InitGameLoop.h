@@ -5,11 +5,11 @@
 void InitGameLoop(ecs::EntityComponentSystem& rECS)
 {
 	rECS.createSystem<ecs::systems::GameLoopSystem>();
-	rECS.createSystem<ecs::systems::GameLoopAliveSystem>(3);
+	rECS.createSystem<ecs::systems::GameLoopAliveSystem>(1);
 
 	rECS.createSystem<ecs::systems::GameStartSystem>(0);
-	rECS.createSystem<ecs::systems::RoundOverSystem>(0);
-	rECS.createSystem<ecs::systems::RoundStartSystem>(1);
+	rECS.createSystem<ecs::systems::RoundOverSystem>(2);
+	rECS.createSystem<ecs::systems::RoundStartSystem>(3);
 
 	ecs::components::GameLoopComponent gameloop_comp;
 	gameloop_comp.mPlayerPoints[0] = 0;
