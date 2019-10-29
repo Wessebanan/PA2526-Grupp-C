@@ -15,7 +15,8 @@
 
 
 #define BITMAP_NAME_LENGTH 10
-#define COLOR_BRUSHES 6
+#define COLOR_BRUSHES 8
+#define NR_OF_FORMATS 3
 //struct BitmapInfo
 //{
 //	ID2D1Bitmap* bitmap = nullptr;
@@ -32,6 +33,12 @@ enum brushColors
 	Purple	= 5,
 	Gray	= 6,
 	Cyan	= 7
+};
+enum text_sizes
+{
+	small_text	= 0,
+	medium_text = 1,
+	large_text	= 2
 };
 
 struct cmp_str
@@ -82,7 +89,7 @@ public:
 
 	bool PrintText(std::string text, RECT rect);
 	bool PrintDebug(std::string text); // debug printer thing
-	bool PrintText(std::string text, D2D1_RECT_F rect, brushColors color); //only one used in ECS atm
+	bool PrintText(std::string text, D2D1_RECT_F rect, brushColors color, int size = 2); //only one used in ECS atm
 	bool PrintText(std::string text, int left, int top, int right, int bottom);
 
 	void setTextColor(float r, float g, float b, float a); //not in use atm by ECS
@@ -109,8 +116,9 @@ private:
 	
 	IDWriteFactory7* mpTextFactory; //factory used for text
 	DWRITE_TRIMMING mTrimmer; //used for text format
-	IDWriteTextFormat* mpTextFormat; //things like font and size
+	//IDWriteTextFormat* mpTextFormat; //things like font and size
 	IDWriteTextFormat* mpDebugTextFormat;
+	IDWriteTextFormat* mpTextFormats[NR_OF_FORMATS];
 
 	ID2D1Factory1* mpFactory; //d2d1 factory
 	ID2D1Device* mpDevice;
@@ -143,6 +151,7 @@ private:
 	HRESULT mCreateColorText();
 	HRESULT mCreateColorDraw();
 	HRESULT mCreateColorBrushes();
+	HRESULT mCreateTextFormats();
 	HRESULT LoadImageToBitmap(std::string imageFilePath);
 	std::wstring mStrToWstrConverter(std::string str); //covert string to wstring
 

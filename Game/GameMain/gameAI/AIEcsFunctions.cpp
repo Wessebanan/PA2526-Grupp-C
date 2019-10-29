@@ -31,6 +31,23 @@ namespace AIEcsFunctions
 		army_colors[3] = { 100,   0, 100 };	// Purple	Army 4
 
 		/* END	*/
+		HWND hwnd = GetActiveWindow();
+		LPRECT rect = nullptr;
+		GetClientRect(hwnd, rect);
+
+		FLOAT client_width = 2048;
+		FLOAT client_height = 1153;
+
+		if (rect != nullptr)
+		{
+			client_width = rect->right;
+			client_height = rect->bottom;
+		}
+
+		FLOAT text_height = 100;
+		FLOAT text_width = 200;
+		FLOAT unit_text_height = 75;
+		FLOAT unit_text_width = 100;
 
 
 		//Set seed
@@ -90,6 +107,50 @@ namespace AIEcsFunctions
 						transform.position.z = p_transform->position.z - (float(TILE_RADIUS) / divider);
 					}
 
+					/*switch (i) //in progress of making text for each army
+					{
+					case 0:
+						text_pos_comp.mDrawArea.top = 0;
+						text_pos_comp.mDrawArea.bottom = unit_text_height;
+						text_pos_comp.mDrawArea.left = 0;
+						text_pos_comp.mDrawArea.right = unit_text_width;
+
+						text_color_comp.mColor = brushColors::Red;
+						break;
+					case 1:
+						text_pos_comp.mDrawArea.top = 0;
+						text_pos_comp.mDrawArea.bottom = unit_text_height;
+						text_pos_comp.mDrawArea.left = client_width - unit_text_width;
+						text_pos_comp.mDrawArea.right = client_width;
+
+						text_color_comp.mColor = brushColors::Gray;
+						break;
+					case 2:
+						text_pos_comp.mDrawArea.top = client_height - unit_text_height;
+						text_pos_comp.mDrawArea.bottom = client_height;
+						text_pos_comp.mDrawArea.left = 0;
+						text_pos_comp.mDrawArea.right = unit_text_width;
+
+						text_color_comp.mColor = brushColors::Cyan;
+						break;
+					case 3:
+						text_pos_comp.mDrawArea.top = client_height - unit_text_height;
+						text_pos_comp.mDrawArea.bottom = client_height;
+						text_pos_comp.mDrawArea.left = client_width - unit_text_width;
+						text_pos_comp.mDrawArea.right = client_width;
+
+						text_color_comp.mColor = brushColors::Purple;
+						break;
+					default:
+						text_pos_comp.mDrawArea.top = 100;
+						text_pos_comp.mDrawArea.bottom = 200;
+						text_pos_comp.mDrawArea.left = 100;
+						text_pos_comp.mDrawArea.right = 200;
+
+						text_color_comp.mColor = brushColors::Black;
+						break;
+					}*/
+
 					// set scale to fit on tile
 					transform.scale.x = 0.1f;
 					transform.scale.y = 0.1f;
@@ -106,21 +167,7 @@ namespace AIEcsFunctions
 				
 			}
 
-			HWND hwnd = GetActiveWindow();
-			LPRECT rect = nullptr;
-			GetClientRect(hwnd, rect);
 			
-			FLOAT client_width = 2048;
-			FLOAT client_height = 1153;
-
-			if (rect != nullptr)
-			{
-				client_width = rect->right;
-				client_height = rect->bottom;
-			}
-
-			FLOAT text_height = 100;
-			FLOAT text_width = 200;
 			switch (i)
 			{
 			case 0:

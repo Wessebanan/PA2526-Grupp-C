@@ -12,8 +12,8 @@ Direct2D::Direct2D()
 	this->mpBitmapSrc = nullptr;
 	this->mpFailBitmap = nullptr;
 	this->mpWicFactory = nullptr;
-	this->mpTextFormat = nullptr;
 	this->mpTextFactory = nullptr;
+	//this->mpTextFormat = nullptr; not in use right now but dont want to remove because it will be harder to fix if its needed
 	this->mpFormatConverter = nullptr;
 	this->mpDebugTextFormat = nullptr;
 	this->mpBackbufferBitmap = nullptr;
@@ -38,8 +38,8 @@ Direct2D::~Direct2D()
 	if (this->mpFactory != nullptr)
 		this->mpFactory->Release();
 
-	if (this->mpTextFormat != nullptr)
-		this->mpTextFormat->Release();
+	//if (this->mpTextFormat != nullptr)
+	//	this->mpTextFormat->Release();
 
 	if (this->mpDebugTextFormat != nullptr)
 		this->mpDebugTextFormat->Release();
@@ -82,6 +82,14 @@ Direct2D::~Direct2D()
 	{
 		pair.second->Release();
 	}
+	for (int i = 0; i < COLOR_BRUSHES; i++)
+	{
+		this->mColorBrushes[i]->Release();
+	}
+	for (int i = 0; i < NR_OF_FORMATS; i++)
+	{
+		this->mpTextFormats[i]->Release();
+	}
 }
 
 HRESULT Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a render target that is a window,needs a window handle and how large you want the rendertarget
@@ -99,8 +107,8 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a re
 		this->mpHwndRenderTarget->AddRef(); //add reference counter
 		hr = this->mCreateColorText();
 		hr = this->mCreateColorDraw();
-		hr = this->mCreateTextFormat(this->mfont,this->mfontSize,&this->mpTextFormat);
-		this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
+		//hr = this->mCreateTextFormat(this->mfont,this->mfontSize,&this->mpTextFormat);
+		//this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 		hr = this->mCreateTextFormat(L"Times New Roman",20,&this->mpDebugTextFormat);//textformat for debug
 		this->mpDebugTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 		hr = this->mCreateColorBrushes();
@@ -131,8 +139,8 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, int width, int height)
 		this->mpHwndRenderTarget->AddRef(); //add reference counter
 		hr = this->mCreateColorText();
 		hr = this->mCreateColorDraw();
-		hr = this->mCreateTextFormat(this->mfont, this->mfontSize, &this->mpTextFormat);
-		this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
+		//hr = this->mCreateTextFormat(this->mfont, this->mfontSize, &this->mpTextFormat);
+		//this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 		hr = this->mCreateTextFormat(L"Times New Roman", 20, &this->mpDebugTextFormat);//textformat for debug
 		this->mpDebugTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 		hr = this->mCreateColorBrushes();
@@ -159,11 +167,12 @@ void Direct2D::InitDeviceAndContext(IDXGIDevice* dxgiDevice) //takes DXGIdevice 
 			this->mDeviceContextCreated = true;
 			hr = this->mCreateColorText();
 			hr = this->mCreateColorDraw();
-			hr = this->mCreateTextFormat(this->mfont, this->mfontSize, &this->mpTextFormat);
-			this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
+			//hr = this->mCreateTextFormat(this->mfont, this->mfontSize, &this->mpTextFormat);
+			//this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 			hr = this->mCreateTextFormat(L"Times New Roman", 20, &this->mpDebugTextFormat);//textformat for debug
 			this->mpDebugTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 			hr = this->mCreateColorBrushes();
+			this->mCreateTextFormats();
 			this->LoadImageToBitmap("fail.png");
 		}
 }
@@ -272,7 +281,7 @@ bool Direct2D::PrintText(std::string text, RECT rect) //draws text with format, 
 	D2D1_RECT_F layoutRect = D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom);
 	if (this->mDeviceContextCreated)
 	{
-		this->mpContext->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormat, layoutRect, this->mpColorText);
+		this->mpContext->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormats[2], layoutRect, this->mpColorText);
 	}
 	return this->mDeviceContextCreated;
 }
@@ -292,12 +301,12 @@ bool Direct2D::PrintDebug(std::string text)
 	return this->mDeviceContextCreated;
 }
 
-bool Direct2D::PrintText(std::string text, D2D1_RECT_F rect, brushColors color)
+bool Direct2D::PrintText(std::string text, D2D1_RECT_F rect, brushColors color, int size)
 {
 	std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
 	if (this->mDeviceContextCreated)
 	{
-		this->mpContext->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormat, rect, this->mColorBrushes[color]);
+		this->mpContext->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormats[size], rect, this->mColorBrushes[color]);
 	}
 	return this->mHwndRenderTargetCreated;
 }
@@ -309,7 +318,7 @@ bool Direct2D::PrintText(std::string text, int left, int top, int right, int bot
 	D2D1_RECT_F layoutRect = D2D1::RectF(left, top, right, bottom);
 	if (this->mDeviceContextCreated)
 	{
-		this->mpContext->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormat, layoutRect, this->mpColorText);
+		this->mpContext->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormats[2], layoutRect, this->mpColorText);
 	}
 	return this->mDeviceContextCreated;
 }
@@ -329,43 +338,43 @@ void Direct2D::setBrushColor(char* name, float r, float g, float b, float a)
 	this->mBrushMap.at(name)->SetColor(D2D1::ColorF(r, g, b, a));
 }
 
-HRESULT Direct2D::setTextSize(unsigned int size)//updates the text format
-{
-	HRESULT hr = this->mpTextFactory->CreateTextFormat(
-		this->mfont.c_str(),
-		NULL,
-		DWRITE_FONT_WEIGHT_NORMAL,
-		DWRITE_FONT_STYLE_NORMAL,
-		DWRITE_FONT_STRETCH_NORMAL,
-		size,
-		L"en-US",
-		&this->mpTextFormat
-	);
-	this->mpTextFormat->SetTrimming(&this->mTrimmer, NULL);
-	this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
-	this->mpTextFormat->AddRef();
-	return hr;
-}
-
-HRESULT Direct2D::setFont(std::string font)//updates the text format
-{
-	std::wstring w_font = this->mStrToWstrConverter(font);
-	this->mfont = w_font;
-	HRESULT hr = this->mpTextFactory->CreateTextFormat(
-		this->mfont.c_str(),
-		NULL,
-		DWRITE_FONT_WEIGHT_NORMAL,
-		DWRITE_FONT_STYLE_NORMAL,
-		DWRITE_FONT_STRETCH_NORMAL,
-		this->mfontSize,
-		L"en-US",
-		&this->mpTextFormat
-	);
-	this->mpTextFormat->SetTrimming(&this->mTrimmer, NULL);
-	this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
-	this->mpTextFormat->AddRef();
-	return hr;
-}
+//HRESULT Direct2D::setTextSize(unsigned int size)//updates the text format //was used for a general text format dont know if it will be needed later
+//{
+//	HRESULT hr = this->mpTextFactory->CreateTextFormat(
+//		this->mfont.c_str(),
+//		NULL,
+//		DWRITE_FONT_WEIGHT_NORMAL,
+//		DWRITE_FONT_STYLE_NORMAL,
+//		DWRITE_FONT_STRETCH_NORMAL,
+//		size,
+//		L"en-US",
+//		&this->mpTextFormat
+//	);
+//	this->mpTextFormat->SetTrimming(&this->mTrimmer, NULL);
+//	this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
+//	this->mpTextFormat->AddRef();
+//	return hr;
+//}
+//
+//HRESULT Direct2D::setFont(std::string font)//updates the text format
+//{
+//	std::wstring w_font = this->mStrToWstrConverter(font);
+//	this->mfont = w_font;
+//	HRESULT hr = this->mpTextFactory->CreateTextFormat(
+//		this->mfont.c_str(),
+//		NULL,
+//		DWRITE_FONT_WEIGHT_NORMAL,
+//		DWRITE_FONT_STYLE_NORMAL,
+//		DWRITE_FONT_STRETCH_NORMAL,
+//		this->mfontSize,
+//		L"en-US",
+//		&this->mpTextFormat
+//	);
+//	this->mpTextFormat->SetTrimming(&this->mTrimmer, NULL);
+//	this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
+//	this->mpTextFormat->AddRef();
+//	return hr;
+//}
 
 bool Direct2D::drawRect(D2D1_RECT_F rect, int thickness, brushColors color) //draws a rect with line thickness and color
 {
@@ -507,6 +516,44 @@ HRESULT Direct2D::mCreateColorBrushes()
 		hr = this->mpContext->CreateSolidColorBrush(
 			D2D1::ColorF(D2D1::ColorF(0, 100, 100, 1)),
 			&this->mColorBrushes[7]);
+	}
+	return hr;
+}
+
+HRESULT Direct2D::mCreateTextFormats()
+{
+	HRESULT hr = E_FAIL;
+	if (this->mpTextFactory != nullptr)
+	{
+		this->mpTextFactory->CreateTextFormat(
+			this->mfont.c_str(),
+			NULL,
+			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			20,
+			L"en-US",
+			&this->mpTextFormats[0]);
+
+		this->mpTextFactory->CreateTextFormat(
+			this->mfont.c_str(),
+			NULL,
+			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			30,
+			L"en-US",
+			&this->mpTextFormats[1]);
+
+		this->mpTextFactory->CreateTextFormat(
+			this->mfont.c_str(),
+			NULL,
+			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			40,
+			L"en-US",
+			&this->mpTextFormats[2]);
 	}
 	return hr;
 }
