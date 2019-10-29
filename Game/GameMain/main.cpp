@@ -221,4 +221,8 @@ void InitAll(EntityComponentSystem& rECS)
 
 	TransformComponent* unit_transform = static_cast<TransformComponent*>(rECS.getComponentFromEntity(TransformComponent::typeID, sword_unit_id));
 	sword_transform->position = unit_transform->position;
+
+	ColorComponent sword_color_component;
+	
+	rECS.createComponent<ColorComponent>(sword->getID(), sword_color_component);
 }

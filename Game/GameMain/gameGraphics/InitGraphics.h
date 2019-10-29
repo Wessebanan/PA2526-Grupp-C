@@ -65,11 +65,13 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs)
 	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);
 	systems::TileRenderSystem* p_tile_renderer = rEcs.createSystem<systems::TileRenderSystem>(9);
 	systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<systems::OceanRenderSystem>(9);
+	systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(9);
 
 	p_unit_renderer->Initialize(&render_manager, &render_buffer);
 	p_scenery_renderer->Initialize(&render_manager, &render_buffer);
 	p_tile_renderer->Initialize(&render_manager, &render_buffer);
 	p_ocean_renderer->Initialize(&render_manager, &render_buffer);
+	p_weapon_renderer->Initialize(&render_manager, &render_buffer);
 }
 
 void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)

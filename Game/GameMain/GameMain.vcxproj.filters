@@ -304,5 +304,8 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl" />
+    <FxCompile Include="gameGraphics\Shaders\VS_Weapon.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

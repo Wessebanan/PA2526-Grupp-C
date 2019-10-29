@@ -141,7 +141,10 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		weapon_bv->Transform(XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)));
 		
 		TransformComponent* owner_transform = getComponentFromKnownEntity<TransformComponent>(weapon_component->mOwnerEntity);
-		weapon_bv->Transform(UtilityEcsFunctions::GetWorldMatrix(*owner_transform));
+		weapon_transform_component->position = owner_transform->position;
+		weapon_transform_component->rotation = owner_transform->rotation;
+
+		weapon_bv->Transform(UtilityEcsFunctions::GetWorldMatrix(*weapon_transform_component));
 
 		owner_unit_component = getComponentFromKnownEntity<UnitComponent>(weapon_component->mOwnerEntity);
 	}
@@ -198,7 +201,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	{
 		EquipmentComponent *equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
 		// Delete current weapon if any.
-		if (equipment_component->mEquippedWeapon == 0)
+		if (equipment_component->mEquippedWeapon != 0)
 		{
 			removeEntity(equipment_component->mEquippedWeapon);
 		}
