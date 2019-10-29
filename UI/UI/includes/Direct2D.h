@@ -1,9 +1,7 @@
 #pragma once
 
-#include <map>
-#include<unordered_map>
-#include<ecs.h>
-#include<d2d1_3.h>
+#include <unordered_map>
+#include <d2d1_3.h>
 #include <wincodec.h>
 #include <dwrite_3.h>
 #include <string>
@@ -17,7 +15,8 @@
 
 
 #define BITMAP_NAME_LENGTH 10
-#define COLOR_BRUSHES 6
+#define COLOR_BRUSHES 8
+#define NR_OF_FORMATS 3
 //struct BitmapInfo
 //{
 //	ID2D1Bitmap* bitmap = nullptr;
@@ -26,14 +25,22 @@
 //};
 enum brushColors
 {
-	Black = 0,
-	White = 1,
-	Red = 2,
-	Blue = 3,
-	Green = 4,
-	Purple = 5
+	Black	= 0,
+	White	= 1,
+	Red		= 2,
+	Blue	= 3,
+	Green	= 4,
+	Purple	= 5,
+	Gray	= 6,
+	Cyan	= 7
 };
-static IDGenerator<ID> idGen(0);
+enum text_sizes
+{
+	small_text	= 0,
+	medium_text = 1,
+	large_text	= 2
+};
+
 struct cmp_str
 {
 	bool operator()(char const* s1, char const* s2) const
@@ -65,12 +72,16 @@ public:
 	~Direct2D();
 	
 	HRESULT CreateHwndRenderTarget(HWND window, RECT* rect);
+	HRESULT CreateHwndRenderTarget(HWND window, int width, int height);
+
 	void InitDeviceAndContext(IDXGIDevice* dxgiDevice); //Takes dxgidevice from dx11 and creates d2d device and device context
 	ID2D1DeviceContext* GetpContext();
 	HRESULT LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
-	ID GetBitmapIDFromName(char* bitmapName); //returns bitmap ID
-	ID2D1Bitmap* GetBitmap(ID bitmapID); //returns bitmap
-	ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS
+	ID2D1Bitmap* GetBitmap(char* bitmapName);//returns bitmap
+	ID2D1Bitmap1* GetBackbufferBitmap();
+	void setBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap);
+	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);
+	//ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS
 	bool DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect);
 
 	//ID2D1Bitmap* GetBitmapByName(std::string bitmapName); //used to draw all bitmaps, uses the BitmapInfo struct
@@ -78,7 +89,7 @@ public:
 
 	bool PrintText(std::string text, RECT rect);
 	bool PrintDebug(std::string text); // debug printer thing
-	bool PrintText(std::string text, D2D1_RECT_F rect, brushColors color); //only one used in ECS atm
+	bool PrintText(std::string text, D2D1_RECT_F rect, brushColors color, int size = 2); //only one used in ECS atm
 	bool PrintText(std::string text, int left, int top, int right, int bottom);
 
 	void setTextColor(float r, float g, float b, float a); //not in use atm by ECS
@@ -101,39 +112,35 @@ private:
 	ID2D1SolidColorBrush* mpColorText; //used for color
 	ID2D1SolidColorBrush* mpColorDraw;
 	ID2D1Bitmap* mpFailBitmap;
+	ID2D1Bitmap1* mpBackbufferBitmap;
 	
 	IDWriteFactory7* mpTextFactory; //factory used for text
 	DWRITE_TRIMMING mTrimmer; //used for text format
-	IDWriteTextFormat* mpTextFormat; //things like font and size
+	//IDWriteTextFormat* mpTextFormat; //things like font and size
 	IDWriteTextFormat* mpDebugTextFormat;
+	IDWriteTextFormat* mpTextFormats[NR_OF_FORMATS];
 
-	ID2D1Factory7* mpFactory; //d2d1 factory
-	ID2D1Device6* mpDevice;
-	ID2D1DeviceContext6* mpContext;
+	ID2D1Factory1* mpFactory; //d2d1 factory
+	ID2D1Device* mpDevice;
+	ID2D1DeviceContext* mpContext;
 
 	RECT* mpRect;
+	int width;
+	int height;
 	std::wstring mfont;
 	unsigned int mfontSize;
 	bool mFailBitMapLoaded = false;
 	bool mHwndRenderTargetCreated = false;
+	bool mDeviceContextCreated = false;
 	//std::vector<BitmapInfo> mBitmapVector;
 
-	using BitmapMap = std::unordered_map<ID, ID2D1Bitmap*>; //unordered map of bitmaps
-	using BitmapPair = std::pair<ID, ID2D1Bitmap*>;
+	using BitmapMap = std::unordered_map<char*, ID2D1Bitmap*>; //unordered map of bitmaps
+	using BitmapPair = std::pair<char*, ID2D1Bitmap*>;
 	BitmapMap mBitmapList;
 
-	using BitmapNameToID = std::unordered_map<char*, ID>; //unordered map of bitmap names
-	using BitmapNameIDPair = std::pair<char*, ID>;
-	BitmapNameToID mBitmapNameID;
-
-	using BrushMap = std::unordered_map<ID, ID2D1SolidColorBrush*>; //unordered map of brushes (not in use now)
-	using BrushMapPair = std::pair<ID, ID2D1SolidColorBrush*>;
+	using BrushMap = std::unordered_map<char*, ID2D1SolidColorBrush*>; //unordered map of brushes (not in use now)
+	using BrushMapPair = std::pair<char*, ID2D1SolidColorBrush*>;
 	BrushMap mBrushMap;
-
-	using BrushMapName = std::unordered_map<char*, ID>; //corresponding brush name map
-	using BrushMapNamePair = std::pair<char*, ID>;
-	BrushMapName mBrushMapName;
-
 
 	ID2D1SolidColorBrush* mColorBrushes[COLOR_BRUSHES]; //array of brushes we use now
 
@@ -144,6 +151,7 @@ private:
 	HRESULT mCreateColorText();
 	HRESULT mCreateColorDraw();
 	HRESULT mCreateColorBrushes();
+	HRESULT mCreateTextFormats();
 	HRESULT LoadImageToBitmap(std::string imageFilePath);
 	std::wstring mStrToWstrConverter(std::string str); //covert string to wstring
 

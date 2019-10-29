@@ -35,4 +35,6 @@ static void InitAnimation(ecs::EntityComponentSystem& rECS)
 		skeletonData->Init(MeshContainer::GetMeshCPU(MESH_TYPE::MESH_TYPE_UNIT)->GetSkeleton());
 		skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
 	}
+
+	rECS.createSystem<ecs::systems::PingListenerSystem>(7);
 }
