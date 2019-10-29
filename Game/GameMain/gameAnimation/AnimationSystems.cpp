@@ -25,5 +25,7 @@ void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float de
 	else
 	{ 
 		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::IDLE);
+		// Uncomment the line below to test the ping animation as the "idle" animation
+		//pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
 	}
 }
