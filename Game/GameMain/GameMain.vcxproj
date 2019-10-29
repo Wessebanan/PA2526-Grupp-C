@@ -41,23 +41,25 @@
     <Import Project="..\..\PropertySheets\GraphicsEngine_Debug.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
     <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
+    <Import Project="..\..\PropertySheets\Physics_Debug.props" />
     <Import Project="..\..\PropertySheets\AI_Debug.props" />
     <Import Project="..\..\PropertySheets\Utility_Debug.props" />
     <Import Project="..\..\PropertySheets\Sound_Debug.props" />
     <Import Project="..\..\PropertySheets\Graphics_Debug.props" />
-    <Import Project="..\..\PropertySheets\Physics_Debug.props" />
+    <Import Project="..\..\PropertySheets\UI_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\ECS_Release.props" />
     <Import Project="..\..\PropertySheets\GraphicsEngine_Release.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
+    <Import Project="..\..\PropertySheets\Physics_Release.props" />
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
     <Import Project="..\..\PropertySheets\AI_Release.props" />
     <Import Project="..\..\PropertySheets\Utility_Release.props" />
     <Import Project="..\..\PropertySheets\Sound_Release.props" />
     <Import Project="..\..\PropertySheets\Graphics_Release.props" />
-    <Import Project="..\..\PropertySheets\Physics_Release.props" />
+    <Import Project="..\..\PropertySheets\UI_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -103,6 +105,7 @@
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
+    <ClCompile Include="gameGameLoop\GameLoopSystems.cpp" />
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
@@ -120,6 +123,7 @@
     <ClCompile Include="Physics\MovementSystem.cpp" />
     <ClCompile Include="Physics\QuadTree.cpp" />
     <ClCompile Include="Renderers\Renderers.cpp" />
+    <ClCompile Include="UI\UISystems.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gameAI\AIComponents.h" />
@@ -137,6 +141,10 @@
     <ClInclude Include="gameAudio\AudioECSSystems.h" />
     <ClInclude Include="gameAudio\AudioGlobals.h" />
     <ClInclude Include="gameAudio\InitAudio.h" />
+    <ClInclude Include="gameGameLoop\GameLoopComponents.h" />
+    <ClInclude Include="gameGameLoop\GameLoopEvents.h" />
+    <ClInclude Include="gameGameLoop\GameLoopSystems.h" />
+    <ClInclude Include="gameGameLoop\InitGameLoop.h" />
     <ClInclude Include="gameGraphics\ForwardRenderingPipeline.h" />
     <ClInclude Include="gameGraphics\GraphicsECSComponents.h" />
     <ClInclude Include="gameGraphics\GraphicsECSSystems.h" />
@@ -181,6 +189,10 @@
     <ClInclude Include="Input\InitInputSystems.h" />
     <ClInclude Include="Physics\QuadTree.h" />
     <ClInclude Include="Renderers\Renderers.h" />
+    <ClInclude Include="UI\InitUI.h" />
+    <ClInclude Include="UI\UIComponents.h" />
+    <ClInclude Include="UI\UIEvents.h" />
+    <ClInclude Include="UI\UISystems.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="gameGraphics\PS_Transformation.hlsl">

@@ -16,7 +16,7 @@ enum TileTypes //enum used in AIcomponents right now
 
 enum STATE
 {
-	MOVE, IDLE, ATTACK, LOOT, FLEE
+	NONE, MOVE, IDLE, ATTACK, LOOT, PATHFINDING, FLEE
 };
 
 enum PLAYER

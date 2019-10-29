@@ -690,13 +690,13 @@ namespace GridFunctions
 		index.x = -1;
 		index.y = -1;
 		GridProp* p_gp = GridProp::GetInstance();
-		float pos_x = 0;
-		float pos_z = 0;
+		float pos_x = 0.0f;
+		float pos_z = 0.0f;
 		float pi = 3.1415f;
 		float mid_to_side = cos(30 * pi / 180) * TILE_RADIUS; //Calculate length between the center position and a side. 
 		int steps = 0;
 
-		if (x - pos_x < TILE_RADIUS)
+		if (x - pos_x  < TILE_RADIUS)
 		{
 			index.x = 0;
 		}

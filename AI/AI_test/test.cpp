@@ -14,8 +14,8 @@
 
 TEST(GridFunctions, InitGrid) {
 
-	int nr_of_rows = ARENA_ROWS;
-	int nr_of_columns = ARENA_COLUMNS;
+	int nr_of_rows = MAX_ARENA_ROWS;
+	int nr_of_columns = MAX_ARENA_COLUMNS;
 	float radius = TILE_RADIUS;
 	unsigned int count = nr_of_columns * nr_of_rows;
 	//Define some ECS stuff to allow the ECS to create more than 100 of each component.
@@ -57,8 +57,8 @@ TEST(GridFunctions, CreateDebugSystems) {
 }
 
 TEST(GridFunctions, heightMapTest) {
-	int nr_of_rows = ARENA_ROWS;
-	int nr_of_columns = ARENA_COLUMNS;
+	int nr_of_rows = MAX_ARENA_ROWS;
+	int nr_of_columns = MAX_ARENA_COLUMNS;
 	float radius = TILE_RADIUS;
 	unsigned int count = nr_of_columns * nr_of_rows;
 	//Define some ECS stuff to allow the ECS to create more than 100 of each component.
@@ -97,8 +97,8 @@ TEST(GridFunctions, heightMapTest) {
 }
 
 TEST(GridFunctions, differentTypes) {
-	int nr_of_rows = ARENA_ROWS;
-	int nr_of_columns = ARENA_COLUMNS;
+	int nr_of_rows = MAX_ARENA_ROWS;
+	int nr_of_columns = MAX_ARENA_COLUMNS;
 	float radius = TILE_RADIUS;
 	unsigned int count = nr_of_columns * nr_of_rows;
 
@@ -180,8 +180,8 @@ TEST(AI, CreateSystems) {
 }
 
 TEST(AIFunctions, CreatePlayerArmies) {
-	int nr_of_rows = ARENA_ROWS;
-	int nr_of_columns = ARENA_COLUMNS;
+	int nr_of_rows = MAX_ARENA_ROWS;
+	int nr_of_columns = MAX_ARENA_COLUMNS;
 	float radius = TILE_RADIUS;
 	unsigned int count = nr_of_columns * nr_of_rows * 2;
 	ecs::CompTypeMemDesc ecs_mem_desc[] = {
@@ -207,9 +207,9 @@ TEST(AIFunctions, CreatePlayerArmies) {
 	bool valid_index = true;
 	for (int i = 0; i < 1000; i++)
 	{
-		index = GridFunctions::FindStartingTile(PLAYER(i % 4));
-		if (index.x == -1 || index.x >= ARENA_COLUMNS ||
-			index.y == -1 || index.y >= ARENA_ROWS)
+		index = GridFunctions::FindStartingTile(PLAYER(i % 4), nr_of_rows, nr_of_columns);
+		if (index.x == -1 || index.x >= nr_of_columns ||
+			index.y == -1 || index.y >= nr_of_rows)
 		{
 			valid_index = false;
 			break;
@@ -224,8 +224,8 @@ TEST(AIFunctions, CreatePlayerArmies) {
 }
 
 TEST(AIFunctions, SwitchStatesOfArmy) {
-	int nr_of_rows = ARENA_ROWS;
-	int nr_of_columns = ARENA_COLUMNS;
+	int nr_of_rows = MAX_ARENA_ROWS;
+	int nr_of_columns = MAX_ARENA_COLUMNS;
 	float radius = TILE_RADIUS;
 	unsigned int count = nr_of_columns * nr_of_rows * 2;
 	ecs::CompTypeMemDesc ecs_mem_desc[] = {
@@ -276,8 +276,8 @@ TEST(AIFunctions, SwitchStatesOfArmy) {
 
 TEST(PotentialField, CreatePotentialField)
 {
-	int nr_of_rows = ARENA_ROWS;
-	int nr_of_columns = ARENA_COLUMNS;
+	int nr_of_rows = MAX_ARENA_ROWS;
+	int nr_of_columns = MAX_ARENA_COLUMNS;
 	float radius = 1;
 	unsigned int count = nr_of_columns * nr_of_rows;
 	int nr_of_nice = 0;
@@ -324,8 +324,8 @@ TEST(PotentialField, CreatePotentialField)
 
 TEST(Pathfinding, FindPath)
 {
-	int nr_of_rows = ARENA_ROWS;
-	int nr_of_columns = ARENA_COLUMNS;
+	int nr_of_rows = MAX_ARENA_ROWS;
+	int nr_of_columns = MAX_ARENA_COLUMNS;
 	float radius = 1;
 	unsigned int count = nr_of_columns * nr_of_rows;
 	int nr_of_nice = 0;
