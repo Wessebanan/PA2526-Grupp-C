@@ -12,6 +12,7 @@
 #include <locale>
 
 #define MAX_NUM_WEIGHTS_PER_VERTEX 4
+#define ANIMATION_CROSSFADE_DURATION 1.0f
 
 namespace ModelLoader
 {
@@ -156,6 +157,10 @@ namespace ModelLoader
 	{
 	private:
 		float mCurrentTime = 0.0f;
+		// Default to idle
+		int mActiveAnimation = (int)ModelLoader::ANIMATION_TYPE::IDLE; 
+		int mPrevAnimation = -1;
+		float mPrevAnimTransitionTime = -1.0f;
 	public:
 
 		Skeleton* parentSkeleton;
@@ -180,6 +185,14 @@ namespace ModelLoader
 		}
 		void UpdateAnimation(float dtInSeconds, ANIMATION_TYPE animType)
 		{
+			// If we are swapping animation
+			if (mActiveAnimation != (int)animType)
+			{
+				mPrevAnimation = mActiveAnimation;
+				mActiveAnimation = (int)animType;
+				mPrevAnimTransitionTime = ANIMATION_CROSSFADE_DURATION;
+			}
+			
 			if (this->animationFlags[animType] != -1)
 			{
 				int frame_count = this->parentSkeleton->animations[animType].frameCount;
@@ -188,6 +201,37 @@ namespace ModelLoader
 				int frame_to_set = (int)std::round(fmod(this->mCurrentTime * 60.0f, frame_count)) % frame_count;
 				// Get frame data from animationData vector
 				memcpy(this->frameData, &this->parentSkeleton->animations[animType].animationData[frame_to_set * joint_count], joint_count * sizeof(DirectX::XMFLOAT4X4));
+
+				// If we are currently transitioning between two animations
+				if (mPrevAnimTransitionTime >= 0.0f)
+				{
+					float prev_weight = mPrevAnimTransitionTime / ANIMATION_CROSSFADE_DURATION;
+					//float current_weight = 1.0f - prev_weight;
+					int prev_frame_count = this->parentSkeleton->animations[mPrevAnimation].frameCount;
+					DirectX::XMFLOAT4X4* prevFrameData = new DirectX::XMFLOAT4X4[parentSkeleton->jointCount];
+					int prev_frame_to_set = (int)std::round(fmod(this->mCurrentTime * 60.0f, prev_frame_count)) % prev_frame_count;
+					// Get frame data from animationData vector for the PREVIOUS animation
+					// Same procedure as current animation
+					memcpy(prevFrameData, &this->parentSkeleton->animations[mPrevAnimation].animationData[prev_frame_to_set * joint_count], joint_count * sizeof(DirectX::XMFLOAT4X4));
+					// For each joint, decompose the two animation matrices and interpolate them, combine to a "final" animation matrix
+					for (int i = 0; i < this->parentSkeleton->jointCount; ++i)
+					{
+						DirectX::XMVECTOR current_frame_scale, current_frame_rot, current_frame_trans;
+						DirectX::XMVECTOR prev_frame_scale, prev_frame_rot, prev_frame_trans;
+						DirectX::XMVECTOR new_frame_scale, new_frame_rot, new_frame_trans;
+						DirectX::XMMATRIX current_frame_matrix = DirectX::XMLoadFloat4x4(&this->frameData[i]);
+						DirectX::XMMATRIX prev_frame_matrix = DirectX::XMLoadFloat4x4(&prevFrameData[i]);
+						// Decompose the matrix in order to be able to interpolate the components
+						DirectX::XMMatrixDecompose(&current_frame_scale, &current_frame_rot, &current_frame_trans, current_frame_matrix);
+						DirectX::XMMatrixDecompose(&prev_frame_scale, &prev_frame_rot, &prev_frame_trans, prev_frame_matrix);
+
+						new_frame_rot = DirectX::XMQuaternionSlerp(prev_frame_rot, current_frame_rot, prev_weight);
+						//new_frame_
+					}
+					// Reduce the transition timer
+					mPrevAnimTransitionTime -= dtInSeconds;
+					delete[] prevFrameData;
+				}
 			}
 		}
 		// Returns false if requested animation does not exist
@@ -248,5 +292,7 @@ namespace ModelLoader
 	// Output: Appends data to the provided vectors, returns HRESULT
 	HRESULT LoadFBX(const std::string& fileName, std::vector<DirectX::XMFLOAT3>* pOutVertexPosVector, std::vector<int>* pOutIndexVector,
 		std::vector<DirectX::XMFLOAT3>* pOutNormalVector, std::vector<DirectX::XMFLOAT2>* pOutUVVector, Skeleton* pOutSkeleton, std::vector<ModelLoader::ControlPointInfo>* pOutCPInfoVector);
+
+
 
 }
