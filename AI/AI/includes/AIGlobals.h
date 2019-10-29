@@ -16,7 +16,7 @@ enum TileTypes //enum used in AIcomponents right now
 
 enum STATE
 {
-	MOVE, IDLE, ATTACK, LOOT, FLEE
+	NONE, MOVE, IDLE, ATTACK, LOOT, PATHFINDING, FLEE
 };
 
 enum PLAYER
@@ -35,3 +35,11 @@ namespace PlayerProperties
 	constexpr int numberOfUnits = 3;
 	constexpr float unitHealth = 100.0f;
 }
+
+// Declares in what way the map 
+enum MAPINITSETTING
+{
+	HOLMES, // Small islands on each side
+	SQUARE, // for spawning on thier own part of the map
+	NOHOLMES // without them can change name later if needed
+};
