@@ -1,9 +1,7 @@
 #include "pch.h"
-//#include "InitInputHandler.h"
 #include"Direct2D.h"
-#include "UISystems.h"
 #include<Windows.h>
-#pragma comment (lib, "plainECS")
+
 
 
 
@@ -32,11 +30,11 @@ int main(int argc, char** argv) {
 
 TEST(ExpectedTrue, CreateRenderTarget) 
 {
-	HWND windowHandle = CreateHwndWindow(); //create HWND needed for rendertarget
-	Direct2D Dtest;
+	HWND window_handle = CreateHwndWindow(); //create HWND needed for rendertarget
+	Direct2D d_test;
 	HRESULT hr;
-	RECT rectTest = { 0,0,800,600 }; //used for the size of the window so rendertarget is the whole window
-	hr = Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
+	RECT rect_test = { 0,0,800,600 }; //used for the size of the window so rendertarget is the whole window
+	hr = d_test.CreateHwndRenderTarget(window_handle, &rect_test);
 
 
 	EXPECT_EQ(hr, S_OK);
@@ -44,161 +42,71 @@ TEST(ExpectedTrue, CreateRenderTarget)
 
 TEST(ExpectedTrue, LoadImageToBitmap) 
 {
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
+	HWND window_handle = CreateHwndWindow();
+	Direct2D d_test;
 	HRESULT hr;
-	RECT rectTest = { 0,0,800,600 };
+	RECT rect_test = { 0,0,800,600 };
 	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	hr = Dtest.LoadImageToBitmap("PepeLaugh.jfif", hehe);
+	d_test.CreateHwndRenderTarget(window_handle, &rect_test);
+	hr = d_test.LoadImageToBitmap("PepeLaugh.jfif", hehe);
 
 
 	EXPECT_EQ(hr, S_OK);
 }
 
-TEST(ExpectedTrue, GetBitmapIDFromName) 
-{
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
-	ID myID;
-	RECT rectTest = { 0,0,800,600 };
-	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	Dtest.LoadImageToBitmap("PepeLaugh.jfif", hehe);
-	myID = Dtest.GetBitmapIDFromName(hehe); //returns the id that the bitmap has from its name, 
-											//its easier for humans to remember names than ID numbers
-
-	EXPECT_NE(myID, 0);
-}
-
 TEST(ExpectedTrue, GetBitmap) 
 {
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
-	ID myID;
+	HWND window_handle = CreateHwndWindow();
+	Direct2D d_test;
+	//ID myID;
 	HRESULT hr;
-	RECT rectTest = { 0,0,800,600 };
+	RECT rect_test = { 0,0,800,600 };
 	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	hr = Dtest.LoadImageToBitmap("PepeLaugh.jfif", hehe);
-	myID = Dtest.GetBitmapIDFromName(hehe);
-	void* jej = Dtest.GetBitmap(myID); //Using the ID to get the bitmap
+	d_test.CreateHwndRenderTarget(window_handle, &rect_test);
+	hr = d_test.LoadImageToBitmap("PepeLaugh.jfif", hehe);
+	void* jej = d_test.GetBitmap(hehe); //Using the name to get the bitmap
 
 	EXPECT_EQ(hr, S_OK);
 	EXPECT_NE(jej, nullptr);
 
 }
 
-TEST(ExpectedTrue, DebugWindow)
-{
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
-	RECT rectTest = { 0,0,800,600 };
-	HRESULT hr = Dtest.CreateHwndRenderTarget(windowHandle, &rectTest); 
-	
-	using namespace ecs;
-	EntityComponentSystem myECS;
-
-	
-	systems::UIPreRenderSystem* UIpreSys = myECS.createSystem<systems::UIPreRenderSystem>(0); //Create systems that are needed for ecs debug print
-	systems::UIDebugSystem* UIDebugSys = myECS.createSystem<systems::UIDebugSystem>(9);
-	systems::UIPostRenderSystem* UIpostSys = myECS.createSystem<systems::UIPostRenderSystem>(9);
-	UIpreSys->mpD2D = UIpostSys->mpD2D = UIDebugSys->mpD2D = &Dtest; // Give ECS d2d with render target
-	components::UITextComponent UIText;
-	UIText.mStrText = "hehehheehtest";  
-
-
-	components::KeyboardComponent keyboard;
-	keyboard.W = true; //force keyboard key to be true to toggle debug print
-
-	Entity* e1 = myECS.createEntity(UIText);
-	Entity* e2 = myECS.createEntity(keyboard);
-	myECS.update(0);
-
-	EXPECT_EQ(UIDebugSys->toRender, true); // check if bool required to print becomes true because of true keyboard
-
-}
-
-TEST(ExpectedFail, DebugWindow)
-{
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
-	RECT rectTest = { 0,0,800,600 };
-	HRESULT hr = Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-
-	using namespace ecs;
-	EntityComponentSystem myECS;
-
-
-	systems::UIPreRenderSystem* UIpreSys = myECS.createSystem<systems::UIPreRenderSystem>(0); //Create systems that are needed for ecs debug print
-	systems::UIDebugSystem* UIDebugSys = myECS.createSystem<systems::UIDebugSystem>(9);
-	systems::UIPostRenderSystem* UIpostSys = myECS.createSystem<systems::UIPostRenderSystem>(9);
-	UIpreSys->mpD2D = UIpostSys->mpD2D = UIDebugSys->mpD2D = &Dtest; // Give ECS d2d with render target
-	components::UITextComponent UIText;
-	UIText.mStrText = "hehehheehtest";
-
-
-	components::KeyboardComponent keyboard;
-
-	Entity* e1 = myECS.createEntity(UIText);
-	Entity* e2 = myECS.createEntity(keyboard);
-	myECS.update(0);
-
-	EXPECT_EQ(UIDebugSys->toRender, false); // check if bool required to print becomes true because of true keyboard
-
-}
-
 TEST(Expectedfalse, FailCreateRenderTarget) // The same tests but expecting fails
 {
-	HWND windowHandle = nullptr;
-	Direct2D Dtest;
+	HWND window_handle = nullptr;
+	Direct2D d_test;
 	HRESULT hr;
-	RECT rectTest = { 0,0,800,600 };
-	hr = Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
+	RECT rect_test = { 0,0,800,600 };
+	hr = d_test.CreateHwndRenderTarget(window_handle, &rect_test);
 
 	EXPECT_NE(hr, S_OK);
 } 
 
 TEST(Expectedfalse, FailLoadImageToBitmap)
 {
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
+	HWND window_handle = CreateHwndWindow();
+	Direct2D d_test;
 	HRESULT hr;
 	RECT rectTest = { 0,0,800,600 };
 	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	hr = Dtest.LoadImageToBitmap("PepeLaugh", hehe);
+	d_test.CreateHwndRenderTarget(window_handle, &rectTest);
+	hr = d_test.LoadImageToBitmap("PepeLaugh", hehe);
 
 
 	EXPECT_NE(hr, S_OK);
 }
 
-TEST(Expectedfalse, FailGetBitmapIDFromName)
-{
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
-	ID myID;
-	RECT rectTest = { 0,0,800,600 };
-	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	myID = Dtest.GetBitmapIDFromName(hehe);
-
-
-	EXPECT_EQ(myID, 0);
-}
-
 TEST(Expectedfalse, FailGetBitmap)
 {
-	HWND windowHandle = CreateHwndWindow();
-	Direct2D Dtest;
-	ID myID;
+	HWND window_handle = CreateHwndWindow();
+	Direct2D d_test;
+	//ID myID;
 	HRESULT hr;
 	RECT rectTest = { 0,0,800,600 };
 	char hehe[10] = "pepe";
-	Dtest.CreateHwndRenderTarget(windowHandle, &rectTest);
-	hr = Dtest.LoadImageToBitmap("fdjak", hehe);
-	myID = Dtest.GetBitmapIDFromName(hehe);
-	void* jej = Dtest.GetBitmap(myID);
+	d_test.CreateHwndRenderTarget(window_handle, &rectTest);
+	hr = d_test.LoadImageToBitmap("fdjak", hehe);
+	void* jej = d_test.GetBitmap(hehe);
 
 	EXPECT_NE(hr, S_OK);
 	EXPECT_EQ(jej, nullptr);
