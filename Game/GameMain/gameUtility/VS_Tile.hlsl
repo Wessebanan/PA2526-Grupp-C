@@ -48,6 +48,9 @@ struct VSOUT
 
 	float3 color		: COLOR0;
 	float3 normal		: NORMAL0;
+
+	float3 normalViewSpace		: NORMAL1;
+	float3 positionViewSpace	: POSITION2;
 };
 
 VSOUT main(uint VertexID : VertexStart)
@@ -55,13 +58,17 @@ VSOUT main(uint VertexID : VertexStart)
 	VSOUT output;
 	Vertex vertex = gVertices[VertexID];
 
-	float4 worldPos = float4(vertex.position.xyz, 1.0f);
+	float4 worldPos = float4(vertex.position.xyz, 1.0f);	
+	float4 viewPos	= mul(gView, worldPos);
 
-	output.pos = mul(gPerspective, mul(gView, worldPos));
+	output.pos = mul(gPerspective, viewPos);
 	output.sunPos = mul(gOrtographicsSun, mul(gViewSun, worldPos));
 
 	output.color = Unpack(vertex.color) / 255.0f;
 	output.normal = vertex.normal.xyz;
+
+	output.normalViewSpace = mul(gView, float4(vertex.normal, 0.0f)).xyz;
+	output.positionViewSpace = viewPos.xyz;
 
 	return output;
 }

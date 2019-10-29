@@ -89,6 +89,8 @@ float main(PSIN input) : SV_TARGET
 	float3 pos		= WorldPosFromDepth(GetDepth(input.uv), input.uv);
 	float3 normal	= GetNormal(input.uv);
 
+	//return normal;
+
 	float2 random	= GetRandom(input.uv);
 	float radius	= sample_radius / pos.z;
 
