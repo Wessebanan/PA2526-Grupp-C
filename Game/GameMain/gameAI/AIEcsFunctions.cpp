@@ -38,7 +38,7 @@ namespace AIEcsFunctions
 		//Create Components for a "User" entity.
 		ecs::components::ArmyComponent army;
 		ecs::components::UITextComponent command_text_comp;
-		command_text_comp.mStrText = "NOT SET YET";
+		command_text_comp.mStrText = "NO STATE";
 		ecs::components::UIDrawPosComponent text_pos_comp;
 		ecs::components::UIDrawColorComponent text_color_comp;
 		//Create Components for a "Unit" entity.
@@ -120,7 +120,7 @@ namespace AIEcsFunctions
 			}
 
 			FLOAT text_height = 100;
-			FLOAT text_width = 160;
+			FLOAT text_width = 200;
 			switch (i)
 			{
 			case 0:
@@ -137,7 +137,7 @@ namespace AIEcsFunctions
 				text_pos_comp.mDrawArea.left = client_width - text_width;
 				text_pos_comp.mDrawArea.right = client_width;
 
-				text_color_comp.mColor = brushColors::Green;
+				text_color_comp.mColor = brushColors::Gray;
 				break;
 			case 2:
 				text_pos_comp.mDrawArea.top = client_height - text_height;
@@ -145,7 +145,7 @@ namespace AIEcsFunctions
 				text_pos_comp.mDrawArea.left = 0;
 				text_pos_comp.mDrawArea.right = text_width;
 
-				text_color_comp.mColor = brushColors::White;
+				text_color_comp.mColor = brushColors::Cyan;
 				break;
 			case 3:
 				text_pos_comp.mDrawArea.top = client_height - text_height;

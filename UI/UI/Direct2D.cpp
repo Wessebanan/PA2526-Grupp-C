@@ -501,6 +501,12 @@ HRESULT Direct2D::mCreateColorBrushes()
 		hr = this->mpContext->CreateSolidColorBrush(
 			D2D1::ColorF(D2D1::ColorF::Purple),
 			&this->mColorBrushes[5]);
+		hr = this->mpContext->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Gray),
+			&this->mColorBrushes[6]);
+		hr = this->mpContext->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF(0, 100, 100, 1)),
+			&this->mColorBrushes[7]);
 	}
 	return hr;
 }

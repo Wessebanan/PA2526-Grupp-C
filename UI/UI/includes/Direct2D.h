@@ -24,12 +24,14 @@
 //};
 enum brushColors
 {
-	Black = 0,
-	White = 1,
-	Red = 2,
-	Blue = 3,
-	Green = 4,
-	Purple = 5
+	Black	= 0,
+	White	= 1,
+	Red		= 2,
+	Blue	= 3,
+	Green	= 4,
+	Purple	= 5,
+	Gray	= 6,
+	Cyan	= 7
 };
 
 struct cmp_str
