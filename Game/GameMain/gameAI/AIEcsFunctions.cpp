@@ -33,13 +33,5 @@ namespace AIEcsFunctions
 		//ecs::events::GameStartEvent eve;
 		//rEcs.createEvent(eve);
 		//	//Clear the army vector before we start creating the next players army.
-			std::cout << "Player " << i << " army ids: ";
-			for (int k = 0; k < army.unitIDs.size(); k++)
-			{
-				std::cout << army.unitIDs[k] << ", ";
-			}
-			std::cout << std::endl;
-			army.unitIDs.clear(); 
-		}
 	}
 }
