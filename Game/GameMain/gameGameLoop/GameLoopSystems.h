@@ -2,7 +2,7 @@
 #include "ecsSystemIncludes.h"
 #include "GameLoopComponents.h"
 
-#define ROUNDS_TO_WIN 300
+#define ROUNDS_TO_WIN 3
 
 namespace ecs
 {
