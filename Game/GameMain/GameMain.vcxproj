@@ -137,6 +137,7 @@
     <ClInclude Include="gameAI\InitArmy.h" />
     <ClInclude Include="gameAI\InitGrid.h" />
     <ClInclude Include="gameAnimation\AnimationComponents.h" />
+    <ClInclude Include="gameAnimation\AnimationEvents.h" />
     <ClInclude Include="gameAnimation\AnimationSystems.h" />
     <ClInclude Include="gameAnimation\InitAnimation.h" />
     <ClInclude Include="gameAudio\AudioECSEvents.h" />

@@ -227,6 +227,9 @@
     <ClInclude Include="gameAnimation\AnimationSystems.h">
       <Filter>Animation</Filter>
     </ClInclude>
+    <ClInclude Include="gameAnimation\AnimationEvents.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
     <ClInclude Include="UI\UISystems.h">
       <Filter>UI</Filter>
     </ClInclude>

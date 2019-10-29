@@ -137,6 +137,17 @@ int main()
 				wnd.Close();
 			}
 
+			// Close window when user press Esc
+			if (GetAsyncKeyState(VK_HOME))
+			{
+				// change state component
+				events::PingEvent ping_event;
+				ping_event.playerId = (PLAYER)2;
+
+
+				ecs.createEvent(ping_event);
+			}
+
 			/*
 				Update all ECS systems, and give them the delta time.
 			*/
