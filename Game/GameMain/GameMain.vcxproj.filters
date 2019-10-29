@@ -254,6 +254,10 @@
     <ClInclude Include="UI\UISystems.h">
       <Filter>UI</Filter>
     </ClInclude>
+    <ClInclude Include="gameUtility\UtilityGraphics.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -340,5 +344,8 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl" />
+    <FxCompile Include="gameUtility\VS_Tile.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
