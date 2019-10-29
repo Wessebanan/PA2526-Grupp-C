@@ -825,6 +825,17 @@ namespace ecs
 						}
 					}
 				}
+				ecs::components::EquipmentComponent* equipment_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::EquipmentComponent>(entity.entity->getID());
+				ecs::Entity* weapon_entity = ecs::ECSUser::getEntity(equipment_comp->mEquippedWeapon);
+				ecs::components::WeaponComponent* weapon_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::WeaponComponent>(equipment_comp->mEquippedWeapon);
+				if (weapon_comp->mType == FIST)
+				{
+					ecs::ECSUser::removeEntity(weapon_entity->getID());
+				}
+				else
+				{
+					weapon_comp->mOwnerEntity = 0;
+				}
 
 				ecs::ECSUser::removeEntity(entity.entity->getID());
 			}
@@ -891,33 +902,36 @@ namespace ecs
 						ID entity_id = p_army->unitIDs[u];
 						unit = ecs::ECSUser::getEntity(entity_id);
 
-					ecs::ECSUser::removeComponent(entity_id, ecs::components::MoveStateComponent::typeID);
-					ecs::ECSUser::removeComponent(entity_id, ecs::components::IdleStateComponent::typeID);
-					ecs::ECSUser::removeComponent(entity_id, ecs::components::PathfindingStateComponent::typeID);
-					ecs::ECSUser::removeComponent(entity_id, ecs::components::AttackStateComponent::typeID);
-					ecs::ECSUser::removeComponent(entity_id, ecs::components::LootStateComponent::typeID);
-					ecs::ECSUser::removeComponent(entity_id, ecs::components::FleeStateComponent::typeID);
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::MoveStateComponent::typeID);
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::IdleStateComponent::typeID);
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::PathfindingStateComponent::typeID);
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::AttackStateComponent::typeID);
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::LootStateComponent::typeID);
 
-					//Give the unit the new state component.
-					switch (state)
-					{
-						case STATE::IDLE:
+						// Fetch the skeleton ID to start animations based on state
+						ID skeleton_id = unit->getComponentID<ecs::components::SkeletonComponent>();
+
+						//Give the unit the new state component.
+						switch (state)
 						{
-							ecs::components::IdleStateComponent idle;
-							ecs::ECSUser::createComponent(entity_id, idle);
-							break;
+							case STATE::IDLE:
+							{
+								ecs::components::IdleStateComponent idle;
+								ecs::ECSUser::createComponent(entity_id, idle);
+								break;
+							}
+							default:
+							{
+								//Defaults to a path since every other command relies on moving to a destination
+								ecs::components::PathfindingStateComponent path;
+								path.activeCommand = state;
+								ecs::ECSUser::createComponent(entity_id, path);
+								break;
+							}
 						}
-						default:
-						{
-							//Defaults to a path since every other command relies on moving to a destination
-							ecs::components::PathfindingStateComponent path;
-							path.activeCommand = state;
-							ecs::ECSUser::createComponent(entity_id, path);
-							break;
-						}
+						/*Used for debugging*/
+						//std::cout << "Changing state of player: " << player << " which has the entityID: " << p_army->getEntityID() << std::endl;
 					}
-					/*Used for debugging*/
-					//std::cout << "Changing state of player: " << player << " which has the entityID: " << p_army->getEntityID() << std::endl;
 				}
 			}
 		};
