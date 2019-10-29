@@ -16,6 +16,7 @@
 #include "..//MeshContainer/MeshContainer.h"	
 
 #include "..//gameAnimation/AnimationEvents.h"
+#include "..//UI/UIComponents.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -37,6 +38,7 @@ ecs::systems::GameLoopSystem::GameLoopSystem()
 {
 	updateType = ecs::EntityUpdate;
 	typeFilter.addRequirement(ecs::components::GameLoopComponent::typeID);
+	typeFilter.addRequirement(ecs::components::UITextComponent::typeID);
 }
 
 ecs::systems::GameLoopSystem::~GameLoopSystem()
@@ -47,13 +49,27 @@ ecs::systems::GameLoopSystem::~GameLoopSystem()
 void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
+	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
 	
 	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
+	
 
-	// To be sent to the UI
-	p_gl->mRoundTime.GetRoundTime();
-	p_gl->mRoundTime.GetFrameTime();
-	p_gl->mRoundTime.GetGameTime();
+	if (p_text)
+	{
+		string ss = "";
+
+
+		// To be sent to the UI
+		ss.append("ROUNDTIME: ");
+		ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
+		ss.append("\nFRAMETIME: ");
+		ss.append(to_string(p_gl->mRoundTime.GetFrameTime()));
+		ss.append("\nGAMETIME: ");
+		ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
+
+		p_text->mStrText = ss;
+	}
+
 
 }
 

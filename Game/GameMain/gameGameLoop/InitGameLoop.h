@@ -22,5 +22,22 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 	ecs::components::GameSettingsComponent gameloop_settings_comp;
 	gameloop_settings_comp.mMapSettings = 1; // Holme = 1
 
-	rECS.createEntity(gameloop_comp, gameloop_settings_comp);
+	ecs::components::UITextComponent time_text_comp;
+	ecs::components::UIDrawPosComponent text_pos_comp;
+	text_pos_comp.mDrawArea.top = 50;
+	text_pos_comp.mDrawArea.bottom = 150;
+	text_pos_comp.mDrawArea.left = 600;
+	text_pos_comp.mDrawArea.right = 1500;
+	ecs::components::UIDrawColorComponent text_color_comp;
+	text_color_comp.mColor = brushColors::White;
+
+	rECS.createEntity(
+		gameloop_comp, 
+		gameloop_settings_comp, 
+		time_text_comp, 
+		text_pos_comp, 
+		text_color_comp
+	);
+
+
 }
