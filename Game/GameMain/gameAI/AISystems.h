@@ -13,6 +13,8 @@
 #include "../../Physics/includes/PhysicsHelperFunctions.h"
 #include "../gameAnimation/AnimationComponents.h"
 
+#include "../UI/UIComponents.h"
+
 #include "../../AI/includes/AIGlobals.h"
 
 
@@ -802,6 +804,31 @@ namespace ecs
 						p_army = static_cast<ecs::components::ArmyComponent*>(it.next());
 						i++;
 					}
+
+					// Chagne the command on the UI
+					ecs::BaseComponent* p_base_comp = getComponentFromKnownEntity<ecs::components::UITextComponent>(p_army->getEntityID());
+
+					ecs::components::UITextComponent* p_text_comp = static_cast<ecs::components::UITextComponent*>(p_base_comp);
+
+					switch (state)
+					{
+					case STATE::IDLE:
+						p_text_comp->mStrText = "IDLE";
+						break;
+					case STATE::LOOT:
+						p_text_comp->mStrText = "LOOT";
+						break;
+					case STATE::ATTACK:
+						p_text_comp->mStrText = "ATTACK";
+						break;
+					case STATE::MOVE:
+						p_text_comp->mStrText = "MOVE";
+						break;
+					default:
+						p_text_comp->mStrText = "no case for state";
+						break;
+					}
+
 					//Loop through the players units and remove their old state component.
 					ecs::Entity* unit;
 					for (int u = 0; u < p_army->unitIDs.size(); u++)

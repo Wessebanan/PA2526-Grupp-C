@@ -4,11 +4,13 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "GridEcsFunctions.h"
 #include "../../AI/includes/GridFunctions.h"
+#include "../UI/UIComponents.h"
 #include "../gameAnimation/AnimationComponents.h"
 #include "../MeshContainer/MeshContainer.h"
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
+#include "..//..//Graphics/includes/Window.h"
 
 #include "..//gameGameLoop/GameLoopEvents.h"
 
@@ -21,10 +23,58 @@ namespace AIEcsFunctions
 		{
 			ecs::components::ArmyComponent army;
 			
+				
+			}
+
+			
+			switch (i)
+			{
+			case 0:
+				text_pos_comp.mDrawArea.top = 0;
+				text_pos_comp.mDrawArea.bottom = text_height;
+				text_pos_comp.mDrawArea.left = 0;
+				text_pos_comp.mDrawArea.right = text_width;
+
+				text_color_comp.mColor = brushColors::Red;
+				break;
+			case 1:
+				text_pos_comp.mDrawArea.top = 0;
+				text_pos_comp.mDrawArea.bottom = text_height;
+				text_pos_comp.mDrawArea.left = client_width - text_width;
+				text_pos_comp.mDrawArea.right = client_width;
+
+				text_color_comp.mColor = brushColors::Gray;
+				break;
+			case 2:
+				text_pos_comp.mDrawArea.top = client_height - text_height;
+				text_pos_comp.mDrawArea.bottom = client_height;
+				text_pos_comp.mDrawArea.left = 0;
+				text_pos_comp.mDrawArea.right = text_width;
+
+				text_color_comp.mColor = brushColors::Cyan;
+				break;
+			case 3:
+				text_pos_comp.mDrawArea.top = client_height - text_height;
+				text_pos_comp.mDrawArea.bottom = client_height;
+				text_pos_comp.mDrawArea.left = client_width - text_width;
+				text_pos_comp.mDrawArea.right = client_width;
+
+				text_color_comp.mColor = brushColors::Purple;
+				break;
+			default:
+				text_pos_comp.mDrawArea.top = 100;
+				text_pos_comp.mDrawArea.bottom = 200;
+				text_pos_comp.mDrawArea.left = 100;
+				text_pos_comp.mDrawArea.right = 200;
+
+				text_color_comp.mColor = brushColors::Black;
+				break;
+			}
+
 			army.playerID = (PLAYER)i;
 
 			//Create the user entity
-			rEcs.createEntity(army);
+			rEcs.createEntity(army, command_text_comp, text_pos_comp, text_color_comp);
 		}
 	}
 

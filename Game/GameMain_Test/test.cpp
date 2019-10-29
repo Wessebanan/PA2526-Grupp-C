@@ -1,12 +1,12 @@
 //#include "pch.h"
 #include "gtest/gtest.h"
-
-//#include "Physics/GroundCollision.h"
-//#include "Physics/MovementLogic.h"
-//#include "Physics/ObjectCollision.h"
-//#include "Physics/FightingLogic.h"
-//#include "Physics/QuadTreeTests.h"
-//#include "Sound/SoundTests.h"
+//#include "UI/UIEcsTest.h" //Needs Dx11 stuff to work, like dxgi device and backbuffer
+#include "Physics/GroundCollision.h"
+#include "Physics/MovementLogic.h"
+#include "Physics/ObjectCollision.h"
+#include "Physics/FightingLogic.h"
+#include "Physics/QuadTreeTests.h"
+#include "Sound/SoundTests.h"
 #include "AiTests.h"
 #include <crtdbg.h>
 

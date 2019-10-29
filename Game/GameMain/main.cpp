@@ -14,6 +14,8 @@
 #include "AIGlobals.h"
 
 #include "Input/InitInterpreter.h"
+#include "UI/InitUI.h"
+#include "Direct2D.h"
 
 #include "gameUtility/InitCamera.h"
 
@@ -108,6 +110,7 @@ int main()
 	*/
 
 	ecs::EntityComponentSystem ecs;
+	TempUISystemPtrs my_UI_systems;
 
 	ecs.reserveComponentCount<ecs::components::TransformComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
@@ -203,7 +206,8 @@ void InitAll(EntityComponentSystem& rECS)
 		as all events are cleared at the end of each ecs update,
 		after all ecs systems has been updated.
 	*/
-
+	
+	TempUISystemPtrs ui_systems;
 	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
 	InitMeshes(rECS);
 	InitGraphicsPreRenderSystems(rECS);
@@ -212,6 +216,7 @@ void InitAll(EntityComponentSystem& rECS)
 	InitSong(rECS);
 
 	InitAI(rECS);
+	
 
 	InitInput(rECS);
 	InitInterpreter(rECS);
@@ -234,5 +239,6 @@ void InitAll(EntityComponentSystem& rECS)
 
 	InitGraphicsRenderSystems(rECS);
 	InitGraphicsPostRenderSystems(rECS);
+	InitUI(rECS, ui_systems);
 
 }
