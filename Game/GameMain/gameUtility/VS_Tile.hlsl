@@ -39,7 +39,10 @@ cbuffer gSunOrto : register (b4)
 	float4x4 gOrtographicsSun;
 };
 
-
+cbuffer gVertexData : register (b5)
+{
+	float4 gHeight[4096];
+};
 
 struct VSOUT
 {
@@ -62,6 +65,8 @@ VSOUT main(uint VertexID : VertexStart)
 {
 	VSOUT output;
 	Vertex vertex = gVertices[VertexID];
+	vertex.position.y = gHeight[floor(VertexID / 96)][(VertexID / 96) % 4];
+	//vertex.position.y = VertexID / 96;
 
 	//output.pos = mul(gPerspective, mul(gView, float4(vertex.position, 1.0f)));
 	//output.sunPos = mul(gOrtographicsSun, mul(gViewSun, float4(vertex.position, 1.0f)));

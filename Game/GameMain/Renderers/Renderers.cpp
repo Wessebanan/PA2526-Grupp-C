@@ -268,8 +268,54 @@ namespace ecs
 
 	void WorldRenderSystem::act(float _delta)
 	{
+		
+		UINT index = 0;
+
+		float* height = (float*)malloc(65536);
+		ZeroMemory(height, 65536);
+
+			
+		TypeFilter ocean_filter;
+		ocean_filter.addRequirement(components::OceanTileComponent::typeID);
+		ocean_filter.addRequirement(components::TransformComponent::typeID);
+
+		EntityIterator p_iterator = getEntitiesByFilter(ocean_filter);
+
+		for (FilteredEntity& tile : p_iterator.entities)
+		{
+			height[index++] = tile.getComponent<components::TransformComponent>()->position.y;
+		}
+
+		TypeFilter map_filter;
+		map_filter.addRequirement(components::TileComponent::typeID);
+		map_filter.addRequirement(components::TransformComponent::typeID);
+
+		p_iterator = getEntitiesByFilter(map_filter);
+
+		for (FilteredEntity& tile : p_iterator.entities)
+		{
+			height[index++] = tile.getComponent<components::TransformComponent>()->position.y;
+		}
+
+
+
+		graphics::TILE_RENDERING_PIPELINE_DATA data;
+		data.pHeightBuffer = height;
+		data.ByteWidth = index * sizeof(float);
+
+
+
+
+
+
+
+
+
 		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		mpStateMgr->UpdatePipelineState(mPipelineState, &data);
 		mpStateMgr->SetPipelineState(mPipelineState);
+
+		free(height);
 	}
 
 	void WorldRenderSystem::Initialize(
