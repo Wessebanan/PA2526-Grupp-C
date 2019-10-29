@@ -5,5 +5,5 @@
 
 void InitInterpreter(ecs::EntityComponentSystem& rECS)
 {
-	rECS.createSystem<ecs::systems::ChangeFSMSystem>();
+	rECS.createSystem<ecs::systems::ChangeFSMSystem>(3);
 }

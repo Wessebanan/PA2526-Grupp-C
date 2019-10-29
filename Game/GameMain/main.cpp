@@ -46,6 +46,9 @@
 
 #include "gameUtility/Timer.h"
 
+#include "gameGameLoop/InitGameLoop.h"
+#include "gameGameLoop/GameLoopEvents.h"
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -55,11 +58,30 @@ void InitAll(EntityComponentSystem& rECS);
 const UINT g_RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
 
+#define MAPSIZETEST true
+
+
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-	
+
+	if (MAPSIZETEST)
+	{
+		int map_size;
+		cout << "MAP PRESET (0-2): ";
+		cin >> map_size;
+		cout << "The value you entered is " << map_size;
+
+		GridProp* p_gp = GridProp::GetInstance();
+		p_gp->mCurrentMap = map_size;
+	}
+	else
+	{
+		GridProp* p_gp = GridProp::GetInstance();
+		p_gp->mCurrentMap = -1;
+	}
+
 	srand(time(0));
 
 	/*
@@ -137,16 +159,13 @@ int main()
 				wnd.Close();
 			}
 
-			// Close window when user press Esc
 			if (GetAsyncKeyState(VK_HOME))
 			{
-				// change state component
-				events::PingEvent ping_event;
-				ping_event.playerId = (PLAYER)2;
-
-
-				ecs.createEvent(ping_event);
+				ecs::events::GameStartEvent eve;
+				//eve.winner = 1;
+				ecs.createEvent(eve);
 			}
+			
 
 			/*
 				Update all ECS systems, and give them the delta time.
@@ -212,19 +231,14 @@ void InitAll(EntityComponentSystem& rECS)
 
 	InitAnimation(rECS);
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
-	
+
+
+	InitGameLoop(rECS);
+
+
+
 	InitGraphicsRenderSystems(rECS);
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
 
-	ChangeUserStateEvent e;
-	e.newState = ATTACK;
-	e.playerId = PLAYER1;
-	rECS.createEvent(e);
-	e.playerId = PLAYER2;
-	rECS.createEvent(e);
-	e.playerId = PLAYER3;
-	rECS.createEvent(e);
-	e.playerId = PLAYER4;
-	rECS.createEvent(e);
 }
