@@ -9,6 +9,7 @@ namespace ecs {
 		struct SkeletonComponent : public ECSComponent<SkeletonComponent>
 		{
 			ModelLoader::UniqueSkeletonData skeletonData;
+			float pingTimeElapsed = -1;
 		};
 	}
 }

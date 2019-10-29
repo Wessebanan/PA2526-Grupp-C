@@ -165,6 +165,10 @@ namespace ModelLoader
 		{
 
 		}
+		void ResetFrameCount()
+		{
+			this->mCurrentTime = 0.0f;
+		}
 		void Init(Skeleton* parentSkeleton)
 		{
 			this->parentSkeleton = parentSkeleton;
