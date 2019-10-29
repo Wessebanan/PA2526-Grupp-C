@@ -242,6 +242,9 @@
     <ClInclude Include="UI\InitUI.h">
       <Filter>UI</Filter>
     </ClInclude>
+    <ClInclude Include="InitHttpServer.h">
+      <Filter>Init</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">

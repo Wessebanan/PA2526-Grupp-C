@@ -46,6 +46,8 @@
 
 #include "gameUtility/Timer.h"
 
+#include "InitHttpServer.h"
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -160,6 +162,7 @@ int main()
 	/*
 		-- Cleanup Memory --
 	*/
+	StopHttpServer();
 
 	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
@@ -172,6 +175,8 @@ int main()
 
 	MeshContainer::Terminate();
 	render_buffer.Terminate();
+
+	
 
 	return 0;
 
@@ -227,4 +232,6 @@ void InitAll(EntityComponentSystem& rECS)
 	rECS.createEvent(e);
 	e.playerId = PLAYER4;
 	rECS.createEvent(e);
+
+	InitHttpServer(rECS);
 }
