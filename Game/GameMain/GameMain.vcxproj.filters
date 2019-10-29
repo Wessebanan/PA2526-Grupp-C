@@ -57,8 +57,8 @@
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp">
       <Filter>Graphics\ECS</Filter>
     </ClCompile>
-    <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp">
-      <Filter>Graphics</Filter>
+    <ClCompile Include="gameAnimation\AnimationSystems.cpp">
+      <Filter>Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,12 +218,16 @@
     <ClInclude Include="gameWorld\OceanComponents.h">
       <Filter>World</Filter>
     </ClInclude>
+    <ClInclude Include="gameAnimation\AnimationComponents.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="gameAnimation\AnimationSystems.h">
+      <Filter>Animation</Filter>
+    </ClInclude>
     <ClInclude Include="gameUtility\UtilityGraphics.h">
       <Filter>Utility</Filter>
     </ClInclude>
-    <ClInclude Include="gameGraphics\TileRenderingPipeline.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
+
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">

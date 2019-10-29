@@ -80,7 +80,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::PipelineForwardComponent* p_pfComp = rEcs.getComponentFromEntity<components::PipelineForwardComponent>(graphics_entity_id);
 
 	p_psmComp->pipelineDesc.PixelsWidth = 2048;
-	p_psmComp->pipelineDesc.Width = 45.0f;
+	p_psmComp->pipelineDesc.Width = 35.0f;
 	p_psmComp->pipelineDesc.Height = 80.0f;
 	p_psmComp->pipelineDesc.NearPlane = 1.0f;
 	p_psmComp->pipelineDesc.FarPlane = 40.0f;
@@ -155,5 +155,5 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(MESH_TYPE_TILE, "../meshes/hexagon_tile5.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_ROCK, "../meshes/rock.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_TREE, "../meshes/tree2.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../RunningCustom2.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../DudeMesh2.fbx");
 }

@@ -13,7 +13,7 @@ using namespace DirectX;
 namespace GridEcsFunctions
 {
 	//Calculates the centerposition of all the tiles in the grid.
-	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int Rows, const int Columns, const float Radius)
+	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int Rows, const int Columns, const float Radius, bool holmes)
 	{
 		float pi = 3.1415f;
 		XMFLOAT3 starting_pos = { 0.0f, 0.0f, 0.0f };
@@ -26,7 +26,7 @@ namespace GridEcsFunctions
 
 		const int mapsze = MAX_ARENA_ROWS*MAX_ARENA_ROWS; // Max size
 		float height_map[mapsze];
-		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60);
+		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60, holmes);
 
 
 		GridProp* p_gp = GridProp::GetInstance();
@@ -51,7 +51,7 @@ namespace GridEcsFunctions
 				transform.position.x = current_pos.x;
 				transform.position.y = height_map[(i*MAX_ARENA_ROWS)+j];
 				transform.position.z = current_pos.z;
-				if (transform.position.y <= -1.f)
+				if (transform.position.y <= -0.9f)
 				{
 					tile.tileType = WATER;
 					tile.impassable = true;
@@ -70,11 +70,10 @@ namespace GridEcsFunctions
 				else if (transform.position.y == -2)
 				{
 					tile.tileType = WATER;
-					color.blue = 150.0f;
-					tile.impassable = false;
-					p_gp->mGrid[i][j].isPassable = true;
+					tile.impassable = true;
+					tile.goal = false;
+					p_gp->mGrid[i][j].isPassable = false;
 					p_gp->mGrid[i][j].biome = -1;
-					tile.goal = true;
 				}
 				else
 				{

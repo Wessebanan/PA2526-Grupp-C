@@ -27,6 +27,11 @@ void Sphere::Transform(XMMATRIX transform)
 	BoundingSphere::Transform(*(BoundingSphere*)this, transform);
 }
 
+XMFLOAT3 Sphere::GetCenter()
+{
+	return Center;
+}
+
 bool OBB::Intersects(BoundingVolume* other)
 {
 	// Check which bounding volume 'other' is and test.
@@ -53,6 +58,11 @@ void OBB::Transform(XMMATRIX transform)
 	BoundingOrientedBox::Transform(*(BoundingOrientedBox*)this, transform);
 }
 
+XMFLOAT3 OBB::GetCenter()
+{
+	return Center;
+}
+
 bool AABB::Intersects(BoundingVolume* other)
 {
 	// Check which bounding volume 'other' is and test.
@@ -77,4 +87,9 @@ bool AABB::Intersects(BoundingVolume* other)
 void AABB::Transform(XMMATRIX transform)
 {
 	BoundingBox::Transform(*(BoundingBox*)this, transform);
+}
+
+XMFLOAT3 AABB::GetCenter()
+{
+	return Center;
 }
