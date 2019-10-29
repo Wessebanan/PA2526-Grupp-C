@@ -27,7 +27,7 @@ namespace ecs
 
 		struct PathfindingStateComponent : public ECSComponent<PathfindingStateComponent>
 		{
-			STATE goalState = STATE::IDLE;
+			STATE activeCommand = STATE::IDLE;
 		};
 
 		struct IdleStateComponent : public ECSComponent<IdleStateComponent>
@@ -37,11 +37,10 @@ namespace ecs
 
 		struct MoveStateComponent : public ECSComponent<MoveStateComponent>
 		{
-			STATE goalState = STATE::IDLE;
-			DirectX::XMFLOAT3 goalPos = { 0.0f, 0.0f, 0.0f }; //Defaults to 0,0,0 to make sure that there always is some kind of goal.
-			float time = 0.0f;
-			std::vector<unsigned int> path;
+			STATE activeCommand = STATE::IDLE;
 			unsigned int goalID;
+			float time = 0.0f; 
+			std::vector<unsigned int> path;
 		};
 
 		struct FleeStateComponent : public ECSComponent<FleeStateComponent>
@@ -59,7 +58,7 @@ namespace ecs
 		struct AttackStateComponent : public ECSComponent<AttackStateComponent>
 		{
 			int enemyEntityId = 0;
-			STATE previousState = STATE::IDLE;
+			STATE activeCommand = STATE::IDLE;
 		};
 
 		struct UnitComponent : public ECSComponent<UnitComponent>
@@ -73,6 +72,11 @@ namespace ecs
 			std::vector<int> unitIDs; //Holds the entity IDs of every unit in one players army.
 
 			PLAYER playerID;
+		};
+
+		struct DeadComponent : public ECSComponent<DeadComponent>
+		{
+			int data;
 		};
 	}
 }
