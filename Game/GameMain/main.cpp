@@ -38,6 +38,8 @@
 #include "gameGraphics/GraphicsECSSystems.h"
 #include "gameGraphics/InitGraphics.h"
 
+#include "gameWorld/InitWorld.h"
+
 #include <time.h>
 
 #include "gameUtility/Timer.h"
@@ -88,6 +90,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TransformComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
+	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(5000);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -187,10 +190,13 @@ void InitAll(EntityComponentSystem& rECS)
 	InitArmy(rECS);
 	InitSceneObjects(rECS);
 
+	InitOceanEntities(rECS);
+
 	InitCamera(rECS);
 
+	InitAnimation(rECS);
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
-
+	
 	InitGraphicsRenderSystems(rECS);
 	InitGraphicsPostRenderSystems(rECS);
 
@@ -200,9 +206,9 @@ void InitAll(EntityComponentSystem& rECS)
 	rECS.createEvent(e);
 	e.newState = FLEE;
 	e.playerId = PLAYER2;
-	rECS.createEvent(e);
+	//rECS.createEvent(e);
 	e.playerId = PLAYER3;
 	rECS.createEvent(e);
 	e.playerId = PLAYER4;
-	rECS.createEvent(e);
+	//rECS.createEvent(e);
 }

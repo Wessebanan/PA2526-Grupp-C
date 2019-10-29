@@ -8,11 +8,14 @@ using namespace DirectX;
 
 namespace GridFunctions
 {
-	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains) //Creates a array that is used to change the hight for the map and remove chunks for water
+	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains, bool holmes) //Creates a array that is used to change the hight for the map and remove chunks for water
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
+		int layers = 3;
+		int holme_space = 0;
 
-		const int max_rows = MAX_ARENA_ROWS;
+		// The maximum amount of allowed tiles
+		const int max_rows = MAX_ARENA_ROWS; // Adds 10 in the end to allow a holme
 		const int max_columns = MAX_ARENA_COLUMNS;
 
 
@@ -26,21 +29,21 @@ namespace GridFunctions
 			}
 
 		// Default the map to be flat
-		for (size_t i = 0; i < rows; i++)
-			for (size_t j = 0; j < columns; j++)
+		for (size_t i = holme_space; i < rows - holme_space; i++)
+			for (size_t j = holme_space; j < columns - holme_space; j++)
 			{
 				height_values[i][j] = 0.f;
 			}
 
 
-		// ------------------ ADD MOUNTINS TO HTE MAP
+		// ------------------ ADD MOUNTINS TO THE MAP
 
 		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
-			int top_x = rand() % (rows - 3);
-			int top_y = rand() % (columns - 3);
-			top_x += 2;
-			top_y += 2;
+			int top_x = rand() % (rows - 3 - holme_space);
+			int top_y = rand() % (columns - 3 - holme_space);
+			top_x += 2 + holme_space;
+			top_y += 2 + holme_space;
 			float top_height = 1.2f * height_power;
 			float slope = 0.7f;
 			
@@ -114,33 +117,38 @@ namespace GridFunctions
 
 
 		// ------------ TAKE OUT PARTS OF THE MAP
-
+		holme_space = layers * 2;
 		// Removes chunks from each side of the map
 		int chunk_size = rows / 4;
-		int side0 = rand() % (rows - chunk_size);
-		int side1 = rand() % (columns - chunk_size);
-		int side2 = rand() % (rows - chunk_size);
-		int side3 = rand() % (columns - chunk_size);
+		int side0 = rand() % (rows - chunk_size - holme_space);
+		int side1 = rand() % (columns - chunk_size - holme_space);
+		int side2 = rand() % (rows - chunk_size - holme_space);
+		int side3 = rand() % (columns - chunk_size - holme_space);
+
+		side0 += layers;
+		side1 += layers;
+		side2 += layers;
+		side3 += layers;
 
 		// removed 3 on each side
 		for (size_t i = 0; i < chunk_size; i++)
 		{
-			height_values[0][(side0 + i)] = -1.0f;
-			height_values[rows - 1][(side1 + i)] = -1.0f;
-			height_values[(side2 + i)][0] = -1.0f;
-			height_values[(side3 + i)][columns - 1] = -1.0f;
+			height_values[layers][(side0 + i)] = -1.0f;
+			height_values[rows - 1 - layers][(side1 + i)] = -1.0f;
+			height_values[(side2 + i)][layers] = -1.0f;
+			height_values[(side3 + i)][columns - 1 - layers] = -1.0f;
 		}
 
 		// removes 2 more from 2 sides one layer close to the center
 		for (size_t i = 0; i < chunk_size-1; i++)
 		{
-			height_values[1][(side0 + i)] = -1.0f;
-			height_values[rows - 2][(side1 + i)] = -1.0f;
+			height_values[1 + layers][(side0 + i)] = -1.0f;
+			height_values[rows - 2 - layers][(side1 + i)] = -1.0f;
 		}
 		
 
 		// If the map is big enough more is removed
-		if (rows > 16 && columns > 16)
+		if (rows > 16 + layers && columns > 16 + layers)
 		{
 			for (size_t j = 0; j < 2; j++)
 			{
@@ -183,20 +191,20 @@ namespace GridFunctions
 						switch (random_lakeside)
 						{
 						case 0:
-							x = (starting_tile)+i + k;
-							y = k;
+							x = (starting_tile) + i + k;
+							y = k + layers;
 							break;
 						case 1:
-							x = k;
+							x = k + layers;
 							y = (starting_tile) + i + k;
 							break;
 						case 2:
 							x = (starting_tile) + i + k;
-							y = columns - k - 1;
+							y = columns - k - 1 - layers;
 							break;
 						case 3:
-							x = rows - 1 - k;
-							y = (starting_tile)+i + k;
+							x = rows - 1 - k - layers;
+							y = (starting_tile) + i + k;
 							break;
 						default:
 							break;
@@ -221,26 +229,28 @@ namespace GridFunctions
 						{
 						case 0:
 							x = (starting_tile) + i + (depth / 2);
-							y = depth + k;
+							y = depth + k + layers;
 							break;
 						case 1:
-							x = depth + k;
+							x = depth + k + layers;
 							y = (starting_tile) + i + (depth / 2);
 							break;
 						case 2:
 							x = (starting_tile) + i + (depth / 2);
-							y = columns - (depth + k) - 1;
+							y = columns - (depth + k) - 1 - layers;
 							break;
 						case 3:
-							x = rows - 1 - (depth + k);
+							x = rows - 1 - (depth + k) - layers;
 							y = (starting_tile) + i + (depth / 2);
 							break;
 						default:
 							break;
 						}
 
-						x = abs(x);
-						y = abs(y);
+						if (x < 0)
+							x = 0;
+						if (y < 0)
+							y = 0;
 						height_values[x][y] = -1.f;
 					}
 				}
@@ -264,11 +274,86 @@ namespace GridFunctions
 
 		}
 
+		// -------------- REMOVE 3 LAYERS ON EACH SIDE
+		// removed layers on each side
+		for (size_t l = 0; l < layers; l++)
+		{
+			for (size_t i = 0; i < rows; i++)
+			{
+				height_values[l][(i)] = -1.0f;
+				height_values[rows - 1 - l][(i)] = -1.0f;
+			}
+
+			for (size_t i = 0; i < columns; i++)
+			{
+				height_values[(i)][l] = -1.0f;
+				height_values[(i)][columns - 1 - l] = -1.0f;
+			}
+		}
+
+		if (holmes)
+		{
+			// Add the holmes
+			int start0 = rows / 2;
+			int start1 = columns / 2;
+			int start2 = start1;
+			int start3 = start2;
+
+
+			size_t i = 0;
+			int start = 0;
+
+			// first side
+			start = start0;
+			height_values[start + 1][0] = 0.0f;
+			height_values[start - 1][0] = 0.0f;
+			height_values[start - 1][1] = 0.0f;
+			for (i = 0; height_values[start][i] < -0.5f; i++)
+			{
+				height_values[start][i] = 0.0f;
+				height_values[start + 1][i] = 0.0f;
+			}
+
+
+			// second side
+			start = start0;
+			height_values[0][start + 1] = 0.0f;
+			height_values[0][start - 1] = 0.0f;
+			height_values[1][start - 1] = 0.0f;
+			for (i = 0; height_values[i][start] < -0.5f; i++)
+			{
+				height_values[i][start] = 0.0f;
+				height_values[i][start + 1] = 0.0f;
+			}
+
+			// third side
+			start = start1;
+			height_values[start + 1][columns - 1] = 0.0f;
+			height_values[start - 1][columns - 1] = 0.0f;
+			height_values[start - 1][columns - 2] = 0.0f;
+			for (i = 0; height_values[start][columns - 1 - i] < -0.5f; i++)
+			{
+				height_values[start][columns - 1 - i] = 0.0f;
+				height_values[start + 1][columns - 1 - i] = 0.0f;
+			}
+
+			// forth side
+			start = start1;
+			height_values[rows - 1][start + 1] = 0.0f;
+			height_values[rows - 1][start - 1] = 0.0f;
+			height_values[rows - 2][start - 1] = 0.0f;
+			for (i = 0; height_values[rows - 1 - i][start] < -0.5f; i++)
+			{
+				height_values[rows - 1 - i][start] = 0.0f;
+				height_values[rows - 1 - i][start + 1] = 0.0f;
+			}
+		}
+
 
 		for (int i = 0; i < rows; i++)
 		{
 			for (int j = 0; j < columns; j++)
-				Arr[j + i * MAX_ARENA_ROWS] = height_values[i][j];
+				Arr[(j)+(i)* MAX_ARENA_ROWS] = height_values[i][j];
 		}
 	}
 
@@ -303,7 +388,7 @@ namespace GridFunctions
 		if (neighbourIndex.x >= 0 && neighbourIndex.x < p_gp->GetSize().x
 			&& neighbourIndex.y >= 0 && neighbourIndex.y < p_gp->GetSize().y
 			&& p_gp->mGrid[currentTile.x][currentTile.y].height -
-			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1
+			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1.0f
 			&& p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].isPassable)
 			returnValue = true;
 
@@ -432,68 +517,173 @@ namespace GridFunctions
 		}
 	}
 
-	int2 FindStartingTile(PLAYER Id, int Rows, int Columns)
+	// Setting will set it as one of the ways to start
+	int2 FindStartingTile(PLAYER Id, int Rows, int Columns, MAPINITSETTING Setting)
 	{
-		/*
-		Picture of which corner the players should spawn in
-		__________________
-		|        |        |
-		|        |        |
-		|   3    |   4    |
-		|________|________|
-		|        |        |
-		|        |        |
-		|   1    |   2    |
-		|________|________|
-		*/
-
-		//Initialize variables
-		int rows = Rows;
-		int columns = Columns;
-		int2 index(-1, -1);
-		int min_x, min_y;
 		GridProp* p_gp = GridProp::GetInstance();
-		//Set the minimum tile index in x- and y-axis depending on which player it is
-		switch (Id)
+		int2 index(-1, -1);
+		// finds each holme and sets them to it
+		if (Setting == MAPINITSETTING::HOLMES)
 		{
-		case PLAYER1:
-			min_x = min_y = 0;
-			break;
-		case PLAYER2:
-			min_x = columns / 2;
-			min_y = 0;
-			break;
-		case PLAYER3:
-			min_x = 0;
-			min_y = rows / 2;
-			break;
-		case PLAYER4:
-			min_x = columns / 2;
-			min_y = rows / 2;
-			break;
-		default:
-			break;
-		}
-		//Initialize the random number generator
-		bool tileFound = false;
-		int x = 0;
-		int y = 0;
-		//Randomize an index in the players corner and check if it is a passable tile. If so return that tiles index as the starting tile.
-		//The seed is set in AIEcsFunctions.cpp in the CreateArmies function.
-		while (!tileFound)
-		{
-			x = std::rand() % (columns / 2) + min_x;
-			y = std::rand() % (rows / 2) + min_y; 
-			if (p_gp->mGrid[y][x].isPassable)
+			switch (Id)
 			{
-				std::cout << "x: " << x << " y: " << y << std::endl; //Used for debug purpose
-				index.x = x;
-				index.y = y;
-				tileFound = true;
+			case PLAYER1:
+				for (size_t i = 0; i < Rows; i++)
+				{
+					if (p_gp->mGrid[i][0].isPassable)
+					{
+						index.x = i;
+						index.y = 0;
+						break;
+					}
+				}
+				break;
+			case PLAYER2:
+				for (size_t i = 0; i < Columns; i++)
+				{
+					if (p_gp->mGrid[0][i].isPassable)
+					{
+						index.x = 0;
+						index.y = i;
+						break;
+					}
+				}
+				break;
+			case PLAYER3:
+				for (size_t i = 0; i < Rows; i++)
+				{
+					if (p_gp->mGrid[i][Columns - 1].isPassable)
+					{
+						index.x = i;
+						index.y = Columns - 1;
+						break;
+					}
+				}
+				break;
+			case PLAYER4:
+				for (size_t i = 0; i < Columns; i++)
+				{
+					if (p_gp->mGrid[Rows - 1][i].isPassable)
+					{
+						index.x = Rows - 1;
+						index.y = i;
+						break;
+					}
+				}
+				break;
+			default:
+				break;
 			}
 		}
+		else if (Setting == MAPINITSETTING::SQUARE)
+		{
+			/*
+			Picture of which corner the players should spawn in
+			__________________
+			|        |        |
+			|        |        |
+			|   3    |   4    |
+			|________|________|
+			|        |        |
+			|        |        |
+			|   1    |   2    |
+			|________|________|
+			*/
+
+			//Initialize variables
+			int rows = Rows;
+			int columns = Columns;
+			int min_x, min_y;
+			//Set the minimum tile index in x- and y-axis depending on which player it is
+			switch (Id)
+			{
+			case PLAYER1:
+				min_x = min_y = 0;
+				break;
+			case PLAYER2:
+				min_x = columns / 2;
+				min_y = 0;
+				break;
+			case PLAYER3:
+				min_x = 0;
+				min_y = rows / 2;
+				break;
+			case PLAYER4:
+				min_x = columns / 2;
+				min_y = rows / 2;
+				break;
+			default:
+				break;
+			}
+			//Initialize the random number generator
+			bool tileFound = false;
+			int x = 0;
+			int y = 0;
+			//Randomize an index in the players corner and check if it is a passable tile. If so return that tiles index as the starting tile.
+			//The seed is set in AIEcsFunctions.cpp in the CreateArmies function.
+			while (!tileFound)
+			{
+				x = std::rand() % (columns / 2) + min_x;
+				y = std::rand() % (rows / 2) + min_y;
+				if (p_gp->mGrid[y][x].isPassable)
+				{
+					std::cout << "x: " << x << " y: " << y << std::endl; //Used for debug purpose
+					index.x = x;
+					index.y = y;
+					tileFound = true;
+				}
+			}
+		}
+		else // MAPINITSETTING::NOHOLMES
+		{
+			//Initialize variables
+			int rows = Rows;
+			int columns = Columns;
+			int min_x, min_y;
+			//Set the minimum tile index in x- and y-axis depending on which player it is
+			switch (Id)
+			{
+			case PLAYER1:
+				min_x = min_y = 0;
+				break;
+			case PLAYER2:
+				min_x = columns / 2;
+				min_y = 0;
+				break;
+			case PLAYER3:
+				min_x = 0;
+				min_y = rows / 2;
+				break;
+			case PLAYER4:
+				min_x = columns / 2;
+				min_y = rows / 2;
+				break;
+			default:
+				break;
+			}
+			//Initialize the random number generator
+			bool tileFound = false;
+			int x = 0;
+			int y = 0;
+			//Randomize an index in the players corner and check if it is a passable tile. If so return that tiles index as the starting tile.
+			//The seed is set in AIEcsFunctions.cpp in the CreateArmies function.
+			while (!tileFound)
+			{
+				x = std::rand() % (columns / 2) + min_x;
+				y = std::rand() % (rows / 2) + min_y;
+				if (p_gp->mGrid[y][x].isPassable)
+				{
+					std::cout << "x: " << x << " y: " << y << std::endl; //Used for debug purpose
+					index.x = x;
+					index.y = y;
+					tileFound = true;
+				}
+			}
+		}
+
 		return index;
 	}
+
 	int2 GetTileFromWorldPos(float x, float z)
 	{
 		int2 index;

@@ -41,23 +41,23 @@
     <Import Project="..\..\PropertySheets\GraphicsEngine_Debug.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
     <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
-    <Import Project="..\..\PropertySheets\Physics_Debug.props" />
     <Import Project="..\..\PropertySheets\AI_Debug.props" />
     <Import Project="..\..\PropertySheets\Utility_Debug.props" />
     <Import Project="..\..\PropertySheets\Sound_Debug.props" />
     <Import Project="..\..\PropertySheets\Graphics_Debug.props" />
+    <Import Project="..\..\PropertySheets\Physics_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="..\..\PropertySheets\ECS_Release.props" />
     <Import Project="..\..\PropertySheets\GraphicsEngine_Release.props" />
     <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
-    <Import Project="..\..\PropertySheets\Physics_Release.props" />
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
     <Import Project="..\..\PropertySheets\AI_Release.props" />
     <Import Project="..\..\PropertySheets\Utility_Release.props" />
     <Import Project="..\..\PropertySheets\Sound_Release.props" />
     <Import Project="..\..\PropertySheets\Graphics_Release.props" />
+    <Import Project="..\..\PropertySheets\Physics_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -102,6 +102,7 @@
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
+    <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
@@ -129,6 +130,8 @@
     <ClInclude Include="gameAI\InitAI.h" />
     <ClInclude Include="gameAI\InitArmy.h" />
     <ClInclude Include="gameAI\InitGrid.h" />
+    <ClInclude Include="gameAnimation\AnimationComponents.h" />
+    <ClInclude Include="gameAnimation\AnimationSystems.h" />
     <ClInclude Include="gameAnimation\InitAnimation.h" />
     <ClInclude Include="gameAudio\AudioECSEvents.h" />
     <ClInclude Include="gameAudio\AudioECSSystems.h" />
@@ -158,6 +161,9 @@
     <ClInclude Include="gameUtility\UtilityEvents.h" />
     <ClInclude Include="gameUtility\UtilityEcsFunctions.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
+    <ClInclude Include="gameWorld\InitWorld.h" />
+    <ClInclude Include="gameWorld\OceanComponents.h" />
+    <ClInclude Include="gameWorld\WorldSettings.h" />
     <ClInclude Include="GraphicsComponents.h" />
     <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />

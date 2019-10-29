@@ -17,22 +17,23 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 
 	int rows = 0;
 	int columns = 0;
+	bool holmes = true;
 	p_gp->mCurrentMap = random_map;
+	
 	// 3 preset mapsizes
-
 	switch (random_map)
 	{
 	case 0:
-		rows = 12;
-		columns = 12;
+		rows = 15;
+		columns = 15;
 		break;
 	case 1:
-		rows = 18;
-		columns = 18;
+		rows = 22;
+		columns = 22;
 		break;
 	case 2:
-		rows = 20;
-		columns = 24;
+		rows = 28;
+		columns = 28;
 		break;
 	default:
 		// For testing the map can be set to close to maximum
@@ -41,8 +42,6 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 		break;
 	}
 
-
-
-	GridEcsFunctions::CreateGrid(rECS, rows, columns, 1.0f);
+	GridEcsFunctions::CreateGrid(rECS, rows, columns, 1.0f, holmes);
 	InitBiomes(rECS, rows, columns);
 }

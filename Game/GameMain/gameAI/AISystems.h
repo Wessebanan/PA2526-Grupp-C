@@ -11,6 +11,7 @@
 #include "../Physics/PhysicsEvents.h"
 #include <iostream>
 #include "../../Physics/includes/PhysicsHelperFunctions.h"
+#include "../gameAnimation/AnimationComponents.h"
 
 namespace ecs
 {
