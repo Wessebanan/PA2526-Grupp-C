@@ -2,6 +2,9 @@
 #include "Mesh.h"
 #include "AnimationSystems.h"
 #include "../MeshContainer/MeshContainer.h"
+
+#include "ecs.h"
+
 struct SkinningShaderProgramInput
 {
 	DirectX::XMFLOAT4X4 world;
@@ -24,17 +27,6 @@ static void UpdateAnimation(ModelLoader::Skeleton* skeleton, SkinningShaderProgr
 static void InitAnimation(ecs::EntityComponentSystem& rECS)
 {
 	rECS.createSystem<ecs::systems::SkeletonSystem>();
-	ecs::TypeFilter skeleton_filter;
-	skeleton_filter.addRequirement(ecs::components::SkeletonComponent::typeID);
-	ecs::EntityIterator skeletons = rECS.getEntititesByFilter(skeleton_filter);
-
-	// Initalize the skeleton data structs and start the Idle animation as default
-	for (ecs::FilteredEntity s : skeletons.entities)
-	{	
-		ModelLoader::UniqueSkeletonData* skeletonData = &s.getComponent<ecs::components::SkeletonComponent>()->skeletonData;
-		skeletonData->Init(MeshContainer::GetMeshCPU(MESH_TYPE::MESH_TYPE_UNIT)->GetSkeleton());
-		skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
-	}
 
 	rECS.createSystem<ecs::systems::PingListenerSystem>(7);
 }
