@@ -108,7 +108,6 @@ namespace ecs
 			void act(float _delta) override
 			{
 				mpD2D->GetpContext()->BeginDraw();
-				//mpD2D->GetpContext()->Clear();
 			}
 			Direct2D* mpD2D;
 		};

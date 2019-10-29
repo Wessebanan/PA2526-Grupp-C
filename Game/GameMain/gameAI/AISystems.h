@@ -786,34 +786,34 @@ namespace ecs
 				// Chagne the command on the UI
 				ecs::BaseComponent* p_base_comp = getComponentFromKnownEntity<ecs::components::UITextComponent>(p_army->getEntityID());
 
-				ecs::components::UITextComponent* text_comp = static_cast<ecs::components::UITextComponent*>(p_base_comp);
+				ecs::components::UITextComponent* p_text_comp = static_cast<ecs::components::UITextComponent*>(p_base_comp);
 				
 				switch (state)
 				{
 				case STATE::IDLE:
-					text_comp->mStrText = "IDLE";
+					p_text_comp->mStrText = "IDLE";
 					break;
 				case STATE::LOOT:
-					text_comp->mStrText = "LOOT";
+					p_text_comp->mStrText = "LOOT";
 					break;
 				case STATE::ATTACK:
-					text_comp->mStrText = "ATTACK";
+					p_text_comp->mStrText = "ATTACK";
 					break;
 				case STATE::MOVE:
-					text_comp->mStrText = "MOVE";
+					p_text_comp->mStrText = "MOVE";
 					break;
 				default:
-					text_comp->mStrText = "no case for state";
+					p_text_comp->mStrText = "no case for state";
 					break;
 				}
 
 
 				//Loop through the players units and remove their old state component.
-				ecs::Entity* unit;
+				ecs::Entity* p_unit;
 				for (int u = 0; u < p_army->unitIDs.size(); u++)
 				{
 					ID entity_id = p_army->unitIDs[u];
-					unit = ecs::ECSUser::getEntity(entity_id);
+					p_unit = ecs::ECSUser::getEntity(entity_id);
 
 					ecs::ECSUser::removeComponent(entity_id, ecs::components::MoveStateComponent::typeID);
 					ecs::ECSUser::removeComponent(entity_id, ecs::components::IdleStateComponent::typeID);
@@ -827,7 +827,7 @@ namespace ecs
 					ecs::components::IdleStateComponent idle;
 
 					// Fetch the skeleton ID to start animations based on state
-					ID skeleton_id = unit->getComponentID<ecs::components::SkeletonComponent>();
+					ID skeleton_id = p_unit->getComponentID<ecs::components::SkeletonComponent>();
 
 					//Give the unit the new state component.
 					switch (state)

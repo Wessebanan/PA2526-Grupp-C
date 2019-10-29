@@ -28,7 +28,7 @@ TEST(ExpectedTrue, DebugWindow)
 	using namespace ecs;
 	EntityComponentSystem my_ecs;
 	TempUISystemPtrs my_UI_systems;
-	InitUI(my_ecs, my_UI_systems, windowHandle);//here Direct 2D get created and passed along to UISystems
+	InitUI(my_ecs, my_UI_systems);//here Direct 2D get created and passed along to UISystems
 	//HRESULT hr = p_dtest->CreateHwndRenderTarget(windowHandle, &rectTest);//this have to be after the creation of Direct 2D
 
 	ecs::components::UITextComponent UIText;
@@ -58,7 +58,7 @@ TEST(ExpectedFail, DebugWindow)
 	EntityComponentSystem my_ecs;
 
 	TempUISystemPtrs my_UI_systems;
-	InitUI(my_ecs, my_UI_systems, windowHandle);
+	InitUI(my_ecs, my_UI_systems);
 
 	components::UITextComponent UIText;
 	UIText.mStrText = "hehehheehtest";

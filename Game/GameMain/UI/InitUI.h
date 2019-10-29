@@ -30,19 +30,19 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	rSystemPointers.UIpostSys	= rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
 	my_d2d = new Direct2D;
 
-	ID3D11Texture2D* backbuffer;
-	IDXGISwapChain1* swapchain;
-	IDXGIDevice* dxgi_device;
+	ID3D11Texture2D* p_backbuffer;
+	IDXGISwapChain1* p_swapchain;
+	IDXGIDevice* p_dxgi_device;
 	graphics::internal::D3D11_DEVICE_HANDLE handle;
 	graphics::internal::GetD3D11(&handle); //Get handle from DX11
-	handle.pDevice4->QueryInterface(&dxgi_device); //use the handles device to get a dxgi device
-	my_d2d->InitDeviceAndContext(dxgi_device); //use to dxgi device to create Direct2D device and device context
-	dxgi_device->Release();//release after use
-	graphics::internal::GetSwapChain(&swapchain);//Get swapchain
-	swapchain->GetBuffer(0, IID_PPV_ARGS(&backbuffer));//Use swapchain to get backbuffer as a dx11 texture
-	swapchain->Release();
-	BindTextureToBitmap(my_d2d, backbuffer);//Turn the texture to a surface then bind that surface to a Direct2D bitmap then draw things on that bitmap which is the backbuffer
-	backbuffer->Release();
+	handle.pDevice4->QueryInterface(&p_dxgi_device); //use the handles device to get a dxgi device
+	my_d2d->InitDeviceAndContext(p_dxgi_device); //use to dxgi device to create Direct2D device and device context
+	p_dxgi_device->Release();//release after use
+	graphics::internal::GetSwapChain(&p_swapchain);//Get swapchain
+	p_swapchain->GetBuffer(0, IID_PPV_ARGS(&p_backbuffer));//Use swapchain to get backbuffer as a dx11 texture
+	p_swapchain->Release();
+	BindTextureToBitmap(my_d2d, p_backbuffer);//Turn the texture to a surface then bind that surface to a Direct2D bitmap then draw things on that bitmap which is the backbuffer
+	p_backbuffer->Release();
 	//my_d2d->CreateHwndRenderTarget(window, graphics::GetClientResolution(window).x, graphics::GetClientResolution(window).y);
 	rSystemPointers.UIpreSys->mpD2D			= 
 		rSystemPointers.UITextSys->mpD2D	= 
