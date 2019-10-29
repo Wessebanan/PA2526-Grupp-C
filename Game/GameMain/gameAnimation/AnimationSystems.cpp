@@ -20,7 +20,7 @@ void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float de
 	}
 	else if (getComponentFromKnownEntity<ecs::components::MoveStateComponent>(pSkeleton->getEntityID()))
 	{
-		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::MOVE);
 	}
 	else
 	{ 
