@@ -69,6 +69,7 @@ namespace ModelLoader
 
 	enum ANIMATION_TYPE
 	{
+		PING,
 		IDLE,
 		MOVE,
 		ATTACK,
@@ -115,7 +116,7 @@ namespace ModelLoader
 					this->animationData = animations[i].animationData;
 					this->frameCount = animations[i].frameCount;
 					this->mCurrentTime = this->mCurrentTime + dtInSeconds;
-					int frame_to_set = (int)std::round(fmod(this->mCurrentTime * 24.0f, this->frameCount)) % this->frameCount;
+					int frame_to_set = (int)std::round(fmod(this->mCurrentTime * 60.0f, this->frameCount)) % this->frameCount;
 					// Get frame data from animationData vector
 					memcpy(this->frameData, &animations[i].animationData[frame_to_set * this->jointCount], this->jointCount * sizeof(DirectX::XMFLOAT4X4));
 					break; // This break will disappear when animation blending is implemented
@@ -175,13 +176,15 @@ namespace ModelLoader
 		}
 		void UpdateAnimation(float dtInSeconds, ANIMATION_TYPE animType)
 		{
-			int frame_count = this->parentSkeleton->animations[animType].frameCount;
-			int joint_count = this->parentSkeleton->jointCount;
-			this->mCurrentTime = this->mCurrentTime + dtInSeconds;
-			int frame_to_set = (int)std::round(fmod(this->mCurrentTime * 24.0f, frame_count)) % frame_count;
-			// Get frame data from animationData vector
-			memcpy(this->frameData, &this->parentSkeleton->animations[animType].animationData[frame_to_set * joint_count], joint_count * sizeof(DirectX::XMFLOAT4X4));
-
+			if (this->animationFlags[animType] != -1)
+			{
+				int frame_count = this->parentSkeleton->animations[animType].frameCount;
+				int joint_count = this->parentSkeleton->jointCount;
+				this->mCurrentTime = this->mCurrentTime + dtInSeconds;
+				int frame_to_set = (int)std::round(fmod(this->mCurrentTime * 60.0f, frame_count)) % frame_count;
+				// Get frame data from animationData vector
+				memcpy(this->frameData, &this->parentSkeleton->animations[animType].animationData[frame_to_set * joint_count], joint_count * sizeof(DirectX::XMFLOAT4X4));
+			}
 		}
 		// Returns false if requested animation does not exist
 		bool StartAnimation(ANIMATION_TYPE anim_type)
