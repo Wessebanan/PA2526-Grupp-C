@@ -7,11 +7,17 @@ void InitHttpServer(ecs::EntityComponentSystem& rECS)
 {
 	HttpServer::RunHttpServer("../Sites/mobileSite.html", "../Sites/favicon.ico");
 	UITextComponent text;
-	HttpServer::GetLocalIp4(text.mStrText);
+	std::string text_str;
+	HttpServer::GetLocalIp4(text_str);
+	text_str.insert(0, "Join at adress: ");
+	text.mStrText = text_str;
 	UIDrawPosComponent pos;
-	pos.mDrawArea = { 300.0f, 200.0f, 1000.0f, 300.f};
+	pos.mDrawArea.top = 50.f;
+	pos.mDrawArea.left = 700.f;
+	pos.mDrawArea.bottom = 300.f;
+	pos.mDrawArea.right = 1400.f;
 	UIDrawColorComponent color;
-	color.mColor = Purple;
+	color.mColor = White;
 	rECS.createEntity(text, pos, color); // Delete this later pls
 }
 

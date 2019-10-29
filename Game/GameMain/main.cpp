@@ -246,4 +246,5 @@ void InitAll(EntityComponentSystem& rECS)
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
 
+	InitHttpServer(rECS);
 }
