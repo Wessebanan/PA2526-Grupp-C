@@ -74,7 +74,7 @@ namespace graphics
 		};
 
 		void GetBackBuffer(ID3D11RenderTargetView** ppBackBuffer);
-
+		void GetSwapChain(IDXGISwapChain1** ppSwapChain);
 
 		void GetD3D11(D3D11_DEVICE_HANDLE* pHandle);
 

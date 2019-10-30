@@ -33,6 +33,9 @@
     <ClCompile Include="..\GameMain\Physics\FightingSystem.cpp">
       <Filter>Physics</Filter>
     </ClCompile>
+    <ClCompile Include="..\GameMain\UI\UISystems.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -135,6 +138,21 @@
     <ClInclude Include="AI\AiTests.h">
       <Filter>AI</Filter>
     </ClInclude>
+    <ClInclude Include="UI\UIEcsTest.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\UI\InitUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\UI\UIComponents.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\UI\UIEvents.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GameMain\UI\UISystems.h">
+      <Filter>UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Physics">
@@ -142,6 +160,9 @@
     </Filter>
     <Filter Include="Physics\Test Files">
       <UniqueIdentifier>{7c1aab98-ef41-4a09-a0ee-2452692177d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{211eec79-30db-47b1-ba0c-925afec467f1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

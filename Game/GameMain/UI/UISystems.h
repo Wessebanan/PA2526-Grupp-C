@@ -1,7 +1,6 @@
 #pragma once
-#include "InputComponents.h"
-
 #include "ecsSystemIncludes.h"
+#include "../Input/InitInputComponents.h"
 #include "UIComponents.h"
 #include "UIEvents.h"
 #include "Direct2D.h"
@@ -108,8 +107,7 @@ namespace ecs
 
 			void act(float _delta) override
 			{
-				mpD2D->getHwndRenderTarget()->BeginDraw();
-				mpD2D->getHwndRenderTarget()->Clear();
+				mpD2D->GetpContext()->BeginDraw();
 			}
 			Direct2D* mpD2D;
 		};
@@ -128,15 +126,11 @@ namespace ecs
 
 			void act(float _delta) override
 			{
-				mpD2D->getHwndRenderTarget()->EndDraw();
+				mpD2D->GetpContext()->EndDraw();
 			}
 			Direct2D* mpD2D;
 		};
 
-	}
-	namespace init
-	{
-		void InitUISystems(EntityComponentSystem& ECS, Direct2D** D2D);//inits ECS systems and takes D2D** to create new D2D
 	}
 
 }

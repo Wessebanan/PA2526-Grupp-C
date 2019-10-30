@@ -24,6 +24,11 @@ namespace ecs
 			//Black, White, Red, Blue, Green, Purple
 		};
 
+		struct UITextSizeComponent : public ECSComponent<UITextSizeComponent>
+		{
+			int mSize = 2;
+		};
+
 		struct UIBitmapComponent : public ECSComponent<UIBitmapComponent>
 		{
 			ID2D1Bitmap* mpBitmap;

@@ -2,29 +2,13 @@
 #include "../gameAI/AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameUtility/UtilityEcsFunctions.h"
+#include "../gameUtility/UtilityGraphics.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
 #include "../gameWorld/OceanComponents.h"
 #include "../gameAnimation/AnimationComponents.h"
 
+#include "../gameGraphics/TileRenderingPipeline.h"
 #include "../Physics/PhysicsComponents.h"
-
-static inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3) {
-	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
-}
-
-static const std::string GetShaderFilepath(const char* pFilename)
-{
-	std::string filepath = "..//";
-
-#ifdef _DEBUG
-	filepath.append("shaders_d//");
-#else
-	filepath.append("shaders//");
-#endif // _DEBUG
-	filepath.append(pFilename);
-
-	return filepath;
-}
 
 namespace ecs
 {
@@ -58,8 +42,6 @@ namespace ecs
 			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mUnitCount * GetPerInstanceSize());
 
-			// Update animation in skeleton
-			mpSkeleton->UpdateAnimation(_delta);
 
 			// Iterate all units and write their data to the RenderBuffer
 			int index = 0;
@@ -269,6 +251,70 @@ namespace ecs
 	}
 #pragma endregion OceanRenderSystem
 
+#pragma region WorldRenderSystem
+	WorldRenderSystem::WorldRenderSystem()
+	{
+		updateType = SystemUpdateType::Actor;
+		mInstanceLayout = { 0 };
+	}
+
+	WorldRenderSystem::~WorldRenderSystem()
+	{
+
+	}
+
+	void WorldRenderSystem::act(float _delta)
+	{
+		/*
+			Set our 'vertex buffer' for the world tile mesh.
+		*/
+
+		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		mpStateMgr->SetPipelineState(mPipelineState);
+	}
+
+	void WorldRenderSystem::Initialize(
+		graphics::RenderManager* pRenderMgr,
+		graphics::StateManager* pStateMgr,
+		void* pWorldMesh,
+		UINT worldMeshVertexCount)
+	{
+		/*
+		
+		*/
+
+		mpRenderMgr = pRenderMgr;
+		mpStateMgr = pStateMgr;
+
+
+		// World is one single mesh
+		mInstanceCount = 1;
+
+		mMeshRegion = { 0 };
+		mMeshRegion.VertexRegion.Size = worldMeshVertexCount;
+
+		mInstanceLayout.MeshCount = 1;
+		mInstanceLayout.pMeshes = &mMeshRegion;
+		mInstanceLayout.pInstanceCountPerMesh = &mInstanceCount;
+
+		const std::string vs = GetShaderFilepath("VS_Tile.cso");
+		const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+		mRenderProgram = mpRenderMgr->CreateShaderProgram(
+			vs.c_str(),
+			ps.c_str(),
+			0);
+
+		const UINT stride = sizeof(VertexData);
+		graphics::TILE_RENDERING_PIPELINE_DESC trpDesc;
+		trpDesc.pWorldMesh = pWorldMesh;
+		trpDesc.stride = stride;
+		trpDesc.size = worldMeshVertexCount * stride;
+
+		mPipelineState = mpStateMgr->CreatePipelineState(new graphics::TileRenderingPipeline(), &trpDesc);
+	}
+#pragma endregion WorldRenderSystem
+
 #pragma region SceneObjectRenderSystem
 		SceneObjectRenderSystem::SceneObjectRenderSystem()
 		{
@@ -349,18 +395,15 @@ namespace ecs
 				This is a temporary map, until we have ONE mesh enum that everyone reads from.
 				This converts the SCENE_OBJECT mesh enum to MESH_TYPE enum in MeshContainer.
 			*/
-			mMeshMap[SCENE_OBJECT::SNOWMAN]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::ANGEL]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::IGLOO]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::CLIFF]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::ROCKS]		= MESH_TYPE::MESH_TYPE_ROCK;
-			mMeshMap[SCENE_OBJECT::CAMP]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::TREES]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::FLOWERS]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::VILAGE]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::SANDSTONE]	= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::PALMS]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::PYRAMIDS]	= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::BARREL]		= MESH_TYPE::MESH_TYPE_BARREL,
+			mMeshMap[SCENE_OBJECT::BOX]			= MESH_TYPE::MESH_TYPE_BOX;
+			mMeshMap[SCENE_OBJECT::CACTUS]		= MESH_TYPE::MESH_TYPE_CACTUS;
+			mMeshMap[SCENE_OBJECT::CAGE]		= MESH_TYPE::MESH_TYPE_CAGE;
+			mMeshMap[SCENE_OBJECT::COWSKULL]	= MESH_TYPE::MESH_TYPE_COWSKULL;
+			mMeshMap[SCENE_OBJECT::FRUITTREE]	= MESH_TYPE::MESH_TYPE_FRUITTREE;
+			mMeshMap[SCENE_OBJECT::GIANTSKULL]	= MESH_TYPE::MESH_TYPE_GIANTSKULL;
+			mMeshMap[SCENE_OBJECT::TOWER]		= MESH_TYPE::MESH_TYPE_TOWER;
+			mMeshMap[SCENE_OBJECT::WINTERTREE]	= MESH_TYPE::MESH_TYPE_WINTERTREE;
 
 
 			for (int i = 0; i < SCENE_OBJECT_COUNT; i++)
