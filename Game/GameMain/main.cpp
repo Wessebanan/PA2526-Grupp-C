@@ -364,10 +364,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGameLoop(rECS);
 
-
-
-
-
 	WorldMeshData worldMeshData;
 	GenerateWorldMesh(rECS, &worldMeshData.pMesh, worldMeshData.vertexCount);
 
