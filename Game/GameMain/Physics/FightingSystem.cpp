@@ -100,6 +100,12 @@ ecs::systems::DamageSystem::~DamageSystem()
 void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	Entity* weapon = _entityInfo.entity;
+
+	if (weapon->getComponentCount() == 0)
+	{
+		return;
+	}
+
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(weapon->getID());
 	TransformComponent* weapon_transform_component = getComponentFromKnownEntity<TransformComponent>(weapon->getID());
 	Entity* unit_entity = ECSUser::getEntity(weapon_component->mOwnerEntity);
@@ -110,6 +116,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			return;
 		}
 	}
+	
 
 	// FILL OUT WITH OTHER WEAPONS LATER
 	// Making a copy of the bounding volume for weapon.
@@ -135,21 +142,32 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	UnitComponent* owner_unit_component = nullptr;
 
 	// Transforming weapon bv to world space if no owner.
-	if (weapon_component->mOwnerEntity == 0)
+	if (weapon_component->mOwnerEntity == 0 || unit_entity == nullptr)
 	{
 		XMMATRIX weapon_world = UtilityEcsFunctions::GetWorldMatrix(*weapon_transform_component);
 		weapon_bv->Transform(weapon_world);
 	}
 
 	// Transform weapon to weapon owner right hand position if it has owner, also get army unit IDs.
-	if (weapon_component->mOwnerEntity != 0)
-	{
-		SkeletonComponent* skeleton = getComponentFromKnownEntity<SkeletonComponent>(weapon_component->mOwnerEntity);
-		XMFLOAT4X4 right_hand_offset_matrix = skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");
-		weapon_bv->Transform(XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)));
-		
-		TransformComponent* owner_transform = getComponentFromKnownEntity<TransformComponent>(weapon_component->mOwnerEntity);
-		weapon_bv->Transform(UtilityEcsFunctions::GetWorldMatrix(*owner_transform));
+	else
+	{	
+		SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(weapon_component->mOwnerEntity);
+		XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
+		TransformComponent* p_owner_transform = getComponentFromKnownEntity<TransformComponent>(weapon_component->mOwnerEntity);
+
+		// Assigning unit transform component to weapon transform component for now.
+		// weapon_transform_component->scale		= p_owner_transform->scale;
+		weapon_transform_component->position	= p_owner_transform->position;
+		weapon_transform_component->rotation	= p_owner_transform->rotation;
+
+		// Hand position in model space.
+		XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
+		XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
+
+		// Final world transform.
+		XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_owner_transform);
+
+		weapon_bv->Transform(world);
 
 		owner_unit_component = getComponentFromKnownEntity<UnitComponent>(weapon_component->mOwnerEntity);
 	}
@@ -206,7 +224,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	{
 		EquipmentComponent *equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
 		// Delete current weapon if any.
-		if (equipment_component->mEquippedWeapon == 0)
+		if (equipment_component->mEquippedWeapon != 0)
 		{
 			removeEntity(equipment_component->mEquippedWeapon);
 		}

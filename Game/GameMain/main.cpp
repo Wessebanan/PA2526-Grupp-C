@@ -21,6 +21,8 @@
 
 #include "gameSceneObjects/InitSceneObjectsh.h"
 #include "gameSceneObjects/InitBiomes.h"
+#include "gameSceneObjects/InitLoot.h"
+
 #include "gameUtility/UtilityEcsFunctions.h"
 
 #include "gameAudio/InitAudio.h"
@@ -252,5 +254,6 @@ void InitAll(EntityComponentSystem& rECS)
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
 
+	InitSpawnLootSystem(rECS);
 	InitHttpServer(rECS);
 }

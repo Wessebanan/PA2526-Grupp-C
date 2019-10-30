@@ -304,6 +304,38 @@ namespace ModelLoader
 				return DirectX::XMFLOAT4X4(-1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f);
 			}
 		}
+
+		DirectX::XMFLOAT4X4 GetInverseBindPoseUsingJointName(const std::string& inJointName)
+		{
+			int joint_index = -1;
+			for (unsigned int i = 0; i < this->parentSkeleton->joints.size(); ++i)
+			{
+				if (this->parentSkeleton->joints[i].mName == inJointName)
+				{
+					joint_index = i;
+					break;
+				}
+			}
+
+			if (joint_index >= 0) // if joint name existed
+			{
+				DirectX::XMFLOAT4X4 new_mat;
+				// Convert FbxMatrix to XMFLOAT
+				for (int i = 0; i < 4; ++i)
+				{
+					for (int j = 0; j < 4; ++j)
+					{
+						new_mat.m[i][j] = static_cast<float>(parentSkeleton->joints[joint_index].mGlobalBindposeInverse.Get(i, j));
+					}
+				}
+				return new_mat;
+			}
+			else
+			{
+				// Return error matrix
+				return DirectX::XMFLOAT4X4(-1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f);
+			}
+		}
 	};
 
 	// Used for loading the very basics of an FBX

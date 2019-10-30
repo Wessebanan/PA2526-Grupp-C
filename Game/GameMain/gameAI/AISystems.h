@@ -840,7 +840,8 @@ namespace ecs
 				}
 				else
 				{
-					weapon_comp->mOwnerEntity = 0;
+					ecs::ECSUser::removeEntity(weapon_entity->getID());
+					//weapon_comp->mOwnerEntity = 0;
 				}
 				//Remove the dead unit
 				ecs::ECSUser::removeEntity(entity.entity->getID());

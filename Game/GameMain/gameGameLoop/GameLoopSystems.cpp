@@ -22,8 +22,7 @@ using namespace ecs;
 using namespace ecs::components;
 
 
-// Creates a weapon out of a mesh and weapon type. (weapon, transform and mesh components)
-ecs::Entity* CreateWeaponEntity(ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity = 0);
+
 
 /*
 ====================================================
@@ -399,43 +398,40 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 			// Set attack range to melee range since fist adds no range.
 			equipment_component.mAttackRange = equipment_component.mMeleeRange;
 
-
-			WeaponComponent		weapon_component;
-			TransformComponent	weapon_transform_component;
-			MeshComponent		weapon_mesh_component;
-
-			WEAPON_TYPE weaponType = WEAPON_TYPE::FIST;
-
-			weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			weapon_component.mType = FIST;
-			weapon_component.mOwnerEntity = current->getID();
-
-			switch (weaponType)
-			{
-			case SWORD:
-			{
-				ModelLoader::Mesh sword("Physics/TestModel/sword.fbx");
-				weapon_mesh_component.mMesh = pMesh;
-				break;
-			}
-			case FIST:
-				weapon_mesh_component.mMesh = pMesh;
-				break;
-			case PROJECTILE:
-				MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
-				break;
-			}
-
-			ecs::Entity* weapon_entity = createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
-
+			Entity* weapon_entity = CreateWeaponEntity(nullptr, FIST, current->getID());
+			
 			equipment_component.mEquippedWeapon = weapon_entity->getID();
 			createComponent<EquipmentComponent>(current->getID(), equipment_component);
 		}
 	}
 }
 
-inline ecs::Entity* CreateWeaponEntity(ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity)
+ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity)
 {
+	WeaponComponent		weapon_component;
+	TransformComponent	weapon_transform_component;
+	MeshComponent		weapon_mesh_component;
+
+	weapon_component.mType = weaponType;
+	weapon_component.mOwnerEntity = ownerEntity;
+	weapon_mesh_component.mMesh = pMesh;
+
+	switch (weaponType)
+	{
+	case SWORD:
+	{
+		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
+		break;
+	}
+	case FIST:
+		weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+		break;
+	case PROJECTILE:
+		MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
+		break;
+	}
+
+	return createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
 }
 ///////////////////
 
