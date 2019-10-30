@@ -85,7 +85,7 @@ struct playerInfo
 	// current selected button
 	int button = -1;
 	// current selected command
-	string command = "No command yet";
+	string command = "NO STATE";
 	// Bool to check if the ping was pressed and picked up by frpntend
 	bool pinged = false;
 };

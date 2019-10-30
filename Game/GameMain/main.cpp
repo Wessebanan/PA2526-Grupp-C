@@ -386,6 +386,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitGraphicsRenderSystems(rECS, worldMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
+	initArmyText(rECS);
 
 	InitSpawnLootSystem(rECS);
 	InitHttpServer(rECS);

@@ -124,3 +124,46 @@ void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, floa
 		mpD2D->PrintDebug(UITextComp->mStrText);
 	}
 }
+
+ecs::systems::UIUpdateSystem::UIUpdateSystem()
+{
+	updateType = SystemUpdateType::EntityUpdate;
+	typeFilter.addRequirement(components::ArmyComponent::typeID);
+	typeFilter.addRequirement(components::UITextComponent::typeID);
+}
+
+ecs::systems::UIUpdateSystem::~UIUpdateSystem()
+{
+}
+
+void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	components::UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
+	components::ArmyComponent* p_army = _entityInfo.getComponent<components::ArmyComponent>();
+	ComponentIterator itt;
+
+	std::string ss = "";
+
+	itt = getComponentsOfType(components::GameLoopComponent::typeID);
+	components::GameLoopComponent* p_gl = (components::GameLoopComponent*)itt.next();
+	itt = getComponentsOfType(components::UserCommandComponent::typeID);
+	components::UserCommandComponent* p_cmd_comp = (components::UserCommandComponent*)itt.next();
+
+
+	ss.append(std::to_string(p_gl->mPlayerPoints[(int)p_army->playerID]));
+	ss.append("\n");
+	ss.append((p_cmd_comp->userCommands[(int)p_army->playerID].mCommand));
+	ss.append("\n");
+
+	for (size_t i = 0; i < p_army->unitIDs.size(); i++)
+	{
+		components::HealthComponent* p_unit_hp_comp = getComponentFromKnownEntity<components::HealthComponent>(p_army->unitIDs[i]);
+		
+		ss.append(std::to_string((int)p_unit_hp_comp->mHealth));
+		ss.append("\n");
+	}
+
+
+	p_text->mStrText = ss;
+
+}
