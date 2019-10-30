@@ -63,6 +63,9 @@
     <ClCompile Include="gameAnimation\AnimationSystems.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\InputHandler\InputHandler\webConnection.cpp">
+      <Filter>Init</Filter>
+    </ClCompile>
     <ClCompile Include="UI\UISystems.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -258,6 +261,9 @@
       <Filter>Utility</Filter>
     </ClInclude>
 
+    <ClInclude Include="InitHttpServer.h">
+      <Filter>Init</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">

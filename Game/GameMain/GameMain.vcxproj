@@ -102,6 +102,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp" />
+    <ClCompile Include="..\..\InputHandler\InputHandler\webConnection.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="gameWorld\OceanComponents.h" />
     <ClInclude Include="gameWorld\WorldSettings.h" />
     <ClInclude Include="GraphicsComponents.h" />
+    <ClInclude Include="InitHttpServer.h" />
     <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />
