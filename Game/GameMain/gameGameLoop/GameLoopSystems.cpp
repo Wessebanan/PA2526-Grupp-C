@@ -153,10 +153,16 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
 			p_gl->mRoundTime.StartGame();
+
+			p_gl->mPlayerPoints[0] = 0;
+			p_gl->mPlayerPoints[1] = 0;
+			p_gl->mPlayerPoints[2] = 0;
+			p_gl->mPlayerPoints[3] = 0;
 		}
 
 		ecs::events::RoundStartEvent eve;
 		createEvent(eve);
+
 	}
 }
 
