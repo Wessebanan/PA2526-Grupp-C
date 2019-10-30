@@ -100,6 +100,12 @@ ecs::systems::DamageSystem::~DamageSystem()
 void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	Entity* weapon = _entityInfo.entity;
+
+	if (weapon->getComponentCount() == 0)
+	{
+		return;
+	}
+
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(weapon->getID());
 	TransformComponent* weapon_transform_component = getComponentFromKnownEntity<TransformComponent>(weapon->getID());
 	Entity* unit_entity = ECSUser::getEntity(weapon_component->mOwnerEntity);
@@ -150,7 +156,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		TransformComponent* p_owner_transform = getComponentFromKnownEntity<TransformComponent>(weapon_component->mOwnerEntity);
 
 		// Assigning unit transform component to weapon transform component for now.
-		weapon_transform_component->scale		= p_owner_transform->scale;
+		// weapon_transform_component->scale		= p_owner_transform->scale;
 		weapon_transform_component->position	= p_owner_transform->position;
 		weapon_transform_component->rotation	= p_owner_transform->rotation;
 
@@ -218,10 +224,10 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	{
 		EquipmentComponent *equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
 		// Delete current weapon if any.
-		//if (equipment_component->mEquippedWeapon != 0)
-		//{
-		//	removeEntity(equipment_component->mEquippedWeapon);
-		//}
+		if (equipment_component->mEquippedWeapon != 0)
+		{
+			removeEntity(equipment_component->mEquippedWeapon);
+		}
 
 		equipment_component->mAttackRange = equipment_component->mMeleeRange + weapon_component->mWeaponRange;
 
