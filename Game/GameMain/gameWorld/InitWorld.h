@@ -4,6 +4,7 @@
 
 #include "WorldSettings.h"
 #include "OceanComponents.h"
+#include "../gameWorld/UpdateOceanSystem.h"
 
 #include "../gameAI/AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
@@ -297,4 +298,10 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 
 	*pVertexBuffer = (void*)vertex_buffer;
 	rBufferVertexCount = index_counter;
+}
+
+void InitOceanUpdateSystem(EntityComponentSystem& rEcs)
+{
+	systems::UpdateOceanSystem* p_update_system = rEcs.createSystem<systems::UpdateOceanSystem>(7);
+	p_update_system->Initialize(0.001f);
 }

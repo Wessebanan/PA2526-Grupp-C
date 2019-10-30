@@ -264,15 +264,20 @@ namespace ecs
 
 	void WorldRenderSystem::act(float _delta)
 	{
-		
-
-		
 		UINT index = 0;
 
+		/*
+			For now, allocate a way to big buffer size (max size).
+			This will be tweaked in later implementations.
+		*/
 		float* height = (float*)malloc(65536);
 		ZeroMemory(height, 65536);
 
-			
+		/*
+			Fetch all ocean tiles and update their y-position in the
+			height buffer.
+		*/
+
 		TypeFilter ocean_filter;
 		ocean_filter.addRequirement(components::OceanTileComponent::typeID);
 		ocean_filter.addRequirement(components::TransformComponent::typeID);
@@ -282,8 +287,13 @@ namespace ecs
 		for (FilteredEntity& tile : p_iterator.entities)
 		{
 			height[index] = tile.getComponent<components::TransformComponent>()->position.y;
-			index += 4;
+			index++;
 		}
+
+		/*
+			Fetch all map tiles and update their y-position in the
+			height buffer.
+		*/
 
 		TypeFilter map_filter;
 		map_filter.addRequirement(components::TileComponent::typeID);
@@ -294,27 +304,20 @@ namespace ecs
 		for (FilteredEntity& tile : p_iterator.entities)
 		{
 			height[index] = tile.getComponent<components::TransformComponent>()->position.y;
-			index += 4;
+			index++;
 		}
 
-
-
-		graphics::TILE_RENDERING_PIPELINE_DATA data;
-		data.pHeightBuffer = height;
-		data.ByteWidth = index * sizeof(float);
-
-
-
-
-
-
 		/*
-			Set our 'vertex buffer' for the world tile mesh.
+			Set our 'vertex buffer' for the world tile mesh, and upload the
+			height buffer.
 		*/
 
+		graphics::TILE_RENDERING_PIPELINE_DATA heightData;
+		heightData.pHeightBuffer = height;
+		heightData.ByteWidth = index * sizeof(float);
 
 		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
-		mpStateMgr->UpdatePipelineState(mPipelineState, &data);
+		mpStateMgr->UpdatePipelineState(mPipelineState, &heightData);
 		mpStateMgr->SetPipelineState(mPipelineState);
 
 		free(height);

@@ -41,7 +41,6 @@
 #include "gameGraphics/InitGraphics.h"
 
 #include "gameWorld/InitWorld.h"
-#include "gameWorld/UpdateOceanSystem.h"
 
 #include <time.h>
 
@@ -208,9 +207,7 @@ void InitAll(EntityComponentSystem& rECS)
 	InitSceneObjects(rECS);
 
 	InitOceanEntities(rECS);
-
-	ecs::systems::UpdateOceanSystem* mackes_variabel_peta_pa_mig_om_inte_borttagen____tack = rECS.createSystem<ecs::systems::UpdateOceanSystem>(7);
-	mackes_variabel_peta_pa_mig_om_inte_borttagen____tack->Initialize(0.001f);
+	InitOceanUpdateSystem(rECS);
 
 	InitCamera(rECS);
 
