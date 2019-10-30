@@ -231,6 +231,7 @@ void InitAll(EntityComponentSystem& rECS)
 	InitSceneObjects(rECS);
 
 	InitOceanEntities(rECS);
+	InitOceanUpdateSystem(rECS);
 
 	InitCamera(rECS);
 
