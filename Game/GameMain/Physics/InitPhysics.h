@@ -20,6 +20,9 @@ void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoad
 // LEAVING THIS FOR NOW, MAY BE UNNECCESARY.
 void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh);
 
+// Creates a weapon out of a mesh and weapon type. (weapon, transform and mesh components)
+ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity = 0);
+
 // Set parameter direction to movement component forward and move forward.
 void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, XMFLOAT3 direction);
 
@@ -76,6 +79,11 @@ inline void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, Mod
 	// TODO : Get scene objects and add object collision components to them.
 }
 
+ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity)
+{
+	WeaponComponent		weapon_component;
+	TransformComponent	weapon_transform_component;
+	MeshComponent		weapon_mesh_component;
 
 	weapon_component.mType = weaponType;
 	weapon_component.mOwnerEntity = ownerEntity;

@@ -404,6 +404,7 @@ namespace ecs
 			mMeshMap[SCENE_OBJECT::GIANTSKULL]	= MESH_TYPE::MESH_TYPE_GIANTSKULL;
 			mMeshMap[SCENE_OBJECT::TOWER]		= MESH_TYPE::MESH_TYPE_TOWER;
 			mMeshMap[SCENE_OBJECT::WINTERTREE]	= MESH_TYPE::MESH_TYPE_WINTERTREE;
+			mMeshMap[SCENE_OBJECT::TEMP_SWORD]	= MESH_TYPE::MESH_TYPE_SWORD;
 
 
 			for (int i = 0; i < SCENE_OBJECT_COUNT; i++)
@@ -453,7 +454,7 @@ namespace ecs
 			mInstanceCount = (UINT)_entities.entities.size();
 
 			// Fetch pointer to write data to in RenderBuffer
-			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mInstanceCount * GetPerInstanceSize());
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mInstanceCount * WeaponRenderSystem::GetPerInstanceSize());
 
 			// Iterate all tiles and write their data to the RenderBuffer
 			uint32_t index = 0;
@@ -461,9 +462,15 @@ namespace ecs
 			{
 				components::WeaponComponent* p_weapon_comp = weapon.getComponent<components::WeaponComponent>();
 				components::TransformComponent* p_transform_comp = weapon.getComponent<components::TransformComponent>();
-
+			
 				if (p_weapon_comp->mOwnerEntity != 0)
 				{
+					p_transform_comp = getComponentFromKnownEntity<TransformComponent>(p_weapon_comp->mOwnerEntity);
+					Entity* owner = getEntity(p_weapon_comp->mOwnerEntity);
+					if (!owner->hasComponentOfType(SkeletonComponent::typeID))
+					{
+						continue;
+					}
 					SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(p_weapon_comp->mOwnerEntity);
 					XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
 					
@@ -509,7 +516,7 @@ namespace ecs
 
 		uint32_t WeaponRenderSystem::GetPerInstanceSize()
 		{
-			return sizeof(InputLayout);
+			return sizeof(WeaponRenderSystem::InputLayout);
 		}
 #pragma endregion WeaponRenderSystem
 	}

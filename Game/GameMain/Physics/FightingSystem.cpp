@@ -110,6 +110,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			return;
 		}
 	}
+	
 
 	// FILL OUT WITH OTHER WEAPONS LATER
 	// Making a copy of the bounding volume for weapon.
@@ -135,7 +136,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	UnitComponent* owner_unit_component = nullptr;
 
 	// Transforming weapon bv to world space if no owner.
-	if (weapon_component->mOwnerEntity == 0)
+	if (weapon_component->mOwnerEntity == 0 || unit_entity == nullptr)
 	{
 		XMMATRIX weapon_world = UtilityEcsFunctions::GetWorldMatrix(*weapon_transform_component);
 		weapon_bv->Transform(weapon_world);
@@ -143,7 +144,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 	// Transform weapon to weapon owner right hand position if it has owner, also get army unit IDs.
 	else
-	{		
+	{	
 		SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(weapon_component->mOwnerEntity);
 		XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
 		TransformComponent* p_owner_transform = getComponentFromKnownEntity<TransformComponent>(weapon_component->mOwnerEntity);
@@ -158,7 +159,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
 
 		// Final world transform.
-		XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*weapon_transform_component);
+		XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_owner_transform);
 
 		weapon_bv->Transform(world);
 
@@ -217,10 +218,10 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	{
 		EquipmentComponent *equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
 		// Delete current weapon if any.
-		if (equipment_component->mEquippedWeapon != 0)
-		{
-			removeEntity(equipment_component->mEquippedWeapon);
-		}
+		//if (equipment_component->mEquippedWeapon != 0)
+		//{
+		//	removeEntity(equipment_component->mEquippedWeapon);
+		//}
 
 		equipment_component->mAttackRange = equipment_component->mMeleeRange + weapon_component->mWeaponRange;
 

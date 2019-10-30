@@ -114,16 +114,15 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& world
 	graphics::StateManager& r_state_mgr = static_cast<components::StateManagerComponent*>(rEcs.getAllComponentsOfType(components::StateManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& r_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
 
-	systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(9);
-	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);
-	
-	systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(9);
-	WorldRenderSystem* p_world_renderer = rEcs.createSystem<WorldRenderSystem>(9);
+	systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(8);
+	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(8);	
+	systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(8);
+	systems::WorldRenderSystem* p_world_renderer = rEcs.createSystem<WorldRenderSystem>(8);
 
 	
-	p_weapon_renderer->Initialize(&render_manager, &render_buffer);
 	p_unit_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_scenery_renderer->Initialize(&r_render_mgr, &r_render_buffer);
+	p_weapon_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_world_renderer->Initialize(&r_render_mgr, &r_state_mgr, worldMeshData.pMesh, worldMeshData.vertexCount);
 
 
