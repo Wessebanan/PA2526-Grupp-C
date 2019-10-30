@@ -59,7 +59,8 @@ enum ActionType
 	NAME,
 	TILE,
 	BUTTON,
-	COMMAND
+	COMMAND,
+	PING
 };
 // struct that holds the parsed info
 struct webMsgData
@@ -85,6 +86,8 @@ struct playerInfo
 	int button = -1;
 	// current selected command
 	string command = "No command yet";
+	// Bool to check if the ping was pressed and picked up by frpntend
+	bool pinged = false;
 };
 
 // Handles getting info from the website
@@ -109,6 +112,9 @@ public:
 
 	// Returns the command of the player
 	string GetUserCommand(int player);
+
+	// Returns the command of the player
+	bool GetUserPing(int player);
 	
 	// returns hte number of players that have connected since the client started up
 	//int getNrOfPlayers() { return this->nrOfPlayers; };
@@ -145,6 +151,8 @@ private:
 	void SetButton(webMsgData wmd);
 	// Saves new button
 	void SetCommand(webMsgData wmd);
+	// Saves the ping
+	void SetPing(webMsgData wmd);
 
 
 	//// BACKEND STATES
