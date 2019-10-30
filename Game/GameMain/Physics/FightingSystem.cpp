@@ -228,13 +228,20 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		HealthComponent *collided_constitution = getComponentFromKnownEntity<HealthComponent>(collided_unit);
 
 		collided_constitution->mHealth -= damage;
-		if (collided_constitution->mHealth <= 0.0f)
+		
+		if (collided_constitution->mHealth <= 0.0f && !ECSUser::getEntity(collided_unit)->hasComponentOfType(DeadComponent::typeID))
 		{
-			if (!ECSUser::getEntity(collided_unit)->hasComponentOfType(DeadComponent::typeID))
-			{
-				ecs::components::DeadComponent dead_comp;
-				ecs::ECSUser::createComponent(collided_constitution->getEntityID(), dead_comp);
-			}
+			ecs::components::DeadComponent dead_comp;
+			ecs::ECSUser::createComponent(collided_constitution->getEntityID(), dead_comp);
+			ecs::events::PlaySound death_sound_event;
+			death_sound_event.audioName = AudioName::SCREAM_SOUND;
+			createEvent(death_sound_event); // Play damage sound
+		}
+		else
+		{
+			ecs::events::PlaySound damage_sound_event;
+			damage_sound_event.audioName = AudioName::GRUNT_HURT_1_SOUND;
+			createEvent(damage_sound_event); // Play damage sound
 		}
 	}
 	
