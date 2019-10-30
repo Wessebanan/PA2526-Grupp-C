@@ -237,7 +237,12 @@ void InitAll(EntityComponentSystem& rECS)
 
 
 
-	InitGraphicsRenderSystems(rECS);
+
+
+	WorldMeshData worldMeshData;
+	GenerateWorldMesh(rECS, &worldMeshData.pMesh, worldMeshData.vertexCount);
+
+	InitGraphicsRenderSystems(rECS, worldMeshData);
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
 
