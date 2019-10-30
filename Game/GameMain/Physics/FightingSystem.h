@@ -8,6 +8,8 @@
 #include "..//gameUtility/UtilityEcsFunctions.h"
 #include "..//gameAnimation/AnimationComponents.h"
 #include "..//gameAI/AIComponents.h"
+#include "..//gameAudio/AudioECSEvents.h"
+#include "..//gameAudio/AudioGlobals.h"
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
 namespace ecs

@@ -21,6 +21,7 @@ InputBackend::InputBackend()
 		mpUserButton[i] = new WebButton();
 		mpUserTile[i] = new WebTile();
 		mpUserCommand[i] = new WebCommand();
+		mpUserPing[i] = new bool();
 	}
 }
 
@@ -39,6 +40,7 @@ InputBackend::~InputBackend()
 		delete mpUserButton[i];
 		delete mpUserTile[i];
 		delete mpUserCommand[i];
+		delete mpUserPing[i];
 	}
 
 	delete mpWebConn;
@@ -119,6 +121,7 @@ bool InputBackend::updateWeb()
 	this->updateTiles();
 	this->updateButtons();
 	this->updateCommands();
+	this->updatePings();
 	//this->updateName();
 
 	return true;
@@ -172,6 +175,15 @@ void InputBackend::updateCommands()
 	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
 	{
 		mpUserCommand[playerIndex]->mCommand = mpWebConn->GetUserCommand(playerIndex);
+	}
+}
+
+void InputBackend::updatePings()
+{
+	// Checks and updates each players current ping
+	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
+	{
+		*mpUserPing[playerIndex] = mpWebConn->GetUserPing(playerIndex);
 	}
 }
 

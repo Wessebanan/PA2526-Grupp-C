@@ -335,6 +335,11 @@
        	console.log(selectedTileMsg);
        	socket.send(selectedTileMsg);
        };
+
+       function sendPing()
+       {
+           socket.send("0004ping");
+       }
     </script>
 </head>
 <body>
@@ -556,6 +561,7 @@
 
 
     <div id='commandField' class='buttonField' style='display:none;background-color:green;padding:3px'>
+        <button onclick="sendPing()">Ping</button>
         <button id='CommandButton' onclick="setCommand('idle')">IDLE</button>
         </br>
         <button id='CommandButton' onclick="setCommand('attack')">ATTACK</button>
@@ -565,14 +571,15 @@
         <button id='CommandButton' onclick="setCommand('flee')">FLEE</button>
     </div>
     </br>
-        <button onclick="location.reload()">Reload game</button>
-        <button onclick="openPrep()">DEV: show prep</button>
-        <button onclick="openCommand()">DEV: show Commands</button>
-        <p id='clientMsg1'>1. No msg yet</p>
-        <p id='clientMsg2'>2. No msg yet</p>
+    <button onclick="location.reload()">Reload game</button>
+    <button onclick="openPrep()">DEV: show prep</button>
+    <button onclick="openCommand()">DEV: show Commands</button>
+    <p id='clientMsg1'>1. No msg yet</p>
+    <p id='clientMsg2'>2. No msg yet</p>
     </br>
 
-    <p>Connected to: <script>document.write(ip_address);</script></p>
+    <p>Connected to:
+    <script>document.write(ip_address);</script></p>
 </body>
 
 </html>

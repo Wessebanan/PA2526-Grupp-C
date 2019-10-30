@@ -16,13 +16,13 @@
 #include "..//MeshContainer/MeshContainer.h"	
 
 #include "..//gameAnimation/AnimationEvents.h"
+#include "..//UI/UIComponents.h"
 
 using namespace ecs;
 using namespace ecs::components;
 
 
-// Creates a weapon out of a mesh and weapon type. (weapon, transform and mesh components)
-ecs::Entity* CreateWeaponEntity(ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity = 0);
+
 
 /*
 ====================================================
@@ -37,6 +37,7 @@ ecs::systems::GameLoopSystem::GameLoopSystem()
 {
 	updateType = ecs::EntityUpdate;
 	typeFilter.addRequirement(ecs::components::GameLoopComponent::typeID);
+	typeFilter.addRequirement(ecs::components::UITextComponent::typeID);
 }
 
 ecs::systems::GameLoopSystem::~GameLoopSystem()
@@ -47,14 +48,37 @@ ecs::systems::GameLoopSystem::~GameLoopSystem()
 void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
-	
+	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
+
+	if (p_text)
+	{
+		string ss = "";
+
+
+		// To be sent to the UI
+		ss.append("ROUNDTIME: ");
+		ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
+		ss.append("\nFRAMETIME: ");
+		ss.append(to_string(_delta));
+		ss.append("\nGAMETIME: ");
+		ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
+
+		p_text->mStrText = ss;
+	}
+
 	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
+	ComponentIterator itt2 = getComponentsOfType<GamePointsComponent>();
+	ArmyComponent* p_army_comp;
 
-	// To be sent to the UI
-	p_gl->mRoundTime.GetRoundTime();
-	p_gl->mRoundTime.GetFrameTime();
-	p_gl->mRoundTime.GetGameTime();
+	while (p_army_comp = (ArmyComponent*)itt.next())
+	{
+		if (p_army_comp->unitIDs.size() > 0)
+		{
+			UITextComponent* p_army_text_comp = getComponentFromKnownEntity<UITextComponent>(itt2.next()->getEntityID());
 
+			p_army_text_comp->mStrText =to_string(p_gl->mPlayerPoints[p_army_comp->playerID]);
+		}
+	}
 }
 
 ///////////////////
@@ -75,7 +99,6 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
 
 	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
-
 	ArmyComponent* p_army_comp;
 
 	int check_any_live = 0;
@@ -129,10 +152,16 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
 			p_gl->mRoundTime.StartGame();
+
+			p_gl->mPlayerPoints[0] = 0;
+			p_gl->mPlayerPoints[1] = 0;
+			p_gl->mPlayerPoints[2] = 0;
+			p_gl->mPlayerPoints[3] = 0;
 		}
 
 		ecs::events::RoundStartEvent eve;
 		createEvent(eve);
+
 	}
 }
 
@@ -369,43 +398,40 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 			// Set attack range to melee range since fist adds no range.
 			equipment_component.mAttackRange = equipment_component.mMeleeRange;
 
-
-			WeaponComponent		weapon_component;
-			TransformComponent	weapon_transform_component;
-			MeshComponent		weapon_mesh_component;
-
-			WEAPON_TYPE weaponType = WEAPON_TYPE::FIST;
-
-			weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
-			weapon_component.mType = FIST;
-			weapon_component.mOwnerEntity = current->getID();
-
-			switch (weaponType)
-			{
-			case SWORD:
-			{
-				ModelLoader::Mesh sword("Physics/TestModel/sword.fbx");
-				weapon_mesh_component.mMesh = pMesh;
-				break;
-			}
-			case FIST:
-				weapon_mesh_component.mMesh = pMesh;
-				break;
-			case PROJECTILE:
-				MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
-				break;
-			}
-
-			ecs::Entity* weapon_entity = createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
-
+			Entity* weapon_entity = CreateWeaponEntity(nullptr, FIST, current->getID());
+			
 			equipment_component.mEquippedWeapon = weapon_entity->getID();
 			createComponent<EquipmentComponent>(current->getID(), equipment_component);
 		}
 	}
 }
 
-inline ecs::Entity* CreateWeaponEntity(ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity)
+ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity)
 {
+	WeaponComponent		weapon_component;
+	TransformComponent	weapon_transform_component;
+	MeshComponent		weapon_mesh_component;
+
+	weapon_component.mType = weaponType;
+	weapon_component.mOwnerEntity = ownerEntity;
+	weapon_mesh_component.mMesh = pMesh;
+
+	switch (weaponType)
+	{
+	case SWORD:
+	{
+		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
+		break;
+	}
+	case FIST:
+		weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+		break;
+	case PROJECTILE:
+		MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
+		break;
+	}
+
+	return createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
 }
 ///////////////////
 

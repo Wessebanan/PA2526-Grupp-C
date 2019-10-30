@@ -69,6 +69,9 @@
     <ClCompile Include="gameAnimation\AnimationSystems.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
+    <ClCompile Include="gameSceneObjects\LootSystem.cpp">
+      <Filter>SceneObjects</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\InputHandler\InputHandler\webConnection.cpp">
       <Filter>Init</Filter>
     </ClCompile>
@@ -260,6 +263,12 @@
     <ClInclude Include="gameAnimation\AnimationSystems.h">
       <Filter>Animation</Filter>
     </ClInclude>
+    <ClInclude Include="gameSceneObjects\LootSystem.h">
+      <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="gameSceneObjects\InitLoot.h">
+      <Filter>Init</Filter>
+    </ClInclude>
     <ClInclude Include="gameGraphics\SSAOPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -389,6 +398,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\PS_Blur_Vertical.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Weapon.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameUtility\VS_Tile.hlsl">

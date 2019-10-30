@@ -127,19 +127,19 @@ ModelLoader::Mesh** InitMesh(ecs::EntityComponentSystem& rECS, graphics::MeshMan
 
 	// Physics needs meshes, if this function for some reason is called more than
 	// once, the memory is not allocated again.
-	static bool init = false;
-	if (!init)
-	{
-		ModelLoader::Mesh** pp_meshes = new ModelLoader::Mesh * [Mesh::N_MESHES];
-		ModelLoader::Mesh* p_dude = new ModelLoader::Mesh("../Walking2.fbx");
-		ModelLoader::Mesh* p_tile = new ModelLoader::Mesh("../hexagon.fbx");
-		pp_meshes[Mesh::DUDE] = p_dude;
-		pp_meshes[Mesh::TILE] = p_tile;		
-		init = true;
-		return pp_meshes;
-	}
-	else
-	{
-		return nullptr;
-	}
+	//static bool init = false;
+	//if (!init)
+	//{
+	//	ModelLoader::Mesh** pp_meshes = new ModelLoader::Mesh * [Mesh::N_MESHES];
+	//	ModelLoader::Mesh* p_dude = new ModelLoader::Mesh("../Walking2.fbx");
+	//	ModelLoader::Mesh* p_tile = new ModelLoader::Mesh("../hexagon.fbx");
+	//	pp_meshes[Mesh::DUDE] = p_dude;
+	//	pp_meshes[Mesh::TILE] = p_tile;		
+	//	init = true;
+	//	return pp_meshes;
+	//}
+	//else
+	//{
+	//	return nullptr;
+	//}
 }

@@ -21,6 +21,8 @@
 
 #include "gameSceneObjects/InitSceneObjectsh.h"
 #include "gameSceneObjects/InitBiomes.h"
+#include "gameSceneObjects/InitLoot.h"
+
 #include "gameUtility/UtilityEcsFunctions.h"
 
 #include "gameAudio/InitAudio.h"
@@ -264,7 +266,7 @@ int main()
 				wnd.Close();
 			}
 
-			if (GetAsyncKeyState(VK_HOME))
+			if (GetAsyncKeyState(VK_SPACE))
 			{
 				ecs::events::GameStartEvent eve;
 				//eve.winner = 1;
@@ -373,5 +375,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
 
+	InitSpawnLootSystem(rECS);
 	InitHttpServer(rECS);
 }

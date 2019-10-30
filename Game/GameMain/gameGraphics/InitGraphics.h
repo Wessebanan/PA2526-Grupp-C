@@ -118,11 +118,14 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& world
 	graphics::RenderBuffer& r_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
 
 	systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(9);
-	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);
-	WorldRenderSystem* p_world_renderer = rEcs.createSystem<WorldRenderSystem>(9);
+	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);	
+	systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(9);
+	systems::WorldRenderSystem* p_world_renderer = rEcs.createSystem<WorldRenderSystem>(9);
 
+	
 	p_unit_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_scenery_renderer->Initialize(&r_render_mgr, &r_render_buffer);
+	p_weapon_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_world_renderer->Initialize(&r_render_mgr, &r_state_mgr, worldMeshData.pMesh, worldMeshData.vertexCount);
 
 	systems::SSAORenderSystem* p_ssao_renderer = rEcs.createSystem<systems::SSAORenderSystem>(9);
@@ -168,4 +171,5 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(MESH_TYPE_TOWER, "../meshes/Tower.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
 	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../DudeMesh3.fbx");
+	MeshContainer::LoadMesh(MESH_TYPE_SWORD, "../meshes/sword.fbx");
 }

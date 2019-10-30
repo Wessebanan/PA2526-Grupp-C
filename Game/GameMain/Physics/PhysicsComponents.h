@@ -17,6 +17,9 @@
 #define BASE_SWORD_DAMAGE 10.0f
 #define BASE_FIST_DAMAGE 1.0f
 
+// Specifically hard-coded for current dude mesh lmao.
+#define ORIGIN_TO_HAND XMFLOAT3(-4.99f, 2.55f, -0.329f)
+
 // WEAPON_TYPE decides what bounding volume to use.
 enum WEAPON_TYPE
 {

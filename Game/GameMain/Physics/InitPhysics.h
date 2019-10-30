@@ -8,16 +8,6 @@
 #include "PhysicsComponents.h"
 #include "PhysicsEvents.h"
 
-namespace Mesh
-{
-	enum MESHES
-	{
-		DUDE,
-		TILE,
-		N_MESHES,
-	};
-}
-
 // Must be called after InitMesh and InitArmy.
 void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh *ppMmeshes);
 
@@ -29,6 +19,9 @@ void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoad
 
 // LEAVING THIS FOR NOW, MAY BE UNNECCESARY.
 void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh);
+
+// Creates a weapon out of a mesh and weapon type. (weapon, transform and mesh components)
+ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity = 0);
 
 // Set parameter direction to movement component forward and move forward.
 void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, XMFLOAT3 direction);
@@ -86,7 +79,31 @@ inline void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, Mod
 	// TODO : Get scene objects and add object collision components to them.
 }
 
+ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity)
+{
+	WeaponComponent		weapon_component;
+	TransformComponent	weapon_transform_component;
+	MeshComponent		weapon_mesh_component;
 
+	weapon_component.mType = weaponType;
+	weapon_component.mOwnerEntity = ownerEntity;
+	weapon_mesh_component.mMesh = pMesh;
+
+	switch (weaponType)
+	{
+	case SWORD:
+		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
+		break;
+	case FIST:
+		weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+		break;
+	case PROJECTILE:
+		MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
+		break;
+	}
+	 
+	return rEcs.createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
+}
 
 inline void MoveEntity(ecs::EntityComponentSystem &rEcs, ID entityID, XMFLOAT3 direction)
 {
