@@ -54,6 +54,12 @@
     <ClCompile Include="gameGraphics\RenderBuffer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="gameGraphics\SSAOPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gameGraphics\CombineSSAOPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp">
       <Filter>Graphics\ECS</Filter>
     </ClCompile>
@@ -76,6 +82,9 @@
       <Filter>World</Filter>
     </ClCompile>
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gameGraphics\BlurPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
@@ -260,6 +269,15 @@
     <ClInclude Include="gameSceneObjects\InitLoot.h">
       <Filter>Init</Filter>
     </ClInclude>
+    <ClInclude Include="gameGraphics\SSAOPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\CombineSSAOPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\BlurPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="UI\InitUI.h">
       <Filter>UI</Filter>
     </ClInclude>
@@ -366,10 +384,22 @@
     <FxCompile Include="gameGraphics\VS_Transformation.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="gameGraphics\PS_Transformation.hlsl">
+    <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl" />
+    <FxCompile Include="gameGraphics\Shaders\VS_SSAO.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl" />
+    <FxCompile Include="gameGraphics\Shaders\PS_SSAO.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Combine.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Blur_Horizontal.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Blur_Vertical.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Weapon.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>

@@ -21,7 +21,17 @@ void InitSong(ecs::EntityComponentSystem& rECS)
 {
 	{
 		ecs::events::PlayMusic m_event;
-		m_event.audioName = AudioName::CC_TEST_SONG;
+		m_event.audioName = AudioName::CC_TEST_CALM_SONG;
+		rECS.createEvent(m_event);
+	}
+	{
+		ecs::events::MusicSetVolume m_event;
+		m_event.volume = 0.0f;
+		rECS.createEvent(m_event);
+	}
+	{
+		ecs::events::FadeInMusic m_event;
+		m_event.fadeInTimeInSeconds = 3.0f;
 		rECS.createEvent(m_event);
 	}
 

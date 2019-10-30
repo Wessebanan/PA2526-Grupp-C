@@ -3,11 +3,6 @@
 #include "../../Graphics/includes/Window.h"
 #include "ecs.h"
 
-
-
-//#include "gameRendering/InitMesh.h"
-//#include "gameRendering/PlaceMesh.h"
-
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
 #include "gameAI/InitAI.h"
@@ -35,6 +30,12 @@
 #include "../../Graphics/includes/RenderManager.h"
 #include "../../Graphics/includes/MeshManager.h"
 
+#include "gameGraphics/ForwardRenderingPipeline.h"
+#include "gameGraphics/ShadowMapPipeline.h"
+#include "gameGraphics/SSAOPipeline.h"
+#include "gameGraphics/CombineSSAOPipeline.h"
+#include "gameGraphics/BlurPipeline.h"
+
 #include "gameAnimation/InitAnimation.h"
 
 #include "Renderers/Renderers.h"
@@ -57,7 +58,7 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
-void InitAll(EntityComponentSystem& rECS);
+void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight);
 
 const UINT g_RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
@@ -127,14 +128,13 @@ int main()
 		in InitAll().
 	*/
 
-	InitAll(ecs);
+	InitAll(ecs, client_width, client_height);
 
 	/*
 		 #############################                                                    ############################# 
 		#######################   From here on, all initialization is expected to be finished.   #######################
 		 #############################                                                    ############################# 
 	*/
-
 
 	/*
 		-- Show Window --
@@ -152,7 +152,6 @@ int main()
 	/*
 		-- Update Loop, while window is open --
 	*/
-
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
@@ -168,6 +167,22 @@ int main()
 				ecs::events::GameStartEvent eve;
 				//eve.winner = 1;
 				ecs.createEvent(eve);
+				{
+					ecs::events::PlayMusic m_event;
+					m_event.audioName = AudioName::CC_TEST_SONG;
+					ecs.createEvent(m_event);
+				}
+				{
+					ecs::events::MusicSetVolume m_event;
+					m_event.volume = 0.0f;
+					ecs.createEvent(m_event);
+				}
+				{
+					ecs::events::FadeInMusic m_event;
+					m_event.fadeInTimeInSeconds = 2.0f;
+					ecs.createEvent(m_event);
+				}
+				
 			}
 			
 
@@ -181,7 +196,7 @@ int main()
 	}
 
 	/*
-		-- Cleanup Memory --
+	-- Cleanup Memory --
 	*/
 	StopHttpServer();
 
@@ -189,6 +204,7 @@ int main()
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& render_buffer = static_cast<components::RenderBufferComponent*>(ecs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
 
+	//renderer_ssao.Destroy();
 	mesh_manager.Destroy();
 	render_manager.Destroy();
 
@@ -196,14 +212,13 @@ int main()
 
 	MeshContainer::Terminate();
 	render_buffer.Terminate();
-
 	
 
 	return 0;
 
 }
 
-void InitAll(EntityComponentSystem& rECS)
+void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight)
 {
 	/*
 		List all Init functions that will create ECS systems.
@@ -215,7 +230,7 @@ void InitAll(EntityComponentSystem& rECS)
 	*/
 	
 	TempUISystemPtrs ui_systems;
-	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
+	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, clientWidth, clientHeight);
 	InitMeshes(rECS);
 	InitGraphicsPreRenderSystems(rECS);
 
@@ -243,16 +258,13 @@ void InitAll(EntityComponentSystem& rECS)
 
 	InitGameLoop(rECS);
 
-
-
-
-
 	WorldMeshData worldMeshData;
 	GenerateWorldMesh(rECS, &worldMeshData.pMesh, worldMeshData.vertexCount);
 
-	InitGraphicsRenderSystems(rECS, worldMeshData);
+	InitGraphicsRenderSystems(rECS, worldMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
+	initArmyText(rECS);
 
 	InitSpawnLootSystem(rECS);
 	InitHttpServer(rECS);

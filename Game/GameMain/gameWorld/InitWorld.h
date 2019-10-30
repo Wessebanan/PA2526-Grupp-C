@@ -146,6 +146,7 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 	*/
 
 	std::vector<XMFLOAT3>& r_mesh_vertices = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetVertexPositionVector();
+	std::vector<XMFLOAT3>& r_mesh_normals = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetNormalVector();
 	std::vector<int>& r_mesh_indices = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetIndexVector();
 
 	/*
@@ -228,18 +229,20 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 			int tri_index = index_counter % 3;
 			xm_triangle[index_counter % 3] = xm_pos;
 
-			if (index_counter % 3 == 2)
-			{
-				// Calculate normal of last three positions
-				XMVECTOR v1 = xm_triangle[1] - xm_triangle[0];
-				XMVECTOR v2 = xm_triangle[2] - xm_triangle[0];
+			//if (index_counter % 3 == 2)
+			//{
+			//	// Calculate normal of last three positions
+			//	XMVECTOR v1 = xm_triangle[1] - xm_triangle[0];
+			//	XMVECTOR v2 = xm_triangle[2] - xm_triangle[0];
 
-				xm_normal = XMVector3Normalize(XMVector3Cross(v1, v2));
+			//	xm_normal = XMVector3Normalize(XMVector3Cross(v1, v2));
 
-				XMStoreFloat3(&vertex_buffer[index_counter-2].normal, xm_normal);
-				XMStoreFloat3(&vertex_buffer[index_counter-1].normal, xm_normal);
-				XMStoreFloat3(&vertex_buffer[index_counter].normal, xm_normal);
-			}
+			//	XMStoreFloat3(&vertex_buffer[index_counter-2].normal, xm_normal);
+			//	XMStoreFloat3(&vertex_buffer[index_counter-1].normal, xm_normal);
+			//	XMStoreFloat3(&vertex_buffer[index_counter].normal, xm_normal);
+			//}
+
+			vertex_buffer[index_counter].normal = r_mesh_normals[i];
 
 			index_counter++;
 		}
@@ -278,18 +281,20 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 
 			xm_triangle[index_counter % 3] = xm_pos;
 
-			if (index_counter % 3 == 2)
-			{
-				// Calculate normal of last three positions
-				XMVECTOR v1 = xm_triangle[1] - xm_triangle[0];
-				XMVECTOR v2 = xm_triangle[2] - xm_triangle[0];
+			//if (index_counter % 3 == 2)
+			//{
+			//	// Calculate normal of last three positions
+			//	XMVECTOR v1 = xm_triangle[1] - xm_triangle[0];
+			//	XMVECTOR v2 = xm_triangle[2] - xm_triangle[0];
 
-				xm_normal = XMVector3Normalize(XMVector3Cross(v1, v2));
+			//	xm_normal = XMVector3Normalize(XMVector3Cross(v1, v2));
 
-				XMStoreFloat3(&vertex_buffer[index_counter - 2].normal, xm_normal);
-				XMStoreFloat3(&vertex_buffer[index_counter - 1].normal, xm_normal);
-				XMStoreFloat3(&vertex_buffer[index_counter].normal, xm_normal);
-			}
+			//	XMStoreFloat3(&vertex_buffer[index_counter - 2].normal, xm_normal);
+			//	XMStoreFloat3(&vertex_buffer[index_counter - 1].normal, xm_normal);
+			//	XMStoreFloat3(&vertex_buffer[index_counter].normal, xm_normal);
+			//}
+
+			vertex_buffer[index_counter].normal = r_mesh_normals[i];
 
 			index_counter++;
 		}
