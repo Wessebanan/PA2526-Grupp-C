@@ -107,6 +107,7 @@
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
+    <ClCompile Include="gameSceneObjects\LootSystem.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
@@ -146,6 +147,7 @@
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameSceneObjects\InitBiomes.h" />
+    <ClInclude Include="gameSceneObjects\InitLoot.h" />
     <ClInclude Include="gameSceneObjects\InitSceneObjectsh.h" />
     <ClInclude Include="gameSceneObjects\LootSystem.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />

@@ -60,6 +60,9 @@
     <ClCompile Include="gameAnimation\AnimationSystems.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
+    <ClCompile Include="gameSceneObjects\LootSystem.cpp">
+      <Filter>SceneObjects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -226,6 +229,9 @@
     </ClInclude>
     <ClInclude Include="gameSceneObjects\LootSystem.h">
       <Filter>SceneObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="gameSceneObjects\InitLoot.h">
+      <Filter>Init</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
