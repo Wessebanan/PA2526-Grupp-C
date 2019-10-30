@@ -179,6 +179,7 @@ namespace ecs
 				unsigned int next_tile_id = 0;
 				float best_neighbour_cost = 999.f;
 				unsigned int current_tile_id = startID;
+				bool intern_test_no_path = false;//
 
 				current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(startID);
 				goal_tile_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(goalID);
@@ -257,6 +258,8 @@ namespace ecs
 						closed_list[next_tile_id].id = next_tile_id;				//its own id
 						closed_list[next_tile_id].parent_id = parent_id;		   //parent id
 						closed_list[next_tile_id].move_cost = best_neighbour_cost;//its movecost
+						if (open_list.size() == 0)//interntest
+							intern_test_no_path = true;//
 						if(open_list.size() > 0 )
 						{
 							open_list.erase(open_list.begin() + pos_in_open_list);	//remove from openlist
@@ -267,14 +270,22 @@ namespace ecs
 					}
 					//when we have found the goal we start to build the path by starting with the goal tile then we add that tiles parent tile and do this until we come to the start tile
 					//parent tile in this function is the tile that was used to get to the child tile, so when we find the goal we just the go backwards using the parents
-					current_tile_id = goalID;
-					to_return.push_back(current_tile_id);
-					while (current_tile_id != startID)
-					{ 
-						current_tile_id = closed_list[current_tile_id].parent_id;
+					if(!intern_test_no_path)//interntest
+					{
+						current_tile_id = goalID;
 						to_return.push_back(current_tile_id);
+						while (current_tile_id != startID)
+						{ 
+							current_tile_id = closed_list[current_tile_id].parent_id;
+							to_return.push_back(current_tile_id);
+						}
+						return to_return;
 					}
-					return to_return;
+					else//interntest
+					{
+						to_return.push_back(startID);
+						return to_return;
+					}
 				}
 				else
 				{
