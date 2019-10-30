@@ -165,17 +165,19 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 			p_gl->mRoundTime.StartRound();
 		}
 
-
-		ChangeUserStateEvent e;
-		e.newState = ATTACK;
-		e.playerId = PLAYER1;
-		createEvent(e);
-		e.playerId = PLAYER2;
-		createEvent(e);
-		e.playerId = PLAYER3;
-		createEvent(e);
-		e.playerId = PLAYER4;
-		createEvent(e);
+		/**************************************/
+		/********** USED FOR DEBUG ***********/
+		/************************************/
+		//ChangeUserStateEvent e;
+		//e.newState = ATTACK;
+		//e.playerId = PLAYER1;
+		//createEvent(e);
+		//e.playerId = PLAYER2;
+		//createEvent(e);
+		//e.playerId = PLAYER3;
+		//createEvent(e);
+		//e.playerId = PLAYER4;
+		//createEvent(e);
 
 
 	}
