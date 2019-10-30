@@ -185,16 +185,16 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
 		/************************************/
-		//ChangeUserStateEvent e;
-		//e.newState = ATTACK;
-		//e.playerId = PLAYER1;
-		//createEvent(e);
-		//e.playerId = PLAYER2;
-		//createEvent(e);
-		//e.playerId = PLAYER3;
-		//createEvent(e);
-		//e.playerId = PLAYER4;
-		//createEvent(e);
+		ChangeUserStateEvent e;
+		e.newState = ATTACK;
+		e.playerId = PLAYER1;
+		createEvent(e);
+		e.playerId = PLAYER2;
+		createEvent(e);
+		e.playerId = PLAYER3;
+		createEvent(e);
+		e.playerId = PLAYER4;
+		createEvent(e);
 
 
 	}
@@ -427,6 +427,9 @@ ecs::systems::RoundOverSystem::RoundOverSystem()
 {
 	updateType = EventReader;
 	typeFilter.addRequirement(ecs::events::RoundEndEvent::typeID);
+
+	this->mRoundOver = false;
+	this->mRoundOverDuration = 0.0f;
 }
 
 ecs::systems::RoundOverSystem::~RoundOverSystem()
@@ -435,7 +438,7 @@ ecs::systems::RoundOverSystem::~RoundOverSystem()
 
 void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 {
-	if (event.getTypeID() == ecs::events::RoundEndEvent::typeID)
+	if (event.getTypeID() == ecs::events::RoundEndEvent::typeID && !this->mRoundOver)
 	{
 		int winner = dynamic_cast<ecs::events::RoundEndEvent*>(&event)->winner;
 
@@ -452,14 +455,27 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 				{
 					cout << "The round winner is Player " << winner << endl;
 					// Can be reworked to start prep phase
-					events::RoundStartEvent eve;
-					createEvent(eve);
+					this->mRoundOver = true;
 				}
 				else
 				{
 					// What to do when a player has won
 				}
 			}
+		}
+	}
+
+	if (this->mRoundOver)
+	{
+		this->mRoundOverDuration += delta;
+
+		if (this->mRoundOverDuration > 3.0f)
+		{
+			events::RoundStartEvent eve;
+			createEvent(eve);
+
+			this->mRoundOver = false;
+			this->mRoundOverDuration = 0.0f;
 		}
 	}
 }
