@@ -20,6 +20,11 @@ namespace ecs
 		{
 			int mMapSettings;
 		};
+
+		// Only used to fetch the components in the ECS
+		struct GamePointsComponent : public ecs::ECSComponent<GamePointsComponent>
+		{
+		};
 	}
 }
 
