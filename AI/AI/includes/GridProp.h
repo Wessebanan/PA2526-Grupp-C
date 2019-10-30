@@ -1,5 +1,7 @@
 #pragma once
+#include <vector>
 #include "AIGlobals.h"
+#include "../../ECS/plainECS/includes/ecsGlobals.h"
 
 struct TileData
 {

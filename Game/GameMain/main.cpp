@@ -3,11 +3,6 @@
 #include "../../Graphics/includes/Window.h"
 #include "ecs.h"
 
-
-
-//#include "gameRendering/InitMesh.h"
-//#include "gameRendering/PlaceMesh.h"
-
 #include "gameAI/InitArmy.h"
 #include "gameAI/InitGrid.h"
 #include "gameAI/InitAI.h"
@@ -115,53 +110,6 @@ int main()
 	graphics::InitializeD3D11();
 	graphics::AttachHwndToSwapChain(wnd);
 
-	
-	//graphics::RenderManager renderer_ssao;
-	//renderer_ssao.Initialize(0);
-	//UINT pipeline_ssao;
-	//{
-	//	graphics::SSAO_PIPELINE_DESC desc = { };
-	//	desc.Width		= client_width / 2.0f;
-	//	desc.Height		= client_height / 2.0f;
-	//	pipeline_ssao = renderer_ssao.CreatePipeline(
-	//		new graphics::SSAOPipeline,
-	//		&desc);
-	//}
-
-	//UINT pipeline_blur;
-	//{
-	//	graphics::BLUR_PIPELINE_DESC desc = { };
-	//	desc.Width = client_width / 2.0f;
-	//	desc.Height = client_height / 2.0f;
-	//	pipeline_blur = renderer_ssao.CreatePipeline(
-	//		new graphics::BlurPipeline,
-	//		&desc);
-	//}
-
-	//UINT pipeline_combine;
-	//{
-	//	graphics::COMBINE_PIPELINE_DESC desc = { };
-	//	desc.Width		= client_width;
-	//	desc.Height		= client_height;
-	//	pipeline_combine = renderer_ssao.CreatePipeline(
-	//		new graphics::CombinePipeline,
-	//		&desc);
-	//}
-
-	//UINT shader_ssao_noise = renderer_ssao.CreateShaderProgram(
-	//	GetShaderFilepath("VS_SSAO.cso").c_str(), 
-	//	GetShaderFilepath("PS_SSAO.cso").c_str(), 
-	//	0);
-
-	//UINT shader_combine = renderer_ssao.CreateShaderProgram(
-	//	GetShaderFilepath("VS_SSAO.cso").c_str(),
-	//	GetShaderFilepath("PS_Combine.cso").c_str(),
-	//	0);
-
-	//UINT shader_blur_h = renderer_ssao.CreateShaderProgram(
-	//	GetShaderFilepath("VS_SSAO.cso").c_str(),
-	//	GetShaderFilepath("PS_Blur_Horizontal.cso").c_str(),
-	//	0);
 	/*
 		-- Initialize ECS --
 	*/
@@ -187,58 +135,6 @@ int main()
 		#######################   From here on, all initialization is expected to be finished.   #######################
 		 #############################                                                    ############################# 
 	*/
-
-
-	//graphics::MeshRegion mesh = mesh_manager.CreateMeshRegion(6, 0);
-	//{
-	//	struct float3
-	//	{
-	//		float x, y, z;
-	//	};
-
-	//	struct float2
-	//	{
-	//		float x, y;
-	//	};
-
-	//	float3 vertices[6] =
-	//	{
-	//		-1.0f, -1.0f, 0.5f,
-	//		-1.0f,  1.0f, 0.5f,
-	//		 1.0f, -1.0f, 0.5f,
-
-	//		 1.0f, -1.0f, 0.5f,
-	//		-1.0f,  1.0f, 0.5f,
-	//		 1.0f,  1.0f, 0.5f,
-	//	};
-
-	//	float2 uv[6] =
-	//	{
-	//		0.0f, 1.0f,
-	//		0.0f, 0.0f,
-	//		1.0f, 1.0f,
-
-	//		1.0f, 1.0f,
-	//		0.0f, 0.0f,
-	//		1.0f, 0.0f,
-	//	};
-
-	//	graphics::VERTEX_DATA data = { NULL };
-	//	data.pVertexPositions = vertices;
-	//	data.pVertexTexCoords = uv;
-
-	//	mesh_manager.UploadData(mesh, data, NULL);
-	//}
-
-
-	//graphics::ShaderModelLayout ssao_layout;
-	//UINT instance_count_ssao = 1;
-	//ssao_layout.MeshCount = 1;
-	//ssao_layout.pInstanceCountPerMesh = &instance_count_ssao;
-	//ssao_layout.pMeshes = &mesh;
-	//renderer_ssao.SetShaderModelLayout(pipeline_ssao, ssao_layout);
-	//renderer_ssao.SetShaderModelLayout(pipeline_combine, ssao_layout);
-	//renderer_ssao.SetShaderModelLayout(pipeline_blur, ssao_layout);
 
 	/*
 		-- Show Window --
@@ -294,24 +190,6 @@ int main()
 				Update all ECS systems, and give them the delta time.
 			*/
 			ecs.update(timer.GetFrameTime());
-
-			
-			//renderer_ssao.ExecutePipeline(
-			//	pipeline_ssao, 
-			//	shader_ssao_noise);
-
-			//renderer_ssao.ExecutePipeline(
-			//	pipeline_blur,
-			//	shader_blur_h);
-
-			//renderer_ssao.ExecutePipeline(
-			//	pipeline_ssao,
-			//	shader_blur_h);
-
-			//renderer_ssao.ExecutePipeline(
-			//	pipeline_combine,
-			//	shader_combine);
-
 
 			graphics::Present(0);
 		}
