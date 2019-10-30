@@ -210,4 +210,31 @@ void InitAll(EntityComponentSystem& rECS)
 	rECS.createEvent(e);
 	e.playerId = PLAYER4;
 	rECS.createEvent(e);
+
+	// Code for spawning a weapon in the middle of the stage.
+	Entity* sword = CreateWeaponEntity(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_SWORD), SWORD);
+	TransformComponent* sword_transform = static_cast<TransformComponent*>(rECS.getComponentFromEntity(TransformComponent::typeID, sword->getID()));
+
+	// Place sword at unit 0's position.
+	//TypeFilter unit_filter;
+	//unit_filter.addRequirement(UnitComponent::typeID);
+	//EntityIterator it = rECS.getEntititesByFilter(unit_filter);
+	//ID sword_unit_id = it.entities.at(0).entity->getID();
+
+	//TransformComponent* unit_transform = static_cast<TransformComponent*>(rECS.getComponentFromEntity(TransformComponent::typeID, sword_unit_id));
+	//sword_transform->position = unit_transform->position;
+
+	// Place sword at center tile position on ground.
+	GridProp* grid = GridProp::GetInstance();
+
+	int2 grid_size = grid->GetSize();
+
+	TileData some_center_tile = grid->mGrid[grid_size.y / 2][grid_size.x / 2];
+	Entity* center_tile = rECS.getEntity(some_center_tile.Id);
+	TransformComponent* tile_transform = static_cast<TransformComponent*>(rECS.getComponentFromEntity(TransformComponent::typeID, center_tile->getID()));
+
+	sword_transform->position = tile_transform->position;
+
+	ColorComponent color_comp;
+	rECS.createComponent<ColorComponent>(sword->getID(), color_comp);
 }
