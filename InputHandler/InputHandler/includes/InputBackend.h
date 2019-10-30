@@ -114,6 +114,8 @@ public:
 	WebTile* mpUserTile[4];
 	// The user command selected
 	WebCommand* mpUserCommand[4];
+	// The users that have pinged
+	bool* mpUserPing[4];
 
 private:
 	// Handle for the connection to the website
@@ -131,6 +133,8 @@ private:
 	void updateButtons();
 	// Reads and updates the commands for all users
 	void updateCommands();
+	// Reads and updates the commands for all users
+	void updatePings();
 	// not implemented but webb has it stored
 	//void updateName();
 };

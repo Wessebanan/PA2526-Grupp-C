@@ -1,4 +1,5 @@
 #include "InitInputSystems.h"
+#include "..//gameAnimation/AnimationEvents.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -98,7 +99,14 @@ void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, fl
 		p_tile_comp->userTiles[i].mCordY = p_backend_comp->backend->mpUserTile[i]->mCordY;
 
 		p_command_comp->userCommands[i].mCommand = p_backend_comp->backend->mpUserCommand[i]->mCommand;
-	}
+
+		if (*p_backend_comp->backend->mpUserPing[i] == true)
+		{
+			ecs::events::PingEvent eve;
+			eve.playerId = (PLAYER)i;
+			createEvent(eve);
+		}
+	}	
 }
 
 /// HEADER INPUT 
