@@ -102,6 +102,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp" />
+    <ClCompile Include="..\..\InputHandler\InputHandler\webConnection.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
@@ -116,6 +117,7 @@
     <ClCompile Include="gameGraphics\SSAOPipeline.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
+    <ClCompile Include="gameWorld\UpdateOceanSystem.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
     <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
     <ClCompile Include="Input\InterpretWebSystems.cpp" />
@@ -180,8 +182,10 @@
     <ClInclude Include="gameUtility\UtilitySystems.h" />
     <ClInclude Include="gameWorld\InitWorld.h" />
     <ClInclude Include="gameWorld\OceanComponents.h" />
+    <ClInclude Include="gameWorld\UpdateOceanSystem.h" />
     <ClInclude Include="gameWorld\WorldSettings.h" />
     <ClInclude Include="GraphicsComponents.h" />
+    <ClInclude Include="InitHttpServer.h" />
     <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />

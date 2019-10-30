@@ -55,6 +55,8 @@
 #include "gameGameLoop/InitGameLoop.h"
 #include "gameGameLoop/GameLoopEvents.h"
 
+#include "InitHttpServer.h"
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -312,6 +314,7 @@ int main()
 	/*
 	-- Cleanup Memory --
 	*/
+	StopHttpServer();
 
 	renderer_ssao.Destroy();
 	mesh_manager.Destroy();
@@ -321,6 +324,8 @@ int main()
 
 	MeshContainer::Terminate();
 	render_buffer.Terminate();
+
+	
 
 	return 0;
 
@@ -356,6 +361,7 @@ void InitAll(EntityComponentSystem& rECS)
 	InitSceneObjects(rECS);
 
 	InitOceanEntities(rECS);
+	InitOceanUpdateSystem(rECS);
 
 	InitCamera(rECS);
 
@@ -376,4 +382,5 @@ void InitAll(EntityComponentSystem& rECS)
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
 
+	InitHttpServer(rECS);
 }

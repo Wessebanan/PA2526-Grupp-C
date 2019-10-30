@@ -264,12 +264,63 @@ namespace ecs
 
 	void WorldRenderSystem::act(float _delta)
 	{
+		UINT index = 0;
+
 		/*
-			Set our 'vertex buffer' for the world tile mesh.
+			For now, allocate a way to big buffer size (max size).
+			This will be tweaked in later implementations.
+		*/
+		float* height = (float*)malloc(65536);
+		ZeroMemory(height, 65536);
+
+		/*
+			Fetch all ocean tiles and update their y-position in the
+			height buffer.
 		*/
 
+		TypeFilter ocean_filter;
+		ocean_filter.addRequirement(components::OceanTileComponent::typeID);
+		ocean_filter.addRequirement(components::TransformComponent::typeID);
+
+		EntityIterator p_iterator = getEntitiesByFilter(ocean_filter);
+
+		for (FilteredEntity& tile : p_iterator.entities)
+		{
+			height[index] = tile.getComponent<components::TransformComponent>()->position.y;
+			index++;
+		}
+
+		/*
+			Fetch all map tiles and update their y-position in the
+			height buffer.
+		*/
+
+		TypeFilter map_filter;
+		map_filter.addRequirement(components::TileComponent::typeID);
+		map_filter.addRequirement(components::TransformComponent::typeID);
+
+		p_iterator = getEntitiesByFilter(map_filter);
+
+		for (FilteredEntity& tile : p_iterator.entities)
+		{
+			height[index] = tile.getComponent<components::TransformComponent>()->position.y;
+			index++;
+		}
+
+		/*
+			Set our 'vertex buffer' for the world tile mesh, and upload the
+			height buffer.
+		*/
+
+		graphics::TILE_RENDERING_PIPELINE_DATA heightData;
+		heightData.pHeightBuffer = height;
+		heightData.ByteWidth = index * sizeof(float);
+
 		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		mpStateMgr->UpdatePipelineState(mPipelineState, &heightData);
 		mpStateMgr->SetPipelineState(mPipelineState);
+
+		free(height);
 	}
 
 	void WorldRenderSystem::Initialize(
@@ -394,18 +445,15 @@ namespace ecs
 				This is a temporary map, until we have ONE mesh enum that everyone reads from.
 				This converts the SCENE_OBJECT mesh enum to MESH_TYPE enum in MeshContainer.
 			*/
-			mMeshMap[SCENE_OBJECT::SNOWMAN]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::ANGEL]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::IGLOO]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::CLIFF]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::ROCKS]		= MESH_TYPE::MESH_TYPE_ROCK;
-			mMeshMap[SCENE_OBJECT::CAMP]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::TREES]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::FLOWERS]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::VILAGE]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::SANDSTONE]	= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::PALMS]		= MESH_TYPE::MESH_TYPE_TREE;
-			mMeshMap[SCENE_OBJECT::PYRAMIDS]	= MESH_TYPE::MESH_TYPE_TREE;
+			mMeshMap[SCENE_OBJECT::BARREL]		= MESH_TYPE::MESH_TYPE_BARREL,
+			mMeshMap[SCENE_OBJECT::BOX]			= MESH_TYPE::MESH_TYPE_BOX;
+			mMeshMap[SCENE_OBJECT::CACTUS]		= MESH_TYPE::MESH_TYPE_CACTUS;
+			mMeshMap[SCENE_OBJECT::CAGE]		= MESH_TYPE::MESH_TYPE_CAGE;
+			mMeshMap[SCENE_OBJECT::COWSKULL]	= MESH_TYPE::MESH_TYPE_COWSKULL;
+			mMeshMap[SCENE_OBJECT::FRUITTREE]	= MESH_TYPE::MESH_TYPE_FRUITTREE;
+			mMeshMap[SCENE_OBJECT::GIANTSKULL]	= MESH_TYPE::MESH_TYPE_GIANTSKULL;
+			mMeshMap[SCENE_OBJECT::TOWER]		= MESH_TYPE::MESH_TYPE_TOWER;
+			mMeshMap[SCENE_OBJECT::WINTERTREE]	= MESH_TYPE::MESH_TYPE_WINTERTREE;
 
 
 			for (int i = 0; i < SCENE_OBJECT_COUNT; i++)

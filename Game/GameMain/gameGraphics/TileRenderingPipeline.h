@@ -14,7 +14,8 @@ namespace graphics
 
 	struct TILE_RENDERING_PIPELINE_DATA
 	{
-		
+		const float* pHeightBuffer;
+		UINT ByteWidth;
 	};
 
 	class TileRenderingPipeline : public StatePipeline
@@ -32,6 +33,7 @@ namespace graphics
 		virtual void Destroy() override;
 
 		ID3D11Buffer* mpVertexBuffer;
+		ID3D11Buffer* mpDataBuffer;
 		ID3D11ShaderResourceView* mpVertexBufferView;
 	};
 }

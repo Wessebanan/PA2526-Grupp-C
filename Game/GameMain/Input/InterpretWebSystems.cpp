@@ -90,6 +90,17 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				createEvent(cus_event);
 			}
+			else if (ucComp->userCommands[i].mCommand == "flee" && mCurrStates[i] != STATE::FLEE)
+			{
+				// change state component
+				events::ChangeUserStateEvent cus_event;
+				cus_event.newState = STATE::FLEE;
+				cus_event.playerId = (PLAYER)i;
+
+				mCurrStates[i] = STATE::FLEE;
+
+				createEvent(cus_event);
+			}
 		}
 	}
 }

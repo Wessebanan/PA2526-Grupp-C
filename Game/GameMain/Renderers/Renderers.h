@@ -183,6 +183,9 @@ namespace ecs
 			graphics::ShaderModelLayout mInstanceLayout;
 			graphics::MeshRegion mMeshRegion;
 
+			void* mHeightData;
+			UINT mHightDataSize;
+
 			void* mpWorldVertices;
 			UINT mWorldBufferSize;
 		};
