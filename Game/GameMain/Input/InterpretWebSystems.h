@@ -14,8 +14,6 @@ namespace ecs
 			ChangeFSMSystem();
 			~ChangeFSMSystem();
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
-		private:
-			STATE mCurrStates[4];
 		};
 	}
 }

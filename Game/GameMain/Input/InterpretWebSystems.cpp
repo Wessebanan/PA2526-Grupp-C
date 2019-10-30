@@ -1,6 +1,7 @@
 #include "../Input/InterpretWebSystems.h"
 #include "../gameAudio/AudioECSEvents.h"
 #include "../gameAnimation/AnimationEvents.h"
+#include "..//gameAI/AIComponents.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -9,11 +10,6 @@ ecs::systems::ChangeFSMSystem::ChangeFSMSystem()
 {
 	updateType = ecs::EntityUpdate;
 	typeFilter.addRequirement(ecs::components::UserCommandComponent::typeID);
-
-	for (size_t i = 0; i < 4; i++)
-	{
-		mCurrStates[i] = STATE::IDLE;
-	}
 }
 
 ecs::systems::ChangeFSMSystem::~ChangeFSMSystem()
@@ -23,30 +19,32 @@ ecs::systems::ChangeFSMSystem::~ChangeFSMSystem()
 void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	UserCommandComponent* ucComp = _entityInfo.getComponent<UserCommandComponent>();
+	ComponentIterator it = ecs::ECSUser::getComponentsOfType(PlayerStateComponent::typeID);
+	PlayerStateComponent* p_player_state_comp = static_cast<PlayerStateComponent*>(it.next());
 
 	if (ucComp)
 	{
 		for (size_t i = 0; i < 4; i++)
 		{
 			// CURRENTLY HIJACKED AS THE "PING" bBUTTON
-			if (ucComp->userCommands[i].mCommand == "move" && mCurrStates[i] != STATE::MOVE)
+			if (ucComp->userCommands[i].mCommand == "move" && p_player_state_comp->mCurrentStates[i] != STATE::MOVE)
 			{
 				// change state component
 				events::PingEvent ping_event;
 				ping_event.playerId = (PLAYER)i;
 
-				mCurrStates[i] = STATE::MOVE;
+				p_player_state_comp->mCurrentStates[i] = STATE::MOVE;
 
 				createEvent(ping_event);
 			}
-			else if (ucComp->userCommands[i].mCommand == "idle" && mCurrStates[i] != STATE::IDLE)
+			else if (ucComp->userCommands[i].mCommand == "idle" )
 			{
 				// change state component
 				events::ChangeUserStateEvent cus_event;
 				cus_event.newState = STATE::IDLE;
 				cus_event.playerId = (PLAYER)i;
 
-				mCurrStates[i] = STATE::IDLE;
+				p_player_state_comp->mCurrentStates[i] = STATE::IDLE;
 
 				{
 					ecs::events::FadeOutSubMusic m_event;
@@ -56,14 +54,14 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				createEvent(cus_event);
 			}
-			else if (ucComp->userCommands[i].mCommand == "attack" && mCurrStates[i] != STATE::ATTACK)
+			else if (ucComp->userCommands[i].mCommand == "attack")
 			{
 				// change state component
 				events::ChangeUserStateEvent cus_event;
 				cus_event.newState = STATE::ATTACK;
 				cus_event.playerId = (PLAYER)i;
 
-				mCurrStates[i] = STATE::ATTACK;
+				p_player_state_comp->mCurrentStates[i] = STATE::ATTACK;
 
 				// TEMP GROUND HIT SOUND
 				ecs::events::PlaySound sound_event;
@@ -79,25 +77,25 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				createEvent(cus_event);
 			}
-			else if (ucComp->userCommands[i].mCommand == "loot" && mCurrStates[i] != STATE::LOOT)
+			else if (ucComp->userCommands[i].mCommand == "loot" )
 			{
 				// change state component
 				events::ChangeUserStateEvent cus_event;
 				cus_event.newState = STATE::LOOT;
 				cus_event.playerId = (PLAYER)i;
 
-				mCurrStates[i] = STATE::LOOT;
+				p_player_state_comp->mCurrentStates[i] = STATE::LOOT;
 
 				createEvent(cus_event);
 			}
-			else if (ucComp->userCommands[i].mCommand == "flee" && mCurrStates[i] != STATE::FLEE)
+			else if (ucComp->userCommands[i].mCommand == "flee" )//&& p_player_state_comp->mCurrentStates[i] != STATE::FLEE)
 			{
 				// change state component
 				events::ChangeUserStateEvent cus_event;
 				cus_event.newState = STATE::FLEE;
 				cus_event.playerId = (PLAYER)i;
 
-				mCurrStates[i] = STATE::FLEE;
+				p_player_state_comp->mCurrentStates[i] = STATE::FLEE;
 
 				createEvent(cus_event);
 			}

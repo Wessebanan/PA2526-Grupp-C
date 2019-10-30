@@ -77,5 +77,10 @@ namespace ecs
 		{
 			int data;
 		};
+
+		struct PlayerStateComponent : public ECSComponent<PlayerStateComponent>
+		{
+			STATE mCurrentStates[4];
+		};
 	}
 }

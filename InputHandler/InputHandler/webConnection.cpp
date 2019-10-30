@@ -406,7 +406,9 @@ int WebConnection::GetUserTile(int player, int axis)
 
 string WebConnection::GetUserCommand(int player)
 {
-	return mUsers[player].command;
+	string str = mUsers[player].command;
+	mUsers[player].command = "";
+	return str;
 }
 
 bool WebConnection::GetUserPing(int player)

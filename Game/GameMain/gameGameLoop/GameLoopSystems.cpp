@@ -109,6 +109,12 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 		createEvent(eve);
 		
 	}
+	else if (check_any_live == 0)
+	{
+		events::RoundEndEvent eve;
+		eve.winner = -1;
+		createEvent(eve);
+	}
 }
 
 /*
@@ -180,6 +186,13 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
 			p_gl->mRoundTime.StartRound();
+		}
+
+		ComponentIterator it = ecs::ECSUser::getComponentsOfType(PlayerStateComponent::typeID);
+		PlayerStateComponent* p_player_state_comp = static_cast<PlayerStateComponent*>(it.next());
+		for (int i = 0; i < 4; i++)
+		{
+			p_player_state_comp->mCurrentStates[i] = IDLE;
 		}
 
 		/**************************************/
