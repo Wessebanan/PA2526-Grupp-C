@@ -24,10 +24,10 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 
 	ecs::components::UITextComponent time_text_comp;
 	ecs::components::UIDrawPosComponent text_pos_comp;
-	text_pos_comp.mDrawArea.top = 50;
-	text_pos_comp.mDrawArea.bottom = 150;
-	text_pos_comp.mDrawArea.left = 600;
-	text_pos_comp.mDrawArea.right = 1500;
+	text_pos_comp.mDrawArea.top = 450;
+	text_pos_comp.mDrawArea.bottom = 550;
+	text_pos_comp.mDrawArea.left = 200;
+	text_pos_comp.mDrawArea.right = 800;
 	ecs::components::UIDrawColorComponent text_color_comp;
 	text_color_comp.mColor = brushColors::White;
 
@@ -41,20 +41,72 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 
 	// Player points
 
+	FLOAT client_width = graphics::GetDisplayResolution().x;
+	FLOAT client_height = graphics::GetDisplayResolution().y;
+
+	FLOAT text_height = 100;
+	FLOAT text_width = 200;
+	FLOAT unit_text_height = 75;
+	FLOAT unit_text_width = 100;
+
+	FLOAT ui_padding = 50;
+
+	ecs::components::GamePointsComponent point_comp;
 	ecs::components::UITextComponent player_text;
-	player_text.mStrText = "Game not started";
+	player_text.mStrText = "Not started";
 	ecs::components::UIDrawPosComponent player_text_pos_comp;
-	text_pos_comp.mDrawArea.top = 50;
-	text_pos_comp.mDrawArea.bottom = 150;
-	text_pos_comp.mDrawArea.left = 600;
-	text_pos_comp.mDrawArea.right = 1500;
 	ecs::components::UIDrawColorComponent player_text_color_comp;
-	text_color_comp.mColor = brushColors::White;
+
+	for (size_t i = 0; i < 4; i++)
+	{
 
 
-	rECS.createEntity(
-		time_text_comp,
-		text_pos_comp,
-		text_color_comp
-	);
+		switch (i)
+		{
+		case 0:
+			player_text_pos_comp.mDrawArea.top = ui_padding + 50;
+			player_text_pos_comp.mDrawArea.bottom = text_height + ui_padding;
+			player_text_pos_comp.mDrawArea.left = 0 + ui_padding;
+			player_text_pos_comp.mDrawArea.right = text_width + ui_padding;
+
+			player_text_color_comp.mColor = brushColors::Red;
+			break;
+		case 1:
+			player_text_pos_comp.mDrawArea.top = 0 + ui_padding + 50;
+			player_text_pos_comp.mDrawArea.bottom = text_height + ui_padding;
+			player_text_pos_comp.mDrawArea.left = client_width - text_width - ui_padding;
+			player_text_pos_comp.mDrawArea.right = client_width - ui_padding;
+			
+			player_text_color_comp.mColor = brushColors::Gray;
+			break;
+		case 2:
+			player_text_pos_comp.mDrawArea.top = client_height - text_height - ui_padding - 50;
+			player_text_pos_comp.mDrawArea.bottom = client_height - ui_padding;
+			player_text_pos_comp.mDrawArea.left = 0 + ui_padding;
+			player_text_pos_comp.mDrawArea.right = text_width + ui_padding;
+			
+			player_text_color_comp.mColor = brushColors::Cyan;
+			break;
+		case 3:
+			player_text_pos_comp.mDrawArea.top = client_height - text_height - ui_padding - 50;
+			player_text_pos_comp.mDrawArea.bottom = client_height - ui_padding;
+			player_text_pos_comp.mDrawArea.left = client_width - text_width - ui_padding;
+			player_text_pos_comp.mDrawArea.right = client_width - ui_padding;
+			
+			player_text_color_comp.mColor = brushColors::Purple;
+			break;
+		default:
+			player_text_pos_comp.mDrawArea.top = 100;
+			player_text_pos_comp.mDrawArea.bottom = 200;
+			player_text_pos_comp.mDrawArea.left = 100;
+			player_text_pos_comp.mDrawArea.right = 200;
+			
+			player_text_color_comp.mColor = brushColors::Black;
+			break;
+		}
+
+
+		//Create the user entity
+		rECS.createEntity(point_comp, player_text, player_text_pos_comp, player_text_color_comp);
+	}
 }
