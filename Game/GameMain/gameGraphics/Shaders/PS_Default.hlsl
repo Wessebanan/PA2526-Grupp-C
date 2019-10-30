@@ -16,7 +16,7 @@ SamplerComparisonState gSmpCmp		: register (s0);
 float shadow(const float2 pos, const float depth)
 {
 	float2 shadowMapUV = float2(
-		(pos.x + 1.0f) * 0.5f,
+		(1.0f + pos.x) * 0.5f,
 		(1.0f - pos.y) * 0.5f
 		);
 
@@ -26,29 +26,39 @@ float shadow(const float2 pos, const float depth)
 		depth - 0.003f);
 }
 
-cbuffer SunData : register (b0)
-{
-	float3 gSunDirection;
-	uint gSunData;
-}
-
 struct PSIN
 {
 	float4 pos			: SV_POSITION;
 	float4 sunPos		: POSITION1;
-
+	
 	float3 color		: COLOR0;
 	float3 normal		: NORMAL0;
+
+	float3 normalViewSpace		: NORMAL1;
+	float3 positionViewSpace	: POSITION2;
 };
 
-float4 main(PSIN input) : SV_TARGET
+struct PSOUT
 {
-	float4 sun_color = unpack(gSunData) / 255.0f;
-	float illu = dot(gSunDirection, normalize(input.normal));
+	float4 BackBuffer		: SV_TARGET0;
+	float4 NormalBuffer		: SV_TARGET1;
+};
 
-	float in_shadow = shadow(input.sunPos.xy, input.sunPos.z);
+PSOUT main(PSIN input)
+{
+	PSOUT output = (PSOUT)0;
 
-	float3 finalColor = input.color;
+	const float3 cam_dir = -float3(1.2f, -0.7f, 1.0f);
+	float illu = saturate(dot(cam_dir, normalize(input.normal)));
 
-	return float4(finalColor.xyz * in_shadow + finalColor.xyz * 0.1f, 1.0f);
+	float in_shadow		= shadow(input.sunPos.xy, input.sunPos.z);
+	float3 finalColor	= input.color;
+
+	float3 ambient = finalColor.xyz * 0.1f;
+	float3 diffuse = finalColor.xyz * illu * in_shadow;
+
+	output.BackBuffer		= float4(ambient + diffuse, input.positionViewSpace.z / 100.0f);
+	output.NormalBuffer		= float4(normalize(input.normalViewSpace), 0.0f);
+
+	return output;
 }

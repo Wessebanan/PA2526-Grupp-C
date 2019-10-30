@@ -8,6 +8,24 @@
 #include "../gameSceneObjects/SceneObjectGlobals.h"
 #include "../../Graphics/includes/StateManager.h"
 
+//static const std::string GetShaderFilepath(const char* pFilename)
+//{
+//	std::string filepath = "..//";
+//
+//#ifdef _DEBUG
+//	filepath.append("shaders_d//");
+//#else
+//	filepath.append("shaders//");
+//#endif // _DEBUG
+//	filepath.append(pFilename);
+//
+//	return filepath;
+//}
+//
+//static inline uint32_t PACK(uint8_t c0, uint8_t c1, uint8_t c2, uint8_t c3) {
+//	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
+//}
+
 namespace ecs
 {
 	namespace systems
@@ -207,6 +225,43 @@ namespace ecs
 
 			UINT mObjectTypeCount[SCENE_OBJECT_COUNT];
 			UINT mMeshMap[SCENE_OBJECT_COUNT];
+		};
+
+		class SSAORenderSystem : public ECSSystem<SSAORenderSystem>
+		{
+		public:
+
+			SSAORenderSystem();
+			virtual ~SSAORenderSystem();
+
+			void act(float _delta) override;
+
+			void Initialize(
+				graphics::MeshManager* pMeshMgr,
+				const UINT clientWidth,
+				const UINT clientHeight);
+
+		private:
+
+			/*struct InputLayout
+			{
+				float x, y, z;
+				uint32_t color;
+			};*/
+
+			UINT mPipelineSSAO,
+				mPipelineBlur,
+				mPipelineCombine;
+
+			UINT mShaderSSAO,
+				mShaderBlur,
+				mShaderCombine;
+
+			graphics::RenderManager mRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			UINT mObjectCount;
+			graphics::MeshRegion mScreenSpaceTriangle;
 		};
 
 

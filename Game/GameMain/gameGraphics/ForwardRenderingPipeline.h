@@ -38,13 +38,17 @@ namespace graphics
 	private:
 		virtual void Destroy() override;
 
-		UINT m_clientWidth, m_clientHeight;
+		UINT mClientWidth, mClientHeight;
 
-		ID3D11Buffer* m_pMatrixBuffers[2];
+		ID3D11Buffer* mpMatrixBuffers[3];
 
-		ID3D11Texture2D* m_pDepthTexture;
+		ID3D11RenderTargetView* mpRenderTargets[2];
+		ID3D11ShaderResourceView* mpShaderResources[2];
 
-		ID3D11RenderTargetView* m_pRenderTarget;
-		ID3D11DepthStencilView* m_pDepthBuffer;
+		ID3D11Texture2D* mpDepthTexture;
+		ID3D11DepthStencilView* mpDepthBuffer;
+		ID3D11ShaderResourceView* mpDepthResource;
+
+		ID3D11SamplerState* mpSamplerState;
 	};
 }

@@ -107,12 +107,15 @@
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
     <ClCompile Include="gameGameLoop\GameLoopSystems.cpp" />
+    <ClCompile Include="gameGraphics\BlurPipeline.cpp" />
+    <ClCompile Include="gameGraphics\CombineSSAOPipeline.cpp" />
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
     <ClCompile Include="gameSceneObjects\LootSystem.cpp" />
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
+    <ClCompile Include="gameGraphics\SSAOPipeline.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
     <ClCompile Include="gameWorld\UpdateOceanSystem.cpp" />
@@ -145,6 +148,8 @@
     <ClInclude Include="gameAudio\AudioECSSystems.h" />
     <ClInclude Include="gameAudio\AudioGlobals.h" />
     <ClInclude Include="gameAudio\InitAudio.h" />
+    <ClInclude Include="gameGraphics\BlurPipeline.h" />
+    <ClInclude Include="gameGraphics\CombineSSAOPipeline.h" />
     <ClInclude Include="gameGameLoop\GameLoopComponents.h" />
     <ClInclude Include="gameGameLoop\GameLoopEvents.h" />
     <ClInclude Include="gameGameLoop\GameLoopSystems.h" />
@@ -155,6 +160,7 @@
     <ClInclude Include="gameGraphics\InitGraphics.h" />
     <ClInclude Include="gameGraphics\RenderBuffer.h" />
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
+    <ClInclude Include="gameGraphics\SSAOPipeline.h" />
     <ClInclude Include="gameGraphics\TileRenderingPipeline.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
@@ -205,13 +211,25 @@
     <ClInclude Include="UI\UISystems.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="gameGraphics\PS_Transformation.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    <FxCompile Include="gameGraphics\Shaders\PS_Blur_Horizontal.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Blur_Vertical.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Combine.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\PS_Default.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_SSAO.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Default.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
@@ -220,6 +238,10 @@
     <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_SSAO.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Weapon.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
