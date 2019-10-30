@@ -39,5 +39,22 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 		text_color_comp
 	);
 
+	// Player points
 
+	ecs::components::UITextComponent player_text;
+	player_text.mStrText = "Game not started";
+	ecs::components::UIDrawPosComponent player_text_pos_comp;
+	text_pos_comp.mDrawArea.top = 50;
+	text_pos_comp.mDrawArea.bottom = 150;
+	text_pos_comp.mDrawArea.left = 600;
+	text_pos_comp.mDrawArea.right = 1500;
+	ecs::components::UIDrawColorComponent player_text_color_comp;
+	text_color_comp.mColor = brushColors::White;
+
+
+	rECS.createEntity(
+		time_text_comp,
+		text_pos_comp,
+		text_color_comp
+	);
 }

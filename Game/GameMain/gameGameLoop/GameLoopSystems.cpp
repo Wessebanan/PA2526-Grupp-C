@@ -50,9 +50,6 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 {
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
 	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
-	
-	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
-	
 
 	if (p_text)
 	{
@@ -70,7 +67,20 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 		p_text->mStrText = ss;
 	}
 
+	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
+	ArmyComponent* p_army_comp;
 
+	while (p_army_comp = (ArmyComponent*)itt.next())
+	{
+		if (p_army_comp->unitIDs.size() > 0)
+		{
+			UITextComponent* p_army_text_comp = getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID());
+
+			p_army_text_comp->mStrText.append("\n");
+			p_army_text_comp->mStrText.append(to_string(p_gl->mPlayerPoints[p_army_comp->playerID]));
+			p_army_text_comp->mStrText.append("\n");
+		}
+	}
 }
 
 ///////////////////
@@ -91,7 +101,6 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
 
 	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
-
 	ArmyComponent* p_army_comp;
 
 	int check_any_live = 0;
