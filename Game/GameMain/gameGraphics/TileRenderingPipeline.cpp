@@ -24,13 +24,13 @@ namespace graphics
 			return hr;
 		}
 
-		D3D11_BUFFER_DESC bDesc = { 0 };
-		bDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		bDesc.ByteWidth = 65536;
-		bDesc.Usage = D3D11_USAGE_DYNAMIC;
-		bDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		D3D11_BUFFER_DESC buffer_desc = { 0 };
+		buffer_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		buffer_desc.ByteWidth = 65536;
+		buffer_desc.Usage = D3D11_USAGE_DYNAMIC;
+		buffer_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-		hr = pDevice4->CreateBuffer(&bDesc, 0, &mpDataBuffer);
+		hr = pDevice4->CreateBuffer(&buffer_desc, 0, &mpDataBuffer);
 
 		return hr;
 	}
