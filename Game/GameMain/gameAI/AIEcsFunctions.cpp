@@ -27,6 +27,8 @@ namespace AIEcsFunctions
 		FLOAT unit_text_height = 75;
 		FLOAT unit_text_width = 100;
 
+		FLOAT ui_padding = 50;
+
 		for (size_t i = 0; i < 4; i++)
 		{
 			ecs::components::ArmyComponent army;
@@ -39,34 +41,34 @@ namespace AIEcsFunctions
 			switch (i)
 			{
 			case 0:
-				text_pos_comp.mDrawArea.top = 0;
-				text_pos_comp.mDrawArea.bottom = text_height;
-				text_pos_comp.mDrawArea.left = 0;
-				text_pos_comp.mDrawArea.right = text_width;
+				text_pos_comp.mDrawArea.top = ui_padding;
+				text_pos_comp.mDrawArea.bottom = text_height + ui_padding;
+				text_pos_comp.mDrawArea.left = 0 + ui_padding;
+				text_pos_comp.mDrawArea.right = text_width + ui_padding;
 
 				text_color_comp.mColor = brushColors::Red;
 				break;
 			case 1:
-				text_pos_comp.mDrawArea.top = 0;
-				text_pos_comp.mDrawArea.bottom = text_height;
-				text_pos_comp.mDrawArea.left = client_width - text_width;
-				text_pos_comp.mDrawArea.right = client_width;
+				text_pos_comp.mDrawArea.top = 0 + ui_padding;
+				text_pos_comp.mDrawArea.bottom = text_height + ui_padding;
+				text_pos_comp.mDrawArea.left = client_width - text_width - ui_padding;
+				text_pos_comp.mDrawArea.right = client_width - ui_padding;
 
 				text_color_comp.mColor = brushColors::Gray;
 				break;
 			case 2:
-				text_pos_comp.mDrawArea.top = client_height - text_height;
-				text_pos_comp.mDrawArea.bottom = client_height;
-				text_pos_comp.mDrawArea.left = 0;
-				text_pos_comp.mDrawArea.right = text_width;
+				text_pos_comp.mDrawArea.top = client_height - text_height - ui_padding;
+				text_pos_comp.mDrawArea.bottom = client_height - ui_padding;
+				text_pos_comp.mDrawArea.left = 0 + ui_padding;
+				text_pos_comp.mDrawArea.right = text_width + ui_padding;
 
 				text_color_comp.mColor = brushColors::Cyan;
 				break;
 			case 3:
-				text_pos_comp.mDrawArea.top = client_height - text_height;
-				text_pos_comp.mDrawArea.bottom = client_height;
-				text_pos_comp.mDrawArea.left = client_width - text_width;
-				text_pos_comp.mDrawArea.right = client_width;
+				text_pos_comp.mDrawArea.top = client_height - text_height - ui_padding;
+				text_pos_comp.mDrawArea.bottom = client_height - ui_padding;
+				text_pos_comp.mDrawArea.left = client_width - text_width - ui_padding;
+				text_pos_comp.mDrawArea.right = client_width - ui_padding;
 
 				text_color_comp.mColor = brushColors::Purple;
 				break;
@@ -79,6 +81,8 @@ namespace AIEcsFunctions
 				text_color_comp.mColor = brushColors::Black;
 				break;
 			}
+
+
 
 			army.playerID = (PLAYER)i;
 

@@ -102,6 +102,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp" />
+    <ClCompile Include="..\..\InputHandler\InputHandler\webConnection.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
@@ -110,6 +111,7 @@
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
+    <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
@@ -151,6 +153,7 @@
     <ClInclude Include="gameGraphics\InitGraphics.h" />
     <ClInclude Include="gameGraphics\RenderBuffer.h" />
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
+    <ClInclude Include="gameGraphics\TileRenderingPipeline.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameSceneObjects\InitBiomes.h" />
@@ -168,11 +171,13 @@
     <ClInclude Include="gameUtility\UtilityComponents.h" />
     <ClInclude Include="gameUtility\UtilityEvents.h" />
     <ClInclude Include="gameUtility\UtilityEcsFunctions.h" />
+    <ClInclude Include="gameUtility\UtilityGraphics.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
     <ClInclude Include="gameWorld\InitWorld.h" />
     <ClInclude Include="gameWorld\OceanComponents.h" />
     <ClInclude Include="gameWorld\WorldSettings.h" />
     <ClInclude Include="GraphicsComponents.h" />
+    <ClInclude Include="InitHttpServer.h" />
     <ClInclude Include="Input\InitInterpreter.h" />
     <ClInclude Include="Input\InterpretWebEvents.h" />
     <ClInclude Include="Input\InterpretWebSystems.h" />
@@ -212,6 +217,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="gameGraphics\VS_Transformation.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameUtility\VS_Tile.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>

@@ -63,6 +63,9 @@
     <ClCompile Include="gameAnimation\AnimationSystems.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\InputHandler\InputHandler\webConnection.cpp">
+      <Filter>Init</Filter>
+    </ClCompile>
     <ClCompile Include="UI\UISystems.cpp">
       <Filter>UI</Filter>
     </ClCompile>
@@ -254,6 +257,13 @@
     <ClInclude Include="UI\UISystems.h">
       <Filter>UI</Filter>
     </ClInclude>
+    <ClInclude Include="gameUtility\UtilityGraphics.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+
+    <ClInclude Include="InitHttpServer.h">
+      <Filter>Init</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -340,5 +350,8 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl" />
+    <FxCompile Include="gameUtility\VS_Tile.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

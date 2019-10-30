@@ -103,9 +103,12 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(weapon->getID());
 	TransformComponent* weapon_transform_component = getComponentFromKnownEntity<TransformComponent>(weapon->getID());
 	Entity* unit_entity = ECSUser::getEntity(weapon_component->mOwnerEntity);
-	if (unit_entity == nullptr)
+	if (unit_entity != nullptr)
 	{
-		return;
+		if (!unit_entity->hasComponentOfType(AttackStateComponent::typeID))
+		{
+			return;
+		}
 	}
 
 	// FILL OUT WITH OTHER WEAPONS LATER

@@ -139,6 +139,12 @@ namespace graphics
 		const MeshRegion* pMeshes,
 		const UINT* pDrawPerMesh);
 
+	void DrawMeshes(
+		ID3D11DeviceContext4* pContext4,
+		const UINT numMeshes,
+		const MeshRegion* pMeshes,
+		const UINT* pDrawPerMesh);
+
 	inline void Draw(
 		ID3D11DeviceContext4* pContext4,
 		const MeshRegion& mesh,

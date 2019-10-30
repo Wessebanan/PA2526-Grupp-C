@@ -49,6 +49,8 @@
 #include "gameGameLoop/InitGameLoop.h"
 #include "gameGameLoop/GameLoopEvents.h"
 
+#include "InitHttpServer.h"
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -179,6 +181,7 @@ int main()
 	/*
 		-- Cleanup Memory --
 	*/
+	StopHttpServer();
 
 	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
@@ -191,6 +194,8 @@ int main()
 
 	MeshContainer::Terminate();
 	render_buffer.Terminate();
+
+	
 
 	return 0;
 
@@ -237,8 +242,14 @@ void InitAll(EntityComponentSystem& rECS)
 
 
 
-	InitGraphicsRenderSystems(rECS);
+
+
+	WorldMeshData worldMeshData;
+	GenerateWorldMesh(rECS, &worldMeshData.pMesh, worldMeshData.vertexCount);
+
+	InitGraphicsRenderSystems(rECS, worldMeshData);
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
 
+	InitHttpServer(rECS);
 }
