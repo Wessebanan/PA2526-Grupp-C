@@ -66,19 +66,7 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	//	p_text->mStrText = ss;
 	//}
 
-	//ComponentIterator itt = getComponentsOfType<ArmyComponent>();
-	//ComponentIterator itt2 = getComponentsOfType<GamePointsComponent>();
-	//ArmyComponent* p_army_comp;
 
-	//while (p_army_comp = (ArmyComponent*)itt.next())
-	//{
-	//	if (p_army_comp->unitIDs.size() > 0)
-	//	{
-	//		UITextComponent* p_army_text_comp = getComponentFromKnownEntity<UITextComponent>(itt2.next()->getEntityID());
-
-	//		p_army_text_comp->mStrText =to_string(p_gl->mPlayerPoints[p_army_comp->playerID]);
-	//	}
-	//}
 }
 
 ///////////////////
