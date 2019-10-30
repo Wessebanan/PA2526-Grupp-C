@@ -4,6 +4,7 @@
 #include "..//gameUtility//UtilityComponents.h"
 #include "GridProp.h"
 #include "../MeshContainer/MeshContainer.h"
+#include "..//gameGameLoop/GameLoopComponents.h"
 
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
@@ -19,8 +20,8 @@ namespace ecs
 			void act(float _delta) override;
 		
 		private:
-			float mTimeCounter;
-		
+			int mTargetTime;
+			int mLastRoundTime;
 		};
 	} // systems
 } // ecs

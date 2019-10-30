@@ -4,7 +4,8 @@
 ecs::systems::SpawnLootSystem::SpawnLootSystem()
 {
 	updateType = Actor;
-	mTimeCounter = 0.0f;
+	mTargetTime = 0;
+	mLastRoundTime = 0;
 }
 ecs::systems::SpawnLootSystem::~SpawnLootSystem()
 {
@@ -12,17 +13,28 @@ ecs::systems::SpawnLootSystem::~SpawnLootSystem()
 }
 void ecs::systems::SpawnLootSystem::act(float _delta)
 {
-	mTimeCounter += _delta;
+	int round_time_in_seconds = 0;
 
-	// Truncating time to full seconds.
-	int time_in_seconds = (int)mTimeCounter;
+	// Grab round timer from game loop component.
+	ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
+	GameLoopComponent* p_gl;
+	while (p_gl = (GameLoopComponent*)itt.next())
+	{
+		round_time_in_seconds = (int)p_gl->mRoundTime.GetRoundTime();
+	}
+
+	// Should only trigger if a new round is started.
+	if (round_time_in_seconds < mLastRoundTime)
+	{
+		mTargetTime = 0;
+	}
+	mLastRoundTime = round_time_in_seconds;
 
 	// Once 10 seconds has passed, spawn a sword on random tile.
-	if (time_in_seconds == 10)
+	if (round_time_in_seconds == mTargetTime)
 	{	
-		// Resetting time counter.
-
-		mTimeCounter = 0.0f;
+		// Bumping target time by 10 to spawn every 10 seconds.
+		mTargetTime += 10;
 
 		WeaponComponent		weapon_component;
 		TransformComponent	weapon_transform_component;
