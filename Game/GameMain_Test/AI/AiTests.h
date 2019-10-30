@@ -46,7 +46,7 @@ TEST(AISystemTests, TestFightLoop)
 	ecs.createSystem<ecs::systems::SwitchStateSystem>();
 	//Create the grid and the player armies.
 	InitGrid(ecs);
-	AIEcsFunctions::CreatePlayerArmies(ecs);
+	//AIEcsFunctions::CreatePlayerArmies(ecs);
 	//Create the event and dispatch it in the ecs.
 	ecs::events::ChangeUserStateEvent test_event;
 	test_event.playerId = PLAYER::PLAYER1;
@@ -91,7 +91,7 @@ TEST(AISystemTests, TestIdleLoop)
 	ecs.createSystem<ecs::systems::SwitchStateSystem>();
 	//Create the grid and the player armies.
 	InitGrid(ecs);
-	AIEcsFunctions::CreatePlayerArmies(ecs);
+	//AIEcsFunctions::CreatePlayerArmies(ecs);
 	//Check how many pathfinding components that is inside the system should be 12 since every army starts in idle
 	int number_of_idle_comps = ecs.getComponentCountOfType(ecs::components::IdleStateComponent::typeID);
 	EXPECT_EQ(number_of_idle_comps, 12);
@@ -136,7 +136,7 @@ TEST(AISystemTests, TestLootLoop)
 
 	//Create the grid and the player armies.
 	InitGrid(ecs);
-	AIEcsFunctions::CreatePlayerArmies(ecs);
+	//AIEcsFunctions::CreatePlayerArmies(ecs);
 	//Create the event and dispatch it in the ecs.
 	ecs::events::ChangeUserStateEvent test_event;
 	test_event.playerId = PLAYER::PLAYER1;

@@ -4,6 +4,7 @@
 
 #include "WorldSettings.h"
 #include "OceanComponents.h"
+#include "../gameWorld/UpdateOceanSystem.h"
 
 #include "../gameAI/AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
@@ -207,7 +208,7 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 
 		p_color = r_ocean_tile.getComponent<ColorComponent>();
 		p_transform = r_ocean_tile.getComponent<TransformComponent>();
-		xm_world = XMMatrixTranslation(p_transform->position.x, p_transform->position.y, p_transform->position.z);
+		xm_world = XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
 
 		for (int i : r_mesh_indices)
 		{
@@ -258,7 +259,7 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 
 		p_color = r_map_tile.getComponent<ColorComponent>();
 		p_transform = r_map_tile.getComponent<TransformComponent>();
-		xm_world = XMMatrixTranslation(p_transform->position.x, p_transform->position.y, p_transform->position.z);
+		xm_world = XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
 
 		for (int i : r_mesh_indices)
 		{
@@ -297,4 +298,10 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 
 	*pVertexBuffer = (void*)vertex_buffer;
 	rBufferVertexCount = index_counter;
+}
+
+void InitOceanUpdateSystem(EntityComponentSystem& rEcs)
+{
+	systems::UpdateOceanSystem* p_update_system = rEcs.createSystem<systems::UpdateOceanSystem>(7);
+	p_update_system->Initialize(0.001f);
 }
