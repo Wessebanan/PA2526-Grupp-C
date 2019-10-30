@@ -11,8 +11,8 @@ struct PSIN
 
 float4 main(PSIN input) : SV_TARGET
 {
-	return 
-		float4(
-		gColorBuffer.Sample(gSampler, input.uv).rgb
-		* (1.0f - gOcclusionMap.Sample(gSampler, input.uv).rrr), 1.0f);
+	const float3 color		= gColorBuffer.Sample(gSampler, input.uv).rgb;
+	const float3 occlusion	= (1.0f - gOcclusionMap.Sample(gSampler, input.uv).rrr);
+
+	return float4(occlusion * color, 1.0f);
 }

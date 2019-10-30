@@ -51,7 +51,7 @@ float CalculateOcclusion(
 {
 	const float scale		= 1.0f;
 	const float bias		= 0.5f;
-	const float intensity	= 10.0f;
+	const float intensity	= 15.0f;
 
 	const float3 occlusion_position = WorldPosFromDepth(
 		GetDepth(tcoord + uv), 
@@ -92,7 +92,7 @@ float main(PSIN input) : SV_TARGET
 	//return normal;
 
 	float2 random	= GetRandom(input.uv);
-	float radius	= sample_radius / pos.z;
+	float radius = sample_radius / pos.z;
 
 	const uint iterations = 4;
 	for (uint i = 0; i < iterations; i++)
@@ -110,5 +110,5 @@ float main(PSIN input) : SV_TARGET
 
 	occlusion /= (float)iterations * 4.0f;
 	
-	return occlusion;
+	return saturate(occlusion);
 }

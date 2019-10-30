@@ -150,7 +150,7 @@ namespace graphics
 				desc.ArraySize = 1;
 				desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 				desc.CPUAccessFlags = 0;
-				desc.Format = DXGI_FORMAT_R11G11B10_FLOAT;
+				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				desc.MipLevels = 1;
 				desc.MiscFlags = 0;
 				desc.SampleDesc = { 1, 0 };
@@ -161,7 +161,7 @@ namespace graphics
 			{
 				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
 				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-				desc.Format = DXGI_FORMAT_R11G11B10_FLOAT;
+				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				desc.Texture2D.MipSlice = 0;
 
 				pDevice4->CreateRenderTargetView(pTexture, &desc, &m_pRenderTargets[0]);
@@ -169,7 +169,7 @@ namespace graphics
 			{
 				D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
 				desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-				desc.Format = DXGI_FORMAT_R11G11B10_FLOAT;
+				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				desc.Texture2D.MipLevels = 1;
 				desc.Texture2D.MostDetailedMip = 0;
 
@@ -191,7 +191,7 @@ namespace graphics
 				desc.ArraySize = 1;
 				desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 				desc.CPUAccessFlags = 0;
-				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
 				desc.MipLevels = 1;
 				desc.MiscFlags = 0;
 				desc.SampleDesc = { 1, 0 };
@@ -202,7 +202,7 @@ namespace graphics
 			{
 				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
 				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
 				desc.Texture2D.MipSlice = 0;
 
 				pDevice4->CreateRenderTargetView(pTexture, &desc, &m_pRenderTargets[1]);
@@ -210,7 +210,7 @@ namespace graphics
 			{
 				D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
 				desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-				desc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+				desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
 				desc.Texture2D.MipLevels = 1;
 				desc.Texture2D.MostDetailedMip = 0;
 
