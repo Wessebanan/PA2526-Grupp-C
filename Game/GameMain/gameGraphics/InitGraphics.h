@@ -2,6 +2,7 @@
 
 #include "ecs.h"
 #include "GraphicsECSSystems.h"
+#include "../Renderers/Renderers.h"
 
 struct WorldMeshData
 {
@@ -96,6 +97,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::RenderBufferComponent* p_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next());
 	p_render_buffer->buffer.Initialize(renderBufferSize, 256);
 	p_render_buffer->bufferSize = renderBufferSize;
+
 }
 
 void InitGraphicsPreRenderSystems(EntityComponentSystem& rEcs)
@@ -103,7 +105,7 @@ void InitGraphicsPreRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::RenderBufferResetSystem>(0);
 }
 
-void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& worldMeshData)
+void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& worldMeshData, const UINT clientWidth, const UINT clientHeight)
 {
 	/*
 		Fetch all renderers from the ECS memory and Initialize() them.
@@ -112,6 +114,7 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& world
 
 	graphics::RenderManager& r_render_mgr = static_cast<components::RenderManagerComponent*>(rEcs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
 	graphics::StateManager& r_state_mgr = static_cast<components::StateManagerComponent*>(rEcs.getAllComponentsOfType(components::StateManagerComponent::typeID).next())->mgr;
+	graphics::MeshManager& r_mesh_mgr = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& r_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
 
 	systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(9);
@@ -122,6 +125,8 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& world
 	p_scenery_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_world_renderer->Initialize(&r_render_mgr, &r_state_mgr, worldMeshData.pMesh, worldMeshData.vertexCount);
 
+	systems::SSAORenderSystem* p_ssao_renderer = rEcs.createSystem<systems::SSAORenderSystem>(9);
+	p_ssao_renderer->Initialize(&r_mesh_mgr, clientWidth, clientHeight);
 
 	/*
 		These stay outcommented, so we can easily compare performance boost between instance and single mesh rendering

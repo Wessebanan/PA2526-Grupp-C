@@ -74,6 +74,7 @@ namespace graphics
 			Execute desired pipeline (will use all created programs)
 		*/
 		void ExecutePipeline(const UINT pipeline, const UINT shaderStart, const UINT shaderEnd);
+		void ExecutePipeline(const UINT pipeline, const UINT shader);
 		void ExecutePipeline(const UINT pipeline);
 
 		/*

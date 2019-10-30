@@ -61,7 +61,7 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 
-void InitAll(EntityComponentSystem& rECS);
+void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight);
 
 const UINT g_RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
@@ -114,57 +114,52 @@ int main()
 	graphics::AttachHwndToSwapChain(wnd);
 
 	
-	graphics::RenderManager renderer_ssao;
-	renderer_ssao.Initialize(0);
-	UINT pipeline_ssao;
-	{
-		graphics::SSAO_PIPELINE_DESC desc = { };
-		desc.Width		= client_width / 2.0f;
-		desc.Height		= client_height / 2.0f;
-		pipeline_ssao = renderer_ssao.CreatePipeline(
-			new graphics::SSAOPipeline,
-			&desc);
-	}
+	//graphics::RenderManager renderer_ssao;
+	//renderer_ssao.Initialize(0);
+	//UINT pipeline_ssao;
+	//{
+	//	graphics::SSAO_PIPELINE_DESC desc = { };
+	//	desc.Width		= client_width / 2.0f;
+	//	desc.Height		= client_height / 2.0f;
+	//	pipeline_ssao = renderer_ssao.CreatePipeline(
+	//		new graphics::SSAOPipeline,
+	//		&desc);
+	//}
 
-	UINT pipeline_blur;
-	{
-		graphics::BLUR_PIPELINE_DESC desc = { };
-		desc.Width = client_width / 2.0f;
-		desc.Height = client_height / 2.0f;
-		pipeline_blur = renderer_ssao.CreatePipeline(
-			new graphics::BlurPipeline,
-			&desc);
-	}
+	//UINT pipeline_blur;
+	//{
+	//	graphics::BLUR_PIPELINE_DESC desc = { };
+	//	desc.Width = client_width / 2.0f;
+	//	desc.Height = client_height / 2.0f;
+	//	pipeline_blur = renderer_ssao.CreatePipeline(
+	//		new graphics::BlurPipeline,
+	//		&desc);
+	//}
 
-	UINT pipeline_combine;
-	{
-		graphics::COMBINE_PIPELINE_DESC desc = { };
-		desc.Width		= client_width;
-		desc.Height		= client_height;
-		pipeline_combine = renderer_ssao.CreatePipeline(
-			new graphics::CombinePipeline,
-			&desc);
-	}
+	//UINT pipeline_combine;
+	//{
+	//	graphics::COMBINE_PIPELINE_DESC desc = { };
+	//	desc.Width		= client_width;
+	//	desc.Height		= client_height;
+	//	pipeline_combine = renderer_ssao.CreatePipeline(
+	//		new graphics::CombinePipeline,
+	//		&desc);
+	//}
 
-	UINT shader_ssao_noise = renderer_ssao.CreateShaderProgram(
-		GetShaderFilepath("VS_SSAO.cso").c_str(), 
-		GetShaderFilepath("PS_SSAO.cso").c_str(), 
-		1);
+	//UINT shader_ssao_noise = renderer_ssao.CreateShaderProgram(
+	//	GetShaderFilepath("VS_SSAO.cso").c_str(), 
+	//	GetShaderFilepath("PS_SSAO.cso").c_str(), 
+	//	0);
 
-	UINT shader_combine = renderer_ssao.CreateShaderProgram(
-		GetShaderFilepath("VS_SSAO.cso").c_str(),
-		GetShaderFilepath("PS_Combine.cso").c_str(),
-		1);
+	//UINT shader_combine = renderer_ssao.CreateShaderProgram(
+	//	GetShaderFilepath("VS_SSAO.cso").c_str(),
+	//	GetShaderFilepath("PS_Combine.cso").c_str(),
+	//	0);
 
-	UINT shader_blur_h = renderer_ssao.CreateShaderProgram(
-		GetShaderFilepath("VS_SSAO.cso").c_str(),
-		GetShaderFilepath("PS_Blur_Horizontal.cso").c_str(),
-		1);
-
-	UINT shader_blur_v = renderer_ssao.CreateShaderProgram(
-		GetShaderFilepath("VS_SSAO.cso").c_str(),
-		GetShaderFilepath("PS_Blur_Vertical.cso").c_str(),
-		1);
+	//UINT shader_blur_h = renderer_ssao.CreateShaderProgram(
+	//	GetShaderFilepath("VS_SSAO.cso").c_str(),
+	//	GetShaderFilepath("PS_Blur_Horizontal.cso").c_str(),
+	//	0);
 	/*
 		-- Initialize ECS --
 	*/
@@ -183,7 +178,7 @@ int main()
 		in InitAll().
 	*/
 
-	InitAll(ecs);
+	InitAll(ecs, client_width, client_height);
 
 	/*
 		 #############################                                                    ############################# 
@@ -191,60 +186,57 @@ int main()
 		 #############################                                                    ############################# 
 	*/
 
-	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
-	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
-	graphics::RenderBuffer& render_buffer = static_cast<components::RenderBufferComponent*>(ecs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
 
-	graphics::MeshRegion mesh = mesh_manager.CreateMeshRegion(6, 0);
-	{
-		struct float3
-		{
-			float x, y, z;
-		};
+	//graphics::MeshRegion mesh = mesh_manager.CreateMeshRegion(6, 0);
+	//{
+	//	struct float3
+	//	{
+	//		float x, y, z;
+	//	};
 
-		struct float2
-		{
-			float x, y;
-		};
+	//	struct float2
+	//	{
+	//		float x, y;
+	//	};
 
-		float3 vertices[6] =
-		{
-			-1.0f, -1.0f, 0.5f,
-			-1.0f,  1.0f, 0.5f,
-			 1.0f, -1.0f, 0.5f,
+	//	float3 vertices[6] =
+	//	{
+	//		-1.0f, -1.0f, 0.5f,
+	//		-1.0f,  1.0f, 0.5f,
+	//		 1.0f, -1.0f, 0.5f,
 
-			 1.0f, -1.0f, 0.5f,
-			-1.0f,  1.0f, 0.5f,
-			 1.0f,  1.0f, 0.5f,
-		};
+	//		 1.0f, -1.0f, 0.5f,
+	//		-1.0f,  1.0f, 0.5f,
+	//		 1.0f,  1.0f, 0.5f,
+	//	};
 
-		float2 uv[6] =
-		{
-			0.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 1.0f,
+	//	float2 uv[6] =
+	//	{
+	//		0.0f, 1.0f,
+	//		0.0f, 0.0f,
+	//		1.0f, 1.0f,
 
-			1.0f, 1.0f,
-			0.0f, 0.0f,
-			1.0f, 0.0f,
-		};
+	//		1.0f, 1.0f,
+	//		0.0f, 0.0f,
+	//		1.0f, 0.0f,
+	//	};
 
-		graphics::VERTEX_DATA data = { NULL };
-		data.pVertexPositions = vertices;
-		data.pVertexTexCoords = uv;
+	//	graphics::VERTEX_DATA data = { NULL };
+	//	data.pVertexPositions = vertices;
+	//	data.pVertexTexCoords = uv;
 
-		mesh_manager.UploadData(mesh, data, NULL);
-	}
+	//	mesh_manager.UploadData(mesh, data, NULL);
+	//}
 
 
-	graphics::ShaderModelLayout ssao_layout;
-	UINT instance_count_ssao = 1;
-	ssao_layout.MeshCount = 1;
-	ssao_layout.pInstanceCountPerMesh = &instance_count_ssao;
-	ssao_layout.pMeshes = &mesh;
-	renderer_ssao.SetShaderModelLayout(pipeline_ssao, ssao_layout);
-	renderer_ssao.SetShaderModelLayout(pipeline_combine, ssao_layout);
-	renderer_ssao.SetShaderModelLayout(pipeline_blur, ssao_layout);
+	//graphics::ShaderModelLayout ssao_layout;
+	//UINT instance_count_ssao = 1;
+	//ssao_layout.MeshCount = 1;
+	//ssao_layout.pInstanceCountPerMesh = &instance_count_ssao;
+	//ssao_layout.pMeshes = &mesh;
+	//renderer_ssao.SetShaderModelLayout(pipeline_ssao, ssao_layout);
+	//renderer_ssao.SetShaderModelLayout(pipeline_combine, ssao_layout);
+	//renderer_ssao.SetShaderModelLayout(pipeline_blur, ssao_layout);
 
 	/*
 		-- Show Window --
@@ -285,27 +277,23 @@ int main()
 			*/
 			ecs.update(timer.GetFrameTime());
 
+			
+			//renderer_ssao.ExecutePipeline(
+			//	pipeline_ssao, 
+			//	shader_ssao_noise);
 
-			// Needs to be fixed (end index is +1, which isn't correct)
-			renderer_ssao.ExecutePipeline(
-				pipeline_ssao, 
-				shader_ssao_noise, 
-				shader_ssao_noise + 1);
+			//renderer_ssao.ExecutePipeline(
+			//	pipeline_blur,
+			//	shader_blur_h);
 
-			renderer_ssao.ExecutePipeline(
-				pipeline_blur,
-				shader_blur_h,
-				shader_blur_h + 1);
+			//renderer_ssao.ExecutePipeline(
+			//	pipeline_ssao,
+			//	shader_blur_h);
 
-			renderer_ssao.ExecutePipeline(
-				pipeline_ssao,
-				shader_blur_h,
-				shader_blur_h + 1);
+			//renderer_ssao.ExecutePipeline(
+			//	pipeline_combine,
+			//	shader_combine);
 
-			renderer_ssao.ExecutePipeline(
-				pipeline_combine,
-				shader_combine,
-				shader_combine + 1);
 
 			graphics::Present(0);
 		}
@@ -316,7 +304,11 @@ int main()
 	*/
 	StopHttpServer();
 
-	renderer_ssao.Destroy();
+	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
+	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
+	graphics::RenderBuffer& render_buffer = static_cast<components::RenderBufferComponent*>(ecs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
+
+	//renderer_ssao.Destroy();
 	mesh_manager.Destroy();
 	render_manager.Destroy();
 
@@ -324,14 +316,13 @@ int main()
 
 	MeshContainer::Terminate();
 	render_buffer.Terminate();
-
 	
 
 	return 0;
 
 }
 
-void InitAll(EntityComponentSystem& rECS)
+void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight)
 {
 	/*
 		List all Init functions that will create ECS systems.
@@ -343,7 +334,7 @@ void InitAll(EntityComponentSystem& rECS)
 	*/
 	
 	TempUISystemPtrs ui_systems;
-	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
+	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, clientWidth, clientHeight);
 	InitMeshes(rECS);
 	InitGraphicsPreRenderSystems(rECS);
 
@@ -378,7 +369,7 @@ void InitAll(EntityComponentSystem& rECS)
 	WorldMeshData worldMeshData;
 	GenerateWorldMesh(rECS, &worldMeshData.pMesh, worldMeshData.vertexCount);
 
-	InitGraphicsRenderSystems(rECS, worldMeshData);
+	InitGraphicsRenderSystems(rECS, worldMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
 

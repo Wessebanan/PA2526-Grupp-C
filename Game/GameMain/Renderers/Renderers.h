@@ -226,5 +226,42 @@ namespace ecs
 			UINT mObjectTypeCount[SCENE_OBJECT_COUNT];
 			UINT mMeshMap[SCENE_OBJECT_COUNT];
 		};
+
+		class SSAORenderSystem : public ECSSystem<SSAORenderSystem>
+		{
+		public:
+
+			SSAORenderSystem();
+			virtual ~SSAORenderSystem();
+
+			void act(float _delta) override;
+
+			void Initialize(
+				graphics::MeshManager* pMeshMgr,
+				const UINT clientWidth,
+				const UINT clientHeight);
+
+		private:
+
+			/*struct InputLayout
+			{
+				float x, y, z;
+				uint32_t color;
+			};*/
+
+			UINT mPipelineSSAO,
+				mPipelineBlur,
+				mPipelineCombine;
+
+			UINT mShaderSSAO,
+				mShaderBlur,
+				mShaderCombine;
+
+			graphics::RenderManager mRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			UINT mObjectCount;
+			graphics::MeshRegion mScreenSpaceTriangle;
+		};
 	}
 }

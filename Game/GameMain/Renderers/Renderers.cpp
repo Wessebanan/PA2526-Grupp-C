@@ -9,6 +9,11 @@
 
 #include "../gameGraphics/TileRenderingPipeline.h"
 
+
+#include "../gameGraphics/SSAOPipeline.h"
+#include "../gameGraphics/CombineSSAOPipeline.h"
+#include "../gameGraphics/BlurPipeline.h"
+
 namespace ecs
 {
 	namespace systems
@@ -121,7 +126,7 @@ namespace ecs
 
 			// Iterate all tiles and write their data to the RenderBuffer
 			uint32_t index = 0;
-			for (FilteredEntity tile: _entities.entities)
+			for (FilteredEntity tile : _entities.entities)
 			{
 				components::TileComponent* p_tile_comp = tile.getComponent<components::TileComponent>();
 				components::TransformComponent* p_transform_comp = tile.getComponent<components::TransformComponent>();
@@ -182,187 +187,187 @@ namespace ecs
 #pragma endregion TileRenderSystem
 
 #pragma region OceanRenderSystem
-	OceanRenderSystem::OceanRenderSystem()
-	{
-		updateType = SystemUpdateType::MultiEntityUpdate;
-		typeFilter.addRequirement(components::OceanTileComponent::typeID);
-		typeFilter.addRequirement(components::TransformComponent::typeID);
-		typeFilter.addRequirement(components::ColorComponent::typeID);
-
-		mInstanceLayout = { 0 };
-	}
-
-	OceanRenderSystem::~OceanRenderSystem()
-	{
-
-	}
-
-	void OceanRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
-	{
-		mTileCount = (UINT)_entities.entities.size();
-
-		// Fetch pointer to write data to in RenderBuffer
-		mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mTileCount * OceanRenderSystem::GetPerInstanceSize());
-
-		// Iterate all tiles and write their data to the RenderBuffer
-		uint32_t index = 0;
-		for (FilteredEntity tile : _entities.entities)
+		OceanRenderSystem::OceanRenderSystem()
 		{
-			components::TileComponent* p_tile_comp = tile.getComponent<components::TileComponent>();
-			components::TransformComponent* p_transform_comp = tile.getComponent<components::TransformComponent>();
-			components::ColorComponent* p_color_comp = tile.getComponent<components::ColorComponent>();
+			updateType = SystemUpdateType::MultiEntityUpdate;
+			typeFilter.addRequirement(components::OceanTileComponent::typeID);
+			typeFilter.addRequirement(components::TransformComponent::typeID);
+			typeFilter.addRequirement(components::ColorComponent::typeID);
 
-			mpBuffer[index].x = p_transform_comp->position.x;
-			mpBuffer[index].y = p_transform_comp->position.y;
-			mpBuffer[index].z = p_transform_comp->position.z;
-
-			mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
-
-			index++;
+			mInstanceLayout = { 0 };
 		}
 
-		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
-	}
+		OceanRenderSystem::~OceanRenderSystem()
+		{
 
-	void OceanRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
-	{
-		mpRenderMgr = pRenderMgr;
-		mTileMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TILE);
+		}
 
-		mInstanceLayout.MeshCount = 1;
-		mInstanceLayout.pMeshes = &mTileMeshRegion;
-		mInstanceLayout.pInstanceCountPerMesh = &mTileCount;
+		void OceanRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		{
+			mTileCount = (UINT)_entities.entities.size();
 
-		const std::string vs = GetShaderFilepath("VS_Default.cso");
-		const std::string ps = GetShaderFilepath("PS_Default.cso");
+			// Fetch pointer to write data to in RenderBuffer
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mTileCount * OceanRenderSystem::GetPerInstanceSize());
 
-		mRenderProgram = mpRenderMgr->CreateShaderProgram(
-			vs.c_str(),
-			ps.c_str(),
-			systems::TileRenderSystem::GetPerInstanceSize());
+			// Iterate all tiles and write their data to the RenderBuffer
+			uint32_t index = 0;
+			for (FilteredEntity tile : _entities.entities)
+			{
+				components::TileComponent* p_tile_comp = tile.getComponent<components::TileComponent>();
+				components::TransformComponent* p_transform_comp = tile.getComponent<components::TransformComponent>();
+				components::ColorComponent* p_color_comp = tile.getComponent<components::ColorComponent>();
 
-		mpRenderBuffer = pRenderBuffer;
-	}
+				mpBuffer[index].x = p_transform_comp->position.x;
+				mpBuffer[index].y = p_transform_comp->position.y;
+				mpBuffer[index].z = p_transform_comp->position.z;
 
-	uint32_t OceanRenderSystem::GetPerInstanceSize()
-	{
-		return sizeof(InputLayout);
-	}
+				mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+
+				index++;
+			}
+
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		}
+
+		void OceanRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+		{
+			mpRenderMgr = pRenderMgr;
+			mTileMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TILE);
+
+			mInstanceLayout.MeshCount = 1;
+			mInstanceLayout.pMeshes = &mTileMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mTileCount;
+
+			const std::string vs = GetShaderFilepath("VS_Default.cso");
+			const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				systems::TileRenderSystem::GetPerInstanceSize());
+
+			mpRenderBuffer = pRenderBuffer;
+		}
+
+		uint32_t OceanRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(InputLayout);
+		}
 #pragma endregion OceanRenderSystem
 
 #pragma region WorldRenderSystem
-	WorldRenderSystem::WorldRenderSystem()
-	{
-		updateType = SystemUpdateType::Actor;
-		mInstanceLayout = { 0 };
-	}
-
-	WorldRenderSystem::~WorldRenderSystem()
-	{
-
-	}
-
-	void WorldRenderSystem::act(float _delta)
-	{
-		UINT index = 0;
-
-		/*
-			For now, allocate a way to big buffer size (max size).
-			This will be tweaked in later implementations.
-		*/
-		float* height = (float*)malloc(65536);
-		ZeroMemory(height, 65536);
-
-		/*
-			Fetch all ocean tiles and update their y-position in the
-			height buffer.
-		*/
-
-		TypeFilter ocean_filter;
-		ocean_filter.addRequirement(components::OceanTileComponent::typeID);
-		ocean_filter.addRequirement(components::TransformComponent::typeID);
-
-		EntityIterator p_iterator = getEntitiesByFilter(ocean_filter);
-
-		for (FilteredEntity& tile : p_iterator.entities)
+		WorldRenderSystem::WorldRenderSystem()
 		{
-			height[index] = tile.getComponent<components::TransformComponent>()->position.y;
-			index++;
+			updateType = SystemUpdateType::Actor;
+			mInstanceLayout = { 0 };
 		}
 
-		/*
-			Fetch all map tiles and update their y-position in the
-			height buffer.
-		*/
-
-		TypeFilter map_filter;
-		map_filter.addRequirement(components::TileComponent::typeID);
-		map_filter.addRequirement(components::TransformComponent::typeID);
-
-		p_iterator = getEntitiesByFilter(map_filter);
-
-		for (FilteredEntity& tile : p_iterator.entities)
+		WorldRenderSystem::~WorldRenderSystem()
 		{
-			height[index] = tile.getComponent<components::TransformComponent>()->position.y;
-			index++;
+
 		}
 
-		/*
-			Set our 'vertex buffer' for the world tile mesh, and upload the
-			height buffer.
-		*/
+		void WorldRenderSystem::act(float _delta)
+		{
+			UINT index = 0;
 
-		graphics::TILE_RENDERING_PIPELINE_DATA heightData;
-		heightData.pHeightBuffer = height;
-		heightData.ByteWidth = index * sizeof(float);
+			/*
+				For now, allocate a way to big buffer size (max size).
+				This will be tweaked in later implementations.
+			*/
+			float* height = (float*)malloc(65536);
+			ZeroMemory(height, 65536);
 
-		mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
-		mpStateMgr->UpdatePipelineState(mPipelineState, &heightData);
-		mpStateMgr->SetPipelineState(mPipelineState);
+			/*
+				Fetch all ocean tiles and update their y-position in the
+				height buffer.
+			*/
 
-		free(height);
-	}
+			TypeFilter ocean_filter;
+			ocean_filter.addRequirement(components::OceanTileComponent::typeID);
+			ocean_filter.addRequirement(components::TransformComponent::typeID);
 
-	void WorldRenderSystem::Initialize(
-		graphics::RenderManager* pRenderMgr,
-		graphics::StateManager* pStateMgr,
-		void* pWorldMesh,
-		UINT worldMeshVertexCount)
-	{
-		/*
-		
-		*/
+			EntityIterator p_iterator = getEntitiesByFilter(ocean_filter);
 
-		mpRenderMgr = pRenderMgr;
-		mpStateMgr = pStateMgr;
+			for (FilteredEntity& tile : p_iterator.entities)
+			{
+				height[index] = tile.getComponent<components::TransformComponent>()->position.y;
+				index++;
+			}
+
+			/*
+				Fetch all map tiles and update their y-position in the
+				height buffer.
+			*/
+
+			TypeFilter map_filter;
+			map_filter.addRequirement(components::TileComponent::typeID);
+			map_filter.addRequirement(components::TransformComponent::typeID);
+
+			p_iterator = getEntitiesByFilter(map_filter);
+
+			for (FilteredEntity& tile : p_iterator.entities)
+			{
+				height[index] = tile.getComponent<components::TransformComponent>()->position.y;
+				index++;
+			}
+
+			/*
+				Set our 'vertex buffer' for the world tile mesh, and upload the
+				height buffer.
+			*/
+
+			graphics::TILE_RENDERING_PIPELINE_DATA heightData;
+			heightData.pHeightBuffer = height;
+			heightData.ByteWidth = index * sizeof(float);
+
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+			mpStateMgr->UpdatePipelineState(mPipelineState, &heightData);
+			mpStateMgr->SetPipelineState(mPipelineState);
+
+			free(height);
+		}
+
+		void WorldRenderSystem::Initialize(
+			graphics::RenderManager* pRenderMgr,
+			graphics::StateManager* pStateMgr,
+			void* pWorldMesh,
+			UINT worldMeshVertexCount)
+		{
+			/*
+
+			*/
+
+			mpRenderMgr = pRenderMgr;
+			mpStateMgr = pStateMgr;
 
 
-		// World is one single mesh
-		mInstanceCount = 1;
+			// World is one single mesh
+			mInstanceCount = 1;
 
-		mMeshRegion = { 0 };
-		mMeshRegion.VertexRegion.Size = worldMeshVertexCount;
+			mMeshRegion = { 0 };
+			mMeshRegion.VertexRegion.Size = worldMeshVertexCount;
 
-		mInstanceLayout.MeshCount = 1;
-		mInstanceLayout.pMeshes = &mMeshRegion;
-		mInstanceLayout.pInstanceCountPerMesh = &mInstanceCount;
+			mInstanceLayout.MeshCount = 1;
+			mInstanceLayout.pMeshes = &mMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mInstanceCount;
 
-		const std::string vs = GetShaderFilepath("VS_Tile.cso");
-		const std::string ps = GetShaderFilepath("PS_Default.cso");
+			const std::string vs = GetShaderFilepath("VS_Tile.cso");
+			const std::string ps = GetShaderFilepath("PS_Default.cso");
 
-		mRenderProgram = mpRenderMgr->CreateShaderProgram(
-			vs.c_str(),
-			ps.c_str(),
-			0);
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				0);
 
-		const UINT stride = sizeof(VertexData);
-		graphics::TILE_RENDERING_PIPELINE_DESC trpDesc;
-		trpDesc.pWorldMesh = pWorldMesh;
-		trpDesc.stride = stride;
-		trpDesc.size = worldMeshVertexCount * stride;
+			const UINT stride = sizeof(VertexData);
+			graphics::TILE_RENDERING_PIPELINE_DESC trpDesc;
+			trpDesc.pWorldMesh = pWorldMesh;
+			trpDesc.stride = stride;
+			trpDesc.size = worldMeshVertexCount * stride;
 
-		mPipelineState = mpStateMgr->CreatePipelineState(new graphics::TileRenderingPipeline(), &trpDesc);
-	}
+			mPipelineState = mpStateMgr->CreatePipelineState(new graphics::TileRenderingPipeline(), &trpDesc);
+		}
 #pragma endregion WorldRenderSystem
 
 #pragma region SceneObjectRenderSystem
@@ -445,15 +450,15 @@ namespace ecs
 				This is a temporary map, until we have ONE mesh enum that everyone reads from.
 				This converts the SCENE_OBJECT mesh enum to MESH_TYPE enum in MeshContainer.
 			*/
-			mMeshMap[SCENE_OBJECT::BARREL]		= MESH_TYPE::MESH_TYPE_BARREL,
-			mMeshMap[SCENE_OBJECT::BOX]			= MESH_TYPE::MESH_TYPE_BOX;
-			mMeshMap[SCENE_OBJECT::CACTUS]		= MESH_TYPE::MESH_TYPE_CACTUS;
-			mMeshMap[SCENE_OBJECT::CAGE]		= MESH_TYPE::MESH_TYPE_CAGE;
-			mMeshMap[SCENE_OBJECT::COWSKULL]	= MESH_TYPE::MESH_TYPE_COWSKULL;
-			mMeshMap[SCENE_OBJECT::FRUITTREE]	= MESH_TYPE::MESH_TYPE_FRUITTREE;
-			mMeshMap[SCENE_OBJECT::GIANTSKULL]	= MESH_TYPE::MESH_TYPE_GIANTSKULL;
-			mMeshMap[SCENE_OBJECT::TOWER]		= MESH_TYPE::MESH_TYPE_TOWER;
-			mMeshMap[SCENE_OBJECT::WINTERTREE]	= MESH_TYPE::MESH_TYPE_WINTERTREE;
+			mMeshMap[SCENE_OBJECT::BARREL] = MESH_TYPE::MESH_TYPE_BARREL,
+				mMeshMap[SCENE_OBJECT::BOX] = MESH_TYPE::MESH_TYPE_BOX;
+			mMeshMap[SCENE_OBJECT::CACTUS] = MESH_TYPE::MESH_TYPE_CACTUS;
+			mMeshMap[SCENE_OBJECT::CAGE] = MESH_TYPE::MESH_TYPE_CAGE;
+			mMeshMap[SCENE_OBJECT::COWSKULL] = MESH_TYPE::MESH_TYPE_COWSKULL;
+			mMeshMap[SCENE_OBJECT::FRUITTREE] = MESH_TYPE::MESH_TYPE_FRUITTREE;
+			mMeshMap[SCENE_OBJECT::GIANTSKULL] = MESH_TYPE::MESH_TYPE_GIANTSKULL;
+			mMeshMap[SCENE_OBJECT::TOWER] = MESH_TYPE::MESH_TYPE_TOWER;
+			mMeshMap[SCENE_OBJECT::WINTERTREE] = MESH_TYPE::MESH_TYPE_WINTERTREE;
 
 
 			for (int i = 0; i < SCENE_OBJECT_COUNT; i++)
@@ -481,5 +486,136 @@ namespace ecs
 			return sizeof(InputLayout);
 		}
 #pragma endregion SceneObjectRenderSystem
+
+		SSAORenderSystem::SSAORenderSystem()
+		{
+			updateType = Actor;
+		}
+
+		SSAORenderSystem::~SSAORenderSystem()
+		{
+		}
+
+		void SSAORenderSystem::act(float _delta)
+		{
+			mRenderMgr.ExecutePipeline(
+				mPipelineSSAO,
+				mShaderSSAO);
+
+			mRenderMgr.ExecutePipeline(
+				mPipelineBlur,
+				mShaderBlur);
+
+			mRenderMgr.ExecutePipeline(
+				mPipelineSSAO,
+				mShaderBlur);
+
+			mRenderMgr.ExecutePipeline(
+				mPipelineCombine,
+				mShaderCombine);
+		}
+
+		void SSAORenderSystem::Initialize(
+			graphics::MeshManager* pMeshMgr,
+			const UINT clientWidth,
+			const UINT clientHeight)
+		{
+			mScreenSpaceTriangle = pMeshMgr->CreateMeshRegion(6, 0);
+			{
+				struct float3
+				{
+					float x, y, z;
+				};
+
+				struct float2
+				{
+					float x, y;
+				};
+
+				float3 vertices[6] =
+				{
+					-1.0f, -1.0f, 0.5f,
+					-1.0f,  1.0f, 0.5f,
+					 1.0f, -1.0f, 0.5f,
+
+					 1.0f, -1.0f, 0.5f,
+					-1.0f,  1.0f, 0.5f,
+					 1.0f,  1.0f, 0.5f,
+				};
+
+				float2 uv[6] =
+				{
+					0.0f, 1.0f,
+					0.0f, 0.0f,
+					1.0f, 1.0f,
+
+					1.0f, 1.0f,
+					0.0f, 0.0f,
+					1.0f, 0.0f,
+				};
+
+				graphics::VERTEX_DATA data = { NULL };
+				data.pVertexPositions = vertices;
+				data.pVertexTexCoords = uv;
+
+				pMeshMgr->UploadData(mScreenSpaceTriangle, data, NULL);
+			}
+
+			//graphics::RenderManager renderer_ssao;
+			mRenderMgr.Initialize(0);
+
+			{
+				graphics::SSAO_PIPELINE_DESC desc = { };
+				desc.Width = clientWidth / 2.0f;
+				desc.Height = clientHeight / 2.0f;
+				mPipelineSSAO = mRenderMgr.CreatePipeline(
+					new graphics::SSAOPipeline,
+					&desc);
+			}
+
+			{
+				graphics::BLUR_PIPELINE_DESC desc = { };
+				desc.Width = clientWidth / 2.0f;
+				desc.Height = clientHeight / 2.0f;
+				mPipelineBlur = mRenderMgr.CreatePipeline(
+					new graphics::BlurPipeline,
+					&desc);
+			}
+
+			//UINT pipeline_combine;
+			{
+				graphics::COMBINE_PIPELINE_DESC desc = { };
+				desc.Width = clientWidth;
+				desc.Height = clientHeight;
+				mPipelineCombine = mRenderMgr.CreatePipeline(
+					new graphics::CombinePipeline,
+					&desc);
+			}
+
+			mShaderSSAO = mRenderMgr.CreateShaderProgram(
+				GetShaderFilepath("VS_SSAO.cso").c_str(),
+				GetShaderFilepath("PS_SSAO.cso").c_str(),
+				0);
+
+			mShaderBlur = mRenderMgr.CreateShaderProgram(
+				GetShaderFilepath("VS_SSAO.cso").c_str(),
+				GetShaderFilepath("PS_Blur_Horizontal.cso").c_str(),
+				0);
+
+			mShaderCombine = mRenderMgr.CreateShaderProgram(
+				GetShaderFilepath("VS_SSAO.cso").c_str(),
+				GetShaderFilepath("PS_Combine.cso").c_str(),
+				0);
+
+
+			mObjectCount = 1;
+			mInstanceLayout.MeshCount = 1;
+			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
+			mInstanceLayout.pMeshes = &mScreenSpaceTriangle;
+
+			mRenderMgr.SetShaderModelLayout(mPipelineSSAO, mInstanceLayout);
+			mRenderMgr.SetShaderModelLayout(mPipelineBlur, mInstanceLayout);
+			mRenderMgr.SetShaderModelLayout(mPipelineCombine, mInstanceLayout);
+		}
 	}
 }

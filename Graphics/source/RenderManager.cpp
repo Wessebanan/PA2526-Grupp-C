@@ -151,6 +151,11 @@ namespace graphics
 		this->ExecutePipeline(pipeline, 0, (UINT)m_shaders.size());
 	}
 
+	void RenderManager::ExecutePipeline(const UINT pipeline, const UINT shader)
+	{
+		this->ExecutePipeline(pipeline, shader, shader);
+	}
+
 	void RenderManager::ExecutePipeline(
 		const UINT pipeline, 
 		const UINT programStartIndex, 
@@ -164,7 +169,7 @@ namespace graphics
 		const UINT shader_count = (UINT)m_shaders.size();
 
 		const UINT start	= max(programStartIndex, 0);
-		const UINT end		= min(programEndIndex, shader_count);
+		const UINT end		= min(programEndIndex + 1, shader_count);
 
 		for (UINT i = start; i < end; i++)
 		{
@@ -203,12 +208,12 @@ namespace graphics
 						layout.MeshCount,
 						layout.pMeshes,
 						layout.pInstanceCountPerMesh);
+
+					data_location += total_models * program.PerObjectByteWidth;
+					data_location = (UINT)(ceil(data_location / 256.f) * 256);
 					break;
 				}
 			}
-
-			data_location += total_models * program.PerObjectByteWidth;
-			data_location = (UINT)(ceil(data_location / 256.f) * 256);
 		}
 
 		pPipeline->End(m_pContext4);
