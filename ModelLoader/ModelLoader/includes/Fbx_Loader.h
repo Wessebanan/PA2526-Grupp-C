@@ -188,7 +188,13 @@ namespace ModelLoader
 			// If we are swapping animation
 			if (mActiveAnimation != (int)animType)
 			{
-				mPrevAnimation = mActiveAnimation;
+				// This prevents super quick switching of animations, and only updates prevanimation if the
+				// current animation has been playing for AT LEAST a few frames
+				if (mPrevAnimTransitionTime < ANIMATION_CROSSFADE_DURATION - 0.05f)
+				{
+					mPrevAnimation = mActiveAnimation;
+				}
+				
 				mActiveAnimation = (int)animType;
 				mPrevAnimTransitionTime = ANIMATION_CROSSFADE_DURATION;
 			}
@@ -229,9 +235,9 @@ namespace ModelLoader
 						DirectX::XMMatrixDecompose(&prev_frame_scale, &prev_frame_rot, &prev_frame_trans, prev_frame_matrix);
 
 						// Calculate the interpolated components of the new matrix
-						new_frame_rot = DirectX::XMQuaternionSlerp(prev_frame_rot, current_frame_rot, prev_weight);
-						new_frame_scale = DirectX::XMVectorLerp(prev_frame_scale, current_frame_scale, prev_weight);
-						new_frame_trans = DirectX::XMVectorLerp(prev_frame_trans, current_frame_trans, prev_weight);
+						new_frame_rot = DirectX::XMQuaternionSlerp(current_frame_rot, prev_frame_rot, prev_weight);
+						new_frame_scale = DirectX::XMVectorLerp(current_frame_scale, prev_frame_scale, prev_weight);
+						new_frame_trans = DirectX::XMVectorLerp(current_frame_trans, prev_frame_trans, prev_weight);
 
 						// Transposing the new matrix to convert it back to shader readable format
 						DirectX::XMMATRIX new_frame_matrix = DirectX::XMMatrixTranspose(
