@@ -1,4 +1,6 @@
 #include "FightingSystem.h"
+#include "GridProp.h"
+#include "GridFunctions.h"
 
 #pragma region WeaponInitSystem
 ecs::systems::WeaponInitSystem::WeaponInitSystem()
@@ -233,6 +235,17 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		equipment_component->mEquippedWeapon = weapon->getID();
 		weapon_component->mOwnerEntity = collided_unit;
+		GridProp* p_gp = GridProp::GetInstance();
+		int2 tile_index = GridFunctions::GetTileFromWorldPos(weapon_transform_component->position.x, weapon_transform_component->position.z);
+		unsigned int tile_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
+		for (int l = 0; l < p_gp->mLootTiles.size(); l++)
+		{
+			if (tile_id == p_gp->mLootTiles[l])
+			{
+				p_gp->mLootTiles.erase(p_gp->mLootTiles.begin() + l);
+				break;
+			}
+		}
 	}
 	else if (intersect)
 	{

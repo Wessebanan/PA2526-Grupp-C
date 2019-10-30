@@ -12,6 +12,7 @@ void InitAI(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::MoveStateSystem>(5);
 	rEcs.createSystem<systems::AttackStateSystem>(5);
 	rEcs.createSystem<systems::FleeStateSystem>(5);
+	rEcs.createSystem<systems::LootStateSystem>(5);
 	rEcs.createSystem<systems::SwitchStateSystem>(4);
 	rEcs.createSystem<systems::RemoveDeadUnitsSystem>(9);
 }
