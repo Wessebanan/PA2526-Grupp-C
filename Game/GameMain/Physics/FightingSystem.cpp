@@ -240,7 +240,11 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		else
 		{
 			ecs::events::PlaySound damage_sound_event;
-			damage_sound_event.audioName = AudioName::GRUNT_HURT_1_SOUND;
+			float choose_hurt_sound = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+			if(choose_hurt_sound <= 0.4999999f)
+				damage_sound_event.audioName = AudioName::GRUNT_HURT_1_SOUND;
+			else
+				damage_sound_event.audioName = AudioName::GRUNT_HURT_2_SOUND;
 			createEvent(damage_sound_event); // Play damage sound
 		}
 	}
