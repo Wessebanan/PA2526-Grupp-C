@@ -166,6 +166,22 @@ int main()
 				ecs::events::GameStartEvent eve;
 				//eve.winner = 1;
 				ecs.createEvent(eve);
+				{
+					ecs::events::PlayMusic m_event;
+					m_event.audioName = AudioName::CC_TEST_SONG;
+					ecs.createEvent(m_event);
+				}
+				{
+					ecs::events::MusicSetVolume m_event;
+					m_event.volume = 0.0f;
+					ecs.createEvent(m_event);
+				}
+				{
+					ecs::events::FadeInMusic m_event;
+					m_event.fadeInTimeInSeconds = 2.0f;
+					ecs.createEvent(m_event);
+				}
+				
 			}
 			
 
