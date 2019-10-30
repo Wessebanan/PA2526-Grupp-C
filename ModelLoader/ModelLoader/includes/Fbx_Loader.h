@@ -212,21 +212,34 @@ namespace ModelLoader
 					int prev_frame_to_set = (int)std::round(fmod(this->mCurrentTime * 60.0f, prev_frame_count)) % prev_frame_count;
 					// Get frame data from animationData vector for the PREVIOUS animation
 					// Same procedure as current animation
-					memcpy(prevFrameData, &this->parentSkeleton->animations[mPrevAnimation].animationData[prev_frame_to_set * joint_count], joint_count * sizeof(DirectX::XMFLOAT4X4));
+					memcpy(prevFrameData, 
+						&this->parentSkeleton->animations[mPrevAnimation].animationData[prev_frame_to_set * joint_count], 
+						joint_count * sizeof(DirectX::XMFLOAT4X4));
 					// For each joint, decompose the two animation matrices and interpolate them, combine to a "final" animation matrix
-					for (int i = 0; i < this->parentSkeleton->jointCount; ++i)
+					for (unsigned int i = 0; i < this->parentSkeleton->jointCount; ++i)
 					{
 						DirectX::XMVECTOR current_frame_scale, current_frame_rot, current_frame_trans;
 						DirectX::XMVECTOR prev_frame_scale, prev_frame_rot, prev_frame_trans;
 						DirectX::XMVECTOR new_frame_scale, new_frame_rot, new_frame_trans;
-						DirectX::XMMATRIX current_frame_matrix = DirectX::XMLoadFloat4x4(&this->frameData[i]);
-						DirectX::XMMATRIX prev_frame_matrix = DirectX::XMLoadFloat4x4(&prevFrameData[i]);
+						// Transposing both matrices as they are currently in shader-readable format
+						DirectX::XMMATRIX current_frame_matrix = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&this->frameData[i]));
+						DirectX::XMMATRIX prev_frame_matrix = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&prevFrameData[i]));
 						// Decompose the matrix in order to be able to interpolate the components
 						DirectX::XMMatrixDecompose(&current_frame_scale, &current_frame_rot, &current_frame_trans, current_frame_matrix);
 						DirectX::XMMatrixDecompose(&prev_frame_scale, &prev_frame_rot, &prev_frame_trans, prev_frame_matrix);
 
+						// Calculate the interpolated components of the new matrix
 						new_frame_rot = DirectX::XMQuaternionSlerp(prev_frame_rot, current_frame_rot, prev_weight);
-						//new_frame_
+						new_frame_scale = DirectX::XMVectorLerp(prev_frame_scale, current_frame_scale, prev_weight);
+						new_frame_trans = DirectX::XMVectorLerp(prev_frame_trans, current_frame_trans, prev_weight);
+
+						// Transposing the new matrix to convert it back to shader readable format
+						DirectX::XMMATRIX new_frame_matrix = DirectX::XMMatrixTranspose(
+							DirectX::XMMatrixScalingFromVector(new_frame_scale) * 
+							DirectX::XMMatrixRotationQuaternion(new_frame_rot) * 
+							DirectX::XMMatrixTranslationFromVector(new_frame_trans));
+						// Store the new matrix in framedata
+						XMStoreFloat4x4(&this->frameData[i], new_frame_matrix);
 					}
 					// Reduce the transition timer
 					mPrevAnimTransitionTime -= dtInSeconds;
