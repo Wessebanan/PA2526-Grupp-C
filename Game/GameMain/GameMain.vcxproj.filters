@@ -57,8 +57,17 @@
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp">
       <Filter>Graphics\ECS</Filter>
     </ClCompile>
+    <ClCompile Include="gameGameLoop\GameLoopSystems.cpp">
+      <Filter>GameECS</Filter>
+    </ClCompile>
     <ClCompile Include="gameAnimation\AnimationSystems.cpp">
       <Filter>Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\InputHandler\InputHandler\webConnection.cpp">
+      <Filter>Init</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\UISystems.cpp">
+      <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -218,14 +227,42 @@
     <ClInclude Include="gameWorld\OceanComponents.h">
       <Filter>World</Filter>
     </ClInclude>
+    <ClInclude Include="gameGameLoop\GameLoopSystems.h">
+      <Filter>GameECS</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGameLoop\InitGameLoop.h">
+      <Filter>GameECS</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGameLoop\GameLoopComponents.h">
+      <Filter>GameECS</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGameLoop\GameLoopEvents.h">
+      <Filter>GameECS</Filter>
+    </ClInclude>
     <ClInclude Include="gameAnimation\AnimationComponents.h">
       <Filter>Animation</Filter>
     </ClInclude>
     <ClInclude Include="gameAnimation\AnimationSystems.h">
       <Filter>Animation</Filter>
     </ClInclude>
-    <ClInclude Include="gameAnimation\AnimationEvents.h">
-      <Filter>Animation</Filter>
+    <ClInclude Include="UI\InitUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIComponents.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UIEvents.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\UISystems.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="gameUtility\UtilityGraphics.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
+
+    <ClInclude Include="InitHttpServer.h">
+      <Filter>Init</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -280,6 +317,12 @@
     <Filter Include="World">
       <UniqueIdentifier>{fae0abe8-5c29-41c8-8287-956242c68193}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameECS">
+      <UniqueIdentifier>{b1eee58b-8b0f-4bb1-becf-267e569d85e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{44356643-86a3-4049-b4b6-d94d1373bfaf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SceneObjects">
@@ -307,5 +350,8 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl" />
+    <FxCompile Include="gameUtility\VS_Tile.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

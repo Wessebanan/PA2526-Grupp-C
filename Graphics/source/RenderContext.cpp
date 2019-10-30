@@ -74,4 +74,23 @@ namespace graphics
 			}
 		}
 	}
+
+	void DrawMeshes(
+		ID3D11DeviceContext4* pContext4, 
+		const UINT numMeshes, 
+		const MeshRegion* pMeshes, 
+		const UINT* pInstancesPerMesh)
+	{
+		UINT start = 0;
+		UINT maxMeshes = numMeshes;
+
+		for (UINT atMesh = 0; atMesh < maxMeshes; atMesh++)
+		{
+			// Get Mesh Related Data
+			const UINT maxMeshCount = pInstancesPerMesh[atMesh];
+			const MeshRegion* pMesh = &pMeshes[atMesh];
+
+			Draw(pContext4, *pMesh, maxMeshCount, 0);
+		}
+	}
 }
