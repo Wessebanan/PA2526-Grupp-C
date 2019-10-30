@@ -163,7 +163,7 @@ int main()
 				wnd.Close();
 			}
 
-			if (GetAsyncKeyState(VK_HOME))
+			if (GetAsyncKeyState(VK_SPACE))
 			{
 				ecs::events::GameStartEvent eve;
 				//eve.winner = 1;
@@ -233,6 +233,7 @@ void InitAll(EntityComponentSystem& rECS)
 	InitSceneObjects(rECS);
 
 	InitOceanEntities(rECS);
+	InitOceanUpdateSystem(rECS);
 
 	InitCamera(rECS);
 

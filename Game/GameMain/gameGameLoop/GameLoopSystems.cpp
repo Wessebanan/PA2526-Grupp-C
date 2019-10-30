@@ -16,6 +16,7 @@
 #include "..//MeshContainer/MeshContainer.h"	
 
 #include "..//gameAnimation/AnimationEvents.h"
+#include "..//UI/UIComponents.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -36,6 +37,7 @@ ecs::systems::GameLoopSystem::GameLoopSystem()
 {
 	updateType = ecs::EntityUpdate;
 	typeFilter.addRequirement(ecs::components::GameLoopComponent::typeID);
+	typeFilter.addRequirement(ecs::components::UITextComponent::typeID);
 }
 
 ecs::systems::GameLoopSystem::~GameLoopSystem()
@@ -46,14 +48,37 @@ ecs::systems::GameLoopSystem::~GameLoopSystem()
 void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
-	
+	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
+
+	if (p_text)
+	{
+		string ss = "";
+
+
+		// To be sent to the UI
+		ss.append("ROUNDTIME: ");
+		ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
+		ss.append("\nFRAMETIME: ");
+		ss.append(to_string(_delta));
+		ss.append("\nGAMETIME: ");
+		ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
+
+		p_text->mStrText = ss;
+	}
+
 	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
+	ComponentIterator itt2 = getComponentsOfType<GamePointsComponent>();
+	ArmyComponent* p_army_comp;
 
-	// To be sent to the UI
-	p_gl->mRoundTime.GetRoundTime();
-	p_gl->mRoundTime.GetFrameTime();
-	p_gl->mRoundTime.GetGameTime();
+	while (p_army_comp = (ArmyComponent*)itt.next())
+	{
+		if (p_army_comp->unitIDs.size() > 0)
+		{
+			UITextComponent* p_army_text_comp = getComponentFromKnownEntity<UITextComponent>(itt2.next()->getEntityID());
 
+			p_army_text_comp->mStrText =to_string(p_gl->mPlayerPoints[p_army_comp->playerID]);
+		}
+	}
 }
 
 ///////////////////
@@ -74,7 +99,6 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
 
 	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
-
 	ArmyComponent* p_army_comp;
 
 	int check_any_live = 0;
@@ -128,10 +152,16 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
 			p_gl->mRoundTime.StartGame();
+
+			p_gl->mPlayerPoints[0] = 0;
+			p_gl->mPlayerPoints[1] = 0;
+			p_gl->mPlayerPoints[2] = 0;
+			p_gl->mPlayerPoints[3] = 0;
 		}
 
 		ecs::events::RoundStartEvent eve;
 		createEvent(eve);
+
 	}
 }
 
@@ -164,17 +194,19 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 			p_gl->mRoundTime.StartRound();
 		}
 
-
-		ChangeUserStateEvent e;
-		e.newState = ATTACK;
-		e.playerId = PLAYER1;
-		createEvent(e);
-		e.playerId = PLAYER2;
-		createEvent(e);
-		e.playerId = PLAYER3;
-		createEvent(e);
-		e.playerId = PLAYER4;
-		createEvent(e);
+		/**************************************/
+		/********** USED FOR DEBUG ***********/
+		/************************************/
+		//ChangeUserStateEvent e;
+		//e.newState = ATTACK;
+		//e.playerId = PLAYER1;
+		//createEvent(e);
+		//e.playerId = PLAYER2;
+		//createEvent(e);
+		//e.playerId = PLAYER3;
+		//createEvent(e);
+		//e.playerId = PLAYER4;
+		//createEvent(e);
 
 
 	}

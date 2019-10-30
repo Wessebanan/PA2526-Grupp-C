@@ -72,6 +72,12 @@
     <ClCompile Include="UI\UISystems.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="gameWorld\UpdateOceanSystem.cpp">
+      <Filter>World</Filter>
+    </ClCompile>
+    <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -269,9 +275,14 @@
     <ClInclude Include="gameUtility\UtilityGraphics.h">
       <Filter>Utility</Filter>
     </ClInclude>
-
     <ClInclude Include="InitHttpServer.h">
       <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\TileRenderingPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gameWorld\UpdateOceanSystem.h">
+      <Filter>World</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

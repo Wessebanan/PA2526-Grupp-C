@@ -134,6 +134,9 @@ bool WebConnection::ExecuteUserAction(webMsgData wmd)
 		case ActionType::COMMAND:
 			this->SetCommand(wmd);
 			break;
+		case ActionType::PING:
+			this->SetPing(wmd);
+			break;
 		default:
 			cout << "-Parsing error: Not a action" << endl;
 			return false;
@@ -201,6 +204,11 @@ void WebConnection::SetButton(webMsgData wmd)
 void WebConnection::SetCommand(webMsgData wmd)
 {
 	mUsers[wmd.player].command = wmd.data;
+}
+
+void WebConnection::SetPing(webMsgData wmd)
+{
+	mUsers[wmd.player].pinged = true;
 }
 
 void WebConnection::PlayersJoin()
@@ -399,6 +407,13 @@ int WebConnection::GetUserTile(int player, int axis)
 string WebConnection::GetUserCommand(int player)
 {
 	return mUsers[player].command;
+}
+
+bool WebConnection::GetUserPing(int player)
+{
+	bool ret_val = mUsers[player].pinged;
+	mUsers[player].pinged = false;
+	return ret_val;
 }
 
 bool WebConnection::SetGamestate(int gamestate)

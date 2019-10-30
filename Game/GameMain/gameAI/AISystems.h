@@ -475,15 +475,6 @@ namespace ecs
 						}
 					}
 				}
-				//If no enemy is in range continue with idle animation.
-				if (!enemy_in_range) 
-				{
-					/**********************************************************/
-					/**********************************************************/
-					/* FILL OUT WITH LOGIC FOR IDLE ANIMATION IN ANOTHER TASK */
-					/**********************************************************/
-					/**********************************************************/
-				}
 			}
 		};
 
@@ -903,8 +894,8 @@ namespace ecs
 					case STATE::ATTACK:
 						p_text_comp->mStrText = "ATTACK";
 						break;
-					case STATE::MOVE:
-						p_text_comp->mStrText = "MOVE";
+					case STATE::FLEE:
+						p_text_comp->mStrText = "FLEE";
 						break;
 					default:
 						p_text_comp->mStrText = "no case for state";
@@ -923,6 +914,7 @@ namespace ecs
 						ecs::ECSUser::removeComponent(entity_id, ecs::components::PathfindingStateComponent::typeID);
 						ecs::ECSUser::removeComponent(entity_id, ecs::components::AttackStateComponent::typeID);
 						ecs::ECSUser::removeComponent(entity_id, ecs::components::LootStateComponent::typeID);
+						ecs::ECSUser::removeComponent(entity_id, ecs::components::FleeStateComponent::typeID);
 
 						// Fetch the skeleton ID to start animations based on state
 						ID skeleton_id = unit->getComponentID<ecs::components::SkeletonComponent>();
