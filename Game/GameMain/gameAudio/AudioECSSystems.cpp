@@ -167,7 +167,8 @@ void ecs::systems::SoundMessageSystem::ProcessPlayMusic(ecs::events::PlayMusic* 
 	mSoundMixer->AddMusicMessage({
 		(*mSoundBank)[pEvent->audioName],
 		Audio::Music::M_DATA_AS_PARAMETER |
-		Audio::Music::M_FUNC_REPLACE_MUSIC
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_SYNC_THIS_WITH_OTHER
 	});
 }
 
