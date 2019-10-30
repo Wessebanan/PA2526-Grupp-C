@@ -55,10 +55,10 @@ float Blur(
 
 	float offsets[4] =
 	{
-		-0.006f,
-		-0.003f,
-		 0.003f,
-		 0.006f
+		-0.005f,
+		-0.002f,
+		 0.002f,
+		 0.005f
 	};
 
 	float4 threshold = (float4)0.008f;

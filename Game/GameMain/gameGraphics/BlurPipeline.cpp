@@ -71,6 +71,7 @@ namespace graphics
 			desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 			desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 			desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+			desc.MaxAnisotropy = 16;
 
 			pDevice4->CreateSamplerState(&desc, &m_pSamplerState);
 		}
