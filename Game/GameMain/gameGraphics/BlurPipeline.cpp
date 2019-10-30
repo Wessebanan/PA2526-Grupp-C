@@ -46,7 +46,7 @@ namespace graphics
 				desc.Format = DXGI_FORMAT_R8_UNORM;
 				desc.Texture2D.MipSlice = 0;
 
-				pDevice4->CreateRenderTargetView(pTexture, &desc, &m_pBlurTarget);
+				pDevice4->CreateRenderTargetView(pTexture, &desc, &mpBlurTarget);
 			}
 
 			{
@@ -59,7 +59,7 @@ namespace graphics
 				pDevice4->CreateShaderResourceView(
 					pTexture,
 					&desc,
-					&m_pBlurResource);
+					&mpBlurResource);
 			}
 
 			pTexture->Release();
@@ -73,7 +73,7 @@ namespace graphics
 			desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 			desc.MaxAnisotropy = 16;
 
-			pDevice4->CreateSamplerState(&desc, &m_pSamplerState);
+			pDevice4->CreateSamplerState(&desc, &mpSamplerState);
 		}
 		return S_OK;
 	}
@@ -86,8 +86,8 @@ namespace graphics
 	void BlurPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
 		graphics::SetViewport(pContext4, 0, 0, m_width, m_height);
-		pContext4->PSSetSamplers(2, 1, &m_pSamplerState);
-		pContext4->OMSetRenderTargets(1, &m_pBlurTarget, NULL);
+		pContext4->PSSetSamplers(2, 1, &mpSamplerState);
+		pContext4->OMSetRenderTargets(1, &mpBlurTarget, NULL);
 	}
 
 	void BlurPipeline::PreProcess(
@@ -104,11 +104,11 @@ namespace graphics
 		ID3D11RenderTargetView* pNull = { NULL };
 		pContext4->OMSetRenderTargets(1, &pNull, NULL);
 
-		pContext4->PSSetShaderResources(2, 1, &m_pBlurResource);
+		pContext4->PSSetShaderResources(2, 1, &mpBlurResource);
 	}
 
 	void BlurPipeline::Destroy()
 	{
-		m_pSamplerState->Release();
+		mpSamplerState->Release();
 	}
 }

@@ -39,11 +39,11 @@ namespace graphics
 	private:
 		virtual void Destroy() override;
 
-		ID3D11RenderTargetView* m_pSSAOTarget;
-		ID3D11ShaderResourceView* m_pSSAOResource;
+		ID3D11RenderTargetView* mpSSAOTarget;
+		ID3D11ShaderResourceView* mpSSAOResource;
 
-		ID3D11ShaderResourceView* m_pRandomNormals;
+		ID3D11ShaderResourceView* mpRandomNormals;
 
-		UINT m_width, m_height;
+		UINT mWidth, mHeight;
 	};
 }

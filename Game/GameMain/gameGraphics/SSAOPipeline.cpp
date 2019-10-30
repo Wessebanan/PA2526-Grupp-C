@@ -26,7 +26,7 @@ namespace graphics
 		else if (wicFormatGUID == GUID_WICPixelFormat8bppGray) return DXGI_FORMAT_R8_UNORM;
 		else if (wicFormatGUID == GUID_WICPixelFormat8bppAlpha) return DXGI_FORMAT_A8_UNORM;
 
-		else return DXGI_FORMAT_UNKNOWN;
+		return DXGI_FORMAT_UNKNOWN;
 	}
 
 	// get a dxgi compatible wic format from another wic format
@@ -75,7 +75,7 @@ namespace graphics
 		else if (wicFormatGUID == GUID_WICPixelFormat64bppPRGBAHalf) return GUID_WICPixelFormat64bppRGBAHalf;
 #endif
 
-		else return GUID_WICPixelFormatDontCare;
+		return GUID_WICPixelFormatDontCare;
 	}
 
 	// get the number of bits per pixel for a dxgi format
@@ -97,6 +97,8 @@ namespace graphics
 		else if (dxgiFormat == DXGI_FORMAT_R16_UNORM) return 16;
 		else if (dxgiFormat == DXGI_FORMAT_R8_UNORM) return 8;
 		else if (dxgiFormat == DXGI_FORMAT_A8_UNORM) return 8;
+
+		return 0;
 	}
 
 	SSAOPipeline::SSAOPipeline()
@@ -114,16 +116,16 @@ namespace graphics
 		HRESULT hr = S_OK;
 		SSAO_PIPELINE_DESC* pDesc = (SSAO_PIPELINE_DESC*)pDescription;
 
-		m_width		= pDesc->Width;
-		m_height	= pDesc->Height;
+		mWidth		= pDesc->Width;
+		mHeight	= pDesc->Height;
 
 		// SSAO Render Target
 		{
 			ID3D11Texture2D* pTexture = NULL;
 			{
 				D3D11_TEXTURE2D_DESC desc = { 0 };
-				desc.Width = m_width;
-				desc.Height = m_height;
+				desc.Width = mWidth;
+				desc.Height = mHeight;
 				desc.ArraySize = 1;
 				desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 				desc.CPUAccessFlags = 0;
@@ -141,7 +143,7 @@ namespace graphics
 				desc.Format = DXGI_FORMAT_R8_UNORM;
 				desc.Texture2D.MipSlice = 0;
 
-				pDevice4->CreateRenderTargetView(pTexture, &desc, &m_pSSAOTarget);
+				pDevice4->CreateRenderTargetView(pTexture, &desc, &mpSSAOTarget);
 			}
 			{
 				D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
@@ -153,7 +155,7 @@ namespace graphics
 				pDevice4->CreateShaderResourceView(
 					pTexture,
 					&desc,
-					&m_pSSAOResource);
+					&mpSSAOResource);
 			}
 
 			pTexture->Release();
@@ -257,7 +259,7 @@ namespace graphics
 				pDevice4->CreateShaderResourceView(
 					pTexture,
 					&desc,
-					&m_pRandomNormals);
+					&mpRandomNormals);
 			}
 
 			pTexture->Release();
@@ -280,10 +282,10 @@ namespace graphics
 
 	void SSAOPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
-		graphics::SetViewport(pContext4, 0, 0, m_width, m_height);
-		pContext4->OMSetRenderTargets(1, &m_pSSAOTarget, NULL);
+		graphics::SetViewport(pContext4, 0, 0, mWidth, mHeight);
+		pContext4->OMSetRenderTargets(1, &mpSSAOTarget, NULL);
 
-		pContext4->PSSetShaderResources(4, 1, &m_pRandomNormals);
+		pContext4->PSSetShaderResources(4, 1, &mpRandomNormals);
 	}
 
 	void SSAOPipeline::PreProcess(
@@ -300,14 +302,14 @@ namespace graphics
 		ID3D11RenderTargetView* pNull = { NULL };
 		pContext4->OMSetRenderTargets(1, &pNull, NULL);
 
-		pContext4->PSSetShaderResources(2, 1, &m_pSSAOResource);
+		pContext4->PSSetShaderResources(2, 1, &mpSSAOResource);
 	}
 
 	void SSAOPipeline::Destroy()
 	{
-		m_pSSAOResource->Release();
-		m_pSSAOTarget->Release();
+		mpSSAOResource->Release();
+		mpSSAOTarget->Release();
 
-		m_pRandomNormals->Release();
+		mpRandomNormals->Release();
 	}
 }

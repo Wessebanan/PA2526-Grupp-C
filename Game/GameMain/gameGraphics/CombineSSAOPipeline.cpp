@@ -18,10 +18,10 @@ namespace graphics
 		HRESULT hr = S_OK;
 		COMBINE_PIPELINE_DESC* pDesc = (COMBINE_PIPELINE_DESC*)pDescription;
 
-		m_width = pDesc->Width;
-		m_height = pDesc->Height;
+		mWidth = pDesc->Width;
+		mHeight = pDesc->Height;
 
-		internal::GetBackBuffer(&m_pBackBuffer);
+		internal::GetBackBuffer(&mpBackBuffer);
 
 		return S_OK;
 	}
@@ -33,8 +33,8 @@ namespace graphics
 
 	void CombinePipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
-		graphics::SetViewport(pContext4, 0, 0, m_width, m_height);
-		pContext4->OMSetRenderTargets(1, &m_pBackBuffer, NULL);
+		graphics::SetViewport(pContext4, 0, 0, mWidth, mHeight);
+		pContext4->OMSetRenderTargets(1, &mpBackBuffer, NULL);
 	}
 
 	void CombinePipeline::PreProcess(

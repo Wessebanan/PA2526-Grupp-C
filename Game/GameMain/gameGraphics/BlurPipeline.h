@@ -38,9 +38,9 @@ namespace graphics
 	private:
 		virtual void Destroy() override;
 
-		ID3D11SamplerState* m_pSamplerState;
-		ID3D11RenderTargetView* m_pBlurTarget;
-		ID3D11ShaderResourceView* m_pBlurResource;
+		ID3D11SamplerState* mpSamplerState;
+		ID3D11RenderTargetView* mpBlurTarget;
+		ID3D11ShaderResourceView* mpBlurResource;
 
 		UINT m_width, m_height;
 	};

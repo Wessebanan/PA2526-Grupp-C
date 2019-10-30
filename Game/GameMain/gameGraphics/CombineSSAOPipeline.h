@@ -38,7 +38,7 @@ namespace graphics
 	private:
 		virtual void Destroy() override;
 
-		ID3D11RenderTargetView* m_pBackBuffer;
-		UINT m_width, m_height;
+		ID3D11RenderTargetView* mpBackBuffer;
+		UINT mWidth, mHeight;
 	};
 }

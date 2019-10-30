@@ -59,13 +59,13 @@ namespace graphics
 	{
 		FORWARD_RENDERING_PIPELINE_DESC* pDesc = (FORWARD_RENDERING_PIPELINE_DESC*)pDescription;
 
-		m_clientWidth = pDesc->ClientWidth;
-		m_clientHeight = pDesc->ClientHeight;
+		mClientWidth = pDesc->ClientWidth;
+		mClientHeight = pDesc->ClientHeight;
 
 		{
 			D3D11_TEXTURE2D_DESC texture_desc = { 0 };
-			texture_desc.Width = m_clientWidth;
-			texture_desc.Height = m_clientHeight;
+			texture_desc.Width = mClientWidth;
+			texture_desc.Height = mClientHeight;
 			texture_desc.ArraySize = 1;
 			texture_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 			texture_desc.CPUAccessFlags = 0;
@@ -73,14 +73,14 @@ namespace graphics
 			texture_desc.SampleDesc = { 1, 0 };
 			texture_desc.Usage = D3D11_USAGE_DEFAULT;
 
-			pDevice4->CreateTexture2D(&texture_desc, NULL, &m_pDepthTexture);
+			pDevice4->CreateTexture2D(&texture_desc, NULL, &mpDepthTexture);
 
 			D3D11_DEPTH_STENCIL_VIEW_DESC depth_desc = {};
 			depth_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 			depth_desc.Format = DXGI_FORMAT_D32_FLOAT;
 			depth_desc.Texture2D.MipSlice = 0;
 
-			pDevice4->CreateDepthStencilView(m_pDepthTexture, &depth_desc, &m_pDepthBuffer);
+			pDevice4->CreateDepthStencilView(mpDepthTexture, &depth_desc, &mpDepthBuffer);
 		
 			D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
 			srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -88,7 +88,7 @@ namespace graphics
 			srv_desc.Texture2D.MipLevels = 1;
 			srv_desc.Texture2D.MostDetailedMip = 0;
 
-			pDevice4->CreateShaderResourceView(m_pDepthTexture, &srv_desc, &m_pDepthResource);
+			pDevice4->CreateShaderResourceView(mpDepthTexture, &srv_desc, &mpDepthResource);
 
 		}
 
@@ -111,7 +111,7 @@ namespace graphics
 				D3D11_SUBRESOURCE_DATA data = { 0 };
 				data.pSysMem = &proj_matrix;
 
-				pDevice4->CreateBuffer(&desc, &data, &m_pMatrixBuffers[1]);
+				pDevice4->CreateBuffer(&desc, &data, &mpMatrixBuffers[1]);
 			}
 
 			{
@@ -126,7 +126,7 @@ namespace graphics
 				D3D11_SUBRESOURCE_DATA data = { 0 };
 				data.pSysMem = &proj_matrix;
 
-				pDevice4->CreateBuffer(&desc, &data, &m_pMatrixBuffers[2]);
+				pDevice4->CreateBuffer(&desc, &data, &mpMatrixBuffers[2]);
 			}
 		}
 
@@ -137,7 +137,7 @@ namespace graphics
 			desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 			desc.Usage = D3D11_USAGE_DYNAMIC;
 
-			pDevice4->CreateBuffer(&desc, NULL, &m_pMatrixBuffers[0]);
+			pDevice4->CreateBuffer(&desc, NULL, &mpMatrixBuffers[0]);
 		}
 
 		// Color Render Target
@@ -164,7 +164,7 @@ namespace graphics
 				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 				desc.Texture2D.MipSlice = 0;
 
-				pDevice4->CreateRenderTargetView(pTexture, &desc, &m_pRenderTargets[0]);
+				pDevice4->CreateRenderTargetView(pTexture, &desc, &mpRenderTargets[0]);
 			}
 			{
 				D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
@@ -176,7 +176,7 @@ namespace graphics
 				pDevice4->CreateShaderResourceView(
 					pTexture,
 					&desc,
-					&m_pShaderResources[0]);
+					&mpShaderResources[0]);
 			}
 			pTexture->Release();
 		}
@@ -205,7 +205,7 @@ namespace graphics
 				desc.Format = DXGI_FORMAT_R8G8B8A8_SNORM;
 				desc.Texture2D.MipSlice = 0;
 
-				pDevice4->CreateRenderTargetView(pTexture, &desc, &m_pRenderTargets[1]);
+				pDevice4->CreateRenderTargetView(pTexture, &desc, &mpRenderTargets[1]);
 			}
 			{
 				D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
@@ -217,7 +217,7 @@ namespace graphics
 				pDevice4->CreateShaderResourceView(
 					pTexture,
 					&desc,
-					&m_pShaderResources[1]);
+					&mpShaderResources[1]);
 			}
 			pTexture->Release();
 		}
@@ -230,7 +230,7 @@ namespace graphics
 			desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 			desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 
-			pDevice4->CreateSamplerState(&desc, &m_pSamplerState);
+			pDevice4->CreateSamplerState(&desc, &mpSamplerState);
 		}
 
 		return S_OK;
@@ -242,7 +242,7 @@ namespace graphics
 
 		graphics::UploadToDynamicBuffer(
 			pContext4,
-			m_pMatrixBuffers[0],
+			mpMatrixBuffers[0],
 			D3D11_MAP_WRITE_DISCARD,
 			&pData->ViewMatrix,
 			sizeof(pData->ViewMatrix),
@@ -250,10 +250,10 @@ namespace graphics
 
 		float color[4] = { pData->Red, pData->Green, pData->Blue, 1.0f };
 		float color_clear[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-		pContext4->ClearRenderTargetView(m_pRenderTargets[0], color);
-		pContext4->ClearRenderTargetView(m_pRenderTargets[1], color_clear);
+		pContext4->ClearRenderTargetView(mpRenderTargets[0], color);
+		pContext4->ClearRenderTargetView(mpRenderTargets[1], color_clear);
 
-		pContext4->ClearDepthStencilView(m_pDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
+		pContext4->ClearDepthStencilView(mpDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
 	void ForwardRenderingPipeline::Begin(ID3D11DeviceContext4* pContext4)
@@ -262,11 +262,11 @@ namespace graphics
 		pContext4->PSSetShaderResources(1, 2, pNULLView);
 		pContext4->PSSetShaderResources(5, 1, pNULLView);
 
-		graphics::SetViewport(pContext4, 0, 0, m_clientWidth, m_clientHeight);
+		graphics::SetViewport(pContext4, 0, 0, mClientWidth, mClientHeight);
 
-		pContext4->OMSetRenderTargets(2, m_pRenderTargets, m_pDepthBuffer);
+		pContext4->OMSetRenderTargets(2, mpRenderTargets, mpDepthBuffer);
 
-		pContext4->VSSetConstantBuffers(1, 2, m_pMatrixBuffers);
+		pContext4->VSSetConstantBuffers(1, 2, mpMatrixBuffers);
 	}
 
 	void ForwardRenderingPipeline::PreProcess(
@@ -283,28 +283,28 @@ namespace graphics
 		ID3D11RenderTargetView* pNULLView[2] = { NULL };
 		pContext4->OMSetRenderTargets(2, pNULLView, NULL);
 
-		pContext4->PSSetConstantBuffers(0, 1, &m_pMatrixBuffers[2]);
+		pContext4->PSSetConstantBuffers(0, 1, &mpMatrixBuffers[2]);
 
-		pContext4->PSSetShaderResources(1, 2, m_pShaderResources);
-		pContext4->PSSetShaderResources(5, 1, &m_pDepthResource);
-		pContext4->PSSetSamplers(1, 1, &m_pSamplerState);
+		pContext4->PSSetShaderResources(1, 2, mpShaderResources);
+		pContext4->PSSetShaderResources(5, 1, &mpDepthResource);
+		pContext4->PSSetSamplers(1, 1, &mpSamplerState);
 	}
 
 	void ForwardRenderingPipeline::Destroy()
 	{
-		m_pDepthBuffer->Release();
-		m_pDepthTexture->Release();
+		mpDepthBuffer->Release();
+		mpDepthTexture->Release();
 
-		m_pRenderTargets[0]->Release();
-		m_pRenderTargets[1]->Release();
+		mpRenderTargets[0]->Release();
+		mpRenderTargets[1]->Release();
 
-		m_pShaderResources[0]->Release();
-		m_pShaderResources[1]->Release();
+		mpShaderResources[0]->Release();
+		mpShaderResources[1]->Release();
 
-		m_pMatrixBuffers[0]->Release();
-		m_pMatrixBuffers[1]->Release();
-		m_pMatrixBuffers[2]->Release();
+		mpMatrixBuffers[0]->Release();
+		mpMatrixBuffers[1]->Release();
+		mpMatrixBuffers[2]->Release();
 
-		m_pSamplerState->Release();
+		mpSamplerState->Release();
 	}
 }
