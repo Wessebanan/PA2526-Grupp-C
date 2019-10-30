@@ -1,6 +1,9 @@
 #pragma once
 #include "ecsSystemIncludes.h"
 #include "../Input/InitInputComponents.h"
+#include "..//gameAI/AIComponents.h"
+#include "../Physics/PhysicsComponents.h"
+#include "../gameGameLoop/GameLoopComponents.h"
 #include "UIComponents.h"
 #include "UIEvents.h"
 #include "Direct2D.h"
@@ -30,6 +33,18 @@ namespace ecs
 		/*
 			ALL UI SYSTEMS NEEDS A DIRECT2D THAT HAS A HWND RENDER TARGET INITIALIZED
 		*/
+
+		class UIUpdateSystem : public ECSSystem<UIUpdateSystem> //system for drawing text
+			//it needs 3 components text, drawColor, and drawPos then the system draws
+			//that text with that color at that position
+		{
+		public:
+			UIUpdateSystem();
+			virtual ~UIUpdateSystem();
+
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		};
+
 
 		class UITextSystem : public ECSSystem<UITextSystem> //system for drawing text
 			//it needs 3 components text, drawColor, and drawPos then the system draws

@@ -253,6 +253,7 @@ void InitAll(EntityComponentSystem& rECS)
 	InitGraphicsRenderSystems(rECS, worldMeshData);
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
+	initArmyText(rECS);
 
 	InitSpawnLootSystem(rECS);
 	InitHttpServer(rECS);

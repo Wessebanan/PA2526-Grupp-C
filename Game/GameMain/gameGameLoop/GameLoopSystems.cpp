@@ -50,35 +50,35 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
 	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
 
-	if (p_text)
-	{
-		string ss = "";
+	//if (p_text)
+	//{
+	//	string ss = "";
 
 
-		// To be sent to the UI
-		ss.append("ROUNDTIME: ");
-		ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
-		ss.append("\nFRAMETIME: ");
-		ss.append(to_string(_delta));
-		ss.append("\nGAMETIME: ");
-		ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
+	//	// To be sent to the UI
+	//	ss.append("ROUNDTIME: ");
+	//	ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
+	//	ss.append("\nFRAMETIME: ");
+	//	ss.append(to_string(_delta));
+	//	ss.append("\nGAMETIME: ");
+	//	ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
 
-		p_text->mStrText = ss;
-	}
+	//	p_text->mStrText = ss;
+	//}
 
-	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
-	ComponentIterator itt2 = getComponentsOfType<GamePointsComponent>();
-	ArmyComponent* p_army_comp;
+	//ComponentIterator itt = getComponentsOfType<ArmyComponent>();
+	//ComponentIterator itt2 = getComponentsOfType<GamePointsComponent>();
+	//ArmyComponent* p_army_comp;
 
-	while (p_army_comp = (ArmyComponent*)itt.next())
-	{
-		if (p_army_comp->unitIDs.size() > 0)
-		{
-			UITextComponent* p_army_text_comp = getComponentFromKnownEntity<UITextComponent>(itt2.next()->getEntityID());
+	//while (p_army_comp = (ArmyComponent*)itt.next())
+	//{
+	//	if (p_army_comp->unitIDs.size() > 0)
+	//	{
+	//		UITextComponent* p_army_text_comp = getComponentFromKnownEntity<UITextComponent>(itt2.next()->getEntityID());
 
-			p_army_text_comp->mStrText =to_string(p_gl->mPlayerPoints[p_army_comp->playerID]);
-		}
-	}
+	//		p_army_text_comp->mStrText =to_string(p_gl->mPlayerPoints[p_army_comp->playerID]);
+	//	}
+	//}
 }
 
 ///////////////////

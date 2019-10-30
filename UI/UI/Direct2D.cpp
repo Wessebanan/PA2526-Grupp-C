@@ -508,10 +508,10 @@ HRESULT Direct2D::mCreateColorBrushes()
 			D2D1::ColorF(D2D1::ColorF::Green),
 			&this->mColorBrushes[4]);
 		hr = this->mpContext->CreateSolidColorBrush(
-			D2D1::ColorF(D2D1::ColorF::Purple),
+			D2D1::ColorF(D2D1::ColorF::HotPink),
 			&this->mColorBrushes[5]);
 		hr = this->mpContext->CreateSolidColorBrush(
-			D2D1::ColorF(D2D1::ColorF::Gray),
+			D2D1::ColorF(D2D1::ColorF::LightGray),
 			&this->mColorBrushes[6]);
 		hr = this->mpContext->CreateSolidColorBrush(
 			D2D1::ColorF(D2D1::ColorF(0, 100, 100, 1)),

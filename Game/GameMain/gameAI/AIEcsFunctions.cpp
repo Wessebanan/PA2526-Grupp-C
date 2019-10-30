@@ -22,7 +22,7 @@ namespace AIEcsFunctions
 		FLOAT client_width = graphics::GetDisplayResolution().x;
 		FLOAT client_height = graphics::GetDisplayResolution().y;
 
-		FLOAT text_height = 100;
+		FLOAT text_height = 400;
 		FLOAT text_width = 200;
 		FLOAT unit_text_height = 75;
 		FLOAT unit_text_width = 100;
