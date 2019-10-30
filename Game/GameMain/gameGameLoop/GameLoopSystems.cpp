@@ -60,7 +60,7 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 		ss.append("ROUNDTIME: ");
 		ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
 		ss.append("\nFRAMETIME: ");
-		ss.append(to_string(p_gl->mRoundTime.GetFrameTime()));
+		ss.append(to_string(_delta));
 		ss.append("\nGAMETIME: ");
 		ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
 
