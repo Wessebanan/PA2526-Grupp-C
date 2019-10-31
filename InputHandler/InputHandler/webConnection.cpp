@@ -334,7 +334,7 @@ void WebConnection::GameLoop()
 					if (this->CheckForKey(sock, recvbuf, iSendResult))
 					{
 						string ss;
-						ss += "3. PLAYER " + to_string(IdUserSocket(sock));
+						ss += "3. PLAYER " + to_string(IdUserSocket(sock) + 1);
 						this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
 					}
 					// if the socket is the listener in the array

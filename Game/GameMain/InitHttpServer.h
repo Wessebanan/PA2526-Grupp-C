@@ -9,8 +9,9 @@ void InitHttpServer(ecs::EntityComponentSystem& rECS)
 	UITextComponent text;
 	std::string text_str;
 	HttpServer::GetLocalIp4(text_str);
-	text_str.insert(0, "PRESS SPACE TO START \nJoin at adress: ");
+	text_str.insert(0, "PRESS SPACE TO START \nwait for all players \nJoin at adress: ");
 	text.mStrText = text_str;
+	text.tag = UITAG::STARTTEXT;
 	UIDrawPosComponent pos;
 	pos.mDrawArea.top = 50.f;
 	pos.mDrawArea.left = 700.f;
