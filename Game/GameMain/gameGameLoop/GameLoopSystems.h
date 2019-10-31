@@ -4,7 +4,7 @@
 #include "Mesh.h"
 #include "..//Physics/PhysicsComponents.h"
 
-#define ROUNDS_TO_WIN 3
+#define ROUNDS_TO_WIN 2
 
 namespace ecs
 {
