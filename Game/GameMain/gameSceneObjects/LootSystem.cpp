@@ -30,8 +30,9 @@ void ecs::systems::SpawnLootSystem::act(float _delta)
 	}
 	mLastRoundTime = round_time_in_seconds;
 
+	GridProp* grid = GridProp::GetInstance();
 	// Once 10 seconds has passed, spawn a sword on random tile.
-	if (round_time_in_seconds == mTargetTime)
+	if (round_time_in_seconds == mTargetTime && grid->mLootTiles.size() < 12)
 	{	
 		// Bumping target time by 10 to spawn every 10 seconds.
 		mTargetTime += 10;
@@ -48,7 +49,6 @@ void ecs::systems::SpawnLootSystem::act(float _delta)
 		Entity *sword = createEntity(weapon_mesh_component, weapon_transform_component, weapon_component, color_comp);
 		TransformComponent* sword_transform = getComponentFromKnownEntity<TransformComponent>(sword->getID());
 
-		GridProp* grid = GridProp::GetInstance();
 		int2 grid_size = grid->GetSize();		
 		TileData random_tile;
 		random_tile.isPassable = false;
@@ -56,7 +56,11 @@ void ecs::systems::SpawnLootSystem::act(float _delta)
 		// Until a passable tile is found that does not already have loot.
 		while (!random_tile.isPassable)
 		{
-			random_tile = grid->mGrid[rand() % grid_size.y][rand() % grid_size.x];
+			int2 random_tile_index;
+			random_tile_index.x = (rand() % (grid_size.x / 2)) + grid_size.x / 4;
+			random_tile_index.y = (rand() % (grid_size.y / 2)) + grid_size.y / 4;
+
+			random_tile = grid->mGrid[random_tile_index.y][random_tile_index.x];
 			
 			// Setting the COPY of TileData to not passable if there is already loot there
 			// to continue the search for a suitable tile.

@@ -3,6 +3,14 @@
 #include "ecsComponentIncludes.h"
 #include "Direct2D.h"
 
+enum UITAG
+{
+	STARTTEXT,
+	ARMYUI,
+	DEBUGUI,
+	NOTAG
+};
+
 namespace ecs
 {
 	namespace components
@@ -11,6 +19,8 @@ namespace ecs
 		{
 			//char text[30];
 			std::string mStrText; 
+
+			UITAG tag = UITAG::NOTAG;
 		};
 
 		struct UIDrawPosComponent : public ECSComponent<UIDrawPosComponent>

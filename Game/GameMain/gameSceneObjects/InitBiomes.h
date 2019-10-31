@@ -32,30 +32,30 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 		case SNOW:
 			p_tile_tansf_comp->position.y += 0.3f;// +(color_offset / 200.0f);
 			p_tile_tansf_comp->position.y *= 1.8f;
-			p_tile_color_comp->red =	220 + color_offset;
-			p_tile_color_comp->green =	220 + color_offset;
-			p_tile_color_comp->blue =	220 + color_offset;
+			p_tile_color_comp->red =	min(182 + color_offset, 255);
+			p_tile_color_comp->green =	min(244 + color_offset, 255);
+			p_tile_color_comp->blue =	min(248 + color_offset, 255);
 			break;
 		case MOUNTAIN:
 			p_tile_tansf_comp->position.y += 0.3f;// + (color_offset / 200.0f);
 			p_tile_tansf_comp->position.y *= 1.9f;
-			p_tile_color_comp->red = 50 + color_offset;
-			p_tile_color_comp->green = 50 + color_offset;
-			p_tile_color_comp->blue = 50 + color_offset;
+			p_tile_color_comp->red =	min(234 + color_offset, 255);
+			p_tile_color_comp->green =  min(110 + color_offset, 255);
+			p_tile_color_comp->blue =   min(234 + color_offset, 255);
 			break;
 		case FIELD:
 			p_tile_tansf_comp->position.y += 0.2f;// + (color_offset / 300.0f);
 			p_tile_tansf_comp->position.y *= 1.2f;
-			p_tile_color_comp->red = 0;
-			p_tile_color_comp->green = 150 + color_offset;
-			p_tile_color_comp->blue = 0;
+			p_tile_color_comp->red =	min(105 + color_offset, 255);
+			p_tile_color_comp->green =	min(196 + color_offset, 255);
+			p_tile_color_comp->blue =	max(16, 0);
 			break;
 		case DESERT:
 			p_tile_tansf_comp->position.y += 0.1f;// + (color_offset / 300.0f);
 			p_tile_tansf_comp->position.y *= 1.1f;
-			p_tile_color_comp->red = 100 + color_offset;
-			p_tile_color_comp->green = 100 + color_offset;
-			p_tile_color_comp->blue = 0;
+			p_tile_color_comp->red = min(248 + color_offset, 255);
+			p_tile_color_comp->green = min(236 + color_offset, 255);
+			p_tile_color_comp->blue = 179 + color_offset;
 			break;
 		default:
 			break;

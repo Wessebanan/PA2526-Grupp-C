@@ -153,6 +153,7 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 			p_gl->mPlayerPoints[3] = 0;
 		}
 
+
 		ecs::events::RoundStartEvent eve;
 		createEvent(eve);
 
@@ -195,6 +196,16 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 			p_player_state_comp->mCurrentStates[i] = IDLE;
 		}
 
+		itt = getComponentsOfType<UITextComponent>();
+		UITextComponent* text_comp;
+		while (text_comp = (UITextComponent*)itt.next())
+		{
+			if (text_comp->tag == UITAG::STARTTEXT)
+			{
+				text_comp->mStrText = "";
+			}
+		}
+
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
 		/************************************/
@@ -225,10 +236,26 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 
 	uint3 army_colors[4];
 
-	army_colors[0] = { 200,   0,   0 };	// Red		Army 1
-	army_colors[1] = { 20,  20,  20 };	// Gray		Army 2
-	army_colors[2] = { 0, 100, 100 };	// Cyan		Army 3
-	army_colors[3] = { 100,   0, 100 };	// Purple	Army 4
+
+	// Player 1 - Red
+	army_colors[0].r = 117;
+	army_colors[0].g = 1;
+	army_colors[0].b = 1;
+
+	// Player 2 - Purple
+	army_colors[1].r = 74;
+	army_colors[1].g = 1;
+	army_colors[1].b = 117;
+
+	// Player 3 - Blue
+	army_colors[2].r = 47;
+	army_colors[2].g = 62;
+	army_colors[2].b = 236;
+
+	// Player 4 - Green
+	army_colors[3].r = 0;
+	army_colors[3].g = 93;
+	army_colors[3].b = 5;
 
 	/* END	*/
 
@@ -469,10 +496,61 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 					cout << "The round winner is Player " << winner << endl;
 					// Can be reworked to start prep phase
 					this->mRoundOver = true;
+					itt = getComponentsOfType<UITextComponent>();
+					
+					
+					UITextComponent* text_comp;
+					while (text_comp = (UITextComponent*)itt.next())
+					{
+						if (text_comp->tag == UITAG::STARTTEXT)
+						{
+							switch (winner)
+							{
+							case PLAYER1:
+								text_comp->mStrText = "Player 0 won the round!";
+								break;
+							case PLAYER2:
+								text_comp->mStrText = "Player 1 won the round!";
+								break;
+							case PLAYER3:
+								text_comp->mStrText = "Player 2 won the round!";
+								break;
+							case PLAYER4:
+								text_comp->mStrText = "Player 3 won the round!";
+								break;
+							default:
+								break;
+							}
+						}
+					}
 				}
 				else
 				{
 					// What to do when a player has won
+					UITextComponent* text_comp;
+					while (text_comp = (UITextComponent*)itt.next())
+					{
+						if (text_comp->tag == UITAG::STARTTEXT)
+						{
+							switch (winner)
+							{
+							case PLAYER1:
+								text_comp->mStrText = "Player 0 IS THE WINNER!!!!";
+								break;
+							case PLAYER2:
+								text_comp->mStrText = "Player 1 IS THE WINNER!!!!";
+								break;
+							case PLAYER3:
+								text_comp->mStrText = "Player 2 IS THE WINNER!!!!";
+								break;
+							case PLAYER4:
+								text_comp->mStrText = "Player 3 IS THE WINNER!!!!";
+								break;
+							default:
+								break;
+							}
+						}
+					}
 				}
 			}
 		}
