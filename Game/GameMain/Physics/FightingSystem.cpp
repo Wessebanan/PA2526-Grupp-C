@@ -266,6 +266,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			ecs::ECSUser::createComponent(collided_constitution->getEntityID(), dead_comp);
 			ecs::events::PlaySound death_sound_event;
 			death_sound_event.audioName = AudioName::SCREAM_SOUND;
+			death_sound_event.invokerEntityId = collided_unit;
 			createEvent(death_sound_event); // Play damage sound
 		}
 		else
@@ -276,6 +277,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 				damage_sound_event.audioName = AudioName::GRUNT_HURT_1_SOUND;
 			else
 				damage_sound_event.audioName = AudioName::GRUNT_HURT_2_SOUND;
+			damage_sound_event.invokerEntityId = collided_unit;
 			createEvent(damage_sound_event); // Play damage sound
 		}
 	}

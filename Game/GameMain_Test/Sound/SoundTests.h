@@ -12,6 +12,7 @@ TEST(SoundAPI, PlayAudioThroughECS)
 	ecs::events::PlaySound sound_event;
 	sound_event.audioName = AudioName::COIN_TEST_SOUND;
 	sound_event.soundFlags = SoundFlags::SF_REPEAT;
+	sound_event.invokerEntityId = 0; // May not spawn sound, intern test fix
 	ecs.createEvent(sound_event);
 
 	ecs::events::PlayMusic music_event;
@@ -63,6 +64,7 @@ TEST(SoundAPI, SpamMessages)
 	ecs::events::PlaySound sound_event;
 	sound_event.audioName = AudioName::SILENCE_SOUND;
 	sound_event.soundFlags = SoundFlags::SF_NONE;
+	sound_event.invokerEntityId = 0; // May not spawn sound, intern test fix
 	for (int i = 0; i < 10000; i++)
 	{
 		ecs.createEvent(sound_event);
@@ -70,6 +72,7 @@ TEST(SoundAPI, SpamMessages)
 
 	ecs::events::PlayMusic music_event;
 	music_event.audioName = AudioName::SILENCE_SOUND;
+	sound_event.invokerEntityId = 0;
 	for (int i = 0; i < 10000; i++)
 	{
 		ecs.createEvent(music_event);
@@ -118,6 +121,7 @@ TEST(SoundAPI, ReplicateEventSwitching)
 			ecs::events::PlaySound sound_event;
 			sound_event.audioName = AudioName::COIN_TEST_SOUND;
 			sound_event.soundFlags = SoundFlags::SF_NONE;
+			sound_event.invokerEntityId = 0; // May not spawn sound, intern test fix
 			ecs.createEvent(sound_event);
 
 			{
