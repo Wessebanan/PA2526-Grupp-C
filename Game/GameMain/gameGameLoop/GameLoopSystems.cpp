@@ -528,6 +528,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 				{
 					// What to do when a player has won
 					UITextComponent* text_comp;
+					itt = getComponentsOfType<UITextComponent>();
 					while (text_comp = (UITextComponent*)itt.next())
 					{
 						if (text_comp->tag == UITAG::STARTTEXT)
@@ -535,16 +536,16 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 							switch (winner)
 							{
 							case PLAYER1:
-								text_comp->mStrText = "RED IS THE WINNER!!!!";
+								text_comp->mStrText = "RED WON THE GAME!!!!";
 								break;
 							case PLAYER2:
-								text_comp->mStrText = "PURPLE IS THE WINNER!!!!";
+								text_comp->mStrText = "PURPLE WON THE GAME!!!!";
 								break;
 							case PLAYER3:
-								text_comp->mStrText = "BLUE IS THE WINNER!!!!";
+								text_comp->mStrText = "BLUE WON THE GAME!!!!";
 								break;
 							case PLAYER4:
-								text_comp->mStrText = "GREEN IS THE WINNER!!!!";
+								text_comp->mStrText = "GREEN WON THE GAME!!!!";
 								break;
 							default:
 								break;

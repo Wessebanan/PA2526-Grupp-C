@@ -239,6 +239,18 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			removeEntity(equipment_component->mEquippedWeapon);
 		}	
 
+		///////////////////////////////////////////////
+		///////////////SOUND HERE//////////////////////
+		///////////////////////////////////////////////
+
+		{
+			ecs::events::PlaySound sound;
+			sound.audioName = AudioName::ITEM_GET_SOUND;
+			sound.soundFlags = SF_NONE;
+			sound.invokerEntityId = 0;
+			createEvent(sound);
+		}
+
 		equipment_component->mAttackRange = equipment_component->mMeleeRange + weapon_component->mWeaponRange;
 
 		equipment_component->mEquippedWeapon = weapon->getID();

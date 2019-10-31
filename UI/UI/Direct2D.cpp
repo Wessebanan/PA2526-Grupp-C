@@ -378,25 +378,25 @@ void Direct2D::setBrushColor(char* name, float r, float g, float b, float a)
 
 bool Direct2D::drawRect(D2D1_RECT_F rect, int thickness, brushColors color) //draws a rect with line thickness and color
 {
-	if (this->mHwndRenderTargetCreated)
+	if (this->mDeviceContextCreated)
 	{
-		this->mpHwndRenderTarget->DrawRectangle(
+		this->mpContext->DrawRectangle(
 			D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom),
 			this->mColorBrushes[color],
 			thickness);
 	}
-	return this->mHwndRenderTargetCreated;
+	return this->mDeviceContextCreated;
 }
 
 bool Direct2D::solidRect(D2D1_RECT_F rect, brushColors color) //draws a filled rect with color
 {
-	if (this->mHwndRenderTargetCreated)
+	if (this->mDeviceContextCreated)
 	{
-		this->mpHwndRenderTarget->FillRectangle(
+		this->mpContext->FillRectangle(
 			D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom),
 			this->mColorBrushes[color]);
 	}
-	return this->mHwndRenderTargetCreated;
+	return this->mDeviceContextCreated;
 }
 
 int Direct2D::charArrayCompare(char* s1, char* s2, size_t sz) //A compares char arrays
@@ -498,20 +498,20 @@ HRESULT Direct2D::mCreateColorBrushes()
 		hr = this->mpContext->CreateSolidColorBrush(
 			D2D1::ColorF(D2D1::ColorF::White), //Color does not have same enum as defined
 			&this->mColorBrushes[1]);
-		hr = this->mpContext->CreateSolidColorBrush(
-			D2D1::ColorF(D2D1::ColorF::Red),
+		hr = this->mpContext->CreateSolidColorBrush(//red
+			D2D1::ColorF(D2D1::ColorF(117.f/255.f, 1.f/255.f, 1.f/255.f, 1)),
 			&this->mColorBrushes[2]);
 		hr = this->mpContext->CreateSolidColorBrush(
-			D2D1::ColorF(D2D1::ColorF::Blue),
+			D2D1::ColorF(D2D1::ColorF(47.f/255.f, 62.f/255.f, 236.f/255.f, 1)),//blue
 			&this->mColorBrushes[3]);
 		hr = this->mpContext->CreateSolidColorBrush(
-			D2D1::ColorF(D2D1::ColorF::Green),
+			D2D1::ColorF(D2D1::ColorF(0.f, 93.f/255.f, 5.f/255.f, 1)),//green
 			&this->mColorBrushes[4]);
 		hr = this->mpContext->CreateSolidColorBrush(
-			D2D1::ColorF(D2D1::ColorF::HotPink),
+			D2D1::ColorF(D2D1::ColorF(74.f/255.f, 1.f/255.f, 117.f/255.F, 1)),//purple
 			&this->mColorBrushes[5]);
 		hr = this->mpContext->CreateSolidColorBrush(
-			D2D1::ColorF(D2D1::ColorF::LightGray),
+			D2D1::ColorF(D2D1::ColorF(0.75f, 0.75f, 0.75f, 0.5f)),
 			&this->mColorBrushes[6]);
 		hr = this->mpContext->CreateSolidColorBrush(
 			D2D1::ColorF(D2D1::ColorF(0, 100, 100, 1)),

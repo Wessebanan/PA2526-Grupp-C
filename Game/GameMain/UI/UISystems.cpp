@@ -73,6 +73,7 @@ ecs::systems::UISolidRectSystem::UISolidRectSystem()
 	updateType = SystemUpdateType::EntityUpdate;
 	typeFilter.addRequirement(components::UIDrawColorComponent::typeID);
 	typeFilter.addRequirement(components::UIDrawPosComponent::typeID);
+	typeFilter.addRequirement(components::UIIWant::typeID);
 }
 
 ecs::systems::UISolidRectSystem::~UISolidRectSystem()
