@@ -54,15 +54,17 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	{
 		weapon_component->mBoundingVolume = new OBB;
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
-		AABB aabb;
-		aabb.CreateFromPoints(aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
-		obb->CreateFromBoundingBox(*(BoundingOrientedBox*)obb, aabb);
+		//AABB aabb;
+		//aabb.CreateFromPoints(aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
+		//obb->CreateFromBoundingBox(*(BoundingOrientedBox*)obb, aabb);
+		obb->CreateFromPoints(*(BoundingOrientedBox*)obb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
 
+		OBB temp_obb = OBB(*obb);
 		// Applying scale to aabb to find actual range.
-		aabb.Transform(UtilityEcsFunctions::GetWorldMatrix(*transform_component));
+		temp_obb.Transform(UtilityEcsFunctions::GetWorldMatrix(*transform_component));
 
 		// Finding greatest extent in obb and setting that (*2) to attack range (for now).
-		XMFLOAT3 extents = aabb.Extents;
+		XMFLOAT3 extents = temp_obb.Extents;
 		weapon_component->mWeaponRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
 		weapon_component->mWeaponRange *= 2;
 		weapon_component->mBaseDamage = BASE_SWORD_DAMAGE;
@@ -158,7 +160,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		TransformComponent* p_owner_transform = getComponentFromKnownEntity<TransformComponent>(weapon_component->mOwnerEntity);
 
 		// Assigning unit transform component to weapon transform component for now.
-		// weapon_transform_component->scale		= p_owner_transform->scale;
+		weapon_transform_component->scale		= p_owner_transform->scale;
 		weapon_transform_component->position	= p_owner_transform->position;
 		weapon_transform_component->rotation	= p_owner_transform->rotation;
 
@@ -225,11 +227,17 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	if (weapon_component->mOwnerEntity == 0 && intersect)
 	{
 		EquipmentComponent *equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
-		// Delete current weapon if any.
 		if (equipment_component->mEquippedWeapon != 0)
 		{
+			WeaponComponent* current_weapon = getComponentFromKnownEntity<WeaponComponent>(equipment_component->mEquippedWeapon);
+			// If it's the same weapon type, don't do anything.
+			if (current_weapon->mType == weapon_component->mType)
+			{
+				return;
+			}
+			// Remove current weapon.
 			removeEntity(equipment_component->mEquippedWeapon);
-		}
+		}		
 
 		equipment_component->mAttackRange = equipment_component->mMeleeRange + weapon_component->mWeaponRange;
 

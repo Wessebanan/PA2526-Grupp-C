@@ -10,4 +10,6 @@ void InitArmy(ecs::EntityComponentSystem& rECS)
 {
 	AIEcsFunctions::CreatePlayers(rECS);
 	AIEcsFunctions::CreateUnits(rECS);
+	PlayerStateComponent player_state_comp;
+	rECS.createEntity(player_state_comp);
 }

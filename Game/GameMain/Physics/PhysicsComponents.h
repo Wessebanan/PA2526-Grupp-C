@@ -7,15 +7,15 @@
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
 // A bunch of default values.
-#define DEFAULT_MOVEMENT_FORCE 500.0f
+#define DEFAULT_MOVEMENT_FORCE 300.0f
 #define DEFAULT_DECELERATION 200.0f
-#define DEFAULT_MAX_VELOCITY 30.0f
+#define DEFAULT_MAX_VELOCITY 20.0f
 #define DEFAULT_WEIGHT 250.0f
 #define DEFAULT_GRAVITY 9.82f
 #define DEFAULT_HEALTH 100.0f
 
-#define BASE_SWORD_DAMAGE 10.0f
-#define BASE_FIST_DAMAGE 1.0f
+#define BASE_SWORD_DAMAGE 0.2f
+#define BASE_FIST_DAMAGE 0.1f
 
 // Specifically hard-coded for current dude mesh lmao.
 #define ORIGIN_TO_HAND XMFLOAT3(-4.99f, 2.55f, -0.329f)

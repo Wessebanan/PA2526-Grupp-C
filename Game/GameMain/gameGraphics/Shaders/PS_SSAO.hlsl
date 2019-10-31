@@ -1,5 +1,6 @@
 
 
+Texture2D<float4> gColorBuffer	: register (t1);
 Texture2D<float4> gNormalMap		: register (t2);
 Texture2D<float4> gRandomMap		: register (t4);
 Texture2D<float> gDepthMap			: register (t5);
@@ -110,5 +111,5 @@ float main(PSIN input) : SV_TARGET
 
 	occlusion /= (float)iterations * 4.0f;
 	
-	return saturate(occlusion);
+	return saturate(occlusion) * 1.2f;
 }

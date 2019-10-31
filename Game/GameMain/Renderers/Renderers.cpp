@@ -507,9 +507,13 @@ namespace ecs
 			mRenderMgr.ExecutePipeline(
 				mPipelineBlur,
 				mShaderBlur);
-
+			
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
+				mShaderBlur);
+
+			mRenderMgr.ExecutePipeline(
+				mPipelineBlur,
 				mShaderBlur);
 
 			mRenderMgr.ExecutePipeline(

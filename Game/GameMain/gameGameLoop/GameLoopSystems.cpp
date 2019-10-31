@@ -109,6 +109,12 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 		createEvent(eve);
 		
 	}
+	else if (check_any_live == 0)
+	{
+		events::RoundEndEvent eve;
+		eve.winner = -1;
+		createEvent(eve);
+	}
 }
 
 /*
@@ -180,6 +186,13 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
 			p_gl->mRoundTime.StartRound();
+		}
+
+		ComponentIterator it = ecs::ECSUser::getComponentsOfType(PlayerStateComponent::typeID);
+		PlayerStateComponent* p_player_state_comp = static_cast<PlayerStateComponent*>(it.next());
+		for (int i = 0; i < 4; i++)
+		{
+			p_player_state_comp->mCurrentStates[i] = IDLE;
 		}
 
 		/**************************************/
@@ -427,6 +440,9 @@ ecs::systems::RoundOverSystem::RoundOverSystem()
 {
 	updateType = EventReader;
 	typeFilter.addRequirement(ecs::events::RoundEndEvent::typeID);
+
+	this->mRoundOver = false;
+	this->mRoundOverDuration = 0.0f;
 }
 
 ecs::systems::RoundOverSystem::~RoundOverSystem()
@@ -435,7 +451,7 @@ ecs::systems::RoundOverSystem::~RoundOverSystem()
 
 void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 {
-	if (event.getTypeID() == ecs::events::RoundEndEvent::typeID)
+	if (event.getTypeID() == ecs::events::RoundEndEvent::typeID && !this->mRoundOver)
 	{
 		int winner = dynamic_cast<ecs::events::RoundEndEvent*>(&event)->winner;
 
@@ -452,14 +468,27 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 				{
 					cout << "The round winner is Player " << winner << endl;
 					// Can be reworked to start prep phase
-					events::RoundStartEvent eve;
-					createEvent(eve);
+					this->mRoundOver = true;
 				}
 				else
 				{
 					// What to do when a player has won
 				}
 			}
+		}
+	}
+
+	if (this->mRoundOver)
+	{
+		this->mRoundOverDuration += delta;
+
+		if (this->mRoundOverDuration > 3.0f)
+		{
+			events::RoundStartEvent eve;
+			createEvent(eve);
+
+			this->mRoundOver = false;
+			this->mRoundOverDuration = 0.0f;
 		}
 	}
 }
