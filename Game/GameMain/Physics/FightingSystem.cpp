@@ -237,7 +237,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			}
 			// Remove current weapon.
 			removeEntity(equipment_component->mEquippedWeapon);
-		}		
+		}	
 
 		equipment_component->mAttackRange = equipment_component->mMeleeRange + weapon_component->mWeaponRange;
 

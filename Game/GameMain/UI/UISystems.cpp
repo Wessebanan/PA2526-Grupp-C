@@ -149,12 +149,13 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	itt = getComponentsOfType(components::UserCommandComponent::typeID);
 	components::UserCommandComponent* p_cmd_comp = (components::UserCommandComponent*)itt.next();
 
-
+	ss.append("Score: ");
 	ss.append(std::to_string(p_gl->mPlayerPoints[(int)p_army->playerID]));
 	ss.append("\n");
-	ss.append((p_cmd_comp->userCommands[(int)p_army->playerID].mCommand));
+	//ss.append("Command: ");
+	//ss.append((p_cmd_comp->userCommands[(int)p_army->playerID].mCommand));
 	ss.append("\n");
-
+	ss.append("Health:\n");
 	for (size_t i = 0; i < p_army->unitIDs.size(); i++)
 	{
 		components::HealthComponent* p_unit_hp_comp = getComponentFromKnownEntity<components::HealthComponent>(p_army->unitIDs[i]);
