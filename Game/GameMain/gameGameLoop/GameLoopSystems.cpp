@@ -491,16 +491,16 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 							switch (winner)
 							{
 							case PLAYER1:
-								text_comp->mStrText = "Player 0 won the round!";
+								text_comp->mStrText = "RED won the round!";
 								break;
 							case PLAYER2:
-								text_comp->mStrText = "Player 1 won the round!";
+								text_comp->mStrText = "PURPLE won the round!";
 								break;
 							case PLAYER3:
-								text_comp->mStrText = "Player 2 won the round!";
+								text_comp->mStrText = "BLUE won the round!";
 								break;
 							case PLAYER4:
-								text_comp->mStrText = "Player 3 won the round!";
+								text_comp->mStrText = "GREEN won the round!";
 								break;
 							default:
 								break;
@@ -519,16 +519,16 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 							switch (winner)
 							{
 							case PLAYER1:
-								text_comp->mStrText = "Player 0 IS THE WINNER!!!!";
+								text_comp->mStrText = "RED IS THE WINNER!!!!";
 								break;
 							case PLAYER2:
-								text_comp->mStrText = "Player 1 IS THE WINNER!!!!";
+								text_comp->mStrText = "PURPLE IS THE WINNER!!!!";
 								break;
 							case PLAYER3:
-								text_comp->mStrText = "Player 2 IS THE WINNER!!!!";
+								text_comp->mStrText = "BLUE IS THE WINNER!!!!";
 								break;
 							case PLAYER4:
-								text_comp->mStrText = "Player 3 IS THE WINNER!!!!";
+								text_comp->mStrText = "GREEN IS THE WINNER!!!!";
 								break;
 							default:
 								break;
