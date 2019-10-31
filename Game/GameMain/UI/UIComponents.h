@@ -49,5 +49,10 @@ namespace ecs
 			int mThickness; //uses an int to determin the thickness of the draw rect border
 		};
 
+		struct UIIWant : public ECSComponent<UIIWant>
+		{
+			bool yesPlease;
+		};
+
 	}
 }
