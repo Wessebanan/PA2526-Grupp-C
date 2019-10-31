@@ -249,7 +249,7 @@ namespace graphics
 			0);
 
 		float color[4] = { pData->Red, pData->Green, pData->Blue, 1.0f };
-		float color_clear[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		float color_clear[4] = { 0.0f, 0.0f, 0.0f, 1.0f };		
 		pContext4->ClearRenderTargetView(mpRenderTargets[0], color);
 		pContext4->ClearRenderTargetView(mpRenderTargets[1], color_clear);
 
