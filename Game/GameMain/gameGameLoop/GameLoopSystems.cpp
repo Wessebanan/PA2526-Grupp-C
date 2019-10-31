@@ -147,6 +147,16 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 			p_gl->mPlayerPoints[3] = 0;
 		}
 
+		itt = getComponentsOfType<UITextComponent>();
+		UITextComponent* text_comp;
+		while (text_comp = (UITextComponent*)itt.next())
+		{
+			if (text_comp->tag == UITAG::STARTTEXT)
+			{
+				text_comp->mStrText = "";
+			}
+		}
+
 		ecs::events::RoundStartEvent eve;
 		createEvent(eve);
 
