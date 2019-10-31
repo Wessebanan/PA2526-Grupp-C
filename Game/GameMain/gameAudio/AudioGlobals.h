@@ -4,7 +4,7 @@
 #include "AudioMixer.h"
 #include "AudioBank.h"
 
-#define SOUND_COOLDOWN 1.0f
+#define SOUND_COOLDOWN 0.7f
 
 enum SoundFlags
 {
@@ -34,6 +34,7 @@ enum AudioName
 	SCREAM_SOUND,
 	SWISH_SOUND,
 	SWORD_CLANG_SOUND,
+	ITEM_GET_SOUND
 };
 
 const std::string AUDIO_NAME_PATHS[] =
@@ -52,5 +53,6 @@ const std::string AUDIO_NAME_PATHS[] =
 	"../AudioFiles/scream.wav",
 	"../AudioFiles/swish.wav",
 	"../AudioFiles/sword.wav",
+	"../AudioFiles/get_item.wav"
 };
 

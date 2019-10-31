@@ -239,6 +239,18 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			removeEntity(equipment_component->mEquippedWeapon);
 		}	
 
+		///////////////////////////////////////////////
+		///////////////SOUND HERE//////////////////////
+		///////////////////////////////////////////////
+
+		{
+			ecs::events::PlaySound sound;
+			sound.audioName = AudioName::ITEM_GET_SOUND;
+			sound.soundFlags = SF_NONE;
+			sound.invokerEntityId = 0;
+			createEvent(sound);
+		}
+
 		equipment_component->mAttackRange = equipment_component->mMeleeRange + weapon_component->mWeaponRange;
 
 		equipment_component->mEquippedWeapon = weapon->getID();
@@ -273,6 +285,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			ecs::components::DeadComponent dead_comp;
 			ecs::ECSUser::createComponent(collided_constitution->getEntityID(), dead_comp);
 			ecs::events::PlaySound death_sound_event;
+			death_sound_event.soundFlags = SF_NONE;
 			death_sound_event.audioName = AudioName::SCREAM_SOUND;
 			death_sound_event.invokerEntityId = collided_unit;
 			createEvent(death_sound_event); // Play damage sound
@@ -280,6 +293,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		else
 		{
 			ecs::events::PlaySound damage_sound_event;
+			damage_sound_event.soundFlags = SF_NONE;
 			float choose_hurt_sound = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 			if(choose_hurt_sound <= 0.4999999f)
 				damage_sound_event.audioName = AudioName::GRUNT_HURT_1_SOUND;
