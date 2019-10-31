@@ -119,8 +119,15 @@ static void InitOceanEntities(EntityComponentSystem& rEcs)
 			float distance_to_center = XMVectorGetX(XMVector3Length(xm_pos - xm_center));
 
 			// Randomize a slightly different blue color for each ocean tile
-			int variation = rand() % 155 + 1;
-			color_desc.blue = 100 + variation;
+			//int variation = rand() % 155 + 1;
+			
+
+			int random = rand() % 25;
+			//int color_offset = -25 + random;
+
+			color_desc.red		= 31 - random;
+			color_desc.green	= 121 - random * 2;
+			color_desc.blue = 255 - random * 3;
 
 			//Create the new entity
 			if (ocean_tile_count < OCEAN_TILE_COUNT_MAX && distance_to_center <= OCEAN_RADIUS)
