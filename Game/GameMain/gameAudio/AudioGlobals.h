@@ -4,7 +4,7 @@
 #include "AudioMixer.h"
 #include "AudioBank.h"
 
-#define SOUND_COOLDOWN 0.7f
+#define SOUND_COOLDOWN 1.0f
 
 enum SoundFlags
 {
