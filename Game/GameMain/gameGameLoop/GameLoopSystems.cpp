@@ -147,15 +147,6 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 			p_gl->mPlayerPoints[3] = 0;
 		}
 
-		itt = getComponentsOfType<UITextComponent>();
-		UITextComponent* text_comp;
-		while (text_comp = (UITextComponent*)itt.next())
-		{
-			if (text_comp->tag == UITAG::STARTTEXT)
-			{
-				text_comp->mStrText = "";
-			}
-		}
 
 		ecs::events::RoundStartEvent eve;
 		createEvent(eve);
@@ -190,6 +181,16 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
 			p_gl->mRoundTime.StartRound();
+		}
+
+		itt = getComponentsOfType<UITextComponent>();
+		UITextComponent* text_comp;
+		while (text_comp = (UITextComponent*)itt.next())
+		{
+			if (text_comp->tag == UITAG::STARTTEXT)
+			{
+				text_comp->mStrText = "";
+			}
 		}
 
 		/**************************************/
@@ -466,10 +467,61 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 					cout << "The round winner is Player " << winner << endl;
 					// Can be reworked to start prep phase
 					this->mRoundOver = true;
+					itt = getComponentsOfType<UITextComponent>();
+					
+					
+					UITextComponent* text_comp;
+					while (text_comp = (UITextComponent*)itt.next())
+					{
+						if (text_comp->tag == UITAG::STARTTEXT)
+						{
+							switch (winner)
+							{
+							case PLAYER1:
+								text_comp->mStrText = "Player 0 won the round!";
+								break;
+							case PLAYER2:
+								text_comp->mStrText = "Player 1 won the round!";
+								break;
+							case PLAYER3:
+								text_comp->mStrText = "Player 2 won the round!";
+								break;
+							case PLAYER4:
+								text_comp->mStrText = "Player 3 won the round!";
+								break;
+							default:
+								break;
+							}
+						}
+					}
 				}
 				else
 				{
 					// What to do when a player has won
+					UITextComponent* text_comp;
+					while (text_comp = (UITextComponent*)itt.next())
+					{
+						if (text_comp->tag == UITAG::STARTTEXT)
+						{
+							switch (winner)
+							{
+							case PLAYER1:
+								text_comp->mStrText = "Player 0 IS THE WINNER!!!!";
+								break;
+							case PLAYER2:
+								text_comp->mStrText = "Player 1 IS THE WINNER!!!!";
+								break;
+							case PLAYER3:
+								text_comp->mStrText = "Player 2 IS THE WINNER!!!!";
+								break;
+							case PLAYER4:
+								text_comp->mStrText = "Player 3 IS THE WINNER!!!!";
+								break;
+							default:
+								break;
+							}
+						}
+					}
 				}
 			}
 		}

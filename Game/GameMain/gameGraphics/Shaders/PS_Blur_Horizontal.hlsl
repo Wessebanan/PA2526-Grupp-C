@@ -47,21 +47,21 @@ float Blur(
 	//float4 threshold = (float4)0.0008f;
 
 	float4 weights = float4(
-		0.122f,
-		0.222f,
-		0.222f,
-		0.122f
+		0.12f,
+		0.22f,
+		0.22f,
+		0.12f
 		);
 
 	float offsets[4] =
 	{
-		-0.005f,
-		-0.002f,
-		 0.002f,
-		 0.005f
+		-0.003f,
+		-0.001f,
+		 0.001f,
+		 0.003f
 	};
 
-	float4 threshold = (float4)0.008f;
+	float4 threshold = (float4)0.001f;
 
 	float4 samples;
 	samples.x = gOcclusionMap.Sample(gSampler, uv + offsets[0] * dir).r;
@@ -77,27 +77,28 @@ float Blur(
 
 
 	float4 distance			= abs((float4)center_depth - depth);
-	float4 if_replacement	= !step(threshold, distance);
+	float4 if_replacement	= step(distance, threshold);
 
 	float result		= dot(if_replacement * weights, samples);
-	float weigth_sum	= dot(if_replacement, weights);
+	float weight_sum	= dot(if_replacement, weights);
 
-	return result * weigth_sum;
+	return result * weight_sum;
+	//return saturate(length(if_replacement));
 }
 
 float main(PSIN input) : SV_TARGET
 {
-	float center_occlusion = gOcclusionMap.Sample(gSampler, input.uv).r;
-	float center_depth = GetDepth(input.uv);
+	float center_occlusion	= gOcclusionMap.Sample(gSampler, input.uv).r;
+	float center_depth		= GetDepth(input.uv);
 
 	float blur_horizontal	= Blur(
-		float2(0.0f, 1.0f) * (1.0f - center_depth), 
+		float2(0.0f, 1.0f) * (100.0f - center_depth) / 100.0f, 
 		input.uv, 
 		center_depth, 
 		center_occlusion);
 	
 	float blur_vertical		= Blur(
-		float2(1.0f, 0.0f) * (1.0f - center_depth), 
+		float2(1.0f, 0.0f) * (100.0f - center_depth) / 100.0f, 
 		input.uv, 
 		center_depth, 
 		center_occlusion);

@@ -152,6 +152,7 @@ int main()
 	/*
 		-- Update Loop, while window is open --
 	*/
+	int kill_me = 0;
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
@@ -184,7 +185,6 @@ int main()
 				}
 				
 			}
-			
 
 			/*
 				Update all ECS systems, and give them the delta time.
