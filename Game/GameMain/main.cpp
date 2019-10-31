@@ -152,6 +152,7 @@ int main()
 	/*
 		-- Update Loop, while window is open --
 	*/
+	bool start_once = true;
 	int kill_me = 0;
 	while (wnd.IsOpen())
 	{
@@ -163,7 +164,7 @@ int main()
 				wnd.Close();
 			}
 
-			if (GetAsyncKeyState(VK_SPACE))
+			if (GetAsyncKeyState(VK_SPACE) && start_once)
 			{
 				ecs::events::GameStartEvent eve;
 				//eve.winner = 1;
@@ -184,6 +185,7 @@ int main()
 					ecs.createEvent(m_event);
 				}
 				
+				start_once = false;
 			}
 
 			/*

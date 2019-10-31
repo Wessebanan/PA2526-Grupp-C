@@ -111,7 +111,7 @@ webMsgData WebConnection::ParseMsg(char* userMsg)
 
 	ret_val.action = hun + ten + one;
 
-	ret_val.data = str.substr(4, str.size());
+	ret_val.data = str.substr(4, 32);
 
 	return ret_val;
 }
@@ -252,6 +252,9 @@ void WebConnection::PlayersJoin()
 						if (this->CheckForKey(sock, recvbuf, iSendResult))
 						{
 							cout << "-A key was sent in joining phase" << endl;
+							string ss;
+							ss += "3. PLAYER " + to_string(IdUserSocket(sock) + 1);
+							this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
 						}
 						// if the socket is the listener in the array
 						else
@@ -285,21 +288,23 @@ void WebConnection::GameLoop()
 	cout << "---------STARTING GAME----------" << endl;
 	cout << "--------------------------------" << endl;
 
-	int p = 0;
-	while (p < 4)
-	{
-		// Broadcast channel in the futore
-		string ss;
-		ss += "3. PLAYER " + to_string(p);
-		if (this->mUserSockets[p] != INVALID_SOCKET)
-			this->SendMsg(this->mUserSockets[p], (char*)ss.c_str(), iSendResult);
-		p++;
-	}
+	
 
 	int nrMsg = 0;
 	while (this->mRunThread && this->mRunGameLoop)
 	{
 		fd_set copy = mMaster;
+		
+		//int p = 1;
+		//while (p <= 4)
+		//{
+		//	// Broadcast channel in the futore
+		//	string ss;
+		//	ss += "3. PLAYER " + to_string(p);
+		//	if (this->mUserSockets[p] != INVALID_SOCKET)
+		//		this->SendMsg(this->mUserSockets[p], (char*)ss.c_str(), iSendResult);
+		//	p++;
+		//}
 
 		int socketCount = select(0, &copy, 0, 0, 0);
 
@@ -346,19 +351,31 @@ void WebConnection::GameLoop()
 
 						BroadcastMsg("Recived mesages: " + to_string(nrMsg++));
 
-						webMsgData wmd = ParseMsg(user_msg);
-						if (wmd.player == -1)
+						cout << user_msg << endl;
+						if (user_msg[0] == '0')
 						{
-							cout << "-Couldnt parse msg form user" << endl;
+							webMsgData wmd = ParseMsg(user_msg);
+							if (wmd.player == -1)
+							{
+								cout << "-Couldnt parse msg form user" << endl;
+							}
+							else
+							{
+								wmd.player = IdUserSocket(sock);
+
+								cout << "-From player " << wmd.player << endl
+									<< user_msg << endl;
+
+								ExecuteUserAction(wmd);
+							}
 						}
 						else
 						{
-							wmd.player = IdUserSocket(sock);
+							//string ss;
+							//ss += "2. YOU SENT A CORRUPT MSG";
+							//this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
 
-							cout << "-From player " << wmd.player << endl
-								<< user_msg << endl;
-
-							ExecuteUserAction(wmd);
+							this->RemoveUserSocket(sock, iResult);
 						}
 					}
 				}
