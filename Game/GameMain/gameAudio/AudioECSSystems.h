@@ -34,5 +34,14 @@ namespace ecs
 			Audio::Bank* mSoundBank;
 			bool mEngineInit;
 		};
+
+		class SoundCooldownClearSystem : public ECSSystem<SoundCooldownClearSystem>
+		{
+		public:
+			SoundCooldownClearSystem();
+			virtual ~SoundCooldownClearSystem();
+
+			void updateEntity(FilteredEntity& rEntity, float delta) override;
+		};
 	}
 }
