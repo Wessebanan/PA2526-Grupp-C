@@ -255,6 +255,7 @@ namespace ecs
 
 			UINT mShaderSSAO,
 				mShaderBlur,
+				mShaderBlur_v,
 				mShaderCombine;
 
 			graphics::RenderManager mRenderMgr;

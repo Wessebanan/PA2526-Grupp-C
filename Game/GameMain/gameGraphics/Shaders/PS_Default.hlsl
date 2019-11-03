@@ -58,7 +58,7 @@ PSOUT main(PSIN input)
 	float3 diffuse = finalColor.xyz * illu * in_shadow;
 
 	output.BackBuffer		= float4(ambient + diffuse, input.positionViewSpace.z);
-	output.NormalBuffer		= float4(normalize(input.normalViewSpace), 0.0f);
+	output.NormalBuffer		= float4(normalize(input.normalViewSpace), input.positionViewSpace.z);
 
 	return output;
 }

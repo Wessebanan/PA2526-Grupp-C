@@ -508,13 +508,14 @@ namespace ecs
 				mPipelineBlur,
 				mShaderBlur);
 			
-			mRenderMgr.ExecutePipeline(
-				mPipelineSSAO,
-				mShaderBlur);
 
 			mRenderMgr.ExecutePipeline(
+				mPipelineSSAO,
+				mShaderBlur_v);
+
+			/*mRenderMgr.ExecutePipeline(
 				mPipelineBlur,
-				mShaderBlur);
+				mShaderBlur);*/
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineCombine,
@@ -608,6 +609,11 @@ namespace ecs
 				GetShaderFilepath("PS_Blur_Horizontal.cso").c_str(),
 				0);
 
+			mShaderBlur_v = mRenderMgr.CreateShaderProgram(
+				GetShaderFilepath("VS_SSAO.cso").c_str(),
+				GetShaderFilepath("PS_Blur_Vertical.cso").c_str(),
+				0);
+
 			mShaderCombine = mRenderMgr.CreateShaderProgram(
 				GetShaderFilepath("VS_SSAO.cso").c_str(),
 				GetShaderFilepath("PS_Combine.cso").c_str(),
@@ -619,9 +625,10 @@ namespace ecs
 			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
 			mInstanceLayout.pMeshes = &mScreenSpaceTriangle;
 
-			mRenderMgr.SetShaderModelLayout(mPipelineSSAO, mInstanceLayout);
-			mRenderMgr.SetShaderModelLayout(mPipelineBlur, mInstanceLayout);
-			mRenderMgr.SetShaderModelLayout(mPipelineCombine, mInstanceLayout);
+			mRenderMgr.SetShaderModelLayout(mShaderSSAO, mInstanceLayout);
+			mRenderMgr.SetShaderModelLayout(mShaderBlur, mInstanceLayout);
+			mRenderMgr.SetShaderModelLayout(mShaderBlur_v, mInstanceLayout);
+			mRenderMgr.SetShaderModelLayout(mShaderCombine, mInstanceLayout);
 		}
 
 #pragma region WeaponRenderSystem
