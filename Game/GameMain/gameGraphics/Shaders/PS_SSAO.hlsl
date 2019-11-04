@@ -49,9 +49,9 @@ float CalculateOcclusion(
 	const float3 pos,
 	const float3 normal)
 {
-	const float scale		= 0.2f;
-	const float bias		= 0.2f;
-	const float intensity	= 1.0f;
+	const float scale		= 0.20f;
+	const float bias		= 0.20f;
+	const float intensity	= 1.00f;
 
 	const float3 occlusion_position = ViewPosFromDepth(
 		GetDepth(tcoord + uv), 
@@ -75,7 +75,7 @@ struct PSIN
 
 float main(PSIN input) : SV_TARGET
 {
-	const float sample_radius = 0.2f;
+	const float sample_radius = 0.1f;
 
 	float occlusion = 0.0f;
 
