@@ -24,7 +24,7 @@ float Blur(
 	float blur_radius = 5.0f;
 	float weights[11] =
 	{
-		0.05f, 0.05f, 0.1f, 0.1f, 0.3f, 0.6f, 0.3f, 0.1f, 0.1f, 0.05f, 0.05f
+		0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f
 	};
 
 	float total_weight	= weights[5];
@@ -34,7 +34,7 @@ float Blur(
 	{
 		if (i == 0) continue;
 
-		float2 tex	= i * dir * 0.003f + uv;
+		float2 tex	= i * dir * 0.002f + uv;
 		float depth = GetDepth(tex);
 
 		if (abs(depth - center_depth) <= 0.2f)
