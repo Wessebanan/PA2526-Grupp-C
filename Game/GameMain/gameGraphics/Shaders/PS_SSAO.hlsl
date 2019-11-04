@@ -75,7 +75,7 @@ struct PSIN
 
 float main(PSIN input) : SV_TARGET
 {
-	const float sample_radius = 0.1f;
+	const float sample_radius = 0.2f;
 
 	float occlusion = 0.0f;
 
