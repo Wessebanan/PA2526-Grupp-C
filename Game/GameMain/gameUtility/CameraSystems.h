@@ -179,9 +179,16 @@ namespace ecs
 				XMStoreFloat3(&return_position, new_position);
 				return return_position;
 			}
-
+			XMFLOAT3 UpdateViewMatrix(ecs::components::CameraComponent& cam, ecs::components::TransformComponent& camTransform)
+			{
+				XMMATRIX view = XMMatrixIdentity();
+				XMVECTOR cam_pos = XMLoadFloat3(&camTransform.position);
+				XMVECTOR cam_up = XMLoadFloat4(&cam.up);
+				XMVECTOR cam_target = XMLoadFloat4(&cam.target);
+				view = XMMatrixLookAtLH(cam_pos, cam_target, cam_up);
+				XMStoreFloat4x4(&cam.viewMatrix, view);
+			}
 		};
-
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////
