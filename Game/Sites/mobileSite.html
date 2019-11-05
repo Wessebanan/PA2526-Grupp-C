@@ -350,6 +350,19 @@
 
             resetAreaColors();
             resetTrapColors();
+            
+            var trapCount = 10;
+
+            window.trap0 = Math.floor(Math.random() * trapCount);
+            window.trap2 = Math.floor(Math.random() * trapCount);
+            window.trap3 = Math.floor(Math.random() * trapCount);
+            window.trap1 = Math.floor(Math.random() * trapCount);
+
+        
+            document.getElementById('b0').innerHTML = window.trap0.toString();
+            document.getElementById('b1').innerHTML = window.trap1.toString();
+            document.getElementById('b2').innerHTML = window.trap2.toString();
+            document.getElementById('b3').innerHTML = window.trap3.toString();
        }
 
        function openCommand()
@@ -397,20 +410,27 @@
             document.getElementById(id).style.backgroundColor = "#DDD";
        }
 
-        function setTrap(x,y)
+        function setTrap(x)
         {
            var player = "0";
            var action = "002";
-           x += 100;
-           var Button = x.toString();
+           var Button;
+    
+            if(x == 0)
+                Button = window.trap0;
+            else if(x == 1)
+                Button = window.trap1;
+            else if(x == 2)
+                Button = window.trap2;
+            else if(x == 3)
+                Button = window.trap3;
 
-
+           Button += 100;
            var msg = player.concat(action.concat(Button));
 
             console.log("Saved ButtonMsg: " + msg);
             window.selectedTrapMsg = msg;
 
-            x -= 100;
             var id = "b" + x.toString();
             console.log(id);
            
@@ -491,23 +511,29 @@
        {
         
         var trap = window.selectedTrapMsg;
-        if (trap != 0)
+        if (trap != 0 && window.selectedTileMsg != 0)
         {
-        if(trap == "0002100")
-            document.getElementById('b0').style.display = "none";
-        else if(trap == "0002101")
-            document.getElementById('b1').style.display = "none";
-        else if(trap == "0002102")
-            document.getElementById('b2').style.display = "none";
-        else if(trap == "0002103")
-            document.getElementById('b3').style.display = "none";
+            if(trap == "0002" + (window.trap0 + 100))
+                document.getElementById('b0').style.display = "none";
+            else if(trap == "0002" + (window.trap1 + 100))
+                document.getElementById('b1').style.display = "none";
+            else if(trap == "0002" + (window.trap2 + 100))
+                document.getElementById('b2').style.display = "none";
+            else if(trap == "0002" + (window.trap3 + 100))
+                document.getElementById('b3').style.display = "none";
+        
+            resetTrapColors();
+            resetAreaColors();
+        
+
+       	    socket.send(trap);
+       	    socket.send(window.selectedTileMsg);
+
+
+            window.selectedTrapMsg = 0;
+            window.selectedTileMsg = 0;
         }
 
-       	//console.log(window.selectedTrapMsg);
-       	socket.send(trap);
-        window.selectedTrapMsg = 0;
-       	//console.log(window.selectedTileMsg);
-       	socket.send(window.selectedTileMsg);
        };
 
        function sendPing()
