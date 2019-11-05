@@ -311,6 +311,7 @@
     <ClInclude Include="gameTraps\TrapGlobals.h">
       <Filter>Traps</Filter>
     </ClInclude>
+    <ClInclude Include="GameGlobals.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">

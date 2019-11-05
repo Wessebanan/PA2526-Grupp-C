@@ -16,6 +16,7 @@
 #include "../UI/UIComponents.h"
 
 #include "../../AI/includes/AIGlobals.h"
+#include "../GameGlobals.h"
 
 
 namespace ecs
@@ -904,7 +905,7 @@ namespace ecs
 				ecs::Entity* weapon_entity = ecs::ECSUser::getEntity(equipment_comp->mEquippedWeapon);
 				ecs::components::WeaponComponent* weapon_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::WeaponComponent>(equipment_comp->mEquippedWeapon);
 				//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
-				if (weapon_comp->mType == FIST)
+				if (weapon_comp->mType == GAME_OBJECT_TYPE_FIST)
 				{
 					ecs::ECSUser::removeEntity(weapon_entity->getID());
 				}

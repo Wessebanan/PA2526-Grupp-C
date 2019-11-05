@@ -160,16 +160,16 @@ void InitMeshes(EntityComponentSystem& rEcs)
 
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	MeshContainer::Initialize(&mesh_manager);
-	MeshContainer::LoadMesh(MESH_TYPE_TILE, "../meshes/hexagon_tile5.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_BARREL, "../meshes/Barrel.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_BOX, "../meshes/Box.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_CACTUS, "../meshes/Cactus.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_CAGE, "../meshes/Cage.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_COWSKULL, "../meshes/CowSkull.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_FRUITTREE, "../meshes/FruitTree.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_GIANTSKULL, "../meshes/GiantSkull.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_TOWER, "../meshes/Tower.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_UNIT, "../DudeMesh3.fbx");
-	MeshContainer::LoadMesh(MESH_TYPE_SWORD, "../meshes/sword.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TILE, "../meshes/hexagon_tile5.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BARREL, "../meshes/Barrel.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BOX, "../meshes/Box.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_CACTUS, "../meshes/Cactus.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_CAGE, "../meshes/Cage.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_COWSKULL, "../meshes/CowSkull.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_FRUITTREE, "../meshes/FruitTree.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_GIANTSKULL, "../meshes/GiantSkull.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER, "../meshes/Tower.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_SWORD, "../meshes/sword.fbx");
 }

@@ -152,9 +152,9 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 		Fetch the tile mesh, in order to make copies of it into the vertex buffer.
 	*/
 
-	std::vector<XMFLOAT3>& r_mesh_vertices = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetVertexPositionVector();
-	std::vector<XMFLOAT3>& r_mesh_normals = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetNormalVector();
-	std::vector<int>& r_mesh_indices = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetIndexVector();
+	std::vector<XMFLOAT3>& r_mesh_vertices = *MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_TILE)->GetVertexPositionVector();
+	std::vector<XMFLOAT3>& r_mesh_normals = *MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_TILE)->GetNormalVector();
+	std::vector<int>& r_mesh_indices = *MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_TILE)->GetIndexVector();
 
 	/*
 		Fetch iterators for both map tiles and ocean tiles, so we can iterate them and
