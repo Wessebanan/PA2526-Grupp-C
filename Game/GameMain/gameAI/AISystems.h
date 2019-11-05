@@ -286,6 +286,7 @@ namespace ecs
 					}
 					else//interntest
 					{
+						ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(goalID)->impassable = true;
 						to_return.push_back(startID);
 						return to_return;
 					}
@@ -440,9 +441,10 @@ namespace ecs
 			unsigned int FindClosestLootTile(ecs::Entity* current_unit)
 			{
 				//Initialize components and variables that we will need.
-				ecs::Entity* loot_tile;
+				//ecs::Entity* loot_tile;
 				ecs::components::TransformComponent* unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, current_unit->getID()));
 				ecs::components::TransformComponent* loot_transform;
+				ecs::components::TileComponent* loot_tile;
 				float dist = 1000.0f;
 				float temp_dist = 0.0f;
 				unsigned int loot_id = 0;
@@ -451,8 +453,9 @@ namespace ecs
 				for (int i = 0; i < p_gp->mLootTiles.size(); i++)
 				{
 					loot_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mLootTiles[i]);
+					loot_tile = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TileComponent>(p_gp->mLootTiles[i]);
 					temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
-					if (temp_dist < dist)
+					if (temp_dist < dist && !loot_tile->impassable)
 					{
 						dist = temp_dist;
 						loot_id = p_gp->mLootTiles[i];
