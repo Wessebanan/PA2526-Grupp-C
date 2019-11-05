@@ -117,6 +117,31 @@ namespace ecs
 			}
 		};
 
+		class UpdateDynamicCameraSystem : public ECSSystem<UpdateDynamicCameraSystem>
+		{
+		public:
+			UpdateDynamicCameraSystem()
+			{
+				updateType = EntityUpdate;
+				typeFilter.addRequirement(components::TransformComponent::typeID);
+				typeFilter.addRequirement(components::PoSComponent::typeID);
+			}
+			virtual ~UpdateDynamicCameraSystem() {}
+			void updateEntity(FilteredEntity& entity, float delta) override
+			{
+				TypeFilter cam_filter;
+				cam_filter.addRequirement(components::CameraComponent::typeID);
+				cam_filter.addRequirement(components::TransformComponent::typeID);
+
+				FilteredEntity cam_entity = ECSUser::getEntitiesByFilter(cam_filter).entities.front();
+				cam_entity.entity->getID();
+			}
+		private:
+			ID mCamEntityId;
+			const float mT = 0.1f;
+
+		};
+
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////

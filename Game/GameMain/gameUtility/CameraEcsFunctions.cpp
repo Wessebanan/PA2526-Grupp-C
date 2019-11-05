@@ -65,5 +65,8 @@ namespace CameraEcsFunctions
 		//Create the camera entity
 		rEcs.createEntity(transform, camera);
 	}
+	void CreateDynamicCamera(ecs::EntityComponentSystem& rECS)
+	{
 
+	}
 }

@@ -17,5 +17,10 @@ namespace ecs
 			DirectX::XMFLOAT4X4 projectionMatrix;
 			DirectX::XMFLOAT4X4 viewMatrix;
 		};
+
+		struct PoSComponent : public ECSComponent<PoSComponent>
+		{
+
+		};
 	}
 }
