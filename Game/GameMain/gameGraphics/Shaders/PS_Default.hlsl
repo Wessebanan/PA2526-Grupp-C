@@ -49,7 +49,7 @@ PSOUT main(PSIN input)
 	PSOUT output = (PSOUT)0;
 
 	const float3 cam_dir = -float3(1.2f, -0.7f, 1.0f);
-	float illu = saturate(dot(cam_dir, normalize(input.normal)));
+	float illu = saturate(dot(normalize(cam_dir), normalize(input.normal)));
 
 	float in_shadow		= shadow(input.sunPos.xy, input.sunPos.z);
 	float3 finalColor	= input.color;
@@ -57,8 +57,8 @@ PSOUT main(PSIN input)
 	float3 ambient = finalColor.xyz * 0.1f;
 	float3 diffuse = finalColor.xyz * illu * in_shadow;
 
-	output.BackBuffer		= float4(ambient + diffuse, input.positionViewSpace.z / 100.0f);
-	output.NormalBuffer		= float4(normalize(input.normalViewSpace), 0.0f);
+	output.BackBuffer		= float4(ambient + diffuse, input.positionViewSpace.z);
+	output.NormalBuffer		= float4(normalize(input.normalViewSpace), input.positionViewSpace.z);
 
 	return output;
 }

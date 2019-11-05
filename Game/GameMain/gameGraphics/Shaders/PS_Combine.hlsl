@@ -1,5 +1,5 @@
 Texture2D<float3> gColorBuffer	: register(t1);
-Texture2D<float> gOcclusionMap : register(t2);
+Texture2D<float> gOcclusionMap	: register(t3);
 
 SamplerState gSampler : register (s2);
 

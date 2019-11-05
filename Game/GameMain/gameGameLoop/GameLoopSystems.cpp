@@ -50,21 +50,38 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
 	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
 
-	//if (p_text)
-	//{
-	//	string ss = "";
+	static float total_time;
+	static int total_frames;
 
+	total_time += _delta;
+	total_frames++;
+	static float framerate_to_print = 0.0f;
+	static float frametime_to_print = 0.0f;
+	if (total_frames % 100 == 0)
+	{
+		framerate_to_print = (float)total_frames / total_time;
+		frametime_to_print = total_time / (float)total_frames;
+		total_frames = 0;
+		total_time = 0.0f;
+	}
 
-	//	// To be sent to the UI
-	//	ss.append("ROUNDTIME: ");
-	//	ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
-	//	ss.append("\nFRAMETIME: ");
-	//	ss.append(to_string(_delta));
-	//	ss.append("\nGAMETIME: ");
-	//	ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
-
-	//	p_text->mStrText = ss;
-	//}
+	if (p_text)
+	{
+		string ss = "";
+	
+	
+		// To be sent to the UI
+		//ss.append("ROUNDTIME: ");
+		//ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
+		ss.append("\nFRAMERATE: ");
+		ss.append(to_string(framerate_to_print));
+		ss.append("\nFRAMETIME: ");
+		ss.append(to_string(frametime_to_print));
+		//ss.append("\nGAMETIME: ");
+		//ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
+	
+		p_text->mStrText = ss;
+	}
 
 
 }
@@ -109,6 +126,12 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 		createEvent(eve);
 		
 	}
+	else if (check_any_live == 0)
+	{
+		events::RoundEndEvent eve;
+		eve.winner = -1;
+		createEvent(eve);
+	}
 }
 
 /*
@@ -147,6 +170,7 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 			p_gl->mPlayerPoints[3] = 0;
 		}
 
+
 		ecs::events::RoundStartEvent eve;
 		createEvent(eve);
 
@@ -182,6 +206,23 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 			p_gl->mRoundTime.StartRound();
 		}
 
+		ComponentIterator it = ecs::ECSUser::getComponentsOfType(PlayerStateComponent::typeID);
+		PlayerStateComponent* p_player_state_comp = static_cast<PlayerStateComponent*>(it.next());
+		for (int i = 0; i < 4; i++)
+		{
+			p_player_state_comp->mCurrentStates[i] = IDLE;
+		}
+
+		itt = getComponentsOfType<UITextComponent>();
+		UITextComponent* text_comp;
+		while (text_comp = (UITextComponent*)itt.next())
+		{
+			if (text_comp->tag == UITAG::STARTTEXT)
+			{
+				text_comp->mStrText = "";
+			}
+		}
+
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
 		/************************************/
@@ -212,10 +253,26 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 
 	uint3 army_colors[4];
 
-	army_colors[0] = { 200,   0,   0 };	// Red		Army 1
-	army_colors[1] = { 20,  20,  20 };	// Gray		Army 2
-	army_colors[2] = { 0, 100, 100 };	// Cyan		Army 3
-	army_colors[3] = { 100,   0, 100 };	// Purple	Army 4
+
+	// Player 1 - Red
+	army_colors[0].r = 117;
+	army_colors[0].g = 1;
+	army_colors[0].b = 1;
+
+	// Player 2 - Purple
+	army_colors[1].r = 74;
+	army_colors[1].g = 1;
+	army_colors[1].b = 117;
+
+	// Player 3 - Blue
+	army_colors[2].r = 47;
+	army_colors[2].g = 62;
+	army_colors[2].b = 236;
+
+	// Player 4 - Green
+	army_colors[3].r = 0;
+	army_colors[3].g = 93;
+	army_colors[3].b = 5;
 
 	/* END	*/
 
@@ -427,6 +484,9 @@ ecs::systems::RoundOverSystem::RoundOverSystem()
 {
 	updateType = EventReader;
 	typeFilter.addRequirement(ecs::events::RoundEndEvent::typeID);
+
+	this->mRoundOver = false;
+	this->mRoundOverDuration = 0.0f;
 }
 
 ecs::systems::RoundOverSystem::~RoundOverSystem()
@@ -435,7 +495,7 @@ ecs::systems::RoundOverSystem::~RoundOverSystem()
 
 void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 {
-	if (event.getTypeID() == ecs::events::RoundEndEvent::typeID)
+	if (event.getTypeID() == ecs::events::RoundEndEvent::typeID && !this->mRoundOver)
 	{
 		int winner = dynamic_cast<ecs::events::RoundEndEvent*>(&event)->winner;
 
@@ -452,14 +512,79 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 				{
 					cout << "The round winner is Player " << winner << endl;
 					// Can be reworked to start prep phase
-					events::RoundStartEvent eve;
-					createEvent(eve);
+					this->mRoundOver = true;
+					itt = getComponentsOfType<UITextComponent>();
+					
+					
+					UITextComponent* text_comp;
+					while (text_comp = (UITextComponent*)itt.next())
+					{
+						if (text_comp->tag == UITAG::STARTTEXT)
+						{
+							switch (winner)
+							{
+							case PLAYER1:
+								text_comp->mStrText = "RED won the round!";
+								break;
+							case PLAYER2:
+								text_comp->mStrText = "PURPLE won the round!";
+								break;
+							case PLAYER3:
+								text_comp->mStrText = "BLUE won the round!";
+								break;
+							case PLAYER4:
+								text_comp->mStrText = "GREEN won the round!";
+								break;
+							default:
+								break;
+							}
+						}
+					}
 				}
 				else
 				{
 					// What to do when a player has won
+					UITextComponent* text_comp;
+					itt = getComponentsOfType<UITextComponent>();
+					while (text_comp = (UITextComponent*)itt.next())
+					{
+						if (text_comp->tag == UITAG::STARTTEXT)
+						{
+							switch (winner)
+							{
+							case PLAYER1:
+								text_comp->mStrText = "RED WON THE GAME!!!!";
+								break;
+							case PLAYER2:
+								text_comp->mStrText = "PURPLE WON THE GAME!!!!";
+								break;
+							case PLAYER3:
+								text_comp->mStrText = "BLUE WON THE GAME!!!!";
+								break;
+							case PLAYER4:
+								text_comp->mStrText = "GREEN WON THE GAME!!!!";
+								break;
+							default:
+								break;
+							}
+						}
+					}
 				}
 			}
+		}
+	}
+
+	if (this->mRoundOver)
+	{
+		this->mRoundOverDuration += delta;
+
+		if (this->mRoundOverDuration > 3.0f)
+		{
+			events::RoundStartEvent eve;
+			createEvent(eve);
+
+			this->mRoundOver = false;
+			this->mRoundOverDuration = 0.0f;
 		}
 	}
 }

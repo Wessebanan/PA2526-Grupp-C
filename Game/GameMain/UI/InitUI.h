@@ -9,6 +9,7 @@ struct TempUISystemPtrs
 {
 	ecs::systems::UIPreRenderSystem* UIpreSys;
 	ecs::systems::UIBitmapSystem* UIBitmapSys;
+	ecs::systems::UISolidRectSystem* UISolid;
 	ecs::systems::UITextSystem* UITextSys;
 	ecs::systems::UIDebugSystem* UIDebugSys;
 	ecs::systems::UIPostRenderSystem* UIpostSys;
@@ -24,6 +25,7 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	Direct2D* my_d2d;
 	rSystemPointers.UIpreSys	= rECS.createSystem<ecs::systems::UIPreRenderSystem>(8);
 	rSystemPointers.UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>(9);
+	rSystemPointers.UISolid		= rECS.createSystem<ecs::systems::UISolidRectSystem>(9);
 	rSystemPointers.UITextSys	= rECS.createSystem<ecs::systems::UITextSystem>(9);
 	rSystemPointers.UIrectSys	= rECS.createSystem<ecs::systems::UIRectSystem>(9);
 	rSystemPointers.UIDebugSys	= rECS.createSystem<ecs::systems::UIDebugSystem>(9);
@@ -45,6 +47,7 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	p_backbuffer->Release();
 	//my_d2d->CreateHwndRenderTarget(window, graphics::GetClientResolution(window).x, graphics::GetClientResolution(window).y);
 	rSystemPointers.UIpreSys->mpD2D			= 
+		rSystemPointers.UISolid->mpD2D		= 
 		rSystemPointers.UITextSys->mpD2D	= 
 		rSystemPointers.UIpostSys->mpD2D	= 
 		rSystemPointers.UIrectSys->mpD2D	=

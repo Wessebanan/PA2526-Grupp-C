@@ -2,6 +2,8 @@
 #include "AudioGlobals.h"
 #include <iostream>
 
+#include "AudioECSComponents.h"
+
 ecs::systems::SoundMessageSystem::SoundMessageSystem()
 {
 	updateType = EventListenerOnly;
@@ -151,6 +153,25 @@ bool ecs::systems::SoundMessageSystem::SetupBank()
 
 void ecs::systems::SoundMessageSystem::ProcessPlaySound(ecs::events::PlaySound* pEvent)
 {
+	// Check if entity is already making a sound
+	// Always allow SCREAM_SOUND to play, even it the entity is already playing a sound.
+	if (pEvent->audioName != SCREAM_SOUND && pEvent->invokerEntityId != 0)
+	{
+		Entity* p_entity = getEntity(pEvent->invokerEntityId);
+
+		// Don't play sound if entity don't exist, or the entity already has
+		// a SoundCooldownComponent (== is already playing a sound within the last
+		// SOUND_COOLDOWN seconds).
+		if (!p_entity || (p_entity->hasComponentOfType<components::SoundCooldownComponent>()))
+		{
+			return;
+		}
+
+		components::SoundCooldownComponent cooldown;
+		cooldown.timeElapsed = 0;
+		createComponent(p_entity->getID(), cooldown);
+	}
+
 	Audio::FileData* temp_data = (*mSoundBank)[pEvent->audioName];
 	if (temp_data == nullptr)
 	{
@@ -229,4 +250,27 @@ void ecs::systems::SoundMessageSystem::ProcessSubMusicSetVolume(ecs::events::Sub
 		Audio::Music::M_FUNC_SET_GAIN |
 		Audio::Music::M_TARGET_SUB
 		});
+}
+
+ecs::systems::SoundCooldownClearSystem::SoundCooldownClearSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(components::SoundCooldownComponent::typeID);
+}
+
+ecs::systems::SoundCooldownClearSystem::~SoundCooldownClearSystem()
+{
+	//
+}
+
+void ecs::systems::SoundCooldownClearSystem::updateEntity(FilteredEntity& rEntity, float delta)
+{
+	components::SoundCooldownComponent* p_cooldown = rEntity.getComponent<components::SoundCooldownComponent>();
+
+	p_cooldown->timeElapsed += delta;
+
+	if (p_cooldown->timeElapsed >= SOUND_COOLDOWN)
+	{
+		removeComponent(p_cooldown->getEntityID(), components::SoundCooldownComponent::typeID);
+	}
 }

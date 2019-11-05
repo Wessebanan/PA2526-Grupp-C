@@ -70,22 +70,8 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-
-	if (MAPSIZETEST)
-	{
-		int map_size;
-		cout << "MAP PRESET (0-2): ";
-		cin >> map_size;
-		cout << "The value you entered is " << map_size;
-
-		GridProp* p_gp = GridProp::GetInstance();
-		p_gp->mCurrentMap = map_size;
-	}
-	else
-	{
-		GridProp* p_gp = GridProp::GetInstance();
-		p_gp->mCurrentMap = -1;
-	}
+	GridProp* p_gp = GridProp::GetInstance();
+	p_gp->mCurrentMap = 1;
 
 	srand(time(0));
 
@@ -152,6 +138,8 @@ int main()
 	/*
 		-- Update Loop, while window is open --
 	*/
+	bool start_once = true;
+	int kill_me = 0;
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
@@ -162,7 +150,7 @@ int main()
 				wnd.Close();
 			}
 
-			if (GetAsyncKeyState(VK_SPACE))
+			if (GetAsyncKeyState(VK_SPACE) && start_once)
 			{
 				ecs::events::GameStartEvent eve;
 				//eve.winner = 1;
@@ -183,8 +171,8 @@ int main()
 					ecs.createEvent(m_event);
 				}
 				
+				start_once = false;
 			}
-			
 
 			/*
 				Update all ECS systems, and give them the delta time.
