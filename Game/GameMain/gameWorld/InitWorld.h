@@ -3,7 +3,7 @@
 #include "ecs.h"
 
 #include "WorldSettings.h"
-#include "OceanComponents.h"
+#include "WorldComponents.h"
 #include "../gameWorld/UpdateOceanSystem.h"
 
 #include "../gameAI/AIComponents.h"
@@ -284,7 +284,15 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 			xm_pos = XMVector3Transform(xm_pos, xm_world);
 
 			XMStoreFloat3(&vertex_buffer[index_counter].position, xm_pos);
-			vertex_buffer[index_counter].color = PACK(p_color->red, p_color->green, p_color->blue, 1.f);
+
+			if (r_map_tile.entity->hasComponentOfType<IsletComponent>())
+			{
+				vertex_buffer[index_counter].color = PACK(0, 0, 0.f, 1.f);
+			}
+			else
+			{
+				vertex_buffer[index_counter].color = PACK(p_color->red, p_color->green, p_color->blue, 1.f);
+			}
 
 			xm_triangle[index_counter % 3] = xm_pos;
 

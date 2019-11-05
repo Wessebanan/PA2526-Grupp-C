@@ -8,7 +8,7 @@ using namespace DirectX;
 
 namespace GridFunctions
 {
-	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains, bool holmes) //Creates a array that is used to change the hight for the map and remove chunks for water
+	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains, bool holmes, std::vector<IsletTileCoordinate>& rIsletCoords) //Creates a array that is used to change the hight for the map and remove chunks for water
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
 		int layers = 3;
@@ -46,41 +46,41 @@ namespace GridFunctions
 			top_y += 2 + holme_space;
 			float top_height = 1.2f * height_power;
 			float slope = 0.7f;
-			
+
 			// top
 			height_values[top_y][top_x] = top_height;
 
-			
+
 			// first circle
 			top_height *= slope;
 
-			height_values[top_y][top_x - 1]		= top_height;
-			height_values[top_y][top_x + 1]		= top_height;
+			height_values[top_y][top_x - 1] = top_height;
+			height_values[top_y][top_x + 1] = top_height;
 
-			height_values	[top_y - 1][top_x]	= top_height;
+			height_values[top_y - 1][top_x] = top_height;
 			height_values[top_y - 1][top_x + 1] = top_height;
 			height_values[top_y - 1][top_x - 1] = top_height;
 
-			height_values[top_y + 1][top_x]		= top_height;
+			height_values[top_y + 1][top_x] = top_height;
 
 			//------
 
 			// second circle
 			top_height *= slope;
 
-			height_values[top_y][top_x - 2]		= top_height;
-			height_values[top_y][top_x + 2]		= top_height;
+			height_values[top_y][top_x - 2] = top_height;
+			height_values[top_y][top_x + 2] = top_height;
 			height_values[top_y - 1][top_x - 2] = top_height;
 			height_values[top_y - 1][top_x + 2] = top_height;
 			height_values[top_y + 1][top_x - 2] = top_height;
 			height_values[top_y + 1][top_x + 2] = top_height;
-	
+
 			height_values[top_y + 1][top_x - 1] = top_height;
 			height_values[top_y + 1][top_x + 1] = top_height;
 
-			height_values[top_y + 2][top_x]		= top_height;
-	
-			height_values[top_y - 2][top_x]		= top_height;
+			height_values[top_y + 2][top_x] = top_height;
+
+			height_values[top_y - 2][top_x] = top_height;
 			height_values[top_y - 2][top_x - 1] = top_height;
 			height_values[top_y - 2][top_x + 1] = top_height;
 
@@ -89,27 +89,27 @@ namespace GridFunctions
 			// third circle
 			top_height *= slope;
 
-			height_values[top_y][top_x - 3]		= top_height;
-			height_values[top_y][top_x + 3]		= top_height;
-			
+			height_values[top_y][top_x - 3] = top_height;
+			height_values[top_y][top_x + 3] = top_height;
+
 			height_values[top_y - 1][top_x - 3] = top_height;
 			height_values[top_y - 1][top_x + 3] = top_height;
 			height_values[top_y + 1][top_x - 3] = top_height;
 			height_values[top_y + 1][top_x + 3] = top_height;
 			height_values[top_y - 2][top_x - 3] = top_height;
 			height_values[top_y - 2][top_x + 3] = top_height;
-			
+
 			height_values[top_y + 2][top_x - 1] = top_height;
 			height_values[top_y + 2][top_x - 2] = top_height;
 			height_values[top_y + 2][top_x + 1] = top_height;
 			height_values[top_y + 2][top_x + 2] = top_height;
-			
-			height_values[top_y + 3][top_x]		= top_height;
-			
+
+			height_values[top_y + 3][top_x] = top_height;
+
 			height_values[top_y - 2][top_x - 2] = top_height;
 			height_values[top_y - 2][top_x + 2] = top_height;
-			
-			height_values[top_y - 3][top_x]		= top_height;
+
+			height_values[top_y - 3][top_x] = top_height;
 			height_values[top_y - 3][top_x - 1] = top_height;
 			height_values[top_y - 3][top_x + 1] = top_height;
 			//------
@@ -140,12 +140,12 @@ namespace GridFunctions
 		}
 
 		// removes 2 more from 2 sides one layer close to the center
-		for (size_t i = 0; i < chunk_size-1; i++)
+		for (size_t i = 0; i < chunk_size - 1; i++)
 		{
 			height_values[1 + layers][(side0 + i)] = -1.0f;
 			height_values[rows - 2 - layers][(side1 + i)] = -1.0f;
 		}
-		
+
 
 		// If the map is big enough more is removed
 		if (rows > 16 + layers && columns > 16 + layers)
@@ -191,20 +191,20 @@ namespace GridFunctions
 						switch (random_lakeside)
 						{
 						case 0:
-							x = (starting_tile) + i + k;
+							x = (starting_tile)+i + k;
 							y = k + layers;
 							break;
 						case 1:
 							x = k + layers;
-							y = (starting_tile) + i + k;
+							y = (starting_tile)+i + k;
 							break;
 						case 2:
-							x = (starting_tile) + i + k;
+							x = (starting_tile)+i + k;
 							y = columns - k - 1 - layers;
 							break;
 						case 3:
 							x = rows - 1 - k - layers;
-							y = (starting_tile) + i + k;
+							y = (starting_tile)+i + k;
 							break;
 						default:
 							break;
@@ -220,7 +220,7 @@ namespace GridFunctions
 				for (size_t k = 0; k < depth; k++)
 				{
 					// How wide
-					for (size_t i = 0; i < starting_width - (depth) - 1; i++)
+					for (size_t i = 0; i < starting_width - (depth)-1; i++)
 					{
 						int x = 0;
 						int y = 0;
@@ -228,20 +228,20 @@ namespace GridFunctions
 						switch (random_lakeside)
 						{
 						case 0:
-							x = (starting_tile) + i + (depth / 2);
+							x = (starting_tile)+i + (depth / 2);
 							y = depth + k + layers;
 							break;
 						case 1:
 							x = depth + k + layers;
-							y = (starting_tile) + i + (depth / 2);
+							y = (starting_tile)+i + (depth / 2);
 							break;
 						case 2:
-							x = (starting_tile) + i + (depth / 2);
+							x = (starting_tile)+i + (depth / 2);
 							y = columns - (depth + k) - 1 - layers;
 							break;
 						case 3:
 							x = rows - 1 - (depth + k) - layers;
-							y = (starting_tile) + i + (depth / 2);
+							y = (starting_tile)+i + (depth / 2);
 							break;
 						default:
 							break;
@@ -308,11 +308,22 @@ namespace GridFunctions
 			height_values[start + 1][0] = 0.0f;
 			height_values[start - 1][0] = 0.0f;
 			height_values[start - 1][1] = 0.0f;
+
+			int islet_counter = 0;
 			for (i = 0; height_values[start][i] < -0.5f; i++)
 			{
 				height_values[start][i] = 0.0f;
 				height_values[start + 1][i] = 0.0f;
+
+				if (islet_counter < 1)
+				{
+					rIsletCoords.push_back(IsletTileCoordinate(start,	  i, 0));
+					rIsletCoords.push_back(IsletTileCoordinate(start + 1, i, 0));
+				}
 			}
+			rIsletCoords.push_back(IsletTileCoordinate(start + 1, 0, 0));
+			rIsletCoords.push_back(IsletTileCoordinate(start - 1, 0, 0));
+			rIsletCoords.push_back(IsletTileCoordinate(start - 1, 1, 0));
 
 
 			// second side
@@ -320,33 +331,63 @@ namespace GridFunctions
 			height_values[0][start + 1] = 0.0f;
 			height_values[0][start - 1] = 0.0f;
 			height_values[1][start - 1] = 0.0f;
+			islet_counter = 0;
 			for (i = 0; height_values[i][start] < -0.5f; i++)
 			{
 				height_values[i][start] = 0.0f;
 				height_values[i][start + 1] = 0.0f;
+
+				if (islet_counter < 1)
+				{
+					rIsletCoords.push_back(IsletTileCoordinate(i, start,	 0));
+					rIsletCoords.push_back(IsletTileCoordinate(i, start + 1, 0));
+				}
 			}
+			rIsletCoords.push_back(IsletTileCoordinate(0, start + 1, 1));
+			rIsletCoords.push_back(IsletTileCoordinate(0, start - 1, 1));
+			rIsletCoords.push_back(IsletTileCoordinate(1, start - 1, 1));
 
 			// third side
 			start = start1;
 			height_values[start + 1][columns - 1] = 0.0f;
 			height_values[start - 1][columns - 1] = 0.0f;
 			height_values[start - 1][columns - 2] = 0.0f;
+			islet_counter = 0;
 			for (i = 0; height_values[start][columns - 1 - i] < -0.5f; i++)
 			{
 				height_values[start][columns - 1 - i] = 0.0f;
 				height_values[start + 1][columns - 1 - i] = 0.0f;
+
+				if (islet_counter < 1)
+				{
+					rIsletCoords.push_back(IsletTileCoordinate(start,	  columns - 1 - i, 0));
+					rIsletCoords.push_back(IsletTileCoordinate(start + 1, columns - 1 - i, 0));
+				}
 			}
+			rIsletCoords.push_back(IsletTileCoordinate(start + 1, columns - 1, 2));
+			rIsletCoords.push_back(IsletTileCoordinate(start - 1, columns - 1, 2));
+			rIsletCoords.push_back(IsletTileCoordinate(start - 1, columns - 2, 2));
 
 			// forth side
 			start = start1;
 			height_values[rows - 1][start + 1] = 0.0f;
 			height_values[rows - 1][start - 1] = 0.0f;
 			height_values[rows - 2][start - 1] = 0.0f;
+			islet_counter = 0;
 			for (i = 0; height_values[rows - 1 - i][start] < -0.5f; i++)
 			{
 				height_values[rows - 1 - i][start] = 0.0f;
 				height_values[rows - 1 - i][start + 1] = 0.0f;
+
+				if (islet_counter < 1)
+				{
+					rIsletCoords.push_back(IsletTileCoordinate(rows - 1 - i, start,		0));
+					rIsletCoords.push_back(IsletTileCoordinate(rows - 1 - i, start + 1, 0));
+				}
 			}
+			rIsletCoords.push_back(IsletTileCoordinate(rows - 1, start + 1, 3));
+			rIsletCoords.push_back(IsletTileCoordinate(rows - 1, start - 1, 3));
+			rIsletCoords.push_back(IsletTileCoordinate(rows - 2, start - 1, 3));
 		}
 
 
@@ -363,9 +404,9 @@ namespace GridFunctions
 		float x = fabsf(EndX - StartX);
 		float z = fabsf(EndZ - StartZ);
 		float dist = sqrt(x * x + z * z);//get the distance from start to end
-		dist = dist / ((TILE_RADIUS)*4);//scale the distance for better values
+		dist = dist / ((TILE_RADIUS) * 4);//scale the distance for better values
 		int sign = (int)(fabs(Charge) / Charge);//get the sign from charge variable "+" or "-"
-		to_return = sign*pow(fabs(Charge), 1.2 / (dist + 1.f));//return a exponentially decreasing value depending on distance
+		to_return = sign * pow(fabs(Charge), 1.2 / (dist + 1.f));//return a exponentially decreasing value depending on distance
 
 		return to_return;
 	}
@@ -376,7 +417,7 @@ namespace GridFunctions
 		float x = fabsf(endX - startX);
 		float z = fabsf(endZ - startZ);
 		float dist = sqrt(x * x + z * z);//get the distance from start to end
-		to_return = dist / ((TILE_RADIUS)*2.f);//scale the distance for better values
+		to_return = dist / ((TILE_RADIUS) * 2.f);//scale the distance for better values
 		return to_return;
 	}
 
@@ -696,7 +737,7 @@ namespace GridFunctions
 		float mid_to_side = cos(30 * pi / 180) * TILE_RADIUS; //Calculate length between the center position and a side. 
 		int steps = 0;
 
-		if (x - pos_x  < TILE_RADIUS)
+		if (x - pos_x < TILE_RADIUS)
 		{
 			index.x = 0;
 		}
@@ -743,5 +784,5 @@ namespace GridFunctions
 		}
 		return index;
 	}
-	
+
 };
