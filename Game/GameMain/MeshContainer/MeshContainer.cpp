@@ -16,17 +16,17 @@ MeshContainer& MeshContainer::GetInstance() // static
 	return *mpInstance;
 }
 
-ModelLoader::Mesh* MeshContainer::LoadMesh(MeshType meshType, std::string filePath) // static
+ModelLoader::Mesh* MeshContainer::LoadMesh(GAME_OBJECT_TYPE meshType, std::string filePath) // static
 {
 	return GetInstance().LoadMeshInternal(meshType, filePath);
 }
 
-ModelLoader::Mesh* MeshContainer::GetMeshCPU(MeshType meshType) // static
+ModelLoader::Mesh* MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE meshType) // static
 {
 	return GetInstance().GetMeshCPUInternal(meshType);
 }
 
-graphics::MeshRegion MeshContainer::GetMeshGPU(MeshType meshType)
+graphics::MeshRegion MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE meshType)
 {
 	return GetInstance().GetMeshGPUInternal(meshType);
 }
@@ -55,7 +55,7 @@ void MeshContainer::InitializeInternal(graphics::MeshManager* pMeshMgr)
 	mpMeshMgr = pMeshMgr;
 }
 
-ModelLoader::Mesh* MeshContainer::LoadMeshInternal(MeshType meshType, std::string filePath)
+ModelLoader::Mesh* MeshContainer::LoadMeshInternal(GAME_OBJECT_TYPE meshType, std::string filePath)
 {
 	// Check if mesh is already loaded
 	if (mMeshList.count(meshType))
@@ -106,7 +106,7 @@ ModelLoader::Mesh* MeshContainer::LoadMeshInternal(MeshType meshType, std::strin
 	return p_new_mesh;
 }
 
-ModelLoader::Mesh* MeshContainer::GetMeshCPUInternal(MeshType meshType)
+ModelLoader::Mesh* MeshContainer::GetMeshCPUInternal(GAME_OBJECT_TYPE meshType)
 {
 	// Check if mesh exist, else return null
 	if (!mMeshList.count(meshType))
@@ -117,7 +117,7 @@ ModelLoader::Mesh* MeshContainer::GetMeshCPUInternal(MeshType meshType)
 	return mMeshList[meshType];
 }
 
-graphics::MeshRegion MeshContainer::GetMeshGPUInternal(MeshType meshType)
+graphics::MeshRegion MeshContainer::GetMeshGPUInternal(GAME_OBJECT_TYPE meshType)
 {
 	// Check if region exist, else return null
 	if (!mMeshRegions.count(meshType))
@@ -131,7 +131,7 @@ graphics::MeshRegion MeshContainer::GetMeshGPUInternal(MeshType meshType)
 void MeshContainer::TerminateInternal()
 {
 	// Free all allocated memory
-	for (std::pair<MeshType, ModelLoader::Mesh*> mesh_pair : mMeshList)
+	for (std::pair<GAME_OBJECT_TYPE, ModelLoader::Mesh*> mesh_pair : mMeshList)
 	{
 		delete mesh_pair.second;
 	}

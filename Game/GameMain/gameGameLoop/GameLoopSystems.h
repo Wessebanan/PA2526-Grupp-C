@@ -3,6 +3,7 @@
 #include "GameLoopComponents.h"
 #include "Mesh.h"
 #include "..//Physics/PhysicsComponents.h"
+#include "..//GameGlobals.h"
 
 #define ROUNDS_TO_WIN 2
 
@@ -59,7 +60,7 @@ namespace ecs
 			void CreateUnitPhysics();
 
 			// Creates a weapon out of a mesh and weapon type. (weapon, transform and mesh components)
-			ecs::Entity* CreateWeaponEntity(ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity = 0);
+			ecs::Entity* CreateWeaponEntity(ModelLoader::Mesh* pMesh, GAME_OBJECT_TYPE weaponType, ID ownerEntity = 0);
 		};
 
 		// Ends the round and sets a winner, also cheks if someone has won

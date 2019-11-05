@@ -226,7 +226,6 @@ namespace ecs
 			graphics::MeshRegion mObjectMeshRegion[SCENE_OBJECT_COUNT];
 
 			UINT mObjectTypeCount[SCENE_OBJECT_COUNT];
-			UINT mMeshMap[SCENE_OBJECT_COUNT];
 		};
 
 		class SSAORenderSystem : public ECSSystem<SSAORenderSystem>
