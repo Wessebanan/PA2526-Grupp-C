@@ -30,7 +30,7 @@ namespace ecs
 
 			mInstanceLayout = { 0 };
 
-			mpSkeleton = MeshContainer::GetMeshCPU(MESH_TYPE_UNIT)->GetSkeleton();
+			mpSkeleton = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT)->GetSkeleton();
 			mpSkeleton->StartAnimation(ModelLoader::ANIMATION_TYPE::MOVE);
 		}
 
@@ -79,7 +79,7 @@ namespace ecs
 		void UnitRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
-			mUnitMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_UNIT);
+			mUnitMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_UNIT);
 
 			mInstanceLayout.MeshCount = 1;
 			mInstanceLayout.pMeshes = &mUnitMeshRegion;
@@ -164,7 +164,7 @@ namespace ecs
 		void TileRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
-			mTileMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TILE);
+			mTileMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TILE);
 
 			mInstanceLayout.MeshCount = 1;
 			mInstanceLayout.pMeshes = &mTileMeshRegion;
@@ -233,7 +233,7 @@ namespace ecs
 		void OceanRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
-			mTileMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_TILE);
+			mTileMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TILE);
 
 			mInstanceLayout.MeshCount = 1;
 			mInstanceLayout.pMeshes = &mTileMeshRegion;
@@ -457,22 +457,18 @@ namespace ecs
 				This is a temporary map, until we have ONE mesh enum that everyone reads from.
 				This converts the SCENE_OBJECT mesh enum to MESH_TYPE enum in MeshContainer.
 			*/
-			mMeshMap[SCENE_OBJECT::BARREL]		= MESH_TYPE::MESH_TYPE_BARREL,
-			mMeshMap[SCENE_OBJECT::BOX]			= MESH_TYPE::MESH_TYPE_BOX;
-			mMeshMap[SCENE_OBJECT::CACTUS]		= MESH_TYPE::MESH_TYPE_CACTUS;
-			mMeshMap[SCENE_OBJECT::CAGE]		= MESH_TYPE::MESH_TYPE_CAGE;
-			mMeshMap[SCENE_OBJECT::COWSKULL]	= MESH_TYPE::MESH_TYPE_COWSKULL;
-			mMeshMap[SCENE_OBJECT::FRUITTREE]	= MESH_TYPE::MESH_TYPE_FRUITTREE;
-			mMeshMap[SCENE_OBJECT::GIANTSKULL]	= MESH_TYPE::MESH_TYPE_GIANTSKULL;
-			mMeshMap[SCENE_OBJECT::TOWER]		= MESH_TYPE::MESH_TYPE_TOWER;
-			mMeshMap[SCENE_OBJECT::WINTERTREE]	= MESH_TYPE::MESH_TYPE_WINTERTREE;
-			mMeshMap[SCENE_OBJECT::TEMP_SWORD]	= MESH_TYPE::MESH_TYPE_SWORD;
 
+			mObjectMeshRegion[0] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL);
+			mObjectMeshRegion[1] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BOX);
+			mObjectMeshRegion[2] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CACTUS);
 
-			for (int i = 0; i < SCENE_OBJECT_COUNT; i++)
-			{
-				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(mMeshMap[i]);
-			}
+			mObjectMeshRegion[3] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CAGE);
+			mObjectMeshRegion[4] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_COWSKULL);
+			mObjectMeshRegion[5] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_FRUITTREE);
+
+			mObjectMeshRegion[6] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_GIANTSKULL);
+			mObjectMeshRegion[7] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TOWER);
+			mObjectMeshRegion[8] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_WINTERTREE);
 
 			mInstanceLayout.MeshCount = SCENE_OBJECT_COUNT;
 			mInstanceLayout.pMeshes = mObjectMeshRegion;
@@ -696,7 +692,7 @@ namespace ecs
 		void WeaponRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
-			mWeaponMeshRegion = MeshContainer::GetMeshGPU(MESH_TYPE_SWORD);
+			mWeaponMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_SWORD);
 
 			mInstanceLayout.MeshCount = 1;
 			mInstanceLayout.pMeshes = &mWeaponMeshRegion;
