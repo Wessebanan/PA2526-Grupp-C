@@ -67,11 +67,10 @@ namespace graphics
 
 		{
 			D3D11_SAMPLER_DESC desc = {};
-			desc.Filter = D3D11_FILTER_ANISOTROPIC;
-			desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-			desc.MaxAnisotropy = 16;
+			desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+			desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+			desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 
 			pDevice4->CreateSamplerState(&desc, &mpSamplerState);
 		}
@@ -104,7 +103,7 @@ namespace graphics
 		ID3D11RenderTargetView* pNull = { NULL };
 		pContext4->OMSetRenderTargets(1, &pNull, NULL);
 
-		pContext4->PSSetShaderResources(2, 1, &mpBlurResource);
+		pContext4->PSSetShaderResources(3, 1, &mpBlurResource);
 	}
 
 	void BlurPipeline::Destroy()
