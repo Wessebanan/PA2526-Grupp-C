@@ -305,6 +305,12 @@
     <ClInclude Include="gameAudio\AudioECSComponents.h">
       <Filter>Audio</Filter>
     </ClInclude>
+    <ClInclude Include="gameTraps\TrapEvents.h">
+      <Filter>Traps</Filter>
+    </ClInclude>
+    <ClInclude Include="gameTraps\TrapGlobals.h">
+      <Filter>Traps</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -363,6 +369,9 @@
     </Filter>
     <Filter Include="UI">
       <UniqueIdentifier>{44356643-86a3-4049-b4b6-d94d1373bfaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Traps">
+      <UniqueIdentifier>{12d7a6d1-4f26-4de3-9c87-1c2e98b055f7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -15,5 +15,14 @@ namespace ecs
 			~ChangeFSMSystem();
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 		};
+
+		// Looks if a new trap was sent and then creates a event for that
+		class TrapEventSystem : public ecs::ECSSystem<TrapEventSystem>
+		{
+		public:
+			TrapEventSystem();
+			~TrapEventSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		};
 	}
 }

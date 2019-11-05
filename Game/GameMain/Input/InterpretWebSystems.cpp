@@ -2,6 +2,8 @@
 #include "../gameAudio/AudioECSEvents.h"
 #include "../gameAnimation/AnimationEvents.h"
 #include "..//gameAI/AIComponents.h"
+#include "..//gameTraps//TrapEvents.h"
+#include "GridProp.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -101,5 +103,68 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				createEvent(cus_event);
 			}
 		}
+	}
+}
+
+ecs::systems::TrapEventSystem::TrapEventSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(ecs::components::UserButtonComponent::typeID);
+	typeFilter.addRequirement(ecs::components::UserTileComponent::typeID);
+}
+
+ecs::systems::TrapEventSystem::~TrapEventSystem()
+{
+}
+
+void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	UserTileComponent* p_tile_comp = _entityInfo.getComponent<UserTileComponent>();
+	UserButtonComponent* p_butt_comp = _entityInfo.getComponent<UserButtonComponent>();
+
+	if (p_butt_comp && p_tile_comp)
+	{
+		for (size_t i = 0; i < 4; i++)
+		{
+			if (p_butt_comp->userButtons[i].mButton > -1)
+			{
+				if (p_tile_comp->userTiles[i].mCordX > -1)
+				{
+
+					GridProp* p_gp = GridProp::GetInstance();
+
+					int2 gridSize = p_gp->GetSize();
+
+					int partionX = gridSize.x / 3;
+					int partionY = gridSize.y / 3;
+
+					int tileIndexX = p_tile_comp->userTiles[i].mCordX * partionX;
+					int tileIndexY = p_tile_comp->userTiles[i].mCordY * partionY;
+
+					TypeID tile_ID;
+
+					tileIndexX += rand() % partionX;
+					tileIndexY += rand() % partionY;
+					
+					while (!p_gp->mGrid[tileIndexX][tileIndexY].isPassable)
+					{
+						tileIndexX += rand() % partionX;
+						tileIndexY += rand() % partionY;
+					}
+					tile_ID = p_gp->mGrid[tileIndexX][tileIndexY].Id;
+
+
+					ecs::events::PlaceTrapEvent eve;
+						
+					eve.tileID = tile_ID;
+
+					// Last part is falesafe if something would go wrong from the website
+					eve.type = (TRAPTYPES)(p_butt_comp->userButtons[i].mButton % TRAPTYPES::SIZE);
+
+					createEvent(eve);
+				}
+			}
+		}
+		
 	}
 }
