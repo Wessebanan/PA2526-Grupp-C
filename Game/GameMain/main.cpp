@@ -70,22 +70,8 @@ int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-
-	if (MAPSIZETEST)
-	{
-		int map_size;
-		cout << "MAP PRESET (0-2): ";
-		cin >> map_size;
-		cout << "The value you entered is " << map_size;
-
-		GridProp* p_gp = GridProp::GetInstance();
-		p_gp->mCurrentMap = map_size;
-	}
-	else
-	{
-		GridProp* p_gp = GridProp::GetInstance();
-		p_gp->mCurrentMap = -1;
-	}
+	GridProp* p_gp = GridProp::GetInstance();
+	p_gp->mCurrentMap = 1;
 
 	srand(time(0));
 

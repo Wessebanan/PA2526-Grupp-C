@@ -50,21 +50,38 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
 	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
 
-	//if (p_text)
-	//{
-	//	string ss = "";
+	static float total_time;
+	static int total_frames;
 
+	total_time += _delta;
+	total_frames++;
+	static float framerate_to_print = 0.0f;
+	static float frametime_to_print = 0.0f;
+	if (total_frames % 100 == 0)
+	{
+		framerate_to_print = (float)total_frames / total_time;
+		frametime_to_print = total_time / (float)total_frames;
+		total_frames = 0;
+		total_time = 0.0f;
+	}
 
-	//	// To be sent to the UI
-	//	ss.append("ROUNDTIME: ");
-	//	ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
-	//	ss.append("\nFRAMETIME: ");
-	//	ss.append(to_string(_delta));
-	//	ss.append("\nGAMETIME: ");
-	//	ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
-
-	//	p_text->mStrText = ss;
-	//}
+	if (p_text)
+	{
+		string ss = "";
+	
+	
+		// To be sent to the UI
+		//ss.append("ROUNDTIME: ");
+		//ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
+		ss.append("\nFRAMERATE: ");
+		ss.append(to_string(framerate_to_print));
+		ss.append("\nFRAMETIME: ");
+		ss.append(to_string(frametime_to_print));
+		//ss.append("\nGAMETIME: ");
+		//ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
+	
+		p_text->mStrText = ss;
+	}
 
 
 }

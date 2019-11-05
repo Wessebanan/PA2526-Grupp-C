@@ -284,11 +284,7 @@ namespace ecs
 				height buffer.
 			*/
 
-			TypeFilter ocean_filter;
-			ocean_filter.addRequirement(components::OceanTileComponent::typeID);
-			ocean_filter.addRequirement(components::TransformComponent::typeID);
-
-			EntityIterator p_iterator = getEntitiesByFilter(ocean_filter);
+			EntityIterator p_iterator = mOceanTiles;
 
 			for (FilteredEntity& tile : p_iterator.entities)
 			{
@@ -301,11 +297,7 @@ namespace ecs
 				height buffer.
 			*/
 
-			TypeFilter map_filter;
-			map_filter.addRequirement(components::TileComponent::typeID);
-			map_filter.addRequirement(components::TransformComponent::typeID);
-
-			p_iterator = getEntitiesByFilter(map_filter);
+			p_iterator = mMapTiles;
 
 			for (FilteredEntity& tile : p_iterator.entities)
 			{
@@ -368,6 +360,20 @@ namespace ecs
 			trpDesc.size = worldMeshVertexCount * stride;
 
 			mPipelineState = mpStateMgr->CreatePipelineState(new graphics::TileRenderingPipeline(), &trpDesc);
+			
+			// Grabbing and storing all ocean tiles.
+			TypeFilter ocean_filter;
+			ocean_filter.addRequirement(components::OceanTileComponent::typeID);
+			ocean_filter.addRequirement(components::TransformComponent::typeID);
+
+			mOceanTiles = getEntitiesByFilter(ocean_filter);
+
+			// Grabbing and storing all map tiles.
+			TypeFilter map_filter;
+			map_filter.addRequirement(components::TileComponent::typeID);
+			map_filter.addRequirement(components::TransformComponent::typeID);
+
+			mMapTiles = getEntitiesByFilter(map_filter);
 		}
 #pragma endregion WorldRenderSystem
 

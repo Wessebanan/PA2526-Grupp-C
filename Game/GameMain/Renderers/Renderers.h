@@ -166,6 +166,8 @@ namespace ecs
 				UINT worldMeshVertexCount);
 
 		private:
+			EntityIterator mOceanTiles;
+			EntityIterator mMapTiles;
 
 			struct VertexData
 			{
