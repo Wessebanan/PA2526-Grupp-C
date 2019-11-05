@@ -85,12 +85,45 @@ namespace ecs
 			graphics::MeshRegion mUnitMeshRegion;
 		};
 
-		class TileRenderSystem : public ECSSystem<TileRenderSystem>
+		class TileInstanceRenderSystem : public ECSSystem<TileInstanceRenderSystem>
 		{
 		public:
 
-			TileRenderSystem();
-			~TileRenderSystem();
+			TileInstanceRenderSystem();
+			~TileInstanceRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				float x, y, z;
+				uint32_t color;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mTileCount;
+			graphics::MeshRegion mTileMeshRegion;
+		};
+
+		class OceanInstanceRenderSystem : public ECSSystem<OceanInstanceRenderSystem>
+		{
+		public:
+
+			OceanInstanceRenderSystem();
+			~OceanInstanceRenderSystem();
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
@@ -125,39 +158,6 @@ namespace ecs
 			OceanRenderSystem();
 			~OceanRenderSystem();
 
-			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
-
-			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
-
-			static uint32_t GetPerInstanceSize();
-
-		private:
-
-			struct InputLayout
-			{
-				float x, y, z;
-				uint32_t color;
-			};
-
-			InputLayout* mpBuffer;
-
-			UINT mRenderProgram;
-			graphics::RenderManager* mpRenderMgr;
-			graphics::ShaderModelLayout mInstanceLayout;
-
-			graphics::RenderBuffer* mpRenderBuffer;
-
-			UINT mTileCount;
-			graphics::MeshRegion mTileMeshRegion;
-		};
-
-		class WorldRenderSystem : public ECSSystem<WorldRenderSystem>
-		{
-		public:
-
-			WorldRenderSystem();
-			~WorldRenderSystem();
-
 			void act(float _delta) override;
 			void Initialize(
 				graphics::RenderManager* pRenderMgr,
@@ -167,6 +167,45 @@ namespace ecs
 
 		private:
 			EntityIterator mOceanTiles;
+
+			struct VertexData
+			{
+				float x, y, z;
+				float nx, ny, nz;
+				uint32_t color;
+			};
+
+			UINT mInstanceCount;
+
+			UINT mRenderProgram;
+			UINT mPipelineState;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::StateManager* mpStateMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+			graphics::MeshRegion mMeshRegion;
+
+			void* mHeightData;
+			UINT mHightDataSize;
+
+			void* mpWorldVertices;
+			UINT mWorldBufferSize;
+		};
+
+		class MapRenderSystem : public ECSSystem<MapRenderSystem>
+		{
+		public:
+
+			MapRenderSystem();
+			~MapRenderSystem();
+
+			void act(float _delta) override;
+			void Initialize(
+				graphics::RenderManager* pRenderMgr,
+				graphics::StateManager* pStateMgr,
+				void* pWorldMesh,
+				UINT worldMeshVertexCount);
+
+		private:
 			EntityIterator mMapTiles;
 
 			struct VertexData
