@@ -57,10 +57,25 @@
         
         #mapAreaContainer
         {
+            margin-top: 15%;
             font-size: 20px;
             height: 70%;
         }
         
+        #trapContainer
+        {
+            font-size: 20px;
+            height: 10%;
+        }
+        .trapButton
+        {
+            width:13%;
+            padding: 5%;
+            float: left;
+            margin: 1%;
+            background-color:darkred;
+        }
+
         .col
         {
             width: 13%;
@@ -94,12 +109,10 @@
         #sendButton
         {
             height: 2%;
-            padding-top: 100%;
-            padding-left: 10%;
-            padding-right: 10%;
-            padding-bottom: 5%;
+            margin-top: 99%;
+            padding: 10%;
             width: 79%;
-            background-color:chocolate;
+            background-color:darkolivegreen;
             
             font-size:120%;
         }
@@ -256,10 +269,10 @@
         
         function resetTrapColors()
         {
-           document.getElementById("b0").style.backgroundColor = "#444"; 
-           document.getElementById("b1").style.backgroundColor = "#444"; 
-           document.getElementById("b2").style.backgroundColor = "#444"; 
-           document.getElementById("b3").style.backgroundColor = "#444"; 
+           document.getElementById("b0").style.backgroundColor = "darkred"; 
+           document.getElementById("b1").style.backgroundColor = "darkred"; 
+           document.getElementById("b2").style.backgroundColor = "darkred"; 
+           document.getElementById("b3").style.backgroundColor = "darkred"; 
         }
 
 
@@ -476,9 +489,24 @@
 
        function sendTrapAndTile()
        {
-       	console.log(window.selectedTrapMsg);
-       	socket.send(window.selectedTrapMsg);
-       	console.log(window.selectedTileMsg);
+        
+        var trap = window.selectedTrapMsg;
+        if (trap != 0)
+        {
+        if(trap == "0002100")
+            document.getElementById('b0').style.display = "none";
+        else if(trap == "0002101")
+            document.getElementById('b1').style.display = "none";
+        else if(trap == "0002102")
+            document.getElementById('b2').style.display = "none";
+        else if(trap == "0002103")
+            document.getElementById('b3').style.display = "none";
+        }
+
+       	//console.log(window.selectedTrapMsg);
+       	socket.send(trap);
+        window.selectedTrapMsg = 0;
+       	//console.log(window.selectedTileMsg);
        	socket.send(window.selectedTileMsg);
        };
 
@@ -507,10 +535,10 @@
 
     <div id='prepField' class='buttonField' style='display:none;padding:3px'>
         <div id="trapContainer">
-            <div onclick="setTrap(0)" id='b0'>0</div>
-            <div onclick="setTrap(1)" id='b1'>1</div>
-            <div onclick="setTrap(2)" id='b2'>2</div>
-            <div onclick="setTrap(3)" id='b3'>3</div>
+            <div class='trapButton' onclick="setTrap(0)" id='b0'>0</div>
+            <div class='trapButton' onclick="setTrap(1)" id='b1'>1</div>
+            <div class='trapButton' onclick="setTrap(2)" id='b2'>2</div>
+            <div class='trapButton' onclick="setTrap(3)" id='b3'>3</div>
         </div>
 
         </br>
