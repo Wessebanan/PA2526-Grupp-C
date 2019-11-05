@@ -28,6 +28,9 @@ namespace AIEcsFunctions
 		FLOAT unit_text_width = 100;
 
 		FLOAT ui_padding = 50;
+		ecs::components::UIDrawColorComponent gay_color_comp;
+		ecs::components::UIIWant yaaa;
+		gay_color_comp.mColor = brushColors::Gray;
 
 		for (size_t i = 0; i < 4; i++)
 		{
@@ -36,6 +39,7 @@ namespace AIEcsFunctions
 			command_text_comp.mStrText = "NO STATE";
 			ecs::components::UIDrawPosComponent text_pos_comp;
 			ecs::components::UIDrawColorComponent text_color_comp;
+			
 			
 			
 			switch (i)
@@ -54,7 +58,7 @@ namespace AIEcsFunctions
 				text_pos_comp.mDrawArea.left = client_width - text_width - ui_padding;
 				text_pos_comp.mDrawArea.right = client_width - ui_padding;
 
-				text_color_comp.mColor = brushColors::Gray;
+				text_color_comp.mColor = brushColors::Purple;
 				break;
 			case 2:
 				text_pos_comp.mDrawArea.top = client_height - text_height - ui_padding;
@@ -62,7 +66,7 @@ namespace AIEcsFunctions
 				text_pos_comp.mDrawArea.left = 0 + ui_padding;
 				text_pos_comp.mDrawArea.right = text_width + ui_padding;
 
-				text_color_comp.mColor = brushColors::Cyan;
+				text_color_comp.mColor = brushColors::Blue;
 				break;
 			case 3:
 				text_pos_comp.mDrawArea.top = client_height - text_height - ui_padding;
@@ -70,7 +74,7 @@ namespace AIEcsFunctions
 				text_pos_comp.mDrawArea.left = client_width - text_width - ui_padding;
 				text_pos_comp.mDrawArea.right = client_width - ui_padding;
 
-				text_color_comp.mColor = brushColors::Purple;
+				text_color_comp.mColor = brushColors::Green;
 				break;
 			default:
 				text_pos_comp.mDrawArea.top = 100;
@@ -88,6 +92,7 @@ namespace AIEcsFunctions
 
 			//Create the user entity
 			rEcs.createEntity(army, command_text_comp, text_pos_comp, text_color_comp);
+			rEcs.createEntity(text_pos_comp, gay_color_comp, yaaa);
 		}
 	}
 

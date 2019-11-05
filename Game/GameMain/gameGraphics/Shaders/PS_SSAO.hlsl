@@ -2,18 +2,12 @@
 
 Texture2D<float4> gNormalMap		: register (t2);
 Texture2D<float4> gRandomMap		: register (t4);
-Texture2D<float> gDepthMap			: register (t5);
 
 SamplerState gSampler				: register (s1);
 
-cbuffer gPer : register (b0)
-{
-	float4x4 gPerspective;
-};
-
 float GetDepth(const float2 uv)
 {
-	return gDepthMap.Sample(gSampler, uv).r;
+	return gNormalMap.Sample(gSampler, uv).w;
 }
 
 float3 GetNormal(const float2 uv)
@@ -21,20 +15,26 @@ float3 GetNormal(const float2 uv)
 	return normalize(gNormalMap.Sample(gSampler, uv).xyz);
 }
 
-float3 WorldPosFromDepth(const float depth, const float2 uv)
+float3 ViewPosFromDepth(const float depth, const float2 uv)
 {
 	const float2 xy = uv * float2(2.0f, -2.0f) - float2(1.0f, -1.0f);
-	const float4 clip_space_position = float4(xy, depth, 1.0f);
 
-	float4 view_space_position = mul(gPerspective, clip_space_position);
-	view_space_position.xyzw /= view_space_position.w;
+	const float aspect	= 1920.0f / 1080.0f;
+	const float fovy	= 3.14f / 2.0f;
+	const float far_z	= 100.0f;
 
-	return view_space_position.xyz;
+	float2 half_size;
+	half_size.y			= far_z * tan(0.5f * fovy);
+	half_size.x			= aspect * half_size.y;
+
+	float3 frustrum_pos = float3(xy * half_size, far_z);
+
+	return float3((depth / far_z) * frustrum_pos);
 }
 
 float2 GetRandom(const float2 uv)
 {
-	const float2 screen_size = float2(1920, 1080) * 20.0f;
+	const float2 screen_size = float2(1920, 1080);
 	const float2 random_size = float2(64, 64);
 
 	return normalize(
@@ -49,11 +49,11 @@ float CalculateOcclusion(
 	const float3 pos,
 	const float3 normal)
 {
-	const float scale		= 1.0f;
-	const float bias		= 0.5f;
-	const float intensity	= 15.0f;
+	const float scale		= 0.20f;
+	const float bias		= 0.25f;
+	const float intensity	= 1.20f;
 
-	const float3 occlusion_position = WorldPosFromDepth(
+	const float3 occlusion_position = ViewPosFromDepth(
 		GetDepth(tcoord + uv), 
 		tcoord + uv);
 
@@ -75,7 +75,7 @@ struct PSIN
 
 float main(PSIN input) : SV_TARGET
 {
-	const float sample_radius = 0.2f;
+	const float sample_radius = 0.1f;
 
 	float occlusion = 0.0f;
 
@@ -86,13 +86,11 @@ float main(PSIN input) : SV_TARGET
 		float2( 0, -1),
 	};
 
-	float3 pos		= WorldPosFromDepth(GetDepth(input.uv), input.uv);
+	float3 pos		= ViewPosFromDepth(GetDepth(input.uv), input.uv);
 	float3 normal	= GetNormal(input.uv);
 
-	//return normal;
-
 	float2 random	= GetRandom(input.uv);
-	float radius = sample_radius / pos.z;
+	float radius	= sample_radius / pos.z;
 
 	const uint iterations = 4;
 	for (uint i = 0; i < iterations; i++)
@@ -110,5 +108,5 @@ float main(PSIN input) : SV_TARGET
 
 	occlusion /= (float)iterations * 4.0f;
 	
-	return saturate(occlusion);
+	return saturate(pow(occlusion, 4.0f) * 100.0f);
 }

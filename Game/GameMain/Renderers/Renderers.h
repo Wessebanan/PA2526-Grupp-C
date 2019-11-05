@@ -166,6 +166,8 @@ namespace ecs
 				UINT worldMeshVertexCount);
 
 		private:
+			EntityIterator mOceanTiles;
+			EntityIterator mMapTiles;
 
 			struct VertexData
 			{
@@ -255,6 +257,7 @@ namespace ecs
 
 			UINT mShaderSSAO,
 				mShaderBlur,
+				mShaderBlur_v,
 				mShaderCombine;
 
 			graphics::RenderManager mRenderMgr;

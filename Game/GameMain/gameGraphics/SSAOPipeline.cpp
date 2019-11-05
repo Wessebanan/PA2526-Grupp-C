@@ -302,7 +302,7 @@ namespace graphics
 		ID3D11RenderTargetView* pNull = { NULL };
 		pContext4->OMSetRenderTargets(1, &pNull, NULL);
 
-		pContext4->PSSetShaderResources(2, 1, &mpSSAOResource);
+		pContext4->PSSetShaderResources(3, 1, &mpSSAOResource);
 	}
 
 	void SSAOPipeline::Destroy()

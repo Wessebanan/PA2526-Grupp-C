@@ -14,6 +14,8 @@ bool InitSound(ecs::EntityComponentSystem& rECS)
 		rECS.removeSystem<ecs::systems::SoundMessageSystem>();
 		return false;
 	}
+
+	rECS.createSystem<ecs::systems::SoundCooldownClearSystem>(9);
 	return true;
 }
 

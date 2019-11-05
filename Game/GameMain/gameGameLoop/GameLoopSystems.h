@@ -4,7 +4,7 @@
 #include "Mesh.h"
 #include "..//Physics/PhysicsComponents.h"
 
-#define ROUNDS_TO_WIN 3
+#define ROUNDS_TO_WIN 2
 
 namespace ecs
 {
@@ -31,6 +31,8 @@ namespace ecs
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 		private:
 		};
+		
+
 
 
 		// ----------- EVENTREADERS -----------------
@@ -68,6 +70,8 @@ namespace ecs
 			~RoundOverSystem();
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
+			bool mRoundOver;
+			float mRoundOverDuration;
 		};
 	}
 }

@@ -51,8 +51,7 @@ namespace ecs
 
 		struct LootStateComponent : public ECSComponent<LootStateComponent>
 		{
-			int data = 0;
-			std::vector<unsigned int> path;
+			unsigned int goalID;
 		};
 
 		struct AttackStateComponent : public ECSComponent<AttackStateComponent>
@@ -77,6 +76,11 @@ namespace ecs
 		struct DeadComponent : public ECSComponent<DeadComponent>
 		{
 			int data;
+		};
+
+		struct PlayerStateComponent : public ECSComponent<PlayerStateComponent>
+		{
+			STATE mCurrentStates[4];
 		};
 	}
 }

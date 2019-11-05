@@ -10,6 +10,7 @@ namespace ecs
 		{
 			AudioName audioName;
 			SoundFlags soundFlags;
+			ID invokerEntityId;
 		};
 		struct PlayMusic : public ECSEvent<PlayMusic>
 		{

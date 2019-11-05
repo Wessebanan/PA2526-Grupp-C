@@ -103,9 +103,11 @@ namespace ecs
 					}
 					case STATE::LOOT:
 					{
-						goal_id = 117;
-						goal_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(goal_id);
-						calc_path = true;
+						goal_id = this->FindClosestLootTile(entity.entity);
+						if (goal_id != 0)
+						{
+							calc_path = true;
+						}
 						break;
 					}
 					case STATE::FLEE:
@@ -177,6 +179,7 @@ namespace ecs
 				unsigned int next_tile_id = 0;
 				float best_neighbour_cost = 999.f;
 				unsigned int current_tile_id = startID;
+				bool intern_test_no_path = false;//
 
 				current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(startID);
 				goal_tile_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(goalID);
@@ -255,6 +258,8 @@ namespace ecs
 						closed_list[next_tile_id].id = next_tile_id;				//its own id
 						closed_list[next_tile_id].parent_id = parent_id;		   //parent id
 						closed_list[next_tile_id].move_cost = best_neighbour_cost;//its movecost
+						if (open_list.size() == 0)//interntest
+							intern_test_no_path = true;//
 						if(open_list.size() > 0 )
 						{
 							open_list.erase(open_list.begin() + pos_in_open_list);	//remove from openlist
@@ -265,14 +270,22 @@ namespace ecs
 					}
 					//when we have found the goal we start to build the path by starting with the goal tile then we add that tiles parent tile and do this until we come to the start tile
 					//parent tile in this function is the tile that was used to get to the child tile, so when we find the goal we just the go backwards using the parents
-					current_tile_id = goalID;
-					to_return.push_back(current_tile_id);
-					while (current_tile_id != startID)
-					{ 
-						current_tile_id = closed_list[current_tile_id].parent_id;
+					if(!intern_test_no_path)//interntest
+					{
+						current_tile_id = goalID;
 						to_return.push_back(current_tile_id);
+						while (current_tile_id != startID)
+						{ 
+							current_tile_id = closed_list[current_tile_id].parent_id;
+							to_return.push_back(current_tile_id);
+						}
+						return to_return;
 					}
-					return to_return;
+					else//interntest
+					{
+						to_return.push_back(startID);
+						return to_return;
+					}
 				}
 				else
 				{
@@ -420,6 +433,32 @@ namespace ecs
 				//Return the entity id of the safest tile.
 				return goal_id;
 			}
+
+			unsigned int FindClosestLootTile(ecs::Entity* current_unit)
+			{
+				//Initialize components and variables that we will need.
+				ecs::Entity* loot_tile;
+				ecs::components::TransformComponent* unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, current_unit->getID()));
+				ecs::components::TransformComponent* loot_transform;
+				float dist = 1000.0f;
+				float temp_dist = 0.0f;
+				unsigned int loot_id = 0;
+				GridProp* p_gp = GridProp::GetInstance();
+
+				for (int i = 0; i < p_gp->mLootTiles.size(); i++)
+				{
+					loot_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mLootTiles[i]);
+					temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
+					if (temp_dist < dist)
+					{
+						dist = temp_dist;
+						loot_id = p_gp->mLootTiles[i];
+					}
+				}
+
+				//Return the nearest enemy units entity id.
+				return loot_id;
+			}
 		};
 
 		/*
@@ -503,7 +542,7 @@ namespace ecs
 				//Switch state if a new state was determined in the CheckIfGoalIsMet function.
 				if (newState != STATE::NONE)
 				{
-					SwitchState(entity, newState);
+ 					this->SwitchState(entity, newState);
 				}
 				else
 				{
@@ -563,7 +602,7 @@ namespace ecs
 					returnState = STATE::ATTACK;
 					break;
 				case STATE::LOOT:
-					mMinimumDist = TILE_RADIUS / 2.0f;
+					mMinimumDist = TILE_RADIUS * 2;
 					returnState = STATE::LOOT;
 					break;
 				default:
@@ -624,6 +663,7 @@ namespace ecs
 				else if (newState == STATE::LOOT)
 				{
 					ecs::components::LootStateComponent loot_state;
+					loot_state.goalID = move_comp->goalID;
 					ecs::ECSUser::createComponent(entity.entity->getID(), loot_state);
 					state_switched = true;
 				}
@@ -670,6 +710,8 @@ namespace ecs
 			{
 				updateType = EntityUpdate;
 				typeFilter.addRequirement(components::LootStateComponent::typeID);
+				typeFilter.addRequirement(components::TransformComponent::typeID);
+				typeFilter.addRequirement(components::DynamicMovementComponent::typeID);
 			}
 			virtual ~LootStateSystem() {}
 
@@ -677,16 +719,41 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
-				/*****************************************************/
-				/****************************************************/
-				/*    FILL OUT WITH LOOT LOGIC IN ANOTHER TASK     */
-				/**************************************************/
-				/*************************************************/
+				ecs::components::TransformComponent* unit_transform = entity.getComponent<ecs::components::TransformComponent>();
+				ecs::components::LootStateComponent* unit_loot_comp = entity.getComponent<ecs::components::LootStateComponent>();
+				ecs::components::DynamicMovementComponent* dynamic_move_comp = entity.getComponent<ecs::components::DynamicMovementComponent>();
+				
+				ecs::components::TransformComponent* loot_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(unit_loot_comp->goalID);
+				
+				float dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_tile_transform->position);
+				XMFLOAT3 direction;
+				float length;
 
-				//Switch to IdleState when the area have been looted
-				ecs::components::IdleStateComponent idle_state;
-				ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::LootStateComponent::typeID);
-				ecs::ECSUser::createComponent(entity.entity->getID(), idle_state);
+				if (dist > 0.1f)
+				{
+					//Calculate the direction of the enemy and normalize the vector.
+					direction.x = loot_tile_transform->position.x - unit_transform->position.x;
+					direction.y = loot_tile_transform->position.y - unit_transform->position.y;
+					direction.z = loot_tile_transform->position.z - unit_transform->position.z;
+					length = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
+					direction.x /= length;
+					direction.y /= length;
+					direction.z /= length;
+					//Set the direction.
+					dynamic_move_comp->mForward = direction;
+					//Create an event to move the unit towards the enemy.
+					MovementInputEvent move_event;
+					move_event.mInput = FORWARD;
+					move_event.mEntityID = entity.entity->getID();
+					createEvent(move_event);
+				}
+				else
+				{
+					ecs::components::PathfindingStateComponent path_comp;
+					path_comp.activeCommand == LOOT;
+					ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::LootStateComponent::typeID);
+					ecs::ECSUser::createComponent(entity.entity->getID(), path_comp);
+				}
 			}
 		};
 

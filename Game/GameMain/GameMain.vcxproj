@@ -144,6 +144,7 @@
     <ClInclude Include="gameAnimation\AnimationComponents.h" />
     <ClInclude Include="gameAnimation\AnimationSystems.h" />
     <ClInclude Include="gameAnimation\InitAnimation.h" />
+    <ClInclude Include="gameAudio\AudioECSComponents.h" />
     <ClInclude Include="gameAudio\AudioECSEvents.h" />
     <ClInclude Include="gameAudio\AudioECSSystems.h" />
     <ClInclude Include="gameAudio\AudioGlobals.h" />

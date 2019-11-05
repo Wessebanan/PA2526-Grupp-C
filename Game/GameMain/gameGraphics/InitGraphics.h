@@ -83,14 +83,14 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	p_psmComp->pipelineDesc.PixelsWidth = 2048;
 	p_psmComp->pipelineDesc.Width = 80.0f;
 	p_psmComp->pipelineDesc.Height = 80.0f;
-	p_psmComp->pipelineDesc.NearPlane = 8.0f;
+	p_psmComp->pipelineDesc.NearPlane = 1.0f;
 	p_psmComp->pipelineDesc.FarPlane = 80.0f;
 	p_psmComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ShadowMapPipeline, &p_psmComp->pipelineDesc);
 
 	p_pfComp->pipelineDesc.ClientWidth = clientWidth;
 	p_pfComp->pipelineDesc.ClientHeight = clientHeight;
 	p_pfComp->pipelineDesc.Fov = 3.14f / 2.0f;
-	p_pfComp->pipelineDesc.NearPlane = 0.1f;
+	p_pfComp->pipelineDesc.NearPlane = 1.0f;
 	p_pfComp->pipelineDesc.FarPlane = 100.0f;
 	p_pfComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ForwardRenderingPipeline, &p_pfComp->pipelineDesc);
 
