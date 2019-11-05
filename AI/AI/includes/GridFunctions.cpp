@@ -54,33 +54,33 @@ namespace GridFunctions
 			// first circle
 			top_height *= slope;
 
-			height_values[top_y][top_x - 1] = top_height;
-			height_values[top_y][top_x + 1] = top_height;
+			height_values[top_y][top_x - 1]		= top_height;
+			height_values[top_y][top_x + 1]		= top_height;
 
-			height_values	[top_y - 1][top_x] = top_height;
+			height_values	[top_y - 1][top_x]	= top_height;
 			height_values[top_y - 1][top_x + 1] = top_height;
 			height_values[top_y - 1][top_x - 1] = top_height;
 
-			height_values[top_y + 1][top_x] = top_height;
+			height_values[top_y + 1][top_x]		= top_height;
 
 			//------
 
 			// second circle
 			top_height *= slope;
 
-			height_values[top_y][top_x - 2] = top_height;
-			height_values[top_y][top_x + 2] = top_height;
+			height_values[top_y][top_x - 2]		= top_height;
+			height_values[top_y][top_x + 2]		= top_height;
 			height_values[top_y - 1][top_x - 2] = top_height;
 			height_values[top_y - 1][top_x + 2] = top_height;
 			height_values[top_y + 1][top_x - 2] = top_height;
 			height_values[top_y + 1][top_x + 2] = top_height;
-
+	
 			height_values[top_y + 1][top_x - 1] = top_height;
 			height_values[top_y + 1][top_x + 1] = top_height;
 
-			height_values[top_y + 2][top_x] = top_height;
-
-			height_values[top_y - 2][top_x] = top_height;
+			height_values[top_y + 2][top_x]		= top_height;
+	
+			height_values[top_y - 2][top_x]		= top_height;
 			height_values[top_y - 2][top_x - 1] = top_height;
 			height_values[top_y - 2][top_x + 1] = top_height;
 
@@ -89,27 +89,27 @@ namespace GridFunctions
 			// third circle
 			top_height *= slope;
 
-			height_values[top_y][top_x - 3] = top_height;
-			height_values[top_y][top_x + 3] = top_height;
-
+			height_values[top_y][top_x - 3]		= top_height;
+			height_values[top_y][top_x + 3]		= top_height;
+			
 			height_values[top_y - 1][top_x - 3] = top_height;
 			height_values[top_y - 1][top_x + 3] = top_height;
 			height_values[top_y + 1][top_x - 3] = top_height;
 			height_values[top_y + 1][top_x + 3] = top_height;
 			height_values[top_y - 2][top_x - 3] = top_height;
 			height_values[top_y - 2][top_x + 3] = top_height;
-
+			
 			height_values[top_y + 2][top_x - 1] = top_height;
 			height_values[top_y + 2][top_x - 2] = top_height;
 			height_values[top_y + 2][top_x + 1] = top_height;
 			height_values[top_y + 2][top_x + 2] = top_height;
-
-			height_values[top_y + 3][top_x] = top_height;
-
+			
+			height_values[top_y + 3][top_x]		= top_height;
+			
 			height_values[top_y - 2][top_x - 2] = top_height;
 			height_values[top_y - 2][top_x + 2] = top_height;
-
-			height_values[top_y - 3][top_x] = top_height;
+			
+			height_values[top_y - 3][top_x]		= top_height;
 			height_values[top_y - 3][top_x - 1] = top_height;
 			height_values[top_y - 3][top_x + 1] = top_height;
 			//------
