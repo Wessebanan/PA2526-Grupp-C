@@ -140,6 +140,25 @@ namespace ecs
 			ID mCamEntityId;
 			const float mT = 0.1f;
 
+			XMFLOAT3 Slerping(const XMFLOAT3& v1, const XMFLOAT3& v2)
+			{
+				//Initialize variables and store the vectors XMVECTOR:s so that we can work with them.
+				XMFLOAT3 return_position;
+				float omega;
+				XMVECTOR vec_1 = XMLoadFloat3(&v1);
+				XMVECTOR vec_2 = XMLoadFloat3(&v2);
+				XMVECTOR new_position;
+				XMVECTOR dot;
+				//Calculate dot between the two positions on the dome.
+				dot = XMVector3Dot(vec_1, vec_2);
+				omega = XMVectorGetX(dot);
+				//Calculate the new position along the dome using the Slerp algorithm.
+				new_position = (sin((1 - mT) * omega) * vec_1 + sin(mT * omega) * vec_2) / sin(omega);
+				//Prepare and return the new position.
+				XMStoreFloat3(&return_position, new_position);
+				return return_position;
+			}
+
 		};
 
 	}
