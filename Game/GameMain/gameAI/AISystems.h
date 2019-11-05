@@ -260,7 +260,10 @@ namespace ecs
 						closed_list[next_tile_id].parent_id = parent_id;		   //parent id
 						closed_list[next_tile_id].move_cost = best_neighbour_cost;//its movecost
 						if (open_list.size() == 0)//interntest
+						{
 							intern_test_no_path = true;//
+							break;
+						}
 						if(open_list.size() > 0 )
 						{
 							open_list.erase(open_list.begin() + pos_in_open_list);	//remove from openlist
