@@ -322,19 +322,19 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			if (u == 0)
 			{
 				transform.position.x = p_transform->position.x + (float(TILE_RADIUS) / divider);
-				transform.position.y = p_transform->position.y + 1.1f;
+				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
 			}
 			else if (u == 1)
 			{
 				transform.position.x = p_transform->position.x - (float(TILE_RADIUS) / divider);
-				transform.position.y = p_transform->position.y + 1.1f;
+				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
 			}
 			else
 			{
 				transform.position.x = p_transform->position.x;
-				transform.position.y = p_transform->position.y + 1.1f;
+				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z - (float(TILE_RADIUS) / divider);
 			}
 
