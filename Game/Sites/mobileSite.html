@@ -405,7 +405,6 @@
             x -= 100;
             y -= 100;
             var id = "area" + x.toString() + y.toString();
-            console.log(id);
             resetAreaColors();
             document.getElementById(id).style.backgroundColor = "#DDD";
        }
@@ -428,71 +427,17 @@
            Button += 100;
            var msg = player.concat(action.concat(Button));
 
-            console.log("Saved ButtonMsg: " + msg);
+            console.log("Saved TrapMsg: " + msg);
             window.selectedTrapMsg = msg;
-
+            
+            
             var id = "b" + x.toString();
-            console.log(id);
-           
-        
             resetTrapColors();
             document.getElementById(id).style.backgroundColor = "#DDD";
 
         
         }
 
-       function setTile(x,y)
-       {
-           var player = "0";
-           var action = "001";
-           x += 100;
-           y += 100;
-           var tileX = x.toString();
-           var tileY = y.toString();
-
-
-           var msg = player.concat(action.concat(tileX.concat(tileY)));
-
-           console.log("Saved tileMsg: " + msg);
-           selectedTileMsg = msg;
-
-       	x -= 100;
-       	y -= 100;
-       	var id = x + "," + y;
-       	//console.log(id);
-
-       	if(id != lastTileSelected)
-       		lastTileColor = document.getElementById(id).style.backgroundColor;
-
-       	document.getElementById(lastTileSelected).style.backgroundColor = lastTileColor;
-       	document.getElementById(id).style.backgroundColor = "#c00";
-       	lastTileSelected = id;
-       }
-
-       function setButton(x)
-       {
-           var player = "0";
-           var action = "002";
-           x += 100;
-           var Button = x.toString();
-
-
-           var msg = player.concat(action.concat(Button));
-
-           console.log("Saved buttonMsg: " + msg);
-           selectedButtonMsg = msg;
-
-       	x -= 100;
-       	var bid = "b" + x;
-       	//console.log(id);
-
-       	if(bid != lastButtonSelected)
-       		lastButtonColor = document.getElementById(bid).style.backgroundColor;
-
-       	document.getElementById(lastButtonSelected).style.backgroundColor = lastButtonColor;
-       	document.getElementById(bid).style.backgroundColor = "green";
-       	lastButtonSelected = bid;
-       }
 
        function setCommand(buttonCommand)
        {
@@ -509,31 +454,29 @@
 
        function sendTrapAndTile()
        {
+            var trap = window.selectedTrapMsg;
+            if (trap != 0 && window.selectedTileMsg != 0)
+            {
+                if(trap == "0002" + (window.trap0 + 100))
+                    document.getElementById('b0').style.display = "none";
+                else if(trap == "0002" + (window.trap1 + 100))
+                    document.getElementById('b1').style.display = "none";
+                else if(trap == "0002" + (window.trap2 + 100))
+                    document.getElementById('b2').style.display = "none";
+                else if(trap == "0002" + (window.trap3 + 100))
+                    document.getElementById('b3').style.display = "none";
         
-        var trap = window.selectedTrapMsg;
-        if (trap != 0 && window.selectedTileMsg != 0)
-        {
-            if(trap == "0002" + (window.trap0 + 100))
-                document.getElementById('b0').style.display = "none";
-            else if(trap == "0002" + (window.trap1 + 100))
-                document.getElementById('b1').style.display = "none";
-            else if(trap == "0002" + (window.trap2 + 100))
-                document.getElementById('b2').style.display = "none";
-            else if(trap == "0002" + (window.trap3 + 100))
-                document.getElementById('b3').style.display = "none";
-        
-            resetTrapColors();
-            resetAreaColors();
+                resetTrapColors();
+                resetAreaColors();
         
 
-       	    socket.send(trap);
-       	    socket.send(window.selectedTileMsg);
+       	        socket.send(trap);
+       	        socket.send(window.selectedTileMsg);
 
 
-            window.selectedTrapMsg = 0;
-            window.selectedTileMsg = 0;
-        }
-
+                window.selectedTrapMsg = 0;
+                window.selectedTileMsg = 0;
+            }
        };
 
        function sendPing()
@@ -587,8 +530,10 @@
                 <div class="col" id="area10" onclick="setArea(1,0)">1,0</div>
                 <div class="col" id="area20" onclick="setArea(2,0)">2,0</div>
             </div>
-        </br>
-        <div id="sendButton" onclick="sendTrapAndTile()">SEND TRAP</div>
+            
+            </br>
+            <div id="sendButton" onclick="sendTrapAndTile()">SEND TRAP</div>
+
         </div>
 
         <!---<div class="container" id="test">
