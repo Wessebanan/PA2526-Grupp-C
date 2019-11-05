@@ -124,22 +124,43 @@ namespace ecs
 			{
 				updateType = EntityUpdate;
 				typeFilter.addRequirement(components::TransformComponent::typeID);
-				typeFilter.addRequirement(components::PoSComponent::typeID);
+				typeFilter.addRequirement(components::CameraComponent::typeID);
 			}
 			virtual ~UpdateDynamicCameraSystem() {}
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
-				TypeFilter cam_filter;
-				cam_filter.addRequirement(components::CameraComponent::typeID);
-				cam_filter.addRequirement(components::TransformComponent::typeID);
-
-				FilteredEntity cam_entity = ECSUser::getEntitiesByFilter(cam_filter).entities.front();
-				cam_entity.entity->getID();
+				//cam_entity.entity->getID();
 			}
 		private:
 			ID mCamEntityId;
 			const float mT = 0.1f;
+			inline void GetTargetPosition(DirectX::XMVECTOR& rTarget, DirectX::XMVECTOR& rOrigin)
+			{
+				// Zero rTarget
+				rTarget = DirectX::XMVectorZero();
 
+				// Get a sum of all point of interests
+				TypeFilter poi_filter;
+				poi_filter.addRequirement(components::TransformComponent::typeID);
+				poi_filter.addRequirement(components::PoiComponent::typeID);
+
+				EntityIterator poi_iterator = ECSUser::getEntitiesByFilter(poi_filter);
+
+				components::TransformComponent* p_poi_transform;
+				float i = 0.0f;
+				DirectX::XMVECTOR temp_pos;
+				for (FilteredEntity& e : poi_iterator.entities)
+				{
+					p_poi_transform = e.getComponent<components::TransformComponent>();
+					temp_pos = DirectX::XMLoadFloat3(&p_poi_transform->position);
+					// Make sure to keep position to origin
+					rTarget += temp_pos + rOrigin;
+					//i += 1.0f;
+				}
+				//rTarget /= i;
+				// Normalize
+				rTarget = DirectX::XMVector3Normalize(rTarget);
+			}
 		};
 
 	}
