@@ -180,7 +180,7 @@ namespace ecs
 				unsigned int next_tile_id = 0;
 				float best_neighbour_cost = 999.f;
 				unsigned int current_tile_id = startID;
-				bool intern_test_no_path = false;//
+				bool no_path_found = false;
 
 				current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(startID);
 				goal_tile_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(goalID);
@@ -259,9 +259,9 @@ namespace ecs
 						closed_list[next_tile_id].id = next_tile_id;				//its own id
 						closed_list[next_tile_id].parent_id = parent_id;		   //parent id
 						closed_list[next_tile_id].move_cost = best_neighbour_cost;//its movecost
-						if (open_list.size() == 0)//interntest
+						if (open_list.size() == 0)//if no path was found switch the bool and break the loop
 						{
-							intern_test_no_path = true;//
+							no_path_found = true;
 							break;
 						}
 						if(open_list.size() > 0 )
@@ -274,7 +274,7 @@ namespace ecs
 					}
 					//when we have found the goal we start to build the path by starting with the goal tile then we add that tiles parent tile and do this until we come to the start tile
 					//parent tile in this function is the tile that was used to get to the child tile, so when we find the goal we just the go backwards using the parents
-					if(!intern_test_no_path)//interntest
+					if(!no_path_found) //if path was found
 					{
 						current_tile_id = goalID;
 						to_return.push_back(current_tile_id);
@@ -285,8 +285,9 @@ namespace ecs
 						}
 						return to_return;
 					}
-					else//interntest
+					else //if no path was found make the goal tile impassable
 					{
+						ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(goalID)->impassable = true;
 						to_return.push_back(startID);
 						return to_return;
 					}
@@ -441,9 +442,10 @@ namespace ecs
 			unsigned int FindClosestLootTile(ecs::Entity* current_unit)
 			{
 				//Initialize components and variables that we will need.
-				ecs::Entity* loot_tile;
+				//ecs::Entity* loot_tile;
 				ecs::components::TransformComponent* unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, current_unit->getID()));
 				ecs::components::TransformComponent* loot_transform;
+				ecs::components::TileComponent* loot_tile;
 				float dist = 1000.0f;
 				float temp_dist = 0.0f;
 				unsigned int loot_id = 0;
@@ -452,8 +454,9 @@ namespace ecs
 				for (int i = 0; i < p_gp->mLootTiles.size(); i++)
 				{
 					loot_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mLootTiles[i]);
+					loot_tile = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TileComponent>(p_gp->mLootTiles[i]);
 					temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
-					if (temp_dist < dist)
+					if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
 					{
 						dist = temp_dist;
 						loot_id = p_gp->mLootTiles[i];
