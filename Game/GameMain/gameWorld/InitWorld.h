@@ -273,21 +273,42 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 
 		for (int i : r_mesh_indices)
 		{
-			/*
-				Place every vertex in tile into vertex buffer.
-				For every third vertex, calculate the normal using
-				the two previous vertices and set the normal to all
-				three vertices used to calculate the normal.
-			*/
-
 			xm_pos = XMLoadFloat3(&r_mesh_vertices[i]);
 			xm_pos = XMVector3Transform(xm_pos, xm_world);
 
 			XMStoreFloat3(&vertex_buffer[index_counter].position, xm_pos);
 
+			/*
+				If tile has IsletComponent, set specific army color.
+				Else, just fetch original color of the tile entity.
+			*/
+
 			if (r_map_tile.entity->hasComponentOfType<IsletComponent>())
 			{
-				vertex_buffer[index_counter].color = PACK(0, 0, 0.f, 1.f);
+				IsletComponent* islet_comp = rEcs.getComponentFromEntity<IsletComponent>(r_map_tile.entity->getID());
+
+				switch (islet_comp->playerId)
+				{
+				case 0:
+					vertex_buffer[index_counter].color = PACK(74, 1, 117, 1.f); // Purple player
+					break;
+
+				case 1:
+					vertex_buffer[index_counter].color = PACK(117, 1, 1, 1.f); // Red player
+					break;
+
+				case 2:
+					vertex_buffer[index_counter].color = PACK(0, 93, 5, 1.f); // Green player
+					break;
+
+				case 3:
+					vertex_buffer[index_counter].color = PACK(47, 62, 236, 1.f); // Blue player
+					break;
+
+				default:
+					vertex_buffer[index_counter].color = PACK(0, 0, 0.f, 1.f);
+					break;
+				}
 			}
 			else
 			{
