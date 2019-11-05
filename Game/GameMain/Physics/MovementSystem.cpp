@@ -84,6 +84,7 @@ ecs::systems::DynamicMovementSystem::DynamicMovementSystem()
 	typeFilter.addRequirement(DynamicMovementComponent::typeID);
 	typeFilter.addRequirement(TransformComponent::typeID);
 	subscribeEventCreation(MovementInputEvent::typeID);
+	subscribeEventCreation(ForceImpulseEvent::typeID);
 }
 
 ecs::systems::DynamicMovementSystem::~DynamicMovementSystem()
@@ -96,53 +97,51 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(_entityInfo.entity->getID());
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
 
-	// Starting off with movement in the x-z-plane.
-	
-	// a = F/m
-	movement_component->mAcceleration.x = movement_component->mInputForce.x / movement_component->mWeight;
-	movement_component->mAcceleration.z = movement_component->mInputForce.z / movement_component->mWeight;
+	// WALKING
 
-	// Applying deceleration if velocity is greater than 0 and acceleration works opposite or not at all, or if not on ground.
-	if (fabs(movement_component->mVelocity.x) > 0.001f && movement_component->mAcceleration.x / movement_component->mVelocity.x <= 0.0f && movement_component->mOnGround)
+	// No walking if unit is not on ground.
+	if (movement_component->mOnGround)
 	{
-		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
-		movement_component->mAcceleration.x -= Sign(movement_component->mVelocity.x) * movement_component->mDeceleration;
-	}
-	if (fabs(movement_component->mVelocity.z) > 0.001f && movement_component->mAcceleration.z / movement_component->mVelocity.z <= 0.0f && movement_component->mOnGround)
-	{
-		// Reducing velocity by acceleration and time in the opposite direction of the velocity.
-		movement_component->mAcceleration.z -= Sign(movement_component->mVelocity.z) * movement_component->mDeceleration;
-	}
+		// a = F/m
+		movement_component->mAcceleration.x = movement_component->mInputForce.x / movement_component->mWeight;
+		movement_component->mAcceleration.z = movement_component->mInputForce.z / movement_component->mWeight;
 
-	// Save direction of velocity prior to change.
-	int prev_sign_x = Sign(movement_component->mVelocity.x);
-	int prev_sign_z = Sign(movement_component->mVelocity.z);
-	
-	// v = v_0 + a*delta_t
-	movement_component->mVelocity.x += movement_component->mAcceleration.x * _delta;
-	movement_component->mVelocity.z += movement_component->mAcceleration.z * _delta;	
-	
-	// If this velocity change changed the sign of the velocity and there was no input: reset velocity to 0.
-	if (prev_sign_x != Sign(movement_component->mVelocity.x) && fabs(movement_component->mInputForce.x) < 0.01f)
-	{
-		movement_component->mVelocity.x = 0.0f;
-	}
-	if (prev_sign_z != Sign(movement_component->mVelocity.z) && fabs(movement_component->mInputForce.z) < 0.01f)
-	{
-		movement_component->mVelocity.z = 0.0f;
-	}
+		// Applying deceleration if velocity is greater than 0 and acceleration works opposite or not at all, or if not on ground.
+		if (fabs(movement_component->mVelocity.x) > 0.001f && movement_component->mAcceleration.x / movement_component->mVelocity.x <= 0.0f && movement_component->mOnGround)
+		{
+			movement_component->mAcceleration.x -= Sign(movement_component->mVelocity.x) * movement_component->mDeceleration;
+		}
+		if (fabs(movement_component->mVelocity.z) > 0.001f && movement_component->mAcceleration.z / movement_component->mVelocity.z <= 0.0f && movement_component->mOnGround)
+		{
+			movement_component->mAcceleration.z -= Sign(movement_component->mVelocity.z) * movement_component->mDeceleration;
+		}
 
-	// If the max velocity is exceeded, normalize velocity and scale by max velocity.
-	if (CalculateVectorLength(movement_component->mVelocity) > movement_component->mMaxVelocity)
-	{
-		XMStoreFloat3(&movement_component->mVelocity, XMVector3Normalize(XMLoadFloat3(&movement_component->mVelocity)));
-		movement_component->mVelocity.x *= movement_component->mMaxVelocity;
-		movement_component->mVelocity.z *= movement_component->mMaxVelocity;
+		// Save direction of velocity prior to change.
+		int prev_sign_x = Sign(movement_component->mVelocity.x);
+		int prev_sign_z = Sign(movement_component->mVelocity.z);
+
+		// v = v_0 + a*delta_t
+		movement_component->mVelocity.x += movement_component->mAcceleration.x * _delta;
+		movement_component->mVelocity.z += movement_component->mAcceleration.z * _delta;
+		
+		// If this velocity change changed the sign of the velocity and there was no input: reset velocity to 0.
+		if (prev_sign_x != Sign(movement_component->mVelocity.x) && fabs(movement_component->mInputForce.x) < 0.01f)
+		{
+			movement_component->mVelocity.x = 0.0f;
+		}
+		if (prev_sign_z != Sign(movement_component->mVelocity.z) && fabs(movement_component->mInputForce.z) < 0.01f)
+		{
+			movement_component->mVelocity.z = 0.0f;
+		}
+
+		// If the max velocity is exceeded, normalize velocity and scale by max velocity but disregard y.
+		if (CalculateVectorLength(movement_component->mVelocity) > movement_component->mMaxVelocity)
+		{
+			XMStoreFloat3(&movement_component->mVelocity, XMVector3Normalize(XMLoadFloat3(&movement_component->mVelocity)));
+			movement_component->mVelocity.x *= movement_component->mMaxVelocity;
+			movement_component->mVelocity.z *= movement_component->mMaxVelocity;
+		}
 	}
-	
-	// d = d_0 + v*delta_t
-	transform_component->position.x += movement_component->mVelocity.x * _delta;
-	transform_component->position.z += movement_component->mVelocity.z * _delta;
 
 	// GRAVITY
 	
@@ -151,13 +150,35 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	{
 		movement_component->mAcceleration.y = -movement_component->mGravity;		
 		movement_component->mVelocity.y += movement_component->mAcceleration.y * _delta;		
-		transform_component->position.y += movement_component->mVelocity.y * _delta;
 	}
 	else
 	{
 		movement_component->mVelocity.y = 0.0f;
 	}
 
+	// OTHER FORCES 
+
+	// Other forces section exists because walking is strictly capped to max velocity but some shit
+	// like knockback and spring traps shouldn't be affected by how fast units can walk.
+
+	// If there are other forces.
+	if (CalculateVectorLength(movement_component->mForce) > 0.01f)
+	{
+		// Accelerate unit by force and apply acceleration to unit velocity.
+		movement_component->mAcceleration.x = movement_component->mForce.x / movement_component->mWeight;
+		movement_component->mAcceleration.y = movement_component->mForce.y / movement_component->mWeight;
+		movement_component->mAcceleration.z = movement_component->mForce.z / movement_component->mWeight;
+		
+		movement_component->mVelocity.x += movement_component->mAcceleration.x;
+		movement_component->mVelocity.y += movement_component->mAcceleration.y;
+		movement_component->mVelocity.z += movement_component->mAcceleration.z;
+	}
+
+	// d = d_0 + v*delta_t
+	transform_component->position.x += movement_component->mVelocity.x * _delta;
+	transform_component->position.y += movement_component->mVelocity.y * _delta;
+	transform_component->position.z += movement_component->mVelocity.z * _delta;
+	
 	// Potential collision if object moved.
 	const float ABS_ERROR = (float)pow(10.0, -10.0);
 
@@ -172,54 +193,73 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 		createEvent(potential_collision);
 	}
 	
-	// Reset movement force to 0 after since it should be 0 if no further input.
+	// Reset forces to 0 after since it should be 0 if no further input.
 	movement_component->mInputForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	
+	movement_component->mForce		= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+
 	// Saving previous position for later comparison.
 	movement_component->mPreviousPos = transform_component->position;
 }
 
 void ecs::systems::DynamicMovementSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
 {
-	MovementInputEvent input_event = dynamic_cast<MovementInputEvent&>(*_event);
+	// Casting the event to each of the interesting types.
+	MovementInputEvent *input_event = dynamic_cast<MovementInputEvent*>(_event);
+	ForceImpulseEvent *impulse_event = dynamic_cast<ForceImpulseEvent*>(_event);
 
-	// Checking that the entity should move dynamically.
-	Entity* entity = getEntity(input_event.mEntityID);
-	if (!entity->hasComponentOfType(DynamicMovementComponent::typeID))
+	if (input_event)
 	{
-		return;
+		// Checking that the entity should move dynamically.
+		Entity* entity = getEntity(input_event->mEntityID);
+		if (!entity->hasComponentOfType(DynamicMovementComponent::typeID))
+		{
+			return;
+		}
+
+		// Apply force in the direction of the movement input relative to forward direction.
+		MovementInputs input = input_event->mInput;
+
+		DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(entity->getID());
+
+		// No movement input if unit is not on ground.
+		if (!movement_component->mOnGround)
+		{
+			return;
+		}
+
+		SetDirection(movement_component->mDirection, movement_component->mForward, input_event->mInput);
+
+		// Applying force in the direction of the movement.
+		movement_component->mInputForce.x = movement_component->mDirection.x * movement_component->mMovementForce;
+		movement_component->mInputForce.z = movement_component->mDirection.z * movement_component->mMovementForce;
+
+		// Rotate entity to face the same direction as movement.
+		TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
+
+		// NOTE: No way of finding default direction of mesh so it's hard coded.
+		XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
+		XMFLOAT3* movement_forward = &movement_component->mForward;
+
+		// Finding the angle between default forward and movement forward direction.
+		XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
+
+		// Using Sign to find if the angle is negative or positive relative to default forward.
+		transform_component->rotation.y = -Sign(movement_forward->x) * acos(XMVectorGetX(cos_angle));
 	}
-
-	// Apply force in the direction of the movement input relative to forward direction.
-	MovementInputs input = input_event.mInput;
-
-	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(entity->getID());
-
-	// No movement input if unit is not on ground.
-	if (!movement_component->mOnGround)
+	else if (impulse_event)
 	{
-		return;
+		// Checking that the entity should move dynamically.
+		Entity* entity = getEntity(impulse_event->mEntityID);
+		if (!entity->hasComponentOfType(DynamicMovementComponent::typeID))
+		{
+			return;
+		}
+
+		DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(entity->getID());
+		movement_component->mForce.x = impulse_event->mDirection.x * impulse_event->mForce;
+		movement_component->mForce.y = impulse_event->mDirection.y * impulse_event->mForce;
+		movement_component->mForce.z = impulse_event->mDirection.z * impulse_event->mForce;
 	}
-
-	SetDirection(movement_component->mDirection, movement_component->mForward, input_event.mInput);
-
-	// Applying force in the direction of the movement.
-	movement_component->mInputForce.x = movement_component->mDirection.x * movement_component->mMovementForce;
-	movement_component->mInputForce.z = movement_component->mDirection.z * movement_component->mMovementForce;
-
-	// Rotate entity to face the same direction as movement.
-	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
-
-	// NOTE: No way of finding default direction of mesh so it's hard coded.
-	XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
-	XMFLOAT3* movement_forward = &movement_component->mForward;
-
-	// Finding the angle between default forward and movement forward direction.
-	XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
-
-	// Using Sign to find if the angle is negative or positive relative to default forward.
-	transform_component->rotation.y = -Sign(movement_forward->x) * acos(XMVectorGetX(cos_angle));
-
 }
 #pragma endregion
 #pragma region DynamicMovementInitSystem
