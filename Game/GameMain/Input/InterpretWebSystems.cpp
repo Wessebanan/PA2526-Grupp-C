@@ -4,6 +4,9 @@
 #include "..//gameAI/AIComponents.h"
 #include "..//gameTraps//TrapEvents.h"
 #include "GridProp.h"
+#include "../gameUtility/UtilityComponents.h"
+
+#include "InitInputBackendComponent.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -111,6 +114,7 @@ ecs::systems::TrapEventSystem::TrapEventSystem()
 	updateType = ecs::EntityUpdate;
 	typeFilter.addRequirement(ecs::components::UserButtonComponent::typeID);
 	typeFilter.addRequirement(ecs::components::UserTileComponent::typeID);
+	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
 }
 
 ecs::systems::TrapEventSystem::~TrapEventSystem()
@@ -135,23 +139,29 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 					int2 gridSize = p_gp->GetSize();
 
-					int partionX = gridSize.x / 3;
-					int partionY = gridSize.y / 3;
+					// Divide into 9 posible diffrent sections 
+					int partionX = (gridSize.x - 6) / 3;
+					int partionY = (gridSize.y - 6) / 3;
 
-					int tileIndexX = p_tile_comp->userTiles[i].mCordX * partionX;
-					int tileIndexY = p_tile_comp->userTiles[i].mCordY * partionY;
+					int tileIndexX = ((p_tile_comp->userTiles[i].mCordX * partionX) + (rand() % partionX));
+					int tileIndexY = ((p_tile_comp->userTiles[i].mCordY * partionY) + (rand() % partionY));
+					tileIndexX += 3;
+					tileIndexY += 3;
 
 					TypeID tile_ID;
-
-					tileIndexX += rand() % partionX;
-					tileIndexY += rand() % partionY;
 					
+					int loops = 0;
+					// Loop until we its a tile the units can go on
 					while (!p_gp->mGrid[tileIndexX][tileIndexY].isPassable)
 					{
-						tileIndexX += rand() % partionX;
-						tileIndexY += rand() % partionY;
+						tileIndexX = (p_tile_comp->userTiles[i].mCordX * partionX) + (rand() % partionX);
+						tileIndexY = (p_tile_comp->userTiles[i].mCordY * partionY) + (rand() % partionY);
+						tileIndexX += 3;
+						tileIndexY += 3;
+
+						loops++;
 					}
-					tile_ID = p_gp->mGrid[tileIndexX][tileIndexY].Id;
+					tile_ID = p_gp->mGrid[tileIndexY][tileIndexX].Id;
 
 
 					ecs::events::PlaceTrapEvent eve;
@@ -159,9 +169,21 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 					eve.tileID = tile_ID;
 
 					// Last part is falesafe if something would go wrong from the website
-					eve.type = (TRAPTYPES)(p_butt_comp->userButtons[i].mButton % TRAPTYPES::SIZE);
+					eve.type = (TRAPTYPES)(p_butt_comp->userButtons[i].mButton % TRAPTYPES::TRAPCOUNT);
 
 					createEvent(eve);
+
+					// For debugging, remove when placing trap system is online
+					TransformComponent* p_trans = getComponentFromKnownEntity<TransformComponent>(eve.tileID);
+					if (p_trans)
+					{
+						p_trans->position.y = 5.0f;
+					}
+
+				
+					InputBackendComp* p_backend = _entityInfo.getComponent<InputBackendComp>();
+
+					p_backend->backend->resetUserButtonAndTile(i);
 				}
 			}
 		}

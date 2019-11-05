@@ -424,6 +424,15 @@ int WebConnection::GetUserTile(int player, int axis)
 	return mUsers[player].tile[axis];
 }
 
+void WebConnection::resetUserTrap(int player)
+{
+
+	mUsers[player].button = -1;
+
+	mUsers[player].tile[0] = -1;
+	mUsers[player].tile[1] = -1;
+}
+
 string WebConnection::GetUserCommand(int player)
 {
 	string str = mUsers[player].command;
