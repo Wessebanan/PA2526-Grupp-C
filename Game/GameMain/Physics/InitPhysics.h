@@ -37,6 +37,11 @@ inline void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* ppM
 
 inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 {
+	// Quad Tree
+	rEcs.createSystem<ecs::systems::InitQuadTreeSystem>(0);
+	rEcs.createSystem<ecs::systems::FillQuadTreeSystem>(0);
+	rEcs.createSystem<ecs::systems::EmptyQuadTreeSystem>(9);
+
 	// Movement
 	rEcs.createSystem<ecs::systems::DynamicMovementInitSystem>();
 	rEcs.createSystem<ecs::systems::DynamicMovementSystem>();
