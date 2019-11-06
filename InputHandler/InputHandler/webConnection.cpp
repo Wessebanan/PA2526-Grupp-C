@@ -218,68 +218,88 @@ void WebConnection::PlayersJoin()
 {
 	this->mRunPlayerJoin = true;
 
-		while (this->mRunThread && this->mRunPlayerJoin)
+	while (this->mRunThread && this->mRunPlayerJoin)
+	{
+		fd_set copy = mMaster;
+
+		//cout << this->msgToClient << endl;
+
+		int socketCount = select(0, &copy, 0, 0, 0);
+
+		for (size_t i = 0; i < socketCount; i++)
 		{
-			fd_set copy = mMaster;
+		//	cout << "-i " << i << endl;
+			SOCKET sock = copy.fd_array[i];
 
-			//cout << this->msgToClient << endl;
-
-			int socketCount = select(0, &copy, 0, 0, 0);
-
-			for (size_t i = 0; i < socketCount; i++)
+			// if the socket is the listener in the array
+			if (sock == mListenSocket)
 			{
-			//	cout << "-i " << i << endl;
-				SOCKET sock = copy.fd_array[i];
+				this->AddUserSocket(sock);
+			}
+			else // its the cliet socket
+			{
+				iResult = recv(sock, recvbuf, recvbuflen, 0);
 
-				// if the socket is the listener in the array
-				if (sock == mListenSocket)
+				if (iResult <= 0 || iResult == 8)
 				{
-					this->AddUserSocket(sock);
+					this->RemoveUserSocket(sock, iResult);
 				}
-				else // its the cliet socket
+				else
 				{
-					iResult = recv(sock, recvbuf, recvbuflen, 0);
+					recvbuf[iResult] = 0;
 
-					if (iResult <= 0 || iResult == 8)
+					char sendbuf[1024];
+					size_t sendbuf_size = 0;
+
+					// Connect if it hasnt
+					if (this->CheckForKey(sock, recvbuf, iSendResult))
 					{
-						this->RemoveUserSocket(sock, iResult);
+						cout << "-A key was sent in joining phase" << endl;
+
+						// What userslot they have
+						string ss;
+						ss += "2. USER " + to_string(IdPlayerSocket(sock) + 1);
+						this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
 					}
+					// if the socket is the listener in the array
 					else
 					{
-						recvbuf[iResult] = 0;
+						//cout << endl << "___We just got a message from " << this->IdUserSocket(sock) << endl;
 
-						char sendbuf[1024];
-						size_t sendbuf_size = 0;
+						char* user_msg = ReciveMsg(sock, recvbuf, iSendResult);
 
-						// Connect if it hasnt
-						if (this->CheckForKey(sock, recvbuf, iSendResult))
+						string str1 = user_msg;
+
+						if (!str1.compare(string("join")))
 						{
-							cout << "-A key was sent in joining phase" << endl;
-							string ss;
-							ss += "3. PLAYER " + to_string(IdUserSocket(sock) + 1);
-							this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
-						}
-						// if the socket is the listener in the array
-						else
-						{
-							//cout << endl << "___We just got a message from " << this->IdUserSocket(sock) << endl;
-
-							char* user_msg = ReciveMsg(sock, recvbuf, iSendResult);
-
-							string str1 = user_msg;
-
-							if (!str1.compare(string("start")))
+							if (nrOfPlayers < mMaxmPlayerSockets)
 							{
-								this->GameLoop();
+								mPlayerSockets[this->nrOfPlayers] = sock;
+								nrOfPlayers++;
+
+								// Send data to the player joining
+
+								// What playerslot they have
+								string ss;
+								ss += "3. PLAYER " + to_string(IdPlayerSocket(sock) + 1);
+								this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
+
+								// Set it in waiting state
+								ss = "pwait";
+								this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
 							}
 						}
+						else if (!str1.compare(string("start")))
+							this->GameLoop();
+
 					}
 				}
 			}
 		}
+	}
 
 
-		printf("Closing playerJoin ...\n");
+	printf("Closing playerJoin ...\n");
 }
 
 void WebConnection::GameLoop()
@@ -297,17 +317,6 @@ void WebConnection::GameLoop()
 	while (this->mRunThread && this->mRunGameLoop)
 	{
 		fd_set copy = mMaster;
-		
-		//int p = 1;
-		//while (p <= 4)
-		//{
-		//	// Broadcast channel in the futore
-		//	string ss;
-		//	ss += "3. PLAYER " + to_string(p);
-		//	if (this->mUserSockets[p] != INVALID_SOCKET)
-		//		this->SendMsg(this->mUserSockets[p], (char*)ss.c_str(), iSendResult);
-		//	p++;
-		//}
 
 		int socketCount = select(0, &copy, 0, 0, 0);
 
@@ -341,9 +350,8 @@ void WebConnection::GameLoop()
 					// Connect if it hasnt
 					if (this->CheckForKey(sock, recvbuf, iSendResult))
 					{
-						string ss;
-						ss += "3. PLAYER " + to_string(IdUserSocket(sock) + 1);
-						this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
+						
+						
 					}
 					// if the socket is the listener in the array
 					else
@@ -353,6 +361,8 @@ void WebConnection::GameLoop()
 						char* user_msg = ReciveMsg(sock, recvbuf, iSendResult);
 
 						BroadcastMsg("Recived mesages: " + to_string(nrMsg++));
+
+						string str1 = user_msg;
 
 						cout << user_msg << endl;
 						if (user_msg[0] == '0')
@@ -364,13 +374,51 @@ void WebConnection::GameLoop()
 							}
 							else
 							{
-								wmd.player = IdUserSocket(sock);
+								wmd.player = IdPlayerSocket(sock);
 
 								cout << "-From player " << wmd.player << endl
 									<< user_msg << endl;
 
 								ExecuteUserAction(wmd);
 							}
+						}
+						else if (!str1.compare(string("join")))
+						{
+							if (nrOfPlayers < mMaxmPlayerSockets)
+							{
+								mPlayerSockets[this->nrOfPlayers] = sock;
+								nrOfPlayers++;
+								string ss;
+								ss += "3. PLAYER " + to_string(IdPlayerSocket(sock) + 1);
+								this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
+
+								ss = "";
+								ss += "2. USER " + to_string(IdUserSocket(sock) + 1);
+								this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
+
+								// send out gamestate to the new user
+								char* gamestate_msg = (char*)"perror";
+
+								switch (mWebGameState)
+								{
+								case PREPPHASE:
+									gamestate_msg = (char*)"pprep";
+									break;
+								case BATTLEPHASE:
+									gamestate_msg = (char*)"pbattle";
+									break;
+								case WAITING:
+									gamestate_msg = (char*)"pwait";
+									break;
+								default:
+									gamestate_msg = (char*)"perror";
+									break;
+								}
+
+								this->SendMsg(sock, gamestate_msg, iSendResult);
+							}
+							else
+								BroadcastMsg("1. User tried to join full game");
 						}
 						else
 						{
@@ -472,9 +520,9 @@ bool WebConnection::SetGamestate(WEBGAMESTATE gamestate)
 			break;
 		}
 
-		for (size_t i = 0; i < mMaxmUserSockets; i++)
+		for (size_t i = 0; i < mMaxmPlayerSockets; i++)
 		{
-			this->SendMsg(mUserSockets[i], gamestate_msg, iSendResult);
+			this->SendMsg(mPlayerSockets[i], gamestate_msg, iSendResult);
 		}
 
 		this->mWebGameState = gamestate;
@@ -508,6 +556,29 @@ DWORD WINAPI WebConnection::StaticThreadStart(LPVOID lpParam)
 
 	printf("Closing thread\n");
 	return 0;
+}
+
+int WebConnection::IdPlayerSocket(SOCKET sock)
+{
+	int player = -1;
+	//cout << "-Nr of Players getID: " << nrOfPlayers << endl;
+	if (sock == INVALID_SOCKET)
+	{
+		cout << "-Asked for ID of invlaid_socket" << endl;
+	}
+	else if (sock == 0)
+	{
+		cout << "-Asked for ID of 0 socket" << endl;
+	}
+	else
+		for (size_t p = 0; p < this->mMaxmPlayerSockets; p++)
+		{
+			if (sock == this->mPlayerSockets[p])
+			{
+				player = p;
+			}
+		}
+	return player;
 }
 
 int WebConnection::IdUserSocket(SOCKET sock)
@@ -720,6 +791,11 @@ bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 					break;
 				}
 			}
+
+			id = IdPlayerSocket(sock);
+			this->mPlayerSockets[id] = INVALID_SOCKET;
+			nrOfPlayers--;
+
 			cout << "--The user closed--" << endl;
 			return true;
 		}
@@ -739,6 +815,11 @@ bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 					break;
 				}
 			}
+
+			id = IdPlayerSocket(sock);
+			this->mPlayerSockets[id] = INVALID_SOCKET;
+			nrOfPlayers--;
+
 			cout << "--The user closed--" << endl;
 			return true;
 		}

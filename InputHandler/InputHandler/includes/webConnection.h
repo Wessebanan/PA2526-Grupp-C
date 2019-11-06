@@ -176,6 +176,7 @@ private:
 	//Send out msg to all players
 	void BroadcastMsg(string msg);
 	// Identifies what player the current socket is
+	int IdPlayerSocket(SOCKET sock);
 	int IdUserSocket(SOCKET sock);
 	// takes in the a new message
 	char* ReciveMsg(SOCKET sock, char* recvbuf, int& Res);
@@ -199,6 +200,8 @@ private:
 
 	int nrOfPlayers;
 	const int mMaxmUserSockets = 30;
+	const int mMaxmPlayerSockets = 4;
+	SOCKET mPlayerSockets[4];
 	SOCKET mUserSockets[30];
 	fd_set mMaster; 
 
