@@ -169,7 +169,7 @@ private:
 	// Players joining the game
 	void PlayersJoin();
 	// Gameloop for getting controll information from web
-	void GameLoop();
+	//void GameLoop();
 
 
 	// FUNCTIONS FOR INTERACTIONS
@@ -202,7 +202,7 @@ private:
 	int nrOfPlayers;
 	const int mMaxmUserSockets = 30;
 	const int mMaxmPlayerSockets = 4;
-	SOCKET mPlayerSockets[4];
+	int mPlayerSockets[4];
 	SOCKET mUserSockets[30];
 	fd_set mMaster; 
 
