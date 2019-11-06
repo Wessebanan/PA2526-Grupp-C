@@ -5,6 +5,7 @@
 #include "../Input/InitInputComponents.h"
 #include "GlobalsCamera.h"
 #include "GridProp.h"
+#include "../../..//Physics/Physics/includes/PhysicsHelperFunctions.h"
 #include <iostream>
 
 using namespace DirectX;
@@ -129,11 +130,24 @@ namespace ecs
 			virtual ~UpdateDynamicCameraSystem() {}
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{
-				//cam_entity.entity->getID();
+				ecs::components::CameraComponent* cam_component = entity.getComponent<ecs::components::CameraComponent>();
+				ecs::components::TransformComponent* cam_transform = entity.getComponent<ecs::components::TransformComponent>();
+				XMFLOAT4 targetPos = cam_component->target;
+				targetPos.x += 2.0f;
+				targetPos.y += 2.0f;
+
+				XMVECTOR target_pos = XMLoadFloat4(&cam_component->target);
+				XMVECTOR start_pos = XMLoadFloat3(&cam_transform->position) - target_pos;
+				XMVECTOR end_pos = XMLoadFloat4(&targetPos) - target_pos;
+				XMVECTOR new_camera_pos = this->Nlerp(start_pos, end_pos);
+				new_camera_pos = target_pos + (XMVector3Length(start_pos) + mPercent * (XMVector3Length(end_pos) - XMVector3Length(start_pos))) * new_camera_pos;
+				XMStoreFloat3(&cam_transform->position, new_camera_pos);
+				this->UpdateViewMatrix(*cam_component, *cam_transform);
 			}
 		private:
 			ID mCamEntityId;
-			const float mT = 0.1f;
+			const float mT = 0.001f;
+			const float mPercent = 0.002;
 			inline void GetTargetPosition(DirectX::XMVECTOR& rTarget, DirectX::XMVECTOR& rOrigin)
 			{
 				// Zero rTarget
@@ -161,25 +175,43 @@ namespace ecs
 				// Normalize
 				rTarget = DirectX::XMVector3Normalize(rTarget);
 			}
-			XMFLOAT3 Slerping(const XMFLOAT3& v1, const XMFLOAT3& v2)
+			XMVECTOR Lerp(const XMVECTOR& v1, const XMVECTOR& v2)
+			{
+				XMVECTOR vec_lerp = v1 + mPercent * (v2 - v1);
+				return vec_lerp;
+			}
+			XMFLOAT3 Slerp(const XMFLOAT3& v1, const XMFLOAT3& v2)
 			{
 				//Initialize variables and store the vectors XMVECTOR:s so that we can work with them.
 				XMFLOAT3 return_position;
 				float omega;
 				XMVECTOR vec_1 = XMLoadFloat3(&v1);
 				XMVECTOR vec_2 = XMLoadFloat3(&v2);
+				XMVECTOR vec_1_norm = XMVector3Normalize(vec_1);
+				XMVECTOR vec_2_norm = XMVector3Normalize(vec_2);
 				XMVECTOR new_position;
 				XMVECTOR dot;
 				//Calculate dot between the two positions on the dome.
-				dot = XMVector3Dot(vec_1, vec_2);
+				dot = XMVector3Dot(vec_1_norm, vec_2_norm);
 				omega = XMVectorGetX(dot);
+				omega = asinf(omega);
 				//Calculate the new position along the dome using the Slerp algorithm.
-				new_position = (sin((1 - mT) * omega) * vec_1 + sin(mT * omega) * vec_2) / sin(omega);
-				//Prepare and return the new position.
+				new_position = (sinf((1.0f - mT) * omega) * vec_1_norm + sinf(mT * omega) * vec_2_norm) / sinf(omega);
+				
+				//(1.0f - mT)* vec_1 + mT * vec_2;//
+
 				XMStoreFloat3(&return_position, new_position);
+				//return v1;
 				return return_position;
 			}
-			XMFLOAT3 UpdateViewMatrix(ecs::components::CameraComponent& cam, ecs::components::TransformComponent& camTransform)
+			XMVECTOR Nlerp(const XMVECTOR& v1, const XMVECTOR& v2)
+			{
+				XMVECTOR vec_norm = Lerp(v1, v2);
+				vec_norm = XMVector3Normalize(vec_norm);
+				return vec_norm;
+			}
+
+			void UpdateViewMatrix(ecs::components::CameraComponent& cam, ecs::components::TransformComponent& camTransform)
 			{
 				XMMATRIX view = XMMatrixIdentity();
 				XMVECTOR cam_pos = XMLoadFloat3(&camTransform.position);
@@ -188,7 +220,10 @@ namespace ecs
 				view = XMMatrixLookAtLH(cam_pos, cam_target, cam_up);
 				XMStoreFloat4x4(&cam.viewMatrix, view);
 			}
+
 		};
+
+
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////
