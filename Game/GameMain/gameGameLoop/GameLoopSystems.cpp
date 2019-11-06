@@ -84,6 +84,21 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	}
 
 
+	ComponentIterator itt;;
+	
+	// Here a gamestate chekc should go but not implemented yet
+	// Puts the players into prep phase
+	itt = getComponentsOfType<InputBackendComp>();
+	InputBackendComp* p_ib;
+	while (p_ib = (InputBackendComp*)itt.next())
+	{
+		if (p_ib->backend->checkReadyCheck())
+		{
+			// Starts the first round, should be removed when prepphase is implemented
+			ecs::events::RoundStartEvent eve;
+			createEvent(eve);
+		}
+	}
 }
 
 ///////////////////
@@ -179,9 +194,7 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 			p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
 		}
 
-		// Starts the first round, should be removed when prepphase is implemented
-		ecs::events::RoundStartEvent eve;
-		createEvent(eve);
+		
 
 	}
 }

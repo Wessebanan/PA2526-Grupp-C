@@ -471,10 +471,16 @@ bool WebConnection::SetGamestate(WEBGAMESTATE gamestate)
 bool WebConnection::ReadyCheck()
 {
 	bool ret_val = true;
+	getNrOfPlayers();
+	if (nrOfPlayers == 0)
+	{
+		ret_val = false;
+	}
 	for (size_t i = 0; i < 4; i++)
 	{
-		if (!mUsers[i].ready)
-			ret_val = false;
+		if(mPlayerSockets[i] != -1) 
+			if (mUsers[i].ready == false)
+				ret_val = false;
 	}
 
 	if(ret_val)
