@@ -140,28 +140,28 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 					int2 gridSize = p_gp->GetSize();
 
 					// Divide into 9 posible diffrent sections 
-					int partionX = (gridSize.x - 6) / 3;
-					int partionY = (gridSize.y - 6) / 3;
+					int partion_x = (gridSize.x - 6) / 3;
+					int partion_y = (gridSize.y - 6) / 3;
 
-					int tileIndexX = ((p_tile_comp->userTiles[i].mCordX * partionX) + (rand() % partionX));
-					int tileIndexY = ((p_tile_comp->userTiles[i].mCordY * partionY) + (rand() % partionY));
-					tileIndexX += 3;
-					tileIndexY += 3;
+					int tile_index_x = ((p_tile_comp->userTiles[i].mCordX * partion_x) + (rand() % partion_x));
+					int tile_index_y = ((p_tile_comp->userTiles[i].mCordY * partion_y) + (rand() % partion_y));
+					tile_index_x += 3;
+					tile_index_y += 3;
 
 					TypeID tile_ID;
 					
 					int loops = 0;
 					// Loop until we its a tile the units can go on
-					while (!p_gp->mGrid[tileIndexX][tileIndexY].isPassable)
+					while (!p_gp->mGrid[tile_index_x][tile_index_y].isPassable)
 					{
-						tileIndexX = (p_tile_comp->userTiles[i].mCordX * partionX) + (rand() % partionX);
-						tileIndexY = (p_tile_comp->userTiles[i].mCordY * partionY) + (rand() % partionY);
-						tileIndexX += 3;
-						tileIndexY += 3;
+						tile_index_x = (p_tile_comp->userTiles[i].mCordX * partion_x) + (rand() % partion_x);
+						tile_index_y = (p_tile_comp->userTiles[i].mCordY * partion_y) + (rand() % partion_y);
+						tile_index_x += 3;
+						tile_index_y += 3;
 
 						loops++;
 					}
-					tile_ID = p_gp->mGrid[tileIndexY][tileIndexX].Id;
+					tile_ID = p_gp->mGrid[tile_index_y][tile_index_x].Id;
 
 
 					ecs::events::PlaceTrapEvent eve;
