@@ -217,6 +217,9 @@ void WebConnection::SetPing(webMsgData wmd)
 void WebConnection::PlayersJoin()
 {
 	this->mRunPlayerJoin = true;
+	int nrMsg = 0;
+
+	this->mWebGameState = WEBGAMESTATE::WAITING;
 
 	while (this->mRunThread && this->mRunPlayerJoin)
 	{
@@ -258,25 +261,25 @@ void WebConnection::PlayersJoin()
 
 						// What userslot they have
 						string ss;
-						ss += "2. USER " + to_string(IdPlayerSocket(sock) + 1);
+						ss += "2. USER " + to_string(IdUserSocket(sock) + 1);
 						this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
 					}
 					// if the socket is the listener in the array
 					else
 					{
-						//cout << endl << "___We just got a message from " << this->IdUserSocket(sock) << endl;
-
+						BroadcastMsg("Recived mesages: " + to_string(nrMsg++));
+						
 						char* user_msg = ReciveMsg(sock, recvbuf, iSendResult);
+
+						cout << user_msg << endl;
 
 						string str1 = user_msg;
 
 						if (!str1.compare(string("join")))
 						{
-							if (nrOfPlayers < mMaxmPlayerSockets)
+							//if (nrOfPlayers < mMaxmPlayerSockets)
+							if (AddPlayerSocket(sock))
 							{
-								mPlayerSockets[this->nrOfPlayers] = sock;
-								nrOfPlayers++;
-
 								// Send data to the player joining
 
 								// What playerslot they have
@@ -284,13 +287,49 @@ void WebConnection::PlayersJoin()
 								ss += "3. PLAYER " + to_string(IdPlayerSocket(sock) + 1);
 								this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
 
-								// Set it in waiting state
-								ss = "pwait";
-								this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
+								// send out gamestate to the new user
+								char* gamestate_msg = (char*)"perror";
+
+								switch (mWebGameState)
+								{
+								case PREPPHASE:
+									gamestate_msg = (char*)"pprep";
+									break;
+								case BATTLEPHASE:
+									gamestate_msg = (char*)"pbattle";
+									break;
+								case WAITING:
+									gamestate_msg = (char*)"pwait";
+									break;
+								default:
+									gamestate_msg = (char*)"perror";
+									break;
+								}
+
+								this->SendMsg(sock, gamestate_msg, iSendResult);
 							}
 						}
-						else if (!str1.compare(string("start")))
-							this->GameLoop();
+						else if (user_msg[0] == '0') // It was a message to parse
+						{
+							webMsgData wmd = ParseMsg(user_msg);
+							if (wmd.player == -1)
+							{
+								cout << "-Couldnt parse msg form user" << endl;
+							}
+							else
+							{
+								wmd.player = IdPlayerSocket(sock);
+
+								cout << "-From player " << wmd.player << endl
+									<< user_msg << endl;
+
+								ExecuteUserAction(wmd);
+							}
+						}
+						else
+						{
+							this->RemoveUserSocket(sock, iResult);
+						}
 
 					}
 				}
@@ -305,8 +344,6 @@ void WebConnection::PlayersJoin()
 void WebConnection::GameLoop()
 {
 	this->mRunGameLoop = true;
-	int startCount = mMaster.fd_count;
-
 	cout << "--------------------------------" << endl;
 	cout << "---------STARTING GAME----------" << endl;
 	cout << "--------------------------------" << endl;
@@ -384,10 +421,9 @@ void WebConnection::GameLoop()
 						}
 						else if (!str1.compare(string("join")))
 						{
-							if (nrOfPlayers < mMaxmPlayerSockets)
+							//if (nrOfPlayers < mMaxmPlayerSockets)
+							if (AddPlayerSocket(sock))
 							{
-								mPlayerSockets[this->nrOfPlayers] = sock;
-								nrOfPlayers++;
 								string ss;
 								ss += "3. PLAYER " + to_string(IdPlayerSocket(sock) + 1);
 								this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
@@ -765,6 +801,9 @@ bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 	}
 	else
 	{
+		int id = IdUserSocket(sock);
+		int player_id = IdPlayerSocket(sock);
+
 		if (error == 0)
 		{
 			printf("Connection closing...\n");
@@ -775,9 +814,8 @@ bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 		}
 		else if (error < 0)
 		{
-			int id = IdUserSocket(sock);
 			printf("recv failed with error < 0 : %d\n", WSAGetLastError());
-			
+
 			// Failed with handshake
 
 			closesocket(sock);
@@ -787,23 +825,19 @@ bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 			{
 				if (mMaster.fd_array[i] == 0)
 				{
-					this->mMaster.fd_array[i - 1] = 0;
+					this->mMaster.fd_array[id] = this->mMaster.fd_array[i - 1];
+					//this->mMaster.fd_array[i - 1] = 0;
 					break;
 				}
 			}
 
-			id = IdPlayerSocket(sock);
-			this->mPlayerSockets[id] = INVALID_SOCKET;
-			nrOfPlayers--;
 
 			cout << "--The user closed--" << endl;
-			return true;
 		}
 		else if (error == 8)
 		{
 			// User Closed site
 			printf("recv failed with error 8: %d\n", WSAGetLastError());
-			int id = IdUserSocket(sock);
 			closesocket(sock);
 			FD_CLR(sock, &mMaster);
 			this->mUserSockets[id] = INVALID_SOCKET;
@@ -811,18 +845,22 @@ bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 			{
 				if (mMaster.fd_array[i] == 0)
 				{
-					this->mMaster.fd_array[i-1] = 0;
+					this->mMaster.fd_array[id] = this->mMaster.fd_array[i - 1];
 					break;
 				}
 			}
 
-			id = IdPlayerSocket(sock);
-			this->mPlayerSockets[id] = INVALID_SOCKET;
-			nrOfPlayers--;
-
 			cout << "--The user closed--" << endl;
-			return true;
 		}
+		else
+			return false;
+
+
+		this->mPlayerSockets[player_id] = INVALID_SOCKET;
+		nrOfPlayers--;
+
+
+		return true;
 	}
 	
 	return false;
@@ -842,13 +880,39 @@ bool WebConnection::AddUserSocket(SOCKET sock)
 
 	cout << "-Assigning user to slot: " << first_empty << endl;
 
+	// Return false if there was no avalibe socket
+	if (first_empty == mMaxmUserSockets)
+		return false;
+
 	// Add the connection to one of the new clients
 	this->mUserSockets[first_empty] = accept(mListenSocket, nullptr, nullptr);
 
 	// Adds to the mMaster
 	FD_SET(this->mUserSockets[first_empty], &mMaster);
 
-	//this->nrOfPlayers++;
+	return true;
+}
+bool WebConnection::AddPlayerSocket(SOCKET sock)
+{
+	int first_empty = 0;
+	for (size_t i = 0; i < mMaxmPlayerSockets; i++)
+	{
+		if (mPlayerSockets[i] == INVALID_SOCKET)
+		{
+			first_empty = i;
+			break;
+		}
+	}
+
+	cout << "-Assigning PLAYER to slot: " << first_empty << endl;
+
+	// Return false if there was no avalibe socket
+	if (first_empty == mMaxmPlayerSockets)
+		return false;
+
+	mPlayerSockets[first_empty] = sock;
+	this->nrOfPlayers++;
+
 	return false;
 }
 
@@ -857,7 +921,6 @@ void WebConnection::ShutDownSocket(SOCKET sock)
 	cout << "Closing dow a socket" << endl;
 	closesocket(sock);
 	FD_CLR(sock, &mMaster);
-	//this->nrOfPlayers--;
 
 	WSACleanup();
 

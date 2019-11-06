@@ -186,6 +186,7 @@ private:
 	bool RemoveUserSocket(SOCKET sock, int error);
 	// adds the new socket to the mUserSockets list
 	bool AddUserSocket(SOCKET sock);
+	bool AddPlayerSocket(SOCKET sock);
 
 
 
