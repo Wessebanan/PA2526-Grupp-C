@@ -44,5 +44,5 @@ float4 main(PSIN input) : SV_TARGET
 	float3 ambient = input.color.rgb * 0.1f;
 	float3 diffuse = input.color.rgb * in_shadow * 0.8f * clamp((is_up > 0.9f), 0.8f, 1.0f);
 
-	return float4(ambient + diffuse, 0.0f);
+	return float4(ambient + diffuse, 1.0f);
 }

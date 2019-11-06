@@ -199,7 +199,7 @@ static void GenerateTileMesh(EntityComponentSystem& rEcs, void** pVertexBuffer, 
 
 		p_color = r_tile.getComponent<ColorComponent>();
 		p_transform = r_tile.getComponent<TransformComponent>();
-		xm_world = XMMatrixScaling(0.99f, 2.0f, 0.99f); // delete if there's no interest for a gap
+		xm_world = XMMatrixScaling(0.975f, 2.0f, 0.975f); // delete if there's no interest for a gap
 		xm_world *= XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
 
 		for (int i : r_mesh_indices)
