@@ -6,6 +6,8 @@
 #include "../../AI/includes/GridFunctions.h"
 #include <DirectXMath.h>
 
+#include "../gameWorld/WorldComponents.h"
+
 using namespace ecs;
 using namespace ecs::components;
 using namespace DirectX;
@@ -26,7 +28,8 @@ namespace GridEcsFunctions
 
 		const int mapsze = MAX_ARENA_ROWS*MAX_ARENA_ROWS; // Max size
 		float height_map[mapsze];
-		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60, holmes);
+		std::vector<IsletTileCoordinate> islet_coordinates;
+		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60, holmes, islet_coordinates);
 
 
 		GridProp* p_gp = GridProp::GetInstance();
@@ -84,8 +87,28 @@ namespace GridEcsFunctions
 					p_gp->mGrid[i][j].biome = -1;
 				}
 
-				//Create the new entity
+
+				/*
+					Create the new entity.
+					If current tile belongs to an islet, add an IsletComponent to it
+				*/
+
+				components::IsletComponent islet_comp_info;
+
 				current_tile = rEcs.createEntity(transform, color, tile);
+
+				// Check if islet
+				for (size_t k = 0; k < islet_coordinates.size(); k++)
+				{
+					if (islet_coordinates[k].IsThisMyCoordinate(i, j))
+					{
+						islet_comp_info.playerId = islet_coordinates[k].player;
+						islet_coordinates.erase(islet_coordinates.begin() + k); // Remove islet coord, as it wont appear twice and we don't need to check it again.
+						rEcs.createComponent(current_tile->getID(), islet_comp_info);
+						break;
+					}
+				}
+
 				p_gp->mGrid[i][j].Id = current_tile->getID(); // Crashes here is likley from not having engough components allocated
 				p_gp->mGrid[i][j].height = transform.position.y;
 				//Update the x-position of the next tile in this row.
