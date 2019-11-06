@@ -329,6 +329,15 @@ void WebConnection::PlayersJoin()
 							else
 								BroadcastMsg("1. User tried to join full game");
 						}
+						else if (!str1.compare(string("ready"))) // It was a message to parse
+						{
+							mUsers[IdPlayerSocket(sock)].ready = !mUsers[IdPlayerSocket(sock)].ready;
+
+							// Return what readystate you are
+							string ss;
+							ss += "1. Your ready state is now " + to_string(mUsers[IdPlayerSocket(sock)].ready);
+							this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
+						}
 						else if (user_msg[0] == '0') // It was a message to parse
 						{
 							webMsgData wmd = ParseMsg(user_msg);
@@ -455,6 +464,24 @@ bool WebConnection::SetGamestate(WEBGAMESTATE gamestate)
 	}
 
 
+
+	return ret_val;
+}
+
+bool WebConnection::ReadyCheck()
+{
+	bool ret_val = true;
+	for (size_t i = 0; i < 4; i++)
+	{
+		if (!mUsers[i].ready)
+			ret_val = false;
+	}
+
+	if(ret_val)
+		for (size_t i = 0; i < 4; i++)
+		{
+			mUsers[i].ready = false;
+		}
 
 	return ret_val;
 }

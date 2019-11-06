@@ -397,6 +397,13 @@
            //document.getElementById('startfield').innerHTML = "SENT start";
            //openCommand();
        }
+       function ready()
+       {
+           socket.send("ready");
+        
+           //document.getElementById('startfield').innerHTML = "SENT start";
+           //openCommand();
+       }
        function join()
        {
            socket.send("join");
@@ -524,7 +531,7 @@
 
         <button onclick="join()">JOIN</button>
 
-        <button onclick="start()">READY</button>
+        <button onclick="ready()">READY</button>
 
 
     </div>
