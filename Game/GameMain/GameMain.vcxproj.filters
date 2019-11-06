@@ -242,9 +242,6 @@
     <ClInclude Include="gameWorld\WorldSettings.h">
       <Filter>World</Filter>
     </ClInclude>
-    <ClInclude Include="gameWorld\OceanComponents.h">
-      <Filter>World</Filter>
-    </ClInclude>
     <ClInclude Include="gameGameLoop\GameLoopSystems.h">
       <Filter>GameECS</Filter>
     </ClInclude>
@@ -306,6 +303,9 @@
       <Filter>Audio</Filter>
     </ClInclude>
     <ClInclude Include="GameGlobals.h" />
+    <ClInclude Include="gameWorld\WorldComponents.h">
+      <Filter>World</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">

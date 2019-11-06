@@ -10,5 +10,10 @@ namespace ecs
 		{
 
 		};
+
+		struct IsletComponent : public ECSComponent<IsletComponent>
+		{
+			ID playerId;
+		};
 	}
 }
