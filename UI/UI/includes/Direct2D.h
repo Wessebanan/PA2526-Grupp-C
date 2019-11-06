@@ -14,7 +14,7 @@
 #pragma comment (lib, "d3d11")
 
 
-#define BITMAP_NAME_LENGTH 10
+#define BITMAP_NAME_LENGTH 16
 #define COLOR_BRUSHES 8
 #define NR_OF_FORMATS 3
 //struct BitmapInfo
@@ -76,8 +76,9 @@ public:
 
 	void InitDeviceAndContext(IDXGIDevice* dxgiDevice); //Takes dxgidevice from dx11 and creates d2d device and device context
 	ID2D1DeviceContext* GetpContext();
-	HRESULT LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
-	ID2D1Bitmap* GetBitmap(char* bitmapName);//returns bitmap
+	//Loads an image from a filepath into a bitmap and returns that bitmap, if fail return nullptr
+	ID2D1Bitmap1* LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
+	ID2D1Bitmap1* GetBitmap(char* bitmapName);//returns bitmap
 	ID2D1Bitmap1* GetBackbufferBitmap();
 	void setBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap);
 	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);
@@ -134,8 +135,8 @@ private:
 	bool mDeviceContextCreated = false;
 	//std::vector<BitmapInfo> mBitmapVector;
 
-	using BitmapMap = std::unordered_map<char*, ID2D1Bitmap*>; //unordered map of bitmaps
-	using BitmapPair = std::pair<char*, ID2D1Bitmap*>;
+	using BitmapMap = std::unordered_map<char*, ID2D1Bitmap1*>; //unordered map of bitmaps
+	using BitmapPair = std::pair<char*, ID2D1Bitmap1*>;
 	BitmapMap mBitmapList;
 
 	using BrushMap = std::unordered_map<char*, ID2D1SolidColorBrush*>; //unordered map of brushes (not in use now)

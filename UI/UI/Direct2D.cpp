@@ -182,15 +182,15 @@ ID2D1DeviceContext* Direct2D::GetpContext()
 	return this->mpContext;
 }
 
-HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]/*, D2D1_RECT_F drawRect*/) //loads an image to a bitmap map with bitmap and ID
+ID2D1Bitmap1* Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]/*, D2D1_RECT_F drawRect*/) //loads an image to a bitmap map with bitmap and ID
 {
 	HRESULT hr = E_FAIL;
 	//BitmapInfo new_bitmap_struct;
-	ID2D1Bitmap* new_bitmap = nullptr;
+	ID2D1Bitmap1* new_bitmap = nullptr;
 	//new_bitmap_struct.name = imageFilePath;
 	//new_bitmap_struct.drawArea = drawRect;
 	std::wstring w_str = this->mStrToWstrConverter(imageFilePath);
-	if (this->mHwndRenderTargetCreated)
+	if (this->mDeviceContextCreated)
 	{
 		if (SUCCEEDED(hr = this->mpWicFactory->CreateFormatConverter(&this->mpFormatConverter)))
 		{
@@ -200,9 +200,10 @@ HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[B
 				{
 					if (SUCCEEDED(hr = this->mpFormatConverter->Initialize(this->mpBitmapSrc, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 1.f, WICBitmapPaletteTypeMedianCut)))
 					{
-						if (SUCCEEDED(hr = this->mpHwndRenderTarget->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
+						if (SUCCEEDED(hr = this->mpContext->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
 						{
-							this->mBitmapList[bitmapName] = new_bitmap;
+							return new_bitmap;
+							//this->mBitmapList[bitmapName] = new_bitmap; //use this if someone forget to "fetch" the bitmap when this function is called or else you lose the pointer
 							//this->mBitmapNameID[bitmapName] = newID;
 						}
 					}
@@ -210,13 +211,13 @@ HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[B
 			}
 		}
 	}
-	return hr;
+	return nullptr;
 	//this->mBitmapVector.push_back(new_bitmap_struct);
 }
 
-ID2D1Bitmap* Direct2D::GetBitmap(char* bitmapName)
+ID2D1Bitmap1* Direct2D::GetBitmap(char* bitmapName)
 {
-	ID2D1Bitmap* to_return = nullptr;
+	ID2D1Bitmap1* to_return = nullptr;
 	for (BitmapPair pair : this->mBitmapList)
 	{
 		if (this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
