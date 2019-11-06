@@ -196,7 +196,7 @@ ID2D1Bitmap1* Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmap
 						if (SUCCEEDED(hr = this->mpContext->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
 						{
 							return new_bitmap;
-							//this->mBitmapList[bitmapName] = new_bitmap; //use this if someone forget to "fetch" the bitmap when this function is called or else you lose the pointer
+							this->mBitmapListChar[bitmapName] = new_bitmap; //use this if someone forget to "fetch" the bitmap when this function is called or else you lose the pointer
 						}
 					}
 				}
