@@ -311,8 +311,6 @@ namespace GridEcsFunctions
 		}
 
 		CreatePotentialField(rEcs);
-		GridFunctions::StoreNeighbours();
-		LoadNeighboursToComponents(rEcs);
 	}
 
 	void CreateDebugSystems(ecs::EntityComponentSystem& rEcs)
