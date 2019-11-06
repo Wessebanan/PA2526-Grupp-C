@@ -23,13 +23,13 @@ void initArmyText(ecs::EntityComponentSystem& rECS);
 void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 {
 	Direct2D* my_d2d;
-	rSystemPointers.UIpreSys	= rECS.createSystem<ecs::systems::UIPreRenderSystem>(8);
+	rSystemPointers.UIpreSys = rECS.createSystem<ecs::systems::UIPreRenderSystem>(8);
 	rSystemPointers.UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>(9);
-	rSystemPointers.UISolid		= rECS.createSystem<ecs::systems::UISolidRectSystem>(9);
-	rSystemPointers.UITextSys	= rECS.createSystem<ecs::systems::UITextSystem>(9);
-	rSystemPointers.UIrectSys	= rECS.createSystem<ecs::systems::UIRectSystem>(9);
-	rSystemPointers.UIDebugSys	= rECS.createSystem<ecs::systems::UIDebugSystem>(9);
-	rSystemPointers.UIpostSys	= rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
+	rSystemPointers.UISolid = rECS.createSystem<ecs::systems::UISolidRectSystem>(9);
+	rSystemPointers.UITextSys = rECS.createSystem<ecs::systems::UITextSystem>(9);
+	rSystemPointers.UIrectSys = rECS.createSystem<ecs::systems::UIRectSystem>(9);
+	rSystemPointers.UIDebugSys = rECS.createSystem<ecs::systems::UIDebugSystem>(9);
+	rSystemPointers.UIpostSys = rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
 	my_d2d = new Direct2D;
 
 	ID3D11Texture2D* p_backbuffer;
@@ -46,19 +46,28 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	BindTextureToBitmap(my_d2d, p_backbuffer);//Turn the texture to a surface then bind that surface to a Direct2D bitmap then draw things on that bitmap which is the backbuffer
 	p_backbuffer->Release();
 	//my_d2d->CreateHwndRenderTarget(window, graphics::GetClientResolution(window).x, graphics::GetClientResolution(window).y);
-	rSystemPointers.UIpreSys->mpD2D			= 
-		rSystemPointers.UISolid->mpD2D		= 
-		rSystemPointers.UITextSys->mpD2D	= 
-		rSystemPointers.UIpostSys->mpD2D	= 
+	rSystemPointers.UIpreSys->mpD2D			=
+		rSystemPointers.UISolid->mpD2D		=
+		rSystemPointers.UITextSys->mpD2D	=
+		rSystemPointers.UIpostSys->mpD2D	=
 		rSystemPointers.UIrectSys->mpD2D	=
-		rSystemPointers.UIBitmapSys->mpD2D  = 
-		rSystemPointers.UIDebugSys->mpD2D	= my_d2d;
+		rSystemPointers.UIDebugSys->mpD2D	= 
+		rSystemPointers.UIBitmapSys->mpD2D	= my_d2d;
 
 	ecs::components::UITextComponent text_comp;//temp debug text
 	text_comp.mStrText = "adkguhadigsdgkasgd";
 
 	rECS.createEntity(text_comp);
 
+	ecs::components::UIBitmapComponent bitmap_comp;
+	ecs::components::UIDrawPosComponent draw_pos;
+	bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("rob.png", "rob");
+	bitmap_comp.mName = "rob";
+	draw_pos.mDrawArea.left = graphics::GetDisplayResolution().x / 2 - 100;
+	draw_pos.mDrawArea.right = graphics::GetDisplayResolution().x / 2 + 100;
+	draw_pos.mDrawArea.top = 0;
+	draw_pos.mDrawArea.bottom = 200;
+	rECS.createEntity(bitmap_comp, draw_pos);
 	//initArmyText(rECS); //maybe use later donno 
 }
 void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)

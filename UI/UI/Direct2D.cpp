@@ -215,12 +215,56 @@ ID2D1Bitmap1* Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmap
 	//this->mBitmapVector.push_back(new_bitmap_struct);
 }
 
+ID2D1Bitmap1* Direct2D::LoadImageToBitmap(std::string imageFilePath, std::string bitmapName)
+{
+	HRESULT hr = E_FAIL;
+	//BitmapInfo new_bitmap_struct;
+	ID2D1Bitmap1* new_bitmap = nullptr;
+	//new_bitmap_struct.name = imageFilePath;
+	//new_bitmap_struct.drawArea = drawRect;
+	std::wstring w_str = this->mStrToWstrConverter(imageFilePath);
+	if (this->mDeviceContextCreated)
+	{
+		if (SUCCEEDED(hr = this->mpWicFactory->CreateFormatConverter(&this->mpFormatConverter)))
+		{
+			if (SUCCEEDED(hr = this->mpWicFactory->CreateDecoderFromFilename(w_str.c_str(), NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &this->mpDecoder)))
+			{
+				if (SUCCEEDED(hr = this->mpDecoder->GetFrame(0, &this->mpBitmapSrc)))
+				{
+					if (SUCCEEDED(hr = this->mpFormatConverter->Initialize(this->mpBitmapSrc, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 1.f, WICBitmapPaletteTypeMedianCut)))
+					{
+						if (SUCCEEDED(hr = this->mpContext->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
+						{
+							return new_bitmap;
+							//this->mBitmapListStr[bitmapName] = new_bitmap; //use this if someone forget to "fetch" the bitmap when this function is called or else you lose the pointer
+							//this->mBitmapNameID[bitmapName] = newID;
+						}
+					}
+				}
+			}
+		}
+	}
+	return nullptr;
+	//this->mBitmapVector.push_back(new_bitmap_struct);
+}
+
 ID2D1Bitmap1* Direct2D::GetBitmap(char* bitmapName)
 {
 	ID2D1Bitmap1* to_return = nullptr;
 	for (BitmapPair pair : this->mBitmapList)
 	{
 		if (this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
+			return pair.second;
+	}
+	return to_return;
+}
+
+ID2D1Bitmap1* Direct2D::GetBitmap(std::string bitmapName)
+{
+	ID2D1Bitmap1* to_return = nullptr;
+	for (BitmapPairStr pair : this->mBitmapListStr)
+	{
+		if (pair.first == bitmapName)
 			return pair.second;
 	}
 	return to_return;

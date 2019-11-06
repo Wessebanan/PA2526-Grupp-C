@@ -78,7 +78,10 @@ public:
 	ID2D1DeviceContext* GetpContext();
 	//Loads an image from a filepath into a bitmap and returns that bitmap, if fail return nullptr
 	ID2D1Bitmap1* LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
+	//Loads an image from a filepath into a bitmap and returns that bitmap, if fail return nullptr
+	ID2D1Bitmap1* LoadImageToBitmap(std::string imageFilePath, std::string bitmapName);
 	ID2D1Bitmap1* GetBitmap(char* bitmapName);//returns bitmap
+	ID2D1Bitmap1* GetBitmap(std::string bitmapName);//returns bitmap
 	ID2D1Bitmap1* GetBackbufferBitmap();
 	void setBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap);
 	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);
@@ -138,6 +141,10 @@ private:
 	using BitmapMap = std::unordered_map<char*, ID2D1Bitmap1*>; //unordered map of bitmaps
 	using BitmapPair = std::pair<char*, ID2D1Bitmap1*>;
 	BitmapMap mBitmapList;
+
+	using BitmapMapStr = std::unordered_map<std::string, ID2D1Bitmap1*>; //unordered map of bitmaps
+	using BitmapPairStr = std::pair<std::string, ID2D1Bitmap1*>;
+	BitmapMapStr mBitmapListStr;
 
 	using BrushMap = std::unordered_map<char*, ID2D1SolidColorBrush*>; //unordered map of brushes (not in use now)
 	using BrushMapPair = std::pair<char*, ID2D1SolidColorBrush*>;
