@@ -188,7 +188,7 @@
     <ClInclude Include="gameUtility\UtilityGraphics.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
     <ClInclude Include="gameWorld\InitWorld.h" />
-    <ClInclude Include="gameWorld\OceanComponents.h" />
+    <ClInclude Include="gameWorld\WorldComponents.h" />
     <ClInclude Include="gameWorld\UpdateOceanSystem.h" />
     <ClInclude Include="gameWorld\WorldSettings.h" />
     <ClInclude Include="GraphicsComponents.h" />
