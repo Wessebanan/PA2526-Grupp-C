@@ -271,6 +271,7 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 		p_transform = r_map_tile.getComponent<TransformComponent>();
 		xm_world = XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
 
+		int offset = rand() % 120 - 60;
 		for (int i : r_mesh_indices)
 		{
 			xm_pos = XMLoadFloat3(&r_mesh_vertices[i]);
@@ -290,19 +291,19 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 				switch (islet_comp->playerId)
 				{
 				case 0:
-					vertex_buffer[index_counter].color = PACK(74, 1, 117, 1.f); // Purple player
+					vertex_buffer[index_counter].color = PACK(74 + (offset/2.f), 1, min(117 + offset, 255), 1.f); // Purple player
 					break;
 
 				case 1:
-					vertex_buffer[index_counter].color = PACK(117, 1, 1, 1.f); // Red player
+					vertex_buffer[index_counter].color = PACK(117 + offset, 1, 1, 1.f); // Red player
 					break;
 
 				case 2:
-					vertex_buffer[index_counter].color = PACK(0, 93, 5, 1.f); // Green player
+					vertex_buffer[index_counter].color = PACK(0, 93 + offset, 5, 1.f); // Green player
 					break;
 
 				case 3:
-					vertex_buffer[index_counter].color = PACK(47, 62, 236, 1.f); // Blue player
+					vertex_buffer[index_counter].color = PACK(max(47 + offset, 0), 62, min(236 + offset, 255), 1.f); // Blue player
 					break;
 
 				default:
