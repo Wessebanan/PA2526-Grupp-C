@@ -6,10 +6,10 @@ class CollisionObject
 {
 public:
 	DWORD mType;
-	DirectX::XMFLOAT3 mVecPos;
-	float mRadius;
-	DirectX::XMFLOAT4 mPlane;
-
+	//DirectX::XMFLOAT3 mVecPos;
+	//float mRadius;
+	//DirectX::XMFLOAT4 mPlane;
+	BoundingVolume* mBoundingVolume;
 	CollisionObject* mNext;
 
 	CollisionObject() { mNext = nullptr; };
