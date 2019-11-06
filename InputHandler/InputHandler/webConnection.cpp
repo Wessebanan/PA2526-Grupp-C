@@ -447,9 +447,42 @@ bool WebConnection::GetUserPing(int player)
 	return ret_val;
 }
 
-bool WebConnection::SetGamestate(int gamestate)
+bool WebConnection::SetGamestate(WEBGAMESTATE gamestate)
 {
-	return true;
+	bool ret_val = false;
+
+	if (mWebGameState != gamestate)
+	{
+		ret_val = true;
+		char* gamestate_msg = (char*)"perror";
+
+		switch (gamestate)
+		{
+		case PREPPHASE:
+			gamestate_msg = (char*)"pprep";
+			break;
+		case BATTLEPHASE:
+			gamestate_msg = (char*)"pbattle";
+			break;
+		case WAITING:
+			gamestate_msg = (char*)"pwait";
+			break;
+		default:
+			gamestate_msg = (char*)"perror";
+			break;
+		}
+
+		for (size_t i = 0; i < mMaxmUserSockets; i++)
+		{
+			this->SendMsg(mUserSockets[i], gamestate_msg, iSendResult);
+		}
+
+		this->mWebGameState = gamestate;
+	}
+
+
+
+	return ret_val;
 }
 
 void WebConnection::InitThread(void)

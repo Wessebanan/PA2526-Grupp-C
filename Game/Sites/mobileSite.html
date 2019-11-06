@@ -302,6 +302,18 @@
            {
                console.log("We are wating for the client to start");
            }
+           else if(msg == "perror")
+           {
+               console.log("There was a error with sending the state");
+           }
+           else if(msg == "pprep")
+           {
+                openPrep();
+           }
+           else if(msg == "pbattle")
+           {
+                openCommand();
+           }
            else if(msg[0] == 1)
            {
                document.getElementById("clientMsg1").innerHTML = msg;
@@ -376,8 +388,9 @@
        function start()
        {
            socket.send("start");
-
-           openCommand();
+        
+           document.getElementById('startfield').innerHTML = "SENT START";
+           //openCommand();
        }
 
        function setName(name)

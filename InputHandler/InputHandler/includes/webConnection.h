@@ -20,6 +20,12 @@
 #include <tchar.h>
 #include <strsafe.h>
 
+enum WEBGAMESTATE
+{
+	PREPPHASE,
+	BATTLEPHASE,
+	WAITING
+};
 
 //#pragma pack (push, 1)
 struct _websocket_header
@@ -119,16 +125,18 @@ public:
 	bool GetUserPing(int player);
 	
 	// returns hte number of players that have connected since the client started up
-	//int getNrOfPlayers() { return this->nrOfPlayers; };
+	int getNrOfPlayers() { return this->nrOfPlayers; };
 	
 	// Changes the gamestate for the users
-	bool SetGamestate(int gamestate);
+	bool SetGamestate(WEBGAMESTATE gamestate);
 
 
 private:
 	// Array of information to be sent to frontend
 	playerInfo mUsers[4];
 
+	// Gamestate to be changed and send it out to the users
+	WEBGAMESTATE mWebGameState = WEBGAMESTATE::WAITING;
 
 	//// THREAD VARIBLES
 	// starts the thread to run sockets on the side
@@ -189,7 +197,7 @@ private:
 	// interpets the key and preformes handshake
 	bool CheckForKey(SOCKET sock, char* recBuff, int& Res);
 
-	//int nrOfPlayers;
+	int nrOfPlayers;
 	const int mMaxmUserSockets = 30;
 	SOCKET mUserSockets[30];
 	fd_set mMaster; 
