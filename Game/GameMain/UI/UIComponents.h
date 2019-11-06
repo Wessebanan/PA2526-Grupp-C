@@ -43,6 +43,11 @@ namespace ecs
 		{
 			ID2D1Bitmap1* mpBitmap;
 			std::string mName;
+			~UIBitmapComponent()
+			{
+				delete mpBitmap;
+			}
+
 		};
 
 		struct UIThicknessComponent : public ECSComponent<UIThicknessComponent>
