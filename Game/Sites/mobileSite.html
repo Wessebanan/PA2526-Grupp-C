@@ -316,7 +316,7 @@
            }
            else if(msg == "pwait")
            {
-                document.getElementById('startfield').innerHTML = "waiting <button onclick='start()'>READY</button>";
+                document.getElementById('startfield').innerHTML = "waiting <button onclick='ready()'>READY</button>";
                 //document.getElementById('startButton').style.display = "block";
 
            }
@@ -394,21 +394,21 @@
        {
            socket.send("start");
         
-           //document.getElementById('startfield').innerHTML = "SENT start";
+           document.getElementById('clientMsg1').innerHTML = "SENT start";
            //openCommand();
        }
        function ready()
        {
            socket.send("ready");
         
-           //document.getElementById('startfield').innerHTML = "SENT start";
+           document.getElementById('clientMsg1').innerHTML = "SENT start";
            //openCommand();
        }
        function join()
        {
            socket.send("join");
         
-           document.getElementById('startfield').innerHTML = "SENT join";
+           document.getElementById('clientMsg1').innerHTML = "SENT join";
            //openCommand();
        }
 
@@ -567,6 +567,7 @@
             </br>
             <div id="sendButton" onclick="sendTrapAndTile()">SEND TRAP</div>
 
+            <button onclick="ready()">READY</button>
         </div>
 
         <!---<div class="container" id="test">
