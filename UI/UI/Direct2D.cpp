@@ -82,6 +82,10 @@ Direct2D::~Direct2D()
 	{
 		pair.second->Release();
 	}
+	for (BitmapPairChar pair : this->mBitmapListChar)
+	{
+		pair.second->Release();
+	}
 	for (int i = 0; i < COLOR_BRUSHES; i++)
 	{
 		this->mColorBrushes[i]->Release();
@@ -236,7 +240,7 @@ ID2D1Bitmap1* Direct2D::LoadImageToBitmap(std::string imageFilePath, std::string
 						if (SUCCEEDED(hr = this->mpContext->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
 						{
 							return new_bitmap;
-							//this->mBitmapListStr[bitmapName] = new_bitmap; //use this if someone forget to "fetch" the bitmap when this function is called or else you lose the pointer
+							this->mBitmapList[bitmapName] = new_bitmap; //use this if someone forget to "fetch" the bitmap when this function is called or else you lose the pointer
 							//this->mBitmapNameID[bitmapName] = newID;
 						}
 					}
@@ -251,7 +255,7 @@ ID2D1Bitmap1* Direct2D::LoadImageToBitmap(std::string imageFilePath, std::string
 ID2D1Bitmap1* Direct2D::GetBitmap(char* bitmapName)
 {
 	ID2D1Bitmap1* to_return = nullptr;
-	for (BitmapPair pair : this->mBitmapList)
+	for (BitmapPairChar pair : this->mBitmapListChar)
 	{
 		if (this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
 			return pair.second;
@@ -262,7 +266,7 @@ ID2D1Bitmap1* Direct2D::GetBitmap(char* bitmapName)
 ID2D1Bitmap1* Direct2D::GetBitmap(std::string bitmapName)
 {
 	ID2D1Bitmap1* to_return = nullptr;
-	for (BitmapPairStr pair : this->mBitmapListStr)
+	for (BitmapPair pair : this->mBitmapList)
 	{
 		if (pair.first == bitmapName)
 			return pair.second;

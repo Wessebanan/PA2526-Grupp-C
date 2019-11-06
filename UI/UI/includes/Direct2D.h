@@ -80,7 +80,9 @@ public:
 	ID2D1Bitmap1* LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
 	//Loads an image from a filepath into a bitmap and returns that bitmap, if fail return nullptr
 	ID2D1Bitmap1* LoadImageToBitmap(std::string imageFilePath, std::string bitmapName);
+	//Returns a bitmap that has the same char name
 	ID2D1Bitmap1* GetBitmap(char* bitmapName);//returns bitmap
+	//Returns a bitmap that has the same string name
 	ID2D1Bitmap1* GetBitmap(std::string bitmapName);//returns bitmap
 	ID2D1Bitmap1* GetBackbufferBitmap();
 	void setBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap);
@@ -138,13 +140,13 @@ private:
 	bool mDeviceContextCreated = false;
 	//std::vector<BitmapInfo> mBitmapVector;
 
-	using BitmapMap = std::unordered_map<char*, ID2D1Bitmap1*>; //unordered map of bitmaps
-	using BitmapPair = std::pair<char*, ID2D1Bitmap1*>;
-	BitmapMap mBitmapList;
+	using BitmapMapChar = std::unordered_map<char*, ID2D1Bitmap1*>; //unordered map of bitmaps
+	using BitmapPairChar = std::pair<char*, ID2D1Bitmap1*>;
+	BitmapMapChar mBitmapListChar;
 
-	using BitmapMapStr = std::unordered_map<std::string, ID2D1Bitmap1*>; //unordered map of bitmaps
-	using BitmapPairStr = std::pair<std::string, ID2D1Bitmap1*>;
-	BitmapMapStr mBitmapListStr;
+	using BitmapMap = std::unordered_map<std::string, ID2D1Bitmap1*>; //unordered map of bitmaps
+	using BitmapPair = std::pair<std::string, ID2D1Bitmap1*>;
+	BitmapMap mBitmapList;
 
 	using BrushMap = std::unordered_map<char*, ID2D1SolidColorBrush*>; //unordered map of brushes (not in use now)
 	using BrushMapPair = std::pair<char*, ID2D1SolidColorBrush*>;
