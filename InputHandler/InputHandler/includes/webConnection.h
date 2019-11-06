@@ -102,13 +102,15 @@ public:
 	// Checks if the connection was successful
 	bool IsConnected() { return this->mConnectionOK; };
 
-	// Returns the button index the player has selected
-	int GetUserButton(int player);
 	// Returns the name of the set player (playres cant change this yet)
 	std::string GetUserName(int player);
 
+	// Returns the button index the player has selected
+	int GetUserButton(int player);
 	// Returns the tile index of the axis (0 = X or 1 = Y)
 	int GetUserTile(int player, int axis);
+	// Reset for when both have been picked up
+	void resetUserTrap(int player);
 
 	// Returns the command of the player
 	string GetUserCommand(int player);
