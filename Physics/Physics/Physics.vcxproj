@@ -143,10 +143,15 @@
     <ClInclude Include="includes\AABB.h" />
     <ClInclude Include="includes\BoundingSphere.h" />
     <ClInclude Include="includes\BoundingVolume.h" />
+    <ClInclude Include="includes\Collision.h" />
     <ClInclude Include="includes\CollisionFunctions.h" />
+    <ClInclude Include="includes\CollisionObject.h" />
     <ClInclude Include="includes\MovementFunctions.h" />
     <ClInclude Include="includes\OBB.h" />
     <ClInclude Include="includes\PhysicsHelperFunctions.h" />
+    <ClInclude Include="includes\Ragdoll.h" />
+    <ClInclude Include="includes\RagdollBone.h" />
+    <ClInclude Include="includes\RagdollBoneState.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
