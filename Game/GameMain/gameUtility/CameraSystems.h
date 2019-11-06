@@ -134,8 +134,9 @@ namespace ecs
 		private:
 			ID mCamEntityId;
 			const float mT = 0.1f;
-			inline void GetTargetPosition(DirectX::XMVECTOR& rTarget, DirectX::XMVECTOR& rOrigin)
+			inline void GetTargetPosition(DirectX::XMVECTOR& rTarget, DirectX::XMVECTOR& rLookAt)
 			{
+				const float FOV = (90.f / 2.0f) * PI / 180.f;
 				// Zero rTarget
 				rTarget = DirectX::XMVectorZero();
 
@@ -147,19 +148,47 @@ namespace ecs
 				EntityIterator poi_iterator = ECSUser::getEntitiesByFilter(poi_filter);
 
 				components::TransformComponent* p_poi_transform;
-				float i = 0.0f;
-				DirectX::XMVECTOR temp_pos;
+				DirectX::XMVECTOR temp_vec, temp_pos;
 				for (FilteredEntity& e : poi_iterator.entities)
 				{
 					p_poi_transform = e.getComponent<components::TransformComponent>();
 					temp_pos = DirectX::XMLoadFloat3(&p_poi_transform->position);
 					// Make sure to keep position to origin
-					rTarget += temp_pos + rOrigin;
-					//i += 1.0f;
+					temp_pos -= rLookAt;
+
+					// Add to rTarget
+					rTarget += temp_pos;
 				}
-				//rTarget /= i;
 				// Normalize
 				rTarget = DirectX::XMVector3Normalize(rTarget);
+
+				// STEP 2:
+				temp_vec = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);	// Global up vector
+				DirectX::XMVECTOR right_vec = DirectX::XMVector3Cross(temp_vec, -rTarget);	// Should be normalized
+				temp_vec = right_vec * tanf(FOV);	// How much right to go to touch right fustrum wall
+				DirectX::XMVECTOR right_wall = DirectX::XMVector3Normalize(-rTarget + temp_vec);
+				DirectX::XMVECTOR left_wall = DirectX::XMVector3Normalize(-rTarget - temp_vec);
+
+				// ----------------
+				// STEP 3: Find radius distance away from lookat point
+				float temp_float;
+				float radius = 0.0f;
+				for (FilteredEntity& e : poi_iterator.entities)
+				{
+					p_poi_transform = e.getComponent<components::TransformComponent>();
+					temp_pos = DirectX::XMLoadFloat3(&p_poi_transform->position);
+					temp_pos -= rLookAt;
+
+					temp_vec = (DirectX::XMVector3Dot(temp_vec, right_wall) / DirectX::XMVector3Dot(right_wall, right_wall)) * right_wall;
+					temp_float = DirectX::XMVectorGetX(DirectX::XMVector3Length(temp_pos-temp_vec)) / sinf(FOV);
+					radius = fmaxf(radius, temp_float);
+
+					temp_vec = (DirectX::XMVector3Dot(temp_vec, left_wall) / DirectX::XMVector3Dot(left_wall, left_wall)) * left_wall;
+					temp_float = DirectX::XMVectorGetX(DirectX::XMVector3Length(temp_pos - temp_vec)) / sinf(FOV);
+					radius = fmaxf(radius, temp_float);
+				}
+
+				rTarget *= radius;
 			}
 			XMFLOAT3 Slerping(const XMFLOAT3& v1, const XMFLOAT3& v2)
 			{
