@@ -7,6 +7,8 @@ class Ragdoll
 {
 protected:
 	ModelLoader::Skeleton* mpSkeleton;
+	ModelLoader::Mesh* mpMesh;
+	ModelLoader::UniqueSkeletonData* mpUniqueSkeletonData;
 	DWORD mNumBones;
 	// List of bones
 	RagdollBone* mBones;
@@ -23,7 +25,7 @@ protected:
 							DirectX::XMFLOAT3* pVecJointOffset);
 
 	// Build a bone and set its data
-	void BuildBoneData(DWORD BoneNum, RagdollBone* pParentBone = nullptr);
+	void BuildBoneData(DWORD boneNum, RagdollBone* pParentBone = nullptr);
 
 	// Set gravity and damping forces on joint
 	void SetForces(DWORD boneNum,
@@ -49,6 +51,8 @@ public:
 	~Ragdoll();
 
 	bool Create(ModelLoader::Skeleton* pSkeleton,
+				ModelLoader::UniqueSkeletonData* pUniqueSkeletonData,
+				ModelLoader::Mesh* mpMesh,
 				DirectX::XMMATRIX* pMatInitialTransformation = nullptr);
 
 	void Free();
