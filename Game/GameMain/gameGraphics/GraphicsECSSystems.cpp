@@ -133,7 +133,11 @@ namespace ecs
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
 			p_mesh_mgr->mgr.SetVertexBuffers();
-			p_render_mgr->mgr.ExecutePipeline(p_pipeline_shadow_map->pipeline);
+			p_render_mgr->mgr.ExecutePipeline(
+				p_pipeline_shadow_map->pipeline, 
+				0,
+				p_render_mgr->mgr.GetNumShaderPrograms() - 2);
+
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
 		}
 	}

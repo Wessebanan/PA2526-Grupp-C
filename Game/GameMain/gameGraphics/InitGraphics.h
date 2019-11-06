@@ -120,15 +120,15 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(9);
 	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);	
 	systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(9);
-	systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<OceanRenderSystem>(9);
 	systems::MapRenderSystem* p_map_renderer = rEcs.createSystem<MapRenderSystem>(9);
+	systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<OceanRenderSystem>(9);
 
 	
 	p_unit_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_scenery_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_weapon_renderer->Initialize(&r_render_mgr, &r_render_buffer);
-	p_ocean_renderer->Initialize(&r_render_mgr, &r_state_mgr, rOceanMeshData.pMesh, rOceanMeshData.vertexCount);
 	p_map_renderer->Initialize(&r_render_mgr, &r_state_mgr, rMapMeshData.pMesh, rMapMeshData.vertexCount);
+	p_ocean_renderer->Initialize(&r_render_mgr, &r_state_mgr, rOceanMeshData.pMesh, rOceanMeshData.vertexCount);
 
 	systems::SSAORenderSystem* p_ssao_renderer = rEcs.createSystem<systems::SSAORenderSystem>(9);
 	p_ssao_renderer->Initialize(&r_mesh_mgr, clientWidth, clientHeight);

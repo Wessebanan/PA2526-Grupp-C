@@ -189,6 +189,9 @@ namespace ecs
 
 			void* mpWorldVertices;
 			UINT mWorldBufferSize;
+
+			float* mpHeightData;
+			size_t mHeightDataSize;
 		};
 
 		class MapRenderSystem : public ECSSystem<MapRenderSystem>
@@ -229,6 +232,9 @@ namespace ecs
 
 			void* mpWorldVertices;
 			UINT mWorldBufferSize;
+
+			float* mpHeightData;
+			size_t mHeightDataSize;
 		};
 
 		class SceneObjectRenderSystem : public ECSSystem<SceneObjectRenderSystem>

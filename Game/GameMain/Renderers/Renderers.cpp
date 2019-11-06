@@ -8,6 +8,7 @@
 #include "../gameAnimation/AnimationComponents.h"
 
 #include "../gameGraphics/TileRenderingPipeline.h"
+#include "../gameGraphics/OceanRenderingPipeline.h"
 #include "../Physics/PhysicsComponents.h"
 
 
@@ -276,8 +277,8 @@ namespace ecs
 				For now, allocate a way to big buffer size (max size).
 				This will be tweaked in later implementations.
 			*/
-			float* height = (float*)malloc(65536);
-			ZeroMemory(height, 65536);
+			/*float* height = (float*)malloc(65536);
+			ZeroMemory(height, 65536);*/
 
 			/*
 				Fetch all ocean tiles and update their y-position in the
@@ -286,7 +287,7 @@ namespace ecs
 
 			for (FilteredEntity& tile : mOceanTiles.entities)
 			{
-				height[index] = tile.getComponent<components::TransformComponent>()->position.y;
+				mpHeightData[index] = tile.getComponent<components::TransformComponent>()->position.y;
 				index++;
 			}
 
@@ -295,15 +296,15 @@ namespace ecs
 				height buffer.
 			*/
 
-			graphics::TILE_RENDERING_PIPELINE_DATA heightData;
-			heightData.pHeightBuffer = height;
-			heightData.ByteWidth = index * sizeof(float);
+			graphics::OCEAN_RENDERING_PIPELINE_DATA heightData;
+			heightData.pHeightBuffer = mpHeightData;
+			heightData.ByteWidth = mHeightDataSize;
 
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 			mpStateMgr->UpdatePipelineState(mPipelineState, &heightData);
 			mpStateMgr->SetPipelineState(mPipelineState);
 
-			free(height);
+			//free(height);
 		}
 
 		void OceanRenderSystem::Initialize(
@@ -330,8 +331,8 @@ namespace ecs
 			mInstanceLayout.pMeshes = &mMeshRegion;
 			mInstanceLayout.pInstanceCountPerMesh = &mInstanceCount;
 
-			const std::string vs = GetShaderFilepath("VS_Tile.cso");
-			const std::string ps = GetShaderFilepath("PS_Default.cso");
+			const std::string vs = GetShaderFilepath("VS_Ocean.cso");
+			const std::string ps = GetShaderFilepath("PS_Ocean.cso");
 
 			mRenderProgram = mpRenderMgr->CreateShaderProgram(
 				vs.c_str(),
@@ -339,12 +340,12 @@ namespace ecs
 				0);
 
 			const UINT stride = sizeof(VertexData);
-			graphics::TILE_RENDERING_PIPELINE_DESC trpDesc;
+			graphics::OCEAN_RENDERING_PIPELINE_DESC trpDesc;
 			trpDesc.pWorldMesh = pWorldMesh;
 			trpDesc.stride = stride;
 			trpDesc.size = worldMeshVertexCount * stride;
 
-			mPipelineState = mpStateMgr->CreatePipelineState(new graphics::TileRenderingPipeline(), &trpDesc);
+			mPipelineState = mpStateMgr->CreatePipelineState(new graphics::OceanRenderingPipeline(), &trpDesc);
 			
 			// Grabbing and storing all ocean tiles.
 			TypeFilter ocean_filter;
@@ -352,6 +353,10 @@ namespace ecs
 			ocean_filter.addRequirement(components::TransformComponent::typeID);
 
 			mOceanTiles = getEntitiesByFilter(ocean_filter);
+
+			mHeightDataSize = mOceanTiles.entities.size() * sizeof(float);
+			mpHeightData = (float*)malloc(mHeightDataSize);
+			ZeroMemory(mpHeightData, mHeightDataSize);
 		}
 #pragma endregion OceanRenderSystem
 
@@ -375,8 +380,8 @@ namespace ecs
 				For now, allocate a way to big buffer size (max size).
 				This will be tweaked in later implementations.
 			*/
-			float* height = (float*)malloc(65536);
-			ZeroMemory(height, 65536);
+			/*float* height = (float*)malloc(65536);
+			ZeroMemory(height, 65536);*/
 
 			/*
 				Fetch all map tiles and update their y-position in the
@@ -385,7 +390,14 @@ namespace ecs
 
 			for (FilteredEntity& tile : mMapTiles.entities)
 			{
-				height[index] = tile.getComponent<components::TransformComponent>()->position.y;
+				if (tile.getComponent<TileComponent>()->tileType == WATER)
+				{
+					mpHeightData[index] = -1000.f;
+				}
+				else
+				{
+					mpHeightData[index] = tile.getComponent<components::TransformComponent>()->position.y;
+				}
 				index++;
 			}
 
@@ -395,14 +407,14 @@ namespace ecs
 			*/
 
 			graphics::TILE_RENDERING_PIPELINE_DATA heightData;
-			heightData.pHeightBuffer = height;
-			heightData.ByteWidth = index * sizeof(float);
+			heightData.pHeightBuffer = mpHeightData;
+			heightData.ByteWidth = mHeightDataSize;
 
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 			mpStateMgr->UpdatePipelineState(mPipelineState, &heightData);
 			mpStateMgr->SetPipelineState(mPipelineState);
 
-			free(height);
+			//free(height);
 		}
 
 		void MapRenderSystem::Initialize(
@@ -443,7 +455,8 @@ namespace ecs
 			trpDesc.stride = stride;
 			trpDesc.size = worldMeshVertexCount * stride;
 
-			mPipelineState = mpStateMgr->CreatePipelineState(new graphics::TileRenderingPipeline(), &trpDesc);
+			mPipelineState = mpStateMgr->CreatePipelineState(
+				new graphics::TileRenderingPipeline(), &trpDesc);
 
 			// Grabbing and storing all map tiles.
 			TypeFilter map_filter;
@@ -451,6 +464,10 @@ namespace ecs
 			map_filter.addRequirement(components::TransformComponent::typeID);
 
 			mMapTiles = getEntitiesByFilter(map_filter);
+
+			mHeightDataSize = mMapTiles.entities.size() * sizeof(float);
+			mpHeightData = (float*)malloc(mHeightDataSize);
+			ZeroMemory(mpHeightData, mHeightDataSize);
 		}
 #pragma endregion MapRenderSystem
 
