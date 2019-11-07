@@ -445,6 +445,100 @@ void EntityComponentSystem::onRemoveComponent(ID _entityID, TypeID _componentTyp
 	removeComponentInternal(_entityID, _componentTypeID);
 }
 
+void* ecs::EntityComponentSystem::onGetSystem(TypeID _typeID)
+{
+	if (!typeIDToLayerMap.count(_typeID))
+	{
+		return nullptr;
+	}
+
+	unsigned int layer = typeIDToLayerMap[_typeID];
+
+	for (BaseSystem* s : systemLayers[layer])
+	{
+		if (s->getTypeID() == _typeID)
+		{
+			return (void*)s;
+		}
+	}
+
+	return nullptr;
+}
+
+void* ecs::EntityComponentSystem::onCreateSystem(void* _tempSystem, unsigned int _layer)
+{
+	BaseSystem* pTempSystemInfo = (BaseSystem*)_tempSystem;
+
+	SystemCreateFunction cf = pTempSystemInfo->getCreateFunction();
+
+	// Check if systemLayers been initialized
+	if (!systemLayers)
+	{
+		layerCount = 10;
+		systemLayers = new SystemList[10];
+	}
+
+	// Check if system is already added,
+	// should only exist one system at most per type
+	if (typeIDToLayerMap.count(pTempSystemInfo->getTypeID()) != 0)
+	{
+		return nullptr;
+	}
+
+	/*
+	*	Create system, which calls its constructor.
+	*	The system's constructor will set
+	*		- UpdateType
+	*		- EventSubscriptions (added to list, read later when ECS calls for it
+	*		- Component/Event filter
+	*/
+	BaseSystem* newSystem = cf();
+
+	// Make ECS listen on ECSUser functionality. This makes ECS responsible for
+	// handling entity creations, component removals etc.
+	(static_cast<ECSUser*>(newSystem))->ecsUserHandler = this;
+
+	// Set ECS to handle all subscriptions and unsubscriptions on event creations.
+	ECSEventListener* listenerCast = static_cast<ECSEventListener*>(newSystem);
+
+	// Fetch all subscriptions. This must be done AFTER eventListenerHandler been set,
+	// as it will call eventListerHandler's onAddSubscription-overrided function.
+	listenerCast->eventListenerHandler = this;
+	listenerCast->notifyHandler();
+
+	// Set system in hashed list for easy access
+	typeIDToLayerMap[pTempSystemInfo->getTypeID()] = _layer;
+
+	// Push back system in wanted layer for later update
+	systemLayers[_layer].push_back(newSystem);
+	return (void*)newSystem;
+}
+
+void ecs::EntityComponentSystem::onRemoveSystem(TypeID _typeID)
+{
+	if (!typeIDToLayerMap.count(_typeID))
+	{
+		return;
+	}
+	SystemList& layer = systemLayers[typeIDToLayerMap[_typeID]];
+
+	BaseSystem* systemPtr = nullptr;
+	for (size_t i = 0; i < layer.size(); i++)
+	{
+		systemPtr = layer[i];	// Store system pointer
+
+		if (systemPtr->getTypeID() == _typeID)
+		{
+
+			layer.erase(layer.begin() + i);	 // Remove system from layer
+			delete systemPtr;				 
+			typeIDToLayerMap.erase(_typeID); // Erase from hash map
+
+			return;
+		}
+	}
+}
+
 void EntityComponentSystem::onAddSubscription(TypeID _eventTypeID, ECSEventListener* _listener)
 {
 	eventMgr.addEventSubscriber(_eventTypeID, _listener);
