@@ -5,12 +5,16 @@
 
 class RagdollBoneState
 {
-private:
-	DirectX::XMFLOAT3 mVecPosition;
-	DirectX::XMFLOAT4 mQuatQuaternion;
+public:
+	DirectX::XMFLOAT3 mVecPosition; // Position
+	DirectX::XMFLOAT4 mQuatOrientation; // Orientation
+	DirectX::XMFLOAT4X4 mMatOrientation; // Orientation
 
 	DirectX::XMFLOAT3 mVecAngularMomentum;
+
+
 	DirectX::XMFLOAT3 mVecLinearVelocity;
+	DirectX::XMFLOAT3 mVecAngularVelocity;
 
 	// 8 transformed world pos points + connection to parent pos and parent-to-bone offset
 	DirectX::XMFLOAT3 mVecPoints[10];

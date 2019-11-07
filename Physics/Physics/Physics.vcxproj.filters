@@ -86,5 +86,8 @@
     <ClCompile Include="CollisionObject.cpp">
       <Filter>Source Files\Ragdoll</Filter>
     </ClCompile>
+    <ClCompile Include="includes\Ragdoll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
