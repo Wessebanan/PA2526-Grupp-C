@@ -80,5 +80,11 @@
     <ClCompile Include="OBB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>Source Files\Ragdoll</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionObject.cpp">
+      <Filter>Source Files\Ragdoll</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,14 +1,21 @@
 #pragma once
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include "BoundingVolume.h"
+
+enum BV_TYPE
+{
+	COLLISION_SPHERE,
+	COLLISION_OBB,
+	COLLISION_AABB,
+	COLLISION_CYLINDER
+};
+
 
 class CollisionObject
 {
 public:
-	DWORD mType;
-	//DirectX::XMFLOAT3 mVecPos;
-	//float mRadius;
-	//DirectX::XMFLOAT4 mPlane;
+	BV_TYPE mType;
 	BoundingVolume* mBoundingVolume;
 	CollisionObject* mNext;
 

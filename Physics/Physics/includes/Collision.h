@@ -1,6 +1,5 @@
 #pragma once
 #include "CollisionObject.h"
-#include "BoundingVolume.h"
 
 class Collision
 {
@@ -12,7 +11,9 @@ public:
 	~Collision();
 
 	void Free();
-	//void AddSphere(DirectX::XMFLOAT3 pVecPos, float radius);
-	//void AddPlane(DirectX::XMFLOAT4* pPlaneParams);
+
+	// Add bounding volume assigns the pointer directly to the new collision object.
+	// This should be fine as the bounding volume passed to this function should already 
+	// be a copy transformed to world space.
 	void AddBoundingVolume(BoundingVolume* bv);
 };
