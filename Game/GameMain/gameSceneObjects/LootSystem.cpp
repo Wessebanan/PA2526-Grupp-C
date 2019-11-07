@@ -1,4 +1,5 @@
 #include "LootSystem.h"
+#include "../gameEcs/GameWeaponComponents.h"
 
 #pragma region SpawnLootSystem
 ecs::systems::SpawnLootSystem::SpawnLootSystem()
@@ -41,12 +42,13 @@ void ecs::systems::SpawnLootSystem::act(float _delta)
 		TransformComponent	weapon_transform_component;
 		MeshComponent		weapon_mesh_component;
 		ColorComponent		color_comp;
+		SwordComponent		sword_comp;
 
 		weapon_component.mType = GAME_OBJECT_TYPE_SWORD;
 		weapon_mesh_component.mMesh = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_SWORD);
 		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
 
-		Entity *sword = createEntity(weapon_mesh_component, weapon_transform_component, weapon_component, color_comp);
+		Entity *sword = createEntity(weapon_mesh_component, weapon_transform_component, weapon_component, color_comp, sword_comp);
 		TransformComponent* sword_transform = getComponentFromKnownEntity<TransformComponent>(sword->getID());
 
 		int2 grid_size = grid->GetSize();		

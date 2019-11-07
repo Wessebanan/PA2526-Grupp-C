@@ -26,6 +26,31 @@
 //	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
 //}
 
+struct WeaponRenderer : public ecs::ECSUser
+{
+	struct InstanceData
+	{
+		DirectX::XMFLOAT4X4 world;
+	};
+	InstanceData* mpInstanceDataBuffer;
+
+	UINT mRenderProgram;
+	graphics::RenderManager* mpRenderMgr;
+	graphics::ShaderModelLayout mInstanceLayout;
+
+	graphics::RenderBuffer* mpRenderBuffer;
+
+	UINT mInstanceCount;
+	graphics::MeshRegion mWeaponMeshRegion;
+
+	void InitializeInternal(
+		graphics::RenderManager* pRenderMgr,
+		graphics::RenderBuffer* pRenderBuffer,
+		GAME_OBJECT_TYPE objectToRender);
+
+	void RenderAllInternal(ecs::EntityIterator& weaponEntities);
+};
+
 namespace ecs
 {
 	namespace systems
@@ -273,31 +298,15 @@ namespace ecs
 		public:
 
 			WeaponRenderSystem();
-			virtual ~WeaponRenderSystem();
+			virtual ~WeaponRenderSystem() {}
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
 			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
 
-			static uint32_t GetPerInstanceSize();
-
 		private:
 
-			struct InputLayout
-			{
-				DirectX::XMFLOAT4X4 world;
-			};
-
-			InputLayout* mpBuffer;
-
-			UINT mRenderProgram;
-			graphics::RenderManager* mpRenderMgr;
-			graphics::ShaderModelLayout mInstanceLayout;
-
-			graphics::RenderBuffer* mpRenderBuffer;
-
-			UINT mInstanceCount;
-			graphics::MeshRegion mWeaponMeshRegion;
+			WeaponRenderer mRenderer;
 		};
 	}
 }

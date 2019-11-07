@@ -46,8 +46,12 @@ namespace ecs
 	*/
 	struct ECSUser
 	{
+	public:
 		virtual ~ECSUser() {}
 		// TODO: Move ECSUser functionality to BaseSystem.
+
+		void SetEcsHandler(ECSUserListener* _ecsUserHandler);
+
 	protected:
 
 		// Returns a pointer to an entity with given ID.
@@ -97,6 +101,9 @@ namespace ecs
 		// Creates both a new entity and multiple new components in ECS memory, and returns a pointer
 		// to the entity.
 		Entity* createEntity(ComponentList _components);
+
+		// If an ECSUser has a subsystem that need to access ecs, this function can be used to initialize that system.
+		void InitializeSubECSUser(ECSUser* pSubSystem);
 
 		/*
 			Templated functions

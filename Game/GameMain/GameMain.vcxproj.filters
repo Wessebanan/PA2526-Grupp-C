@@ -305,7 +305,12 @@
     <ClInclude Include="gameAudio\AudioECSComponents.h">
       <Filter>Audio</Filter>
     </ClInclude>
-    <ClInclude Include="GameGlobals.h" />
+    <ClInclude Include="gameEcs\GameWeaponComponents.h">
+      <Filter>GameECS</Filter>
+    </ClInclude>
+    <ClInclude Include="GameGlobals.h">
+      <Filter>GameECS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">

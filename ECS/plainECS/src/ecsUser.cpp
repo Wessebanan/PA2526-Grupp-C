@@ -6,6 +6,11 @@ using namespace ecs;
 	All ECSUser methods forward resource requests to its handler.
 */
 
+void ecs::ECSUser::SetEcsHandler(ECSUserListener* _ecsUserHandler)
+{
+	ecsUserHandler = _ecsUserHandler;
+}
+
 Entity* ECSUser::getEntity(ID _entityID)
 {
 	return ecsUserHandler->onGetEntity(_entityID);
@@ -110,6 +115,11 @@ Entity* ECSUser::createEntity(BaseComponent& _compA, BaseComponent& _compB, Base
 Entity* ECSUser::createEntity(ComponentList _components)
 {
 	return ecsUserHandler->onCreateEntity(_components);
+}
+
+void ecs::ECSUser::InitializeSubECSUser(ECSUser* pSubSystem)
+{
+	pSubSystem->SetEcsHandler(ecsUserHandler);
 }
 
 void ECSUser::createEvent(BaseEvent& _event)
