@@ -78,7 +78,6 @@ public:
 	ID2D1DeviceContext* GetpContext();
 	//Loads an image from a filepath into a bitmap and returns that bitmap, if fail return nullptr
 	ID2D1Bitmap1* LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
-	//Loads an image from a filepath into a bitmap and returns that bitmap, if fail return nullptr
 	ID2D1Bitmap1* LoadImageToBitmap(std::string imageFilePath, std::string bitmapName);
 	//Returns a bitmap that has the same char name
 	ID2D1Bitmap1* GetBitmap(char* bitmapName);//returns bitmap

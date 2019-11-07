@@ -54,21 +54,6 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 		rSystemPointers.UIDebugSys->mpD2D	= 
 		rSystemPointers.UIBitmapSys->mpD2D	= my_d2d;
 
-	ecs::components::UITextComponent text_comp;//temp debug text
-	text_comp.mStrText = "adkguhadigsdgkasgd";
-
-	rECS.createEntity(text_comp);
-	//This is to show that we can draw bitmaps, so the reviewer can see <3 ----------------------------------------------------------
-	ecs::components::UIBitmapComponent bitmap_comp;																					//
-	ecs::components::UIDrawPosComponent draw_pos;																					//
-	bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("C:/Users/Taumic/source/repos/PA2526-Grupp-C/UI/Resource/rob.png", "rob");		//
-	bitmap_comp.mName = "rob";																										//
-	draw_pos.mDrawArea.left = graphics::GetDisplayResolution().x / 2 - 200;															//
-	draw_pos.mDrawArea.right = graphics::GetDisplayResolution().x / 2 + 200;														//
-	draw_pos.mDrawArea.top = 0;																										//
-	draw_pos.mDrawArea.bottom = 400;																								//
-	rECS.createEntity(bitmap_comp, draw_pos);																						//
-	//--------------------------------------------------------------------------------------------------------------------------------
 	//initArmyText(rECS); //maybe use later donno 
 }
 void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)
