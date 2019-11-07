@@ -380,9 +380,49 @@ void Ragdoll::Free()
 	delete[] mBones;
 	mBones = nullptr;
 }
-// NYI
+
 void Ragdoll::Resolve(float dt, float linearDamping, float angularDamping, DirectX::XMFLOAT3 pVecGravity, Collision* pCollision, DirectX::XMMATRIX* pMatCollision)
 {
+	for (DWORD i = 0; i < this->mNumBones; ++i)
+	{
+		float time_to_process = dt;
+		while (time_to_process > 0.0f)
+		{
+			// Set forces to prepare for integration
+			SetForces(i, &pVecGravity, linearDamping, angularDamping);
+
+			// Integrate bone movement for time slice
+			DWORD num_steps = 0;
+			float time_step = time_to_process;
+
+			if (time_step >= MAXIMUM_TIME_SLICE)
+				time_step = MAXIMUM_TIME_SLICE;
+
+			// Integrate the bone motion
+			Integrate(i, time_step);
+
+			// Transform points
+			TransformPoints(i);
+
+			// Check for collisions and resolve thhem, breaking if
+			// all collisions could be handled
+			// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+			// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+			// Waiting on ProcessCollisions function to be done
+			// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+			// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+			//ProcessCollisions()
+
+			// Transform points
+			TransformPoints(i);
+
+			// Process connections to ensure all bones meet at their connection points
+			ProcessConnections(i);
+
+			// Go Forward one time slice
+			time_to_process -= time_step;
+		}
+	}
 }
 // NYI
 void Ragdoll::RebuildHierarchy()
