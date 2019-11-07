@@ -189,10 +189,75 @@ void Ragdoll::SetForces(DWORD boneNum, DirectX::XMFLOAT3* vecGravity, float line
 	XMStoreFloat3(&bone->mVecForce, temp_vec_force);
 	XMStoreFloat3(&bone->mVecTorque, (XMLoadFloat3(&bc_state->mVecAngularVelocity) * angularDamping));
 }
-// NYI
+
 void Ragdoll::Integrate(DWORD boneNum, float dt)
 {
+	RagdollBone* bone = &mBones[boneNum];
+	RagdollBoneState* state = &bone->mState;
+	XMVECTOR vec_lin_vel = XMLoadFloat3(&state->mVecLinearVelocity);
+	XMVECTOR vec_pos = XMLoadFloat3(&state->mVecPosition);
+	XMVECTOR vec_ang_mom = XMLoadFloat3(&state->mVecAngularMomentum);
+	XMVECTOR vec_tor = XMLoadFloat3(&bone->mVecTorque);
+	XMVECTOR vec_ang_vel = XMLoadFloat3(&state->mVecAngularVelocity);
+	XMVECTOR vec_for = XMLoadFloat3(&bone->mVecForce);
 
+	// Integrate position
+	XMStoreFloat3(&state->mVecPosition, vec_pos += (dt * vec_lin_vel));
+
+	// Integrate angular momentum
+	XMStoreFloat3(&state->mVecAngularMomentum, vec_ang_mom += (dt * vec_tor));
+
+	// Integrate linear velocity
+	XMStoreFloat3(&state->mVecLinearVelocity, vec_lin_vel += (dt * vec_for / bone->mMass));
+
+	// Integrate quaternion orientation
+	XMFLOAT3 vec_velocity;
+	XMStoreFloat3(&vec_velocity, dt * vec_ang_vel);
+	state->mQuatOrientation.w -= 0.5 *
+			(state->mQuatOrientation.x * vec_velocity.x +
+			 state->mQuatOrientation.y * vec_velocity.y +
+			 state->mQuatOrientation.z * vec_velocity.z);
+	state->mQuatOrientation.x += 0.5 *
+			(state->mQuatOrientation.w * vec_velocity.x -
+			 state->mQuatOrientation.z * vec_velocity.y +
+			 state->mQuatOrientation.y * vec_velocity.z);
+	state->mQuatOrientation.y += 0.5 *
+			(state->mQuatOrientation.z * vec_velocity.x +
+			 state->mQuatOrientation.w * vec_velocity.y -
+			 state->mQuatOrientation.x * vec_velocity.z);
+	state->mQuatOrientation.z += 0.5 *
+			(state->mQuatOrientation.x * vec_velocity.x -
+			 state->mQuatOrientation.y * vec_velocity.y +
+			 state->mQuatOrientation.w * vec_velocity.z);
+
+	// Normalize the quaternion
+	XMStoreFloat4(&state->mQuatOrientation, XMQuaternionNormalize(XMLoadFloat4(&state->mQuatOrientation)));
+
+	// Force rotation resolutiin
+	if (boneNum && bone->mResolutionRate != 0.0f)
+	{
+		// Slerp from current orientation to beginning orientation
+		XMVECTOR quat_orientation = XMLoadFloat4(&bone->mpParentBone->mState.mQuatOrientation) * 
+									XMLoadFloat4(&bone->mQuatOrientation);
+
+		XMStoreFloat4(&state->mQuatOrientation, 
+			XMQuaternionSlerp(XMLoadFloat4(&state->mQuatOrientation), quat_orientation, bone->mResolutionRate));
+	}
+
+	// Compute the new matrix-based orientation transformation
+	// based on the quaternion just computed
+	XMStoreFloat4x4(&state->mMatOrientation, 
+		XMMatrixTranspose(XMMatrixRotationQuaternion(XMLoadFloat4(&state->mQuatOrientation))));
+
+	// Calculate the integrated inverse world inertia tensor matrix
+	XMStoreFloat4x4(&state->mMatInvWorldInertiaMatrix,
+		XMLoadFloat4x4(&state->mMatOrientation) * 
+		XMLoadFloat3x3(&bone->mMatInvWorldInertiaMatrix) *
+		XMMatrixTranspose(XMLoadFloat4x4(&state->mMatOrientation)));
+
+	// Calculate new angular velocity
+	XMStoreFloat3(&state->mVecAngularVelocity,
+		Transform(&XMLoadFloat3(&state->mVecAngularMomentum), &XMLoadFloat4x4(&state->mMatInvWorldInertiaMatrix)));
 }
 // NYI
 DWORD Ragdoll::ProcessCollisions(DWORD boneNum, Collision* pCollision, DirectX::XMMATRIX matCollision)
