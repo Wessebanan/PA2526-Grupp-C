@@ -108,6 +108,7 @@ namespace ecs
 					{
 						ecs::components::EquipmentComponent* equipment_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::EquipmentComponent>(entity.entity->getID());
 						ecs::components::WeaponComponent* weapon_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::WeaponComponent>(equipment_comp->mEquippedWeapon);
+						//Check if the unit have a weapon already. If so find a friendly unit without a weapon and follow that unit.
 						if (weapon_comp->mType != GAME_OBJECT_TYPE_FIST)
 						{
 							goal_friend_id = this->FindClosestFriend(entity.entity);
@@ -126,10 +127,12 @@ namespace ecs
 								already_have_weapon = true;
 							}
 						}
-						else
+						//If this unit doesn't have a weapon or if there was no friendly unit without a weapon we find the closest loot tile and move to it.
+						if (goal_friend_id == 0)
 						{
 							goal_id = this->FindClosestLootTile(entity.entity);
 						}
+						//If we found a valid goal we calculate a path to it.
 						if (goal_id != 0)
 						{
 							calc_path = true;
@@ -421,6 +424,7 @@ namespace ecs
 				ecs::components::UnitComponent* other_unit_comp;
 				ecs::components::TransformComponent* curr_unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, current_unit->getID()));
 				ecs::components::TransformComponent* other_unit_transform;
+				ecs::Entity* other_unit_weapon;
 				float dist = 1000.0f;
 				float temp_dist = 0.0f;
 				unsigned int friend_id = 0;
@@ -443,13 +447,19 @@ namespace ecs
 							{
 								if (other_unit->getID() != current_unit->getID())
 								{
-									other_unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, other_unit->getID()));
-									temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
-									//If the distance is smaller then the previously nearest friend we store the info of the new one.
-									if (temp_dist < dist)
+									other_unit_weapon = ecs::ECSUser::getEntity(ecs::ECSUser::getComponentFromKnownEntity<ecs::components::EquipmentComponent>(other_unit->getID())->mEquippedWeapon);
+									ecs::components::WeaponComponent* other_unit_weapon_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::WeaponComponent>(other_unit_weapon->getID());
+									//Check if the friendly unit is without a weapon. We only want to follow allies without weapons while they loot.
+									if (other_unit_weapon_comp->mType == GAME_OBJECT_TYPE_FIST)
 									{
-										dist = temp_dist;
-										friend_id = other_unit->getID();
+										other_unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, other_unit->getID()));
+										temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
+										//If the distance is smaller then the previously nearest friend we store the info of the new one.
+										if (temp_dist < dist)
+										{
+											dist = temp_dist;
+											friend_id = other_unit->getID();
+										}
 									}
 								}
 							}
