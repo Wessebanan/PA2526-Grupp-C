@@ -267,6 +267,38 @@ DWORD Ragdoll::ProcessCollisions(DWORD boneNum, Collision* pCollision, DirectX::
 // NYI
 void Ragdoll::ProcessConnections(DWORD boneNum)
 {
+	RagdollBone* bone = &mBones[boneNum];
+	RagdollBone* parent_bone = bone->mpParentBone;
+
+	// Don't continue if there's no parent bone
+	if (!parent_bone)
+	{
+		return;
+	}
+
+	// Get the pointer to the bone's state
+	RagdollBoneState* b_state = &bone->mState;
+	// Get parent state pointer
+	RagdollBoneState* p_state = &parent_bone->mState;
+
+	// Get joint connection position and vector to center
+	XMFLOAT3 vec_bone_pos = b_state->mVecPoints[8];
+	XMVECTOR vec_b_to_c = XMLoadFloat3(&b_state->mVecPosition) - XMLoadFloat3(&vec_bone_pos);
+
+	XMVECTOR vec_parent_pos = XMLoadFloat3(&b_state->mVecPoints[9]);
+
+	// Calculate a spring vector from point to parent's point
+	XMVECTOR vec_spring = XMLoadFloat3(&vec_bone_pos) - vec_parent_pos;
+
+	// Move point to match parent's point and adjust
+	// the angular velocity and momentum
+	XMStoreFloat3(&b_state->mVecPosition, 
+		XMLoadFloat3(&b_state->mVecPosition) - vec_spring);
+	XMStoreFloat3(&b_state->mVecAngularMomentum, 
+		XMLoadFloat3(&b_state->mVecAngularMomentum) - CrossProduct(&vec_b_to_c, &vec_spring));
+	XMStoreFloat3(&b_state->mVecAngularVelocity, 
+		Transform(&XMLoadFloat3(&b_state->mVecAngularMomentum), 
+				  &XMLoadFloat4x4(&b_state->mMatInvWorldInertiaMatrix)));
 }
 
 void Ragdoll::TransformPoints(DWORD boneNum)
