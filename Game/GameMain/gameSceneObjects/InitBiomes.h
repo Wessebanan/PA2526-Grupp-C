@@ -13,13 +13,16 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 
 	itt = rECS.getAllComponentsOfType(ecs::components::TileComponent::typeID);
 
-
+	GridProp* p_gp = GridProp::GetInstance();
+	int cur_row = 0;
+	int cur_col = 0;
 	int tile_count = Rows * Columns;
 	//Loop over each tile
 	for (size_t i = 0; i < tile_count; i++)
 	{
 		ecs::components::TileComponent* p_tile_comp = (ecs::components::TileComponent*)itt.next();
-		
+		cur_row = i / Columns;
+		cur_col = i % Columns;
 		ecs::components::TransformComponent* p_tile_tansf_comp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(p_tile_comp->getEntityID());
 		ecs::components::ColorComponent* p_tile_color_comp = rECS.getComponentFromEntity<ecs::components::ColorComponent>(p_tile_comp->getEntityID());
 
@@ -55,38 +58,56 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 			p_tile_tansf_comp->position.y *= 1.1f;
 			p_tile_color_comp->red = min(248 + color_offset, 255);
 			p_tile_color_comp->green = min(236 + color_offset, 255);
-			p_tile_color_comp->blue = 179 + color_offset;
+			p_tile_color_comp->blue = 179 + color_offset;			
 			break;
 		default:
 			break;
 		}
-
-
-	}
-	
-
-	GridProp* p_gp = GridProp::GetInstance();
-
-	for (size_t i = 1; i < Rows-1; i++)
-		for (size_t j = 1; j < Columns-1; j++)
+		if (p_gp->mGrid[cur_row][cur_col].Id == p_tile_tansf_comp->getEntityID())
 		{
-			// not do avarage with water
-			if (p_gp->mGrid[i][j].height > -0.2f)
+			p_gp->mGrid[cur_row][cur_col].height = p_tile_tansf_comp->position.y; //put the same height to m_grid so that neighbours for pathfinding get same height as world
+		}
+		else 
+		{
+			for (int i = 0; i < Rows; i++)
 			{
-				float avg = 0.0f;
-				avg += p_gp->mGrid[i][j].height;
-				avg += p_gp->mGrid[i - 1][j].height;
-				avg += p_gp->mGrid[i + 1][j].height;
-				avg += p_gp->mGrid[i][j + 1].height;
-				avg += p_gp->mGrid[i - 1][j + 1].height;
-				avg += p_gp->mGrid[i + 1][j + 1].height;
-				avg += p_gp->mGrid[i][j - 1].height;
-
-				avg /= 7;
-
-				p_gp->mGrid[i][j].height = avg;
+				for (int j = 0; j < Columns; j++)
+				{
+					if (p_gp->mGrid[i][j].Id == p_tile_tansf_comp->getEntityID()) // makes sure that the correct id gets same height
+					{
+						p_gp->mGrid[i][j].height = p_tile_tansf_comp->position.y;
+						break;
+					}
+				}
 			}
-			
 		}
 
+	}
+	//creates neighbours for pathfinding
+	GridFunctions::StoreNeighbours();
+	GridEcsFunctions::LoadNeighboursToComponents(rECS);
+
+	//Lhure created this but is not in use right now and i dont want to remove it because he might need it in the future
+	//for (size_t i = 1; i < Rows-1; i++)		
+	//	for (size_t j = 1; j < Columns-1; j++)
+	//	{
+	//		// not do avarage with water
+	//		if (p_gp->mGrid[i][j].height > -0.2f)
+	//		{
+	//			float avg = 0.0f;
+	//			avg += p_gp->mGrid[i][j].height;
+	//			avg += p_gp->mGrid[i - 1][j].height;
+	//			avg += p_gp->mGrid[i + 1][j].height;
+	//			avg += p_gp->mGrid[i][j + 1].height;
+	//			avg += p_gp->mGrid[i - 1][j + 1].height;
+	//			avg += p_gp->mGrid[i + 1][j + 1].height;
+	//			avg += p_gp->mGrid[i][j - 1].height;
+
+	//			avg /= 7;
+
+	//			p_gp->mGrid[i][j].height = avg;
+	//		}
+	//		
+	//	}
+	
 }
