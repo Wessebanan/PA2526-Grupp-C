@@ -160,7 +160,9 @@
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="BoundingSphere.cpp" />
     <ClCompile Include="BoundingVolume.cpp" />
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionFunctions.cpp" />
+    <ClCompile Include="CollisionObject.cpp" />
     <ClCompile Include="includes\Ragdoll.cpp" />
     <ClCompile Include="MovementFunctions.cpp" />
     <ClCompile Include="OBB.cpp" />
