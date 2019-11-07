@@ -29,7 +29,7 @@ protected:
 
 	// Set gravity and damping forces on joint
 	void SetForces(DWORD boneNum,
-				   DirectX::XMFLOAT3 vecGravity,
+				   DirectX::XMFLOAT3* vecGravity,
 				   float linearDamping,
 				   float angularDamping);
 

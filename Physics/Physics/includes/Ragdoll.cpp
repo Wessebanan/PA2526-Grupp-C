@@ -177,14 +177,22 @@ void Ragdoll::BuildBoneData(DWORD boneNum, RagdollBone* pParentBone)
 		}
 	}
 }
-// NYI
-void Ragdoll::SetForces(DWORD boneNum, DirectX::XMFLOAT3 vecGravity, float linearDamping, float angularDamping)
+
+void Ragdoll::SetForces(DWORD boneNum, DirectX::XMFLOAT3* vecGravity, float linearDamping, float angularDamping)
 {
-	
+	RagdollBone* bone = &this->mBones[boneNum];
+	RagdollBoneState* bc_state = &bone->mState;
+
+	// Set gravity and apply damping on force and torque
+	XMVECTOR temp_vec_force = XMLoadFloat3(vecGravity) * bone->mMass;
+	temp_vec_force += (XMLoadFloat3(&bc_state->mVecLinearVelocity) * linearDamping);
+	XMStoreFloat3(&bone->mVecForce, temp_vec_force);
+	XMStoreFloat3(&bone->mVecTorque, (XMLoadFloat3(&bc_state->mVecAngularVelocity) * angularDamping));
 }
 // NYI
 void Ragdoll::Integrate(DWORD boneNum, float dt)
 {
+
 }
 // NYI
 DWORD Ragdoll::ProcessCollisions(DWORD boneNum, Collision* pCollision, DirectX::XMMATRIX matCollision)
@@ -199,25 +207,62 @@ void Ragdoll::ProcessConnections(DWORD boneNum)
 void Ragdoll::TransformPoints(DWORD boneNum)
 {
 }
-// NYI
-Ragdoll::Ragdoll()
+
+Ragdoll::Ragdoll() : mpMesh(nullptr), mpSkeleton(nullptr), mpUniqueSkeletonData(nullptr),
+					 mNumBones(0), mBones(nullptr)
 {
+
 }
-// NYI
+
 Ragdoll::~Ragdoll()
 {
+	Free();
 }
-// NYI
-bool Create(ModelLoader::Skeleton* pSkeleton,
+
+bool Ragdoll::Create(ModelLoader::Skeleton* pSkeleton,
 	ModelLoader::UniqueSkeletonData* pUniqueSkeletonData,
 	ModelLoader::Mesh* mpMesh,
 	DirectX::XMMATRIX* pMatInitialTransformation = nullptr)
 {
-	return false;
+	if (!(this->mpSkeleton = pSkeleton))
+	{
+		return false;
+	}
+	if (!mpMesh || !pUniqueSkeletonData)
+	{
+		return false;
+	}
+
+	// Update the frame hierarchy using transformation passed
+	// m_pFrame->UpdateHierarchy(matInitialTransformation);
+	// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+	// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+	// I am skipping this function and assuming pMatInitialTransformation is nullptr
+	// The original code uses DXGIFrames 
+
+	this->mNumBones = pSkeleton->jointCount;
+	if (!mNumBones)
+		return false;
+
+	mBones = new RagdollBone[this->mNumBones]();
+
+	// Go through and setup each bone's data
+	// BuildBoneData is a recursive function
+	this->BuildBoneData((DWORD)0);
+
+	mBones[0].mState.mVecAngularMomentum = XMFLOAT3(-1.0f, 0.0f, 0.0f);
+
+	return true;
 }
-// NYI
+
 void Ragdoll::Free()
 {
+	this->mpSkeleton = nullptr;
+	this->mpMesh = nullptr;
+	this->mpUniqueSkeletonData = nullptr;
+	this->mNumBones = 0;
+	delete[] mBones;
+	mBones = nullptr;
 }
 // NYI
 void Ragdoll::Resolve(float dt, float linearDamping, float angularDamping, DirectX::XMFLOAT3 pVecGravity, Collision* pCollision, DirectX::XMMATRIX* pMatCollision)
@@ -227,13 +272,17 @@ void Ragdoll::Resolve(float dt, float linearDamping, float angularDamping, Direc
 void Ragdoll::RebuildHierarchy()
 {
 }
-// NYI
+
 DWORD Ragdoll::GetNumBones()
 {
-	return 0;
+	return mNumBones;
 }
-// NYI
+
 RagdollBone* Ragdoll::GetBonePtr(DWORD boneNum)
 {
+	if (boneNum < mNumBones)
+	{
+		return &mBones[boneNum];
+	}
 	return nullptr;
 }
