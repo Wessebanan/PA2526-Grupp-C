@@ -305,9 +305,6 @@
     <ClInclude Include="gameTraps\TrapEvents.h">
       <Filter>Traps</Filter>
     </ClInclude>
-    <ClInclude Include="gameTraps\TrapGlobals.h">
-      <Filter>Traps</Filter>
-    </ClInclude>
     <ClInclude Include="GameGlobals.h" />
     <ClInclude Include="gameWorld\WorldComponents.h">
       <Filter>World</Filter>

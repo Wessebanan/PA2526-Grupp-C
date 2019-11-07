@@ -182,8 +182,6 @@ private:
 	//// BACKEND STATES
 	// Players joining the game
 	void PlayersJoin();
-	// Gameloop for getting controll information from web
-	//void GameLoop();
 
 
 	// FUNCTIONS FOR INTERACTIONS

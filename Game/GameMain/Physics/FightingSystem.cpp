@@ -10,7 +10,11 @@ ecs::systems::WeaponInitSystem::WeaponInitSystem()
 }
 ecs::systems::WeaponInitSystem::~WeaponInitSystem()
 {
-
+	ComponentIterator it = getComponentsOfType<WeaponComponent>();
+	while (WeaponComponent * weapon = static_cast<WeaponComponent*>(it.next()))
+	{
+		delete weapon->mBoundingVolume;
+	}
 }
 void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
 {

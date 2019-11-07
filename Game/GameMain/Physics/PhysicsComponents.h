@@ -5,6 +5,7 @@
 #include <DirectXCollision.h>
 #include "BoundingVolume.h"
 #include "../GameGlobals.h"
+
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
 // A bunch of default values.
@@ -17,6 +18,8 @@
 
 #define BASE_SWORD_DAMAGE 0.2f
 #define BASE_FIST_DAMAGE 0.1f
+
+#define PI 3.14159265358979323846
 
 // Specifically hard-coded for current dude mesh lmao.
 #define ORIGIN_TO_HAND XMFLOAT3(-4.99f, 2.55f, -0.329f)
