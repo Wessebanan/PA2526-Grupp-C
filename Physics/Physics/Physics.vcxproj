@@ -58,18 +58,15 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheets\ModelLoader_Debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\PropertySheets\ModelLoader_Release.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Lib|x64'">
@@ -146,24 +143,16 @@
     <ClInclude Include="includes\AABB.h" />
     <ClInclude Include="includes\BoundingSphere.h" />
     <ClInclude Include="includes\BoundingVolume.h" />
-    <ClInclude Include="includes\Collision.h" />
     <ClInclude Include="includes\CollisionFunctions.h" />
-    <ClInclude Include="includes\CollisionObject.h" />
     <ClInclude Include="includes\MovementFunctions.h" />
     <ClInclude Include="includes\OBB.h" />
     <ClInclude Include="includes\PhysicsHelperFunctions.h" />
-    <ClInclude Include="includes\Ragdoll.h" />
-    <ClInclude Include="includes\RagdollBone.h" />
-    <ClInclude Include="includes\RagdollBoneState.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AABB.cpp" />
     <ClCompile Include="BoundingSphere.cpp" />
     <ClCompile Include="BoundingVolume.cpp" />
-    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionFunctions.cpp" />
-    <ClCompile Include="CollisionObject.cpp" />
-    <ClCompile Include="includes\Ragdoll.cpp" />
     <ClCompile Include="MovementFunctions.cpp" />
     <ClCompile Include="OBB.cpp" />
     <ClCompile Include="PhysicsHelperFunctions.cpp" />

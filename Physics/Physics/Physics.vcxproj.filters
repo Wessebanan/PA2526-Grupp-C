@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Ragdoll">
-      <UniqueIdentifier>{3c6a6f23-0741-4bad-9917-bf1de0fd2fb1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Ragdoll">
-      <UniqueIdentifier>{88145f90-07af-43e6-827a-d4a820739430}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\PhysicsHelperFunctions.h">
@@ -42,21 +36,6 @@
     <ClInclude Include="includes\OBB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="includes\RagdollBoneState.h">
-      <Filter>Header Files\Ragdoll</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\RagdollBone.h">
-      <Filter>Header Files\Ragdoll</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\Ragdoll.h">
-      <Filter>Header Files\Ragdoll</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\CollisionObject.h">
-      <Filter>Header Files\Ragdoll</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\Collision.h">
-      <Filter>Header Files\Ragdoll</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PhysicsHelperFunctions.cpp">
@@ -78,15 +57,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="OBB.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Collision.cpp">
-      <Filter>Source Files\Ragdoll</Filter>
-    </ClCompile>
-    <ClCompile Include="CollisionObject.cpp">
-      <Filter>Source Files\Ragdoll</Filter>
-    </ClCompile>
-    <ClCompile Include="includes\Ragdoll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
