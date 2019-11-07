@@ -510,7 +510,7 @@ namespace ecs
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
-				mObjectTypeCount[p_obj_comp->mObject]++;
+				mObjectTypeCount[p_obj_comp->mObject - SCENE_OBJECT_ENUM_OFFSET]++;
 			}
 
 			// Set index to write to in RenderBuffer, per mesh
@@ -529,7 +529,7 @@ namespace ecs
 				components::ColorComponent* p_color_comp = object.getComponent<components::ColorComponent>();
 
 				// Get index, depending on mesh type
-				UINT& index = object_type_individual_index[p_obj_comp->mObject];
+				UINT& index = object_type_individual_index[p_obj_comp->mObject - SCENE_OBJECT_ENUM_OFFSET];
 
 				mpBuffer[index].x = p_transform_comp->position.x;
 				mpBuffer[index].y = p_transform_comp->position.y;
@@ -552,17 +552,22 @@ namespace ecs
 				This converts the SCENE_OBJECT mesh enum to MESH_TYPE enum in MeshContainer.
 			*/
 
-			mObjectMeshRegion[0] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL);
-			mObjectMeshRegion[1] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BOX);
-			mObjectMeshRegion[2] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CACTUS);
+			for (UINT i = 0; i < SCENE_OBJECT_COUNT; i++)
+			{
+				mObjectMeshRegion[0] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_SCENE_OBJECT + i);
+			}
 
-			mObjectMeshRegion[3] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CAGE);
-			mObjectMeshRegion[4] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_COWSKULL);
-			mObjectMeshRegion[5] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_FRUITTREE);
+			//mObjectMeshRegion[0] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL);
+			//mObjectMeshRegion[1] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BOX);
+			//mObjectMeshRegion[2] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CACTUS);
 
-			mObjectMeshRegion[6] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_GIANTSKULL);
-			mObjectMeshRegion[7] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TOWER);
-			mObjectMeshRegion[8] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_WINTERTREE);
+			//mObjectMeshRegion[3] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CAGE);
+			//mObjectMeshRegion[4] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_COWSKULL);
+			//mObjectMeshRegion[5] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_FRUITTREE);
+
+			//mObjectMeshRegion[6] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_GIANTSKULL);
+			//mObjectMeshRegion[7] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TOWER);
+			//mObjectMeshRegion[8] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_WINTERTREE);
 
 			mInstanceLayout.MeshCount = SCENE_OBJECT_COUNT;
 			mInstanceLayout.pMeshes = mObjectMeshRegion;

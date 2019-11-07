@@ -108,5 +108,5 @@ float main(PSIN input) : SV_TARGET
 
 	occlusion /= (float)iterations * 4.0f;
 	
-	return saturate(pow(occlusion, 4.0f) * 100.0f);
+	return 0.0f;// saturate(pow(occlusion, 4.0f) * 100.0f);
 }

@@ -14,5 +14,5 @@ float4 main(PSIN input) : SV_TARGET
 	const float3 color		= gColorBuffer.Sample(gSampler, input.uv).rgb;
 	const float3 occlusion	= (1.0f - gOcclusionMap.Sample(gSampler, input.uv).rrr);
 
-	return float4(occlusion * color, 1.0f);
+	return float4(occlusion, 1.0f);
 }
