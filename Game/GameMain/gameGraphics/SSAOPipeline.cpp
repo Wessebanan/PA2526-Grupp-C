@@ -282,6 +282,9 @@ namespace graphics
 
 	void SSAOPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
+		ID3D11ShaderResourceView* pNull = { NULL };
+		pContext4->PSSetShaderResources(3, 1, &pNull);
+
 		graphics::SetViewport(pContext4, 0, 0, mWidth, mHeight);
 		pContext4->OMSetRenderTargets(1, &mpSSAOTarget, NULL);
 
