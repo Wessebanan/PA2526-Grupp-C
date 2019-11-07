@@ -268,9 +268,28 @@ DWORD Ragdoll::ProcessCollisions(DWORD boneNum, Collision* pCollision, DirectX::
 void Ragdoll::ProcessConnections(DWORD boneNum)
 {
 }
-// NYI
+
 void Ragdoll::TransformPoints(DWORD boneNum)
 {
+	RagdollBone* bone = &mBones[boneNum];
+	RagdollBoneState* state = &bone->mState;
+
+	// Transform all points
+	for (DWORD i = 0; i < 9; ++i)
+	{
+		XMStoreFloat3(&state->mVecPoints[i], 
+			Transform(&XMLoadFloat3(&bone->mVecPoints[i]),
+					  &XMLoadFloat4x4(&state->mMatOrientation),
+					  &XMLoadFloat3(&state->mVecPosition)));
+	}
+
+	if (bone->mpParentBone)
+	{
+		XMStoreFloat3(&state->mVecPoints[9],
+			Transform(&XMLoadFloat3(&bone->mVecParentOffset),
+				&XMLoadFloat4x4(&bone->mpParentBone->mState.mMatOrientation),
+				&XMLoadFloat3(&bone->mpParentBone->mState.mVecPosition)));
+	}
 }
 
 Ragdoll::Ragdoll() : mpMesh(nullptr), mpSkeleton(nullptr), mpUniqueSkeletonData(nullptr),
