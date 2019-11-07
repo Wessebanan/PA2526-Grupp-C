@@ -190,12 +190,12 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		QuadTreeComponent quad_tree;
 		int2 grid_size = GridProp::GetInstance()->GetSize();
 		createEntity(quad_tree);
-		// Puts the players into prep phase
+		// Puts the players into waiting phase
 		itt = getComponentsOfType<InputBackendComp>();
 		InputBackendComp* p_ib;
 		while (p_ib = (InputBackendComp*)itt.next())
 		{
-			p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
+			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
 		}
 
 		
@@ -616,8 +616,18 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 
 		if (this->mRoundOverDuration > 3.0f)
 		{
-			events::RoundStartEvent eve;
-			createEvent(eve);
+			ComponentIterator itt;
+			// Puts the players into waiting phase
+			itt = getComponentsOfType<InputBackendComp>();
+			InputBackendComp* p_ib;
+			while (p_ib = (InputBackendComp*)itt.next())
+			{
+				p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
+			}
+
+			// SHOULD BE 
+			//events::RoundStartEvent eve;
+			//createEvent(eve);
 
 			this->mRoundOver = false;
 			this->mRoundOverDuration = 0.0f;
