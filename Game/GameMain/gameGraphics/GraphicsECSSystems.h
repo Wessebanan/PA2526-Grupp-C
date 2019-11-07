@@ -51,5 +51,41 @@ namespace ecs
 
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
+
+		class SmokeSpawnerSystem : public ECSSystem<SmokeSpawnerSystem>
+		{
+		public:
+			SmokeSpawnerSystem();
+			virtual ~SmokeSpawnerSystem() {}
+
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
+
+		class SmokeUpdateSystem : public ECSSystem<SmokeUpdateSystem>
+		{
+		public:
+			SmokeUpdateSystem();
+			virtual ~SmokeUpdateSystem() {}
+
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
+
+		//class SnowSpawnerSystem : public ECSSystem<SnowSpawnerSystem>
+		//{
+		//public:
+		//	SnowSpawnerSystem();
+		//	virtual ~SnowSpawnerSystem() {}
+
+		//	void updateEntity(FilteredEntity& entity, float delta) override;
+		//};
+
+		//class SnowUpdateSystem : public ECSSystem<SnowUpdateSystem>
+		//{
+		//public:
+		//	SnowUpdateSystem();
+		//	virtual ~SnowUpdateSystem() {}
+
+		//	void updateEntity(FilteredEntity& entity, float delta) override;
+		//};
 	}
 }

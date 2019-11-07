@@ -121,15 +121,16 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& world
 	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);	
 	systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(9);
 	systems::WorldRenderSystem* p_world_renderer = rEcs.createSystem<WorldRenderSystem>(9);
-
+	systems::ParticleRenderSystem* p_particle_renderer = rEcs.createSystem<ParticleRenderSystem>(9);
 	
 	p_unit_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_scenery_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_weapon_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_world_renderer->Initialize(&r_render_mgr, &r_state_mgr, worldMeshData.pMesh, worldMeshData.vertexCount);
+	p_particle_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 
 	systems::SSAORenderSystem* p_ssao_renderer = rEcs.createSystem<systems::SSAORenderSystem>(9);
-	p_ssao_renderer->Initialize(&r_mesh_mgr, clientWidth, clientHeight);
+	p_ssao_renderer->Initialize(clientWidth, clientHeight);
 
 	/*
 		These stay outcommented, so we can easily compare performance boost between instance and single mesh rendering
@@ -172,4 +173,45 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_SWORD, "../meshes/sword.fbx");
+
+	// Create Quad For GPU
+	{
+		struct float3
+		{
+			float x, y, z;
+		};
+
+		struct float2
+		{
+			float x, y;
+		};
+
+		float3 vertices[6] =
+		{
+			-1.0f, -1.0f, 0.5f,
+			-1.0f,  1.0f, 0.5f,
+			 1.0f, -1.0f, 0.5f,
+
+			 1.0f, -1.0f, 0.5f,
+			-1.0f,  1.0f, 0.5f,
+			 1.0f,  1.0f, 0.5f,
+		};
+
+		float2 uv[6] =
+		{
+			0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 1.0f,
+
+			1.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+		};
+
+		graphics::VERTEX_DATA data = { NULL };
+		data.pVertexPositions = vertices;
+		data.pVertexTexCoords = uv;
+
+		MeshContainer::CreateGPUMesh(GAME_OBJECT_TYPE_QUAD, 6, 0, data, NULL);
+	}
 }

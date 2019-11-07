@@ -410,5 +410,11 @@
     <FxCompile Include="gameUtility\VS_Tile.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Particle.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Particle.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

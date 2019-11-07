@@ -52,5 +52,35 @@ namespace ecs
 			graphics::FORWARD_RENDERING_PIPELINE_DATA data;
 			UINT pipeline;
 		};
+
+		// --- Default Particle Data ---
+
+		struct ParticleComponent : public ECSComponent<ParticleComponent>
+		{
+			DirectX::XMFLOAT3 Position;
+			char Red, Green, Blue, Scale;
+		};
+
+		struct ParticleSpawnerComponent : public ECSComponent<ParticleSpawnerComponent>
+		{
+			DirectX::XMFLOAT3 StartPosition;
+			float SpawnFrequency;
+			float LifeDuration;
+
+			float TimerSinceLastSpawn;
+		};
+
+		// --- Specific Particle Data ---
+
+		struct SmokeSpawnerComponent : public ECSComponent<SmokeSpawnerComponent>
+		{
+			float InitialVelocity;
+		};
+
+		struct SmokeParticleComponent : public ECSComponent<SmokeParticleComponent>
+		{
+			DirectX::XMFLOAT3 Direction;
+			float CurrentLifeDuration;
+		};
 	}
 }

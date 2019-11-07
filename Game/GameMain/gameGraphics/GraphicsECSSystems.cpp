@@ -49,7 +49,7 @@ namespace ecs
 			typeFilter.addRequirement(components::RenderManagerComponent::typeID);
 			typeFilter.addRequirement(components::RenderBufferComponent::typeID);
 		}
-		
+
 		void UploadRenderBufferSystem::updateEntity(FilteredEntity& entity, float delta)
 		{
 			components::RenderManagerComponent* p_mgr = entity.getComponent<components::RenderManagerComponent>();
@@ -110,10 +110,6 @@ namespace ecs
 			p_mgr->mgr.UpdatePipeline(p_pipeline->pipeline, &p_pipeline->data);
 		}
 
-
-
-
-
 		ExecuteGPURenderSystem::ExecuteGPURenderSystem()
 		{
 			updateType = EntityUpdate;
@@ -133,8 +129,160 @@ namespace ecs
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
 			p_mesh_mgr->mgr.SetVertexBuffers();
-			p_render_mgr->mgr.ExecutePipeline(p_pipeline_shadow_map->pipeline);
+			p_render_mgr->mgr.ExecutePipeline(p_pipeline_shadow_map->pipeline, 0, p_render_mgr->mgr.GetNumShaderPrograms() - 2);
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
 		}
+
+#pragma region SmokeParticleRegion
+		SmokeSpawnerSystem::SmokeSpawnerSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::ParticleSpawnerComponent::typeID);
+			typeFilter.addRequirement(components::SmokeSpawnerComponent::typeID);
+		}
+
+		void SmokeSpawnerSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
+			components::ParticleSpawnerComponent* p_spawner_component =
+				entity.getComponent<components::ParticleSpawnerComponent>();
+
+			components::SmokeSpawnerComponent* p_smoke_component =
+				entity.getComponent<components::SmokeSpawnerComponent>();
+
+			p_spawner_component->TimerSinceLastSpawn += delta;
+			for (; p_spawner_component->TimerSinceLastSpawn > p_spawner_component->SpawnFrequency; p_spawner_component->TimerSinceLastSpawn -= p_spawner_component->SpawnFrequency)
+			{
+				components::ParticleComponent particle;
+				components::SmokeParticleComponent smoke;
+
+				particle.Position = p_spawner_component->StartPosition;
+				smoke.CurrentLifeDuration = p_spawner_component->LifeDuration;
+
+				particle.Red	= 15;
+				particle.Green	= 15;
+				particle.Blue	= 15;
+				particle.Scale	= 20;
+
+				// Randomize x and y direction
+
+				float x = ((float)rand() / (float)RAND_MAX) - 0.5f;
+				float z = ((float)rand() / (float)RAND_MAX) - 0.5f;
+				float speed = ((float)rand() / (float)RAND_MAX * 0.9f + 0.1f) * p_smoke_component->InitialVelocity;
+
+				DirectX::XMVECTOR direction = DirectX::XMVectorSet(x, 1.0f, z, 0.0f);
+				direction = DirectX::XMVector3Normalize(direction);
+				direction = DirectX::XMVectorScale(direction, speed);
+				DirectX::XMStoreFloat3(&smoke.Direction, direction);
+
+				createEntity(particle, smoke);
+			}
+		}
+
+		SmokeUpdateSystem::SmokeUpdateSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::ParticleComponent::typeID);
+			typeFilter.addRequirement(components::SmokeParticleComponent::typeID);
+		}
+
+		void SmokeUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
+			const float gravity = 2.0f;
+
+			components::ParticleComponent* p_particle_component =
+				entity.getComponent<components::ParticleComponent>();
+
+			components::SmokeParticleComponent* p_smoke_component =
+				entity.getComponent<components::SmokeParticleComponent>();
+
+			p_smoke_component->CurrentLifeDuration -= delta;
+			if (p_smoke_component->CurrentLifeDuration <= 0.0f)
+			{
+				removeEntity(entity.entity->getID());
+			}
+
+			DirectX::XMVECTOR position = DirectX::XMLoadFloat3(&p_particle_component->Position);
+			DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&p_smoke_component->Direction);
+
+			position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(direction, delta));
+			direction = DirectX::XMVectorAdd(direction, DirectX::XMVectorSet(0.0f, -gravity * delta, 0.0f, 0.0f));
+
+			DirectX::XMStoreFloat3(&p_particle_component->Position, position);
+			DirectX::XMStoreFloat3(&p_smoke_component->Direction, direction);
+		}
+#pragma endregion SmokeParticleRegion
+//
+//#pragma region SnowParticleRegion
+//		SnowSpawnerSystem::SnowSpawnerSystem()
+//		{
+//			updateType = EntityUpdate;
+//			typeFilter.addRequirement(components::ParticleSpawnerComponent::typeID);
+//		}
+//
+//		void SnowSpawnerSystem::updateEntity(FilteredEntity& entity, float delta)
+//		{
+//			components::ParticleSpawnerComponent* p_spawner_component =
+//				entity.getComponent<components::ParticleSpawnerComponent>();
+//
+//			p_spawner_component->TimerSinceLastSpawn += delta;
+//			for (; p_spawner_component->TimerSinceLastSpawn > p_spawner_component->SpawnFrequency; p_spawner_component->TimerSinceLastSpawn -= p_spawner_component->SpawnFrequency)
+//			{
+//				components::ParticleComponent particle;
+//
+//				particle.Position = p_spawner_component->StartPosition;
+//				particle.CurrentLifeDuration = 10;
+//
+//				particle.Red = 200;
+//				particle.Green = 0;
+//				particle.Blue = 0;
+//				particle.Scale = 20;
+//
+//				float x = 0.0f;
+//				float z = 0.0f;
+//				float speed = 0.0f;
+//
+//				// Randomize x and y direction
+//
+//				x = ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
+//				z = ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
+//				speed = ((float)rand() / (float)RAND_MAX + 1.0f) * 10.0f;
+//
+//				DirectX::XMVECTOR direction = DirectX::XMVectorSet(x, 1.0f, z, 0.0f);
+//				direction = DirectX::XMVector3Normalize(direction);
+//				direction = DirectX::XMVectorScale(direction, speed);
+//				DirectX::XMStoreFloat3(&particle.Direction, direction);
+//
+//				createEntity(particle);
+//			}
+//		}
+//
+//		SnowUpdateSystem::SnowUpdateSystem()
+//		{
+//			updateType = EntityUpdate;
+//			typeFilter.addRequirement(components::ParticleComponent::typeID);
+//		}
+//
+//		void SnowUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
+//		{
+//			components::ParticleComponent* p_particle_component =
+//				entity.getComponent<components::ParticleComponent>();
+//
+//			p_particle_component->CurrentLifeDuration -= delta;
+//			if (p_particle_component->CurrentLifeDuration <= 0.0f)
+//			{
+//				removeEntity(entity.entity->getID());
+//			}
+//
+//
+//			DirectX::XMVECTOR position = DirectX::XMLoadFloat3(&p_particle_component->Position);
+//			DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&p_particle_component->Direction);
+//
+//			position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(direction, delta));
+//			direction = DirectX::XMVectorAdd(direction, DirectX::XMVectorSet(0.0f, -10.0f * delta, 0.0f, 0.0f));
+//
+//			DirectX::XMStoreFloat3(&p_particle_component->Position, position);
+//			DirectX::XMStoreFloat3(&p_particle_component->Direction, direction);
+//		}
+//#pragma endregion SnowParticleRegion 
 	}
 }

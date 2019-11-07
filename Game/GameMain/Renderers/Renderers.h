@@ -118,6 +118,39 @@ namespace ecs
 			graphics::MeshRegion mTileMeshRegion;
 		};
 
+		class ParticleRenderSystem : public ECSSystem<ParticleRenderSystem>
+		{
+		public:
+
+			ParticleRenderSystem();
+			~ParticleRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				float x, y, z;
+				uint32_t color;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mParticleCount;
+			graphics::MeshRegion mParticleMeshRegion;
+		};
+
 		class OceanRenderSystem : public ECSSystem<OceanRenderSystem>
 		{
 		public:
@@ -238,7 +271,6 @@ namespace ecs
 			void act(float _delta) override;
 
 			void Initialize(
-				graphics::MeshManager* pMeshMgr,
 				const UINT clientWidth,
 				const UINT clientHeight);
 

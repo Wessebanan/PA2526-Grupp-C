@@ -12,7 +12,7 @@ uint4 unpack(const uint packedData)
 
 struct PerObjectData
 {
-	float3 Pos;
+	float3 pos;
 	uint   color;
 };
 
@@ -48,32 +48,20 @@ StructuredBuffer<float2> gVertexTexCoords		: register (t2);
 struct VSOUT
 {
 	float4 pos			: SV_POSITION;
-	float4 sunPos		: POSITION1;
-
-	float3 color		: COLOR0;
-	float3 normal		: NORMAL0;
-
-	// SSAO
-	float3 normalViewSpace		: NORMAL1;
-	float3 positionViewSpace	: POSITION2;
+	float4 color		: COLOR0;
 };
 
 VSOUT main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 {
 	VSOUT output;
+	output.color = unpack(gMesh[InstanceID].color) / 255.0f;
 
-	float4 worldPos = float4(gVertexPositions[VertexID].xyz + gMesh[InstanceID].Pos.xyz, 1.0f);
-	float4 viewPos = mul(gView, worldPos);
+	float4 world_pos	= float4(gMesh[InstanceID].pos.xyz, 1.0f);
+	float4 view_pos		= mul(gView, world_pos);
 
-	output.pos		= mul(gPerspective, viewPos);
-	output.sunPos	= mul(gOrtographicsSun, mul(gViewSun, worldPos));
+	view_pos += float4(gVertexPositions[VertexID].xyz, 0.0f) * output.color.a;
 
-	float4 clr		= unpack(gMesh[InstanceID].color) / 255.0f;
-	output.color	= clr.rgb;
-	output.normal	= gVertexNormals[VertexID];
-
-	output.normalViewSpace		= mul(gView, float4(gVertexNormals[VertexID], 0.0f)).xyz;
-	output.positionViewSpace	= viewPos.xyz;
+	output.pos		= mul(gPerspective, view_pos);
 
 	return output;
 }

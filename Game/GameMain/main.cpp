@@ -116,6 +116,24 @@ int main()
 
 	InitAll(ecs, client_width, client_height);
 
+	ecs.reserveComponentCount<components::ParticleComponent>(50000);
+	ecs.reserveComponentCount<components::SmokeParticleComponent>(50000);
+	ecs.createSystem<systems::SmokeSpawnerSystem>(7);
+	ecs.createSystem<systems::SmokeUpdateSystem>(8);
+
+	// Smoke Emitter
+	components::ParticleSpawnerComponent spawner;
+	components::SmokeSpawnerComponent smoke;
+
+	spawner.StartPosition			= { 10.0f, 2.0f, 10.0f };
+	spawner.SpawnFrequency			= 0.001f;
+	spawner.TimerSinceLastSpawn		= 0.0f;
+	spawner.LifeDuration			= 5.0f;
+
+	smoke.InitialVelocity = 2.0f;
+
+	ecs.createEntity(spawner, smoke);
+
 	/*
 		 #############################                                                    ############################# 
 		#######################   From here on, all initialization is expected to be finished.   #######################
