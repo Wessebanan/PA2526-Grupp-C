@@ -158,7 +158,8 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 {
 	if (event.getTypeID() == ecs::events::GameStartEvent::typeID)
 	{
-		ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
+		ComponentIterator itt;
+		itt = getComponentsOfType<GameLoopComponent>();
 		GameLoopComponent* p_gl;
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
@@ -174,7 +175,15 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		QuadTreeComponent quad_tree;
 		int2 grid_size = GridProp::GetInstance()->GetSize();
 		createEntity(quad_tree);
+		// Puts the players into prep phase
+		itt = getComponentsOfType<InputBackendComp>();
+		InputBackendComp* p_ib;
+		while (p_ib = (InputBackendComp*)itt.next())
+		{
+			p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
+		}
 
+		// Starts the first round, should be removed when prepphase is implemented
 		ecs::events::RoundStartEvent eve;
 		createEvent(eve);
 
@@ -199,11 +208,20 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 {
 	if (event.getTypeID() == ecs::events::RoundStartEvent::typeID)
 	{
+		ComponentIterator itt;
+		itt = getComponentsOfType<InputBackendComp>();
+		InputBackendComp* p_ib;
+		while (p_ib = (InputBackendComp*)itt.next())
+		{
+			p_ib->backend->changeGamestate(WEBGAMESTATE::BATTLEPHASE);
+		}
+
+
 		this->CreateUnits();
 		this->CreateUnitPhysics();
 
 		// Start the timer after eveything has been loaded
-		ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
+		itt = getComponentsOfType<GameLoopComponent>();
 		GameLoopComponent* p_gl;
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
