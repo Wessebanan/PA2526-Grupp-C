@@ -86,6 +86,37 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 
 ///////////////////
 
+
+
+ecs::systems::WaitForStartupSystem::WaitForStartupSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
+}
+
+ecs::systems::WaitForStartupSystem::~WaitForStartupSystem()
+{
+}
+
+void ecs::systems::WaitForStartupSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	InputBackendComp* p_ib = _entityInfo.getComponent<InputBackendComp>();
+	if (p_ib)
+	{
+		if (p_ib->backend->checkReadyCheck())
+		{
+			// Starts the first round, should be removed when prepphase is implemented
+			ecs::events::RoundStartEvent eve;
+			createEvent(eve);
+
+			// Remove itself
+		}
+	}
+}
+
+
+///////////////////
+
 ecs::systems::PrepphaseSystem::PrepphaseSystem()
 {
 	updateType = ecs::EntityUpdate;
@@ -106,6 +137,8 @@ void ecs::systems::PrepphaseSystem::updateEntity(FilteredEntity& _entityInfo, fl
 			// Starts the first round, should be removed when prepphase is implemented
 			ecs::events::RoundStartEvent eve;
 			createEvent(eve);
+
+			// Remove itself
 		}
 	}
 }
@@ -145,7 +178,6 @@ void ecs::systems::BattlephaseSystem::updateMultipleEntities(EntityIterator& _en
 		events::RoundEndEvent eve;
 		eve.winner = alive_player;
 		createEvent(eve);
-
 	} // Draw
 	else if (check_any_live == 0)
 	{
@@ -205,8 +237,6 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
 		}
 
-		
-
 	}
 }
 
@@ -264,6 +294,8 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 				text_comp->mStrText = "";
 			}
 		}
+
+		// Create Battlephase system
 
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
@@ -542,17 +574,19 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 	{
 		int winner = dynamic_cast<ecs::events::RoundEndEvent*>(&event)->winner;
 
+		// Failsafe if the evetn wasnt created correct, -1 is also a draw
 		if (winner >= 0)
 		{
 			ComponentIterator itt = ecs::ECSUser::getComponentsOfType(ecs::components::GameLoopComponent::typeID);
 			GameLoopComponent* p_gl;
 			while (p_gl = static_cast<GameLoopComponent*>(itt.next()))
 			{
-				p_gl->mPlayerPoints[winner]++;
 
-				// Check if the winner has won enougth to win the game
-				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN)
+				// Check if the winner will sin the game now or not
+				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN - 1)
 				{
+					p_gl->mPlayerPoints[winner]++;
+
 					cout << "The round winner is Player " << winner << endl;
 					// Can be reworked to start prep phase
 					this->mRoundOver = true;
@@ -632,9 +666,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 				p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
 			}
 
-			// SHOULD BE 
-			//events::RoundStartEvent eve;
-			//createEvent(eve);
+			// Remove battlephase and start prephase
 
 			this->mRoundOver = false;
 			this->mRoundOverDuration = 0.0f;

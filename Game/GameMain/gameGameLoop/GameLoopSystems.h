@@ -25,6 +25,16 @@ namespace ecs
 		};
 
 		// Checks for transition to bettlephase
+		class WaitForStartupSystem : public ecs::ECSSystem<WaitForStartupSystem>
+		{
+		public:
+			WaitForStartupSystem();
+			~WaitForStartupSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		private:
+		};
+
+		// Checks for transition to battlephase
 		class PrepphaseSystem : public ecs::ECSSystem<PrepphaseSystem>
 		{
 		public:
