@@ -23,7 +23,7 @@ void Ragdoll::GetBoundingBoxSize(ModelLoader::Joint* pJoint, DirectX::XMFLOAT3* 
 	if (pJoint)
 	{
 		std::vector<unsigned int>* vertex_indices = &pJoint->mConnectedVertexIndices;
-		DWORD num_vertices = vertex_indices->size();
+		DWORD num_vertices = (DWORD)vertex_indices->size();
 		if (num_vertices > 0)
 		{
 			// Get the vertices and vertex weights encompassed by this bounding box
@@ -92,7 +92,7 @@ void Ragdoll::BuildBoneData(DWORD boneNum, RagdollBone* pParentBone)
 		// the bounding box size
 		XMFLOAT3 vecHalfSize;
 		vecHalfSize.x = bone->mVecSize.x * 0.5f; 
-		vecHalfSize.y = bone->mVecSize.y * 0.5; 
+		vecHalfSize.y = bone->mVecSize.y * 0.5f; 
 		vecHalfSize.z = bone->mVecSize.z * 0.5f;
 		bone->mVecPoints[0] = XMFLOAT3(-vecHalfSize.x, vecHalfSize.y, -vecHalfSize.z);
 		bone->mVecPoints[1] = XMFLOAT3(-vecHalfSize.x, vecHalfSize.y, vecHalfSize.z);
@@ -213,19 +213,19 @@ void Ragdoll::Integrate(DWORD boneNum, float dt)
 	// Integrate quaternion orientation
 	XMFLOAT3 vec_velocity;
 	XMStoreFloat3(&vec_velocity, dt * vec_ang_vel);
-	state->mQuatOrientation.w -= 0.5 *
+	state->mQuatOrientation.w -= 0.5f *
 			(state->mQuatOrientation.x * vec_velocity.x +
 			 state->mQuatOrientation.y * vec_velocity.y +
 			 state->mQuatOrientation.z * vec_velocity.z);
-	state->mQuatOrientation.x += 0.5 *
+	state->mQuatOrientation.x += 0.5f *
 			(state->mQuatOrientation.w * vec_velocity.x -
 			 state->mQuatOrientation.z * vec_velocity.y +
 			 state->mQuatOrientation.y * vec_velocity.z);
-	state->mQuatOrientation.y += 0.5 *
+	state->mQuatOrientation.y += 0.5f *
 			(state->mQuatOrientation.z * vec_velocity.x +
 			 state->mQuatOrientation.w * vec_velocity.y -
 			 state->mQuatOrientation.x * vec_velocity.z);
-	state->mQuatOrientation.z += 0.5 *
+	state->mQuatOrientation.z += 0.5f *
 			(state->mQuatOrientation.x * vec_velocity.x -
 			 state->mQuatOrientation.y * vec_velocity.y +
 			 state->mQuatOrientation.w * vec_velocity.z);
@@ -338,7 +338,7 @@ Ragdoll::~Ragdoll()
 bool Ragdoll::Create(ModelLoader::Skeleton* pSkeleton,
 	ModelLoader::UniqueSkeletonData* pUniqueSkeletonData,
 	ModelLoader::Mesh* mpMesh,
-	DirectX::XMMATRIX* pMatInitialTransformation = nullptr)
+	DirectX::XMMATRIX* pMatInitialTransformation)
 {
 	if (!(this->mpSkeleton = pSkeleton))
 	{

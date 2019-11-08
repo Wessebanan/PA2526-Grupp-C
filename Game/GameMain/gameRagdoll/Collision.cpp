@@ -1,4 +1,4 @@
-#include "includes/Collision.h"
+#include "Collision.h"
 
 Collision::Collision()
 {
