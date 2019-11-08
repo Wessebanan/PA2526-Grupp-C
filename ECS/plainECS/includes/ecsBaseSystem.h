@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 #include "ecsUser.h"
 #include "ecsEventListener.h"
 #include "ecsEntity.h"
@@ -9,10 +10,15 @@
 #include "ecsIDGenerator.h"
 #include "ecsTypeFilter.h"
 
+
+
 namespace ecs
 {
 	class BaseSystem;
+	typedef BaseSystem* (*SystemCreateFunction)();
 	typedef void(*SystemFreeFunction)(BaseSystem* _systemPtr);
+
+
 
 	/*
 		SystemUpdateType description
@@ -47,6 +53,7 @@ namespace ecs
 
 		virtual TypeID getTypeID() { return 0; }
 		virtual std::string getName() { return ""; }
+		virtual SystemCreateFunction getCreateFunction() { return nullptr; }
 		virtual SystemFreeFunction getFreeFunction() { return nullptr; }
 
 		virtual void updateEntity(FilteredEntity &_entityInfo, float _delta) {}
@@ -60,6 +67,10 @@ namespace ecs
 		//TypeFilter componentFilter;
 		//TypeFilter eventFilter;
 		TypeFilter typeFilter;
+
+		//static std::unordered_map<TypeID, SystemCreateFunction>* typeIDToCreateFunctionMap;
+
+		//static SystemCreateFunction RegisterCreateFunction(TypeID _typeID, SystemCreateFunction cf);
 
 		//static IDGenerator<TypeID> typeIDGenerator;
 		static TypeID typeIDCounter;
@@ -76,10 +87,12 @@ namespace ecs
 	public:
 		static const TypeID typeID;
 		static const std::string name;
+		static const SystemCreateFunction createFunction;
 		static const SystemFreeFunction freeFunction;
 
 		virtual TypeID getTypeID() { return T::typeID; }
 		virtual std::string getName() { return T::name; }
+		virtual SystemCreateFunction getCreateFunction() { return T::createFunction; }
 		virtual SystemFreeFunction getFreeFunction() { return T::freeFunction; }
 
 		ECSSystem() {}
@@ -87,11 +100,17 @@ namespace ecs
 	};
 
 	/*
-		Define a dynamic free function. This function will use the proper
-		delete operator of the actual system type pointer. This could be done
+		Define a dynamic create and free function. This functions will use the proper
+		construct and delete operator of the actual system type pointer. This could be done
 		through virtual destructors, but then the user might forget
 		to make the destructor virtual in the user written systems.
 	*/
+	template <typename T>
+	BaseSystem* systemCreate()
+	{
+		return (BaseSystem*)(new T());
+	}
+
 	template <typename T>
 	void systemFree(BaseSystem* _systemPtr)
 	{
@@ -101,7 +120,7 @@ namespace ecs
 	}
 
 	/*
-	*	Initialize all static variables
+	*	Initialize all static variables and functions
 	*/
 
 	template <typename T>
@@ -109,6 +128,10 @@ namespace ecs
 
 	template <typename T>
 	const std::string ECSSystem<T>::name(__nameof<T>());
+
+	template <typename T>
+	const SystemCreateFunction ECSSystem<T>::createFunction(systemCreate<T>);
+	//const SystemCreateFunction ECSSystem<T>::createFunction(systemCreate<T>);
 
 	template <typename T>
 	const SystemFreeFunction ECSSystem<T>::freeFunction(systemFree<T>);

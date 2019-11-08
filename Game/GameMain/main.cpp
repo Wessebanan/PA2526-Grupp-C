@@ -230,7 +230,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGrid(rECS);
 	InitArmy(rECS);
-	InitSceneObjects(rECS);
+	//InitSceneObjects(rECS);
 
 	InitOceanEntities(rECS);
 	InitOceanUpdateSystem(rECS);
