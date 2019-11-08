@@ -342,7 +342,7 @@ bool Ragdoll::ProcessCollisions(DWORD boneNum, Collision* pCollision)
 	if (collision_count > 0)
 	{
 		// Add averaged forces to integrated state.
-		XMStoreFloat3(&state->mVecLinearVelocity, XMVectorAdd(XMLoadFloat3(&state->mVecLinearVelocity), XMVectorScale(XMVectorScale(XMLoadFloat3(&linear_velocity), 1.0f / bone->mMass), 1.0f / (float)collision_count));
+		XMStoreFloat3(&state->mVecLinearVelocity, XMVectorAdd(XMLoadFloat3(&state->mVecLinearVelocity), XMVectorScale(XMVectorScale(XMLoadFloat3(&linear_velocity), 1.0f / bone->mMass), 1.0f / (float)collision_count)));
 		XMStoreFloat3(&state->mVecAngularMomentum, XMVectorAdd(XMLoadFloat3(&state->mVecAngularMomentum), XMVectorScale(XMLoadFloat3(&angular_momentum), 1.0f / (float)collision_count)));
 
 		// Calculate angular velocity.
