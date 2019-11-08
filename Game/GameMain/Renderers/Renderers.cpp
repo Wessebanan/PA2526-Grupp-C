@@ -29,7 +29,7 @@
 #define DEFINE_WEAPON_RENDERER(renderSystemName, weaponCompName, objectType) \
 	renderSystemName::renderSystemName() { updateType = SystemUpdateType::MultiEntityUpdate; SET_WEAPON_TYPE_FILTER(weaponCompName) } \
 	void renderSystemName::updateMultipleEntities(EntityIterator& _entities, float _delta) { mRenderer.RenderAllInternal(_entities); } \
-	void renderSystemName::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer) { INIT_WEAPON_RENDERER(pRenderMgr, pRenderBuffer, GAME_OBJECT_TYPE_SWORD) }
+	void renderSystemName::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer) { INIT_WEAPON_RENDERER(pRenderMgr, pRenderBuffer, objectType) }
 
 void WeaponRenderer::InitializeInternal(
 	graphics::RenderManager* pRenderMgr,
@@ -114,6 +114,12 @@ namespace ecs
 {
 	namespace systems
 	{
+#pragma region WeaponRenderSystems
+
+		DEFINE_WEAPON_RENDERER(SwordRenderSystem, SwordComponent, GAME_OBJECT_TYPE_SWORD)
+
+#pragma endregion WeaponRenderSystems
+
 #pragma region UnitRenderSystem
 		UnitRenderSystem::UnitRenderSystem() : mFrameCounter(0), mAnimationFrameCounter(0), mUnitCount(0), mpRenderBuffer(0)
 		{
@@ -722,11 +728,5 @@ namespace ecs
 			mRenderMgr.SetShaderModelLayout(mShaderBlur_v, mInstanceLayout);
 			mRenderMgr.SetShaderModelLayout(mShaderCombine, mInstanceLayout);
 		}
-
-#pragma region WeaponRenderSystem
-
-		DEFINE_WEAPON_RENDERER(WeaponRenderSystem, SwordComponent, GAME_OBJECT_TYPE_SWORD)
-
-#pragma endregion WeaponRenderSystem
 	}
 }

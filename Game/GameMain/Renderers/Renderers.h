@@ -26,6 +26,22 @@
 //	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
 //}
 
+#define DEFINE_WEAPON_RENDERER_HEADER(renderSystemName) \
+	class renderSystemName : public ecs::ECSSystem<renderSystemName> \
+	{ \
+	public:  \
+		renderSystemName(); \
+		virtual ~renderSystemName() {} \
+		void updateMultipleEntities(EntityIterator& _entities, float _delta) override; \
+		void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer); \
+	private: \
+		WeaponRenderer mRenderer; \
+	};
+
+
+
+
+
 struct WeaponRenderer : public ecs::ECSUser
 {
 	struct InstanceData
@@ -55,6 +71,12 @@ namespace ecs
 {
 	namespace systems
 	{
+		/*
+			-- Weapon Render Systems
+		*/
+
+		DEFINE_WEAPON_RENDERER_HEADER(SwordRenderSystem)
+
 		/*
 			-- Render Systems
 			These ecs systems has the responsibility for rendering
@@ -289,24 +311,6 @@ namespace ecs
 
 			UINT mObjectCount;
 			graphics::MeshRegion mScreenSpaceTriangle;
-		};
-
-
-
-		class WeaponRenderSystem : public ECSSystem<WeaponRenderSystem>
-		{
-		public:
-
-			WeaponRenderSystem();
-			virtual ~WeaponRenderSystem() {}
-
-			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
-
-			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
-
-		private:
-
-			WeaponRenderer mRenderer;
 		};
 	}
 }

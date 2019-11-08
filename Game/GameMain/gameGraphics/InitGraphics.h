@@ -125,13 +125,13 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& world
 
 	systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(9);
 	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);	
-	systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(9);
+	systems::SwordRenderSystem* p_sword_renderer = rEcs.createSystem<systems::SwordRenderSystem>(9);
 	systems::WorldRenderSystem* p_world_renderer = rEcs.createSystem<WorldRenderSystem>(9);
 
 	
 	p_unit_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_scenery_renderer->Initialize(&r_render_mgr, &r_render_buffer);
-	p_weapon_renderer->Initialize(&r_render_mgr, &r_render_buffer);
+	p_sword_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_world_renderer->Initialize(&r_render_mgr, &r_state_mgr, worldMeshData.pMesh, worldMeshData.vertexCount);
 
 	systems::SSAORenderSystem* p_ssao_renderer = rEcs.createSystem<systems::SSAORenderSystem>(9);
