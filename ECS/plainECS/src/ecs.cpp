@@ -173,9 +173,9 @@ void EntityComponentSystem::update(float _delta)
 	*		- Actor					The system will be updated without any entity or event input.
 	*/
 
-	#ifdef _DEBUG
-		std::string debugPrint = "\n[" + __nameof<EntityComponentSystem>() + "]\t Updating systems:\n";
-	#endif
+	//#ifdef _DEBUG
+	//	std::string debugPrint = "\n[" + __nameof<EntityComponentSystem>() + "]\t Updating systems:\n";
+	//#endif
 
 	/*
 	*	Iterate all layers
@@ -191,20 +191,20 @@ void EntityComponentSystem::update(float _delta)
 
 		SystemList& layer = systemLayers[i];
 
-		#ifdef _DEBUG
-			// Add layer print
-			if ((unsigned int)layer.size())
-			{
-				debugPrint += "\t[layer " + to_string(i) + "] ";
-			}
-		#endif
+		//#ifdef _DEBUG
+		//	// Add layer print
+		//	if ((unsigned int)layer.size())
+		//	{
+		//		debugPrint += "\t[layer " + to_string(i) + "] ";
+		//	}
+		//#endif
 
 		for (BaseSystem* s : layer)
 		{
-			#ifdef _DEBUG
-				// Print system
-				debugPrint += s->getName();
-			#endif
+			//#ifdef _DEBUG
+			//	// Print system
+			//	debugPrint += s->getName();
+			//#endif
 
 			/*
 			*	Fetch the system's update behaviour and act accordingly.
@@ -251,25 +251,25 @@ void EntityComponentSystem::update(float _delta)
 				s->act(_delta);
 				break;
 
-		#ifdef _DEBUG
-			case Undefined:
-				debugPrint += "(Undefined update type)";
-				break;
-		#endif
+		//#ifdef _DEBUG
+		//	case Undefined:
+		//		debugPrint += "(Undefined update type)";
+		//		break;
+		//#endif
 
 			}
 
-			#ifdef _DEBUG
-				debugPrint += ", ";
-			#endif
+			//#ifdef _DEBUG
+			//	debugPrint += ", ";
+			//#endif
 		}
 
-		#ifdef _DEBUG
-			if ((unsigned int)layer.size())
-			{
-				debugPrint += "\n";
-			}
-		#endif
+		//#ifdef _DEBUG
+		//	if ((unsigned int)layer.size())
+		//	{
+		//		debugPrint += "\n";
+		//	}
+		//#endif
 	}
 
 	/*
@@ -285,37 +285,37 @@ void EntityComponentSystem::update(float _delta)
 	entityMgr.removeAllFlagged();
 	eventMgr.clearAllEvents();
 
-#ifdef _DEBUG
-	debugPrint += "\tComp. count:\t" + to_string(componentMgr.getTotalComponentCount()) + "\n";
-	debugPrint += "\tEntity count:\t" + to_string(entityMgr.getEntityCount()) + "\n";
+//#ifdef _DEBUG
+//	debugPrint += "\tComp. count:\t" + to_string(componentMgr.getTotalComponentCount()) + "\n";
+//	debugPrint += "\tEntity count:\t" + to_string(entityMgr.getEntityCount()) + "\n";
+//
+//	if (entityMgr.getEntityCount() <= DEBUG_ENTITY_PRINT_MAX_COUNT)
+//	{
+//		unsigned int counter = 1;
+//		using IDPair = std::pair<TypeID, ID>;
+//		for (ECSEntityManager::EntityPair e : entityMgr.entities)
+//		{
+//			debugPrint += "\t  ";
+//
+//			debugPrint += (counter != entityMgr.getEntityCount()) ? "|" : " ";
+//
+//			debugPrint += "`-[ID=" + to_string(e.second->getID()) + "] ";
+//
+//			
+//			for (IDPair idPair : e.second->componentIDs)
+//			{
+//				BaseComponent* pComp = getComponent(idPair.first, idPair.second);
+//				debugPrint += pComp->getName() + " ";
+//			}
+//			debugPrint += "\n";
+//			counter++;
+//		}
+//	}
+//#endif
 
-	if (entityMgr.getEntityCount() <= DEBUG_ENTITY_PRINT_MAX_COUNT)
-	{
-		unsigned int counter = 1;
-		using IDPair = std::pair<TypeID, ID>;
-		for (ECSEntityManager::EntityPair e : entityMgr.entities)
-		{
-			debugPrint += "\t  ";
-
-			debugPrint += (counter != entityMgr.getEntityCount()) ? "|" : " ";
-
-			debugPrint += "`-[ID=" + to_string(e.second->getID()) + "] ";
-
-			
-			for (IDPair idPair : e.second->componentIDs)
-			{
-				BaseComponent* pComp = getComponent(idPair.first, idPair.second);
-				debugPrint += pComp->getName() + " ";
-			}
-			debugPrint += "\n";
-			counter++;
-		}
-	}
-#endif
-
-#ifdef _DEBUG
-	cout << debugPrint << endl;
-#endif
+//#ifdef _DEBUG
+//	cout << debugPrint << endl;
+//#endif
 }
 
 /*

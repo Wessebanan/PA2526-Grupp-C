@@ -17,9 +17,9 @@
 
 #define DEFAULT_LAYER_COUNT 10
 
-#ifdef _DEBUG
-#define DEBUG_ENTITY_PRINT_MAX_COUNT 20
-#endif
+//#ifdef _DEBUG
+//#define DEBUG_ENTITY_PRINT_MAX_COUNT 20
+//#endif
 
 // TODO: Move event creations for new entity and component out of internal functions.
 
