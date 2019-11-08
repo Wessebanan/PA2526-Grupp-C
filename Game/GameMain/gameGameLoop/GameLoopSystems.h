@@ -24,17 +24,25 @@ namespace ecs
 		private:
 		};
 
-		// Checks if there is only one player alive then creates a evnt for it
-		class GameLoopAliveSystem : public ecs::ECSSystem<GameLoopAliveSystem>
+		// Checks for transition to bettlephase
+		class PrepphaseSystem : public ecs::ECSSystem<PrepphaseSystem>
 		{
 		public:
-			GameLoopAliveSystem();
-			~GameLoopAliveSystem();
+			PrepphaseSystem();
+			~PrepphaseSystem();
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 		private:
 		};
-		
 
+		// CHecks for transition to prepphase
+		class BattlephaseSystem : public ecs::ECSSystem<BattlephaseSystem>
+		{
+		public:
+			BattlephaseSystem();
+			~BattlephaseSystem();
+			void updateMultipleEntities(EntityIterator &_entities, float _delta) override;
+		private:
+		};
 
 
 		// ----------- EVENTREADERS -----------------

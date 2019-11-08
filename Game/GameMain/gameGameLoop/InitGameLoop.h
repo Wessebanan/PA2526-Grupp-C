@@ -6,7 +6,7 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 {
 	// Update ssystems
 	rECS.createSystem<ecs::systems::GameLoopSystem>();
-	rECS.createSystem<ecs::systems::GameLoopAliveSystem>(1);
+	rECS.createSystem<ecs::systems::BattlephaseSystem>(1);
 
 	// Event systems
 	rECS.createSystem<ecs::systems::GameStartSystem>(0);

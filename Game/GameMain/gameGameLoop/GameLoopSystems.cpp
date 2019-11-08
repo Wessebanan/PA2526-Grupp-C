@@ -82,15 +82,24 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	
 		p_text->mStrText = ss;
 	}
+}
 
+///////////////////
 
-	ComponentIterator itt;;
-	
-	// Here a gamestate chekc should go but not implemented yet
-	// Puts the players into prep phase
-	itt = getComponentsOfType<InputBackendComp>();
-	InputBackendComp* p_ib;
-	while (p_ib = (InputBackendComp*)itt.next())
+ecs::systems::PrepphaseSystem::PrepphaseSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
+}
+
+ecs::systems::PrepphaseSystem::~PrepphaseSystem()
+{
+}
+
+void ecs::systems::PrepphaseSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	InputBackendComp* p_ib = _entityInfo.getComponent<InputBackendComp>();
+	if(p_ib)
 	{
 		if (p_ib->backend->checkReadyCheck())
 		{
@@ -101,31 +110,28 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	}
 }
 
-///////////////////
+/////////////////////
 
-ecs::systems::GameLoopAliveSystem::GameLoopAliveSystem()
+ecs::systems::BattlephaseSystem::BattlephaseSystem()
 {
-	updateType = ecs::EntityUpdate;
-	typeFilter.addRequirement(ecs::components::GameLoopComponent::typeID);
+	updateType = ecs::MultiEntityUpdate;
+	typeFilter.addRequirement(ecs::components::ArmyComponent::typeID);
 }
 
-ecs::systems::GameLoopAliveSystem::~GameLoopAliveSystem()
+ecs::systems::BattlephaseSystem::~BattlephaseSystem()
 {
 }
 
-// 
-void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+void ecs::systems::BattlephaseSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 {
-	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
-
-	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
-	ArmyComponent* p_army_comp;
-
 	int check_any_live = 0;
 	PLAYER alive_player;
-
-	while (p_army_comp = (ArmyComponent*)itt.next())
+	ArmyComponent* p_army_comp;
+	//for (size_t i = 0; i < list.size(); i++)
+	for (FilteredEntity& army : _entities.entities)
 	{
+		p_army_comp = army.getComponent<ArmyComponent>();
+
 		if (p_army_comp->unitIDs.size() > 0)
 		{
 			check_any_live++;
@@ -139,8 +145,8 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 		events::RoundEndEvent eve;
 		eve.winner = alive_player;
 		createEvent(eve);
-		
-	}
+
+	} // Draw
 	else if (check_any_live == 0)
 	{
 		events::RoundEndEvent eve;
@@ -148,6 +154,7 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 		createEvent(eve);
 	}
 }
+
 
 /*
 ====================================================
