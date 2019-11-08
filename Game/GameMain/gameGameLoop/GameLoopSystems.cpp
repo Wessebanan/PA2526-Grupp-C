@@ -249,6 +249,9 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 void ecs::systems::RoundStartSystem::CreateUnits()
 {
+	
+	events::CountdownStartEvent start_countdown;
+	createEvent(start_countdown);
 	/* TEAM COLORS */
 	struct uint3
 	{

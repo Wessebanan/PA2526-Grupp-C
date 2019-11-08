@@ -146,6 +146,20 @@ namespace ecs
 			Direct2D* mpD2D;
 		};
 
+		class UICountDownSystem : public ECSSystem<UICountDownSystem> //system for drawing filled rects
+			//it needs 2 components Drawcolor and drawPos then the system draws
+			//that filled rect with that color at that position
+		{
+		public:
+			UICountDownSystem();
+			virtual ~UICountDownSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+			void onEvent(TypeID _eventType, BaseEvent* _event) override;
+			Direct2D* mpD2D;
+			float mSize = 0;
+			int counter = 3;
+		};
+
 	}
 
 }

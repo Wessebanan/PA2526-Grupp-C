@@ -64,7 +64,6 @@ struct cmp_str
 	}
 };
 
-
 class Direct2D
 {
 public:
@@ -83,6 +82,7 @@ public:
 	ID2D1Bitmap1* GetBitmap(char* bitmapName);//returns bitmap
 	//Returns a bitmap that has the same string name
 	ID2D1Bitmap1* GetBitmap(std::string bitmapName);//returns bitmap
+	//Returns the bitmap taken from the backbuffer which contains the resolution
 	ID2D1Bitmap1* GetBackbufferBitmap();
 	void setBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap);
 	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);

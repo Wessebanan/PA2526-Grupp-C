@@ -4,6 +4,7 @@
 #include "Mesh.h"
 #include "..//Physics/PhysicsComponents.h"
 #include "..//GameGlobals.h"
+#include "..//UI/UIEvents.h"
 
 #define ROUNDS_TO_WIN 2
 

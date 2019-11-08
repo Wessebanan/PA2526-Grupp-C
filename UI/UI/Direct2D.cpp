@@ -169,7 +169,7 @@ void Direct2D::InitDeviceAndContext(IDXGIDevice* dxgiDevice) //takes DXGIdevice 
 			this->mpDebugTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 			hr = this->mCreateColorBrushes();
 			this->mCreateTextFormats();
-			this->LoadImageToBitmap("fail.png");
+			this->LoadImageToBitmap("../../UI/Resource/fail.png");
 		}
 }
 
@@ -195,8 +195,8 @@ ID2D1Bitmap1* Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmap
 					{
 						if (SUCCEEDED(hr = this->mpContext->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
 						{
-							return new_bitmap;
 							this->mBitmapListChar[bitmapName] = new_bitmap; //use this if someone forget to "fetch" the bitmap when this function is called or else you lose the pointer
+							return new_bitmap;
 						}
 					}
 				}
@@ -223,8 +223,8 @@ ID2D1Bitmap1* Direct2D::LoadImageToBitmap(std::string imageFilePath, std::string
 					{
 						if (SUCCEEDED(hr = this->mpContext->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
 						{
-							return new_bitmap;
 							this->mBitmapList[bitmapName] = new_bitmap; //use this if someone forget to "fetch" the bitmap when this function is called or else you lose the pointer
+							return new_bitmap;
 						}
 					}
 				}
