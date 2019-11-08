@@ -1,4 +1,4 @@
-#include "includes/Collision.h"
+#include "Collision.h"
 
 Collision::Collision()
 {
@@ -29,6 +29,7 @@ void Collision::AddBoundingVolume(BoundingVolume* bv)
 		object->mNext = mObjects;
 		mObjects = object;
 		mNumObjects++;
+		return;
 	}
 	OBB* obb = dynamic_cast<OBB*>(bv);
 	if (obb)
@@ -39,6 +40,7 @@ void Collision::AddBoundingVolume(BoundingVolume* bv)
 		object->mNext = mObjects;
 		mObjects = object;
 		mNumObjects++;
+		return;
 	}
 	Sphere* sphere = dynamic_cast<Sphere*>(bv);
 	if (sphere)
@@ -49,6 +51,7 @@ void Collision::AddBoundingVolume(BoundingVolume* bv)
 		object->mNext = mObjects;
 		mObjects = object;
 		mNumObjects++;
+		return;
 	}
 	Cylinder* cylinder = dynamic_cast<Cylinder*>(bv);
 	if (cylinder)
@@ -59,5 +62,6 @@ void Collision::AddBoundingVolume(BoundingVolume* bv)
 		object->mNext = mObjects;
 		mObjects = object;
 		mNumObjects++;
+		return;
 	}
 }

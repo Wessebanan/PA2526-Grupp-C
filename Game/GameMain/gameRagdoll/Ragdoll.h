@@ -37,9 +37,7 @@ protected:
 	void Integrate(DWORD boneNum, float dt);
 
 	//Process collisions
-	DWORD ProcessCollisions(DWORD boneNum,
-							Collision* pCollision,
-							DirectX::XMMATRIX matCollision);
+	bool ProcessCollisions(DWORD boneNum, Collision* pCollision);
 
 	// Process bone connections
 	void ProcessConnections(DWORD boneNum);

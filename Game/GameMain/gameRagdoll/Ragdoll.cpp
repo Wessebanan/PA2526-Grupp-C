@@ -1,5 +1,4 @@
 #include "Ragdoll.h"
-
 using namespace DirectX;
 
 DirectX::XMVECTOR Ragdoll::CrossProduct(DirectX::XMVECTOR* v1, DirectX::XMVECTOR* v2)
@@ -195,9 +194,89 @@ void Ragdoll::Integrate(DWORD boneNum, float dt)
 
 }
 // NYI
-DWORD Ragdoll::ProcessCollisions(DWORD boneNum, Collision* pCollision, DirectX::XMMATRIX matCollision)
+bool Ragdoll::ProcessCollisions(DWORD boneNum, Collision* pCollision)
 {
-	return 0;
+	// If there are no objects to check against.
+	if (!pCollision || !pCollision->mNumObjects || !pCollision->mObjects)
+	{
+		return true;
+	}
+	RagdollBone* bone = &mBones[boneNum];
+	
+	RagdollBoneState* state = &bone->mState;
+
+	unsigned int collision_count = 0;
+
+	XMFLOAT3 linear_velocity = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3 angular_momentum = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	// Creating an OBB from its 8 corner points.
+	OBB bone_obb;
+	bone_obb.CreateFromPoints(bone_obb, 8, state->mVecPoints, sizeof(XMFLOAT3));
+	
+	CollisionObject* p_object = pCollision->mObjects;
+	while (p_object)
+	{
+		bool collision = bone_obb.Intersects(p_object->mBoundingVolume);
+
+		if (collision)
+		{
+			CollisionInfo collision_info = p_object->GetCollisionInfo(bone_obb);
+
+			// Additional check for the naïve solution, if no corner is within the checked object.
+			if (collision_info.mOverlap > 0.0f)
+			{
+				collision_count++;
+
+				// Push bone bv out to surface of object.
+				XMVECTOR addition = XMVectorScale(XMLoadFloat3(&collision_info.mNormal), collision_info.mOverlap);
+				XMVECTOR vec_state_vec_position = XMLoadFloat3(&state->mVecPosition);
+				vec_state_vec_position = XMVectorAdd(vec_state_vec_position, addition);
+				XMStoreFloat3(&state->mVecPosition, vec_state_vec_position);
+
+				// Get the point's position and velocity
+				XMVECTOR vec_p_to_p = vec_state_vec_position - XMLoadFloat3(&bone_obb.Center);
+				XMVECTOR vec_p_to_p_velocity = XMLoadFloat3(&state->mVecLinearVelocity) 
+					+ XMVector3Cross(XMLoadFloat3(&state->mVecAngularVelocity), vec_p_to_p);
+
+				// Get the point's speed relative to the surface
+				float point_speed = XMVectorGetX(XMVector3Dot(XMLoadFloat3(&collision_info.mNormal), vec_p_to_p_velocity));
+
+				// Calculate the impulse force based on the coefficient
+				// of restitution, the speed of the point, and the
+				// normal of the colliding object.
+				float impulse_force = point_speed * (-(1.0f + bone->mCoeffRes));
+				float impulse_damping = (1.0f / bone->mMass) + XMVectorGetX(
+																	XMVector3Dot(
+																		XMVector3Cross(
+																			XMVector3TransformNormal(
+																				XMVector3Cross(	
+																					vec_p_to_p, 
+																					XMLoadFloat3(&collision_info.mNormal)), 
+																				XMLoadFloat4x4(&state->mMatInvWorldInertiaMatrix)), 
+																			vec_p_to_p), 
+																		XMLoadFloat3(&collision_info.mNormal)));
+				XMVECTOR vec_impulse = XMVectorScale(XMLoadFloat3(&collision_info.mNormal), impulse_force / impulse_damping);
+				
+				// Add forces to running total
+				XMStoreFloat3(&linear_velocity, XMVectorAdd(XMLoadFloat3(&linear_velocity), vec_impulse));
+				XMStoreFloat3(&angular_momentum, XMVectorAdd(XMLoadFloat3(&angular_momentum), XMVector3Cross(vec_p_to_p, vec_impulse)));
+			}
+		}
+		p_object = p_object->mNext;
+	}
+
+	if (collision_count > 0)
+	{
+		// Add averaged forces to integrated state.
+		XMStoreFloat3(&state->mVecLinearVelocity, XMVectorAdd(XMLoadFloat3(&state->mVecLinearVelocity), XMVectorScale(XMVectorScale(XMLoadFloat3(&linear_velocity), 1.0f / bone->mMass), 1.0f / (float)collision_count));
+		XMStoreFloat3(&state->mVecAngularMomentum, XMVectorAdd(XMLoadFloat3(&state->mVecAngularMomentum), XMVectorScale(XMLoadFloat3(&angular_momentum), 1.0f / (float)collision_count)));
+
+		// Calculate angular velocity.
+		XMStoreFloat3(&state->mVecAngularVelocity, XMVector3TransformNormal(XMLoadFloat3(&state->mVecAngularMomentum), XMLoadFloat4x4(&state->mMatInvWorldInertiaMatrix)));
+	}
+
+	return true;
 }
 // NYI
 void Ragdoll::ProcessConnections(DWORD boneNum)
@@ -222,7 +301,7 @@ Ragdoll::~Ragdoll()
 bool Ragdoll::Create(ModelLoader::Skeleton* pSkeleton,
 	ModelLoader::UniqueSkeletonData* pUniqueSkeletonData,
 	ModelLoader::Mesh* mpMesh,
-	DirectX::XMMATRIX* pMatInitialTransformation = nullptr)
+	DirectX::XMMATRIX* pMatInitialTransformation)
 {
 	if (!(this->mpSkeleton = pSkeleton))
 	{
