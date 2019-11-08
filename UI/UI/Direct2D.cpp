@@ -82,6 +82,10 @@ Direct2D::~Direct2D()
 	{
 		pair.second->Release();
 	}
+	for (BitmapPairChar pair : this->mBitmapListChar)
+	{
+		pair.second->Release();
+	}
 	for (int i = 0; i < COLOR_BRUSHES; i++)
 	{
 		this->mColorBrushes[i]->Release();
@@ -107,13 +111,10 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a re
 		this->mpHwndRenderTarget->AddRef(); //add reference counter
 		hr = this->mCreateColorText();
 		hr = this->mCreateColorDraw();
-		//hr = this->mCreateTextFormat(this->mfont,this->mfontSize,&this->mpTextFormat);
-		//this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 		hr = this->mCreateTextFormat(L"Times New Roman",20,&this->mpDebugTextFormat);//textformat for debug
 		this->mpDebugTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 		hr = this->mCreateColorBrushes();
 		this->LoadImageToBitmap("fail.png");
-		//this->mpTextFormat->AddRef();
 		this->mpColorText->AddRef();
 		this->mpColorDraw->AddRef();
 		this->mpRect = rect;
@@ -139,13 +140,10 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, int width, int height)
 		this->mpHwndRenderTarget->AddRef(); //add reference counter
 		hr = this->mCreateColorText();
 		hr = this->mCreateColorDraw();
-		//hr = this->mCreateTextFormat(this->mfont, this->mfontSize, &this->mpTextFormat);
-		//this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 		hr = this->mCreateTextFormat(L"Times New Roman", 20, &this->mpDebugTextFormat);//textformat for debug
 		this->mpDebugTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 		hr = this->mCreateColorBrushes();
 		this->LoadImageToBitmap("fail.png");
-		//this->mpTextFormat->AddRef();
 		this->mpColorText->AddRef();
 		this->mpColorDraw->AddRef();
 		this->width = width;
@@ -167,8 +165,6 @@ void Direct2D::InitDeviceAndContext(IDXGIDevice* dxgiDevice) //takes DXGIdevice 
 			this->mDeviceContextCreated = true;
 			hr = this->mCreateColorText();
 			hr = this->mCreateColorDraw();
-			//hr = this->mCreateTextFormat(this->mfont, this->mfontSize, &this->mpTextFormat);
-			//this->mpTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 			hr = this->mCreateTextFormat(L"Times New Roman", 20, &this->mpDebugTextFormat);//textformat for debug
 			this->mpDebugTextFormat->SetWordWrapping(DWRITE_WORD_WRAPPING_CHARACTER);
 			hr = this->mCreateColorBrushes();
@@ -182,15 +178,12 @@ ID2D1DeviceContext* Direct2D::GetpContext()
 	return this->mpContext;
 }
 
-HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]/*, D2D1_RECT_F drawRect*/) //loads an image to a bitmap map with bitmap and ID
+ID2D1Bitmap1* Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]/*, D2D1_RECT_F drawRect*/) //loads an image to a bitmap map with bitmap and ID
 {
 	HRESULT hr = E_FAIL;
-	//BitmapInfo new_bitmap_struct;
-	ID2D1Bitmap* new_bitmap = nullptr;
-	//new_bitmap_struct.name = imageFilePath;
-	//new_bitmap_struct.drawArea = drawRect;
+	ID2D1Bitmap1* new_bitmap = nullptr;
 	std::wstring w_str = this->mStrToWstrConverter(imageFilePath);
-	if (this->mHwndRenderTargetCreated)
+	if (this->mDeviceContextCreated)
 	{
 		if (SUCCEEDED(hr = this->mpWicFactory->CreateFormatConverter(&this->mpFormatConverter)))
 		{
@@ -200,26 +193,64 @@ HRESULT Direct2D::LoadImageToBitmap(std::string imageFilePath, char bitmapName[B
 				{
 					if (SUCCEEDED(hr = this->mpFormatConverter->Initialize(this->mpBitmapSrc, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 1.f, WICBitmapPaletteTypeMedianCut)))
 					{
-						if (SUCCEEDED(hr = this->mpHwndRenderTarget->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
+						if (SUCCEEDED(hr = this->mpContext->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
 						{
-							this->mBitmapList[bitmapName] = new_bitmap;
-							//this->mBitmapNameID[bitmapName] = newID;
+							return new_bitmap;
+							this->mBitmapListChar[bitmapName] = new_bitmap; //use this if someone forget to "fetch" the bitmap when this function is called or else you lose the pointer
 						}
 					}
 				}
 			}
 		}
 	}
-	return hr;
-	//this->mBitmapVector.push_back(new_bitmap_struct);
+	return nullptr;
 }
 
-ID2D1Bitmap* Direct2D::GetBitmap(char* bitmapName)
+ID2D1Bitmap1* Direct2D::LoadImageToBitmap(std::string imageFilePath, std::string bitmapName)
 {
-	ID2D1Bitmap* to_return = nullptr;
-	for (BitmapPair pair : this->mBitmapList)
+	HRESULT hr = E_FAIL;
+	ID2D1Bitmap1* new_bitmap = nullptr;
+	std::wstring w_str = this->mStrToWstrConverter(imageFilePath);
+	if (this->mDeviceContextCreated)
+	{
+		if (SUCCEEDED(hr = this->mpWicFactory->CreateFormatConverter(&this->mpFormatConverter)))
+		{
+			if (SUCCEEDED(hr = this->mpWicFactory->CreateDecoderFromFilename(w_str.c_str(), NULL, GENERIC_READ, WICDecodeMetadataCacheOnDemand, &this->mpDecoder)))
+			{
+				if (SUCCEEDED(hr = this->mpDecoder->GetFrame(0, &this->mpBitmapSrc)))
+				{
+					if (SUCCEEDED(hr = this->mpFormatConverter->Initialize(this->mpBitmapSrc, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 1.f, WICBitmapPaletteTypeMedianCut)))
+					{
+						if (SUCCEEDED(hr = this->mpContext->CreateBitmapFromWicBitmap(this->mpFormatConverter, &new_bitmap)))
+						{
+							return new_bitmap;
+							this->mBitmapList[bitmapName] = new_bitmap; //use this if someone forget to "fetch" the bitmap when this function is called or else you lose the pointer
+						}
+					}
+				}
+			}
+		}
+	}
+	return nullptr;
+}
+
+ID2D1Bitmap1* Direct2D::GetBitmap(char* bitmapName)
+{
+	ID2D1Bitmap1* to_return = nullptr;
+	for (BitmapPairChar pair : this->mBitmapListChar)
 	{
 		if (this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
+			return pair.second;
+	}
+	return to_return;
+}
+
+ID2D1Bitmap1* Direct2D::GetBitmap(std::string bitmapName)
+{
+	ID2D1Bitmap1* to_return = nullptr;
+	for (BitmapPair pair : this->mBitmapList)
+	{
+		if (pair.first == bitmapName)
 			return pair.second;
 	}
 	return to_return;

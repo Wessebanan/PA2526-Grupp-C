@@ -76,6 +76,11 @@ bool InputBackend::updateKeyboard()
 	return ret_val; 
 }
 
+void InputBackend::resetUserButtonAndTile(int player)
+{
+	this->mpWebConn->resetUserTrap(player);
+}
+
 void InputBackend::modyfiByMouse()
 {
 	DirectX::XMFLOAT2 diff(

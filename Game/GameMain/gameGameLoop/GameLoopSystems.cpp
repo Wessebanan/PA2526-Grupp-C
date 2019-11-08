@@ -170,6 +170,10 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 			p_gl->mPlayerPoints[3] = 0;
 		}
 
+		// Creating quad tree entity for collision.
+		QuadTreeComponent quad_tree;
+		int2 grid_size = GridProp::GetInstance()->GetSize();
+		createEntity(quad_tree);
 
 		ecs::events::RoundStartEvent eve;
 		createEvent(eve);
@@ -363,6 +367,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 
 
 	}
+
 
 	// INIT ANIMATIONS
 

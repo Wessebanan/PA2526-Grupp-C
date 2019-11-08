@@ -112,6 +112,9 @@ public:
 	WebButton* mpUserButton[4];
 	// The players tile selected
 	WebTile* mpUserTile[4];
+	// To reset the buttons when the two has been picked up
+	void resetUserButtonAndTile(int player);
+
 	// The user command selected
 	WebCommand* mpUserCommand[4];
 	// The users that have pinged

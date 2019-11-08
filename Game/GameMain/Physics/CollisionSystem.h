@@ -67,7 +67,7 @@ namespace ecs
 			bool mInit = false;
 		};
 
-		/*FillQuadTreeSystem
+		/** FillQuadTreeSystem:
 		* Each update this system fills the quadtree with QuadTreeObjects containing
 		* information needed to check for collisions. The tree needs to be manually cleared
 		* between each update.
@@ -79,5 +79,21 @@ namespace ecs
 			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
 		};
 
+		/** EmptyQuadTreeSystem:
+		* Empties the quad tree every frame.
+		*/
+		SYSTEM(EmptyQuadTreeSystem)
+		{
+			EmptyQuadTreeSystem();
+			~EmptyQuadTreeSystem();
+			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
+		};
+
+		SYSTEM(InitQuadTreeSystem)
+		{
+			InitQuadTreeSystem();
+			~InitQuadTreeSystem();
+			void onEvent(TypeID _typeId, ecs::BaseEvent * _event) override;
+		};
 	} // systems
 } // ecs

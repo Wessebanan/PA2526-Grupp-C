@@ -6,7 +6,7 @@
 QuadTree::QuadTree(int level, float xMin, float xMax, float zMin, float zMax, QuadTree* pParent)
 {
 	mMaxLevel = 5;
-	mMaxObjects = 10;
+	mMaxObjects = 2;
 	mLevel = level;
 	mXBounds[0] = xMin;
 	mXBounds[1] = xMax;
@@ -30,8 +30,8 @@ void QuadTree::Clear()
 	{
 		mObjects[i].pBoundingBox = nullptr;
 		mObjects[i].pTransform = nullptr;
-	}
-	mObjects.clear();
+	}	
+	mObjects.clear();	
 	mpParent = nullptr;
 	for (int i = 0; i < 4; i++)
 	{
