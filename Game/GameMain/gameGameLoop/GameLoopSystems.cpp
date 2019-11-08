@@ -110,6 +110,7 @@ void ecs::systems::WaitForStartupSystem::updateEntity(FilteredEntity& _entityInf
 			createEvent(eve);
 
 			// Remove itself
+			RemoveSystem(WaitForStartupSystem::typeID);
 		}
 	}
 }
@@ -139,6 +140,7 @@ void ecs::systems::PrepphaseSystem::updateEntity(FilteredEntity& _entityInfo, fl
 			createEvent(eve);
 
 			// Remove itself
+			RemoveSystem(PrepphaseSystem::typeID);
 		}
 	}
 }
@@ -296,6 +298,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		}
 
 		// Create Battlephase system
+		CreateSystem<systems::BattlephaseSystem>(1);
 
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
@@ -667,6 +670,8 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			}
 
 			// Remove battlephase and start prephase
+			RemoveSystem(systems::BattlephaseSystem::typeID);
+			CreateSystem<systems::PrepphaseSystem>(1);
 
 			this->mRoundOver = false;
 			this->mRoundOverDuration = 0.0f;

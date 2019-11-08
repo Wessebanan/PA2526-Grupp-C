@@ -2,11 +2,20 @@
 #include "ecs.h"
 #include "GameLoopSystems.h"
 
+
 void InitGameLoop(ecs::EntityComponentSystem& rECS)
 {
 	// Update ssystems
 	rECS.createSystem<ecs::systems::GameLoopSystem>();
+
+#ifdef _DEBUG
+	rECS.createSystem<ecs::systems::BattlephaseSystem>(1);
+
+#else
+
 	rECS.createSystem<ecs::systems::WaitForStartupSystem>(1);
+#endif // !_DEBUG
+
 
 	// Event systems
 	rECS.createSystem<ecs::systems::GameStartSystem>(0);
