@@ -22,8 +22,8 @@ void Ragdoll::GetBoundingBoxSize(ModelLoader::Joint* pJoint, DirectX::XMFLOAT3* 
 {
 	if (pJoint)
 	{
-		std::vector<unsigned int>* vertex_indices = &pJoint->mConnectedVertexIndices;
-		DWORD num_vertices = (DWORD)vertex_indices->size();
+		std::vector<unsigned int>* connected_vertex_indices = &pJoint->mConnectedVertexIndices;
+		DWORD num_vertices = (DWORD)connected_vertex_indices->size();
 		if (num_vertices > 0)
 		{
 			// Get the vertices and vertex weights encompassed by this bounding box
@@ -35,13 +35,9 @@ void Ragdoll::GetBoundingBoxSize(ModelLoader::Joint* pJoint, DirectX::XMFLOAT3* 
 			
 			for (int i = 0; i < num_vertices; ++i)
 			{
-				vertices[i] = (*mesh_vertices)[(*vertex_indices)[i]];
-				weights[i] = (*mesh_weights)[(*vertex_indices)[i]];
-				// -#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#
-				// -#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#
-				// -#_#_# NOT FINISHED, MISSING CRITICAL STUFF  #_#_#
-				// -#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#
-				// -#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#
+				vertices[i] = (*mesh_vertices)[(*connected_vertex_indices)[i]];
+				weights[i] = (*mesh_weights)[(*connected_vertex_indices)[i]];
+				
 			}
 			
 			delete[] vertices;
