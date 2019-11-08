@@ -74,6 +74,22 @@ static void InitOceanEntities(EntityComponentSystem& rEcs)
 		for a rectangle grid and only use those within OCEAN_RADIUS (located
 		in WorldSettings.h) from center.
 	*/
+	TypeFilter map_filter;
+	map_filter.addRequirement(TileComponent::typeID);
+	map_filter.addRequirement(TransformComponent::typeID);
+	EntityIterator map_tiles = rEcs.getEntititesByFilter(map_filter);
+
+	std::vector<XMFLOAT3> map_positions;
+
+	for (FilteredEntity& tile : map_tiles.entities)
+	{
+		if (tile.getComponent<TileComponent>()->tileType != WATER)
+		{
+			XMFLOAT3 pos = tile.getComponent<TransformComponent>()->position;
+			pos.y = OCEAN_START_HEIGHT;
+			map_positions.push_back(pos);
+		}
+	}
 
 	TransformComponent* p_center_map_transform = GetCenterMapTileTransform(rEcs);
 	XMFLOAT3 center = p_center_map_transform->position;
@@ -116,17 +132,32 @@ static void InitOceanEntities(EntityComponentSystem& rEcs)
 
 			XMVECTOR xm_pos = XMLoadFloat3(&transform_desc.position);
 
+			bool underMap = false;
+			for (XMFLOAT3 map_pos : map_positions)
+			{
+				if (XMVectorGetX(XMVector3Length(xm_pos - XMLoadFloat3(&map_pos))) <= 1.f)
+				{
+					underMap = true;
+					break;
+				}
+			}
+
+			if (underMap)
+			{
+				continue;
+			}
+
 			float distance_to_center = XMVectorGetX(XMVector3Length(xm_pos - xm_center));
 
 			// Randomize a slightly different blue color for each ocean tile
 			//int variation = rand() % 155 + 1;
-			
+
 
 			int random = rand() % 25;
 			//int color_offset = -25 + random;
 
-			color_desc.red		= 31 - random;
-			color_desc.green	= 121 - random * 2;
+			color_desc.red = 31 - random;
+			color_desc.green = 121 - random * 2;
 			color_desc.blue = 255 - random * 3;
 
 			//Create the new entity
@@ -197,10 +228,10 @@ static void GenerateTileMesh(EntityComponentSystem& rEcs, void** pVertexBuffer, 
 			Create color and world matrix, used for all vertices within this tile.
 		*/
 
-		p_color		 = r_tile.getComponent<ColorComponent>();
-		p_transform  = r_tile.getComponent<TransformComponent>();
-		xm_world	 = XMMatrixScaling(1.0f, 0.8f, 1.0f);
-		xm_world	*= XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
+		p_color = r_tile.getComponent<ColorComponent>();
+		p_transform = r_tile.getComponent<TransformComponent>();
+		xm_world = XMMatrixScaling(1.0f, 0.8f, 1.0f);
+		xm_world *= XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
 
 		//if (r_tile.entity->hasComponentOfType(TileComponent::typeID) && r_tile.getComponent<TileComponent>()->tileType == WATER)
 		//{
