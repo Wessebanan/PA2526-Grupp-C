@@ -138,7 +138,8 @@ namespace ecs
 
 				XMVECTOR target_pos = XMLoadFloat4(&cam_component->target);
 				XMVECTOR start_pos = XMLoadFloat3(&cam_transform->position) - target_pos;
-				XMVECTOR end_pos = XMLoadFloat4(&targetPos) - target_pos;
+				XMVECTOR end_pos;// = XMLoadFloat4(&targetPos) - target_pos;
+				GetTargetPosition(end_pos, target_pos);
 				XMVECTOR new_camera_pos = this->Nlerp(start_pos, end_pos);
 				new_camera_pos = target_pos + (XMVector3Length(start_pos) + mPercent * (XMVector3Length(end_pos) - XMVector3Length(start_pos))) * new_camera_pos;
 				XMStoreFloat3(&cam_transform->position, new_camera_pos);
@@ -147,8 +148,8 @@ namespace ecs
 		private:
 			ID mCamEntityId;
 			const float mT = 0.001f;
-			const float mPercent = 0.002;
-			inline void GetTargetPosition(DirectX::XMVECTOR& rTarget, DirectX::XMVECTOR& rOrigin)
+			const float mPercent = 0.02;
+			inline void GetTargetPosition(DirectX::XMVECTOR& rTarget, DirectX::XMVECTOR& rLookAt)
 			{
 				const float FOV = (90.f / 2.0f) * PI / 180.f;
 				// Zero rTarget
@@ -171,7 +172,7 @@ namespace ecs
 					temp_pos -= rLookAt;
 
 					// Add to rTarget
-					rTarget += temp_pos;
+					rTarget += DirectX::XMVector3Normalize(temp_pos);
 				}
 				// Normalize
 				rTarget = DirectX::XMVector3Normalize(rTarget);
@@ -185,24 +186,26 @@ namespace ecs
 
 				// ----------------
 				// STEP 3: Find radius distance away from lookat point
-				float temp_float;
-				float radius = 0.0f;
-				for (FilteredEntity& e : poi_iterator.entities)
-				{
-					p_poi_transform = e.getComponent<components::TransformComponent>();
-					temp_pos = DirectX::XMLoadFloat3(&p_poi_transform->position);
-					temp_pos -= rLookAt;
+				//float temp_float;
+				float radius =22.0f;
+				//for (FilteredEntity& e : poi_iterator.entities)
+				//{
+				//	p_poi_transform = e.getComponent<components::TransformComponent>();
+				//	temp_pos = DirectX::XMLoadFloat3(&p_poi_transform->position);
+				//	temp_pos -= rLookAt;
 
-					temp_vec = (DirectX::XMVector3Dot(temp_vec, right_wall) / DirectX::XMVector3Dot(right_wall, right_wall)) * right_wall;
-					temp_float = DirectX::XMVectorGetX(DirectX::XMVector3Length(temp_pos-temp_vec)) / sinf(FOV);
-					radius = fmaxf(radius, temp_float);
+				//	temp_vec = (DirectX::XMVector3Dot(temp_vec, right_wall) / DirectX::XMVector3Dot(right_wall, right_wall)) * right_wall;
+				//	temp_float = DirectX::XMVectorGetX(DirectX::XMVector3Length(temp_pos-temp_vec)) / sinf(FOV);
+				//	radius = fmaxf(radius, temp_float);
 
-					temp_vec = (DirectX::XMVector3Dot(temp_vec, left_wall) / DirectX::XMVector3Dot(left_wall, left_wall)) * left_wall;
-					temp_float = DirectX::XMVectorGetX(DirectX::XMVector3Length(temp_pos - temp_vec)) / sinf(FOV);
-					radius = fmaxf(radius, temp_float);
-				}
+				//	temp_vec = (DirectX::XMVector3Dot(temp_vec, left_wall) / DirectX::XMVector3Dot(left_wall, left_wall)) * left_wall;
+				//	temp_float = DirectX::XMVectorGetX(DirectX::XMVector3Length(temp_pos - temp_vec)) / sinf(FOV);
+				//	radius = fmaxf(radius, temp_float);
+				//}
 
+				//rTarget *= radius;
 				rTarget *= radius;
+				//std::cout << radius << std::endl;
 			}
 			XMVECTOR Lerp(const XMVECTOR& v1, const XMVECTOR& v2)
 			{
