@@ -17,9 +17,10 @@ DirectX::XMVECTOR Ragdoll::Transform(DirectX::XMVECTOR* vecSrc, DirectX::XMMATRI
 	return vec_result;
 }
 
-// NYI
 void Ragdoll::GetBoundingBoxSize(ModelLoader::Joint* pJoint, DirectX::XMFLOAT3* pVecSize, DirectX::XMFLOAT3* pVecJointOffset)
 {
+	XMFLOAT3 vec_min = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3 vec_max = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	if (pJoint)
 	{
 		std::vector<unsigned int>* connected_vertex_indices = &pJoint->mConnectedVertexIndices;
@@ -28,22 +29,33 @@ void Ragdoll::GetBoundingBoxSize(ModelLoader::Joint* pJoint, DirectX::XMFLOAT3* 
 		{
 			// Get the vertices and vertex weights encompassed by this bounding box
 			XMFLOAT3* vertices = new XMFLOAT3[num_vertices];
-			float* weights = new float[num_vertices];
 			std::vector<XMFLOAT3>* mesh_vertices = this->mpMesh->GetVertexPositionVector();
-			std::vector<float>* mesh_weights = this->mpMesh->GetBlendWeights();
 
-			
+			XMMATRIX mat_inv_bone = XMLoadFloat4x4(&pJoint->mXMFLOATGlobalBindposeInverse);
 			for (int i = 0; i < num_vertices; ++i)
 			{
 				vertices[i] = (*mesh_vertices)[(*connected_vertex_indices)[i]];
-				weights[i] = (*mesh_weights)[(*connected_vertex_indices)[i]];
 				
-			}
-			
+				// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+				// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+				// ¤%&-¤%&- POINT OF INSECURITY - the original code uses "GetBoneOffsetMatrix" here, which I am unsure of. ¤%&-¤%&
+				// ¤%&-¤%&-         I have interpreted it as the bone global inverse matrix, may be wrong                  ¤%&-¤%&
+				// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+				// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+				// Transform vertex by bone offset transformation
+				XMStoreFloat3(&vertices[i], XMVector3TransformCoord(XMLoadFloat3(&vertices[i]), mat_inv_bone));
+
+				// Get min/max values
+				vec_min.x = min(vec_min.x, vertices[i].x);
+				vec_min.y = min(vec_min.y, vertices[i].y);
+				vec_min.z = min(vec_min.z, vertices[i].z);
+
+				vec_max.x = max(vec_max.x, vertices[i].x);
+				vec_max.y = max(vec_max.y, vertices[i].y);
+				vec_max.z = max(vec_max.z, vertices[i].z);			
+			}		
 			delete[] vertices;
-			delete[] weights;
-		}
-		
+		}	
 	}
 }
 
