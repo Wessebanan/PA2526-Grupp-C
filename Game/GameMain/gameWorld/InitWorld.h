@@ -201,6 +201,11 @@ static void GenerateTileMesh(EntityComponentSystem& rEcs, void** pVertexBuffer, 
 		p_transform = r_tile.getComponent<TransformComponent>();
 		xm_world = XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
 
+		//if (r_tile.entity->hasComponentOfType(TileComponent::typeID) && r_tile.getComponent<TileComponent>()->tileType == WATER)
+		//{
+		//	continue;
+		//}
+
 		for (int i : r_mesh_indices)
 		{
 			xm_pos = XMLoadFloat3(&r_mesh_vertices[i]);
