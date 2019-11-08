@@ -199,7 +199,7 @@ static void GenerateTileMesh(EntityComponentSystem& rEcs, void** pVertexBuffer, 
 
 		p_color		 = r_tile.getComponent<ColorComponent>();
 		p_transform  = r_tile.getComponent<TransformComponent>();
-		xm_world	 = XMMatrixScaling(1.0f, 0.5f, 1.0f);
+		xm_world	 = XMMatrixScaling(1.0f, 0.8f, 1.0f);
 		xm_world	*= XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
 
 		//if (r_tile.entity->hasComponentOfType(TileComponent::typeID) && r_tile.getComponent<TileComponent>()->tileType == WATER)
