@@ -554,7 +554,7 @@ namespace ecs
 
 			for (UINT i = 0; i < SCENE_OBJECT_COUNT; i++)
 			{
-				mObjectMeshRegion[0] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_SCENE_OBJECT + i);
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(SCENE_OBJECT_ENUM_OFFSET + i);
 			}
 
 			//mObjectMeshRegion[0] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL);
@@ -608,11 +608,11 @@ namespace ecs
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineBlur,
-				mShaderBlur);
+				mShaderBlur_v);
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
-				mShaderBlur_v);
+				mShaderBlur);
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineCombine,

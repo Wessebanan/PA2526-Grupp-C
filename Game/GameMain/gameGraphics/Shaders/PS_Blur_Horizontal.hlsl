@@ -23,7 +23,7 @@ float Blur(
 {
 	float blur_radius = 5.0f;
 	float weights[11] =
-	{
+	{ 
 		0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f
 	};
 
@@ -34,10 +34,10 @@ float Blur(
 	{
 		if (i == 0) continue;
 
-		float2 tex	= i * dir * 0.002f + uv;
+		float2 tex	= i * dir * 0.0035f + uv;
 		float depth = GetDepth(tex);
 
-		if (abs(depth - center_depth) <= 0.2f)
+		if (abs(depth - center_depth) <= 0.16f)
 		{
 			float w = weights[i + blur_radius];
 
@@ -55,7 +55,7 @@ float main(PSIN input) : SV_TARGET
 	float center_depth		= GetDepth(input.uv);
 
 	float blur	= Blur(
-		float2(0.0f, 1.0f) * (100.0f - center_depth) / 100.0f,
+		float2(1.0f, 0.0f) * (100.0f - center_depth) / 100.0f,
 		input.uv, 
 		center_depth, 
 		center_occlusion);
