@@ -16,37 +16,45 @@ DirectX::XMVECTOR Ragdoll::Transform(DirectX::XMVECTOR* vecSrc, DirectX::XMMATRI
 	return vec_result;
 }
 
-// NYI
 void Ragdoll::GetBoundingBoxSize(ModelLoader::Joint* pJoint, DirectX::XMFLOAT3* pVecSize, DirectX::XMFLOAT3* pVecJointOffset)
 {
+	XMFLOAT3 vec_min = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3 vec_max = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	if (pJoint)
 	{
-		std::vector<unsigned int>* vertex_indices = &pJoint->mConnectedVertexIndices;
-		DWORD num_vertices = vertex_indices->size();
+		std::vector<unsigned int>* connected_vertex_indices = &pJoint->mConnectedVertexIndices;
+		DWORD num_vertices = (DWORD)connected_vertex_indices->size();
 		if (num_vertices > 0)
 		{
 			// Get the vertices and vertex weights encompassed by this bounding box
 			XMFLOAT3* vertices = new XMFLOAT3[num_vertices];
-			float* weights = new float[num_vertices];
 			std::vector<XMFLOAT3>* mesh_vertices = this->mpMesh->GetVertexPositionVector();
-			std::vector<float>* mesh_weights = this->mpMesh->GetBlendWeights();
 
-			
+			XMMATRIX mat_inv_bone = XMLoadFloat4x4(&pJoint->mXMFLOATGlobalBindposeInverse);
 			for (int i = 0; i < num_vertices; ++i)
 			{
-				vertices[i] = (*mesh_vertices)[(*vertex_indices)[i]];
-				weights[i] = (*mesh_weights)[(*vertex_indices)[i]];
-				// -#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#
-				// -#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#
-				// -#_#_# NOT FINISHED, MISSING CRITICAL STUFF  #_#_#
-				// -#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#
-				// -#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#
-			}
-			
+				vertices[i] = (*mesh_vertices)[(*connected_vertex_indices)[i]];
+				
+				// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+				// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+				// ¤%&-¤%&- POINT OF INSECURITY - the original code uses "GetBoneOffsetMatrix" here, which I am unsure of. ¤%&-¤%&
+				// ¤%&-¤%&-         I have interpreted it as the bone global inverse matrix, may be wrong                  ¤%&-¤%&
+				// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+				// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+				// Transform vertex by bone offset transformation
+				XMStoreFloat3(&vertices[i], XMVector3TransformCoord(XMLoadFloat3(&vertices[i]), mat_inv_bone));
+
+				// Get min/max values
+				vec_min.x = min(vec_min.x, vertices[i].x);
+				vec_min.y = min(vec_min.y, vertices[i].y);
+				vec_min.z = min(vec_min.z, vertices[i].z);
+
+				vec_max.x = max(vec_max.x, vertices[i].x);
+				vec_max.y = max(vec_max.y, vertices[i].y);
+				vec_max.z = max(vec_max.z, vertices[i].z);			
+			}		
 			delete[] vertices;
-			delete[] weights;
-		}
-		
+		}	
 	}
 }
 
@@ -91,7 +99,7 @@ void Ragdoll::BuildBoneData(DWORD boneNum, RagdollBone* pParentBone)
 		// the bounding box size
 		XMFLOAT3 vecHalfSize;
 		vecHalfSize.x = bone->mVecSize.x * 0.5f; 
-		vecHalfSize.y = bone->mVecSize.y * 0.5; 
+		vecHalfSize.y = bone->mVecSize.y * 0.5f; 
 		vecHalfSize.z = bone->mVecSize.z * 0.5f;
 		bone->mVecPoints[0] = XMFLOAT3(-vecHalfSize.x, vecHalfSize.y, -vecHalfSize.z);
 		bone->mVecPoints[1] = XMFLOAT3(-vecHalfSize.x, vecHalfSize.y, vecHalfSize.z);
@@ -188,10 +196,75 @@ void Ragdoll::SetForces(DWORD boneNum, DirectX::XMFLOAT3* vecGravity, float line
 	XMStoreFloat3(&bone->mVecForce, temp_vec_force);
 	XMStoreFloat3(&bone->mVecTorque, (XMLoadFloat3(&bc_state->mVecAngularVelocity) * angularDamping));
 }
-// NYI
+
 void Ragdoll::Integrate(DWORD boneNum, float dt)
 {
+	RagdollBone* bone = &mBones[boneNum];
+	RagdollBoneState* state = &bone->mState;
+	XMVECTOR vec_lin_vel = XMLoadFloat3(&state->mVecLinearVelocity);
+	XMVECTOR vec_pos = XMLoadFloat3(&state->mVecPosition);
+	XMVECTOR vec_ang_mom = XMLoadFloat3(&state->mVecAngularMomentum);
+	XMVECTOR vec_tor = XMLoadFloat3(&bone->mVecTorque);
+	XMVECTOR vec_ang_vel = XMLoadFloat3(&state->mVecAngularVelocity);
+	XMVECTOR vec_for = XMLoadFloat3(&bone->mVecForce);
 
+	// Integrate position
+	XMStoreFloat3(&state->mVecPosition, vec_pos += (dt * vec_lin_vel));
+
+	// Integrate angular momentum
+	XMStoreFloat3(&state->mVecAngularMomentum, vec_ang_mom += (dt * vec_tor));
+
+	// Integrate linear velocity
+	XMStoreFloat3(&state->mVecLinearVelocity, vec_lin_vel += (dt * vec_for / bone->mMass));
+
+	// Integrate quaternion orientation
+	XMFLOAT3 vec_velocity;
+	XMStoreFloat3(&vec_velocity, dt * vec_ang_vel);
+	state->mQuatOrientation.w -= 0.5f *
+			(state->mQuatOrientation.x * vec_velocity.x +
+			 state->mQuatOrientation.y * vec_velocity.y +
+			 state->mQuatOrientation.z * vec_velocity.z);
+	state->mQuatOrientation.x += 0.5f *
+			(state->mQuatOrientation.w * vec_velocity.x -
+			 state->mQuatOrientation.z * vec_velocity.y +
+			 state->mQuatOrientation.y * vec_velocity.z);
+	state->mQuatOrientation.y += 0.5f *
+			(state->mQuatOrientation.z * vec_velocity.x +
+			 state->mQuatOrientation.w * vec_velocity.y -
+			 state->mQuatOrientation.x * vec_velocity.z);
+	state->mQuatOrientation.z += 0.5f *
+			(state->mQuatOrientation.x * vec_velocity.x -
+			 state->mQuatOrientation.y * vec_velocity.y +
+			 state->mQuatOrientation.w * vec_velocity.z);
+
+	// Normalize the quaternion
+	XMStoreFloat4(&state->mQuatOrientation, XMQuaternionNormalize(XMLoadFloat4(&state->mQuatOrientation)));
+
+	// Force rotation resolutiin
+	if (boneNum && bone->mResolutionRate != 0.0f)
+	{
+		// Slerp from current orientation to beginning orientation
+		XMVECTOR quat_orientation = XMLoadFloat4(&bone->mpParentBone->mState.mQuatOrientation) * 
+									XMLoadFloat4(&bone->mQuatOrientation);
+
+		XMStoreFloat4(&state->mQuatOrientation, 
+			XMQuaternionSlerp(XMLoadFloat4(&state->mQuatOrientation), quat_orientation, bone->mResolutionRate));
+	}
+
+	// Compute the new matrix-based orientation transformation
+	// based on the quaternion just computed
+	XMStoreFloat4x4(&state->mMatOrientation, 
+		XMMatrixTranspose(XMMatrixRotationQuaternion(XMLoadFloat4(&state->mQuatOrientation))));
+
+	// Calculate the integrated inverse world inertia tensor matrix
+	XMStoreFloat4x4(&state->mMatInvWorldInertiaMatrix,
+		XMLoadFloat4x4(&state->mMatOrientation) * 
+		XMLoadFloat3x3(&bone->mMatInvWorldInertiaMatrix) *
+		XMMatrixTranspose(XMLoadFloat4x4(&state->mMatOrientation)));
+
+	// Calculate new angular velocity
+	XMStoreFloat3(&state->mVecAngularVelocity,
+		Transform(&XMLoadFloat3(&state->mVecAngularMomentum), &XMLoadFloat4x4(&state->mMatInvWorldInertiaMatrix)));
 }
 // NYI
 bool Ragdoll::ProcessCollisions(DWORD boneNum, Collision* pCollision)
@@ -278,13 +351,64 @@ bool Ragdoll::ProcessCollisions(DWORD boneNum, Collision* pCollision)
 
 	return true;
 }
-// NYI
+
 void Ragdoll::ProcessConnections(DWORD boneNum)
 {
+	RagdollBone* bone = &mBones[boneNum];
+	RagdollBone* parent_bone = bone->mpParentBone;
+
+	// Don't continue if there's no parent bone
+	if (!parent_bone)
+	{
+		return;
+	}
+
+	// Get the pointer to the bone's state
+	RagdollBoneState* b_state = &bone->mState;
+	// Get parent state pointer
+	RagdollBoneState* p_state = &parent_bone->mState;
+
+	// Get joint connection position and vector to center
+	XMFLOAT3 vec_bone_pos = b_state->mVecPoints[8];
+	XMVECTOR vec_b_to_c = XMLoadFloat3(&b_state->mVecPosition) - XMLoadFloat3(&vec_bone_pos);
+
+	XMVECTOR vec_parent_pos = XMLoadFloat3(&b_state->mVecPoints[9]);
+
+	// Calculate a spring vector from point to parent's point
+	XMVECTOR vec_spring = XMLoadFloat3(&vec_bone_pos) - vec_parent_pos;
+
+	// Move point to match parent's point and adjust
+	// the angular velocity and momentum
+	XMStoreFloat3(&b_state->mVecPosition, 
+		XMLoadFloat3(&b_state->mVecPosition) - vec_spring);
+	XMStoreFloat3(&b_state->mVecAngularMomentum, 
+		XMLoadFloat3(&b_state->mVecAngularMomentum) - CrossProduct(&vec_b_to_c, &vec_spring));
+	XMStoreFloat3(&b_state->mVecAngularVelocity, 
+		Transform(&XMLoadFloat3(&b_state->mVecAngularMomentum), 
+				  &XMLoadFloat4x4(&b_state->mMatInvWorldInertiaMatrix)));
 }
-// NYI
+
 void Ragdoll::TransformPoints(DWORD boneNum)
 {
+	RagdollBone* bone = &mBones[boneNum];
+	RagdollBoneState* state = &bone->mState;
+
+	// Transform all points
+	for (DWORD i = 0; i < 9; ++i)
+	{
+		XMStoreFloat3(&state->mVecPoints[i], 
+			Transform(&XMLoadFloat3(&bone->mVecPoints[i]),
+					  &XMLoadFloat4x4(&state->mMatOrientation),
+					  &XMLoadFloat3(&state->mVecPosition)));
+	}
+
+	if (bone->mpParentBone)
+	{
+		XMStoreFloat3(&state->mVecPoints[9],
+			Transform(&XMLoadFloat3(&bone->mVecParentOffset),
+				&XMLoadFloat4x4(&bone->mpParentBone->mState.mMatOrientation),
+				&XMLoadFloat3(&bone->mpParentBone->mState.mVecPosition)));
+	}
 }
 
 Ragdoll::Ragdoll() : mpMesh(nullptr), mpSkeleton(nullptr), mpUniqueSkeletonData(nullptr),
@@ -343,9 +467,49 @@ void Ragdoll::Free()
 	delete[] mBones;
 	mBones = nullptr;
 }
-// NYI
+
 void Ragdoll::Resolve(float dt, float linearDamping, float angularDamping, DirectX::XMFLOAT3 pVecGravity, Collision* pCollision, DirectX::XMMATRIX* pMatCollision)
 {
+	for (DWORD i = 0; i < this->mNumBones; ++i)
+	{
+		float time_to_process = dt;
+		while (time_to_process > 0.0f)
+		{
+			// Set forces to prepare for integration
+			SetForces(i, &pVecGravity, linearDamping, angularDamping);
+
+			// Integrate bone movement for time slice
+			DWORD num_steps = 0;
+			float time_step = time_to_process;
+
+			if (time_step >= MAXIMUM_TIME_SLICE)
+				time_step = MAXIMUM_TIME_SLICE;
+
+			// Integrate the bone motion
+			Integrate(i, time_step);
+
+			// Transform points
+			TransformPoints(i);
+
+			// Check for collisions and resolve thhem, breaking if
+			// all collisions could be handled
+			// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+			// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+			// Waiting on ProcessCollisions function to be done
+			// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+			// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+			//ProcessCollisions()
+
+			// Transform points
+			TransformPoints(i);
+
+			// Process connections to ensure all bones meet at their connection points
+			ProcessConnections(i);
+
+			// Go Forward one time slice
+			time_to_process -= time_step;
+		}
+	}
 }
 // NYI
 void Ragdoll::RebuildHierarchy()

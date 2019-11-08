@@ -168,26 +168,29 @@ void WebConnection::SetName(webMsgData wmd)
 void WebConnection::SetTile(webMsgData wmd)
 {
 
+	// Tile X
 	int hun = ((int)wmd.data[0] - 48) * 100;
 	hun -= 100;
 	int ten = ((int)wmd.data[1] - 48) * 10;
 	int one = (int)wmd.data[2] - 48;
 	mUsers[wmd.player].tile[0] = hun + ten + one;
 
+	// Tile Y
 	hun = ((int)wmd.data[3] - 48) * 100;
 	hun -= 100;
 	ten = ((int)wmd.data[4] - 48) * 10;
 	one = (int)wmd.data[5] - 48;
 	mUsers[wmd.player].tile[1] = hun + ten + one;
 
-	int res = 0;
-	this->SendMsg(this->mUserSockets[wmd.player], 
-		(char*)string("3. Your tile is now " + 
-			to_string(mUsers[wmd.player].tile[0]) + 
-			"," +
-			to_string(mUsers[wmd.player].tile[1])
-		).c_str()
-		, res);
+	// saved if we need to display the selected tile that we just got
+	//int res = 0;
+	//this->SendMsg(this->mUserSockets[wmd.player], 
+	//	(char*)string("4. Your tile is now " + 
+	//		to_string(mUsers[wmd.player].tile[0]) + 
+	//		"," +
+	//		to_string(mUsers[wmd.player].tile[1])
+	//	).c_str()
+	//	, res);
 }
 
 void WebConnection::SetButton(webMsgData wmd)
@@ -419,6 +422,15 @@ std::string WebConnection::GetUserName(int player)
 int WebConnection::GetUserTile(int player, int axis)
 {
 	return mUsers[player].tile[axis];
+}
+
+void WebConnection::resetUserTrap(int player)
+{
+
+	mUsers[player].button = -1;
+
+	mUsers[player].tile[0] = -1;
+	mUsers[player].tile[1] = -1;
 }
 
 string WebConnection::GetUserCommand(int player)

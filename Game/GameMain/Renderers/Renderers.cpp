@@ -4,7 +4,7 @@
 #include "../gameUtility/UtilityEcsFunctions.h"
 #include "../gameUtility/UtilityGraphics.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
-#include "../gameWorld/OceanComponents.h"
+#include "../gameWorld/WorldComponents.h"
 #include "../gameAnimation/AnimationComponents.h"
 
 #include "../gameGraphics/TileRenderingPipeline.h"
