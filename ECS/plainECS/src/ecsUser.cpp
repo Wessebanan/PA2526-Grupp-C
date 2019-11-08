@@ -112,6 +112,16 @@ Entity* ECSUser::createEntity(ComponentList _components)
 	return ecsUserHandler->onCreateEntity(_components);
 }
 
+void* ecs::ECSUser::GetSystem(TypeID _typeID)
+{
+	return ecsUserHandler->onGetSystem(_typeID);
+}
+
+void ecs::ECSUser::RemoveSystem(TypeID _typeID)
+{
+	ecsUserHandler->onRemoveSystem(_typeID);
+}
+
 void ECSUser::createEvent(BaseEvent& _event)
 {
 	ecsUserHandler->onCreateEvent(_event);

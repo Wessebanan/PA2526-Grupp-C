@@ -48,7 +48,7 @@ namespace ecs
 			TestEntityUpdateSystem()
 			{
 				updateType = ecs::SystemUpdateType::EntityUpdate;
-				typeFilter.addRequirement(TestComponent::typeID);
+				typeFilter.addRequirement(components::TestComponent::typeID);
 			}
 			virtual ~TestEntityUpdateSystem() {}
 			void updateEntity(ecs::FilteredEntity& _entityInfo, float _delta) override
@@ -65,7 +65,7 @@ namespace ecs
 			TestMultipleEntityUpdateSystem()
 			{
 				updateType = ecs::SystemUpdateType::MultiEntityUpdate;
-				typeFilter.addRequirement(TestComponent::typeID);
+				typeFilter.addRequirement(components::TestComponent::typeID);
 			}
 			virtual ~TestMultipleEntityUpdateSystem() {}
 			void updateMultipleEntities(ecs::EntityIterator& _entityInfo, float _delta) override
@@ -82,7 +82,7 @@ namespace ecs
 			TestEventReaderSystem()
 			{
 				updateType = ecs::SystemUpdateType::EventReader;
-				typeFilter.addRequirement(TestEvent::typeID);
+				typeFilter.addRequirement(events::TestEvent::typeID);
 			}
 			virtual ~TestEventReaderSystem() {}
 			void readEvent(ecs::BaseEvent& _event, float _delta) override
@@ -99,7 +99,7 @@ namespace ecs
 			TestEventListenerSystem()
 			{
 				updateType = ecs::SystemUpdateType::EventListenerOnly;
-				subscribeEventCreation(TestEvent::typeID);
+				subscribeEventCreation(events::TestEvent::typeID);
 			}
 			virtual ~TestEventListenerSystem() {}
 			void onEvent(TypeID _eventType, ecs::BaseEvent* _event) override
@@ -122,6 +122,39 @@ namespace ecs
 			{
 				isUpdated = true;
 				updateTicket = g_update_ticket_counter++;
+			}
+		};
+
+		static TypeID CREATOR_SYSTEM_TYPE_ID;
+		class TestSystemRemoverSystem : public ecs::ECSSystem<TestSystemRemoverSystem>
+		{
+		public:
+			TestSystemRemoverSystem()
+			{
+				updateType = ecs::SystemUpdateType::Actor;
+			}
+			virtual ~TestSystemRemoverSystem() {}
+
+			void act(float _delta) override
+			{
+				RemoveSystem(CREATOR_SYSTEM_TYPE_ID);
+			}
+		};
+		class TestSystemCreatorSystem : public ecs::ECSSystem<TestSystemCreatorSystem>
+		{
+		public:
+			static TypeID GetSystemTypeID() { return TestSystemCreatorSystem::typeID; }
+
+			TestSystemCreatorSystem()
+			{
+				updateType = ecs::SystemUpdateType::Actor;
+				CREATOR_SYSTEM_TYPE_ID = TestSystemCreatorSystem::typeID;
+			}
+			virtual ~TestSystemCreatorSystem() {}
+
+			void act(float _delta) override
+			{
+				CreateSystem<TestSystemRemoverSystem>(0);
 			}
 		};
 	}
