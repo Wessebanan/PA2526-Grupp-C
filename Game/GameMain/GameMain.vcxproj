@@ -121,6 +121,7 @@
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\SSAOPipeline.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
+    <ClCompile Include="gameUtility\CameraSystems.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
     <ClCompile Include="gameWorld\UpdateOceanSystem.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />

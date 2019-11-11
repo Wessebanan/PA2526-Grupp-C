@@ -8,4 +8,5 @@ namespace CameraEcsFunctions
 {
 	/* Creates a camera entity with a CameraComponent and a Transform component in the ECS system.*/
 	void CreateDevCamera(ecs::EntityComponentSystem& rEcs);
+	void CreateDynamicCamera(ecs::EntityComponentSystem& rECS);
 }

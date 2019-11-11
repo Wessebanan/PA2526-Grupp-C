@@ -51,6 +51,11 @@ bool InputBackend::changeGamestate(WEBGAMESTATE gamestate)
 	return this->mpWebConn->SetGamestate(gamestate);
 }
 
+bool InputBackend::checkReadyCheck()
+{
+	return this->mpWebConn->ReadyCheck();
+}
+
 bool InputBackend::updateKeyboard()
 {
 	bool ret_val = false;

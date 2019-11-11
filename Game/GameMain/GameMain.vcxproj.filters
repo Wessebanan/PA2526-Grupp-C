@@ -99,6 +99,9 @@
     <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="gameUtility\CameraSystems.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

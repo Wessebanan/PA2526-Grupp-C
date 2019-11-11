@@ -49,7 +49,7 @@ TEST(WeaponInit, TestBoundingVolume)
 	MeshComponent mesh_component;
 	mesh_component.mMesh = &sword;
 	WeaponComponent weapon_component;
-	weapon_component.mType = GAME_OBJECT_TYPE_SWORD;
+	weapon_component.mType = GAME_OBJECT_TYPE_WEAPON_SWORD;
 	TransformComponent transform_component;
 
 	ecs::Entity* weapon_entity = ecs.createEntity(mesh_component, transform_component, weapon_component);
@@ -182,7 +182,7 @@ TEST(DamageDealing, DealDamage)
 
 	weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	weapon_component.mOwnerEntity = attacking_unit_entity->getID();
-	weapon_component.mType = GAME_OBJECT_TYPE_SWORD;
+	weapon_component.mType = GAME_OBJECT_TYPE_WEAPON_SWORD;
 	ModelLoader::Mesh sword("Physics/TestModel/sword.fbx");
 	weapon_mesh_component.mMesh = &sword;
 	
