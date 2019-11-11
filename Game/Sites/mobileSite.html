@@ -498,11 +498,11 @@
         console.log("Saved TrapMsg: " + msg);
         window.selectedTrapMsg = msg;
 
-
         var id = "b" + x.toString();
         resetTrapColors();
         document.getElementById(id).style.backgroundColor = "#DDD";
 
+        window.selectedButtonID = id;
 
         }
 
@@ -527,28 +527,31 @@
 
         function sendTrapAndTile()
         {
-        var trap = window.selectedTrapMsg;
-        if (trap != 0 && window.selectedTileMsg != 0)
-        {
-        if(trap == "0002" + (window.trap0 + 100))
-        document.getElementById('b0').style.display = "none";
-        else if(trap == "0002" + (window.trap1 + 100))
-        document.getElementById('b1').style.display = "none";
-        else if(trap == "0002" + (window.trap2 + 100))
-        document.getElementById('b2').style.display = "none";
-        else if(trap == "0002" + (window.trap3 + 100))
-        document.getElementById('b3').style.display = "none";
+            if (window.selectedButtonID != 0 && window.selectedTileMsg != 0)
+            {
+                
+                document.getElementById(window.selectedButtonID).style.display = "none";
 
-        resetTrapColors();
-        resetAreaColors();
+                var trap = window.selectedTrapMsg;
+                //if(trap == "0002" + (window.trap0 + 100).toString())
+                //    document.getElementById('b0').style.display = "none";
+                //else if(trap == "0002" + (window.trap1 + 100).toString())
+                //    document.getElementById('b1').style.display = "none";
+                //else if(trap == "0002" + (window.trap2 + 100).toString())
+                //    document.getElementById('b2').style.display = "none";
+                //else if(trap == "0002" + (window.trap3 + 100).toString())
+                //    document.getElementById('b3').style.display = "none";
 
-        socket.send(trap);
-        socket.send(window.selectedTileMsg);
+                resetTrapColors();
+                resetAreaColors();
 
+                socket.send(trap);
+                socket.send(window.selectedTileMsg);
 
-        window.selectedTrapMsg = 0;
-        window.selectedTileMsg = 0;
-        }
+                window.selectedTrapMsg = 0;
+                window.selectedTileMsg = 0;
+                window.selectedButtonID = 0;
+            }
         };
 
         function sendPing()
