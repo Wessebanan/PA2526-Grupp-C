@@ -1,7 +1,7 @@
 #include "webConnection.h"
 
 
-WebConnection::WebConnection()
+WebConnection::WebConnection() : mMaxmPlayerSockets(4), mMaxmUserSockets(30)
 {
 	// Initialize Winsock
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -60,6 +60,10 @@ WebConnection::WebConnection()
 	for (size_t i = 0; i < mMaxmPlayerSockets; i++)
 	{
 		mPlayerSockets[i] = -1;
+	}
+	for (size_t i = 0; i < mMaxmPlayerSockets; i++)
+	{
+		mUsers[i].ready = false;
 	}
 
 
@@ -329,6 +333,20 @@ void WebConnection::PlayersJoin()
 							else
 								BroadcastMsg("1. User tried to join full game");
 						}
+						else if (!str1.compare(string("ready"))) // It was a message to parse
+						{
+							int id = IdPlayerSocket(sock);
+							if (id != -1)
+							{
+								mUsers[id].ready = !mUsers[IdPlayerSocket(sock)].ready;
+								//cout << "P" << to_string(IdPlayerSocket(sock)) << " set ready: " << mUsers[IdPlayerSocket(sock)].ready << endl;
+
+								// Send what readystate you are to the user
+								string ss;
+								ss += "r" + to_string(mUsers[IdPlayerSocket(sock)].ready);
+								this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
+							}
+						}
 						else if (user_msg[0] == '0') // It was a message to parse
 						{
 							webMsgData wmd = ParseMsg(user_msg);
@@ -443,7 +461,7 @@ bool WebConnection::SetGamestate(WEBGAMESTATE gamestate)
 			break;
 		}
 
-		for (size_t i = 0; i < mMaxmPlayerSockets; i++)
+		for (size_t i = 0; i < 4; i++)
 		{
 			if (mPlayerSockets[i] >= 0)
 			{
@@ -455,6 +473,34 @@ bool WebConnection::SetGamestate(WEBGAMESTATE gamestate)
 	}
 
 
+
+	return ret_val;
+}
+
+bool WebConnection::ReadyCheck()
+{
+	bool ret_val = true;
+	getNrOfPlayers();
+	if (nrOfPlayers == 0)
+	{
+		ret_val = false;
+	}
+	for (size_t i = 0; i < 4; i++)
+	{
+		if(mPlayerSockets[i] != -1) 
+			if (mUsers[i].ready == false)
+				ret_val = false;
+	}
+
+	if(ret_val)
+		for (size_t i = 0; i < 4; i++)
+		{
+			mUsers[i].ready = false;
+
+			// Send the reset to the users
+			if (mPlayerSockets[i] != -1)
+				this->SendMsg(mUserSockets[mPlayerSockets[i]], (char*)"r0", iSendResult);
+		}
 
 	return ret_val;
 }
@@ -791,6 +837,10 @@ bool WebConnection::AddUserSocket(SOCKET sock)
 }
 bool WebConnection::AddPlayerSocket(SOCKET sock)
 {
+	if (getNrOfPlayers() >= 4)
+	{
+		return false;
+	}
 	int first_empty = 0;
 	for (size_t i = 0; i < mMaxmPlayerSockets; i++)
 	{
@@ -802,11 +852,6 @@ bool WebConnection::AddPlayerSocket(SOCKET sock)
 	}
 
 	cout << "-Assigning PLAYER to slot: " << first_empty << endl;
-
-	// Return false if there was no avalibe socket
-	if (first_empty == mMaxmPlayerSockets)
-		return false;
-
 
 	mPlayerSockets[first_empty] = IdUserSocket(sock);
 	this->nrOfPlayers++;
