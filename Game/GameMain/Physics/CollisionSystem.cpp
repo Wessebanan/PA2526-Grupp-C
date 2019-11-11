@@ -17,12 +17,13 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	
 	// Grabbing the entity that moved.
 	Entity* p_entity = getEntity(p_event->mEntityID);
+	ID entity_id = p_entity->getID();
 
 	// Grabbing the entity's object collision component 
 	// and transform component.
-	ObjectCollisionComponent* p_collision	= getComponentFromKnownEntity<ObjectCollisionComponent>(p_entity->getID());
-	TransformComponent* p_transform			= getComponentFromKnownEntity<TransformComponent>(p_entity->getID());
-	DynamicMovementComponent* p_movement	= getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
+	ObjectCollisionComponent* p_collision	= getComponentFromKnownEntity<ObjectCollisionComponent>(entity_id);
+	TransformComponent* p_transform			= getComponentFromKnownEntity<TransformComponent>(entity_id);
+	DynamicMovementComponent* p_movement	= getComponentFromKnownEntity<DynamicMovementComponent>(entity_id);
 
 	// Grabbing a copy of AABB and transforming to world space.
 	AABB aabb = p_collision->mAABB;
@@ -43,7 +44,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	{
 		ID current_entity_id = collision_list.at(i).pTransform->getEntityID();
 		// Skip yourself.
-		if (current_entity_id == p_entity->getID())
+		if (current_entity_id == entity_id)
 		{
 			continue;
 		}
@@ -70,8 +71,13 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			if (getEntity(current_entity_id)->hasComponentOfType(DynamicMovementComponent::typeID))
 			{
 				DynamicMovementComponent* colliding_movement = getComponentFromKnownEntity<DynamicMovementComponent>(current_entity_id);
-				colliding_movement->mVelocity.x += (velocity_pre_revert.x - p_movement->mVelocity.x)*colliding_movement->mMaxVelocity;
-				colliding_movement->mVelocity.z += (velocity_pre_revert.z - p_movement->mVelocity.z)*colliding_movement->mMaxVelocity;
+
+				// Creating a shove event in the direction of the colliding entities movement.
+				ForceImpulseEvent shove;
+				shove.mDirection	= p_movement->mDirection;
+				shove.mForce		= BASE_KNOCKBACK;
+				shove.mEntityID		= current_entity_id;
+				createEvent(shove);
 			}
 			// Transforming the aabb again since the position has changed.
 			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
