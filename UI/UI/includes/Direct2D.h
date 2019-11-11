@@ -92,10 +92,10 @@ public:
 	//ID2D1Bitmap* GetBitmapByName(std::string bitmapName); //used to draw all bitmaps, uses the BitmapInfo struct
 	//void DrawBitmap();
 
-	bool PrintText(std::string text, RECT rect);
-	bool PrintDebug(std::string text); // debug printer thing
-	bool PrintText(std::string text, D2D1_RECT_F rect, brushColors color, int size = 2); //only one used in ECS atm
-	bool PrintText(std::string text, int left, int top, int right, int bottom);
+	bool PrintText(std::wstring text, RECT rect);
+	bool PrintDebug(std::wstring text); // debug printer thing
+	bool PrintText(std::wstring text, D2D1_RECT_F rect, brushColors color, int size = 2); //only one used in ECS atm
+	bool PrintText(std::wstring text, int left, int top, int right, int bottom);
 
 	void setTextColor(float r, float g, float b, float a); //not in use atm by ECS
 	void setDrawColor(float r, float g, float b, float a); //not in use atm by ECS

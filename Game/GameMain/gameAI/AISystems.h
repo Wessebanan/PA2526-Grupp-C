@@ -1053,19 +1053,19 @@ namespace ecs
 					switch (state)
 					{
 					case STATE::IDLE:
-						p_text_comp->mStrText = "IDLE";
+						p_text_comp->mStrText = L"IDLE";
 						break;
 					case STATE::LOOT:
-						p_text_comp->mStrText = "LOOT";
+						p_text_comp->mStrText = L"LOOT";
 						break;
 					case STATE::ATTACK:
-						p_text_comp->mStrText = "ATTACK";
+						p_text_comp->mStrText = L"ATTACK";
 						break;
 					case STATE::FLEE:
-						p_text_comp->mStrText = "FLEE";
+						p_text_comp->mStrText = L"FLEE";
 						break;
 					default:
-						p_text_comp->mStrText = "no case for state";
+						p_text_comp->mStrText = L"no case for state";
 						break;
 					}
 

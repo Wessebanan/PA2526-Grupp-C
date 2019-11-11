@@ -305,21 +305,21 @@ bool Direct2D::DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect)
 //	}
 //}
 
-bool Direct2D::PrintText(std::string text, RECT rect) //draws text with format, draw area and color
+bool Direct2D::PrintText(std::wstring text, RECT rect) //draws text with format, draw area and color
 {
-	std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
+	//std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
 
 	D2D1_RECT_F layoutRect = D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom);
 	if (this->mDeviceContextCreated)
 	{
-		this->mpContext->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormats[2], layoutRect, this->mpColorText);
+		this->mpContext->DrawTextA(text.c_str(), wcslen(text.c_str()), this->mpTextFormats[2], layoutRect, this->mpColorText);
 	}
 	return this->mDeviceContextCreated;
 }
 
-bool Direct2D::PrintDebug(std::string text)
+bool Direct2D::PrintDebug(std::wstring text)
 {
-	std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
+	//std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
 	D2D1_RECT_F rect = D2D1::RectF(this->width - (this->width / 4), 0, this->width, this->height - (2*this->height / 3)); // probably will need adjustment later on 
 	
 	if (this->mDeviceContextCreated)
@@ -327,29 +327,29 @@ bool Direct2D::PrintDebug(std::string text)
 		//this->mpHwndRenderTarget->FillRectangle(rect, this->mpColorDraw);
 		//this->mpHwndRenderTarget->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpDebugTextFormat, rect, this->mColorBrushes[Red]);
 		this->mpContext->FillRectangle(rect, this->mpColorDraw);
-		this->mpContext->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpDebugTextFormat, rect, this->mColorBrushes[Red]);
+		this->mpContext->DrawTextA(text.c_str(), wcslen(text.c_str()), this->mpDebugTextFormat, rect, this->mColorBrushes[Red]);
 	}
 	return this->mDeviceContextCreated;
 }
 
-bool Direct2D::PrintText(std::string text, D2D1_RECT_F rect, brushColors color, int size)
+bool Direct2D::PrintText(std::wstring text, D2D1_RECT_F rect, brushColors color, int size)
 {
-	std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
+	//std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
 	if (this->mDeviceContextCreated)
 	{
-		this->mpContext->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormats[size], rect, this->mColorBrushes[color]);
+		this->mpContext->DrawTextA(text.c_str(), wcslen(text.c_str()), this->mpTextFormats[size], rect, this->mColorBrushes[color]);
 	}
 	return this->mHwndRenderTargetCreated;
 }
 
-bool Direct2D::PrintText(std::string text, int left, int top, int right, int bottom)//draws text with format, draw area and color
+bool Direct2D::PrintText(std::wstring text, int left, int top, int right, int bottom)//draws text with format, draw area and color
 {
-	std::wstring w_str = this->mStrToWstrConverter(text);
+	//std::wstring w_str = this->mStrToWstrConverter(text);
 
 	D2D1_RECT_F layoutRect = D2D1::RectF(left, top, right, bottom);
 	if (this->mDeviceContextCreated)
 	{
-		this->mpContext->DrawTextA(w_str.c_str(), wcslen(w_str.c_str()), this->mpTextFormats[2], layoutRect, this->mpColorText);
+		this->mpContext->DrawTextA(text.c_str(), wcslen(text.c_str()), this->mpTextFormats[2], layoutRect, this->mpColorText);
 	}
 	return this->mDeviceContextCreated;
 }
