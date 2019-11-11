@@ -681,6 +681,12 @@ namespace ecs
 			{
 				components::WeaponComponent* p_weapon_comp = weapon.getComponent<components::WeaponComponent>();
 
+				// Expection on weapon types: fist for example does not have a mesh to render.
+				if (p_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+				{
+					continue;
+				}
+
 				// Get index, depending on mesh type
 				UINT& index = object_type_individual_index[p_weapon_comp->mType - (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1)];
 
@@ -696,6 +702,9 @@ namespace ecs
 		{
 			mpRenderMgr = pRenderMgr;
 
+			/*
+				Set up mesh region for all meshes that will be rendered.
+			*/
 			for (int i = 0; i < WEAPON_COUNT; i++)
 			{
 				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE(i + (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1)));
