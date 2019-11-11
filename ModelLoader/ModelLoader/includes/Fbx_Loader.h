@@ -158,9 +158,11 @@ namespace ModelLoader
 	{
 	private:
 		float mCurrentTime = 0.0f;
+		float mPrevTime = 0.0f;
 		// Default to idle
 		int mActiveAnimation = (int)ModelLoader::ANIMATION_TYPE::IDLE; 
 		int mPrevAnimation = -1;
+
 		float mPrevAnimTransitionTime = -1.0f;
 	public:
 
@@ -173,7 +175,7 @@ namespace ModelLoader
 		}
 		void ResetFrameCount()
 		{
-			this->mCurrentTime = 0.0f;
+			this->mCurrentTime = 0.0f + static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 		}
 		void Init(Skeleton* parentSkeleton)
 		{
@@ -193,6 +195,8 @@ namespace ModelLoader
 				// current animation has been playing for AT LEAST a few frames
 				if (mPrevAnimTransitionTime < ANIMATION_CROSSFADE_DURATION - 0.05f)
 				{
+					mPrevTime = mCurrentTime;
+					ResetFrameCount();
 					mPrevAnimation = mActiveAnimation;
 				}
 				
@@ -212,11 +216,12 @@ namespace ModelLoader
 				// If we are currently transitioning between two animations
 				if (mPrevAnimTransitionTime >= 0.0f)
 				{
+					mPrevTime += dtInSeconds;
 					float prev_weight = mPrevAnimTransitionTime / ANIMATION_CROSSFADE_DURATION;
 					//float current_weight = 1.0f - prev_weight;
 					int prev_frame_count = this->parentSkeleton->animations[mPrevAnimation].frameCount;
 					DirectX::XMFLOAT4X4* prevFrameData = new DirectX::XMFLOAT4X4[parentSkeleton->jointCount];
-					int prev_frame_to_set = (int)std::round(fmod(this->mCurrentTime * 60.0f, prev_frame_count)) % prev_frame_count;
+					int prev_frame_to_set = (int)std::round(fmod(this->mPrevTime * 60.0f, prev_frame_count)) % prev_frame_count;
 					// Get frame data from animationData vector for the PREVIOUS animation
 					// Same procedure as current animation
 					memcpy(prevFrameData, 

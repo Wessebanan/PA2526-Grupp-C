@@ -1,6 +1,7 @@
 #pragma once
 
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include "ecsComponent.h"
 #include "ecsSystem.h"
@@ -16,9 +17,9 @@
 
 #define DEFAULT_LAYER_COUNT 10
 
-#ifdef _DEBUG
-#define DEBUG_ENTITY_PRINT_MAX_COUNT 20
-#endif
+//#ifdef _DEBUG
+//#define DEBUG_ENTITY_PRINT_MAX_COUNT 20
+//#endif
 
 // TODO: Move event creations for new entity and component out of internal functions.
 
@@ -118,6 +119,9 @@ namespace ecs
 		// Finds system of given type and removes in from memory, using its destructor.
 		template <typename T> void removeSystem();
 
+		// Finds system of given type and returns a pointer to it.
+		template <typename T> T* getSystem();
+
 		// Creates an event in the ECS.
 		// This will notify all event listeners that has subscribed to that event type.
 		void createEvent(BaseEvent& _event);
@@ -206,6 +210,10 @@ namespace ecs
 		void onRemoveEntity(ID _entityID) override;
 		void onRemoveComponent(ID _entityID, TypeID _componentTypeID) override;
 
+		void* onGetSystem(TypeID _typeID) override;
+		void* onCreateSystem(void* _tempSystem, unsigned int _layer) override;
+		void onRemoveSystem(TypeID _typeID) override;
+
 		/*
 		*	ECSEventListenerListener (yes, double Listener) overriden functions
 		*/
@@ -226,6 +234,8 @@ namespace ecs
 		void removeComponentInternal(ID _entityID, TypeID _componentTypeID);
 		void fillEntityIteratorInternal(TypeFilter& _componentFilter, EntityIterator& _iterator);
 		void fillEventIteratorInternal(TypeFilter& _eventFilter, EventTypeIterator& _iterator);
+
+		//std::unordered_map<TypeID, > systemCreateFunctions;
 	};
 
 	/*
@@ -319,6 +329,12 @@ namespace ecs
 				return;
 			}
 		}
+	}
+
+	template<typename T>
+	inline T* EntityComponentSystem::getSystem()
+	{
+		return (T*)onGetSystem(T::typeID);
 	}
 
 	inline void EntityComponentSystem::createEvent(BaseEvent& _event)

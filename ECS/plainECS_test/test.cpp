@@ -1187,6 +1187,26 @@ namespace TestECSUser
 
 		EXPECT_TRUE(p_listenerSystem->isUpdated);
 	}
+
+	TEST(TestECSUSer, SystemCreateOtherSystem)
+	{
+		ecs::EntityComponentSystem ecs;
+
+		// Create system through ecs, which initializes it for us.
+		ecs.createSystem<ecs::systems::TestSystemCreatorSystem>(1);
+
+		int count = ecs.getTotalSystemCount();
+		EXPECT_EQ(count, 1);
+
+		ecs.update(0.f);
+
+		count = ecs.getTotalSystemCount();
+		EXPECT_EQ(count, 2);
+
+		ecs.update(0.f);
+		count = ecs.getTotalSystemCount();
+		EXPECT_EQ(count, 1);
+	}
 } // TestECSUser
 #pragma endregion ECSUserTesting
 #pragma region ECSTesting

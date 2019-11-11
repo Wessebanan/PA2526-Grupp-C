@@ -30,6 +30,10 @@ namespace ecs
 		virtual void onRemoveEntity(ID _entityID) = 0;
 		virtual void onRemoveComponent(ID _entityID, TypeID _componentTypeID) = 0;
 
+		virtual void* onGetSystem(TypeID _typeID) = 0;
+		virtual void* onCreateSystem(void* tempSystem, unsigned int _layer) = 0;
+		virtual void onRemoveSystem(TypeID _typeID) = 0;
+
 		/*
 			Virtual functions are protected. EntityComponentSystem is inheriting from
 			ECSUserListener, so the protection makes sure no one outside of
@@ -98,6 +102,18 @@ namespace ecs
 		// to the entity.
 		Entity* createEntity(ComponentList _components);
 
+		void* GetSystem(TypeID _typeID);
+		void RemoveSystem(TypeID _typeID);
+		
+		template <typename T>
+		void* GetSystem();
+
+		template <typename T>
+		void* CreateSystem(unsigned int _layer);
+
+		template <typename T>
+		void RemoveSystem();
+
 		/*
 			Templated functions
 		*/
@@ -138,6 +154,26 @@ namespace ecs
 		Templated functions (has to be in header)
 		All ECSUser methods forward resource requests to its handler.
 	*/
+
+	template<typename T>
+	inline void* ECSUser::GetSystem()
+	{
+		return ecsUserHandler->onGetSystem(T::typeID);
+	}
+
+	template<typename T>
+	inline void* ECSUser::CreateSystem(unsigned int _layer)
+	{
+		T tempSystem;
+
+		return ecsUserHandler->onCreateSystem(&tempSystem, _layer);
+	}
+
+	template<typename T>
+	inline void ECSUser::RemoveSystem()
+	{
+		ecsUserHandler->onRemoveSystem(T::typeID);
+	}
 
 	template <typename T>
 	inline EntityIterator ECSUser::getEntitiesWithComponent()

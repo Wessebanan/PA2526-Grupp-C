@@ -91,6 +91,9 @@ public:
 	InputBackend();
 	~InputBackend();
 
+	// Sends out a new gamestate to the users, returns false if hte state was set to hte same
+	bool changeGamestate(WEBGAMESTATE gamestate);
+
 	// returns true if there was a change to any of the allocated keys
 	bool updateKeyboard();
 	// returns if there was a change to hte mousemovement
