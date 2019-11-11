@@ -96,6 +96,9 @@
     <ClCompile Include="gameRagdoll\CollisionObject.cpp">
       <Filter>Ragdoll</Filter>
     </ClCompile>
+    <ClCompile Include="gameUtility\CameraSystems.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

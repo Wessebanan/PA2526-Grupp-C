@@ -18,6 +18,8 @@
 #include "..//gameAnimation/AnimationEvents.h"
 #include "..//UI/UIComponents.h"
 
+#include "..//gameUtility/CameraComponents.h"
+
 using namespace ecs;
 using namespace ecs::components;
 
@@ -433,6 +435,8 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			//skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
 
 			temp_entity = createEntity(transform, unit, idle_state, color_comp, skele_comp); //
+			PoiComponent poi_comp;
+			createComponent<PoiComponent>(temp_entity->getID(), poi_comp);
 			p_army->unitIDs.push_back(temp_entity->getID());
 		}
 		i++;
