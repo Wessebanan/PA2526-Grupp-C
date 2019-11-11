@@ -43,3 +43,16 @@ enum MAPINITSETTING
 	SQUARE, // for spawning on thier own part of the map
 	NOHOLMES // without them can change name later if needed
 };
+
+struct uint3
+{
+	unsigned int r, g, b;
+	uint3() {}
+	uint3(unsigned int r, unsigned int g, unsigned int b) : r(r), g(g), b(b) {}
+};
+
+
+#define RED		uint3(117,1,1)
+#define PURPLE	uint3(74,1,117)
+#define BLUE	uint3(47,62,236)
+#define GREEN	uint3(0,93,5)

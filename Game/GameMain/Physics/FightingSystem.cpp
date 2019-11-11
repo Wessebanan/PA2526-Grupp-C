@@ -322,6 +322,12 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			damage_sound_event.invokerEntityId = collided_unit;
 			createEvent(damage_sound_event); // Play damage sound
 		}
+
+		// VISUAL
+		ColorComponent* p_color = getComponentFromKnownEntity<ColorComponent>(collided_unit);
+		p_color->red	= 255;
+		p_color->blue	= 255;
+		p_color->green	= 255;
 	}
 	
 	weapon_component->mPreviousPos = weapon_bv->GetCenter();

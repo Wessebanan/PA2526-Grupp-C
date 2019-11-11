@@ -42,5 +42,7 @@ namespace ecs
 			~DamageSystem();
 			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
 		};
+
+		
 	} // systems
 } // ecs
