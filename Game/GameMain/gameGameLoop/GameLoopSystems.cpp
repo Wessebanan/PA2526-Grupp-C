@@ -82,35 +82,90 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	
 		p_text->mStrText = ss;
 	}
-
-
 }
 
 ///////////////////
 
-ecs::systems::GameLoopAliveSystem::GameLoopAliveSystem()
+
+
+ecs::systems::WaitForStartupSystem::WaitForStartupSystem()
 {
 	updateType = ecs::EntityUpdate;
-	typeFilter.addRequirement(ecs::components::GameLoopComponent::typeID);
+	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
 }
 
-ecs::systems::GameLoopAliveSystem::~GameLoopAliveSystem()
+ecs::systems::WaitForStartupSystem::~WaitForStartupSystem()
 {
 }
 
-// 
-void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+void ecs::systems::WaitForStartupSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
+	InputBackendComp* p_ib = _entityInfo.getComponent<InputBackendComp>();
+	if (p_ib)
+	{
+		if (p_ib->backend->checkReadyCheck())
+		{
+			// Starts the first round, should be removed when prepphase is implemented
+			ecs::events::RoundStartEvent eve;
+			createEvent(eve);
 
-	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
-	ArmyComponent* p_army_comp;
+			// Remove itself
+			RemoveSystem(WaitForStartupSystem::typeID);
+		}
+	}
+}
 
+
+///////////////////
+
+ecs::systems::PrepPhaseSystem::PrepPhaseSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
+}
+
+ecs::systems::PrepPhaseSystem::~PrepPhaseSystem()
+{
+}
+
+void ecs::systems::PrepPhaseSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	InputBackendComp* p_ib = _entityInfo.getComponent<InputBackendComp>();
+	if(p_ib)
+	{
+		if (p_ib->backend->checkReadyCheck())
+		{
+			// Starts the first round, should be removed when prepphase is implemented
+			ecs::events::RoundStartEvent eve;
+			createEvent(eve);
+
+			// Remove itself
+			RemoveSystem(PrepPhaseSystem::typeID);
+		}
+	}
+}
+
+/////////////////////
+
+ecs::systems::BattlePhaseSystem::BattlePhaseSystem()
+{
+	updateType = ecs::MultiEntityUpdate;
+	typeFilter.addRequirement(ecs::components::ArmyComponent::typeID);
+}
+
+ecs::systems::BattlePhaseSystem::~BattlePhaseSystem()
+{
+}
+
+void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+{
 	int check_any_live = 0;
 	PLAYER alive_player;
-
-	while (p_army_comp = (ArmyComponent*)itt.next())
+	ArmyComponent* p_army_comp;
+	for (FilteredEntity& army : _entities.entities)
 	{
+		p_army_comp = army.getComponent<ArmyComponent>();
+
 		if (p_army_comp->unitIDs.size() > 0)
 		{
 			check_any_live++;
@@ -124,8 +179,7 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 		events::RoundEndEvent eve;
 		eve.winner = alive_player;
 		createEvent(eve);
-		
-	}
+	} // Draw
 	else if (check_any_live == 0)
 	{
 		events::RoundEndEvent eve;
@@ -133,6 +187,7 @@ void ecs::systems::GameLoopAliveSystem::updateEntity(FilteredEntity& _entityInfo
 		createEvent(eve);
 	}
 }
+
 
 /*
 ====================================================
@@ -175,17 +230,13 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		QuadTreeComponent quad_tree;
 		int2 grid_size = GridProp::GetInstance()->GetSize();
 		createEntity(quad_tree);
-		// Puts the players into prep phase
+		// Puts the players into waiting phase
 		itt = getComponentsOfType<InputBackendComp>();
 		InputBackendComp* p_ib;
 		while (p_ib = (InputBackendComp*)itt.next())
 		{
-			p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
+			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
 		}
-
-		// Starts the first round, should be removed when prepphase is implemented
-		ecs::events::RoundStartEvent eve;
-		createEvent(eve);
 
 	}
 }
@@ -244,6 +295,9 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 				text_comp->mStrText = "";
 			}
 		}
+
+		// Create Battlephase system
+		CreateSystem<systems::BattlePhaseSystem>(1);
 
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
@@ -332,7 +386,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 
 		////Fetch the index of the starting tile for this player.
 		starting_tile_index = GridFunctions::FindStartingTile(p_army->playerID, size.x, size.y, MAPINITSETTING::HOLMES);
-		temp_id = p_gp->mGrid[starting_tile_index.y][starting_tile_index.x].Id;
+		temp_id = p_gp->mGrid[starting_tile_index.x][starting_tile_index.y].Id;
 		p_transform = getComponentFromKnownEntity<ecs::components::TransformComponent>(temp_id);
 		//Set current players enum ID for this armies units.
 		unit.playerID = p_army->playerID;
@@ -522,17 +576,19 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 	{
 		int winner = dynamic_cast<ecs::events::RoundEndEvent*>(&event)->winner;
 
+		// Failsafe if the evetn wasnt created correct, -1 is also a draw
 		if (winner >= 0)
 		{
 			ComponentIterator itt = ecs::ECSUser::getComponentsOfType(ecs::components::GameLoopComponent::typeID);
 			GameLoopComponent* p_gl;
 			while (p_gl = static_cast<GameLoopComponent*>(itt.next()))
 			{
-				p_gl->mPlayerPoints[winner]++;
 
-				// Check if the winner has won enougth to win the game
-				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN)
+				// Check if the winner will sin the game now or not
+				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN - 1)
 				{
+					p_gl->mPlayerPoints[winner]++;
+
 					cout << "The round winner is Player " << winner << endl;
 					// Can be reworked to start prep phase
 					this->mRoundOver = true;
@@ -603,8 +659,18 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 
 		if (this->mRoundOverDuration > 3.0f)
 		{
-			events::RoundStartEvent eve;
-			createEvent(eve);
+			ComponentIterator itt;
+			// Puts the players into waiting phase
+			itt = getComponentsOfType<InputBackendComp>();
+			InputBackendComp* p_ib;
+			while (p_ib = (InputBackendComp*)itt.next())
+			{
+				p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
+			}
+
+			// Remove battlephase and start prephase
+			RemoveSystem(systems::BattlePhaseSystem::typeID);
+			CreateSystem<systems::PrepPhaseSystem>(1);
 
 			this->mRoundOver = false;
 			this->mRoundOverDuration = 0.0f;
