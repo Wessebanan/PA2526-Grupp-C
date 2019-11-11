@@ -57,14 +57,14 @@ namespace GridFunctions
 			// first circle
 			top_height *= slope;
 
-			height_values[top_y][top_x - 1] = top_height;
-			height_values[top_y][top_x + 1] = top_height;
+			height_values[top_y]	[top_x - 1] = top_height;
+			height_values[top_y]	[top_x + 1] = top_height;
 
-			height_values[top_y - 1][top_x] = top_height;
+			height_values[top_y - 1]	[top_x] = top_height;
 			height_values[top_y - 1][top_x + 1] = top_height;
 			height_values[top_y - 1][top_x - 1] = top_height;
 
-			height_values[top_y + 1][top_x] = top_height;
+			height_values[top_y + 1]	[top_x] = top_height;
 
 			//------
 
