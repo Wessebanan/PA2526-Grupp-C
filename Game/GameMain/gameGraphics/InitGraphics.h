@@ -129,8 +129,6 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& world
 	p_world_renderer->Initialize(&r_render_mgr, &r_state_mgr, worldMeshData.pMesh, worldMeshData.vertexCount);
 	p_particle_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 
-	systems::SSAORenderSystem* p_ssao_renderer = rEcs.createSystem<systems::SSAORenderSystem>(9);
-	p_ssao_renderer->Initialize(clientWidth, clientHeight);
 
 	/*
 		These stay outcommented, so we can easily compare performance boost between instance and single mesh rendering
@@ -148,6 +146,7 @@ void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::PipelineShadowMapSystem>(9);
 	rEcs.createSystem<systems::PipelineForwardSystem>(9);
 	rEcs.createSystem<systems::ExecuteGPURenderSystem>(9);
+	rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(1920, 1080);
 }
 
 void InitMeshes(EntityComponentSystem& rEcs)

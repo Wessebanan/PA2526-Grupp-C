@@ -33,6 +33,11 @@ namespace graphics
 		return (UINT)m_settings.size() - 1;
 	}
 
+	void StateManager::ClearPipelineState(const UINT pipeline)
+	{
+		m_settings[pipeline]->Clear(m_pContext4);
+	}
+
 	void StateManager::UpdatePipelineState(const UINT state, const void* pStateData)
 	{
 		m_settings[state]->Update(m_pContext4, pStateData);

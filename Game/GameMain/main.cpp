@@ -132,7 +132,7 @@ int main()
 
 	smoke.InitialVelocity = 2.0f;
 
-	ecs.createEntity(spawner, smoke);
+	//ecs.createEntity(spawner, smoke);
 
 	/*
 		 #############################                                                    ############################# 
