@@ -55,3 +55,18 @@ struct AABB : public BoundingVolume, DirectX::BoundingBox
 	void Transform(XMMATRIX transform);
 	XMFLOAT3 GetCenter();
 };
+
+//Axis aligned so that y is height, DO NOT ROTATE, specifically designed for tiles. 
+struct Cylinder : public BoundingVolume
+{
+	bool Intersects(BoundingVolume* other);
+	void Transform(XMMATRIX transform);
+	XMFLOAT3 GetCenter();
+
+	//void CreateFromPoints(Cylinder& Out, size_t Count, const DirectX::XMFLOAT3* pPoints, size_t Stride);
+	void CreateFromTile(XMFLOAT3 position, float scale = 1.0f);
+private:
+	XMFLOAT3 mCenter;
+	float mHeight;
+	float mRadius;
+};
