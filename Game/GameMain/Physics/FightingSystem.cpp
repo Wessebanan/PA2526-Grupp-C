@@ -51,9 +51,6 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 	switch (weapon_component->mType)
 	{
-	// DirectXCollision is aggressive as f when making OBBs so I make
-	// an AABB and then an OBB out of it to avoid a bunch of points being
-	// outside of the OBB.
 	case GAME_OBJECT_TYPE_SWORD:
 	{
 		weapon_component->mBoundingVolume = new OBB;
