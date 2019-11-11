@@ -58,9 +58,6 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	{
 		weapon_component->mBoundingVolume = new OBB;
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
-		//AABB aabb;
-		//aabb.CreateFromPoints(aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
-		//obb->CreateFromBoundingBox(*(BoundingOrientedBox*)obb, aabb);
 		obb->CreateFromPoints(*(BoundingOrientedBox*)obb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
 
 		OBB temp_obb = OBB(*obb);
@@ -284,6 +281,9 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		float movement = CalculateDistance(weapon_component->mPreviousPos, weapon_bv->GetCenter());
 		float velocity = movement / _delta;
 
+		// Capping velocity to not get insane velocity when units rotate the same frame.
+		velocity = (std::min)(2.0f, velocity);
+
 		// Calculating damage by multiplying weapon velocity and the base damage.
 		float damage = velocity * weapon_component->mBaseDamage;
 
@@ -293,7 +293,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		
 		// KNOCKBACK
 		ForceImpulseEvent knockback;
-		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3(&weapon_bv->GetCenter()), XMLoadFloat3(&weapon_component->mPreviousPos))));
+		knockback.mDirection = getComponentFromKnownEntity<DynamicMovementComponent>(unit_entity->getID())->mDirection;
+		//XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3(&weapon_bv->GetCenter()), XMLoadFloat3(&weapon_component->mPreviousPos))));
 		knockback.mForce = BASE_KNOCKBACK * velocity * weapon_component->mKnockback;
 		knockback.mEntityID = collided_unit;
 		createEvent(knockback);
