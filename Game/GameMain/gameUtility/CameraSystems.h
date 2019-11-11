@@ -186,26 +186,52 @@ namespace ecs
 
 				// ----------------
 				// STEP 3: Find radius distance away from lookat point
-				//float temp_float;
-				float radius =22.0f;
-				//for (FilteredEntity& e : poi_iterator.entities)
-				//{
-				//	p_poi_transform = e.getComponent<components::TransformComponent>();
-				//	temp_pos = DirectX::XMLoadFloat3(&p_poi_transform->position);
-				//	temp_pos -= rLookAt;
+				float temp_float;
+				float radius = 0.0f;
 
-				//	temp_vec = (DirectX::XMVector3Dot(temp_vec, right_wall) / DirectX::XMVector3Dot(right_wall, right_wall)) * right_wall;
-				//	temp_float = DirectX::XMVectorGetX(DirectX::XMVector3Length(temp_pos-temp_vec)) / sinf(FOV);
-				//	radius = fmaxf(radius, temp_float);
+				for (FilteredEntity& e : poi_iterator.entities)
+				{
+					p_poi_transform = e.getComponent<components::TransformComponent>();
+					temp_pos = DirectX::XMLoadFloat3(&p_poi_transform->position);
+					temp_pos -= rLookAt;
 
-				//	temp_vec = (DirectX::XMVector3Dot(temp_vec, left_wall) / DirectX::XMVector3Dot(left_wall, left_wall)) * left_wall;
-				//	temp_float = DirectX::XMVectorGetX(DirectX::XMVector3Length(temp_pos - temp_vec)) / sinf(FOV);
-				//	radius = fmaxf(radius, temp_float);
-				//}
+					temp_vec = (DirectX::XMVector3Dot(temp_vec, right_wall) / DirectX::XMVector3Dot(right_wall, right_wall)) * right_wall;
+					temp_float = DirectX::XMVectorGetX(DirectX::XMVector3Length(temp_pos - temp_vec)) / sinf(FOV);
+					radius = fmaxf(radius, temp_float);
 
-				//rTarget *= radius;
+					temp_vec = (DirectX::XMVector3Dot(temp_vec, left_wall) / DirectX::XMVector3Dot(left_wall, left_wall)) * left_wall;
+					temp_float = DirectX::XMVectorGetX(DirectX::XMVector3Length(temp_pos - temp_vec)) / sinf(FOV);
+					radius = fmaxf(radius, temp_float);
+				}
+
 				rTarget *= radius;
-				//std::cout << radius << std::endl;
+				std::cout << radius << std::endl;
+			}
+			inline void CheckCameraAngle(DirectX::XMVECTOR& cameraPos, DirectX::XMVECTOR& targetPos)
+			{
+				/***********************************************/
+				/******* DOES NOT WORK AS INTENDED ATM ********/
+				/** MIGHT WANT TO BUILD ON IT IN THE FUTURE **/
+				/********************************************/
+				XMVECTOR temp_pos = cameraPos;
+				XMVECTOR grounded_pos = cameraPos;
+				float y = XMVectorGetY(targetPos);
+				grounded_pos = XMVectorSetY(grounded_pos, y);
+				temp_pos = XMVectorSubtract(temp_pos, targetPos);
+				grounded_pos = XMVectorSubtract(grounded_pos, targetPos);
+				XMVECTOR length_ground = XMVector3Length(grounded_pos);
+				float f_length = XMVectorGetX(length_ground);
+				XMVECTOR angle = XMVector3AngleBetweenVectors(grounded_pos, temp_pos);
+				float max_angle = PI / 3; //60 degrees
+				float true_angle;
+				float new_y = XMVectorGetX(angle);
+				if (max_angle < new_y)
+				{
+					true_angle = max_angle;
+					f_length = f_length * tan(true_angle);
+					y += f_length;
+					cameraPos = XMVectorSetY(cameraPos, y);
+				}
 			}
 			XMVECTOR Lerp(const XMVECTOR& v1, const XMVECTOR& v2)
 			{
