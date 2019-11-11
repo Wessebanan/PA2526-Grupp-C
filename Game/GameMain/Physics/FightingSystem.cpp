@@ -51,16 +51,10 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 	switch (weapon_component->mType)
 	{
-	// DirectXCollision is aggressive as f when making OBBs so I make
-	// an AABB and then an OBB out of it to avoid a bunch of points being
-	// outside of the OBB.
 	case GAME_OBJECT_TYPE_SWORD:
 	{
 		weapon_component->mBoundingVolume = new OBB;
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
-		//AABB aabb;
-		//aabb.CreateFromPoints(aabb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
-		//obb->CreateFromBoundingBox(*(BoundingOrientedBox*)obb, aabb);
 		obb->CreateFromPoints(*(BoundingOrientedBox*)obb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
 
 		OBB temp_obb = OBB(*obb);
@@ -71,7 +65,10 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		XMFLOAT3 extents = temp_obb.Extents;
 		weapon_component->mWeaponRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
 		weapon_component->mWeaponRange *= 2;
+
 		weapon_component->mBaseDamage = BASE_SWORD_DAMAGE;
+
+		weapon_component->mKnockback = SWORD_KNOCKBACK;
 		break;
 	}
 
@@ -87,6 +84,8 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		weapon_component->mWeaponRange = 0.0f;
 
 		weapon_component->mBaseDamage = BASE_FIST_DAMAGE;
+
+		weapon_component->mKnockback = FIST_KNOCKBACK;
 		break;
 	}
 	default:
@@ -273,9 +272,14 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	}
 	else if (intersect)
 	{
+		// DAMAGE
+
 		// Calculating velocity on weapon.
 		float movement = CalculateDistance(weapon_component->mPreviousPos, weapon_bv->GetCenter());
 		float velocity = movement / _delta;
+
+		// Capping velocity to not get insane velocity when units rotate the same frame.
+		velocity = (std::min)(2.0f, velocity);
 
 		// Calculating damage by multiplying weapon velocity and the base damage.
 		float damage = velocity * weapon_component->mBaseDamage;
@@ -284,6 +288,15 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		collided_constitution->mHealth -= damage;
 		
+		// KNOCKBACK
+		ForceImpulseEvent knockback;
+		knockback.mDirection = getComponentFromKnownEntity<DynamicMovementComponent>(unit_entity->getID())->mDirection;
+		//XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3(&weapon_bv->GetCenter()), XMLoadFloat3(&weapon_component->mPreviousPos))));
+		knockback.mForce = BASE_KNOCKBACK * velocity * weapon_component->mKnockback;
+		knockback.mEntityID = collided_unit;
+		createEvent(knockback);
+
+		// SOUND
 		if (collided_constitution->mHealth <= 0.0f && !ECSUser::getEntity(collided_unit)->hasComponentOfType(DeadComponent::typeID))
 		{
 			ecs::components::DeadComponent dead_comp;
@@ -292,7 +305,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			death_sound_event.soundFlags = SF_NONE;
 			death_sound_event.audioName = AudioName::SCREAM_SOUND;
 			death_sound_event.invokerEntityId = collided_unit;
-			createEvent(death_sound_event); // Play damage sound
+			createEvent(death_sound_event); // Play death sound
 		}
 		else
 		{
