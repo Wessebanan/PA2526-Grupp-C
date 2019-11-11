@@ -222,9 +222,9 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	
 	// Grabbing the height (y value).
 	float tile_height = closest_tile->position.y;
-
+	TileComponent* closest_tile_comp = getComponentFromKnownEntity<TileComponent>(closest_tile_id);
 	//Check if units is to far away from the map. If so we set the y they will fall to to -2.0f.
-	if (closest_distance > 1.5f)
+	if (closest_distance > 1.5f || closest_tile_comp->tileType == WATER)
 	{
 		tile_height = -2.0f;
 	}
