@@ -56,7 +56,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 
 	ComponentList list;
 	list.initialInfo = graphics_components;
-	list.componentCount = 6;
+	list.componentCount = sizeof(graphics_components) / sizeof(BaseComponent*);
 
 	/*
 		Fetch id of the graphics entity. All graphic components used by renderer systems
@@ -87,11 +87,6 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	p_psmComp->pipelineDesc.FarPlane = 80.0f;
 	p_psmComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ShadowMapPipeline, &p_psmComp->pipelineDesc);
 
-	//p_pfComp->pipelineDesc.ClientWidth = clientWidth;
-	//p_pfComp->pipelineDesc.ClientHeight = clientHeight;
-	//p_pfComp->pipelineDesc.Fov = 3.14f / 2.0f;
-	//p_pfComp->pipelineDesc.NearPlane = 1.0f;
-	//p_pfComp->pipelineDesc.FarPlane = 100.0f;
 	p_pfComp->pipelineDesc.ClientWidth = clientWidth;
 	p_pfComp->pipelineDesc.ClientHeight = clientHeight;
 	p_pfComp->pipelineDesc.Fov = CameraDefines::fovAngle;
@@ -103,7 +98,6 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::RenderBufferComponent* p_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next());
 	p_render_buffer->buffer.Initialize(renderBufferSize, 256);
 	p_render_buffer->bufferSize = renderBufferSize;
-
 }
 
 void InitGraphicsPreRenderSystems(EntityComponentSystem& rEcs)

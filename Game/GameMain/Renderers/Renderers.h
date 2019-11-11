@@ -7,6 +7,7 @@
 #include "../gameGraphics/RenderBuffer.h"
 #include "../gameSceneObjects/SceneObjectGlobals.h"
 #include "../../Graphics/includes/StateManager.h"
+#include "../gameRendering/RenderDefineMacros.h"
 
 //static const std::string GetShaderFilepath(const char* pFilename)
 //{
@@ -26,17 +27,7 @@
 //	return (c0 << 24) | (c1 << 16) | (c2 << 8) | c3;
 //}
 
-#define DEFINE_WEAPON_RENDERER_HEADER(renderSystemName) \
-	class renderSystemName : public ecs::ECSSystem<renderSystemName> \
-	{ \
-	public:  \
-		renderSystemName(); \
-		virtual ~renderSystemName() {} \
-		void updateMultipleEntities(EntityIterator& _entities, float _delta) override; \
-		void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer); \
-	private: \
-		WeaponRenderer mRenderer; \
-	};
+
 
 
 

@@ -250,6 +250,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	GenerateWorldMesh(rECS, &worldMeshData.pMesh, worldMeshData.vertexCount);
 
 	InitGraphicsRenderSystems(rECS, worldMeshData, clientWidth, clientHeight);
+
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);

@@ -16,20 +16,7 @@
 #include "../gameGraphics/CombineSSAOPipeline.h"
 #include "../gameGraphics/BlurPipeline.h"
 
-#define SET_WEAPON_TYPE_FILTER(compName) \
-	typeFilter.addRequirement(components::WeaponComponent::typeID); \
-	typeFilter.addRequirement(components::TransformComponent::typeID); \
-	typeFilter.addRequirement(components::ColorComponent::typeID); \
-	typeFilter.addRequirement(components::compName::typeID);
 
-#define INIT_WEAPON_RENDERER(pRenderMgr, pRenderBuffer, objectType) \
-	ECSUser::InitializeSubECSUser(&mRenderer); \
-	mRenderer.InitializeInternal(pRenderMgr, pRenderBuffer, objectType);
-
-#define DEFINE_WEAPON_RENDERER(renderSystemName, weaponCompName, objectType) \
-	renderSystemName::renderSystemName() { updateType = SystemUpdateType::MultiEntityUpdate; SET_WEAPON_TYPE_FILTER(weaponCompName) } \
-	void renderSystemName::updateMultipleEntities(EntityIterator& _entities, float _delta) { mRenderer.RenderAllInternal(_entities); } \
-	void renderSystemName::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer) { INIT_WEAPON_RENDERER(pRenderMgr, pRenderBuffer, objectType) }
 
 void WeaponRenderer::InitializeInternal(
 	graphics::RenderManager* pRenderMgr,

@@ -167,6 +167,7 @@
     <ClInclude Include="gameGraphics\TileRenderingPipeline.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
+    <ClInclude Include="gameRendering\RenderDefineMacros.h" />
     <ClInclude Include="gameSceneObjects\InitBiomes.h" />
     <ClInclude Include="gameSceneObjects\InitLoot.h" />
     <ClInclude Include="gameSceneObjects\InitSceneObjectsh.h" />
