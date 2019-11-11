@@ -118,17 +118,17 @@ void ecs::systems::WaitForStartupSystem::updateEntity(FilteredEntity& _entityInf
 
 ///////////////////
 
-ecs::systems::PrepphaseSystem::PrepphaseSystem()
+ecs::systems::PrepPhaseSystem::PrepPhaseSystem()
 {
 	updateType = ecs::EntityUpdate;
 	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
 }
 
-ecs::systems::PrepphaseSystem::~PrepphaseSystem()
+ecs::systems::PrepPhaseSystem::~PrepPhaseSystem()
 {
 }
 
-void ecs::systems::PrepphaseSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+void ecs::systems::PrepPhaseSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	InputBackendComp* p_ib = _entityInfo.getComponent<InputBackendComp>();
 	if(p_ib)
@@ -140,29 +140,28 @@ void ecs::systems::PrepphaseSystem::updateEntity(FilteredEntity& _entityInfo, fl
 			createEvent(eve);
 
 			// Remove itself
-			RemoveSystem(PrepphaseSystem::typeID);
+			RemoveSystem(PrepPhaseSystem::typeID);
 		}
 	}
 }
 
 /////////////////////
 
-ecs::systems::BattlephaseSystem::BattlephaseSystem()
+ecs::systems::BattlePhaseSystem::BattlePhaseSystem()
 {
 	updateType = ecs::MultiEntityUpdate;
 	typeFilter.addRequirement(ecs::components::ArmyComponent::typeID);
 }
 
-ecs::systems::BattlephaseSystem::~BattlephaseSystem()
+ecs::systems::BattlePhaseSystem::~BattlePhaseSystem()
 {
 }
 
-void ecs::systems::BattlephaseSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 {
 	int check_any_live = 0;
 	PLAYER alive_player;
 	ArmyComponent* p_army_comp;
-	//for (size_t i = 0; i < list.size(); i++)
 	for (FilteredEntity& army : _entities.entities)
 	{
 		p_army_comp = army.getComponent<ArmyComponent>();
@@ -298,7 +297,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		}
 
 		// Create Battlephase system
-		CreateSystem<systems::BattlephaseSystem>(1);
+		CreateSystem<systems::BattlePhaseSystem>(1);
 
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
@@ -670,8 +669,8 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			}
 
 			// Remove battlephase and start prephase
-			RemoveSystem(systems::BattlephaseSystem::typeID);
-			CreateSystem<systems::PrepphaseSystem>(1);
+			RemoveSystem(systems::BattlePhaseSystem::typeID);
+			CreateSystem<systems::PrepPhaseSystem>(1);
 
 			this->mRoundOver = false;
 			this->mRoundOverDuration = 0.0f;

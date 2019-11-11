@@ -9,7 +9,7 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 	rECS.createSystem<ecs::systems::GameLoopSystem>();
 
 #ifdef _DEBUG
-	rECS.createSystem<ecs::systems::BattlephaseSystem>(1);
+	rECS.createSystem<ecs::systems::BattlePhaseSystem>(1);
 
 #else
 

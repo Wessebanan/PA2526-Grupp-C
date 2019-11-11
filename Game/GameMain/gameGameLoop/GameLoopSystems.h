@@ -35,21 +35,21 @@ namespace ecs
 		};
 
 		// Checks for transition to battlephase
-		class PrepphaseSystem : public ecs::ECSSystem<PrepphaseSystem>
+		class PrepPhaseSystem : public ecs::ECSSystem<PrepPhaseSystem>
 		{
 		public:
-			PrepphaseSystem();
-			~PrepphaseSystem();
+			PrepPhaseSystem();
+			~PrepPhaseSystem();
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 		private:
 		};
 
 		// CHecks for transition to prepphase
-		class BattlephaseSystem : public ecs::ECSSystem<BattlephaseSystem>
+		class BattlePhaseSystem : public ecs::ECSSystem<BattlePhaseSystem>
 		{
 		public:
-			BattlephaseSystem();
-			~BattlephaseSystem();
+			BattlePhaseSystem();
+			~BattlePhaseSystem();
 			void updateMultipleEntities(EntityIterator &_entities, float _delta) override;
 		private:
 		};
