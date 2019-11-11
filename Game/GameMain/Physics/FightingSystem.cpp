@@ -44,14 +44,17 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	std::vector<XMFLOAT3>* vertices = nullptr;
 
 	// Fist has no mesh.
-	if (weapon_component->mType != GAME_OBJECT_TYPE_FIST)
+	if (weapon_component->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
 	{
 		vertices = mesh_component->mMesh->GetVertexPositionVector();
 	}
 
 	switch (weapon_component->mType)
 	{
-	case GAME_OBJECT_TYPE_SWORD:
+	// DirectXCollision is aggressive as f when making OBBs so I make
+	// an AABB and then an OBB out of it to avoid a bunch of points being
+	// outside of the OBB.
+	case GAME_OBJECT_TYPE_WEAPON_SWORD:
 	{
 		weapon_component->mBoundingVolume = new OBB;
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
@@ -72,7 +75,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		break;
 	}
 
-	case GAME_OBJECT_TYPE_FIST:
+	case GAME_OBJECT_TYPE_WEAPON_FIST:
 	{
 		// Fist is only a unit sphere, supposed to get hand transform.
 		weapon_component->mBoundingVolume = new Sphere;
@@ -130,13 +133,13 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	BoundingVolume* weapon_bv = nullptr;
 	switch (weapon_component->mType)
 	{
-	case GAME_OBJECT_TYPE_SWORD:
+	case GAME_OBJECT_TYPE_WEAPON_SWORD:
 	{
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
 		weapon_bv = new OBB(*obb);
 		break;
 	}
-	case GAME_OBJECT_TYPE_FIST:
+	case GAME_OBJECT_TYPE_WEAPON_FIST:
 	{
 		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
 		weapon_bv = new Sphere(*sphere);

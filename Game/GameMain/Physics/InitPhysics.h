@@ -96,13 +96,13 @@ ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::M
 
 	switch (weaponType)
 	{
-	case GAME_OBJECT_TYPE_SWORD:
+	case GAME_OBJECT_TYPE_WEAPON_SWORD:
 		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
 		break;
-	case GAME_OBJECT_TYPE_FIST:
+	case GAME_OBJECT_TYPE_WEAPON_FIST:
 		weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		break;
-	case GAME_OBJECT_TYPE_PROJECTILE:
+	case GAME_OBJECT_TYPE_WEAPON_PROJECTILE:
 		MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
 		break;
 	}

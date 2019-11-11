@@ -140,7 +140,7 @@ namespace ecs
 			// When an entity gets the weapon, give owner entity id to component.
 			ID mOwnerEntity = 0;			
 
-			GAME_OBJECT_TYPE mType = GAME_OBJECT_TYPE_FIST;
+			GAME_OBJECT_TYPE mType = GAME_OBJECT_TYPE_WEAPON_FIST;
 			BoundingVolume* mBoundingVolume = nullptr;
 			
 			// Previous position to calculate velocity for damage.

@@ -31,9 +31,11 @@ enum GAME_OBJECT_TYPES
 		Weapons
 	*/
 
-	GAME_OBJECT_TYPE_SWORD,
-	GAME_OBJECT_TYPE_PROJECTILE,
-	GAME_OBJECT_TYPE_FIST,
+	GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG,
+	GAME_OBJECT_TYPE_WEAPON_SWORD,			// All weapons with meshes first
+
+	GAME_OBJECT_TYPE_WEAPON_PROJECTILE,
+	GAME_OBJECT_TYPE_WEAPON_FIST,
 
 	/*
 		Traps
@@ -50,3 +52,4 @@ constexpr int OFFSET_TRAP = 3;
 constexpr int MESH_TYPE_COUNT = 12;
 constexpr int SCENE_OBJECT_COUNT = 9;
 constexpr int TRAP_COUNT = 3;
+constexpr int WEAPON_COUNT = 1; // Number of weapons to be rendered

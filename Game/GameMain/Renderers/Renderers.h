@@ -266,14 +266,12 @@ namespace ecs
 			graphics::MeshRegion mScreenSpaceTriangle;
 		};
 
-
-
 		class WeaponRenderSystem : public ECSSystem<WeaponRenderSystem>
 		{
 		public:
 
 			WeaponRenderSystem();
-			virtual ~WeaponRenderSystem();
+			~WeaponRenderSystem();
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
@@ -296,8 +294,12 @@ namespace ecs
 
 			graphics::RenderBuffer* mpRenderBuffer;
 
-			UINT mInstanceCount;
-			graphics::MeshRegion mWeaponMeshRegion;
+			UINT mObjectCount;
+			graphics::MeshRegion mObjectMeshRegion[WEAPON_COUNT];
+
+			UINT mObjectTypeCount[WEAPON_COUNT];
+
+			void PlaceWorldMatrix(FilteredEntity& rWeapon, DirectX::XMFLOAT4X4 &rDestination);
 		};
 	}
 }
