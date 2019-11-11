@@ -665,12 +665,24 @@ namespace ecs
 								goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());
 								this->x = goal->position.x - transform->position.x;
 								this->z = goal->position.z - transform->position.z;
+								this->yDistance = goal->position.y - transform->position.y;
 								this->length = sqrt(x * x + z * z);
-								this->x = this->x / this->length;
-								this->z = this->z / this->length;
-								dyn_move->mForward.x = this->x;
-								dyn_move->mForward.z = this->z;
+								dyn_move->mForward.x = this->x / this->length;
+								dyn_move->mForward.z = this->z / this->length;
+								//this->length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&goal->position) - XMLoadFloat3(&transform->position)));
 
+								if(this->yDistance > 0.1f && dyn_move->mOnGround)
+								{
+									
+									ForceImpulseEvent test;
+									//XMStoreFloat3(&test.mDirection, XMVector3Normalize(XMLoadFloat3(&goal->position) - XMLoadFloat3(&transform->position)));
+									test.mDirection.x = 0.f;
+									test.mDirection.y = 1.f;
+									test.mDirection.z = 0.f;
+									test.mForce = 200.f; //* fabsf(this->yDistance);
+									test.mEntityID = entity.entity->getID();
+									createEvent(test);
+								}
 								MovementInputEvent kek;
 								kek.mInput = FORWARD;
 								kek.mEntityID = entity.entity->getID();
@@ -682,6 +694,7 @@ namespace ecs
 			}
 		private:
 			float x;
+			float yDistance;
 			float z;
 			float length;
 			float mMinimumDist;
