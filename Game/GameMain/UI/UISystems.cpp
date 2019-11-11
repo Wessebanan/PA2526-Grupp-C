@@ -207,14 +207,14 @@ void ecs::systems::UICountDownSystem::updateEntity(FilteredEntity& _entityInfo, 
 	if (one_sec_has_passed)
 	{
 		this->counter--;
-		pUIPosComp->mDrawArea.bottom	-= 500.f;
-		pUIPosComp->mDrawArea.left		+= 500.f;
-		pUIPosComp->mDrawArea.right		-= 500.f;
-		pUIPosComp->mDrawArea.top		+= 500.f;
+		pUIPosComp->mDrawArea.bottom	-= this->expand_size;
+		pUIPosComp->mDrawArea.left		+= this->expand_size;
+		pUIPosComp->mDrawArea.right		-= this->expand_size;
+		pUIPosComp->mDrawArea.top		+= this->expand_size;
 		pUIBitmapComp->mpBitmap = this->mpD2D->GetBitmap("rob" + std::to_string(this->counter)); //load in the new bitmap when a second has passed in a pretty static way
 	}
 
-	this->mSize = 500 * _delta; //make mSize 200 after 1 sec
+	this->mSize = this->expand_size * _delta; //Will make mSize close to expand_size after 1 sec
 	pUIPosComp->mDrawArea.bottom	+= this->mSize;
 	pUIPosComp->mDrawArea.left		-= this->mSize;
 	pUIPosComp->mDrawArea.right		+= this->mSize;
@@ -228,9 +228,9 @@ void ecs::systems::UICountDownSystem::onEvent(TypeID _eventType, BaseEvent* _eve
 	countdown_filter.addRequirement(ecs::components::UIBitmapComponent::typeID);
 	countdown_filter.addRequirement(ecs::components::UIDrawPosComponent::typeID);
 	countdown_filter.addRequirement(ecs::components::UIIWant::typeID);
-	EntityIterator current_countdowns = getEntitiesByFilter(countdown_filter);
+	EntityIterator current_countdowns = getEntitiesByFilter(countdown_filter); 
 	
-	if(current_countdowns.entities.size() < 1)
+	if(current_countdowns.entities.size() < 1) //check so that 2 countdowns can not exist at the same time
 	{
 		components::UIBitmapComponent m_bitmap;
 		components::UIDrawPosComponent m_pos;
@@ -238,7 +238,7 @@ void ecs::systems::UICountDownSystem::onEvent(TypeID _eventType, BaseEvent* _eve
 		int width = this->mpD2D->GetBackbufferBitmap()->GetSize().width;
 		int height = this->mpD2D->GetBackbufferBitmap()->GetSize().height;
 			
-		if (this->mpD2D->GetBitmap("rob3") == nullptr)
+		if (this->mpD2D->GetBitmap("rob3") == nullptr) //check to see if the bitmaps already exist
 		{
 			this->mpD2D->LoadImageToBitmap("../../UI/Resource/rob0.png", "rob0");
 			this->mpD2D->LoadImageToBitmap("../../UI/Resource/rob1.png", "rob1");

@@ -158,6 +158,7 @@ namespace ecs
 			Direct2D* mpD2D;
 			float mSize = 0;
 			int counter = 3;
+			int expand_size = 500;
 		};
 
 	}
