@@ -96,11 +96,11 @@
     <ClCompile Include="gameRagdoll\CollisionObject.cpp">
       <Filter>Ragdoll</Filter>
     </ClCompile>
-    <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="gameUtility\CameraSystems.cpp">
       <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp">
+      <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
