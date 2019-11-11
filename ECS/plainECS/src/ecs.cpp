@@ -173,9 +173,9 @@ void EntityComponentSystem::update(float _delta)
 	*		- Actor					The system will be updated without any entity or event input.
 	*/
 
-	#ifdef _DEBUG
-		std::string debugPrint = "\n[" + __nameof<EntityComponentSystem>() + "]\t Updating systems:\n";
-	#endif
+	//#ifdef _DEBUG
+	//	std::string debugPrint = "\n[" + __nameof<EntityComponentSystem>() + "]\t Updating systems:\n";
+	//#endif
 
 	/*
 	*	Iterate all layers
@@ -191,20 +191,20 @@ void EntityComponentSystem::update(float _delta)
 
 		SystemList& layer = systemLayers[i];
 
-		#ifdef _DEBUG
-			// Add layer print
-			if ((unsigned int)layer.size())
-			{
-				debugPrint += "\t[layer " + to_string(i) + "] ";
-			}
-		#endif
+		//#ifdef _DEBUG
+		//	// Add layer print
+		//	if ((unsigned int)layer.size())
+		//	{
+		//		debugPrint += "\t[layer " + to_string(i) + "] ";
+		//	}
+		//#endif
 
 		for (BaseSystem* s : layer)
 		{
-			#ifdef _DEBUG
-				// Print system
-				debugPrint += s->getName();
-			#endif
+			//#ifdef _DEBUG
+			//	// Print system
+			//	debugPrint += s->getName();
+			//#endif
 
 			/*
 			*	Fetch the system's update behaviour and act accordingly.
@@ -251,25 +251,25 @@ void EntityComponentSystem::update(float _delta)
 				s->act(_delta);
 				break;
 
-		#ifdef _DEBUG
-			case Undefined:
-				debugPrint += "(Undefined update type)";
-				break;
-		#endif
+		//#ifdef _DEBUG
+		//	case Undefined:
+		//		debugPrint += "(Undefined update type)";
+		//		break;
+		//#endif
 
 			}
 
-			#ifdef _DEBUG
-				debugPrint += ", ";
-			#endif
+			//#ifdef _DEBUG
+			//	debugPrint += ", ";
+			//#endif
 		}
 
-		#ifdef _DEBUG
-			if ((unsigned int)layer.size())
-			{
-				debugPrint += "\n";
-			}
-		#endif
+		//#ifdef _DEBUG
+		//	if ((unsigned int)layer.size())
+		//	{
+		//		debugPrint += "\n";
+		//	}
+		//#endif
 	}
 
 	/*
@@ -285,37 +285,37 @@ void EntityComponentSystem::update(float _delta)
 	entityMgr.removeAllFlagged();
 	eventMgr.clearAllEvents();
 
-#ifdef _DEBUG
-	debugPrint += "\tComp. count:\t" + to_string(componentMgr.getTotalComponentCount()) + "\n";
-	debugPrint += "\tEntity count:\t" + to_string(entityMgr.getEntityCount()) + "\n";
+//#ifdef _DEBUG
+//	debugPrint += "\tComp. count:\t" + to_string(componentMgr.getTotalComponentCount()) + "\n";
+//	debugPrint += "\tEntity count:\t" + to_string(entityMgr.getEntityCount()) + "\n";
+//
+//	if (entityMgr.getEntityCount() <= DEBUG_ENTITY_PRINT_MAX_COUNT)
+//	{
+//		unsigned int counter = 1;
+//		using IDPair = std::pair<TypeID, ID>;
+//		for (ECSEntityManager::EntityPair e : entityMgr.entities)
+//		{
+//			debugPrint += "\t  ";
+//
+//			debugPrint += (counter != entityMgr.getEntityCount()) ? "|" : " ";
+//
+//			debugPrint += "`-[ID=" + to_string(e.second->getID()) + "] ";
+//
+//			
+//			for (IDPair idPair : e.second->componentIDs)
+//			{
+//				BaseComponent* pComp = getComponent(idPair.first, idPair.second);
+//				debugPrint += pComp->getName() + " ";
+//			}
+//			debugPrint += "\n";
+//			counter++;
+//		}
+//	}
+//#endif
 
-	if (entityMgr.getEntityCount() <= DEBUG_ENTITY_PRINT_MAX_COUNT)
-	{
-		unsigned int counter = 1;
-		using IDPair = std::pair<TypeID, ID>;
-		for (ECSEntityManager::EntityPair e : entityMgr.entities)
-		{
-			debugPrint += "\t  ";
-
-			debugPrint += (counter != entityMgr.getEntityCount()) ? "|" : " ";
-
-			debugPrint += "`-[ID=" + to_string(e.second->getID()) + "] ";
-
-			
-			for (IDPair idPair : e.second->componentIDs)
-			{
-				BaseComponent* pComp = getComponent(idPair.first, idPair.second);
-				debugPrint += pComp->getName() + " ";
-			}
-			debugPrint += "\n";
-			counter++;
-		}
-	}
-#endif
-
-#ifdef _DEBUG
-	cout << debugPrint << endl;
-#endif
+//#ifdef _DEBUG
+//	cout << debugPrint << endl;
+//#endif
 }
 
 /*
@@ -443,6 +443,100 @@ void EntityComponentSystem::onRemoveEntity(ID _entityID)
 void EntityComponentSystem::onRemoveComponent(ID _entityID, TypeID _componentTypeID)
 {
 	removeComponentInternal(_entityID, _componentTypeID);
+}
+
+void* ecs::EntityComponentSystem::onGetSystem(TypeID _typeID)
+{
+	if (!typeIDToLayerMap.count(_typeID))
+	{
+		return nullptr;
+	}
+
+	unsigned int layer = typeIDToLayerMap[_typeID];
+
+	for (BaseSystem* s : systemLayers[layer])
+	{
+		if (s->getTypeID() == _typeID)
+		{
+			return (void*)s;
+		}
+	}
+
+	return nullptr;
+}
+
+void* ecs::EntityComponentSystem::onCreateSystem(void* _tempSystem, unsigned int _layer)
+{
+	BaseSystem* pTempSystemInfo = (BaseSystem*)_tempSystem;
+
+	SystemCreateFunction cf = pTempSystemInfo->getCreateFunction();
+
+	// Check if systemLayers been initialized
+	if (!systemLayers)
+	{
+		layerCount = 10;
+		systemLayers = new SystemList[10];
+	}
+
+	// Check if system is already added,
+	// should only exist one system at most per type
+	if (typeIDToLayerMap.count(pTempSystemInfo->getTypeID()) != 0)
+	{
+		return nullptr;
+	}
+
+	/*
+	*	Create system, which calls its constructor.
+	*	The system's constructor will set
+	*		- UpdateType
+	*		- EventSubscriptions (added to list, read later when ECS calls for it
+	*		- Component/Event filter
+	*/
+	BaseSystem* newSystem = cf();
+
+	// Make ECS listen on ECSUser functionality. This makes ECS responsible for
+	// handling entity creations, component removals etc.
+	(static_cast<ECSUser*>(newSystem))->ecsUserHandler = this;
+
+	// Set ECS to handle all subscriptions and unsubscriptions on event creations.
+	ECSEventListener* listenerCast = static_cast<ECSEventListener*>(newSystem);
+
+	// Fetch all subscriptions. This must be done AFTER eventListenerHandler been set,
+	// as it will call eventListerHandler's onAddSubscription-overrided function.
+	listenerCast->eventListenerHandler = this;
+	listenerCast->notifyHandler();
+
+	// Set system in hashed list for easy access
+	typeIDToLayerMap[pTempSystemInfo->getTypeID()] = _layer;
+
+	// Push back system in wanted layer for later update
+	systemLayers[_layer].push_back(newSystem);
+	return (void*)newSystem;
+}
+
+void ecs::EntityComponentSystem::onRemoveSystem(TypeID _typeID)
+{
+	if (!typeIDToLayerMap.count(_typeID))
+	{
+		return;
+	}
+	SystemList& layer = systemLayers[typeIDToLayerMap[_typeID]];
+
+	BaseSystem* systemPtr = nullptr;
+	for (size_t i = 0; i < layer.size(); i++)
+	{
+		systemPtr = layer[i];	// Store system pointer
+
+		if (systemPtr->getTypeID() == _typeID)
+		{
+
+			layer.erase(layer.begin() + i);	 // Remove system from layer
+			delete systemPtr;				 
+			typeIDToLayerMap.erase(_typeID); // Erase from hash map
+
+			return;
+		}
+	}
 }
 
 void EntityComponentSystem::onAddSubscription(TypeID _eventTypeID, ECSEventListener* _listener)

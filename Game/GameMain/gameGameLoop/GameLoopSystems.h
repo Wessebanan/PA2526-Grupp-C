@@ -1,6 +1,7 @@
 #pragma once
 #include "ecsSystemIncludes.h"
 #include "GameLoopComponents.h"
+#include "..//Input/InitInputBackendComponent.h"
 #include "Mesh.h"
 #include "..//Physics/PhysicsComponents.h"
 #include "..//GameGlobals.h"
