@@ -40,8 +40,8 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 		columns = 15;
 		break;
 	case 1:
-		rows = 14;
-		columns = 25;
+		rows = 18;
+		columns = 18;
 		break;
 	case 2:
 		rows = 24;
