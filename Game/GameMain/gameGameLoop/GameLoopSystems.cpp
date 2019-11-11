@@ -69,17 +69,17 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 
 	if (p_text)
 	{
-		string ss = "";
+		wstring ss = L"";
 	
 	
 		// To be sent to the UI
 		//ss.append("ROUNDTIME: ");
 		//ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
-		ss.append("\nFRAMERATE: ");
-		ss.append(to_string(framerate_to_print));
-		ss.append("\nFRAMETIME: ");
-		ss.append(to_string(frametime_to_print));
-		//ss.append("\nGAMETIME: ");
+		ss.append(L"\nFRAMERATE: ");
+		ss.append(to_wstring(framerate_to_print));
+		ss.append(L"\nFRAMETIME: ");
+		ss.append(to_wstring(frametime_to_print));
+		//ss.append(L"\nGAMETIME: ");
 		//ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
 	
 		p_text->mStrText = ss;
@@ -294,7 +294,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		{
 			if (text_comp->tag == UITAG::STARTTEXT)
 			{
-				text_comp->mStrText = "";
+				text_comp->mStrText = L"";
 			}
 		}
 
@@ -607,16 +607,16 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 							switch (winner)
 							{
 							case PLAYER1:
-								text_comp->mStrText = "RED won the round!";
+								text_comp->mStrText = L"RED won the round!";
 								break;
 							case PLAYER2:
-								text_comp->mStrText = "PURPLE won the round!";
+								text_comp->mStrText = L"PURPLE won the round!";
 								break;
 							case PLAYER3:
-								text_comp->mStrText = "BLUE won the round!";
+								text_comp->mStrText = L"BLUE won the round!";
 								break;
 							case PLAYER4:
-								text_comp->mStrText = "GREEN won the round!";
+								text_comp->mStrText = L"GREEN won the round!";
 								break;
 							default:
 								break;
@@ -636,16 +636,16 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 							switch (winner)
 							{
 							case PLAYER1:
-								text_comp->mStrText = "RED WON THE GAME!!!!";
+								text_comp->mStrText = L"RED WON THE GAME!!!!";
 								break;
 							case PLAYER2:
-								text_comp->mStrText = "PURPLE WON THE GAME!!!!";
+								text_comp->mStrText = L"PURPLE WON THE GAME!!!!";
 								break;
 							case PLAYER3:
-								text_comp->mStrText = "BLUE WON THE GAME!!!!";
+								text_comp->mStrText = L"BLUE WON THE GAME!!!!";
 								break;
 							case PLAYER4:
-								text_comp->mStrText = "GREEN WON THE GAME!!!!";
+								text_comp->mStrText = L"GREEN WON THE GAME!!!!";
 								break;
 							default:
 								break;
