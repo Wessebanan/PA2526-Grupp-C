@@ -71,7 +71,10 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		XMFLOAT3 extents = temp_obb.Extents;
 		weapon_component->mWeaponRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
 		weapon_component->mWeaponRange *= 2;
+
 		weapon_component->mBaseDamage = BASE_SWORD_DAMAGE;
+
+		weapon_component->mKnockback = SWORD_KNOCKBACK;
 		break;
 	}
 
@@ -87,6 +90,8 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		weapon_component->mWeaponRange = 0.0f;
 
 		weapon_component->mBaseDamage = BASE_FIST_DAMAGE;
+
+		weapon_component->mKnockback = FIST_KNOCKBACK;
 		break;
 	}
 	default:
@@ -273,6 +278,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	}
 	else if (intersect)
 	{
+		// DAMAGE
+
 		// Calculating velocity on weapon.
 		float movement = CalculateDistance(weapon_component->mPreviousPos, weapon_bv->GetCenter());
 		float velocity = movement / _delta;
@@ -284,6 +291,14 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		collided_constitution->mHealth -= damage;
 		
+		// KNOCKBACK
+		ForceImpulseEvent knockback;
+		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3(&weapon_bv->GetCenter()), XMLoadFloat3(&weapon_component->mPreviousPos))));
+		knockback.mForce = BASE_KNOCKBACK * velocity * weapon_component->mKnockback;
+		knockback.mEntityID = collided_unit;
+		createEvent(knockback);
+
+		// SOUND
 		if (collided_constitution->mHealth <= 0.0f && !ECSUser::getEntity(collided_unit)->hasComponentOfType(DeadComponent::typeID))
 		{
 			ecs::components::DeadComponent dead_comp;
@@ -292,7 +307,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			death_sound_event.soundFlags = SF_NONE;
 			death_sound_event.audioName = AudioName::SCREAM_SOUND;
 			death_sound_event.invokerEntityId = collided_unit;
-			createEvent(death_sound_event); // Play damage sound
+			createEvent(death_sound_event); // Play death sound
 		}
 		else
 		{
