@@ -103,11 +103,30 @@ namespace ecs
 			components::PipelineForwardComponent* p_pipeline = entity.getComponent<components::PipelineForwardComponent>();
 
 			p_pipeline->data.ViewMatrix = p_camera->viewMatrix;
-			p_pipeline->data.Red = 0.25f;
-			p_pipeline->data.Green = 0.25f;
-			p_pipeline->data.Blue = 1.0f;
-
 			p_mgr->mgr.UpdatePipeline(p_pipeline->pipeline, &p_pipeline->data);
+		}
+
+
+		ClearGPURenderSystem::ClearGPURenderSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::RenderManagerComponent::typeID);
+			typeFilter.addRequirement(components::MeshManagerComponent::typeID);
+
+			typeFilter.addRequirement(components::PipelineShadowMapComponent::typeID);
+			typeFilter.addRequirement(components::PipelineForwardComponent::typeID);
+		}
+
+		void ClearGPURenderSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
+			components::MeshManagerComponent* p_mesh_mgr = entity.getComponent<components::MeshManagerComponent>();
+			components::RenderManagerComponent* p_render_mgr = entity.getComponent<components::RenderManagerComponent>();
+
+			components::PipelineShadowMapComponent* p_pipeline_shadow_map = entity.getComponent<components::PipelineShadowMapComponent>();
+			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
+
+			p_render_mgr->mgr.ClearPipeline(p_pipeline_shadow_map->pipeline);
+			p_render_mgr->mgr.ClearPipeline(p_pipeline_forward->pipeline);
 		}
 
 		ExecuteGPURenderSystem::ExecuteGPURenderSystem()
@@ -211,7 +230,7 @@ namespace ecs
 			DirectX::XMStoreFloat3(&p_smoke_component->Direction, direction);
 		}
 #pragma endregion SmokeParticleRegion
-//
+		//
 //#pragma region SnowParticleRegion
 //		SnowSpawnerSystem::SnowSpawnerSystem()
 //		{

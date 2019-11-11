@@ -92,17 +92,20 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	p_pfComp->pipelineDesc.Fov = 3.14f / 2.0f;
 	p_pfComp->pipelineDesc.NearPlane = 1.0f;
 	p_pfComp->pipelineDesc.FarPlane = 100.0f;
+	p_pfComp->pipelineDesc.ClearColor[0] = 0.25f;
+	p_pfComp->pipelineDesc.ClearColor[1] = 0.25f;
+	p_pfComp->pipelineDesc.ClearColor[2] = 1.00f;
 	p_pfComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ForwardRenderingPipeline, &p_pfComp->pipelineDesc);
 
 	components::RenderBufferComponent* p_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next());
 	p_render_buffer->buffer.Initialize(renderBufferSize, 256);
 	p_render_buffer->bufferSize = renderBufferSize;
-
 }
 
 void InitGraphicsPreRenderSystems(EntityComponentSystem& rEcs)
 {
 	rEcs.createSystem<systems::RenderBufferResetSystem>(0);
+	rEcs.createSystem<systems::ClearGPURenderSystem>(0);
 }
 
 void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& worldMeshData, const UINT clientWidth, const UINT clientHeight)

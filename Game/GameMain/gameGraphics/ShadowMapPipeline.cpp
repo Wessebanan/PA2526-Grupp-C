@@ -113,6 +113,11 @@ namespace graphics
 		return S_OK;
 	}
 
+	void ShadowMapPipeline::Clear(ID3D11DeviceContext4* pContext4)
+	{
+		pContext4->ClearDepthStencilView(m_pDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	}
+
 	void ShadowMapPipeline::Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData)
 	{
 		SHADOW_MAP_PIPELINE_DATA* pData = (SHADOW_MAP_PIPELINE_DATA*)pPipelineData;
@@ -130,8 +135,6 @@ namespace graphics
 	{
 		ID3D11ShaderResourceView* pView = NULL;
 		pContext4->PSSetShaderResources(0, 1, &pView);
-
-		pContext4->ClearDepthStencilView(m_pDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 		graphics::SetViewport(pContext4, 0, 0, m_pixelsWidth, m_pixelsWidth);
 		pContext4->OMSetRenderTargets(0, NULL, m_pDepthBuffer);
