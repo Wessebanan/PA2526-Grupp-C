@@ -585,17 +585,6 @@ namespace GridFunctions
 			switch (Id)
 			{
 			case PLAYER1:
-				for (size_t i = 0; i < Rows; i++)
-				{
-					if (p_gp->mGrid[i][0].isPassable)
-					{
-						index.x = i;
-						index.y = 0;
-						break;
-					}
-				}
-				break;
-			case PLAYER2:
 				for (size_t i = 0; i < Columns; i++)
 				{
 					if (p_gp->mGrid[0][i].isPassable)
@@ -606,24 +595,35 @@ namespace GridFunctions
 					}
 				}
 				break;
-			case PLAYER3:
+			case PLAYER2:
 				for (size_t i = 0; i < Rows; i++)
 				{
-					if (p_gp->mGrid[i][Columns - 1].isPassable)
+					if (p_gp->mGrid[i][0].isPassable)
 					{
 						index.x = i;
-						index.y = Columns - 1;
+						index.y = 0;
 						break;
 					}
 				}
 				break;
-			case PLAYER4:
+			case PLAYER3:
 				for (size_t i = 0; i < Columns; i++)
 				{
 					if (p_gp->mGrid[Rows - 1][i].isPassable)
 					{
 						index.x = Rows - 1;
 						index.y = i;
+						break;
+					}
+				}
+				break;
+			case PLAYER4:
+				for (size_t i = 0; i < Rows; i++)
+				{
+					if (p_gp->mGrid[i][Columns - 1].isPassable)
+					{
+						index.x = i;
+						index.y = Columns - 1;
 						break;
 					}
 				}
