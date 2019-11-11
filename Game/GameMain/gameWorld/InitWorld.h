@@ -3,7 +3,7 @@
 #include "ecs.h"
 
 #include "WorldSettings.h"
-#include "OceanComponents.h"
+#include "WorldComponents.h"
 #include "../gameWorld/UpdateOceanSystem.h"
 
 #include "../gameAI/AIComponents.h"
