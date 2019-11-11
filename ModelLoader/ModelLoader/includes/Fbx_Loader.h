@@ -57,6 +57,7 @@ namespace ModelLoader
 
 		std::vector<unsigned int> mConnectedVertexIndices;
 
+		DirectX::XMFLOAT4X4 mXMFLOATGlobalBindposeInverse;
 		FbxAMatrix mGlobalBindposeInverse;
 		FbxAMatrix mBoneGlobalTransform;
 		FbxAMatrix mOffsetMatrix;
@@ -324,16 +325,7 @@ namespace ModelLoader
 
 			if (joint_index >= 0) // if joint name existed
 			{
-				DirectX::XMFLOAT4X4 new_mat;
-				// Convert FbxMatrix to XMFLOAT
-				for (int i = 0; i < 4; ++i)
-				{
-					for (int j = 0; j < 4; ++j)
-					{
-						new_mat.m[i][j] = static_cast<float>(parentSkeleton->joints[joint_index].mGlobalBindposeInverse.Get(i, j));
-					}
-				}
-				return new_mat;
+				return parentSkeleton->joints[joint_index].mXMFLOATGlobalBindposeInverse;
 			}
 			else
 			{

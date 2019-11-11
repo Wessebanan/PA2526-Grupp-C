@@ -152,9 +152,6 @@ int main()
 
 			if (GetAsyncKeyState(VK_SPACE) && start_once)
 			{
-				ecs::events::GameStartEvent eve;
-				//eve.winner = 1;
-				ecs.createEvent(eve);
 				{
 					ecs::events::PlayMusic m_event;
 					m_event.audioName = AudioName::CC_TEST_SONG;
@@ -256,4 +253,9 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitSpawnLootSystem(rECS);
 	InitHttpServer(rECS);
+
+
+	ecs::events::GameStartEvent eve;
+	rECS.createEvent(eve);
+
 }
