@@ -301,6 +301,7 @@ namespace {
 
 							}
 							curr_joint->mGlobalBindposeInverse = curr_joint->mBoneGlobalTransform.Inverse() * FbxAMatrix(FbxVector4(0.0f, 0.0f, 0.0f), FbxVector4(-90.0f, 0.0f, 0.0f), FbxVector4(1.0f, -1.0f, 1.0f));
+							curr_joint->mXMFLOATGlobalBindposeInverse = FbxAMatrixToXMFLOAT4X4(&curr_joint->mGlobalBindposeInverse);
 						}
 					}
 
