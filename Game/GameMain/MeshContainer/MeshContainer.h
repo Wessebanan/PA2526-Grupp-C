@@ -3,25 +3,7 @@
 #include <unordered_map>
 #include "Mesh.h"
 #include "MeshManager.h"
-
-typedef unsigned int MeshType;
-enum MESH_TYPE
-{
-	MESH_TYPE_TILE,
-	MESH_TYPE_UNIT,
-	MESH_TYPE_BARREL,
-	MESH_TYPE_BOX,
-	MESH_TYPE_CACTUS,
-	MESH_TYPE_CAGE,
-	MESH_TYPE_COWSKULL,
-	MESH_TYPE_FRUITTREE,
-	MESH_TYPE_GIANTSKULL,
-	MESH_TYPE_TOWER,
-	MESH_TYPE_WINTERTREE,
-	MESH_TYPE_SWORD,
-
-	MESH_TYPE_COUNT
-};
+#include "../GameGlobals.h"
 
 /*
 	-- MeshContainer
@@ -46,13 +28,13 @@ public:
 	static void Initialize(graphics::MeshManager* pMeshMgr);
 
 	// Loads a mesh from file into MeshContainer. The mesh can be retrieved after this.
-	static ModelLoader::Mesh* LoadMesh(MeshType meshType, std::string filePath);
+	static ModelLoader::Mesh* LoadMesh(GAME_OBJECT_TYPE meshType, std::string filePath);
 
 	// Returns a pointer to a requested mesh. The mesh has to be loaded before this is called.
-	static ModelLoader::Mesh* GetMeshCPU(MeshType meshType);
+	static ModelLoader::Mesh* GetMeshCPU(GAME_OBJECT_TYPE meshType);
 
 	// Returns the GPU region for a requested mesh
-	static graphics::MeshRegion GetMeshGPU(MeshType meshType);
+	static graphics::MeshRegion GetMeshGPU(GAME_OBJECT_TYPE meshType);
 
 	// Frees allocated memory in MeshContainer. Call this before exiting the application.
 	static void Terminate();
@@ -68,13 +50,13 @@ private:
 	static MeshContainer* mpInstance;
 
 	void InitializeInternal(graphics::MeshManager* pMeshMgr);
-	ModelLoader::Mesh* LoadMeshInternal(MeshType meshType, std::string filePath);
-	ModelLoader::Mesh* GetMeshCPUInternal(MeshType meshType);
-	graphics::MeshRegion GetMeshGPUInternal(MeshType meshType);
+	ModelLoader::Mesh* LoadMeshInternal(GAME_OBJECT_TYPE meshType, std::string filePath);
+	ModelLoader::Mesh* GetMeshCPUInternal(GAME_OBJECT_TYPE meshType);
+	graphics::MeshRegion GetMeshGPUInternal(GAME_OBJECT_TYPE meshType);
 	void TerminateInternal();
 
 	graphics::MeshManager* mpMeshMgr;
 
-	std::unordered_map<MeshType, ModelLoader::Mesh*> mMeshList;
-	std::unordered_map<MeshType, graphics::MeshRegion> mMeshRegions;
+	std::unordered_map<GAME_OBJECT_TYPE, ModelLoader::Mesh*> mMeshList;
+	std::unordered_map<GAME_OBJECT_TYPE, graphics::MeshRegion> mMeshRegions;
 };

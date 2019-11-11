@@ -3,7 +3,7 @@
 #include "ecs.h"
 
 #include "WorldSettings.h"
-#include "OceanComponents.h"
+#include "WorldComponents.h"
 #include "../gameWorld/UpdateOceanSystem.h"
 
 #include "../gameAI/AIComponents.h"
@@ -152,9 +152,9 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 		Fetch the tile mesh, in order to make copies of it into the vertex buffer.
 	*/
 
-	std::vector<XMFLOAT3>& r_mesh_vertices = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetVertexPositionVector();
-	std::vector<XMFLOAT3>& r_mesh_normals = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetNormalVector();
-	std::vector<int>& r_mesh_indices = *MeshContainer::GetMeshCPU(MESH_TYPE_TILE)->GetIndexVector();
+	std::vector<XMFLOAT3>& r_mesh_vertices = *MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_TILE)->GetVertexPositionVector();
+	std::vector<XMFLOAT3>& r_mesh_normals = *MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_TILE)->GetNormalVector();
+	std::vector<int>& r_mesh_indices = *MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_TILE)->GetIndexVector();
 
 	/*
 		Fetch iterators for both map tiles and ocean tiles, so we can iterate them and
@@ -271,20 +271,50 @@ static void GenerateWorldMesh(EntityComponentSystem& rEcs, void** pVertexBuffer,
 		p_transform = r_map_tile.getComponent<TransformComponent>();
 		xm_world = XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
 
+		int offset = rand() % 120 - 60;
 		for (int i : r_mesh_indices)
 		{
-			/*
-				Place every vertex in tile into vertex buffer.
-				For every third vertex, calculate the normal using
-				the two previous vertices and set the normal to all
-				three vertices used to calculate the normal.
-			*/
-
 			xm_pos = XMLoadFloat3(&r_mesh_vertices[i]);
 			xm_pos = XMVector3Transform(xm_pos, xm_world);
 
 			XMStoreFloat3(&vertex_buffer[index_counter].position, xm_pos);
-			vertex_buffer[index_counter].color = PACK(p_color->red, p_color->green, p_color->blue, 1.f);
+
+			/*
+				If tile has IsletComponent, set specific army color.
+				Else, just fetch original color of the tile entity.
+			*/
+
+			if (r_map_tile.entity->hasComponentOfType<IsletComponent>())
+			{
+				IsletComponent* islet_comp = rEcs.getComponentFromEntity<IsletComponent>(r_map_tile.entity->getID());
+
+				switch (islet_comp->playerId)
+				{
+				case 0:
+					vertex_buffer[index_counter].color = PACK(74 + (offset/2.f), 1, min(117 + offset, 255), 1.f); // Purple player
+					break;
+
+				case 1:
+					vertex_buffer[index_counter].color = PACK(117 + offset, 1, 1, 1.f); // Red player
+					break;
+
+				case 2:
+					vertex_buffer[index_counter].color = PACK(0, 93 + offset, 5, 1.f); // Green player
+					break;
+
+				case 3:
+					vertex_buffer[index_counter].color = PACK(max(47 + offset, 0), 62, min(236 + offset, 255), 1.f); // Blue player
+					break;
+
+				default:
+					vertex_buffer[index_counter].color = PACK(0, 0, 0.f, 1.f);
+					break;
+				}
+			}
+			else
+			{
+				vertex_buffer[index_counter].color = PACK(p_color->red, p_color->green, p_color->blue, 1.f);
+			}
 
 			xm_triangle[index_counter % 3] = xm_pos;
 

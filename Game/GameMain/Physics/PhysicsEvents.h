@@ -27,5 +27,13 @@ namespace ecs
 			float mDelta;
 		};
 
+		// Used to apply general forces to events that are uncapped.
+		EVENT(ForceImpulseEvent)
+		{
+			ID mEntityID;
+			XMFLOAT3 mDirection;
+			float mForce;
+		};
+
 	} // events
 } // ecs

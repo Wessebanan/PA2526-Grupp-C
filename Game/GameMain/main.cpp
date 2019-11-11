@@ -233,7 +233,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGrid(rECS);
 	InitArmy(rECS);
-	InitSceneObjects(rECS);
+	//InitSceneObjects(rECS);
 
 	InitOceanEntities(rECS);
 	InitOceanUpdateSystem(rECS);
@@ -241,7 +241,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitCamera(rECS);
 
 	InitAnimation(rECS);
-	InitPhysics(rECS, MeshContainer::GetMeshCPU(MESH_TYPE_UNIT));
+	InitPhysics(rECS, MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT));
 
 
 	InitGameLoop(rECS);

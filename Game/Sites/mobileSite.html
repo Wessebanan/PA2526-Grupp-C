@@ -10,6 +10,7 @@
     <style>
         body
         {
+            font-family:'Comic Sans MS';
             background-color: #000;
             text-align: center;
             color: white;
@@ -53,11 +54,99 @@
             border-width: 5px;
             border-color: #fff;
         }
-
-        #CommandButton
+        
+        #mapAreaContainer
         {
-            width: 95%;
+            margin-top: 15%;
+            font-size: 20px;
+            height: 70%;
+        }
+        
+        #trapContainer
+        {
+            font-size: 20px;
+            height: 10%;
+        }
+        .trapButton
+        {
+            width:13%;
+            padding: 5%;
+            float: left;
+            margin: 1%;
+            background-color:darkred;
+        }
+
+        .col
+        {
+            width: 13%;
+            height: 10%;
+            background-color:darkgoldenrod;
+            float:left;
+            font-size:200%;
+            padding:10%;
+        }
+        .col:first-line
+        {
+        }
+
+        #area01
+        {
+            background-color:purple;
+        }
+        #area12
+        {
+            background-color:cornflowerblue;
+        }
+        #area10
+        {
+            background-color:red;
+        }
+        #area21
+        {
+            background-color:green;
+        }
+
+        #sendButton
+        {
+            height: 2%;
+            margin-top: 99%;
+            padding: 10%;
+            width: 79%;
+            background-color:darkolivegreen;
+            
+            font-size:120%;
+        }
+
+        .CommButton
+        {
+            width: 45%;
+            height: 30%;
+            background-color: darkgray;
+            color: black;
+            font-display:auto;
+            margin-top: 3%;
+        }
+        #CommandButtonL
+        {
+            float:left;
+        }
+        #CommandButtonR
+        {
+            float:right;
+        }
+        #PingButton
+        {
+            width: 55%;
             height: 100px;
+            float:left right;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: darkgray;
+            color: black;
+        }
+        h3
+        {
+            font-size: 200%;
         }
 
         #commandField
@@ -68,12 +157,12 @@
 
         #prepField
         {
-            height: 655px;
-            width: 900px;
+            height: 80%;
+            width: 90%;
         }
         #startfield
         {
-            height: 38px;
+            height: 30%;
             width: 100px;
         }
 
@@ -163,17 +252,35 @@
     }
     </script>
     <script>
+        function resetAreaColors()
+        {
+           document.getElementById("area00").style.backgroundColor = "#444"; 
+           document.getElementById("area10").style.backgroundColor = "red"; 
+           document.getElementById("area20").style.backgroundColor = "#444"; 
+
+           document.getElementById("area01").style.backgroundColor = "purple"; 
+           document.getElementById("area11").style.backgroundColor = "#444"; 
+           document.getElementById("area21").style.backgroundColor = "green"; 
+                                   
+           document.getElementById("area02").style.backgroundColor = "#444"; 
+           document.getElementById("area12").style.backgroundColor = "cornflowerblue"; 
+           document.getElementById("area22").style.backgroundColor = "#444"; 
+        }
+        
+        function resetTrapColors()
+        {
+           document.getElementById("b0").style.backgroundColor = "darkred"; 
+           document.getElementById("b1").style.backgroundColor = "darkred"; 
+           document.getElementById("b2").style.backgroundColor = "darkred"; 
+           document.getElementById("b3").style.backgroundColor = "darkred"; 
+        }
+
 
         var socket = new WebSocket("ws://"+ip_address+":1337");
 
        // GLOBALS
-       var selectedTileMsg = "0001100100";
-       var selectedButtonMsg = "0002100";
-
-       var lastTileSelected = "0,0";
-       //var lastTileColor = document.getElementById("0,0").style.backgroundColor;
-       var lastButtonSelected = "b0";
-       //var lastButtonColor = document.getElementById("b0").style.backgroundColor;
+       //var selectedTileMsg = "0001100100";
+       //var selectedButtonMsg = "0002100";
 
        // SOCKET FUNCTIONS
        socket.onopen = function (event)
@@ -194,6 +301,24 @@
            else if(msg == "start")
            {
                console.log("We are wating for the client to start");
+           }
+           else if(msg == "perror")
+           {
+               console.log("There was a error with sending the state");
+           }
+           else if(msg == "pprep")
+           {
+                openPrep();
+           }
+           else if(msg == "pbattle")
+           {
+                openCommand();
+           }
+           else if(msg == "pwait")
+           {
+                document.getElementById('startfield').innerHTML = "waiting <button onclick='start()'>READY</button>";
+                //document.getElementById('startButton').style.display = "block";
+
            }
            else if(msg[0] == 1)
            {
@@ -236,10 +361,25 @@
        }
        function openPrep()
        {
-
            document.getElementById('prepField').style.display = "block";
            document.getElementById('commandField').style.display = "none";
            document.getElementById('startfield').style.display = "none";
+
+            resetAreaColors();
+            resetTrapColors();
+            
+            var trapCount = 10;
+
+            window.trap0 = Math.floor(Math.random() * trapCount);
+            window.trap2 = Math.floor(Math.random() * trapCount);
+            window.trap3 = Math.floor(Math.random() * trapCount);
+            window.trap1 = Math.floor(Math.random() * trapCount);
+
+        
+            document.getElementById('b0').innerHTML = window.trap0.toString();
+            document.getElementById('b1').innerHTML = window.trap1.toString();
+            document.getElementById('b2').innerHTML = window.trap2.toString();
+            document.getElementById('b3').innerHTML = window.trap3.toString();
        }
 
        function openCommand()
@@ -253,8 +393,16 @@
        function start()
        {
            socket.send("start");
-
-           openCommand();
+        
+           //document.getElementById('startfield').innerHTML = "SENT start";
+           //openCommand();
+       }
+       function join()
+       {
+           socket.send("join");
+        
+           document.getElementById('startfield').innerHTML = "SENT join";
+           //openCommand();
        }
 
        function setName(name)
@@ -262,58 +410,59 @@
            socket.send("0000" +  name.toString());
        }
 
-       function setTile(x,y)
+       function setArea(x,y)
        {
-           var player = "0";
-           var action = "001";
-           x += 100;
-           y += 100;
-           var tileX = x.toString();
-           var tileY = y.toString();
+            var randomX = Math.floor(Math.random() * 12);
+            var randomY = Math.floor(Math.random() * 12);
+            
+            var player = "0";
+            var action = "001";
+            x += 100;
+            y += 100;
+            var tileX = x.toString();
+            var tileY = y.toString();
 
+            var msg = player.concat(action.concat(tileX.concat(tileY)));
 
-           var msg = player.concat(action.concat(tileX.concat(tileY)));
+            console.log("Saved tileMsg: " + msg);
+            window.selectedTileMsg = msg;
 
-           console.log("Saved tileMsg: " + msg);
-           selectedTileMsg = msg;
-
-       	x -= 100;
-       	y -= 100;
-       	var id = x + "," + y;
-       	//console.log(id);
-
-       	if(id != lastTileSelected)
-       		lastTileColor = document.getElementById(id).style.backgroundColor;
-
-       	document.getElementById(lastTileSelected).style.backgroundColor = lastTileColor;
-       	document.getElementById(id).style.backgroundColor = "#c00";
-       	lastTileSelected = id;
+            x -= 100;
+            y -= 100;
+            var id = "area" + x.toString() + y.toString();
+            resetAreaColors();
+            document.getElementById(id).style.backgroundColor = "#DDD";
        }
 
-       function setButton(x)
-       {
+        function setTrap(x)
+        {
            var player = "0";
            var action = "002";
-           x += 100;
-           var Button = x.toString();
+           var Button;
+    
+            if(x == 0)
+                Button = window.trap0;
+            else if(x == 1)
+                Button = window.trap1;
+            else if(x == 2)
+                Button = window.trap2;
+            else if(x == 3)
+                Button = window.trap3;
 
-
+           Button += 100;
            var msg = player.concat(action.concat(Button));
 
-           console.log("Saved buttonMsg: " + msg);
-           selectedButtonMsg = msg;
+            console.log("Saved TrapMsg: " + msg);
+            window.selectedTrapMsg = msg;
+            
+            
+            var id = "b" + x.toString();
+            resetTrapColors();
+            document.getElementById(id).style.backgroundColor = "#DDD";
 
-       	x -= 100;
-       	var bid = "b" + x;
-       	//console.log(id);
+        
+        }
 
-       	if(bid != lastButtonSelected)
-       		lastButtonColor = document.getElementById(bid).style.backgroundColor;
-
-       	document.getElementById(lastButtonSelected).style.backgroundColor = lastButtonColor;
-       	document.getElementById(bid).style.backgroundColor = "green";
-       	lastButtonSelected = bid;
-       }
 
        function setCommand(buttonCommand)
        {
@@ -328,12 +477,30 @@
            socket.send(msg);
        }
 
-       function sendButtonAndTile()
+       function sendTrapAndTile()
        {
-       	console.log(selectedButtonMsg);
-       	socket.send(selectedButtonMsg);
-       	console.log(selectedTileMsg);
-       	socket.send(selectedTileMsg);
+            var trap = window.selectedTrapMsg;
+            if (trap != 0 && window.selectedTileMsg != 0)
+            {
+                if(trap == "0002" + (window.trap0 + 100))
+                    document.getElementById('b0').style.display = "none";
+                else if(trap == "0002" + (window.trap1 + 100))
+                    document.getElementById('b1').style.display = "none";
+                else if(trap == "0002" + (window.trap2 + 100))
+                    document.getElementById('b2').style.display = "none";
+                else if(trap == "0002" + (window.trap3 + 100))
+                    document.getElementById('b3').style.display = "none";
+        
+                resetTrapColors();
+                resetAreaColors();
+                
+       	        socket.send(trap);
+       	        socket.send(window.selectedTileMsg);
+
+
+                window.selectedTrapMsg = 0;
+                window.selectedTileMsg = 0;
+            }
        };
 
        function sendPing()
@@ -355,19 +522,47 @@
 
     <div id='startfield' class='buttonField' style='display:block;background-color:red;padding:3px'>
 
-        <button onclick="start()">START</button>
+        <button onclick="join()">JOIN</button>
+
+        <button onclick="start()">READY</button>
+
 
     </div>
+    <div id='prepField' class='buttonField' style='display:none;padding:3px'>
+        <div id="trapContainer">
+            <div class='trapButton' onclick="setTrap(0)" id='b0'>0</div>
+            <div class='trapButton' onclick="setTrap(1)" id='b1'>1</div>
+            <div class='trapButton' onclick="setTrap(2)" id='b2'>2</div>
+            <div class='trapButton' onclick="setTrap(3)" id='b3'>3</div>
+        </div>
 
-    <div id='prepField' class='buttonField' style='display:none;background-color:gray;padding:3px'>
-        <button onclick="setButton(0)" id='b0'>0</button>
-        <button onclick="setButton(1)" id='b1'>1</button>
-        <button onclick="setButton(2)" id='b2'>2</button>
-        <button onclick="setButton(3)" id='b3'>3</button>
         </br>
-        </br>
-        </br>
-        <div class="container" id="test">
+
+        <div id="mapAreaContainer">
+            <div class="col2">
+                <div class="col" id="area02" onclick="setArea(0,2)">0,2</div>
+                <div class="col" id="area12" onclick="setArea(1,2)">1,2</div>
+                <div class="col" id="area22" onclick="setArea(2,2)">2,2</div>
+            </div>
+
+            <div class="col1">
+                <div class="col" id="area01" onclick="setArea(0,1)">0,1</div>
+                <div class="col" id="area11" onclick="setArea(1,1)">1,1</div>
+                <div class="col" id="area21" onclick="setArea(2,1)">2,1</div>
+            </div>
+
+            <div class="col0">
+                <div class="col" id="area00" onclick="setArea(0,0)">0,0</div>
+                <div class="col" id="area10" onclick="setArea(1,0)">1,0</div>
+                <div class="col" id="area20" onclick="setArea(2,0)">2,0</div>
+            </div>
+
+            </br>
+            <div id="sendButton" onclick="sendTrapAndTile()">SEND TRAP</div>
+
+        </div>
+
+        <!---<div class="container" id="test">
             <ol class="even">
                 <li class='hex' id='0,12' onclick="setTile(0,12)">0,12</li>
                 <li class='hex' id='1,12' onclick="setTile(1,12)">1,12</li>
@@ -556,26 +751,27 @@
                 <li class='hex' id='10,0' onclick="setTile(10,0)">10,0</li>
                 <li class='hex' id='11,0' onclick="setTile(11,0)">11,0</li>
             </ol>
-        </div>
 
-        <button onclick="sendButtonAndTile()">SEND INFORMATION</button>
+        </div>-->
+
+
     </div>
 
 
-    <div id='commandField' class='buttonField' style='display:none;background-color:green;padding:3px'>
-        <button onclick="sendPing()">Ping</button>
-        <button id='CommandButton' onclick="setCommand('idle')">IDLE</button>
+    <div id='commandField' class='buttonField' style='display:none;padding:3px'>
+
+        <div id="PingButton" onclick="sendPing()"><h3>Ping</h3></div>
         </br>
-        <button id='CommandButton' onclick="setCommand('attack')">ATTACK</button>
+        <div id='CommandButtonL' class='CommButton' onclick="setCommand('regroup')"><h3>REGROUP</h3></div>
+        <div id='CommandButtonR' class='CommButton' onclick="setCommand('loot')"><h3>LOOT   </h3></div>
+        <div id='CommandButtonL' class='CommButton' onclick="setCommand('attack')"><h3>ATTACK </h3></div>
+        <div id='CommandButtonR' class='CommButton' onclick="setCommand('flee')"><h3>FLEE   </h3></div>
         </br>
-        <button id='CommandButton' onclick="setCommand('loot')">LOOT</button>
-        </br>
-        <button id='CommandButton' onclick="setCommand('flee')">FLEE</button>
     </div>
     </br>
     <button onclick="location.reload()">Reload game</button>
-    <!-----<button onclick="openPrep()">DEV: show prep</button>
-    <button onclick="openCommand()">DEV: show Commands</button>-->
+    <button onclick="openPrep()">DEV: show prep</button>
+    <button onclick="openCommand()">DEV: show Commands</button>
     <p id='clientMsg1'>1. No msg yet</p>
     <p id='clientMsg2'>2. No msg yet</p>
     </br>

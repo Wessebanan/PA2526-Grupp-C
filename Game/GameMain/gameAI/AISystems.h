@@ -16,6 +16,7 @@
 #include "../UI/UIComponents.h"
 
 #include "../../AI/includes/AIGlobals.h"
+#include "../GameGlobals.h"
 
 
 namespace ecs
@@ -75,9 +76,11 @@ namespace ecs
 				unsigned int start_tile_id = g_prop->mGrid[start_tile.y][start_tile.x].Id;
 				unsigned int goal_id = 0;
 				unsigned int goal_enemy_id = 0;
+				unsigned int goal_friend_id = 0;
 				unsigned int goal_tile_id = 0;
 				int2 goal_tile_index;
 				bool calc_path = false;
+				bool already_have_weapon = false;
 
 				//Find the goal we want to move to depending on which command the unit was given.
 				switch (path_comp->activeCommand)
@@ -103,7 +106,33 @@ namespace ecs
 					}
 					case STATE::LOOT:
 					{
-						goal_id = this->FindClosestLootTile(entity.entity);
+						ecs::components::EquipmentComponent* equipment_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::EquipmentComponent>(entity.entity->getID());
+						ecs::components::WeaponComponent* weapon_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::WeaponComponent>(equipment_comp->mEquippedWeapon);
+						//Check if the unit have a weapon already. If so find a friendly unit without a weapon and follow that unit.
+						if (weapon_comp->mType != GAME_OBJECT_TYPE_FIST)
+						{
+							goal_friend_id = this->FindClosestFriend(entity.entity);
+							if (goal_friend_id != 0)
+							{
+								//Find the closest tile to the nearest friend.
+								goal_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, goal_friend_id));
+								//goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
+								goal_tile_index = this->GetClosestTile(*goal_transform);
+								//Check that the tile is traversable
+								if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
+								{
+									goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].Id;
+								}
+								calc_path = true;
+								already_have_weapon = true;
+							}
+						}
+						//If this unit doesn't have a weapon or if there was no friendly unit without a weapon we find the closest loot tile and move to it.
+						if (goal_friend_id == 0)
+						{
+							goal_id = this->FindClosestLootTile(entity.entity);
+						}
+						//If we found a valid goal we calculate a path to it.
 						if (goal_id != 0)
 						{
 							calc_path = true;
@@ -138,6 +167,10 @@ namespace ecs
 					if (move_comp.activeCommand == ATTACK) 
 					{
 						move_comp.goalID = goal_enemy_id;
+					}
+					else if (move_comp.activeCommand == LOOT && already_have_weapon)
+					{
+						move_comp.goalID = goal_friend_id;
 					}
 					else
 					{
@@ -179,7 +212,7 @@ namespace ecs
 				unsigned int next_tile_id = 0;
 				float best_neighbour_cost = 999.f;
 				unsigned int current_tile_id = startID;
-				bool intern_test_no_path = false;//
+				bool no_path_found = false;
 
 				current_tile = ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(startID);
 				goal_tile_transfrom = ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(goalID);
@@ -258,8 +291,11 @@ namespace ecs
 						closed_list[next_tile_id].id = next_tile_id;				//its own id
 						closed_list[next_tile_id].parent_id = parent_id;		   //parent id
 						closed_list[next_tile_id].move_cost = best_neighbour_cost;//its movecost
-						if (open_list.size() == 0)//interntest
-							intern_test_no_path = true;//
+						if (open_list.size() == 0)//if no path was found switch the bool and break the loop
+						{
+							no_path_found = true;
+							break;
+						}
 						if(open_list.size() > 0 )
 						{
 							open_list.erase(open_list.begin() + pos_in_open_list);	//remove from openlist
@@ -270,7 +306,7 @@ namespace ecs
 					}
 					//when we have found the goal we start to build the path by starting with the goal tile then we add that tiles parent tile and do this until we come to the start tile
 					//parent tile in this function is the tile that was used to get to the child tile, so when we find the goal we just the go backwards using the parents
-					if(!intern_test_no_path)//interntest
+					if(!no_path_found) //if path was found
 					{
 						current_tile_id = goalID;
 						to_return.push_back(current_tile_id);
@@ -281,8 +317,9 @@ namespace ecs
 						}
 						return to_return;
 					}
-					else//interntest
+					else //if no path was found make the goal tile impassable
 					{
+						ecs::ECSUser::getComponentFromKnownEntity<components::TileComponent>(goalID)->impassable = true;
 						to_return.push_back(startID);
 						return to_return;
 					}
@@ -376,6 +413,67 @@ namespace ecs
 				return enemy_id;
 			}
 
+			unsigned int FindClosestFriend(ecs::Entity* current_unit)
+			{
+				//Initialize components and variables that we will need.
+				ecs::ComponentIterator ittr;
+				ecs::BaseComponent* p_base_component;
+				ecs::components::ArmyComponent* army_comp;
+				ecs::Entity* other_unit;
+				ecs::components::UnitComponent* curr_unit_comp = static_cast<ecs::components::UnitComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::UnitComponent::typeID, current_unit->getID()));
+				ecs::components::UnitComponent* other_unit_comp;
+				ecs::components::TransformComponent* curr_unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, current_unit->getID()));
+				ecs::components::TransformComponent* other_unit_transform;
+				ecs::Entity* other_unit_weapon;
+				float dist = 1000.0f;
+				float temp_dist = 0.0f;
+				unsigned int friend_id = 0;
+
+				//Fetch the army components of all the players
+				ittr = ecs::ECSUser::getComponentsOfType(ecs::components::ArmyComponent::typeID);
+				while (p_base_component = ittr.next())
+				{
+					army_comp = static_cast<ecs::components::ArmyComponent*>(p_base_component);
+					//Loop through every unit of the current army.
+					for (int i = 0; i < army_comp->unitIDs.size(); i++)
+					{
+						other_unit = ecs::ECSUser::getEntity(army_comp->unitIDs[i]);
+						//Check so that the unit still exists
+						if (other_unit != nullptr)
+						{
+							other_unit_comp = static_cast<ecs::components::UnitComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::UnitComponent::typeID, other_unit->getID()));
+							//Check so that the unit is part of the current units army.
+							if (other_unit_comp->playerID == curr_unit_comp->playerID)
+							{
+								if (other_unit->getID() != current_unit->getID())
+								{
+									other_unit_weapon = ecs::ECSUser::getEntity(ecs::ECSUser::getComponentFromKnownEntity<ecs::components::EquipmentComponent>(other_unit->getID())->mEquippedWeapon);
+									ecs::components::WeaponComponent* other_unit_weapon_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::WeaponComponent>(other_unit_weapon->getID());
+									//Check if the friendly unit is without a weapon. We only want to follow allies without weapons while they loot.
+									if (other_unit_weapon_comp->mType == GAME_OBJECT_TYPE_FIST)
+									{
+										other_unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, other_unit->getID()));
+										temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
+										//If the distance is smaller then the previously nearest friend we store the info of the new one.
+										if (temp_dist < dist)
+										{
+											dist = temp_dist;
+											friend_id = other_unit->getID();
+										}
+									}
+								}
+							}
+							else
+							{
+								break;
+							}
+						}
+					}
+				}
+				//Return the nearest enemy units entity id.
+				return friend_id;
+			}
+
 			unsigned int FindSafeTile(ecs::Entity* current_unit)
 			{
 				//Fetch and initialize components and variables that we will need.
@@ -437,9 +535,10 @@ namespace ecs
 			unsigned int FindClosestLootTile(ecs::Entity* current_unit)
 			{
 				//Initialize components and variables that we will need.
-				ecs::Entity* loot_tile;
+				//ecs::Entity* loot_tile;
 				ecs::components::TransformComponent* unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, current_unit->getID()));
 				ecs::components::TransformComponent* loot_transform;
+				ecs::components::TileComponent* loot_tile;
 				float dist = 1000.0f;
 				float temp_dist = 0.0f;
 				unsigned int loot_id = 0;
@@ -448,8 +547,9 @@ namespace ecs
 				for (int i = 0; i < p_gp->mLootTiles.size(); i++)
 				{
 					loot_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mLootTiles[i]);
+					loot_tile = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TileComponent>(p_gp->mLootTiles[i]);
 					temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
-					if (temp_dist < dist)
+					if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
 					{
 						dist = temp_dist;
 						loot_id = p_gp->mLootTiles[i];
@@ -901,7 +1001,7 @@ namespace ecs
 				ecs::Entity* weapon_entity = ecs::ECSUser::getEntity(equipment_comp->mEquippedWeapon);
 				ecs::components::WeaponComponent* weapon_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::WeaponComponent>(equipment_comp->mEquippedWeapon);
 				//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
-				if (weapon_comp->mType == FIST)
+				if (weapon_comp->mType == GAME_OBJECT_TYPE_FIST)
 				{
 					ecs::ECSUser::removeEntity(weapon_entity->getID());
 				}

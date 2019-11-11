@@ -160,7 +160,8 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 {
 	if (event.getTypeID() == ecs::events::GameStartEvent::typeID)
 	{
-		ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
+		ComponentIterator itt;
+		itt = getComponentsOfType<GameLoopComponent>();
 		GameLoopComponent* p_gl;
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
@@ -172,7 +173,19 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 			p_gl->mPlayerPoints[3] = 0;
 		}
 
+		// Creating quad tree entity for collision.
+		QuadTreeComponent quad_tree;
+		int2 grid_size = GridProp::GetInstance()->GetSize();
+		createEntity(quad_tree);
+		// Puts the players into prep phase
+		itt = getComponentsOfType<InputBackendComp>();
+		InputBackendComp* p_ib;
+		while (p_ib = (InputBackendComp*)itt.next())
+		{
+			p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
+		}
 
+		// Starts the first round, should be removed when prepphase is implemented
 		ecs::events::RoundStartEvent eve;
 		createEvent(eve);
 
@@ -197,11 +210,20 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 {
 	if (event.getTypeID() == ecs::events::RoundStartEvent::typeID)
 	{
+		ComponentIterator itt;
+		itt = getComponentsOfType<InputBackendComp>();
+		InputBackendComp* p_ib;
+		while (p_ib = (InputBackendComp*)itt.next())
+		{
+			p_ib->backend->changeGamestate(WEBGAMESTATE::BATTLEPHASE);
+		}
+
+
 		this->CreateUnits();
 		this->CreateUnitPhysics();
 
 		// Start the timer after eveything has been loaded
-		ComponentIterator itt = getComponentsOfType<GameLoopComponent>();
+		itt = getComponentsOfType<GameLoopComponent>();
 		GameLoopComponent* p_gl;
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
@@ -324,19 +346,19 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			if (u == 0)
 			{
 				transform.position.x = p_transform->position.x + (float(TILE_RADIUS) / divider);
-				transform.position.y = p_transform->position.y + 1.1f;
+				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
 			}
 			else if (u == 1)
 			{
 				transform.position.x = p_transform->position.x - (float(TILE_RADIUS) / divider);
-				transform.position.y = p_transform->position.y + 1.1f;
+				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
 			}
 			else
 			{
 				transform.position.x = p_transform->position.x;
-				transform.position.y = p_transform->position.y + 1.1f;
+				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z - (float(TILE_RADIUS) / divider);
 			}
 
@@ -368,6 +390,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 
 	}
 
+
 	// INIT ANIMATIONS
 
 	ecs::TypeFilter skeleton_filter;
@@ -378,7 +401,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 	for (ecs::FilteredEntity s : skeletons.entities)
 	{
 		ModelLoader::UniqueSkeletonData* skeletonData = &s.getComponent<ecs::components::SkeletonComponent>()->skeletonData;
-		skeletonData->Init(MeshContainer::GetMeshCPU(MESH_TYPE::MESH_TYPE_UNIT)->GetSkeleton());
+		skeletonData->Init(MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT)->GetSkeleton());
 		skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
 	}
 }
@@ -389,7 +412,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	filter.addRequirement(UnitComponent::typeID);
 	ecs::EntityIterator it = getEntitiesByFilter(filter);
 	
-	ModelLoader::Mesh* pMesh = MeshContainer::GetMeshCPU(MESH_TYPE_UNIT);
+	ModelLoader::Mesh* pMesh = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT);
 
 	MeshComponent mesh_component;
 	mesh_component.mMesh = pMesh;
@@ -447,7 +470,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 			// Set attack range to melee range since fist adds no range.
 			equipment_component.mAttackRange = equipment_component.mMeleeRange;
 
-			Entity* weapon_entity = CreateWeaponEntity(nullptr, FIST, current->getID());
+			Entity* weapon_entity = CreateWeaponEntity(nullptr, GAME_OBJECT_TYPE_FIST, current->getID());
 			
 			equipment_component.mEquippedWeapon = weapon_entity->getID();
 			createComponent<EquipmentComponent>(current->getID(), equipment_component);
@@ -455,7 +478,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	}
 }
 
-ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(ModelLoader::Mesh* pMesh, WEAPON_TYPE weaponType, ID ownerEntity)
+ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(ModelLoader::Mesh* pMesh, GAME_OBJECT_TYPE weaponType, ID ownerEntity)
 {
 	WeaponComponent		weapon_component;
 	TransformComponent	weapon_transform_component;
@@ -467,15 +490,15 @@ ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(ModelLoader::Mes
 
 	switch (weaponType)
 	{
-	case SWORD:
+	case GAME_OBJECT_TYPE_SWORD:
 	{
 		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
 		break;
 	}
-	case FIST:
+	case GAME_OBJECT_TYPE_FIST:
 		weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		break;
-	case PROJECTILE:
+	case GAME_OBJECT_TYPE_PROJECTILE:
 		MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
 		break;
 	}
