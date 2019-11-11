@@ -46,6 +46,11 @@ InputBackend::~InputBackend()
 	delete mpWebConn;
 }
 
+bool InputBackend::changeGamestate(WEBGAMESTATE gamestate)
+{
+	return this->mpWebConn->SetGamestate(gamestate);
+}
+
 bool InputBackend::updateKeyboard()
 {
 	bool ret_val = false;
@@ -74,6 +79,11 @@ bool InputBackend::updateKeyboard()
 
 
 	return ret_val; 
+}
+
+void InputBackend::resetUserButtonAndTile(int player)
+{
+	this->mpWebConn->resetUserTrap(player);
 }
 
 void InputBackend::modyfiByMouse()

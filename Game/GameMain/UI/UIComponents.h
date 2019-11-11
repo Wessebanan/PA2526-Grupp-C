@@ -41,7 +41,8 @@ namespace ecs
 
 		struct UIBitmapComponent : public ECSComponent<UIBitmapComponent>
 		{
-			ID2D1Bitmap* mpBitmap;
+			ID2D1Bitmap1* mpBitmap;
+			std::string mName;
 		};
 
 		struct UIThicknessComponent : public ECSComponent<UIThicknessComponent>

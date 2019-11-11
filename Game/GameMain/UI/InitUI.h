@@ -23,13 +23,13 @@ void initArmyText(ecs::EntityComponentSystem& rECS);
 void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 {
 	Direct2D* my_d2d;
-	rSystemPointers.UIpreSys	= rECS.createSystem<ecs::systems::UIPreRenderSystem>(8);
+	rSystemPointers.UIpreSys = rECS.createSystem<ecs::systems::UIPreRenderSystem>(8);
+	rSystemPointers.UISolid = rECS.createSystem<ecs::systems::UISolidRectSystem>(9);
+	rSystemPointers.UITextSys = rECS.createSystem<ecs::systems::UITextSystem>(9);
+	rSystemPointers.UIrectSys = rECS.createSystem<ecs::systems::UIRectSystem>(9);
+	rSystemPointers.UIDebugSys = rECS.createSystem<ecs::systems::UIDebugSystem>(9);
 	rSystemPointers.UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>(9);
-	rSystemPointers.UISolid		= rECS.createSystem<ecs::systems::UISolidRectSystem>(9);
-	rSystemPointers.UITextSys	= rECS.createSystem<ecs::systems::UITextSystem>(9);
-	rSystemPointers.UIrectSys	= rECS.createSystem<ecs::systems::UIRectSystem>(9);
-	rSystemPointers.UIDebugSys	= rECS.createSystem<ecs::systems::UIDebugSystem>(9);
-	rSystemPointers.UIpostSys	= rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
+	rSystemPointers.UIpostSys = rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
 	my_d2d = new Direct2D;
 
 	ID3D11Texture2D* p_backbuffer;
@@ -46,18 +46,13 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	BindTextureToBitmap(my_d2d, p_backbuffer);//Turn the texture to a surface then bind that surface to a Direct2D bitmap then draw things on that bitmap which is the backbuffer
 	p_backbuffer->Release();
 	//my_d2d->CreateHwndRenderTarget(window, graphics::GetClientResolution(window).x, graphics::GetClientResolution(window).y);
-	rSystemPointers.UIpreSys->mpD2D			= 
-		rSystemPointers.UISolid->mpD2D		= 
-		rSystemPointers.UITextSys->mpD2D	= 
-		rSystemPointers.UIpostSys->mpD2D	= 
+	rSystemPointers.UIpreSys->mpD2D			=
+		rSystemPointers.UISolid->mpD2D		=
+		rSystemPointers.UITextSys->mpD2D	=
+		rSystemPointers.UIpostSys->mpD2D	=
 		rSystemPointers.UIrectSys->mpD2D	=
-		rSystemPointers.UIBitmapSys->mpD2D  = 
-		rSystemPointers.UIDebugSys->mpD2D	= my_d2d;
-
-	ecs::components::UITextComponent text_comp;//temp debug text
-	text_comp.mStrText = "adkguhadigsdgkasgd";
-
-	rECS.createEntity(text_comp);
+		rSystemPointers.UIDebugSys->mpD2D	= 
+		rSystemPointers.UIBitmapSys->mpD2D	= my_d2d;
 
 	//initArmyText(rECS); //maybe use later donno 
 }

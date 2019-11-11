@@ -87,6 +87,15 @@
     <ClCompile Include="gameGraphics\BlurPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="gameRagdoll\Ragdoll.cpp">
+      <Filter>Ragdoll</Filter>
+    </ClCompile>
+    <ClCompile Include="gameRagdoll\Collision.cpp">
+      <Filter>Ragdoll</Filter>
+    </ClCompile>
+    <ClCompile Include="gameRagdoll\CollisionObject.cpp">
+      <Filter>Ragdoll</Filter>
+    </ClCompile>
     <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -245,9 +254,6 @@
     <ClInclude Include="gameWorld\WorldSettings.h">
       <Filter>World</Filter>
     </ClInclude>
-    <ClInclude Include="gameWorld\OceanComponents.h">
-      <Filter>World</Filter>
-    </ClInclude>
     <ClInclude Include="gameGameLoop\GameLoopSystems.h">
       <Filter>GameECS</Filter>
     </ClInclude>
@@ -308,7 +314,28 @@
     <ClInclude Include="gameAudio\AudioECSComponents.h">
       <Filter>Audio</Filter>
     </ClInclude>
+    <ClInclude Include="gameTraps\TrapEvents.h">
+      <Filter>Traps</Filter>
+    </ClInclude>
     <ClInclude Include="GameGlobals.h" />
+    <ClInclude Include="gameRagdoll\Collision.h">
+      <Filter>Ragdoll</Filter>
+    </ClInclude>
+    <ClInclude Include="gameRagdoll\CollisionObject.h">
+      <Filter>Ragdoll</Filter>
+    </ClInclude>
+    <ClInclude Include="gameRagdoll\Ragdoll.h">
+      <Filter>Ragdoll</Filter>
+    </ClInclude>
+    <ClInclude Include="gameRagdoll\RagdollBone.h">
+      <Filter>Ragdoll</Filter>
+    </ClInclude>
+    <ClInclude Include="gameRagdoll\RagdollBoneState.h">
+      <Filter>Ragdoll</Filter>
+    </ClInclude>
+    <ClInclude Include="gameWorld\WorldComponents.h">
+      <Filter>World</Filter>
+    </ClInclude>
     <ClInclude Include="gameGraphics\OceanRenderingPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -370,6 +397,12 @@
     </Filter>
     <Filter Include="UI">
       <UniqueIdentifier>{44356643-86a3-4049-b4b6-d94d1373bfaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Ragdoll">
+      <UniqueIdentifier>{ff91df51-aa88-474d-98c3-6f4ea66b0116}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Traps">
+      <UniqueIdentifier>{12d7a6d1-4f26-4de3-9c87-1c2e98b055f7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

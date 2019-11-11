@@ -5,6 +5,7 @@
 #include <DirectXCollision.h>
 #include "BoundingVolume.h"
 #include "../GameGlobals.h"
+
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
 // A bunch of default values.
@@ -17,6 +18,8 @@
 
 #define BASE_SWORD_DAMAGE 0.2f
 #define BASE_FIST_DAMAGE 0.1f
+
+#define PI 3.14159265358979323846
 
 // Specifically hard-coded for current dude mesh lmao.
 #define ORIGIN_TO_HAND XMFLOAT3(-4.99f, 2.55f, -0.329f)
@@ -48,13 +51,10 @@ namespace ecs
 
 			DirectX::XMFLOAT3 mDirection	= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mForce		= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+			DirectX::XMFLOAT3 mInputForce	= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mAcceleration = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mVelocity		= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			DirectX::XMFLOAT3 mForward		= DirectX::XMFLOAT3(0.0f, 0.0f, -1.0f);
-
-			// Assuming objects are equal in
-			// density all over.
-			DirectX::XMFLOAT3 mMassCenter;
 
 			// Position pre-movement to determine if the object moved since last update.
 			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
