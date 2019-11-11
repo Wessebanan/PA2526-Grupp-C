@@ -629,74 +629,167 @@ namespace ecs
 		}
 
 #pragma region WeaponRenderSystem
+		//WeaponRenderSystem::WeaponRenderSystem()
+		//{
+		//	updateType = SystemUpdateType::MultiEntityUpdate;
+		//	typeFilter.addRequirement(components::WeaponComponent::typeID);
+		//	typeFilter.addRequirement(components::TransformComponent::typeID);
+		//	typeFilter.addRequirement(components::ColorComponent::typeID);
+
+		//	mInstanceLayout = { 0 };
+		//}
+
+		//WeaponRenderSystem::~WeaponRenderSystem()
+		//{
+
+		//}
+
+		//void WeaponRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		//{
+		//	mInstanceCount = (UINT)_entities.entities.size();
+
+		//	// Fetch pointer to write data to in RenderBuffer
+		//	mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mInstanceCount * WeaponRenderSystem::GetPerInstanceSize());
+
+		//	// Iterate all tiles and write their data to the RenderBuffer
+		//	uint32_t index = 0;
+		//	for (FilteredEntity weapon : _entities.entities)
+		//	{
+		//		components::WeaponComponent* p_weapon_comp = weapon.getComponent<components::WeaponComponent>();
+		//		components::TransformComponent* p_transform_comp = weapon.getComponent<components::TransformComponent>();
+		//	
+		//		if (p_weapon_comp->mOwnerEntity != 0)
+		//		{
+		//			p_transform_comp = getComponentFromKnownEntity<TransformComponent>(p_weapon_comp->mOwnerEntity);
+		//			Entity* owner = getEntity(p_weapon_comp->mOwnerEntity);
+		//			if (!owner->hasComponentOfType(SkeletonComponent::typeID))
+		//			{
+		//				continue;
+		//			}
+		//			SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(p_weapon_comp->mOwnerEntity);
+		//			XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
+		//			
+		//			// Hand position in model space.
+		//			XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
+		//			XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
+
+		//			// Final world transform.
+		//			XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
+		//			
+		//			XMStoreFloat4x4(&mpBuffer[index].world, world);
+		//		}				
+		//		else
+		//		{
+		//			XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
+		//		}
+		//		
+		//		index++;
+		//	}
+
+		//	mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		//}
+
+		//void WeaponRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+		//{
+		//	mpRenderMgr = pRenderMgr;
+		//	mWeaponMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_SWORD);
+
+		//	mInstanceLayout.MeshCount = 1;
+		//	mInstanceLayout.pMeshes = &mWeaponMeshRegion;
+		//	mInstanceLayout.pInstanceCountPerMesh = &mInstanceCount;
+
+		//	const std::string vs = GetShaderFilepath("VS_Weapon.cso");
+		//	const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+		//	mRenderProgram = mpRenderMgr->CreateShaderProgram(
+		//		vs.c_str(),
+		//		ps.c_str(),
+		//		systems::WeaponRenderSystem::GetPerInstanceSize());
+
+		//	mpRenderBuffer = pRenderBuffer;
+		//}
+
+		//uint32_t WeaponRenderSystem::GetPerInstanceSize()
+		//{
+		//	return sizeof(WeaponRenderSystem::InputLayout);
+		//}
+
+
 		WeaponRenderSystem::WeaponRenderSystem()
 		{
 			updateType = SystemUpdateType::MultiEntityUpdate;
 			typeFilter.addRequirement(components::WeaponComponent::typeID);
 			typeFilter.addRequirement(components::TransformComponent::typeID);
 			typeFilter.addRequirement(components::ColorComponent::typeID);
-
-			mInstanceLayout = { 0 };
 		}
 
 		WeaponRenderSystem::~WeaponRenderSystem()
 		{
-
+			//
 		}
 
 		void WeaponRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
-			mInstanceCount = (UINT)_entities.entities.size();
+			/*
+				We don't know the order of entities EntityIterator, meaning that we can't expect
+				the entities to be ordered by mesh type like we want them to be in the RenderBuffer
+				(output of this function).
+
+				So, this function first calculate how many instances we have of each mesh. With this,
+				we can calculate from which index in the RenderBuffer we can start writing each mesh
+				to. Each mesh we care about in this function, that is tree, stone etc., has its own
+				index counter.
+			*/
+
+			mObjectCount = _entities.entities.size();
 
 			// Fetch pointer to write data to in RenderBuffer
-			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mInstanceCount * WeaponRenderSystem::GetPerInstanceSize());
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::WeaponRenderSystem::GetPerInstanceSize());
 
-			// Iterate all tiles and write their data to the RenderBuffer
-			uint32_t index = 0;
+			// Count how many instances we have per scene object mesh
+			ZeroMemory(mObjectTypeCount, WEAPON_COUNT * sizeof(UINT));
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::WeaponComponent* p_obj_comp = object.getComponent<components::WeaponComponent>();
+				mObjectTypeCount[p_obj_comp->mType - (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG+1)]++;
+			}
+
+			// Set index to write to in RenderBuffer, per mesh
+			UINT object_type_individual_index[WEAPON_COUNT] = { 0 };
+
+			for (int i = 1; i < WEAPON_COUNT; i++)
+			{
+				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
+			}
+
+			// Iterate all objects and write their data to the RenderBuffer
 			for (FilteredEntity weapon : _entities.entities)
 			{
 				components::WeaponComponent* p_weapon_comp = weapon.getComponent<components::WeaponComponent>();
-				components::TransformComponent* p_transform_comp = weapon.getComponent<components::TransformComponent>();
-			
-				if (p_weapon_comp->mOwnerEntity != 0)
-				{
-					p_transform_comp = getComponentFromKnownEntity<TransformComponent>(p_weapon_comp->mOwnerEntity);
-					Entity* owner = getEntity(p_weapon_comp->mOwnerEntity);
-					if (!owner->hasComponentOfType(SkeletonComponent::typeID))
-					{
-						continue;
-					}
-					SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(p_weapon_comp->mOwnerEntity);
-					XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
-					
-					// Hand position in model space.
-					XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
-					XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
 
-					// Final world transform.
-					XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
-					
-					XMStoreFloat4x4(&mpBuffer[index].world, world);
-				}				
-				else
-				{
-					XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
-				}
-				
+				// Get index, depending on mesh type
+				UINT& index = object_type_individual_index[p_weapon_comp->mType - (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1)];
+
+				PlaceWorldMatrix(weapon, mpBuffer[index].world);
 				index++;
 			}
 
+			mInstanceLayout.pInstanceCountPerMesh = mObjectTypeCount;
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
 		void WeaponRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
-			mWeaponMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_SWORD);
 
-			mInstanceLayout.MeshCount = 1;
-			mInstanceLayout.pMeshes = &mWeaponMeshRegion;
-			mInstanceLayout.pInstanceCountPerMesh = &mInstanceCount;
+			for (int i = 0; i < WEAPON_COUNT; i++)
+			{
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE(i + (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1)));
+			}
+
+			mInstanceLayout.MeshCount = WEAPON_COUNT;
+			mInstanceLayout.pMeshes = mObjectMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
 
 			const std::string vs = GetShaderFilepath("VS_Weapon.cso");
 			const std::string ps = GetShaderFilepath("PS_Default.cso");
@@ -713,6 +806,39 @@ namespace ecs
 		{
 			return sizeof(WeaponRenderSystem::InputLayout);
 		}
+
+		void WeaponRenderSystem::PlaceWorldMatrix(FilteredEntity& rWeapon, DirectX::XMFLOAT4X4& rDestination)
+		{
+			components::WeaponComponent* p_weapon_comp = rWeapon.getComponent<components::WeaponComponent>();
+			components::TransformComponent* p_transform_comp = rWeapon.getComponent<components::TransformComponent>();
+				
+			if (!p_weapon_comp->mOwnerEntity)
+			{
+				/*
+					If weapon don't have an owner, use the weapon's transform.
+				*/
+
+				XMStoreFloat4x4(&rDestination, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
+			}
+
+			/*
+				Calculate position of owner entity's hand.
+			*/
+
+			p_transform_comp = getComponentFromKnownEntity<TransformComponent>(p_weapon_comp->mOwnerEntity);
+
+			SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(p_weapon_comp->mOwnerEntity);
+			XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
+						
+			// Hand position in model space.
+			XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
+			XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
+
+			// Final world transform.
+			XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
+						
+			XMStoreFloat4x4(&rDestination, world);
+		}
 #pragma endregion WeaponRenderSystem
-	}
+}
 }
