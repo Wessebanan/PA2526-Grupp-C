@@ -77,7 +77,7 @@ namespace ecs
 
 			SetViewMatrix(
 				p_pipeline->data.ViewMatrix,
-				6.0f, 4.0f, -5.0f,
+				-8.0f, 10.0f, -2.0f,
 				1.2f, -0.7f, 1.0f);
 
 			p_mgr->mgr.UpdatePipeline(p_pipeline->pipeline, &p_pipeline->data);
@@ -133,7 +133,11 @@ namespace ecs
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
 			p_mesh_mgr->mgr.SetVertexBuffers();
-			p_render_mgr->mgr.ExecutePipeline(p_pipeline_shadow_map->pipeline);
+			p_render_mgr->mgr.ExecutePipeline(
+				p_pipeline_shadow_map->pipeline, 
+				0,
+				p_render_mgr->mgr.GetNumShaderPrograms() - 2);
+
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
 		}
 	}

@@ -143,26 +143,26 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	components::ArmyComponent* p_army = _entityInfo.getComponent<components::ArmyComponent>();
 	ComponentIterator itt;
 
-	std::string ss = "";
+	std::wstring ss = L"";
 
 	itt = getComponentsOfType(components::GameLoopComponent::typeID);
 	components::GameLoopComponent* p_gl = (components::GameLoopComponent*)itt.next();
 	itt = getComponentsOfType(components::UserCommandComponent::typeID);
 	components::UserCommandComponent* p_cmd_comp = (components::UserCommandComponent*)itt.next();
 
-	ss.append("Score: ");
-	ss.append(std::to_string(p_gl->mPlayerPoints[(int)p_army->playerID]));
-	ss.append("\n");
+	ss.append(L"Score: ");
+	ss.append(std::to_wstring(p_gl->mPlayerPoints[(int)p_army->playerID]));
+	ss.append(L"\n");
 	//ss.append("Command: ");
 	//ss.append((p_cmd_comp->userCommands[(int)p_army->playerID].mCommand));
-	ss.append("\n");
-	ss.append("Health:\n");
+	ss.append(L"\n");
+	ss.append(L"Health:\n");
 	for (size_t i = 0; i < p_army->unitIDs.size(); i++)
 	{
 		components::HealthComponent* p_unit_hp_comp = getComponentFromKnownEntity<components::HealthComponent>(p_army->unitIDs[i]);
 		
-		ss.append(std::to_string((int)p_unit_hp_comp->mHealth));
-		ss.append("\n");
+		ss.append(std::to_wstring((int)p_unit_hp_comp->mHealth));
+		ss.append(L"\n");
 	}
 
 
