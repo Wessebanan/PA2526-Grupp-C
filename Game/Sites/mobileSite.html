@@ -104,21 +104,30 @@
             font-size: 120%;
         }
 
-        .CommButton {
+        .CommButtonL {
             width: 45%;
             height: 30%;
-            background-color: darkgray;
+            background-color: #666;
             color: black;
             font-display: auto;
             margin-top: 3%;
+            float: left;
+        }
+        
+        .CommButtonR {
+            width: 45%;
+            height: 30%;
+            background-color: #666;
+            color: black;
+            font-display: auto;
+            margin-top: 3%;
+            float: right;
         }
 
         #CommandButtonL {
-            float: left;
         }
 
         #CommandButtonR {
-            float: right;
         }
 
         #PingButton {
@@ -274,6 +283,16 @@
         document.getElementById("b2").style.backgroundColor = "darkred";
         document.getElementById("b3").style.backgroundColor = "darkred";
         }
+        
+        function resetCommandColors()
+        {
+        document.getElementById("CommandButton0").style.backgroundColor = "#666";
+        document.getElementById("CommandButton1").style.backgroundColor = "#666";
+        document.getElementById("CommandButton2").style.backgroundColor = "#666";
+        document.getElementById("CommandButton3").style.backgroundColor = "#666";
+        }
+
+        window.currCommand = 42;
 
 
         var socket = new WebSocket("ws://"+ip_address+":1337");
@@ -488,7 +507,7 @@
         }
 
 
-        function setCommand(buttonCommand)
+        function setCommand(buttonCommand, buttonIndex)
         {
         var player = "0";
         var action = "003";
@@ -496,6 +515,11 @@
 
 
         var msg = player.concat(action.concat(Button));
+        
+        var id = "CommandButton" + buttonIndex.toString();
+
+        resetCommandColors();
+        document.getElementById(id).style.backgroundColor = "#DDD";
 
         console.log(msg);
         socket.send(msg);
@@ -591,10 +615,10 @@
 
         <div id="PingButton" onclick="sendPing()"><h3>Ping</h3></div>
         </br>
-        <div id='CommandButtonL' class='CommButton' onclick="setCommand('regroup')"><h3>REGROUP</h3></div>
-        <div id='CommandButtonR' class='CommButton' onclick="setCommand('loot')"><h3>LOOT   </h3></div>
-        <div id='CommandButtonL' class='CommButton' onclick="setCommand('attack')"><h3>ATTACK </h3></div>
-        <div id='CommandButtonR' class='CommButton' onclick="setCommand('flee')"><h3>FLEE   </h3></div>
+        <div id='CommandButton0' class='CommButtonL' onclick="setCommand('regroup', 0)"><h3>REGROUP</h3></div>
+        <div id='CommandButton1' class='CommButtonR' onclick="setCommand('loot', 1)"><h3>LOOT   </h3></div>
+        <div id='CommandButton2' class='CommButtonL' onclick="setCommand('attack', 2)"><h3>ATTACK </h3></div>
+        <div id='CommandButton3' class='CommButtonR' onclick="setCommand('flee', 3)"><h3>FLEE   </h3></div>
         </br>
     </div>
     </br>
