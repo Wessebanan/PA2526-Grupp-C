@@ -1,6 +1,6 @@
 #pragma once
 #include "ecsEventIncludes.h"
-#include "TrapGlobals.h"
+#include "../GameGlobals.h"
 
 namespace ecs
 {
@@ -10,7 +10,7 @@ namespace ecs
 		struct PlaceTrapEvent : public ecs::ECSEvent<PlaceTrapEvent>
 		{
 			TypeID tileID;
-			TRAPTYPES type; // The winner of the round 
+			GAME_OBJECT_TYPES type; // The winner of the round 
 		};
 
 	}

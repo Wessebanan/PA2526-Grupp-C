@@ -113,6 +113,9 @@
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
+    <ClCompile Include="gameRagdoll\Collision.cpp" />
+    <ClCompile Include="gameRagdoll\CollisionObject.cpp" />
+    <ClCompile Include="gameRagdoll\Ragdoll.cpp" />
     <ClCompile Include="gameSceneObjects\LootSystem.cpp" />
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\SSAOPipeline.cpp" />
@@ -164,6 +167,11 @@
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
     <ClInclude Include="gameGraphics\SSAOPipeline.h" />
     <ClInclude Include="gameGraphics\TileRenderingPipeline.h" />
+    <ClInclude Include="gameRagdoll\Collision.h" />
+    <ClInclude Include="gameRagdoll\CollisionObject.h" />
+    <ClInclude Include="gameRagdoll\Ragdoll.h" />
+    <ClInclude Include="gameRagdoll\RagdollBone.h" />
+    <ClInclude Include="gameRagdoll\RagdollBoneState.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameSceneObjects\InitBiomes.h" />
@@ -173,7 +181,6 @@
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
     <ClInclude Include="gameTraps\TrapEvents.h" />
-    <ClInclude Include="gameTraps\TrapGlobals.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
     <ClInclude Include="gameUtility\CameraEvents.h" />
     <ClInclude Include="gameUtility\CameraEcsFunctions.h" />

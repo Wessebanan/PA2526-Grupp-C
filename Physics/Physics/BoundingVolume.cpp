@@ -93,3 +93,21 @@ XMFLOAT3 AABB::GetCenter()
 {
 	return Center;
 }
+
+bool Cylinder::Intersects(BoundingVolume* other)
+{
+	return false;
+}
+
+void Cylinder::Transform(XMMATRIX transform)
+{
+}
+
+XMFLOAT3 Cylinder::GetCenter()
+{
+	return mCenter;
+}
+
+void Cylinder::CreateFromTile(XMFLOAT3 position, float scale)
+{
+}

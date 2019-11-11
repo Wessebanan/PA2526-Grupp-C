@@ -32,7 +32,7 @@ namespace GridEcsFunctions
 		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.5f, Rows*Columns / 60, holmes, islet_coordinates);
 
 
-		GridProp* p_gp = GridProp::GetInstance();
+ 		GridProp* p_gp = GridProp::GetInstance();
 
 		p_gp->SetSize(Rows,Columns);
 

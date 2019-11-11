@@ -169,8 +169,9 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 					eve.tileID = tile_ID;
 
 					// Last part is falesafe if something would go wrong from the website
-					eve.type = (TRAPTYPES)(p_butt_comp->userButtons[i].mButton % TRAPTYPES::TRAPCOUNT);
-
+					// The 1 is to work around the index of GAME_OBJECT_TYPE_TRAP
+					eve.type = (GAME_OBJECT_TYPES)(1 + p_butt_comp->userButtons[i].mButton + (int)GAME_OBJECT_TYPES::GAME_OBJECT_TYPE_TRAP);
+					
 					createEvent(eve);
 
 					// For debugging, remove when placing trap system is online
