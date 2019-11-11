@@ -74,10 +74,7 @@ namespace CameraEcsFunctions
 		CameraComponent camera;
 
 		transform.position = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS, (arena_size.x + arena_size.y) / 3.0f, TILE_RADIUS * 2 };
-		//camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS , -10.0f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) + TILE_RADIUS*10) / 2.0f, 0.0f }; //Mitten ish
-		//camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 2.0f) - TILE_RADIUS , -5.0f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) + TILE_RADIUS*10) / 1.2f, 0.0f }; //Längre bak
-		//camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 1.2f) - TILE_RADIUS , -7.5f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) + TILE_RADIUS*10) / 1.2f, 0.0f }; //Bak till höger
-		camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 4.0f) - TILE_RADIUS , -7.5f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) + TILE_RADIUS*10) / 3.0f, 0.0f }; //Mitten till vänster
+		camera.target = { ((arena_size.y * TILE_RADIUS * 1.5f) / 4.0f) - TILE_RADIUS , -7.5f, (((arena_size.x * TILE_RADIUS * 2) / 2.0f) + TILE_RADIUS*10) / 3.0f, 0.0f }; //To the left in the middle.
 
 		transform.rotation = CameraDefines::originalRotation;
 		transform.scale = CameraDefines::originalScale;
