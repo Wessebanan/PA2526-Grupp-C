@@ -1,4 +1,5 @@
 #include "MovementSystem.h"
+#include "..//gameAI/AIComponents.h"
 
 #pragma region StaticMovementSystem
 ecs::systems::StaticMovementSystem::StaticMovementSystem()
@@ -178,6 +179,13 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	transform_component->position.x += movement_component->mVelocity.x * _delta;
 	transform_component->position.y += movement_component->mVelocity.y * _delta;
 	transform_component->position.z += movement_component->mVelocity.z * _delta;
+
+	//If the unit is bellow -0.9 in y we know that the unit is on a water tile. Kill the unit.
+	if (transform_component->position.y <= -1.0f)
+	{
+		DeadComponent dead_comp;
+		ecs::ECSUser::createComponent(transform_component->getEntityID(), dead_comp);
+	}
 	
 	// Potential collision if object moved.
 	const float ABS_ERROR = (float)pow(10.0, -10.0);
