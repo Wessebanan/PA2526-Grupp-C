@@ -170,7 +170,7 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 					// Last part is falesafe if something would go wrong from the website
 					// The 1 is to work around the index of GAME_OBJECT_TYPE_TRAP
-					eve.type = (GAME_OBJECT_TYPES)(1 + p_butt_comp->userButtons[i].mButton + (int)GAME_OBJECT_TYPES::GAME_OBJECT_TYPE_TRAP);
+					eve.type = (GAME_OBJECT_TYPES)(1 + p_butt_comp->userButtons[i].mButton + (int)GAME_OBJECT_TYPES::GAME_OBJECT_TYPE_TRAP_OFFSET_TAG);
 					
 					createEvent(eve);
 

@@ -41,7 +41,7 @@ enum GAME_OBJECT_TYPES
 		Traps
 	*/
 
-	GAME_OBJECT_TYPE_TRAP,
+	GAME_OBJECT_TYPE_TRAP_OFFSET_TAG,
 	GAME_OBJECT_TYPE_TRAP_FIRE,
 	GAME_OBJECT_TYPE_TRAP_FREEZE,
 	GAME_OBJECT_TYPE_TRAP_SPRING,
@@ -51,5 +51,5 @@ constexpr int OFFSET_TRAP = 3;
 
 constexpr int MESH_TYPE_COUNT = 12;
 constexpr int SCENE_OBJECT_COUNT = 9;
-constexpr int TRAP_COUNT = 3;
+constexpr int TRAP_COUNT = 3; // Number of traps to be rendered
 constexpr int WEAPON_COUNT = 1; // Number of weapons to be rendered

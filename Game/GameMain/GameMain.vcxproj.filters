@@ -336,6 +336,9 @@
     <ClInclude Include="gameWorld\WorldComponents.h">
       <Filter>World</Filter>
     </ClInclude>
+    <ClInclude Include="gameTraps\TrapComponents.h">
+      <Filter>Traps</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -444,6 +447,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameUtility\VS_Tile.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Trap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

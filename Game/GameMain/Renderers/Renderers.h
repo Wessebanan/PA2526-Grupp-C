@@ -299,7 +299,41 @@ namespace ecs
 
 			UINT mObjectTypeCount[WEAPON_COUNT];
 
-			void PlaceWorldMatrix(FilteredEntity& rWeapon, DirectX::XMFLOAT4X4 &rDestination);
+			void PlaceWorldMatrix(FilteredEntity& rWeapon, DirectX::XMFLOAT4X4& rDestination);
+		};
+
+		class TrapRenderSystem : public ECSSystem<TrapRenderSystem>
+		{
+		public:
+
+			TrapRenderSystem();
+			~TrapRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				DirectX::XMFLOAT4X4 world;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mObjectCount;
+			graphics::MeshRegion mObjectMeshRegion[TRAP_COUNT];
+
+			UINT mObjectTypeCount[TRAP_COUNT];
 		};
 	}
 }
