@@ -169,3 +169,90 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	p_text->mStrText = ss;
 
 }
+
+ecs::systems::UICountDownSystem::UICountDownSystem()
+{
+	updateType = SystemUpdateType::EntityUpdate;
+	typeFilter.addRequirement(components::UIBitmapComponent::typeID);
+	typeFilter.addRequirement(components::UIDrawPosComponent::typeID);
+	typeFilter.addRequirement(components::UIIWant::typeID);
+	subscribeEventCreation(events::CountdownStartEvent::typeID);
+}
+
+ecs::systems::UICountDownSystem::~UICountDownSystem()
+{
+	//
+}
+
+void ecs::systems::UICountDownSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	bool one_sec_has_passed = false;
+	components::UIBitmapComponent* pUIBitmapComp = _entityInfo.getComponent<components::UIBitmapComponent>();
+	components::UIDrawPosComponent* pUIPosComp = _entityInfo.getComponent<components::UIDrawPosComponent>();
+	components::UIIWant* pUITime = _entityInfo.getComponent<components::UIIWant>();
+	float pre_added_time = pUITime->elapsedTime;
+	pUITime->elapsedTime += _delta;
+	if (floor(pre_added_time) != floor(pUITime->elapsedTime))
+	{
+		one_sec_has_passed = true;
+	}
+		
+	
+
+	if (pUITime->elapsedTime > 4.f) //remove the entity after 4 second which stops the countdown system to update
+	{
+		removeEntity(_entityInfo.entity->getID());
+		return;
+	}
+	if (one_sec_has_passed)
+	{
+		this->counter--;
+		pUIPosComp->mDrawArea.bottom	-= 500.f;
+		pUIPosComp->mDrawArea.left		+= 500.f;
+		pUIPosComp->mDrawArea.right		-= 500.f;
+		pUIPosComp->mDrawArea.top		+= 500.f;
+		pUIBitmapComp->mpBitmap = this->mpD2D->GetBitmap("rob" + std::to_string(this->counter)); //load in the new bitmap when a second has passed in a pretty static way
+	}
+
+	this->mSize = 500 * _delta; //make mSize 200 after 1 sec
+	pUIPosComp->mDrawArea.bottom	+= this->mSize;
+	pUIPosComp->mDrawArea.left		-= this->mSize;
+	pUIPosComp->mDrawArea.right		+= this->mSize;
+	pUIPosComp->mDrawArea.top		-= this->mSize;
+	this->mpD2D->DrawBitmap(pUIBitmapComp->mpBitmap, pUIPosComp->mDrawArea);
+}
+
+void ecs::systems::UICountDownSystem::onEvent(TypeID _eventType, BaseEvent* _event)
+{
+	TypeFilter countdown_filter;
+	countdown_filter.addRequirement(ecs::components::UIBitmapComponent::typeID);
+	countdown_filter.addRequirement(ecs::components::UIDrawPosComponent::typeID);
+	countdown_filter.addRequirement(ecs::components::UIIWant::typeID);
+	EntityIterator current_countdowns = getEntitiesByFilter(countdown_filter);
+	
+	if(current_countdowns.entities.size() < 1)
+	{
+		components::UIBitmapComponent m_bitmap;
+		components::UIDrawPosComponent m_pos;
+		components::UIIWant m_time;
+		int width = this->mpD2D->GetBackbufferBitmap()->GetSize().width;
+		int height = this->mpD2D->GetBackbufferBitmap()->GetSize().height;
+			
+		if (this->mpD2D->GetBitmap("rob3") == nullptr)
+		{
+			this->mpD2D->LoadImageToBitmap("../../UI/Resource/rob0.png", "rob0");
+			this->mpD2D->LoadImageToBitmap("../../UI/Resource/rob1.png", "rob1");
+			this->mpD2D->LoadImageToBitmap("../../UI/Resource/rob2.png", "rob2");
+			m_bitmap.mpBitmap = this->mpD2D->LoadImageToBitmap("../../UI/Resource/rob3.png", "rob3");
+		}
+		else
+			m_bitmap.mpBitmap = this->mpD2D->GetBitmap("rob3");
+
+		m_pos.mDrawArea.bottom = height / 2;
+		m_pos.mDrawArea.left   = width / 2;
+		m_pos.mDrawArea.right = width / 2;
+		m_pos.mDrawArea.top = height / 2;
+
+		createEntity(m_bitmap, m_pos, m_time);
+	}
+}
