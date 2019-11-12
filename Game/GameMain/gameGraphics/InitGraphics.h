@@ -163,6 +163,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	MeshContainer::Initialize(&mesh_manager);
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TILE, "../meshes/hexagon_tile5.fbx");
+
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BARREL, "../meshes/Barrel.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BOX, "../meshes/Box.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_CACTUS, "../meshes/Cactus.fbx");
@@ -172,6 +173,12 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_GIANTSKULL, "../meshes/GiantSkull.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER, "../meshes/Tower.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
+
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
+
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_SWORD, "../meshes/sword.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FIRE, "../meshes/TilePlate.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FREEZE, "../meshes/TilePlate.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_SPRING, "../meshes/TilePlate.fbx");
 }
