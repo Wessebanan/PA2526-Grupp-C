@@ -662,15 +662,25 @@ namespace ecs
 							}
 							if (move_comp->path.size() > 0)
 							{
-								goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());
+								goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());//get next tile towards goal, "local goal"
 								this->x = goal->position.x - transform->position.x;
 								this->z = goal->position.z - transform->position.z;
+								this->yDistance = goal->position.y - transform->position.y;
 								this->length = sqrt(x * x + z * z);
-								this->x = this->x / this->length;
-								this->z = this->z / this->length;
-								dyn_move->mForward.x = this->x;
-								dyn_move->mForward.z = this->z;
+								dyn_move->mForward.x = this->x / this->length;
+								dyn_move->mForward.z = this->z / this->length;
 
+								if(this->yDistance > 0.1f && dyn_move->mOnGround)
+								{
+									
+									//ForceImpulseEvent jump;
+									//jump.mDirection.x = 0.f;
+									//jump.mDirection.y = 1.f;
+									//jump.mDirection.z = 0.f;
+									//jump.mForce = 200.f;
+									//jump.mEntityID = entity.entity->getID();
+									//createEvent(jump);
+								}
 								MovementInputEvent kek;
 								kek.mInput = FORWARD;
 								kek.mEntityID = entity.entity->getID();
@@ -682,6 +692,7 @@ namespace ecs
 			}
 		private:
 			float x;
+			float yDistance;
 			float z;
 			float length;
 			float mMinimumDist;
