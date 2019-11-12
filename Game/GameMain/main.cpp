@@ -275,16 +275,11 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	initArmyText(rECS);
 
 	InitSpawnLootSystem(rECS);
-	InitTrapSpawner(rECS);
+	InitTraps(rECS);
 
 	InitHttpServer(rECS);
 
 
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
-
-	ecs::events::PlaceTrapEvent trap_event;
-	trap_event.tileID = GridProp::GetInstance()->mGrid[9][9].Id;
-	trap_event.type = GAME_OBJECT_TYPE_TRAP_SPRING;
-	rECS.createEvent(trap_event);
 }

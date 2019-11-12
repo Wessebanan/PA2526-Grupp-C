@@ -108,6 +108,9 @@
     <ClCompile Include="gameTraps\InitTraps.cpp">
       <Filter>Init</Filter>
     </ClCompile>
+    <ClCompile Include="gameTraps\TrapCollisionSystem.cpp">
+      <Filter>Traps</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -356,6 +359,9 @@
     </ClInclude>
     <ClInclude Include="gameTraps\InitTraps.h">
       <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gameTraps\TrapCollisionSystem.h">
+      <Filter>Traps</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

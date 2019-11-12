@@ -3,4 +3,4 @@
 #include "ecs.h"
 #include "TrapSpawnerSystems.h"
 
-void InitTrapSpawner(ecs::EntityComponentSystem& rEcs);
+void InitTraps(ecs::EntityComponentSystem& rEcs);

@@ -121,6 +121,7 @@
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\SSAOPipeline.cpp" />
     <ClCompile Include="gameTraps\InitTraps.cpp" />
+    <ClCompile Include="gameTraps\TrapCollisionSystem.cpp" />
     <ClCompile Include="gameTraps\TrapSpawnerSystems.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\CameraSystems.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="gameTraps\TrapComponents.h" />
     <ClInclude Include="gameTraps\TrapEvents.h" />
     <ClInclude Include="gameTraps\TrapSpawnerSystems.h" />
+    <ClInclude Include="gameTraps\TrapCollisionSystem.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
     <ClInclude Include="gameUtility\CameraEvents.h" />
     <ClInclude Include="gameUtility\CameraEcsFunctions.h" />
