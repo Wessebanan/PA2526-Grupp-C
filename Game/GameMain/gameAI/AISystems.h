@@ -630,6 +630,7 @@ namespace ecs
 				typeFilter.addRequirement(components::TransformComponent::typeID);
 				typeFilter.addRequirement(components::DynamicMovementComponent::typeID);
 				typeFilter.addRequirement(components::EquipmentComponent::typeID);
+				typeFilter.addRequirement(components::GroundCollisionComponent::typeID);
 			}
 			virtual ~MoveStateSystem() {}
 
@@ -647,39 +648,58 @@ namespace ecs
 				else
 				{
 					//Fetch the move and transform component of the entity
-					ecs::components::TransformComponent* transform = entity.getComponent<ecs::components::TransformComponent>();
+					ecs::components::TransformComponent* transform_comp = entity.getComponent<ecs::components::TransformComponent>();
 					ecs::components::DynamicMovementComponent* dyn_move = entity.getComponent<ecs::components::DynamicMovementComponent>();
 					ecs::components::MoveStateComponent* move_comp = entity.getComponent<ecs::components::MoveStateComponent>();
+					ecs::components::GroundCollisionComponent* ground_comp = entity.getComponent<ecs::components::GroundCollisionComponent>();
 					//Move the unit along its path.
 					if (move_comp->path.size() > 0)
 					{
 						ecs::components::TransformComponent* goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());
 						if (goal != nullptr)
 						{
-							if (abs(goal->position.x - transform->position.x) < 1.f && abs(goal->position.z - transform->position.z) < 1.f)
+							if (abs(goal->position.x - transform_comp->position.x) < 1.f && abs(goal->position.z - transform_comp->position.z) < 1.f)
 							{
 								move_comp->path.pop_back();
 							}
 							if (move_comp->path.size() > 0)
 							{
 								goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());//get next tile towards goal, "local goal"
-								this->x = goal->position.x - transform->position.x;
-								this->z = goal->position.z - transform->position.z;
-								this->yDistance = goal->position.y - transform->position.y;
-								this->length = sqrt(x * x + z * z);
-								dyn_move->mForward.x = this->x / this->length;
-								dyn_move->mForward.z = this->z / this->length;
+								this->mJumpVector.x = this->mX = goal->position.x - transform_comp->position.x;
+								this->mJumpVector.y = this->mY = goal->position.y - ground_comp->mLastTileY;
+								this->mJumpVector.z = this->mZ = goal->position.z - transform_comp->position.z;
+								this->mYDistance = goal->position.y - (ground_comp->mLastTileY);
+								this->mLength = sqrt(mX * mX + mZ * mZ);
+								dyn_move->mForward.x = this->mX / this->mLength;
+								dyn_move->mForward.z = this->mZ / this->mLength;
 
-								if(this->yDistance > 0.1f && dyn_move->mOnGround)
+								if(this->mYDistance > 0.3f && dyn_move->mOnGround)
 								{
-									
-									ForceImpulseEvent jump;
-									jump.mDirection.x = 0.f;
-									jump.mDirection.y = 1.f;
-									jump.mDirection.z = 0.f;
-									jump.mForce = 200.f;
-									jump.mEntityID = entity.entity->getID();
-									createEvent(jump);
+									this->mLength = PhysicsHelpers::CalculateDistance(goal->position, transform_comp->position);//Length from unit to goal center
+									this->mLengthOfVector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&dyn_move->mVelocity)));//Length of velocity vector
+									this->mAngle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
+									(XMLoadFloat3(&dyn_move->mVelocity)), XMVector3Normalize(XMLoadFloat3(&dyn_move->mDirection))));//Get angle between velocity and direction vector
+									if ((this->mLengthOfVector >= (this->mLength - this->mTileSizeLength)) && this->mAngle > 0.85f)//sqrt(3)/2 is the length to one side if the tile if radius is 1
+									{
+										this->mJumpVector.x /= 8.f;
+										this->mJumpVector.y *= 8.f;
+										this->mJumpVector.z /= 8.f;
+										ForceImpulseEvent jump;
+										XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&this->mJumpVector)));
+										//jump.mDirection.x = dyn_move->mForward.x * 0.1;
+										//jump.mDirection.y = 1.f;
+										//jump.mDirection.z = dyn_move->mForward.z * 0.1;
+										//jump.mDirection.x / 2.f;
+										//jump.mDirection.z / 2.f;
+										//jump.mForce = 170.f * (this->mYDistance * 0.6f);
+										jump.mForce = ((sqrtf(2.f * this->mYDistance * dyn_move->mGravity)) * dyn_move->mWeight)*1.1f;
+										/*if (this->mYDistance > 1.f)
+										{
+											jump.mForce = 170.f;
+										}*/
+										jump.mEntityID = entity.entity->getID();
+										createEvent(jump);
+									}
 								}
 								MovementInputEvent kek;
 								kek.mInput = FORWARD;
@@ -691,11 +711,16 @@ namespace ecs
 				}
 			}
 		private:
-			float x;
-			float yDistance;
-			float z;
-			float length;
+			float mX;
+			float mYDistance;
+			float mZ;
+			float mY;
+			float mTileSizeLength = sqrtf(3) / 3;
+			float mLength;
+			float mLengthOfVector;
 			float mMinimumDist;
+			float mAngle;
+			XMFLOAT3 mJumpVector;
 			//Returns the new state of the unit or STATE::NONE if it is supposed to stay in this state for the next update.
 			STATE CheckIfGoalIsMet(FilteredEntity& entity, float delta)
 			{
@@ -737,7 +762,7 @@ namespace ecs
 				}
 				//Check if enough time has passed for us to calculate a new path to the goal.
 				move_comp->time += delta;
-				if (move_comp->time > 1.0f) //Should discuss how long we should wait and if it should be frames or time?
+				if (move_comp->time > 0.8f) //Should discuss how long we should wait and if it should be frames or time?
 				{
 					returnState = STATE::PATHFINDING;
 				}
