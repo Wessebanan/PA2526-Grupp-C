@@ -157,8 +157,8 @@ namespace ecs
 			void onEvent(TypeID _eventType, BaseEvent* _event) override;
 			Direct2D* mpD2D;
 			float mSize = 0;
-			int counter = 3;
-			int expand_size = 500;
+			int mCounter = 3;
+			int mExpand_size = 500;
 		};
 
 	}

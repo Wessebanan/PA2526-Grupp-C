@@ -20,10 +20,10 @@ UITextSystem::~UITextSystem()
 void UITextSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	components::UITextComponent* UITextComp = _entityInfo.getComponent<components::UITextComponent>();
-	components::UIDrawPosComponent* UIPosComp = _entityInfo.getComponent<components::UIDrawPosComponent>();
-	components::UIDrawColorComponent* UIColorComp = _entityInfo.getComponent<components::UIDrawColorComponent>();
+	components::UIDrawPosComponent* UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
+	components::UIDrawColorComponent* UI_color_comp = _entityInfo.getComponent<components::UIDrawColorComponent>();
 	
-	mpD2D->PrintText(UITextComp->mStrText, UIPosComp->mDrawArea, UIColorComp->mColor);
+	mpD2D->PrintText(UITextComp->mStrText, UI_pos_comp->mDrawArea, UI_color_comp->mColor);
 }
 
 UIBitmapSystem::UIBitmapSystem()
@@ -40,10 +40,10 @@ UIBitmapSystem::~UIBitmapSystem()
 
 void UIBitmapSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	components::UIDrawPosComponent* UIPosComp = _entityInfo.getComponent<components::UIDrawPosComponent>();
-	components::UIBitmapComponent* UIBitmapComp = _entityInfo.getComponent<components::UIBitmapComponent>();
+	components::UIDrawPosComponent* UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
+	components::UIBitmapComponent* p_UI_bitmap_comp = _entityInfo.getComponent<components::UIBitmapComponent>();
 
-	mpD2D->DrawBitmap(UIBitmapComp->mpBitmap, UIPosComp->mDrawArea);
+	mpD2D->DrawBitmap(p_UI_bitmap_comp->mpBitmap, UI_pos_comp->mDrawArea);
 }
 
 ecs::systems::UIRectSystem::UIRectSystem()
@@ -61,11 +61,11 @@ ecs::systems::UIRectSystem::~UIRectSystem()
 
 void ecs::systems::UIRectSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	components::UIDrawColorComponent* UIColorComp = _entityInfo.getComponent<components::UIDrawColorComponent>();
-	components::UIDrawPosComponent* UIPosComp = _entityInfo.getComponent<components::UIDrawPosComponent>();
-	components::UIThicknessComponent* UIThicknessComp = _entityInfo.getComponent<components::UIThicknessComponent>();
+	components::UIDrawColorComponent* UI_color_comp = _entityInfo.getComponent<components::UIDrawColorComponent>();
+	components::UIDrawPosComponent* UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
+	components::UIThicknessComponent* UI_thickness_comp = _entityInfo.getComponent<components::UIThicknessComponent>();
 
-	mpD2D->drawRect(UIPosComp->mDrawArea, UIThicknessComp->mThickness, UIColorComp->mColor);
+	mpD2D->DrawRect(UI_pos_comp->mDrawArea, UI_thickness_comp->mThickness, UI_color_comp->mColor);
 }
 
 ecs::systems::UISolidRectSystem::UISolidRectSystem()
@@ -83,10 +83,10 @@ ecs::systems::UISolidRectSystem::~UISolidRectSystem()
 
 void ecs::systems::UISolidRectSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	components::UIDrawColorComponent* UIColorComp = _entityInfo.getComponent<components::UIDrawColorComponent>();
-	components::UIDrawPosComponent* UIPosComp = _entityInfo.getComponent<components::UIDrawPosComponent>();
+	components::UIDrawColorComponent* UI_color_comp = _entityInfo.getComponent<components::UIDrawColorComponent>();
+	components::UIDrawPosComponent* UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
 
-	mpD2D->solidRect(UIPosComp->mDrawArea, UIColorComp->mColor);
+	mpD2D->SolidRect(UI_pos_comp->mDrawArea, UI_color_comp->mColor);
 }
 
 ecs::systems::UIDebugSystem::UIDebugSystem()
@@ -102,17 +102,17 @@ ecs::systems::UIDebugSystem::~UIDebugSystem()
 
 void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	BaseComponent *pBase = (ECSUser::getComponentsOfType(components::KeyboardComponent::typeID)).next();
-	if (pBase)
+	BaseComponent *p_base = (ECSUser::getComponentsOfType(components::KeyboardComponent::typeID)).next();
+	if (p_base)
 	{
-		components::KeyboardComponent* pKeyboard = static_cast<components::KeyboardComponent*>(pBase);
+		components::KeyboardComponent* p_keyboard = static_cast<components::KeyboardComponent*>(p_base);
 
-		if (pKeyboard->E && !this->mPressedLastUpdate)
+		if (p_keyboard->E && !this->mPressedLastUpdate)
 		{
 			toRender = !toRender;
 			this->mPressedLastUpdate = true;
 		}
-		else if (!pKeyboard->E)
+		else if (!p_keyboard->E)
 		{
 			this->mPressedLastUpdate = false;
 		}
@@ -120,9 +120,9 @@ void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, floa
 	
 	if (this->toRender)
 	{
-		components::UITextComponent* UITextComp = _entityInfo.getComponent<components::UITextComponent>();
+		components::UITextComponent* UI_text_comp = _entityInfo.getComponent<components::UITextComponent>();
 
-		mpD2D->PrintDebug(UITextComp->mStrText);
+		mpD2D->PrintDebug(UI_text_comp->mStrText);
 	}
 }
 
@@ -187,39 +187,39 @@ ecs::systems::UICountDownSystem::~UICountDownSystem()
 void ecs::systems::UICountDownSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	bool one_sec_has_passed = false;
-	components::UIBitmapComponent* pUIBitmapComp = _entityInfo.getComponent<components::UIBitmapComponent>();
-	components::UIDrawPosComponent* pUIPosComp = _entityInfo.getComponent<components::UIDrawPosComponent>();
-	components::UIIWant* pUITime = _entityInfo.getComponent<components::UIIWant>();
-	float pre_added_time = pUITime->elapsedTime;
-	pUITime->elapsedTime += _delta;
-	if (floor(pre_added_time) != floor(pUITime->elapsedTime))
+	components::UIBitmapComponent* p_UI_bitmap_comp = _entityInfo.getComponent<components::UIBitmapComponent>();
+	components::UIDrawPosComponent* p_UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
+	components::UIIWant* p_UI_time = _entityInfo.getComponent<components::UIIWant>();
+	float pre_added_time = p_UI_time->elapsedTime;
+	p_UI_time->elapsedTime += _delta;
+	if (floor(pre_added_time) != floor(p_UI_time->elapsedTime))
 	{
 		one_sec_has_passed = true;
 	}
 		
 	
 
-	if (pUITime->elapsedTime > 4.f) //remove the entity after 4 second which stops the countdown system to update
+	if (p_UI_time->elapsedTime > 4.f) //remove the entity after 4 second which stops the countdown system to update
 	{
 		removeEntity(_entityInfo.entity->getID());
 		return;
 	}
 	if (one_sec_has_passed)
 	{
-		this->counter--;
-		pUIPosComp->mDrawArea.bottom	-= this->expand_size;
-		pUIPosComp->mDrawArea.left		+= this->expand_size;
-		pUIPosComp->mDrawArea.right		-= this->expand_size;
-		pUIPosComp->mDrawArea.top		+= this->expand_size;
-		pUIBitmapComp->mpBitmap = this->mpD2D->GetBitmap("rob" + std::to_string(this->counter)); //load in the new bitmap when a second has passed in a pretty static way
+		this->mCounter--;
+		p_UI_pos_comp->mDrawArea.bottom		-= this->mExpand_size;
+		p_UI_pos_comp->mDrawArea.left		+= this->mExpand_size;
+		p_UI_pos_comp->mDrawArea.right		-= this->mExpand_size;
+		p_UI_pos_comp->mDrawArea.top		+= this->mExpand_size;
+		p_UI_bitmap_comp->mpBitmap = this->mpD2D->GetBitmap("rob" + std::to_string(this->mCounter)); //load in the new bitmap when a second has passed in a pretty static way
 	}
 
-	this->mSize = this->expand_size * _delta; //Will make mSize close to expand_size after 1 sec
-	pUIPosComp->mDrawArea.bottom	+= this->mSize;
-	pUIPosComp->mDrawArea.left		-= this->mSize;
-	pUIPosComp->mDrawArea.right		+= this->mSize;
-	pUIPosComp->mDrawArea.top		-= this->mSize;
-	this->mpD2D->DrawBitmap(pUIBitmapComp->mpBitmap, pUIPosComp->mDrawArea);
+	this->mSize = this->mExpand_size * _delta; //Will make mSize close to expand_size after 1 sec
+	p_UI_pos_comp->mDrawArea.bottom		+= this->mSize;
+	p_UI_pos_comp->mDrawArea.left		-= this->mSize;
+	p_UI_pos_comp->mDrawArea.right		+= this->mSize;
+	p_UI_pos_comp->mDrawArea.top		-= this->mSize;
+	this->mpD2D->DrawBitmap(p_UI_bitmap_comp->mpBitmap, p_UI_pos_comp->mDrawArea);
 }
 
 void ecs::systems::UICountDownSystem::onEvent(TypeID _eventType, BaseEvent* _event)

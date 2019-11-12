@@ -20,8 +20,8 @@ Direct2D::Direct2D()
 	this->mpHwndRenderTarget = nullptr;
 	this->mTrimmer.granularity = DWRITE_TRIMMING_GRANULARITY_CHARACTER;
 	this->mTrimmer = {};
-	this->width = 100;
-	this->height = 100;
+	this->mWidth = 100;
+	this->mHeight = 100;
 	this->mfont = L"Arial";
 	this->mfontSize = 40;
 	this->mInit();
@@ -118,8 +118,8 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a re
 		this->mpColorText->AddRef();
 		this->mpColorDraw->AddRef();
 		this->mpRect = rect;
-		this->width = rect->right;
-		this->height = rect->bottom;
+		this->mWidth = rect->right;
+		this->mHeight = rect->bottom;
 	};
 	
 	return hr;
@@ -146,8 +146,8 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, int width, int height)
 		this->LoadImageToBitmap("fail.png");
 		this->mpColorText->AddRef();
 		this->mpColorDraw->AddRef();
-		this->width = width;
-		this->height = height;
+		this->mWidth = width;
+		this->mHeight = height;
 	};
 
 	return hr;
@@ -239,7 +239,7 @@ ID2D1Bitmap1* Direct2D::GetBitmap(char* bitmapName)
 	ID2D1Bitmap1* to_return = nullptr;
 	for (BitmapPairChar pair : this->mBitmapListChar)
 	{
-		if (this->charArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
+		if (this->CharArrayCompare(pair.first, bitmapName, BITMAP_NAME_LENGTH))
 			return pair.second;
 	}
 	return to_return;
@@ -261,12 +261,12 @@ ID2D1Bitmap1* Direct2D::GetBackbufferBitmap()
 	return this->mpBackbufferBitmap;
 }
 
-void Direct2D::setBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap)
+void Direct2D::SetBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap)
 {
 	this->mpBackbufferBitmap = backbuffer_bitmap;
 	this->mpContext->SetTarget(this->mpBackbufferBitmap);
-	this->width = this->mpBackbufferBitmap->GetSize().width;
-	this->height = this->mpBackbufferBitmap->GetSize().height;
+	this->mWidth = this->mpBackbufferBitmap->GetSize().width;
+	this->mHeight = this->mpBackbufferBitmap->GetSize().height;
 }
 
 ID2D1SolidColorBrush* Direct2D::GetBrushFromName(char* brushName)
@@ -274,7 +274,7 @@ ID2D1SolidColorBrush* Direct2D::GetBrushFromName(char* brushName)
 	ID2D1SolidColorBrush* to_return = nullptr;
 	for (BrushMapPair pair : this->mBrushMap)
 	{
-		if (this->charArrayCompare(pair.first, brushName, BITMAP_NAME_LENGTH))
+		if (this->CharArrayCompare(pair.first, brushName, BITMAP_NAME_LENGTH))
 			return pair.second;
 	}
 	return to_return;
@@ -320,7 +320,7 @@ bool Direct2D::PrintText(std::string text, RECT rect) //draws text with format, 
 bool Direct2D::PrintDebug(std::string text)
 {
 	std::wstring w_str = this->mStrToWstrConverter(text); //Converts string to widestring
-	D2D1_RECT_F rect = D2D1::RectF(this->width - (this->width / 4), 0, this->width, this->height - (2*this->height / 3)); // probably will need adjustment later on 
+	D2D1_RECT_F rect = D2D1::RectF(this->mWidth - (this->mWidth / 4), 0, this->mWidth, this->mHeight - (2*this->mHeight / 3)); // probably will need adjustment later on 
 	
 	if (this->mDeviceContextCreated)
 	{
@@ -354,17 +354,17 @@ bool Direct2D::PrintText(std::string text, int left, int top, int right, int bot
 	return this->mDeviceContextCreated;
 }
 
-void Direct2D::setTextColor(float r, float g, float b, float a)
+void Direct2D::SetTextColor(float r, float g, float b, float a)
 {
 	this->mpColorText->SetColor(D2D1::ColorF(r, g, b, a));
 }
 
-void Direct2D::setDrawColor(float r, float g, float b, float a)
+void Direct2D::SetDrawColor(float r, float g, float b, float a)
 {
 	this->mpColorDraw->SetColor(D2D1::ColorF(r, g, b, a));
 }
 
-void Direct2D::setBrushColor(char* name, float r, float g, float b, float a)
+void Direct2D::SetBrushColor(char* name, float r, float g, float b, float a)
 {
 	this->mBrushMap.at(name)->SetColor(D2D1::ColorF(r, g, b, a));
 }
@@ -407,7 +407,7 @@ void Direct2D::setBrushColor(char* name, float r, float g, float b, float a)
 //	return hr;
 //}
 
-bool Direct2D::drawRect(D2D1_RECT_F rect, int thickness, brushColors color) //draws a rect with line thickness and color
+bool Direct2D::DrawRect(D2D1_RECT_F rect, int thickness, brushColors color) //draws a rect with line thickness and color
 {
 	if (this->mDeviceContextCreated)
 	{
@@ -419,7 +419,7 @@ bool Direct2D::drawRect(D2D1_RECT_F rect, int thickness, brushColors color) //dr
 	return this->mDeviceContextCreated;
 }
 
-bool Direct2D::solidRect(D2D1_RECT_F rect, brushColors color) //draws a filled rect with color
+bool Direct2D::SolidRect(D2D1_RECT_F rect, brushColors color) //draws a filled rect with color
 {
 	if (this->mDeviceContextCreated)
 	{
@@ -430,7 +430,7 @@ bool Direct2D::solidRect(D2D1_RECT_F rect, brushColors color) //draws a filled r
 	return this->mDeviceContextCreated;
 }
 
-int Direct2D::charArrayCompare(char* s1, char* s2, size_t sz) //A compares char arrays
+int Direct2D::CharArrayCompare(char* s1, char* s2, size_t sz) //A compares char arrays
 {
 	while (sz != 0) {
 		// At end of both strings, equal.
@@ -448,7 +448,7 @@ int Direct2D::charArrayCompare(char* s1, char* s2, size_t sz) //A compares char 
 	return 1;
 }
 
-ID2D1HwndRenderTarget* Direct2D::getHwndRenderTarget()
+ID2D1HwndRenderTarget* Direct2D::GetHwndRenderTarget()
 {
 	return this->mpHwndRenderTarget;
 }

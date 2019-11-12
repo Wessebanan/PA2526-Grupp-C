@@ -72,7 +72,7 @@ void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)
 		NULL,
 		&bitmap
 	);
-	d2d->setBackbufferBitmap(bitmap);
+	d2d->SetBackbufferBitmap(bitmap);
 	bitmap->Release();
 	surface->Release();
 }
