@@ -49,7 +49,7 @@
 
 #include "gameUtility/Timer.h"
 
-#include "gameTraps/InitTraps.h"
+#include "gameTraps/InitTrapsMACKE.h"
 
 #include "gameGameLoop/InitGameLoop.h"
 #include "gameGameLoop/GameLoopEvents.h"

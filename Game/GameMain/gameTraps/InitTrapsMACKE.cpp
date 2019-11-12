@@ -1,4 +1,4 @@
-#include "InitTraps.h"
+#include "InitTrapsMACKE.h"
 
 #include "TrapCollisionSystem.h"
 
