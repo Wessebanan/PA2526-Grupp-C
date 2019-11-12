@@ -28,7 +28,17 @@ namespace ecs
 			components::TransformComponent* p_tile_transf = getComponentFromKnownEntity<components::TransformComponent>(r_trap_event.tileID);
 
 			/*
-				Create dummy components, used to initialize trap entity components.
+				-- Sanity check the event's trap type input
+				Never create a trap that isn't defined.
+			*/
+			if (r_trap_event.type <= GAME_OBJECT_TYPE_TRAP_OFFSET_TAG || r_trap_event.type > GAME_OBJECT_TYPE(GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + TRAP_COUNT))
+			{
+				return;
+			}
+
+			/*
+				-- Create dummy components
+				Used to initialize trap entity components.
 			*/
 
 			components::TrapComponent trap_comp;
@@ -68,6 +78,8 @@ namespace ecs
 			case GAME_OBJECT_TYPE_TRAP_SPRING:
 				color_comp = components::ColorComponent(191, 128, 64);
 				break;
+
+
 
 			default:
 				color_comp = components::ColorComponent(); // Default constructor sets color to black.
