@@ -1,6 +1,7 @@
 #include "TrapSystems.h"
 #include "../Physics/PhysicsComponents.h"
 #include "../Physics/PhysicsEvents.h"
+#include "../gameAnimation/AnimationComponents.h"
 #include "../gameAI/AIComponents.h"
 
 ecs::systems::FireTrapEventSystem::FireTrapEventSystem()
@@ -58,8 +59,10 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 
 		// Make the unit take damage
 		components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
+		components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
 
 		p_move_comp->mMaxVelocity *= mPower;
+		p_ani_speed_comp->factor = mPower;
 
 		HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(id);
 		p_hp_comp->mHealth -= mDamage;

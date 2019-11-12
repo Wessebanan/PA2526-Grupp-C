@@ -445,12 +445,31 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			// Create and init skeleton comp
 
 			ecs::components::SkeletonComponent skele_comp;
+			ecs::components::AnimationSpeedComponent ani_speed_comp;
+			ani_speed_comp.factor = 1.0f;
 
 			//ModelLoader::UniqueSkeletonData* skeletonData = &s.getComponent<ecs::components::SkeletonComponent>()->skeletonData;
 			//skeletonData->Init(MeshContainer::GetMeshCPU(MESH_TYPE::MESH_TYPE_UNIT)->GetSkeleton());
 			//skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
 
-			temp_entity = createEntity(transform, unit, idle_state, color_comp, skele_comp); //
+			ecs::BaseComponent* components[] =
+			{
+				&transform, 
+				&unit, 
+				&idle_state, 
+				&color_comp, 
+				&skele_comp, 
+				&ani_speed_comp
+			};
+
+			ecs::ComponentList list;
+
+			list.initialInfo = components;
+			list.componentCount = 6;
+
+			//// ENTITIES
+			temp_entity = createEntity(list);
+
 			PoiComponent poi_comp;
 			createComponent<PoiComponent>(temp_entity->getID(), poi_comp);
 			p_army->unitIDs.push_back(temp_entity->getID());

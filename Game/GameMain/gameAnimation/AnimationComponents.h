@@ -12,7 +12,7 @@ namespace ecs {
 			float pingTimeElapsed = -1;
 		};
 
-		struct AnimationSpeedComponent : public ECSComponent<SkeletonComponent>
+		struct AnimationSpeedComponent : public ECSComponent<AnimationSpeedComponent>
 		{
 			float factor = 1.0f;
 		};
