@@ -11,5 +11,10 @@ namespace ecs {
 			ModelLoader::UniqueSkeletonData skeletonData;
 			float pingTimeElapsed = -1;
 		};
+
+		struct AnimationSpeedComponent : public ECSComponent<SkeletonComponent>
+		{
+			float factor = 1.0f;
+		};
 	}
 }
