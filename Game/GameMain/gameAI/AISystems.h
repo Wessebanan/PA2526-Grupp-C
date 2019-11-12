@@ -662,26 +662,24 @@ namespace ecs
 							}
 							if (move_comp->path.size() > 0)
 							{
-								goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());
+								goal = getComponentFromKnownEntity<components::TransformComponent>(move_comp->path.back());//get next tile towards goal, "local goal"
 								this->x = goal->position.x - transform->position.x;
 								this->z = goal->position.z - transform->position.z;
 								this->yDistance = goal->position.y - transform->position.y;
 								this->length = sqrt(x * x + z * z);
 								dyn_move->mForward.x = this->x / this->length;
 								dyn_move->mForward.z = this->z / this->length;
-								//this->length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&goal->position) - XMLoadFloat3(&transform->position)));
 
 								if(this->yDistance > 0.1f && dyn_move->mOnGround)
 								{
 									
-									ForceImpulseEvent test;
-									//XMStoreFloat3(&test.mDirection, XMVector3Normalize(XMLoadFloat3(&goal->position) - XMLoadFloat3(&transform->position)));
-									test.mDirection.x = 0.f;
-									test.mDirection.y = 1.f;
-									test.mDirection.z = 0.f;
-									test.mForce = 200.f; //* fabsf(this->yDistance);
-									test.mEntityID = entity.entity->getID();
-									createEvent(test);
+									ForceImpulseEvent jump;
+									jump.mDirection.x = 0.f;
+									jump.mDirection.y = 1.f;
+									jump.mDirection.z = 0.f;
+									jump.mForce = 200.f;
+									jump.mEntityID = entity.entity->getID();
+									createEvent(jump);
 								}
 								MovementInputEvent kek;
 								kek.mInput = FORWARD;
