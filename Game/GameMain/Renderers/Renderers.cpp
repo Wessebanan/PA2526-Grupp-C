@@ -894,6 +894,10 @@ namespace ecs
 				we can calculate from which index in the RenderBuffer we can start writing each mesh
 				to. Each mesh we care about in this function, that is tree, stone etc., has its own
 				index counter.
+
+				When rendering traps specific, we create two meshes for each trap. The first is the 
+				trap itself, and the other one is the same mesh but larger and black in color. This
+				gives a simple mesh "outline" for viewing meshes during development.
 			*/
 
 			mObjectCount = _entities.entities.size() * 2;
@@ -938,15 +942,13 @@ namespace ecs
 				outline_transform.position.y -= 0.002f;
 				outline_transform.scale = { 1.f, 1.f, 1.f };
 
+				// Set "outline" mesh
 				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(outline_transform));
-				mpBuffer[index].world._44 = PACK(0, 0, 0, 255);
+				mpBuffer[index++].world._44 = PACK(0, 0, 0, 255);
 
-				index++;
-
+				// Set trap mesh
 				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
-				mpBuffer[index].world._44 = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 255);
-
-				index++;
+				mpBuffer[index++].world._44 = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 255);
 			}
 
 			mInstanceLayout.pInstanceCountPerMesh = mObjectTypeCount;
