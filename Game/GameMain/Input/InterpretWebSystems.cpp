@@ -8,6 +8,8 @@
 
 #include "InitInputBackendComponent.h"
 
+#include "..//gameTraps/TrapEvents.h"
+
 using namespace ecs;
 using namespace ecs::components;
 
@@ -104,6 +106,15 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				p_player_state_comp->mCurrentStates[i] = STATE::FLEE;
 
 				createEvent(cus_event);
+
+				ecs::events::TriggerFireTrapEvent m_event;
+				ComponentIterator itt;
+				itt = getComponentsOfType(ecs::components::UnitComponent::typeID);
+				while (UnitComponent * unit = (UnitComponent*)itt.next())
+				{
+					m_event.unitID = unit->getEntityID();
+					createEvent(m_event);
+				}
 			}
 		}
 	}

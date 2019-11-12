@@ -54,6 +54,9 @@
 
 #include "InitHttpServer.h"
 
+//#include "gameTraps/InitTraps.h"
+#include "gameTraps/TrapSystems.h"
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -167,7 +170,19 @@ int main()
 					m_event.fadeInTimeInSeconds = 2.0f;
 					ecs.createEvent(m_event);
 				}
+				{
+					ecs::events::TriggerFireTrapEvent m_event;
+					ComponentIterator itt;
+					itt = ecs.getAllComponentsOfType(ecs::components::UnitComponent::typeID);
+					while (UnitComponent* unit = (UnitComponent*)itt.next())
+					{
+						m_event.unitID = unit->getID();
+						ecs.createEvent(m_event);
+					}
+				}
 				
+				
+
 				start_once = false;
 			}
 
@@ -240,7 +255,8 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitAnimation(rECS);
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT));
 
-
+	//initTrapTriggers(rECS);#include "ecs.h"
+	rECS.createSystem<ecs::systems::FireTrapEventSystem>(9);
 	InitGameLoop(rECS);
 
 	WorldMeshData mapMeshData;
