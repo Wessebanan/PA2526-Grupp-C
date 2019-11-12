@@ -152,10 +152,14 @@ namespace ecs
 
 
 			p_mesh_mgr->mgr.SetVertexBuffers();
+
+#ifndef _DEBUG
 			p_render_mgr->mgr.ExecutePipeline(
-				p_pipeline_shadow_map->pipeline, 
+				p_pipeline_shadow_map->pipeline,
 				0,
 				p_ocean_renderer->mRenderProgram - 1);
+#endif // !_DEBUG
+
 
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
 		}

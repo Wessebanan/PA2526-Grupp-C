@@ -683,6 +683,7 @@ namespace ecs
 
 		void SSAORenderSystem::act(float _delta)
 		{
+#ifndef _DEBUG
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
 				mShaderSSAO);
@@ -694,6 +695,7 @@ namespace ecs
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
 				mShaderBlur);
+#endif // !_DEBUG
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineCombine,
