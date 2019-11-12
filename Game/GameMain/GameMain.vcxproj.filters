@@ -96,6 +96,12 @@
     <ClCompile Include="gameRagdoll\CollisionObject.cpp">
       <Filter>Ragdoll</Filter>
     </ClCompile>
+    <ClCompile Include="gameUtility\CameraSystems.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -333,6 +339,9 @@
     <ClInclude Include="gameWorld\WorldComponents.h">
       <Filter>World</Filter>
     </ClInclude>
+    <ClInclude Include="gameGraphics\OceanRenderingPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -441,6 +450,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameUtility\VS_Tile.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Ocean.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Ocean.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

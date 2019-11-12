@@ -5,9 +5,8 @@
 #include "../Input/InitInputComponents.h"
 #include "GlobalsCamera.h"
 #include "GridProp.h"
+#include "../../..//Physics/Physics/includes/PhysicsHelperFunctions.h"
 #include <iostream>
-
-using namespace DirectX;
 
 namespace ecs
 {
@@ -16,107 +15,29 @@ namespace ecs
 		class UpdateCameraSystem : public ECSSystem<UpdateCameraSystem>
 		{
 		public:
-			UpdateCameraSystem()
-			{
-				updateType = EntityUpdate;
-				typeFilter.addRequirement(components::CameraComponent::typeID);
-				typeFilter.addRequirement(components::TransformComponent::typeID);
-			}
-			virtual ~UpdateCameraSystem() {}
-			void updateEntity(FilteredEntity& entity, float delta) override
-			{
-				//Initialize standard values.
-				GridProp* p_gp = GridProp::GetInstance();
-				float speed = 0.20f;
-				float sensitivity = 0.01f;
-				DirectX::XMVECTOR world_forward = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-				DirectX::XMVECTOR world_right = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
-				//Fetch Mouse-, Keyboard-, Camera- and TranformComponent
-				ecs::components::MouseComponent* p_mouse;
-				ecs::components::KeyboardComponent* p_keyboard;
-
-				p_mouse = (components::MouseComponent*)getComponentsOfType(ecs::components::MouseComponent::typeID).next();
-				p_keyboard = (components::KeyboardComponent*)getComponentsOfType(ecs::components::KeyboardComponent::typeID).next();
-				components::CameraComponent* p_cam = entity.getComponent<components::CameraComponent>();
-				components::TransformComponent* p_tc = entity.getComponent<components::TransformComponent>();
-
-				XMMATRIX view;
-				XMMATRIX rotation;
-				XMVECTOR target;
-				XMVECTOR right;
-				XMVECTOR forward;
-				XMVECTOR up;
-				XMVECTOR position;
-				//If the Mouse- and KeyboardComponent exists in the ECS we update the cameras position. 
-				if (p_mouse && p_keyboard)
-				{
-					if (p_keyboard->R) //If camera should be reset run this.
-					{
-						//Reset position, rotation and scale.
-						p_tc->position = CameraDefines::originalPosition;
-						p_tc->rotation = CameraDefines::originalRotation;
-						p_tc->scale = CameraDefines::originalScale;
-						//Reset the cameras target, up, forward and right.
-						p_cam->target = CameraDefines::originalTarget;
-						p_cam->up = CameraDefines::originalUp;
-						p_cam->forward = CameraDefines::originalForward;
-						p_cam->right = CameraDefines::originalRight;
-						//Update the cameras view matrix.
-						position = XMLoadFloat3(&p_tc->position);
-						target = XMLoadFloat4(&p_cam->target);
-						up = XMLoadFloat4(&p_cam->up);
-						view = XMMatrixLookAtLH(position, target, up);
-						//Store the matrix in the camera component.
-						XMStoreFloat4x4(&p_cam->viewMatrix, view);
-					}
-					else //If the camers is not supposed to be reset run this.
-					{
-						rotation = XMLoadFloat4x4(&p_cam->rotationMatrix);
-						//Update the cameras rotation vector and matrix with the mouse input.
-						p_tc->rotation.y += p_mouse->diffFloat2.x * sensitivity;
-						p_tc->rotation.x += p_mouse->diffFloat2.y * sensitivity;
-						rotation = DirectX::XMMatrixRotationRollPitchYaw(p_tc->rotation.x, p_tc->rotation.y, 0);
-						//Update the cameras target with the new rotation matrix and normalize it.
-						target = XMLoadFloat4(&p_cam->target);
-						target = DirectX::XMVector3TransformCoord(world_forward, rotation);
-						target = DirectX::XMVector3Normalize(target);
-						//Update the cameras right-, forward- and up vector with the new rotation matrix.
-						right = XMLoadFloat4(&p_cam->right);
-						forward = XMLoadFloat4(&p_cam->forward);
-						up = XMLoadFloat4(&p_cam->up);
-						right = DirectX::XMVector3TransformCoord(world_right, rotation);
-						forward = DirectX::XMVector3TransformCoord(world_forward, rotation);
-						up = DirectX::XMVector3Cross(forward, right);
-
-						//Create a local XMVECTOR for the cameras postion for easier math work and update the position of the camera with the
-						//keyboard input and the new camera forward- and right vector.
-						DirectX::XMVECTOR cam_pos = DirectX::XMVectorSet(p_tc->position.x, p_tc->position.y, p_tc->position.z, 0.0f);
-						if (p_keyboard->W)
-							cam_pos += speed * forward;
-						if (p_keyboard->S)
-							cam_pos -= speed * forward;
-						if (p_keyboard->A)
-							cam_pos -= speed * right;
-						if (p_keyboard->D)
-							cam_pos += speed * right;
-						//Store the new position in the TransformComponent position XMFLOAT3.
-						DirectX::XMStoreFloat3(&p_tc->position, cam_pos);
-						//Update the cameras target and update the view matrix.
-						target = cam_pos + target;
-						view = DirectX::XMMatrixLookAtLH(cam_pos, target, up);
-
-						//Store the new values in the camera component.
-						XMStoreFloat4x4(&p_cam->viewMatrix, view);
-						XMStoreFloat4x4(&p_cam->rotationMatrix, rotation);
-						XMStoreFloat4(&p_cam->target, target);
-						XMStoreFloat4(&p_cam->right, right);
-						XMStoreFloat4(&p_cam->forward, forward);
-						XMStoreFloat4(&p_cam->up, up);
-					}
-				}
-			}
+			UpdateCameraSystem();
+			virtual ~UpdateCameraSystem();
+			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
+		class UpdateDynamicCameraSystem : public ECSSystem<UpdateDynamicCameraSystem>
+		{
+		public:
+			UpdateDynamicCameraSystem();
+			virtual ~UpdateDynamicCameraSystem();
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		private:
+			ID mCamEntityId;
+			const float mT = 0.001f;
+			const float mPercent = 0.02;
+			inline void GetTargetPosition(DirectX::XMVECTOR& rTarget, DirectX::XMVECTOR& rLookAt);
+			inline void CheckCameraAngle(DirectX::XMVECTOR& cameraPos, DirectX::XMVECTOR& targetPos);
+			DirectX::XMVECTOR Lerp(const DirectX::XMVECTOR& v1, const DirectX::XMVECTOR& v2);
+			DirectX::XMFLOAT3 Slerp(const DirectX::XMFLOAT3& v1, const DirectX::XMFLOAT3& v2);
+			DirectX::XMVECTOR Nlerp(const DirectX::XMVECTOR& v1, const DirectX::XMVECTOR& v2);
+			void UpdateViewMatrix(ecs::components::CameraComponent& cam, ecs::components::TransformComponent& camTransform);
+
+		};
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////

@@ -8,7 +8,7 @@ using namespace DirectX;
 
 namespace GridFunctions
 {
-	void CreateHeightmap(float* Arr, int rows, int columns, float height_power, int mountains, bool holmes, std::vector<IsletTileCoordinate>& rIsletCoords) //Creates a array that is used to change the hight for the map and remove chunks for water
+	void CreateHeightmap(float* Arr, int _rows, int _columns, float height_power, int mountains, bool holmes, std::vector<IsletTileCoordinate>& rIsletCoords) //Creates a array that is used to change the hight for the map and remove chunks for water
 		// size is 12x12 this will be changed in the future if creation of dynamic map size is desired 
 	{
 		int layers = 3;
@@ -17,6 +17,9 @@ namespace GridFunctions
 		// The maximum amount of allowed tiles
 		const int max_rows = MAX_ARENA_ROWS; // Adds 10 in the end to allow a holme
 		const int max_columns = MAX_ARENA_COLUMNS;
+
+		int rows = _rows;
+		int columns = _columns;
 
 
 		float height_values[max_rows][max_columns];
@@ -40,8 +43,8 @@ namespace GridFunctions
 
 		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
-			int top_x = rand() % (rows - 3 - holme_space);
-			int top_y = rand() % (columns - 3 - holme_space);
+			int top_x = rand() % (columns - 3 - holme_space);
+			int top_y = rand() % (rows - 3 - holme_space);
 			top_x += 2 + holme_space;
 			top_y += 2 + holme_space;
 			float top_height = 1.2f * height_power;
@@ -54,22 +57,22 @@ namespace GridFunctions
 			// first circle
 			top_height *= slope;
 
-			height_values[top_y][top_x - 1] = top_height;
-			height_values[top_y][top_x + 1] = top_height;
+			height_values[top_y]	[top_x - 1] = top_height;
+			height_values[top_y]	[top_x + 1] = top_height;
 
-			height_values[top_y - 1][top_x] = top_height;
+			height_values[top_y - 1]	[top_x] = top_height;
 			height_values[top_y - 1][top_x + 1] = top_height;
 			height_values[top_y - 1][top_x - 1] = top_height;
 
-			height_values[top_y + 1][top_x] = top_height;
+			height_values[top_y + 1]	[top_x] = top_height;
 
 			//------
 
 			// second circle
 			top_height *= slope;
 
-			height_values[top_y][top_x - 2] = top_height;
-			height_values[top_y][top_x + 2] = top_height;
+			height_values[top_y]	[top_x - 2] = top_height;
+			height_values[top_y]	[top_x + 2] = top_height;
 			height_values[top_y - 1][top_x - 2] = top_height;
 			height_values[top_y - 1][top_x + 2] = top_height;
 			height_values[top_y + 1][top_x - 2] = top_height;
@@ -78,9 +81,9 @@ namespace GridFunctions
 			height_values[top_y + 1][top_x - 1] = top_height;
 			height_values[top_y + 1][top_x + 1] = top_height;
 
-			height_values[top_y + 2][top_x] = top_height;
+			height_values[top_y + 2]	[top_x] = top_height;
 
-			height_values[top_y - 2][top_x] = top_height;
+			height_values[top_y - 2]	[top_x] = top_height;
 			height_values[top_y - 2][top_x - 1] = top_height;
 			height_values[top_y - 2][top_x + 1] = top_height;
 
@@ -89,8 +92,8 @@ namespace GridFunctions
 			// third circle
 			top_height *= slope;
 
-			height_values[top_y][top_x - 3] = top_height;
-			height_values[top_y][top_x + 3] = top_height;
+			height_values[top_y]	[top_x - 3] = top_height;
+			height_values[top_y]	[top_x + 3] = top_height;
 
 			height_values[top_y - 1][top_x - 3] = top_height;
 			height_values[top_y - 1][top_x + 3] = top_height;
@@ -104,12 +107,12 @@ namespace GridFunctions
 			height_values[top_y + 2][top_x + 1] = top_height;
 			height_values[top_y + 2][top_x + 2] = top_height;
 
-			height_values[top_y + 3][top_x] = top_height;
+			height_values[top_y + 3]	[top_x] = top_height;
 
 			height_values[top_y - 2][top_x - 2] = top_height;
 			height_values[top_y - 2][top_x + 2] = top_height;
 
-			height_values[top_y - 3][top_x] = top_height;
+			height_values[top_y - 3]	[top_x] = top_height;
 			height_values[top_y - 3][top_x - 1] = top_height;
 			height_values[top_y - 3][top_x + 1] = top_height;
 			//------
@@ -120,10 +123,10 @@ namespace GridFunctions
 		holme_space = layers * 2;
 		// Removes chunks from each side of the map
 		int chunk_size = rows / 4;
-		int side0 = rand() % (rows - chunk_size - holme_space);
-		int side1 = rand() % (columns - chunk_size - holme_space);
-		int side2 = rand() % (rows - chunk_size - holme_space);
-		int side3 = rand() % (columns - chunk_size - holme_space);
+		int side1 = rand() % (rows - chunk_size - holme_space);
+		int side0 = rand() % (columns - chunk_size - holme_space);
+		int side3 = rand() % (rows - chunk_size - holme_space);
+		int side2 = rand() % (columns - chunk_size - holme_space);
 
 		side0 += layers;
 		side1 += layers;
@@ -278,16 +281,16 @@ namespace GridFunctions
 		// removed layers on each side
 		for (size_t l = 0; l < layers; l++)
 		{
-			for (size_t i = 0; i < rows; i++)
-			{
-				height_values[l][(i)] = -1.0f;
-				height_values[rows - 1 - l][(i)] = -1.0f;
-			}
-
 			for (size_t i = 0; i < columns; i++)
 			{
-				height_values[(i)][l] = -1.0f;
-				height_values[(i)][columns - 1 - l] = -1.0f;
+				height_values[l][i] = -1.0f;
+				height_values[rows - 1 - l][i] = -1.0f;
+			}
+
+			for (size_t i = 0; i < rows; i++)
+			{
+				height_values[i][l] = -1.0f;
+				height_values[i][columns - 1 - l] = -1.0f;
 			}
 		}
 
@@ -296,8 +299,17 @@ namespace GridFunctions
 			// Add the holmes
 			int start0 = rows / 2;
 			int start1 = columns / 2;
-			int start2 = start1;
-			int start3 = start2;
+			int start2 = start0;
+			int start3 = start1;
+
+			/*
+					2
+			  \\\\\\|/////
+			1-------|-------3
+			  //////|\\\\\
+					0
+			*/
+
 
 
 			size_t i = 0;
@@ -328,7 +340,7 @@ namespace GridFunctions
 
 
 			// second side
-			start = start0;
+			start = start1;
 			height_values[0][start + 1] = 0.0f;
 			height_values[0][start - 1] = 0.0f;
 			height_values[1][start - 1] = 0.0f;
@@ -350,7 +362,7 @@ namespace GridFunctions
 			rIsletCoords.push_back(IsletTileCoordinate(1, start - 1, 1));
 
 			// third side
-			start = start1;
+			start = start2;
 			height_values[start + 1][columns - 1] = 0.0f;
 			height_values[start - 1][columns - 1] = 0.0f;
 			height_values[start - 1][columns - 2] = 0.0f;
@@ -372,7 +384,7 @@ namespace GridFunctions
 			rIsletCoords.push_back(IsletTileCoordinate(start - 1, columns - 2, 2));
 
 			// forth side
-			start = start1;
+			start = start3;
 			height_values[rows - 1][start + 1] = 0.0f;
 			height_values[rows - 1][start - 1] = 0.0f;
 			height_values[rows - 2][start - 1] = 0.0f;
@@ -398,7 +410,7 @@ namespace GridFunctions
 		for (int i = 0; i < rows; i++)
 		{
 			for (int j = 0; j < columns; j++)
-				Arr[(j)+(i)* MAX_ARENA_ROWS] = height_values[i][j];
+				Arr[(j)+(i* MAX_ARENA_ROWS)] = height_values[i][j];
 		}
 	}
 
@@ -573,17 +585,6 @@ namespace GridFunctions
 			switch (Id)
 			{
 			case PLAYER1:
-				for (size_t i = 0; i < Rows; i++)
-				{
-					if (p_gp->mGrid[i][0].isPassable)
-					{
-						index.x = i;
-						index.y = 0;
-						break;
-					}
-				}
-				break;
-			case PLAYER2:
 				for (size_t i = 0; i < Columns; i++)
 				{
 					if (p_gp->mGrid[0][i].isPassable)
@@ -594,24 +595,35 @@ namespace GridFunctions
 					}
 				}
 				break;
-			case PLAYER3:
+			case PLAYER2:
 				for (size_t i = 0; i < Rows; i++)
 				{
-					if (p_gp->mGrid[i][Columns - 1].isPassable)
+					if (p_gp->mGrid[i][0].isPassable)
 					{
 						index.x = i;
-						index.y = Columns - 1;
+						index.y = 0;
 						break;
 					}
 				}
 				break;
-			case PLAYER4:
+			case PLAYER3:
 				for (size_t i = 0; i < Columns; i++)
 				{
 					if (p_gp->mGrid[Rows - 1][i].isPassable)
 					{
 						index.x = Rows - 1;
 						index.y = i;
+						break;
+					}
+				}
+				break;
+			case PLAYER4:
+				for (size_t i = 0; i < Rows; i++)
+				{
+					if (p_gp->mGrid[i][Columns - 1].isPassable)
+					{
+						index.x = i;
+						index.y = Columns - 1;
 						break;
 					}
 				}

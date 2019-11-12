@@ -152,9 +152,6 @@ int main()
 
 			if (GetAsyncKeyState(VK_SPACE) && start_once)
 			{
-				ecs::events::GameStartEvent eve;
-				//eve.winner = 1;
-				ecs.createEvent(eve);
 				{
 					ecs::events::PlayMusic m_event;
 					m_event.audioName = AudioName::CC_TEST_SONG;
@@ -233,7 +230,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGrid(rECS);
 	InitArmy(rECS);
-	//InitSceneObjects(rECS);
+	InitSceneObjects(rECS);
 
 	InitOceanEntities(rECS);
 	InitOceanUpdateSystem(rECS);
@@ -246,14 +243,32 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGameLoop(rECS);
 
-	WorldMeshData worldMeshData;
-	GenerateWorldMesh(rECS, &worldMeshData.pMesh, worldMeshData.vertexCount);
+	WorldMeshData mapMeshData;
+	WorldMeshData oceanMeshData;
+	TypeFilter map_filter;
+	TypeFilter ocean_filter;
 
-	InitGraphicsRenderSystems(rECS, worldMeshData, clientWidth, clientHeight);
+	map_filter.addRequirement(components::TransformComponent::typeID);
+	map_filter.addRequirement(components::ColorComponent::typeID);
+	map_filter.addRequirement(components::TileComponent::typeID);
+
+	ocean_filter.addRequirement(components::TransformComponent::typeID);
+	ocean_filter.addRequirement(components::ColorComponent::typeID);
+	ocean_filter.addRequirement(components::OceanTileComponent::typeID);
+
+	GenerateTileMesh(rECS, &mapMeshData.pMesh, mapMeshData.vertexCount, map_filter);
+	GenerateTileMesh(rECS, &oceanMeshData.pMesh, oceanMeshData.vertexCount, ocean_filter);
+
+	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
 	InitSpawnLootSystem(rECS);
 	InitHttpServer(rECS);
+
+
+	ecs::events::GameStartEvent eve;
+	rECS.createEvent(eve);
+
 }

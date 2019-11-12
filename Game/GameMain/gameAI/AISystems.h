@@ -109,7 +109,7 @@ namespace ecs
 						ecs::components::EquipmentComponent* equipment_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::EquipmentComponent>(entity.entity->getID());
 						ecs::components::WeaponComponent* weapon_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::WeaponComponent>(equipment_comp->mEquippedWeapon);
 						//Check if the unit have a weapon already. If so find a friendly unit without a weapon and follow that unit.
-						if (weapon_comp->mType != GAME_OBJECT_TYPE_FIST)
+						if (weapon_comp->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
 						{
 							goal_friend_id = this->FindClosestFriend(entity.entity);
 							if (goal_friend_id != 0)
@@ -450,7 +450,7 @@ namespace ecs
 									other_unit_weapon = ecs::ECSUser::getEntity(ecs::ECSUser::getComponentFromKnownEntity<ecs::components::EquipmentComponent>(other_unit->getID())->mEquippedWeapon);
 									ecs::components::WeaponComponent* other_unit_weapon_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::WeaponComponent>(other_unit_weapon->getID());
 									//Check if the friendly unit is without a weapon. We only want to follow allies without weapons while they loot.
-									if (other_unit_weapon_comp->mType == GAME_OBJECT_TYPE_FIST)
+									if (other_unit_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
 									{
 										other_unit_transform = static_cast<ecs::components::TransformComponent*>(ecs::ECSUser::getComponentFromKnownEntity(ecs::components::TransformComponent::typeID, other_unit->getID()));
 										temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
@@ -1012,7 +1012,7 @@ namespace ecs
 				ecs::Entity* weapon_entity = ecs::ECSUser::getEntity(equipment_comp->mEquippedWeapon);
 				ecs::components::WeaponComponent* weapon_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::WeaponComponent>(equipment_comp->mEquippedWeapon);
 				//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
-				if (weapon_comp->mType == GAME_OBJECT_TYPE_FIST)
+				if (weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
 				{
 					ecs::ECSUser::removeEntity(weapon_entity->getID());
 				}
@@ -1064,19 +1064,19 @@ namespace ecs
 					switch (state)
 					{
 					case STATE::IDLE:
-						p_text_comp->mStrText = "IDLE";
+						p_text_comp->mStrText = L"IDLE";
 						break;
 					case STATE::LOOT:
-						p_text_comp->mStrText = "LOOT";
+						p_text_comp->mStrText = L"LOOT";
 						break;
 					case STATE::ATTACK:
-						p_text_comp->mStrText = "ATTACK";
+						p_text_comp->mStrText = L"ATTACK";
 						break;
 					case STATE::FLEE:
-						p_text_comp->mStrText = "FLEE";
+						p_text_comp->mStrText = L"FLEE";
 						break;
 					default:
-						p_text_comp->mStrText = "no case for state";
+						p_text_comp->mStrText = L"no case for state";
 						break;
 					}
 
