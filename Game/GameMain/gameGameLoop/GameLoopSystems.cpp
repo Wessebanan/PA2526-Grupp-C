@@ -20,10 +20,10 @@
 
 #include "..//gameUtility/CameraComponents.h"
 
+#include "..///gameUtility/CameraEcsFunctions.h"
+
 using namespace ecs;
 using namespace ecs::components;
-
-
 
 
 /*
@@ -300,6 +300,21 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 		// Create Battlephase system
 		CreateSystem<systems::BattlePhaseSystem>(1);
+		CreateSystem<systems::UpdateDynamicCameraSystem>(1);
+
+
+		// Change to dynamic camera
+		itt = getComponentsOfType<CameraComponent>();
+		CameraComponent* cam_comp = (CameraComponent*)itt.next();
+
+		removeEntity(cam_comp->getEntityID());
+
+		TransformComponent new_transf_comp;
+		CameraComponent new_cam_comp;
+
+		CameraEcsFunctions::CreateDynamicCamera(new_transf_comp, new_cam_comp);
+
+		createEntity(new_transf_comp, new_cam_comp);
 
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
@@ -314,6 +329,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		//createEvent(e);
 		//e.playerId = PLAYER4;
 		//createEvent(e);
+
 
 
 	}
@@ -674,10 +690,27 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 
 			// Remove battlephase and start prephase
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
+			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
+
+			//Change to overlook camera for the prephase
+			itt = getComponentsOfType<CameraComponent>();
+			CameraComponent* cam_comp = (CameraComponent*)itt.next();
+			removeEntity(cam_comp->getEntityID());
+
+			TransformComponent new_transf_comp;
+			CameraComponent new_cam_comp;
+
+			CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
+
+			createEntity(new_transf_comp, new_cam_comp);
 
 			this->mRoundOver = false;
 			this->mRoundOverDuration = 0.0f;
 		}
+
+
+		
 	}
+	
 }
