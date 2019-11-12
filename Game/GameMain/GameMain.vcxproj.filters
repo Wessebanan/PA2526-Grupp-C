@@ -348,6 +348,9 @@
     <ClInclude Include="gameTraps\TrapSystems.h">
       <Filter>Traps</Filter>
     </ClInclude>
+    <ClInclude Include="gameTraps\InitTraps.h">
+      <Filter>Traps</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">

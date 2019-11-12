@@ -54,8 +54,7 @@
 
 #include "InitHttpServer.h"
 
-//#include "gameTraps/InitTraps.h"
-#include "gameTraps/TrapSystems.h"
+#include "gameTraps/InitTraps.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -255,8 +254,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitAnimation(rECS);
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT));
 
-	//initTrapTriggers(rECS);#include "ecs.h"
-	rECS.createSystem<ecs::systems::FireTrapEventSystem>(9);
+	InitTrapTriggers(rECS);
 	InitGameLoop(rECS);
 
 	WorldMeshData mapMeshData;
