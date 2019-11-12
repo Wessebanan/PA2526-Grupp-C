@@ -100,7 +100,10 @@ bool Cylinder::Intersects(BoundingVolume* other)
 }
 
 void Cylinder::Transform(XMMATRIX transform)
-{
+{ 
+	// Only does translation because only tiles use this.
+	XMStoreFloat3(&mCenter, XMVector3Transform(XMLoadFloat3(&mCenter), transform));
+	
 }
 
 XMFLOAT3 Cylinder::GetCenter()
@@ -108,6 +111,9 @@ XMFLOAT3 Cylinder::GetCenter()
 	return mCenter;
 }
 
-void Cylinder::CreateFromTile(XMFLOAT3 position, float scale)
+void Cylinder::CreateFromTile(XMFLOAT3 position, float height, float radius)
 {
+	mHeight = height;
+	mRadius = radius * HALF_SQRT_3;
+	mCenter = XMFLOAT3(position.x, position.y - (height / 2.0f), position.z);
 }

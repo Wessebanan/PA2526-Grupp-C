@@ -1,37 +1,15 @@
-//#pragma once
-//#include <DirectXMath.h>
-//#include "CollisionFunctions.h"
-//
-//using namespace DirectX;
-//using namespace PhysicsHelpers;
-//
-//class BoundingVolume
-//{
-//public:
-//	BoundingVolume();
-//	virtual ~BoundingVolume();
-//
-//	virtual void Generate(const XMFLOAT3* points, const unsigned int size) = 0;
-//
-//	// Calls private intersection functions based on which
-//	// type volume has.
-//	virtual bool Intersect(const BoundingVolume *volume) = 0;
-//	virtual void WorldTransform(const XMMATRIX& world) = 0;
-//private:
-//	virtual bool IntersectSphere(const BoundingVolume *volume) = 0;
-//	virtual bool IntersectOBB	(const BoundingVolume *volume) = 0;
-//	virtual bool IntersectAABB	(const BoundingVolume *volume) = 0;
-//};
 #pragma once
 #include <DirectXCollision.h>
-// Base struct for unspecified DirectX bounding volumes.
+#define HALF_SQRT_3 0.866f
+
+// Base struct for unspecified bounding volumes.
 using namespace DirectX;
 struct BoundingVolume
 {
 	virtual ~BoundingVolume() = default;
-	virtual bool Intersects(BoundingVolume* other) = 0;
-	virtual void Transform(XMMATRIX transform) = 0;
-	virtual XMFLOAT3 GetCenter() = 0;
+	virtual bool Intersects(BoundingVolume* other)	= 0;
+	virtual void Transform(XMMATRIX transform)		= 0;
+	virtual XMFLOAT3 GetCenter()					= 0;
 };
 
 //Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingSphere.
@@ -63,8 +41,8 @@ struct Cylinder : public BoundingVolume
 	void Transform(XMMATRIX transform);
 	XMFLOAT3 GetCenter();
 
-	//void CreateFromPoints(Cylinder& Out, size_t Count, const DirectX::XMFLOAT3* pPoints, size_t Stride);
-	void CreateFromTile(XMFLOAT3 position, float scale = 1.0f);
+	// Radius is center to corner
+	void CreateFromTile(XMFLOAT3 position, float height, float radius = 1.0f);
 private:
 	XMFLOAT3 mCenter;
 	float mHeight;
