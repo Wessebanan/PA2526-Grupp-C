@@ -673,13 +673,13 @@ namespace ecs
 								if(this->yDistance > 0.1f && dyn_move->mOnGround)
 								{
 									
-									ForceImpulseEvent jump;
-									jump.mDirection.x = 0.f;
-									jump.mDirection.y = 1.f;
-									jump.mDirection.z = 0.f;
-									jump.mForce = 200.f;
-									jump.mEntityID = entity.entity->getID();
-									createEvent(jump);
+									//ForceImpulseEvent jump;
+									//jump.mDirection.x = 0.f;
+									//jump.mDirection.y = 1.f;
+									//jump.mDirection.z = 0.f;
+									//jump.mForce = 200.f;
+									//jump.mEntityID = entity.entity->getID();
+									//createEvent(jump);
 								}
 								MovementInputEvent kek;
 								kek.mInput = FORWARD;
