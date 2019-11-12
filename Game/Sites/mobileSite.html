@@ -55,7 +55,7 @@
         }
 
         #trapContainer {
-            font-size: 20px;
+            font-size: 15px;
             height: 10%;
         }
 
@@ -327,7 +327,12 @@
         }
         else if(msg == "pprep")
         {
-        openPrep();
+            openPrep();
+            document.getElementById(b0).style.display = "block";
+            document.getElementById(b1).style.display = "block";
+            document.getElementById(b2).style.display = "block";
+            document.getElementById(b3).style.display = "block";
+            
         }
         else if(msg == "pbattle")
         {
@@ -392,8 +397,36 @@
         {
         socket.send("ping");
         }
+
+        function interpertTrapIndex(id, trap)
+        {
+            var trapText = ""; 
+            switch (trap)
+            {
+                case 0: // FIRE
+                    trapText = "FIRE";
+                break;
+                case 1: // FREEZE
+                    trapText = "FREEZE";
+                break;
+                case 2: // SPRING
+                    trapText = "SPRING";
+                break;
+                default:
+                    trapText = "ERROR";
+                break;
+            }
+            
+
+
+            document.getElementById(id).innerHTML = trapText;
+        }
+
         function openPrep()
         {
+        window.selectedTrapMsg = 0;
+        window.selectedTileMsg = 0;
+        window.selectedButtonID = 0;
         document.getElementById('prepField').style.display = "block";
         document.getElementById('readyButton').style.display = "block";
         document.getElementById('commandField').style.display = "none";
@@ -402,18 +435,17 @@
         resetAreaColors();
         resetTrapColors();
 
-        var trapCount = 10;
+        var trapCount = 3;
 
         window.trap0 = Math.floor(Math.random() * trapCount);
         window.trap2 = Math.floor(Math.random() * trapCount);
         window.trap3 = Math.floor(Math.random() * trapCount);
         window.trap1 = Math.floor(Math.random() * trapCount);
 
-
-        document.getElementById('b0').innerHTML = window.trap0.toString();
-        document.getElementById('b1').innerHTML = window.trap1.toString();
-        document.getElementById('b2').innerHTML = window.trap2.toString();
-        document.getElementById('b3').innerHTML = window.trap3.toString();
+        interpertTrapIndex('b0', window.trap0);
+        interpertTrapIndex('b1', window.trap1);
+        interpertTrapIndex('b2', window.trap2);
+        interpertTrapIndex('b3', window.trap3);
         }
 
         function openCommand()
