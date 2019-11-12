@@ -34,6 +34,7 @@ namespace ecs
 		private:
 		};
 
+
 		// Checks for transition to battlephase
 		class PrepPhaseSystem : public ecs::ECSSystem<PrepPhaseSystem>
 		{
