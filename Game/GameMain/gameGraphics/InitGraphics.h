@@ -120,21 +120,42 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	graphics::MeshManager& r_mesh_mgr = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& r_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
 
-	systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(9);
-	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);	
-	systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(9);
-	systems::MapRenderSystem* p_map_renderer = rEcs.createSystem<MapRenderSystem>(9);
-	systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<OceanRenderSystem>(9);
+	//systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(9);
+	//systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);	
+	//systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(9);
+	//systems::MapRenderSystem* p_map_renderer = rEcs.createSystem<MapRenderSystem>(9);
+	//systems::ParticleRenderSystem* p_particle_renderer = rEcs.createSystem<ParticleRenderSystem>(9);
+	//
+	//systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<OceanRenderSystem>(9);
 
-	
-	systems::ParticleRenderSystem* p_particle_renderer = rEcs.createSystem<ParticleRenderSystem>(9);
-	
-	p_unit_renderer->Initialize(&r_render_mgr, &r_render_buffer);
-	p_scenery_renderer->Initialize(&r_render_mgr, &r_render_buffer);
-	p_weapon_renderer->Initialize(&r_render_mgr, &r_render_buffer);
-	p_map_renderer->Initialize(&r_render_mgr, &r_state_mgr, rMapMeshData.pMesh, rMapMeshData.vertexCount);
-	p_ocean_renderer->Initialize(&r_render_mgr, &r_state_mgr, rOceanMeshData.pMesh, rOceanMeshData.vertexCount);
-	p_particle_renderer->Initialize(&r_render_mgr, &r_render_buffer);
+	//p_unit_renderer->Initialize(&r_render_mgr, &r_render_buffer);
+	//p_scenery_renderer->Initialize(&r_render_mgr, &r_render_buffer);
+	//p_weapon_renderer->Initialize(&r_render_mgr, &r_render_buffer);
+	//p_map_renderer->Initialize(&r_render_mgr, &r_state_mgr, rMapMeshData.pMesh, rMapMeshData.vertexCount);
+	//p_particle_renderer->Initialize(&r_render_mgr, &r_render_buffer); 
+	//p_ocean_renderer->Initialize(&r_render_mgr, &r_state_mgr, rOceanMeshData.pMesh, rOceanMeshData.vertexCount);
+
+	rEcs.createSystem<systems::UnitRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	rEcs.createSystem<systems::WeaponRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	rEcs.createSystem<MapRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_state_mgr, 
+			rMapMeshData.pMesh, 
+			rMapMeshData.vertexCount);
+
+	rEcs.createSystem<ParticleRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	rEcs.createSystem<OceanRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_state_mgr, 
+			rOceanMeshData.pMesh,
+			rOceanMeshData.vertexCount);
 
 
 	/*
@@ -178,7 +199,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER, "../meshes/Tower.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_SWORD, "../meshes/sword.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_SWORD, "../meshes/sword.fbx");
 
 	// Create Quad For GPU
 	{

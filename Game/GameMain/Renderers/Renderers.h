@@ -151,7 +151,7 @@ namespace ecs
 			graphics::MeshRegion mParticleMeshRegion;
 		};
 
-		class OceanRenderSystem : public ECSSystem<OceanRenderSystem>
+		class OceanInstanceRenderSystem : public ECSSystem<OceanInstanceRenderSystem>
 		{
 		public:
 
@@ -198,6 +198,8 @@ namespace ecs
 				void* pWorldMesh,
 				UINT worldMeshVertexCount);
 
+			UINT mRenderProgram;
+
 		private:
 			EntityIterator mOceanTiles;
 
@@ -210,7 +212,6 @@ namespace ecs
 
 			UINT mInstanceCount;
 
-			UINT mRenderProgram;
 			UINT mPipelineState;
 			graphics::RenderManager* mpRenderMgr;
 			graphics::StateManager* mpStateMgr;

@@ -258,7 +258,7 @@ namespace ecs
 			mRenderProgram = mpRenderMgr->CreateShaderProgram(
 				vs.c_str(),
 				ps.c_str(),
-				systems::TileRenderSystem::GetPerInstanceSize());
+				systems::ParticleRenderSystem::GetPerInstanceSize());
 
 			mpRenderBuffer = pRenderBuffer;
 		}
@@ -269,8 +269,6 @@ namespace ecs
 		}
 #pragma endregion ParticleRenderSystem
 
-#pragma region OceanRenderSystem
-		OceanRenderSystem::OceanRenderSystem()
 #pragma region OceanInstanceRenderSystem
 		OceanInstanceRenderSystem::OceanInstanceRenderSystem()
 		{
@@ -429,7 +427,7 @@ namespace ecs
 			trpDesc.size = worldMeshVertexCount * stride;
 
 			mPipelineState = mpStateMgr->CreatePipelineState(new graphics::OceanRenderingPipeline(), &trpDesc);
-			
+			  
 			// Grabbing and storing all ocean tiles.
 			TypeFilter ocean_filter;
 			ocean_filter.addRequirement(components::OceanTileComponent::typeID);

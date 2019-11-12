@@ -1,5 +1,6 @@
 #include "GraphicsECSSystems.h"
 #include "../gameUtility/CameraComponents.h"
+#include "../Renderers/Renderers.h"
 
 namespace ecs
 {
@@ -147,11 +148,14 @@ namespace ecs
 			components::PipelineShadowMapComponent* p_pipeline_shadow_map = entity.getComponent<components::PipelineShadowMapComponent>();
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
+			systems::OceanRenderSystem* p_ocean_renderer = (systems::OceanRenderSystem*)GetSystem<systems::OceanRenderSystem>();
+
+
 			p_mesh_mgr->mgr.SetVertexBuffers();
 			p_render_mgr->mgr.ExecutePipeline(
 				p_pipeline_shadow_map->pipeline, 
 				0,
-				p_render_mgr->mgr.GetNumShaderPrograms() - 2);
+				p_ocean_renderer->mRenderProgram - 1);
 
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
 		}
