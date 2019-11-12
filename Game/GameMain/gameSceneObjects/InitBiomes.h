@@ -21,7 +21,7 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 	for (size_t i = 0; i < tile_count; i++)
 	{
 		ecs::components::TileComponent* p_tile_comp = (ecs::components::TileComponent*)itt.next();
-		cur_row = i / Columns;
+		cur_row = i / Rows;
 		cur_col = i % Columns;
 		ecs::components::TransformComponent* p_tile_tansf_comp = rECS.getComponentFromEntity<ecs::components::TransformComponent>(p_tile_comp->getEntityID());
 		ecs::components::ColorComponent* p_tile_color_comp = rECS.getComponentFromEntity<ecs::components::ColorComponent>(p_tile_comp->getEntityID());
@@ -61,6 +61,10 @@ void InitBiomes(ecs::EntityComponentSystem& rECS, const int Rows, const int Colu
 			p_tile_color_comp->blue = 179 + color_offset;			
 			break;
 		default:
+			p_tile_tansf_comp->position.y = 1.0f;
+			p_tile_color_comp->red = 255;
+			p_tile_color_comp->green = 255;
+			p_tile_color_comp->blue = 255;
 			break;
 		}
 		if (p_gp->mGrid[cur_row][cur_col].Id == p_tile_tansf_comp->getEntityID())

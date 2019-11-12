@@ -36,7 +36,7 @@ namespace AIEcsFunctions
 		{
 			ecs::components::ArmyComponent army;
 			ecs::components::UITextComponent command_text_comp;
-			command_text_comp.mStrText = "NO STATE";
+			command_text_comp.mStrText = L"NO STATE";
 			ecs::components::UIDrawPosComponent text_pos_comp;
 			ecs::components::UIDrawColorComponent text_color_comp;
 			
