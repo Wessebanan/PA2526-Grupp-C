@@ -688,13 +688,13 @@ namespace ecs
 				mPipelineSSAO,
 				mShaderSSAO);
 
-			//mRenderMgr.ExecutePipeline(
-			//	mPipelineBlur,
-			//	mShaderBlur_v);
+			mRenderMgr.ExecutePipeline(
+				mPipelineBlur,
+				mShaderBlur);
 
-			//mRenderMgr.ExecutePipeline(
-			//	mPipelineSSAO,
-			//	mShaderBlur);
+			mRenderMgr.ExecutePipeline(
+				mPipelineSSAO,
+				mShaderBlur_v);
 #endif // !_DEBUG
 
 			mRenderMgr.ExecutePipeline(
