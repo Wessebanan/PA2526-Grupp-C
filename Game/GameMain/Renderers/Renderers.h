@@ -85,12 +85,12 @@ namespace ecs
 			graphics::MeshRegion mUnitMeshRegion;
 		};
 
-		class TileRenderSystem : public ECSSystem<TileRenderSystem>
+		class TileInstanceRenderSystem : public ECSSystem<TileInstanceRenderSystem>
 		{
 		public:
 
-			TileRenderSystem();
-			~TileRenderSystem();
+			TileInstanceRenderSystem();
+			~TileInstanceRenderSystem();
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
@@ -155,8 +155,8 @@ namespace ecs
 		{
 		public:
 
-			OceanRenderSystem();
-			~OceanRenderSystem();
+			OceanInstanceRenderSystem();
+			~OceanInstanceRenderSystem();
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
@@ -184,12 +184,12 @@ namespace ecs
 			graphics::MeshRegion mTileMeshRegion;
 		};
 
-		class WorldRenderSystem : public ECSSystem<WorldRenderSystem>
+		class OceanRenderSystem : public ECSSystem<OceanRenderSystem>
 		{
 		public:
 
-			WorldRenderSystem();
-			~WorldRenderSystem();
+			OceanRenderSystem();
+			~OceanRenderSystem();
 
 			void act(float _delta) override;
 			void Initialize(
@@ -200,6 +200,48 @@ namespace ecs
 
 		private:
 			EntityIterator mOceanTiles;
+
+			struct VertexData
+			{
+				float x, y, z;
+				float nx, ny, nz;
+				uint32_t color;
+			};
+
+			UINT mInstanceCount;
+
+			UINT mRenderProgram;
+			UINT mPipelineState;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::StateManager* mpStateMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+			graphics::MeshRegion mMeshRegion;
+
+			void* mHeightData;
+			UINT mHightDataSize;
+
+			void* mpWorldVertices;
+			UINT mWorldBufferSize;
+
+			float* mpHeightData;
+			size_t mHeightDataSize;
+		};
+
+		class MapRenderSystem : public ECSSystem<MapRenderSystem>
+		{
+		public:
+
+			MapRenderSystem();
+			~MapRenderSystem();
+
+			void act(float _delta) override;
+			void Initialize(
+				graphics::RenderManager* pRenderMgr,
+				graphics::StateManager* pStateMgr,
+				void* pWorldMesh,
+				UINT worldMeshVertexCount);
+
+		private:
 			EntityIterator mMapTiles;
 
 			struct VertexData
@@ -223,6 +265,9 @@ namespace ecs
 
 			void* mpWorldVertices;
 			UINT mWorldBufferSize;
+
+			float* mpHeightData;
+			size_t mHeightDataSize;
 		};
 
 		class SceneObjectRenderSystem : public ECSSystem<SceneObjectRenderSystem>
@@ -298,14 +343,12 @@ namespace ecs
 			graphics::MeshRegion mScreenSpaceTriangle;
 		};
 
-
-
 		class WeaponRenderSystem : public ECSSystem<WeaponRenderSystem>
 		{
 		public:
 
 			WeaponRenderSystem();
-			virtual ~WeaponRenderSystem();
+			~WeaponRenderSystem();
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
@@ -328,8 +371,12 @@ namespace ecs
 
 			graphics::RenderBuffer* mpRenderBuffer;
 
-			UINT mInstanceCount;
-			graphics::MeshRegion mWeaponMeshRegion;
+			UINT mObjectCount;
+			graphics::MeshRegion mObjectMeshRegion[WEAPON_COUNT];
+
+			UINT mObjectTypeCount[WEAPON_COUNT];
+
+			void PlaceWorldMatrix(FilteredEntity& rWeapon, DirectX::XMFLOAT4X4 &rDestination);
 		};
 	}
 }

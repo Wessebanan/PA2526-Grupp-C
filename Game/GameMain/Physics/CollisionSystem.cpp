@@ -17,12 +17,13 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	
 	// Grabbing the entity that moved.
 	Entity* p_entity = getEntity(p_event->mEntityID);
+	ID entity_id = p_entity->getID();
 
 	// Grabbing the entity's object collision component 
 	// and transform component.
-	ObjectCollisionComponent* p_collision	= getComponentFromKnownEntity<ObjectCollisionComponent>(p_entity->getID());
-	TransformComponent* p_transform			= getComponentFromKnownEntity<TransformComponent>(p_entity->getID());
-	DynamicMovementComponent* p_movement	= getComponentFromKnownEntity<DynamicMovementComponent>(p_entity->getID());
+	ObjectCollisionComponent* p_collision	= getComponentFromKnownEntity<ObjectCollisionComponent>(entity_id);
+	TransformComponent* p_transform			= getComponentFromKnownEntity<TransformComponent>(entity_id);
+	DynamicMovementComponent* p_movement	= getComponentFromKnownEntity<DynamicMovementComponent>(entity_id);
 
 	// Grabbing a copy of AABB and transforming to world space.
 	AABB aabb = p_collision->mAABB;
@@ -30,19 +31,20 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	aabb.Transform(world_transform);
 	XMVECTOR center = XMLoadFloat3(&aabb.Center);
 
-	// Grabbing the entities it could collide with.
-	TypeFilter filter;
-	filter.addRequirement(ObjectCollisionComponent::typeID);
-	filter.addRequirement(TransformComponent::typeID);
-	EntityIterator it = getEntitiesByFilter(filter);
+	QuadTreeObject this_object(p_transform, p_collision);
+	std::vector<QuadTreeObject> collision_list;
+	QuadTreeComponent *p_quad_tree_component = static_cast<QuadTreeComponent*>(getComponentsOfType<QuadTreeComponent>().next());
+	QuadTree *quad_tree = static_cast<QuadTree*>(p_quad_tree_component->pTree);
+
+	quad_tree->RetrieveCollisions(collision_list, this_object);
 
 	bool intersect = false;
 
-	for (int i = 0; i < it.entities.size(); i++)
+	for (int i = 0; i < collision_list.size(); i++)
 	{
-		ID current_entity_id = it.entities.at(i).entity->getID();
+		ID current_entity_id = collision_list.at(i).pTransform->getEntityID();
 		// Skip yourself.
-		if (current_entity_id == p_entity->getID())
+		if (current_entity_id == entity_id)
 		{
 			continue;
 		}
@@ -69,8 +71,13 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			if (getEntity(current_entity_id)->hasComponentOfType(DynamicMovementComponent::typeID))
 			{
 				DynamicMovementComponent* colliding_movement = getComponentFromKnownEntity<DynamicMovementComponent>(current_entity_id);
-				colliding_movement->mVelocity.x += (velocity_pre_revert.x - p_movement->mVelocity.x)*colliding_movement->mMaxVelocity;
-				colliding_movement->mVelocity.z += (velocity_pre_revert.z - p_movement->mVelocity.z)*colliding_movement->mMaxVelocity;
+
+				// Creating a shove event in the direction of the colliding entities movement.
+				ForceImpulseEvent shove;
+				shove.mDirection	= p_movement->mDirection;
+				shove.mForce		= BASE_KNOCKBACK;
+				shove.mEntityID		= current_entity_id;
+				createEvent(shove);
 			}
 			// Transforming the aabb again since the position has changed.
 			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
@@ -206,6 +213,7 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 			closest_tile_id = current_tile;
 		}
 	}
+	
 	TransformComponent* closest_tile = getComponentFromKnownEntity<TransformComponent>(closest_tile_id);
 
 	// Getting closest tile to unit.
@@ -220,6 +228,12 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 	
 	// Grabbing the height (y value).
 	float tile_height = closest_tile->position.y;
+	TileComponent* closest_tile_comp = getComponentFromKnownEntity<TileComponent>(closest_tile_id);
+	//Check if units is to far away from the map. If so we set the y they will fall to to -2.0f.
+	if (closest_distance > 1.5f || closest_tile_comp->tileType == WATER)
+	{
+		tile_height = -2.0f;
+	}
 
 	// Saving this tile height as the last tile y value if it changed.
 	const float ABS_ERROR = (float)pow(10, -10);
@@ -331,7 +345,7 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 
 }
 #pragma endregion
-#pragma region FillQuadTreeSystemRegion
+#pragma region FillQuadTreeSystem
 ecs::systems::FillQuadTreeSystem::FillQuadTreeSystem()
 {
 	updateType = ecs::EntityUpdate;
@@ -350,6 +364,57 @@ void ecs::systems::FillQuadTreeSystem::updateEntity(FilteredEntity& entity, floa
 	ecs::components::QuadTreeComponent* p_tree = static_cast<ecs::components::QuadTreeComponent*>(it.next());
 	ecs::components::TransformComponent* p_transform = entity.getComponent<ecs::components::TransformComponent>();
 	ecs::components::ObjectCollisionComponent* p_collision = entity.getComponent<ecs::components::ObjectCollisionComponent>();
-	static_cast<QuadTree*>(p_tree->pTree)->Insert(QuadTreeObject(p_transform, p_collision));
+	QuadTree* quad_tree = static_cast<QuadTree*>(p_tree->pTree);
+	quad_tree->Insert(QuadTreeObject(p_transform, p_collision));
+
+}
+#pragma endregion
+#pragma region EmptyQuadTreeSystem
+ecs::systems::EmptyQuadTreeSystem::EmptyQuadTreeSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(QuadTreeComponent::typeID);
+}
+ecs::systems::EmptyQuadTreeSystem::~EmptyQuadTreeSystem()
+{
+
+}
+void ecs::systems::EmptyQuadTreeSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	QuadTreeComponent* p_quad_tree_component = entity.getComponent<QuadTreeComponent>();
+	QuadTree* p_quad_tree = static_cast<QuadTree*>(p_quad_tree_component->pTree);
+	p_quad_tree->Clear();
+}
+#pragma endregion
+#pragma region InitQuadTreeSystem
+ecs::systems::InitQuadTreeSystem::InitQuadTreeSystem()
+{
+	updateType = EventListenerOnly;
+	subscribeEventCreation(CreateComponentEvent::typeID);
+}
+ecs::systems::InitQuadTreeSystem::~InitQuadTreeSystem()
+{
+	ComponentIterator it = getComponentsOfType<QuadTreeComponent>();
+	while (QuadTreeComponent * quad_tree_component = static_cast<QuadTreeComponent*>(it.next()))
+	{
+		delete static_cast<QuadTree*>(quad_tree_component->pTree);
+	}
+}
+void ecs::systems::InitQuadTreeSystem::onEvent(TypeID _typeId, ecs::BaseEvent* _event)
+{
+	CreateComponentEvent* create_component_event = static_cast<CreateComponentEvent*>(_event);
+	if (create_component_event->componentTypeID != QuadTreeComponent::typeID)
+	{
+		return;
+	}
+
+	QuadTreeComponent* quad_tree = getComponentFromKnownEntity<QuadTreeComponent>(create_component_event->entityID);
+	quad_tree->pTree = new QuadTree(
+		0,
+		-TILE_RADIUS,
+		(TILE_RADIUS * 2.0f) * GridProp::GetInstance()->GetSize().x - TILE_RADIUS,
+		cos(30.0f * PI / 180.0f) * TILE_RADIUS,
+		(cos(30.0f * PI / 180.0f) * TILE_RADIUS * 2.0f) * GridProp::GetInstance()->GetSize().y - TILE_RADIUS,
+		nullptr);
 }
 #pragma endregion

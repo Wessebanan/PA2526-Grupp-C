@@ -81,10 +81,10 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::PipelineForwardComponent* p_pfComp = rEcs.getComponentFromEntity<components::PipelineForwardComponent>(graphics_entity_id);
 
 	p_psmComp->pipelineDesc.PixelsWidth = 2048;
-	p_psmComp->pipelineDesc.Width = 80.0f;
-	p_psmComp->pipelineDesc.Height = 80.0f;
+	p_psmComp->pipelineDesc.Width = 30.0f;
+	p_psmComp->pipelineDesc.Height = 20.0f;
 	p_psmComp->pipelineDesc.NearPlane = 1.0f;
-	p_psmComp->pipelineDesc.FarPlane = 80.0f;
+	p_psmComp->pipelineDesc.FarPlane = 70.0f;
 	p_psmComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ShadowMapPipeline, &p_psmComp->pipelineDesc);
 
 	p_pfComp->pipelineDesc.ClientWidth = clientWidth;
@@ -108,7 +108,7 @@ void InitGraphicsPreRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::ClearGPURenderSystem>(0);
 }
 
-void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& worldMeshData, const UINT clientWidth, const UINT clientHeight)
+void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapMeshData, WorldMeshData& rOceanMeshData, const UINT clientWidth, const UINT clientHeight)
 {
 	/*
 		Fetch all renderers from the ECS memory and Initialize() them.
@@ -123,13 +123,17 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& world
 	systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(9);
 	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);	
 	systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(9);
-	systems::WorldRenderSystem* p_world_renderer = rEcs.createSystem<WorldRenderSystem>(9);
+	systems::MapRenderSystem* p_map_renderer = rEcs.createSystem<MapRenderSystem>(9);
+	systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<OceanRenderSystem>(9);
+
+	
 	systems::ParticleRenderSystem* p_particle_renderer = rEcs.createSystem<ParticleRenderSystem>(9);
 	
 	p_unit_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_scenery_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_weapon_renderer->Initialize(&r_render_mgr, &r_render_buffer);
-	p_world_renderer->Initialize(&r_render_mgr, &r_state_mgr, worldMeshData.pMesh, worldMeshData.vertexCount);
+	p_map_renderer->Initialize(&r_render_mgr, &r_state_mgr, rMapMeshData.pMesh, rMapMeshData.vertexCount);
+	p_ocean_renderer->Initialize(&r_render_mgr, &r_state_mgr, rOceanMeshData.pMesh, rOceanMeshData.vertexCount);
 	p_particle_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 
 

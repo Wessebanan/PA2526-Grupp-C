@@ -4,10 +4,11 @@
 #include "../gameUtility/UtilityEcsFunctions.h"
 #include "../gameUtility/UtilityGraphics.h"
 #include "../gameSceneObjects/SceneObjectComponents.h"
-#include "../gameWorld/OceanComponents.h"
+#include "../gameWorld/WorldComponents.h"
 #include "../gameAnimation/AnimationComponents.h"
 
 #include "../gameGraphics/TileRenderingPipeline.h"
+#include "../gameGraphics/OceanRenderingPipeline.h"
 #include "../Physics/PhysicsComponents.h"
 #include "../gameGraphics/GraphicsECSComponents.h"
 
@@ -103,8 +104,8 @@ namespace ecs
 		}
 #pragma endregion UnitRenderSystem
 
-#pragma region TileRenderSystem
-		TileRenderSystem::TileRenderSystem()
+#pragma region TileInstanceRenderSystem
+		TileInstanceRenderSystem::TileInstanceRenderSystem()
 		{
 			updateType = SystemUpdateType::MultiEntityUpdate;
 			typeFilter.addRequirement(components::TileComponent::typeID);
@@ -114,12 +115,12 @@ namespace ecs
 			mInstanceLayout = { 0 };
 		}
 
-		TileRenderSystem::~TileRenderSystem()
+		TileInstanceRenderSystem::~TileInstanceRenderSystem()
 		{
 
 		}
 
-		void TileRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		void TileInstanceRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
 			mTileCount = (UINT)_entities.entities.size();
 
@@ -162,7 +163,7 @@ namespace ecs
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
-		void TileRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+		void TileInstanceRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
 			mTileMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TILE);
@@ -177,16 +178,16 @@ namespace ecs
 			mRenderProgram = mpRenderMgr->CreateShaderProgram(
 				vs.c_str(),
 				ps.c_str(),
-				systems::TileRenderSystem::GetPerInstanceSize());
+				systems::TileInstanceRenderSystem::GetPerInstanceSize());
 
 			mpRenderBuffer = pRenderBuffer;
 		}
 
-		uint32_t TileRenderSystem::GetPerInstanceSize()
+		uint32_t TileInstanceRenderSystem::GetPerInstanceSize()
 		{
 			return sizeof(InputLayout);
 		}
-#pragma endregion TileRenderSystem
+#pragma endregion TileInstanceRenderSystem
 
 #pragma region ParticleRenderSystem
 		ParticleRenderSystem::ParticleRenderSystem()
@@ -270,6 +271,8 @@ namespace ecs
 
 #pragma region OceanRenderSystem
 		OceanRenderSystem::OceanRenderSystem()
+#pragma region OceanInstanceRenderSystem
+		OceanInstanceRenderSystem::OceanInstanceRenderSystem()
 		{
 			updateType = SystemUpdateType::MultiEntityUpdate;
 			typeFilter.addRequirement(components::OceanTileComponent::typeID);
@@ -279,17 +282,17 @@ namespace ecs
 			mInstanceLayout = { 0 };
 		}
 
-		OceanRenderSystem::~OceanRenderSystem()
+		OceanInstanceRenderSystem::~OceanInstanceRenderSystem()
 		{
 
 		}
 
-		void OceanRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		void OceanInstanceRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
 			mTileCount = (UINT)_entities.entities.size();
 
 			// Fetch pointer to write data to in RenderBuffer
-			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mTileCount * OceanRenderSystem::GetPerInstanceSize());
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mTileCount * OceanInstanceRenderSystem::GetPerInstanceSize());
 
 			// Iterate all tiles and write their data to the RenderBuffer
 			uint32_t index = 0;
@@ -311,7 +314,7 @@ namespace ecs
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
-		void OceanRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+		void OceanInstanceRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
 			mTileMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TILE);
@@ -326,30 +329,30 @@ namespace ecs
 			mRenderProgram = mpRenderMgr->CreateShaderProgram(
 				vs.c_str(),
 				ps.c_str(),
-				systems::TileRenderSystem::GetPerInstanceSize());
+				systems::TileInstanceRenderSystem::GetPerInstanceSize());
 
 			mpRenderBuffer = pRenderBuffer;
 		}
 
-		uint32_t OceanRenderSystem::GetPerInstanceSize()
+		uint32_t OceanInstanceRenderSystem::GetPerInstanceSize()
 		{
 			return sizeof(InputLayout);
 		}
-#pragma endregion OceanRenderSystem
+#pragma endregion OceanInstanceRenderSystem
 
-#pragma region WorldRenderSystem
-		WorldRenderSystem::WorldRenderSystem()
+#pragma region OceanRenderSystem
+		OceanRenderSystem::OceanRenderSystem()
 		{
 			updateType = SystemUpdateType::Actor;
 			mInstanceLayout = { 0 };
 		}
 
-		WorldRenderSystem::~WorldRenderSystem()
+		OceanRenderSystem::~OceanRenderSystem()
 		{
 
 		}
 
-		void WorldRenderSystem::act(float _delta)
+		void OceanRenderSystem::act(float _delta)
 		{
 			UINT index = 0;
 
@@ -357,32 +360,127 @@ namespace ecs
 				For now, allocate a way to big buffer size (max size).
 				This will be tweaked in later implementations.
 			*/
-			float* height = (float*)malloc(65536);
-			ZeroMemory(height, 65536);
+			/*float* height = (float*)malloc(65536);
+			ZeroMemory(height, 65536);*/
 
 			/*
 				Fetch all ocean tiles and update their y-position in the
 				height buffer.
 			*/
 
-			EntityIterator p_iterator = mOceanTiles;
-
-			for (FilteredEntity& tile : p_iterator.entities)
+			for (FilteredEntity& tile : mOceanTiles.entities)
 			{
-				height[index] = tile.getComponent<components::TransformComponent>()->position.y;
+				mpHeightData[index] = tile.getComponent<components::TransformComponent>()->position.y;
 				index++;
 			}
+
+			/*
+				Set our 'vertex buffer' for the world tile mesh, and upload the
+				height buffer.
+			*/
+
+			graphics::OCEAN_RENDERING_PIPELINE_DATA heightData;
+			heightData.pHeightBuffer = mpHeightData;
+			heightData.ByteWidth = mHeightDataSize;
+
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+			mpStateMgr->UpdatePipelineState(mPipelineState, &heightData);
+			mpStateMgr->SetPipelineState(mPipelineState);
+
+			//free(height);
+		}
+
+		void OceanRenderSystem::Initialize(
+			graphics::RenderManager* pRenderMgr,
+			graphics::StateManager* pStateMgr,
+			void* pWorldMesh,
+			UINT worldMeshVertexCount)
+		{
+			/*
+
+			*/
+
+			mpRenderMgr = pRenderMgr;
+			mpStateMgr = pStateMgr;
+
+
+			// World is one single mesh
+			mInstanceCount = 1;
+
+			mMeshRegion = { 0 };
+			mMeshRegion.VertexRegion.Size = worldMeshVertexCount;
+
+			mInstanceLayout.MeshCount = 1;
+			mInstanceLayout.pMeshes = &mMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mInstanceCount;
+
+			const std::string vs = GetShaderFilepath("VS_Ocean.cso");
+			const std::string ps = GetShaderFilepath("PS_Ocean.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				0);
+
+			const UINT stride = sizeof(VertexData);
+			graphics::OCEAN_RENDERING_PIPELINE_DESC trpDesc;
+			trpDesc.pWorldMesh = pWorldMesh;
+			trpDesc.stride = stride;
+			trpDesc.size = worldMeshVertexCount * stride;
+
+			mPipelineState = mpStateMgr->CreatePipelineState(new graphics::OceanRenderingPipeline(), &trpDesc);
+			
+			// Grabbing and storing all ocean tiles.
+			TypeFilter ocean_filter;
+			ocean_filter.addRequirement(components::OceanTileComponent::typeID);
+			ocean_filter.addRequirement(components::TransformComponent::typeID);
+
+			mOceanTiles = getEntitiesByFilter(ocean_filter);
+
+			mHeightDataSize = mOceanTiles.entities.size() * sizeof(float);
+			mpHeightData = (float*)malloc(mHeightDataSize);
+			ZeroMemory(mpHeightData, mHeightDataSize);
+		}
+#pragma endregion OceanRenderSystem
+
+#pragma region MapRenderSystem
+		MapRenderSystem::MapRenderSystem()
+		{
+			updateType = SystemUpdateType::Actor;
+			mInstanceLayout = { 0 };
+		}
+
+		MapRenderSystem::~MapRenderSystem()
+		{
+
+		}
+
+		void MapRenderSystem::act(float _delta)
+		{
+			UINT index = 0;
+
+			/*
+				For now, allocate a way to big buffer size (max size).
+				This will be tweaked in later implementations.
+			*/
+			/*float* height = (float*)malloc(65536);
+			ZeroMemory(height, 65536);*/
 
 			/*
 				Fetch all map tiles and update their y-position in the
 				height buffer.
 			*/
 
-			p_iterator = mMapTiles;
-
-			for (FilteredEntity& tile : p_iterator.entities)
+			for (FilteredEntity& tile : mMapTiles.entities)
 			{
-				height[index] = tile.getComponent<components::TransformComponent>()->position.y;
+				if (tile.getComponent<TileComponent>()->tileType == WATER)
+				{
+					mpHeightData[index] = -1000.f;
+				}
+				else
+				{
+					mpHeightData[index] = tile.getComponent<components::TransformComponent>()->position.y;
+				}
 				index++;
 			}
 
@@ -392,17 +490,17 @@ namespace ecs
 			*/
 
 			graphics::TILE_RENDERING_PIPELINE_DATA heightData;
-			heightData.pHeightBuffer = height;
-			heightData.ByteWidth = index * sizeof(float);
+			heightData.pHeightBuffer = mpHeightData;
+			heightData.ByteWidth = mHeightDataSize;
 
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 			mpStateMgr->UpdatePipelineState(mPipelineState, &heightData);
 			mpStateMgr->SetPipelineState(mPipelineState);
 
-			free(height);
+			//free(height);
 		}
 
-		void WorldRenderSystem::Initialize(
+		void MapRenderSystem::Initialize(
 			graphics::RenderManager* pRenderMgr,
 			graphics::StateManager* pStateMgr,
 			void* pWorldMesh,
@@ -440,14 +538,8 @@ namespace ecs
 			trpDesc.stride = stride;
 			trpDesc.size = worldMeshVertexCount * stride;
 
-			mPipelineState = mpStateMgr->CreatePipelineState(new graphics::TileRenderingPipeline(), &trpDesc);
-			
-			// Grabbing and storing all ocean tiles.
-			TypeFilter ocean_filter;
-			ocean_filter.addRequirement(components::OceanTileComponent::typeID);
-			ocean_filter.addRequirement(components::TransformComponent::typeID);
-
-			mOceanTiles = getEntitiesByFilter(ocean_filter);
+			mPipelineState = mpStateMgr->CreatePipelineState(
+				new graphics::TileRenderingPipeline(), &trpDesc);
 
 			// Grabbing and storing all map tiles.
 			TypeFilter map_filter;
@@ -455,8 +547,12 @@ namespace ecs
 			map_filter.addRequirement(components::TransformComponent::typeID);
 
 			mMapTiles = getEntitiesByFilter(map_filter);
+
+			mHeightDataSize = mMapTiles.entities.size() * sizeof(float);
+			mpHeightData = (float*)malloc(mHeightDataSize);
+			ZeroMemory(mpHeightData, mHeightDataSize);
 		}
-#pragma endregion WorldRenderSystem
+#pragma endregion MapRenderSystem
 
 #pragma region SceneObjectRenderSystem
 		SceneObjectRenderSystem::SceneObjectRenderSystem()
@@ -471,7 +567,7 @@ namespace ecs
 
 		SceneObjectRenderSystem::~SceneObjectRenderSystem()
 		{
-
+			//
 		}
 
 		void SceneObjectRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
@@ -497,7 +593,7 @@ namespace ecs
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
-				mObjectTypeCount[p_obj_comp->mObject]++;
+				mObjectTypeCount[p_obj_comp->mObject - SCENE_OBJECT_ENUM_OFFSET]++;
 			}
 
 			// Set index to write to in RenderBuffer, per mesh
@@ -516,7 +612,7 @@ namespace ecs
 				components::ColorComponent* p_color_comp = object.getComponent<components::ColorComponent>();
 
 				// Get index, depending on mesh type
-				UINT& index = object_type_individual_index[p_obj_comp->mObject];
+				UINT& index = object_type_individual_index[p_obj_comp->mObject - SCENE_OBJECT_ENUM_OFFSET];
 
 				mpBuffer[index].x = p_transform_comp->position.x;
 				mpBuffer[index].y = p_transform_comp->position.y;
@@ -539,17 +635,22 @@ namespace ecs
 				This converts the SCENE_OBJECT mesh enum to MESH_TYPE enum in MeshContainer.
 			*/
 
-			mObjectMeshRegion[0] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL);
-			mObjectMeshRegion[1] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BOX);
-			mObjectMeshRegion[2] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CACTUS);
+			for (UINT i = 0; i < SCENE_OBJECT_COUNT; i++)
+			{
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(SCENE_OBJECT_ENUM_OFFSET + i);
+			}
 
-			mObjectMeshRegion[3] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CAGE);
-			mObjectMeshRegion[4] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_COWSKULL);
-			mObjectMeshRegion[5] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_FRUITTREE);
+			//mObjectMeshRegion[0] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL);
+			//mObjectMeshRegion[1] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BOX);
+			//mObjectMeshRegion[2] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CACTUS);
 
-			mObjectMeshRegion[6] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_GIANTSKULL);
-			mObjectMeshRegion[7] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TOWER);
-			mObjectMeshRegion[8] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_WINTERTREE);
+			//mObjectMeshRegion[3] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CAGE);
+			//mObjectMeshRegion[4] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_COWSKULL);
+			//mObjectMeshRegion[5] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_FRUITTREE);
+
+			//mObjectMeshRegion[6] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_GIANTSKULL);
+			//mObjectMeshRegion[7] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TOWER);
+			//mObjectMeshRegion[8] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_WINTERTREE);
 
 			mInstanceLayout.MeshCount = SCENE_OBJECT_COUNT;
 			mInstanceLayout.pMeshes = mObjectMeshRegion;
@@ -572,6 +673,7 @@ namespace ecs
 		}
 #pragma endregion SceneObjectRenderSystem
 
+#pragma region SSAORenderSystem
 		SSAORenderSystem::SSAORenderSystem()
 		{
 			updateType = Actor;
@@ -589,11 +691,11 @@ namespace ecs
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineBlur,
-				mShaderBlur);
+				mShaderBlur_v);
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
-				mShaderBlur_v);
+				mShaderBlur);
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineCombine,
@@ -665,6 +767,7 @@ namespace ecs
 			mRenderMgr.SetShaderModelLayout(mShaderBlur_v, mInstanceLayout);
 			mRenderMgr.SetShaderModelLayout(mShaderCombine, mInstanceLayout);
 		}
+#pragma endregion SSAORenderSystem
 
 #pragma region WeaponRenderSystem
 		WeaponRenderSystem::WeaponRenderSystem()
@@ -673,68 +776,84 @@ namespace ecs
 			typeFilter.addRequirement(components::WeaponComponent::typeID);
 			typeFilter.addRequirement(components::TransformComponent::typeID);
 			typeFilter.addRequirement(components::ColorComponent::typeID);
-
-			mInstanceLayout = { 0 };
 		}
 
 		WeaponRenderSystem::~WeaponRenderSystem()
 		{
-
+			//
 		}
 
 		void WeaponRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
-			mInstanceCount = (UINT)_entities.entities.size();
+			/*
+				We don't know the order of entities EntityIterator, meaning that we can't expect
+				the entities to be ordered by mesh type like we want them to be in the RenderBuffer
+				(output of this function).
+
+				So, this function first calculate how many instances we have of each mesh. With this,
+				we can calculate from which index in the RenderBuffer we can start writing each mesh
+				to. Each mesh we care about in this function, that is tree, stone etc., has its own
+				index counter.
+			*/
+
+			mObjectCount = _entities.entities.size();
 
 			// Fetch pointer to write data to in RenderBuffer
-			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mInstanceCount * WeaponRenderSystem::GetPerInstanceSize());
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::WeaponRenderSystem::GetPerInstanceSize());
 
-			// Iterate all tiles and write their data to the RenderBuffer
-			uint32_t index = 0;
+			// Count how many instances we have per scene object mesh
+			ZeroMemory(mObjectTypeCount, WEAPON_COUNT * sizeof(UINT));
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::WeaponComponent* p_obj_comp = object.getComponent<components::WeaponComponent>();
+				mObjectTypeCount[p_obj_comp->mType - (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG+1)]++;
+			}
+
+			// Set index to write to in RenderBuffer, per mesh
+			UINT object_type_individual_index[WEAPON_COUNT] = { 0 };
+
+			for (int i = 1; i < WEAPON_COUNT; i++)
+			{
+				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
+			}
+
+			// Iterate all objects and write their data to the RenderBuffer
 			for (FilteredEntity weapon : _entities.entities)
 			{
 				components::WeaponComponent* p_weapon_comp = weapon.getComponent<components::WeaponComponent>();
-				components::TransformComponent* p_transform_comp = weapon.getComponent<components::TransformComponent>();
-			
-				if (p_weapon_comp->mOwnerEntity != 0)
-				{
-					p_transform_comp = getComponentFromKnownEntity<TransformComponent>(p_weapon_comp->mOwnerEntity);
-					Entity* owner = getEntity(p_weapon_comp->mOwnerEntity);
-					if (!owner->hasComponentOfType(SkeletonComponent::typeID))
-					{
-						continue;
-					}
-					SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(p_weapon_comp->mOwnerEntity);
-					XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
-					
-					// Hand position in model space.
-					XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
-					XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
 
-					// Final world transform.
-					XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
-					
-					XMStoreFloat4x4(&mpBuffer[index].world, world);
-				}				
-				else
+				// Expection on weapon types: fist for example does not have a mesh to render.
+				if (p_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
 				{
-					XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
+					continue;
 				}
-				
+
+				// Get index, depending on mesh type
+				UINT& index = object_type_individual_index[p_weapon_comp->mType - (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1)];
+
+				PlaceWorldMatrix(weapon, mpBuffer[index].world);
 				index++;
 			}
 
+			mInstanceLayout.pInstanceCountPerMesh = mObjectTypeCount;
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
 		void WeaponRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
 		{
 			mpRenderMgr = pRenderMgr;
-			mWeaponMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_SWORD);
 
-			mInstanceLayout.MeshCount = 1;
-			mInstanceLayout.pMeshes = &mWeaponMeshRegion;
-			mInstanceLayout.pInstanceCountPerMesh = &mInstanceCount;
+			/*
+				Set up mesh region for all meshes that will be rendered.
+			*/
+			for (int i = 0; i < WEAPON_COUNT; i++)
+			{
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE(i + (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1)));
+			}
+
+			mInstanceLayout.MeshCount = WEAPON_COUNT;
+			mInstanceLayout.pMeshes = mObjectMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
 
 			const std::string vs = GetShaderFilepath("VS_Weapon.cso");
 			const std::string ps = GetShaderFilepath("PS_Default.cso");
@@ -751,6 +870,41 @@ namespace ecs
 		{
 			return sizeof(WeaponRenderSystem::InputLayout);
 		}
+
+		void WeaponRenderSystem::PlaceWorldMatrix(FilteredEntity& rWeapon, DirectX::XMFLOAT4X4& rDestination)
+		{
+			components::WeaponComponent* p_weapon_comp = rWeapon.getComponent<components::WeaponComponent>();
+			components::TransformComponent* p_transform_comp = rWeapon.getComponent<components::TransformComponent>();
+				
+			if (!p_weapon_comp->mOwnerEntity)
+			{
+				/*
+					If weapon don't have an owner, use the weapon's transform.
+				*/
+
+				XMStoreFloat4x4(&rDestination, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
+				return;
+			}
+
+			/*
+				Calculate position of owner entity's hand.
+			*/
+
+			// Overwrite transform component by by transform of owner entity.
+			p_transform_comp = getComponentFromKnownEntity<TransformComponent>(p_weapon_comp->mOwnerEntity);
+
+			SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(p_weapon_comp->mOwnerEntity);
+			XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
+						
+			// Hand position in model space.
+			XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
+			XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
+
+			// Final world transform.
+			XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
+						
+			XMStoreFloat4x4(&rDestination, world);
+		}
 #pragma endregion WeaponRenderSystem
-	}
+}
 }

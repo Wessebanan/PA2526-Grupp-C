@@ -18,7 +18,7 @@ namespace ecs
 		struct UITextComponent : public ECSComponent<UITextComponent>
 		{
 			//char text[30];
-			std::string mStrText; 
+			std::wstring mStrText; 
 
 			UITAG tag = UITAG::NOTAG;
 		};
@@ -41,7 +41,8 @@ namespace ecs
 
 		struct UIBitmapComponent : public ECSComponent<UIBitmapComponent>
 		{
-			ID2D1Bitmap* mpBitmap;
+			ID2D1Bitmap1* mpBitmap;
+			std::string mName;
 		};
 
 		struct UIThicknessComponent : public ECSComponent<UIThicknessComponent>

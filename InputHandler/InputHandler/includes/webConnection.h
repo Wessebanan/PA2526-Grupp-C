@@ -20,6 +20,12 @@
 #include <tchar.h>
 #include <strsafe.h>
 
+enum WEBGAMESTATE
+{
+	PREPPHASE,
+	BATTLEPHASE,
+	WAITING
+};
 
 //#pragma pack (push, 1)
 struct _websocket_header
@@ -88,6 +94,8 @@ struct playerInfo
 	string command = "NO STATE";
 	// Bool to check if the ping was pressed and picked up by frpntend
 	bool pinged = false;
+	// Bool to see if they have all pressed the ready button, can be reset from the 
+	bool ready = false;
 };
 
 // Handles getting info from the website
@@ -102,13 +110,15 @@ public:
 	// Checks if the connection was successful
 	bool IsConnected() { return this->mConnectionOK; };
 
-	// Returns the button index the player has selected
-	int GetUserButton(int player);
 	// Returns the name of the set player (playres cant change this yet)
 	std::string GetUserName(int player);
 
+	// Returns the button index the player has selected
+	int GetUserButton(int player);
 	// Returns the tile index of the axis (0 = X or 1 = Y)
 	int GetUserTile(int player, int axis);
+	// Reset for when both have been picked up
+	void resetUserTrap(int player);
 
 	// Returns the command of the player
 	string GetUserCommand(int player);
@@ -117,16 +127,30 @@ public:
 	bool GetUserPing(int player);
 	
 	// returns hte number of players that have connected since the client started up
-	//int getNrOfPlayers() { return this->nrOfPlayers; };
+	int getNrOfPlayers() 
+	{ 
+		this->nrOfPlayers = 0;
+		for (size_t i = 0; i < 4; i++)
+		{
+			if (mPlayerSockets[i] != -1)
+			{
+				nrOfPlayers++;
+			}
+		}
+		return this->nrOfPlayers; 
+	};
 	
 	// Changes the gamestate for the users
-	bool SetGamestate(int gamestate);
+	bool SetGamestate(WEBGAMESTATE gamestate);
 
-
+	// Loops thourgh and sees if all players are ready, if all are returns true and resets
+	bool ReadyCheck();
 private:
 	// Array of information to be sent to frontend
 	playerInfo mUsers[4];
 
+	// Gamestate to be changed and send it out to the users
+	WEBGAMESTATE mWebGameState = WEBGAMESTATE::WAITING;
 
 	//// THREAD VARIBLES
 	// starts the thread to run sockets on the side
@@ -158,14 +182,13 @@ private:
 	//// BACKEND STATES
 	// Players joining the game
 	void PlayersJoin();
-	// Gameloop for getting controll information from web
-	void GameLoop();
 
 
 	// FUNCTIONS FOR INTERACTIONS
 	//Send out msg to all players
 	void BroadcastMsg(string msg);
 	// Identifies what player the current socket is
+	int IdPlayerSocket(SOCKET sock);
 	int IdUserSocket(SOCKET sock);
 	// takes in the a new message
 	char* ReciveMsg(SOCKET sock, char* recvbuf, int& Res);
@@ -175,6 +198,7 @@ private:
 	bool RemoveUserSocket(SOCKET sock, int error);
 	// adds the new socket to the mUserSockets list
 	bool AddUserSocket(SOCKET sock);
+	bool AddPlayerSocket(SOCKET sock);
 
 
 
@@ -187,8 +211,10 @@ private:
 	// interpets the key and preformes handshake
 	bool CheckForKey(SOCKET sock, char* recBuff, int& Res);
 
-	//int nrOfPlayers;
+	int nrOfPlayers;
 	const int mMaxmUserSockets = 30;
+	const int mMaxmPlayerSockets = 4;
+	int mPlayerSockets[4];
 	SOCKET mUserSockets[30];
 	fd_set mMaster; 
 

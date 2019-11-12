@@ -1,6 +1,7 @@
 #pragma once
 #include "ecsSystemIncludes.h"
 #include "GameLoopComponents.h"
+#include "..//Input/InitInputBackendComponent.h"
 #include "Mesh.h"
 #include "..//Physics/PhysicsComponents.h"
 #include "..//GameGlobals.h"
@@ -23,17 +24,35 @@ namespace ecs
 		private:
 		};
 
-		// Checks if there is only one player alive then creates a evnt for it
-		class GameLoopAliveSystem : public ecs::ECSSystem<GameLoopAliveSystem>
+		// Checks for transition to bettlephase
+		class WaitForStartupSystem : public ecs::ECSSystem<WaitForStartupSystem>
 		{
 		public:
-			GameLoopAliveSystem();
-			~GameLoopAliveSystem();
+			WaitForStartupSystem();
+			~WaitForStartupSystem();
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 		private:
 		};
-		
 
+		// Checks for transition to battlephase
+		class PrepPhaseSystem : public ecs::ECSSystem<PrepPhaseSystem>
+		{
+		public:
+			PrepPhaseSystem();
+			~PrepPhaseSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		private:
+		};
+
+		// CHecks for transition to prepphase
+		class BattlePhaseSystem : public ecs::ECSSystem<BattlePhaseSystem>
+		{
+		public:
+			BattlePhaseSystem();
+			~BattlePhaseSystem();
+			void updateMultipleEntities(EntityIterator &_entities, float _delta) override;
+		private:
+		};
 
 
 		// ----------- EVENTREADERS -----------------

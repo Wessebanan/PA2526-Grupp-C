@@ -5,18 +5,27 @@
 #include <DirectXCollision.h>
 #include "BoundingVolume.h"
 #include "../GameGlobals.h"
+
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
 // A bunch of default values.
-#define DEFAULT_MOVEMENT_FORCE 300.0f
-#define DEFAULT_DECELERATION 200.0f
-#define DEFAULT_MAX_VELOCITY 20.0f
-#define DEFAULT_WEIGHT 250.0f
-#define DEFAULT_GRAVITY 9.82f
-#define DEFAULT_HEALTH 100.0f
+constexpr float DEFAULT_MOVEMENT_FORCE	= 300.0f;
+constexpr float DEFAULT_DECELERATION	= 200.0f;
+constexpr float DEFAULT_MAX_VELOCITY	= 20.0f;
+constexpr float DEFAULT_WEIGHT			= 250.0f;
+constexpr float DEFAULT_GRAVITY			= 9.82f;
+constexpr float DEFAULT_HEALTH			= 100.0f;
 
-#define BASE_SWORD_DAMAGE 0.2f
-#define BASE_FIST_DAMAGE 0.1f
+constexpr float BASE_SWORD_DAMAGE		= 2.0f;
+constexpr float BASE_FIST_DAMAGE		= 0.2f;
+
+// Base knockback is a force in newtons while weapon
+// specific knockbacks are multipliers.
+constexpr float BASE_KNOCKBACK			= 10.0f;
+constexpr float SWORD_KNOCKBACK			= 3.0f;
+constexpr float FIST_KNOCKBACK			= 1.0f;
+
+constexpr double PI = 3.14159265358979323846;
 
 // Specifically hard-coded for current dude mesh lmao.
 #define ORIGIN_TO_HAND XMFLOAT3(-4.99f, 2.55f, -0.329f)
@@ -131,15 +140,17 @@ namespace ecs
 			// When an entity gets the weapon, give owner entity id to component.
 			ID mOwnerEntity = 0;			
 
-			GAME_OBJECT_TYPE mType = GAME_OBJECT_TYPE_FIST;
+			GAME_OBJECT_TYPE mType = GAME_OBJECT_TYPE_WEAPON_FIST;
 			BoundingVolume* mBoundingVolume = nullptr;
 			
 			// Previous position to calculate velocity for damage.
 			DirectX::XMFLOAT3 mPreviousPos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 			
 			// Base damage for multiplier on hit based on weapon type.
-			float mBaseDamage = 0.0f;
-			float mWeaponRange = 0.0f;
+			float mBaseDamage	= 0.0f;
+			
+			float mWeaponRange	= 0.0f;
+			float mKnockback	= 1.0f;
 
 			~WeaponComponent()
 			{				

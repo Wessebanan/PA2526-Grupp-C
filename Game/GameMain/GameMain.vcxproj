@@ -111,12 +111,17 @@
     <ClCompile Include="gameGraphics\CombineSSAOPipeline.cpp" />
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
+    <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
+    <ClCompile Include="gameRagdoll\Collision.cpp" />
+    <ClCompile Include="gameRagdoll\CollisionObject.cpp" />
+    <ClCompile Include="gameRagdoll\Ragdoll.cpp" />
     <ClCompile Include="gameSceneObjects\LootSystem.cpp" />
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\SSAOPipeline.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
+    <ClCompile Include="gameUtility\CameraSystems.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
     <ClCompile Include="gameWorld\UpdateOceanSystem.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
@@ -160,10 +165,16 @@
     <ClInclude Include="gameGraphics\GraphicsECSComponents.h" />
     <ClInclude Include="gameGraphics\GraphicsECSSystems.h" />
     <ClInclude Include="gameGraphics\InitGraphics.h" />
+    <ClInclude Include="gameGraphics\OceanRenderingPipeline.h" />
     <ClInclude Include="gameGraphics\RenderBuffer.h" />
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
     <ClInclude Include="gameGraphics\SSAOPipeline.h" />
     <ClInclude Include="gameGraphics\TileRenderingPipeline.h" />
+    <ClInclude Include="gameRagdoll\Collision.h" />
+    <ClInclude Include="gameRagdoll\CollisionObject.h" />
+    <ClInclude Include="gameRagdoll\Ragdoll.h" />
+    <ClInclude Include="gameRagdoll\RagdollBone.h" />
+    <ClInclude Include="gameRagdoll\RagdollBoneState.h" />
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameSceneObjects\InitBiomes.h" />
@@ -172,6 +183,7 @@
     <ClInclude Include="gameSceneObjects\LootSystem.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
+    <ClInclude Include="gameTraps\TrapEvents.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
     <ClInclude Include="gameUtility\CameraEvents.h" />
     <ClInclude Include="gameUtility\CameraEcsFunctions.h" />
@@ -186,7 +198,7 @@
     <ClInclude Include="gameUtility\UtilityGraphics.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
     <ClInclude Include="gameWorld\InitWorld.h" />
-    <ClInclude Include="gameWorld\OceanComponents.h" />
+    <ClInclude Include="gameWorld\WorldComponents.h" />
     <ClInclude Include="gameWorld\UpdateOceanSystem.h" />
     <ClInclude Include="gameWorld\WorldSettings.h" />
     <ClInclude Include="GraphicsComponents.h" />
@@ -229,6 +241,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Ocean.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\PS_Particle.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -240,6 +256,10 @@
     <FxCompile Include="gameGraphics\Shaders\VS_Default.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Ocean.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Particle.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>

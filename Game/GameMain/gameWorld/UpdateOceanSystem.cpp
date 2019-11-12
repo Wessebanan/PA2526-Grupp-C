@@ -1,7 +1,7 @@
 #include "UpdateOceanSystem.h"
 
 #include "../gameUtility/UtilityComponents.h"
-#include "../gameWorld/OceanComponents.h"
+#include "../gameWorld/WorldComponents.h"
 
 using namespace DirectX;
 
