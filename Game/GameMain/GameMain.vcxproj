@@ -120,6 +120,7 @@
     <ClCompile Include="gameSceneObjects\LootSystem.cpp" />
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\SSAOPipeline.cpp" />
+    <ClCompile Include="gameTraps\TrapSpawnerSystems.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\CameraSystems.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
@@ -185,6 +186,7 @@
     <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
     <ClInclude Include="gameTraps\TrapComponents.h" />
     <ClInclude Include="gameTraps\TrapEvents.h" />
+    <ClInclude Include="gameTraps\TrapSpawnerSystems.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
     <ClInclude Include="gameUtility\CameraEvents.h" />
     <ClInclude Include="gameUtility\CameraEcsFunctions.h" />
