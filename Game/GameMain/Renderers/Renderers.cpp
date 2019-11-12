@@ -896,7 +896,7 @@ namespace ecs
 				index counter.
 			*/
 
-			mObjectCount = _entities.entities.size();
+			mObjectCount = _entities.entities.size() * 2;
 
 			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::TrapRenderSystem::GetPerInstanceSize());
@@ -906,6 +906,7 @@ namespace ecs
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::TrapComponent* p_obj_comp = object.getComponent<components::TrapComponent>();
+				mObjectTypeCount[p_obj_comp->mObjectType - (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1)]++;
 				mObjectTypeCount[p_obj_comp->mObjectType - (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1)]++;
 			}
 
@@ -925,7 +926,7 @@ namespace ecs
 				components::TransformComponent* p_transform_comp = trap.getComponent<components::TransformComponent>();
 
 				// Get index, depending on mesh type
-				UINT& index = object_type_individual_index[p_trap_comp->mObjectType - (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1)];
+				UINT& index = object_type_individual_index[p_trap_comp->mObjectType - (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1)];
 
 				/*
 					Create a world matrix out of the trap's transform.
@@ -933,8 +934,17 @@ namespace ecs
 					matrix. Color will be extracted in the shader.
 				*/
 
+				components::TransformComponent outline_transform = *p_transform_comp;
+				outline_transform.position.y -= 0.002f;
+				outline_transform.scale = { 1.f, 1.f, 1.f };
+
+				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(outline_transform));
+				mpBuffer[index].world._44 = PACK(0, 0, 0, 255);
+
+				index++;
+
 				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
-				mpBuffer[index].world._44 = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 1);
+				mpBuffer[index].world._44 = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 255);
 
 				index++;
 			}
@@ -960,7 +970,7 @@ namespace ecs
 			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
 
 			const std::string vs = GetShaderFilepath("VS_Trap.cso");
-			const std::string ps = GetShaderFilepath("PS_Default.cso");
+			const std::string ps = GetShaderFilepath("PS_Ocean.cso");
 
 			mRenderProgram = mpRenderMgr->CreateShaderProgram(
 				vs.c_str(),

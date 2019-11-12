@@ -174,12 +174,12 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 					
 					createEvent(eve);
 
-					// For debugging, remove when placing trap system is online
-					TransformComponent* p_trans = getComponentFromKnownEntity<TransformComponent>(eve.tileID);
-					if (p_trans)
-					{
-						p_trans->position.y = 5.0f;
-					}
+					//// For debugging, remove when placing trap system is online
+					//TransformComponent* p_trans = getComponentFromKnownEntity<TransformComponent>(eve.tileID);
+					//if (p_trans)
+					//{
+					//	p_trans->position.y = 5.0f;
+					//}
 
 				
 					InputBackendComp* p_backend = _entityInfo.getComponent<InputBackendComp>();

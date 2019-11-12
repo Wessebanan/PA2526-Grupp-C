@@ -49,10 +49,19 @@
 
 #include "gameUtility/Timer.h"
 
+#include "gameTraps/InitTraps.h"
+
 #include "gameGameLoop/InitGameLoop.h"
 #include "gameGameLoop/GameLoopEvents.h"
 
 #include "InitHttpServer.h"
+
+
+
+// REMOVE THIS MOTHAFOCKER
+#include "gameTraps/TrapEvents.h"
+
+
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -261,14 +270,21 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
+
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
 	InitSpawnLootSystem(rECS);
+	InitTrapSpawner(rECS);
+
 	InitHttpServer(rECS);
 
 
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
 
+	ecs::events::PlaceTrapEvent trap_event;
+	trap_event.tileID = GridProp::GetInstance()->mGrid[9][9].Id;
+	trap_event.type = GAME_OBJECT_TYPE_TRAP_SPRING;
+	rECS.createEvent(trap_event);
 }

@@ -7,6 +7,8 @@
 
 using namespace DirectX;
 
+#include <iostream>
+
 namespace ecs
 {
 	namespace systems
@@ -24,6 +26,11 @@ namespace ecs
 
 		void TrapSpawnerSystem::readEvent(BaseEvent& _event, float _delta)
 		{
+			if (_event.getTypeID() != events::PlaceTrapEvent::typeID)
+			{
+				return;
+			}
+
 			events::PlaceTrapEvent& r_trap_event = static_cast<events::PlaceTrapEvent&>(_event);
 			components::TransformComponent* p_tile_transf = getComponentFromKnownEntity<components::TransformComponent>(r_trap_event.tileID);
 
@@ -32,6 +39,7 @@ namespace ecs
 				Never create a trap that isn't defined.
 			*/
 
+			std::cout << "Trap type: " << r_trap_event.type << std::endl;
 			if (r_trap_event.type <= GAME_OBJECT_TYPE_TRAP_OFFSET_TAG || r_trap_event.type > GAME_OBJECT_TYPE(GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + TRAP_COUNT))
 			{
 				return;
@@ -44,7 +52,7 @@ namespace ecs
 
 			components::TrapComponent trap_comp;
 			components::ColorComponent color_comp;
-			components::TransformComponent transf_com;
+			components::TransformComponent transf_comp;
 
 			/*
 				-- Set trap type
@@ -58,8 +66,12 @@ namespace ecs
 				offset to be placed above it.
 			*/
 
-			XMVECTOR position_offset = { 0.f, 0.1f, 0.f, 0.f };
-			XMStoreFloat3(&transf_com.position, XMLoadFloat3(&p_tile_transf->position) + position_offset);
+			transf_comp.position = p_tile_transf->position;
+			transf_comp.position.y += 0.01f;
+
+			transf_comp.scale.x = 0.9;
+			transf_comp.scale.y = 0.9;
+			transf_comp.scale.z = 0.9;
 
 			/*
 				-- Set trap color
@@ -74,7 +86,7 @@ namespace ecs
 				break;
 
 			case GAME_OBJECT_TYPE_TRAP_FREEZE:
-				color_comp = components::ColorComponent(200, 200, 255);
+				color_comp = components::ColorComponent(120, 120, 222);
 				break;
 
 			case GAME_OBJECT_TYPE_TRAP_SPRING:
@@ -88,7 +100,7 @@ namespace ecs
 				break;
 			}
 
-			createEntity(trap_comp, transf_com, color_comp);
+			createEntity(trap_comp, transf_comp, color_comp);
 		}
 	}
 }
