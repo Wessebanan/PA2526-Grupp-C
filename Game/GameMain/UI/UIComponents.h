@@ -19,7 +19,7 @@ namespace ecs
 		struct UITextComponent : public ECSComponent<UITextComponent>
 		{
 			//char text[30];
-			std::string mStrText; 
+			std::wstring mStrText; 
 
 			UITAG tag = UITAG::NOTAG;
 		};

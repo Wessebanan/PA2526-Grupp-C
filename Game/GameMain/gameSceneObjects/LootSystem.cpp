@@ -42,8 +42,8 @@ void ecs::systems::SpawnLootSystem::act(float _delta)
 		MeshComponent		weapon_mesh_component;
 		ColorComponent		color_comp;
 
-		weapon_component.mType = GAME_OBJECT_TYPE_SWORD;
-		weapon_mesh_component.mMesh = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_SWORD);
+		weapon_component.mType = GAME_OBJECT_TYPE_WEAPON_SWORD;
+		weapon_mesh_component.mMesh = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_WEAPON_SWORD);
 		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
 
 		Entity *sword = createEntity(weapon_mesh_component, weapon_transform_component, weapon_component, color_comp);

@@ -94,6 +94,8 @@ struct playerInfo
 	string command = "NO STATE";
 	// Bool to check if the ping was pressed and picked up by frpntend
 	bool pinged = false;
+	// Bool to see if they have all pressed the ready button, can be reset from the 
+	bool ready = false;
 };
 
 // Handles getting info from the website
@@ -125,12 +127,24 @@ public:
 	bool GetUserPing(int player);
 	
 	// returns hte number of players that have connected since the client started up
-	int getNrOfPlayers() { return this->nrOfPlayers; };
+	int getNrOfPlayers() 
+	{ 
+		this->nrOfPlayers = 0;
+		for (size_t i = 0; i < 4; i++)
+		{
+			if (mPlayerSockets[i] != -1)
+			{
+				nrOfPlayers++;
+			}
+		}
+		return this->nrOfPlayers; 
+	};
 	
 	// Changes the gamestate for the users
 	bool SetGamestate(WEBGAMESTATE gamestate);
 
-
+	// Loops thourgh and sees if all players are ready, if all are returns true and resets
+	bool ReadyCheck();
 private:
 	// Array of information to be sent to frontend
 	playerInfo mUsers[4];
