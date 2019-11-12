@@ -383,60 +383,125 @@ namespace ecs
 
 			unsigned int FindSafeTile(ecs::Entity* current_unit)
 			{
-				//Fetch and initialize components and variables that we will need.
 				ecs::components::UnitComponent* current_unit_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::UnitComponent>(current_unit->getID());
+				ecs::components::TransformComponent* current_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(current_unit->getID());
+				int2 start_tile_index =	GetClosestTile(*current_unit_transform);
+				GridProp* p_gp = GridProp::GetInstance();
+				ID start_tile_id = p_gp->mGrid[start_tile_index.y][start_tile_index.x].Id;
+				return CalculateSafenessOfTile(start_tile_id, 0, 0, current_unit_comp->playerID);
+
+				////Fetch and initialize components and variables that we will need.
+				//ecs::components::UnitComponent* current_unit_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::UnitComponent>(current_unit->getID());
+				//std::vector<ArmyComponent*> armies;
+				//ecs::components::UnitComponent* other_unit_comp;
+				//ecs::BaseComponent* p_base_comp;
+				//ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::ArmyComponent::typeID);
+				//ecs::components::TransformComponent* current_tile_transform;
+				//ecs::components::TransformComponent* other_unit_transform;
+				//GridProp* p_gp = GridProp::GetInstance();
+				//float best_safe_value = 0;
+				//float safe_value = 0;
+				//unsigned int other_unit_id;
+				//unsigned int goal_id;
+				//	
+				//ecs::components::TransformComponent* p_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(current_unit->getID());
+				//int2 closest_id_index = GetClosestTile(*p_unit_transform);
+
+				////Fetch the army components of all the players.
+				//while (p_base_comp = it.next())
+				//{
+				//	armies.push_back(static_cast<ecs::components::ArmyComponent*>(p_base_comp));
+				//}
+				////For each tile we calculate the distance to every enemy unit and ads it together to find out which tile on the map that is the furthest from every enemy unit.
+				//for (int y = 0; y < MAX_ARENA_ROWS; y++)
+				//{
+				//	for (int x = 0; x < MAX_ARENA_COLUMNS; x++)
+				//	{
+				//		if (p_gp->mGrid[y][x].isPassable)
+				//		{
+				//			for (int a = 0; a < armies.size(); a++)
+				//			{
+				//				for (int u = 0; u < armies[a]->unitIDs.size(); u++)
+				//				{
+				//					other_unit_id = armies[a]->unitIDs[u];
+				//					if (ecs::ECSUser::getEntity(other_unit_id) != NULL)
+				//					{
+				//						other_unit_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::UnitComponent>(other_unit_id);
+				//						if (current_unit_comp->playerID != other_unit_comp->playerID)
+				//						{
+				//							other_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(other_unit_id);
+				//							current_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
+				//							safe_value += abs(PhysicsHelpers::CalculateDistance(current_tile_transform->position, other_unit_transform->position));
+				//						}
+				//					}
+				//				}
+				//			}
+				//			//If the current tile has a better safe_value we store it.
+				//			if (safe_value > best_safe_value)
+				//			{
+				//				best_safe_value = safe_value;
+				//				goal_id = p_gp->mGrid[y][x].Id;
+				//			}
+				//		}
+				//		safe_value = 0;
+				//	}
+				//}
+				////Return the entity id of the safest tile.
+				//return goal_id;
+			}
+
+			ID CalculateSafenessOfTile(ID currentTile, ID previousTile, int steps, ID currentPlayer)
+			{
+				ID next_tile_id;
 				std::vector<ArmyComponent*> armies;
-				ecs::components::UnitComponent* other_unit_comp;
 				ecs::BaseComponent* p_base_comp;
 				ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::ArmyComponent::typeID);
-				ecs::components::TransformComponent* current_tile_transform;
-				ecs::components::TransformComponent* other_unit_transform;
-				GridProp* p_gp = GridProp::GetInstance();
-				float best_safe_value = 0;
-				float safe_value = 0;
-				unsigned int other_unit_id;
-				unsigned int goal_id;
 				//Fetch the army components of all the players.
 				while (p_base_comp = it.next())
 				{
 					armies.push_back(static_cast<ecs::components::ArmyComponent*>(p_base_comp));
 				}
-				//For each tile we calculate the distance to every enemy unit and ads it together to find out which tile on the map that is the furthest from every enemy unit.
-				for (int y = 0; y < MAX_ARENA_ROWS; y++)
+
+				ecs::components::TileComponent* current_tile_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TileComponent>(currentTile);
+				ecs::components::TransformComponent* neighbour_tile_transform;
+				ecs::components::TransformComponent* current_unit_transform;
+				int next_neighbour_id;
+				float lowest_danger_level = 100000.0f;
+				float current_danger_level;
+				float dist;
+				for (int i = 0; i < 6; i++)
 				{
-					for (int x = 0; x < MAX_ARENA_COLUMNS; x++)
+					current_danger_level = 0.0f;
+					next_neighbour_id = current_tile_comp->neighboursIDArray[i];
+					if (next_neighbour_id != 0 && next_neighbour_id != previousTile)
 					{
-						if (p_gp->mGrid[y][x].isPassable)
+						neighbour_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(next_neighbour_id);
+						for (int a = 0; a < armies.size(); a++)
 						{
-							for (int a = 0; a < armies.size(); a++)
+							if (armies[a]->playerID != currentPlayer)
 							{
 								for (int u = 0; u < armies[a]->unitIDs.size(); u++)
 								{
-									other_unit_id = armies[a]->unitIDs[u];
-									if (ecs::ECSUser::getEntity(other_unit_id) != NULL)
-									{
-										other_unit_comp = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::UnitComponent>(other_unit_id);
-										if (current_unit_comp->playerID != other_unit_comp->playerID)
-										{
-											other_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(other_unit_id);
-											current_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
-											safe_value += abs(PhysicsHelpers::CalculateDistance(current_tile_transform->position, other_unit_transform->position));
-										}
-									}
+									current_unit_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(armies[a]->unitIDs[u]);
+									dist = PhysicsHelpers::CalculateDistance(neighbour_tile_transform->position, current_unit_transform->position);
+									current_danger_level += 1.0f / sqrt(dist);
 								}
 							}
-							//If the current tile has a better safe_value we store it.
-							if (safe_value > best_safe_value)
-							{
-								best_safe_value = safe_value;
-								goal_id = p_gp->mGrid[y][x].Id;
-							}
+							else
+								continue;
 						}
-						safe_value = 0;
+						if (current_danger_level < lowest_danger_level)
+						{
+							lowest_danger_level = current_danger_level;
+							next_tile_id = next_neighbour_id;
+						}
 					}
 				}
-				//Return the entity id of the safest tile.
-				return goal_id;
+				if (steps < 6)
+				{
+					return CalculateSafenessOfTile(next_tile_id, currentTile, steps + 1, currentPlayer);
+				}
+				return next_tile_id;
 			}
 
 			unsigned int FindClosestLootTile(ecs::Entity* current_unit)
