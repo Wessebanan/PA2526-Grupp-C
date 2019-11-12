@@ -31,6 +31,7 @@ namespace ecs
 				-- Sanity check the event's trap type input
 				Never create a trap that isn't defined.
 			*/
+
 			if (r_trap_event.type <= GAME_OBJECT_TYPE_TRAP_OFFSET_TAG || r_trap_event.type > GAME_OBJECT_TYPE(GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + TRAP_COUNT))
 			{
 				return;
@@ -56,6 +57,7 @@ namespace ecs
 				Trap is located above the tile it's created on. Add an
 				offset to be placed above it.
 			*/
+
 			XMVECTOR position_offset = { 0.f, 0.1f, 0.f, 0.f };
 			XMStoreFloat3(&transf_com.position, XMLoadFloat3(&p_tile_transf->position) + position_offset);
 
