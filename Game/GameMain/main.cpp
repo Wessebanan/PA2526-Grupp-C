@@ -169,16 +169,6 @@ int main()
 					m_event.fadeInTimeInSeconds = 2.0f;
 					ecs.createEvent(m_event);
 				}
-				{
-					ecs::events::TriggerFireTrapEvent m_event;
-					ComponentIterator itt;
-					itt = ecs.getAllComponentsOfType(ecs::components::UnitComponent::typeID);
-					while (UnitComponent* unit = (UnitComponent*)itt.next())
-					{
-						m_event.unitID = unit->getID();
-						ecs.createEvent(m_event);
-					}
-				}
 				
 				
 
