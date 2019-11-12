@@ -294,7 +294,10 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		// KNOCKBACK
 		ForceImpulseEvent knockback;
 		knockback.mDirection = getComponentFromKnownEntity<DynamicMovementComponent>(unit_entity->getID())->mDirection;
-		//XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3(&weapon_bv->GetCenter()), XMLoadFloat3(&weapon_component->mPreviousPos))));
+		knockback.mDirection.y += 0.3f;
+
+		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
+		
 		knockback.mForce = BASE_KNOCKBACK * velocity * weapon_component->mKnockback;
 		knockback.mEntityID = collided_unit;
 		createEvent(knockback);
@@ -324,12 +327,84 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		}
 
 		// VISUAL
-		ColorComponent* p_color = getComponentFromKnownEntity<ColorComponent>(collided_unit);
-		p_color->red	= 255;
-		p_color->blue	= 255;
-		p_color->green	= 255;
+		ColorSwitchEvent damage_flash;
+		damage_flash.mColor = WHITE;
+		damage_flash.mEntityID = collided_unit;
+		damage_flash.mTime = 0.05f;
+		createEvent(damage_flash);
 	}
 	
 	weapon_component->mPreviousPos = weapon_bv->GetCenter();
 	delete weapon_bv;
 }
+#pragma endregion
+#pragma region UnitColorSwitchSystem
+ecs::systems::UnitColorSwitchSystem::UnitColorSwitchSystem()
+{
+	updateType = MultiEntityUpdate;
+	typeFilter.addRequirement(UnitComponent::typeID);
+	typeFilter.addRequirement(ColorComponent::typeID);
+	typeFilter.addRequirement(HealthComponent::typeID);
+
+	subscribeEventCreation(ColorSwitchEvent::typeID);
+}
+ecs::systems::UnitColorSwitchSystem::~UnitColorSwitchSystem()
+{
+
+}
+void ecs::systems::UnitColorSwitchSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
+{
+	ColorSwitchEvent* p_color_switch = static_cast<ColorSwitchEvent*>(_event);
+	
+	ColorComponent* p_unit_color = getComponentFromKnownEntity<ColorComponent>(p_color_switch->mEntityID);
+	
+	uint3 color = p_color_switch->mColor;
+	p_unit_color->red	= color.r;
+	p_unit_color->green = color.g;
+	p_unit_color->blue	= color.b;
+
+	mTimers[p_color_switch->mEntityID] = p_color_switch->mTime;
+}
+void ecs::systems::UnitColorSwitchSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+{
+	for (int i = 0; i < _entities.entities.size(); i++)
+	{
+		ID current = _entities.entities.at(i).entity->getID();
+		auto timer = mTimers.find(current);
+		if (timer != mTimers.end())
+		{
+			timer->second -= _delta;
+			if (timer->second < 0.0f)
+			{
+				mTimers.erase(timer->first);
+			}
+			continue;
+		}
+
+		UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(current);
+		ColorComponent* p_color = getComponentFromKnownEntity<ColorComponent>(current);
+		HealthComponent* p_health = getComponentFromKnownEntity<HealthComponent>(current);
+
+		float health_fraction = p_health->mHealth / p_health->mBaseHealth;
+		uint3 color = uint3(0, 0, 0);
+		switch (p_unit->playerID)
+		{
+		case PLAYER1:		
+			color = PLAYER1_COLOR;
+			break;		
+		case PLAYER2:
+			color = PLAYER2_COLOR;
+			break;
+		case PLAYER3:
+			color = PLAYER3_COLOR;
+			break;
+		case PLAYER4:
+			color = PLAYER4_COLOR;
+			break;
+		}
+		p_color->red	= (uint8_t)((float)color.r * health_fraction);
+		p_color->green	= (uint8_t)((float)color.g * health_fraction);
+		p_color->blue	= (uint8_t)((float)color.b * health_fraction);
+	}
+}
+#pragma endregion

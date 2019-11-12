@@ -69,7 +69,7 @@ namespace ecs
 		{
 
 			std::vector<int> unitIDs; //Holds the entity IDs of every unit in one players army.
-			uint3 armyColor = uint3(0, 0, 0);
+			
 			PLAYER playerID;
 		};
 

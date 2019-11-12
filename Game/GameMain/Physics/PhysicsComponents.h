@@ -21,8 +21,8 @@ constexpr float BASE_FIST_DAMAGE		= 0.2f;
 
 // Base knockback is a force in newtons while weapon
 // specific knockbacks are multipliers.
-constexpr float BASE_KNOCKBACK			= 10.0f;
-constexpr float SWORD_KNOCKBACK			= 3.0f;
+constexpr float BASE_KNOCKBACK			= 5.0f;
+constexpr float SWORD_KNOCKBACK			= 2.0f;
 constexpr float FIST_KNOCKBACK			= 1.0f;
 
 constexpr double PI = 3.14159265358979323846;

@@ -1,6 +1,8 @@
 #pragma once
 #include "ecs.h"
 #include "MovementFunctions.h"
+#include "AIGlobals.h"
+
 #define EVENT(name) struct name : public ecs::ECSEvent<name>
 
 namespace ecs
@@ -35,5 +37,12 @@ namespace ecs
 			float mForce;
 		};
 
+		// Did not know where to put this haha.
+		EVENT(ColorSwitchEvent)
+		{
+			uint3 mColor;
+			ID mEntityID;
+			float mTime;
+		};
 	} // events
 } // ecs

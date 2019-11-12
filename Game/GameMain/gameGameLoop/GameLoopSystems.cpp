@@ -323,43 +323,13 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 void ecs::systems::RoundStartSystem::CreateUnits()
 {
-	///* TEAM COLORS */
-	//struct uint3
-	//{
-	//	UINT r, g, b;
-	//};
-
 	uint3 army_colors[] =
 	{
-		RED, 
-		PURPLE, 
-		BLUE, 
-		GREEN
+		PLAYER1_COLOR,
+		PLAYER2_COLOR,
+		PLAYER3_COLOR,
+		PLAYER4_COLOR
 	};
-
-
-	//// Player 1 - Red
-	//army_colors[0].r = 117;
-	//army_colors[0].g = 1;
-	//army_colors[0].b = 1;
-
-	//// Player 2 - Purple
-	//army_colors[1].r = 74;
-	//army_colors[1].g = 1;
-	//army_colors[1].b = 117;
-
-	//// Player 3 - Blue
-	//army_colors[2].r = 47;
-	//army_colors[2].g = 62;
-	//army_colors[2].b = 236;
-
-	//// Player 4 - Green
-	//army_colors[3].r = 0;
-	//army_colors[3].g = 93;
-	//army_colors[3].b = 5;
-
-	///* END	*/
-
 
 	//Create Components for a "Unit" entity.
 	ecs::components::TransformComponent transform;
@@ -427,7 +397,6 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			transform.scale.y = 0.1f;
 			transform.scale.z = 0.1f;
 
-			p_army->armyColor	= army_colors[i];
 			color_comp.red		= army_colors[i].r;
 			color_comp.green	= army_colors[i].g;
 			color_comp.blue		= army_colors[i].b;

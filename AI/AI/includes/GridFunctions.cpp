@@ -445,7 +445,7 @@ namespace GridFunctions
 		if (neighbourIndex.x >= 0 && neighbourIndex.x < p_gp->GetSize().x
 			&& neighbourIndex.y >= 0 && neighbourIndex.y < p_gp->GetSize().y
 			&& p_gp->mGrid[currentTile.x][currentTile.y].height -
-			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -1.f //this is where you change pathfinding between diffrent heights,
+			p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].height >= -10.f //this is where you change pathfinding between diffrent heights,
 			&& p_gp->mGrid[neighbourIndex.x][neighbourIndex.y].isPassable) // -1 allows a height differance of 1 from current to next tile.
 			returnValue = true;
 

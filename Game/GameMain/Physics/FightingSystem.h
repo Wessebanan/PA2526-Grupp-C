@@ -10,6 +10,8 @@
 #include "..//gameAI/AIComponents.h"
 #include "..//gameAudio/AudioECSEvents.h"
 #include "..//gameAudio/AudioGlobals.h"
+#include <unordered_map>
+
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
 namespace ecs
@@ -43,6 +45,14 @@ namespace ecs
 			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
 		};
 
-		
+		SYSTEM(UnitColorSwitchSystem)
+		{
+			UnitColorSwitchSystem();
+			~UnitColorSwitchSystem();
+			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
+			void updateMultipleEntities(EntityIterator & _entities, float _delta) override;
+		private:			
+			std::unordered_map<ID, float> mTimers;
+		};
 	} // systems
 } // ecs

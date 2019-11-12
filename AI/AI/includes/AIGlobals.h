@@ -46,13 +46,21 @@ enum MAPINITSETTING
 
 struct uint3
 {
-	unsigned int r, g, b;
-	uint3() {}
-	uint3(unsigned int r, unsigned int g, unsigned int b) : r(r), g(g), b(b) {}
+	unsigned char r, g, b;
+	uint3() : r(0), g(0), b(0) {}
+	uint3(unsigned char r, unsigned char g, unsigned char b) : r(r), g(g), b(b) {}
 };
 
+// Defining some useful colors.
+#define RED		uint3(117, 1, 1)
+#define PURPLE	uint3(74, 1, 117)
+#define BLUE	uint3(47, 62, 236)
+#define GREEN	uint3(0, 93, 5)
+#define WHITE	uint3(255, 255, 255)
+#define BLACK	uint3(0, 0, 0)
 
-#define RED		uint3(117,1,1)
-#define PURPLE	uint3(74,1,117)
-#define BLUE	uint3(47,62,236)
-#define GREEN	uint3(0,93,5)
+// Defining player colors as current player colors.
+#define PLAYER1_COLOR RED
+#define PLAYER2_COLOR PURPLE
+#define PLAYER3_COLOR BLUE
+#define PLAYER4_COLOR GREEN
