@@ -107,14 +107,15 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				createEvent(cus_event);
 
-				ecs::events::TriggerFireTrapEvent m_event;
-				ComponentIterator itt;
-				itt = getComponentsOfType(ecs::components::UnitComponent::typeID);
-				while (UnitComponent * unit = (UnitComponent*)itt.next())
-				{
-					m_event.unitID = unit->getEntityID();
-					createEvent(m_event);
-				}
+				// IS USED FOR WHEN TESTING TRAPS, WILL BE REMOVED AFTER SOMETHING BETTER IS IMPLEMENTED TO TEST
+				//ecs::events::TriggerFireTrapEvent m_event;
+				//ComponentIterator itt;
+				//itt = getComponentsOfType(ecs::components::UnitComponent::typeID);
+				//while (UnitComponent * unit = (UnitComponent*)itt.next())
+				//{
+				//	m_event.unitID = unit->getEntityID();
+				//	createEvent(m_event);
+				//}
 			}
 		}
 	}

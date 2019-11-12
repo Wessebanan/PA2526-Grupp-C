@@ -19,7 +19,7 @@ namespace ecs
 		private:
 
 			const float mDamage = 40.0f;
-			const float mKnockback = 1.0f;
+			const float mKnockback = 80.0f;
 		};
 	}
 }
