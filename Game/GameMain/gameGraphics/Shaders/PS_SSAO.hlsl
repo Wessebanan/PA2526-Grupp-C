@@ -52,7 +52,7 @@ float CalculateOcclusion(
 {
 	const float scale		= 1.0f;
 	const float bias		= 0.2f;
-	const float intensity	= 10.0f;
+	const float intensity	= 8.0f;
 
 	const float3 occlusion_position = ViewPosFromDepth(
 		GetDepth(tcoord + uv), 
