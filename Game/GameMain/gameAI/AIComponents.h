@@ -8,8 +8,8 @@
 
 struct PotentialFieldCharges
 {
-	float armyCharges[4] = {100.0f, 100.0f, 100.0f, 100.0f};
-	float hazardCharge = 100.0f;
+	float armyCharges[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	float hazardCharge = 0.0f;
 };
 
 namespace ecs
