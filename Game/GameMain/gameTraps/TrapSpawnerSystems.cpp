@@ -68,6 +68,10 @@ namespace ecs
 			case GAME_OBJECT_TYPE_TRAP_SPRING:
 				color_comp = components::ColorComponent(191, 128, 64);
 				break;
+
+			default:
+				color_comp = components::ColorComponent(); // Default constructor sets color to black.
+				break;
 			}
 
 			createEntity(trap_comp, transf_com, color_comp);
