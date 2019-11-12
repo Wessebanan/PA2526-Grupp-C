@@ -75,12 +75,15 @@ namespace ecs
 		struct SmokeSpawnerComponent : public ECSComponent<SmokeSpawnerComponent>
 		{
 			float InitialVelocity;
+			float SpawnCount;
 		};
 
 		struct SmokeParticleComponent : public ECSComponent<SmokeParticleComponent>
 		{
 			DirectX::XMFLOAT3 Direction;
 			float CurrentLifeDuration;
+			float TotalLifeDuration;
+			char MaxScale;
 		};
 	}
 }

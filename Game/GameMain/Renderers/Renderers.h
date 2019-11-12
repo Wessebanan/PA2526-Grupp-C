@@ -127,7 +127,10 @@ namespace ecs
 
 			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
-			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+			void Initialize(
+				graphics::RenderManager* pRenderMgr, 
+				graphics::RenderBuffer* pRenderBuffer,
+				graphics::StateManager* pStateMgr);
 
 			static uint32_t GetPerInstanceSize();
 
@@ -142,7 +145,9 @@ namespace ecs
 			InputLayout* mpBuffer;
 
 			UINT mRenderProgram;
+			UINT mStatePipeline;
 			graphics::RenderManager* mpRenderMgr;
+			graphics::StateManager* mpStateMgr;
 			graphics::ShaderModelLayout mInstanceLayout;
 
 			graphics::RenderBuffer* mpRenderBuffer;
@@ -321,12 +326,6 @@ namespace ecs
 				const UINT clientHeight);
 
 		private:
-
-			/*struct InputLayout
-			{
-				float x, y, z;
-				uint32_t color;
-			};*/
 
 			UINT mPipelineSSAO,
 				mPipelineBlur,

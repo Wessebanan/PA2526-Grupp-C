@@ -78,23 +78,5 @@ namespace ecs
 
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
-
-		//class SnowSpawnerSystem : public ECSSystem<SnowSpawnerSystem>
-		//{
-		//public:
-		//	SnowSpawnerSystem();
-		//	virtual ~SnowSpawnerSystem() {}
-
-		//	void updateEntity(FilteredEntity& entity, float delta) override;
-		//};
-
-		//class SnowUpdateSystem : public ECSSystem<SnowUpdateSystem>
-		//{
-		//public:
-		//	SnowUpdateSystem();
-		//	virtual ~SnowUpdateSystem() {}
-
-		//	void updateEntity(FilteredEntity& entity, float delta) override;
-		//};
 	}
 }

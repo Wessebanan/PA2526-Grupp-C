@@ -1,5 +1,7 @@
 #include "LootSystem.h"
 
+#include "../gameGraphics/GraphicsECSComponents.h"
+
 #pragma region SpawnLootSystem
 ecs::systems::SpawnLootSystem::SpawnLootSystem()
 {
@@ -78,6 +80,20 @@ void ecs::systems::SpawnLootSystem::act(float _delta)
 		// Place the sword on chosen tile's position.
 		TransformComponent* tile_transform = getComponentFromKnownEntity<TransformComponent>(random_tile.Id);
 		sword_transform->position = tile_transform->position;
+
+		// Smoke Emitter
+		components::ParticleSpawnerComponent spawner;
+		components::SmokeSpawnerComponent smoke;
+
+		spawner.StartPosition			= tile_transform->position;
+		spawner.SpawnFrequency			= 0.005f;
+		spawner.TimerSinceLastSpawn		= 0.0f;
+		spawner.LifeDuration			= 1.0f;
+
+		smoke.InitialVelocity = 8.0f;
+		smoke.SpawnCount = 100;
+
+		createEntity(spawner, smoke);
 	}
 }
 #pragma endregion

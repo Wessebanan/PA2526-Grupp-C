@@ -165,6 +165,7 @@
     <ClInclude Include="gameGraphics\GraphicsECSComponents.h" />
     <ClInclude Include="gameGraphics\GraphicsECSSystems.h" />
     <ClInclude Include="gameGraphics\InitGraphics.h" />
+    <ClInclude Include="gameGraphics\InitParticles.h" />
     <ClInclude Include="gameGraphics\OceanRenderingPipeline.h" />
     <ClInclude Include="gameGraphics\RenderBuffer.h" />
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />

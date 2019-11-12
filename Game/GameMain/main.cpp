@@ -30,11 +30,11 @@
 #include "../../Graphics/includes/RenderManager.h"
 #include "../../Graphics/includes/MeshManager.h"
 
-#include "gameGraphics/ForwardRenderingPipeline.h"
-#include "gameGraphics/ShadowMapPipeline.h"
-#include "gameGraphics/SSAOPipeline.h"
-#include "gameGraphics/CombineSSAOPipeline.h"
-#include "gameGraphics/BlurPipeline.h"
+//#include "gameGraphics/ForwardRenderingPipeline.h"
+//#include "gameGraphics/ShadowMapPipeline.h"
+//#include "gameGraphics/SSAOPipeline.h"
+//#include "gameGraphics/CombineSSAOPipeline.h"
+//#include "gameGraphics/BlurPipeline.h"
 
 #include "gameAnimation/InitAnimation.h"
 
@@ -42,6 +42,7 @@
 
 #include "gameGraphics/GraphicsECSSystems.h"
 #include "gameGraphics/InitGraphics.h"
+#include "gameGraphics/InitParticles.h"
 
 #include "gameWorld/InitWorld.h"
 
@@ -116,24 +117,6 @@ int main()
 
 	InitAll(ecs, client_width, client_height);
 
-	ecs.reserveComponentCount<components::ParticleComponent>(50000);
-	ecs.reserveComponentCount<components::SmokeParticleComponent>(50000);
-	ecs.createSystem<systems::SmokeSpawnerSystem>(7);
-	ecs.createSystem<systems::SmokeUpdateSystem>(8);
-
-	// Smoke Emitter
-	components::ParticleSpawnerComponent spawner;
-	components::SmokeSpawnerComponent smoke;
-
-	spawner.StartPosition			= { 10.0f, 2.0f, 10.0f };
-	spawner.SpawnFrequency			= 0.001f;
-	spawner.TimerSinceLastSpawn		= 0.0f;
-	spawner.LifeDuration			= 5.0f;
-
-	smoke.InitialVelocity = 2.0f;
-
-	//ecs.createEntity(spawner, smoke);
-
 	/*
 		 #############################                                                    ############################# 
 		#######################   From here on, all initialization is expected to be finished.   #######################
@@ -206,8 +189,7 @@ int main()
 	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& render_buffer = static_cast<components::RenderBufferComponent*>(ecs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
-
-	//renderer_ssao.Destroy();
+	
 	mesh_manager.Destroy();
 	render_manager.Destroy();
 
@@ -236,6 +218,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, clientWidth, clientHeight);
 	InitMeshes(rECS);
 	InitGraphicsPreRenderSystems(rECS);
+	InitParticles(rECS);
 
 	InitSound(rECS);
 	InitSong(rECS);

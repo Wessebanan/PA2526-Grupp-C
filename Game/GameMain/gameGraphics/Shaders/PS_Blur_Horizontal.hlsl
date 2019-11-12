@@ -55,7 +55,7 @@ float main(PSIN input) : SV_TARGET
 	float center_depth		= GetDepth(input.uv);
 
 	float blur	= Blur(
-		float2(1.0f, 0.0f) * (50.0f - center_depth) / 50.0f,
+		float2(1.0f, 0.0f)/* * (50.0f - center_depth) / 50.0f*/,
 		input.uv, 
 		center_depth, 
 		center_occlusion);

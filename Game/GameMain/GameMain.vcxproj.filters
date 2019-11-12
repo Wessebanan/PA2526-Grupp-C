@@ -342,6 +342,9 @@
     <ClInclude Include="gameGraphics\OceanRenderingPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="gameGraphics\InitParticles.h">
+      <Filter>Init</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">

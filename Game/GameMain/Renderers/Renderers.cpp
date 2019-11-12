@@ -210,17 +210,6 @@ namespace ecs
 			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mParticleCount * GetPerInstanceSize());
 
-			/* 
-				TODO: 
-					- Copy Per Particle Data To 'mpBuffer'
-
-					- 'InputLayout' defines per particle data layout 
-						(needs to identical to the 'PerObjectData' struct in the VS_Particle
-
-					- Add Requirements in the constructor
-			*/
-			// Iterate all tiles and write their data to the RenderBuffer
-
 			uint32_t index = 0;
 			for (FilteredEntity tile : _entities.entities)
 			{
@@ -243,9 +232,15 @@ namespace ecs
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
-		void ParticleRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+		void ParticleRenderSystem::Initialize(
+			graphics::RenderManager* pRenderMgr, 
+			graphics::RenderBuffer* pRenderBuffer,
+			graphics::StateManager* pStateMgr)
 		{
-			mpRenderMgr = pRenderMgr;
+			mpRenderMgr		= pRenderMgr;
+			mpStateMgr		= pStateMgr;
+			mpRenderBuffer	= pRenderBuffer;
+
 			mParticleMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
 
 			mInstanceLayout.MeshCount = 1;
@@ -260,7 +255,7 @@ namespace ecs
 				ps.c_str(),
 				systems::ParticleRenderSystem::GetPerInstanceSize());
 
-			mpRenderBuffer = pRenderBuffer;
+			//mStatePipeline = mpStateMgr->CreatePipelineState(NULL, NULL);
 		}
 
 		uint32_t ParticleRenderSystem::GetPerInstanceSize()
@@ -304,7 +299,11 @@ namespace ecs
 				mpBuffer[index].y = p_transform_comp->position.y;
 				mpBuffer[index].z = p_transform_comp->position.z;
 
-				mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+				mpBuffer[index].color = PACK(
+					p_color_comp->red, 
+					p_color_comp->green, 
+					p_color_comp->blue, 
+					0);
 
 				index++;
 			}
@@ -679,6 +678,7 @@ namespace ecs
 
 		SSAORenderSystem::~SSAORenderSystem()
 		{
+			mRenderMgr.Destroy();
 		}
 
 		void SSAORenderSystem::act(float _delta)
@@ -688,13 +688,13 @@ namespace ecs
 				mPipelineSSAO,
 				mShaderSSAO);
 
-			mRenderMgr.ExecutePipeline(
-				mPipelineBlur,
-				mShaderBlur_v);
+			//mRenderMgr.ExecutePipeline(
+			//	mPipelineBlur,
+			//	mShaderBlur_v);
 
-			mRenderMgr.ExecutePipeline(
-				mPipelineSSAO,
-				mShaderBlur);
+			//mRenderMgr.ExecutePipeline(
+			//	mPipelineSSAO,
+			//	mShaderBlur);
 #endif // !_DEBUG
 
 			mRenderMgr.ExecutePipeline(
