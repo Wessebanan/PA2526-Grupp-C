@@ -294,6 +294,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		// KNOCKBACK
 		ForceImpulseEvent knockback;
 		knockback.mDirection = getComponentFromKnownEntity<DynamicMovementComponent>(unit_entity->getID())->mDirection;
+
+		// Small y boost in knockback to send units FLYING.
 		knockback.mDirection.y += 0.3f;
 
 		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
@@ -358,11 +360,12 @@ void ecs::systems::UnitColorSwitchSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	
 	ColorComponent* p_unit_color = getComponentFromKnownEntity<ColorComponent>(p_color_switch->mEntityID);
 	
-	uint3 color = p_color_switch->mColor;
+	Color color = p_color_switch->mColor;
 	p_unit_color->red	= color.r;
 	p_unit_color->green = color.g;
 	p_unit_color->blue	= color.b;
 
+	// Inserting given time by event into [ID] in unordered_map.
 	mTimers[p_color_switch->mEntityID] = p_color_switch->mTime;
 }
 void ecs::systems::UnitColorSwitchSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
@@ -370,14 +373,18 @@ void ecs::systems::UnitColorSwitchSystem::updateMultipleEntities(EntityIterator&
 	for (int i = 0; i < _entities.entities.size(); i++)
 	{
 		ID current = _entities.entities.at(i).entity->getID();
+
+		// Checking to see if the current entity has a color switch timer.
 		auto timer = mTimers.find(current);
 		if (timer != mTimers.end())
 		{
+			// Decreasing the timer by delta and erasing if time's up.
 			timer->second -= _delta;
 			if (timer->second < 0.0f)
 			{
 				mTimers.erase(timer->first);
 			}
+			// Skipping iteration to not reset color of unit.
 			continue;
 		}
 
@@ -385,8 +392,7 @@ void ecs::systems::UnitColorSwitchSystem::updateMultipleEntities(EntityIterator&
 		ColorComponent* p_color = getComponentFromKnownEntity<ColorComponent>(current);
 		HealthComponent* p_health = getComponentFromKnownEntity<HealthComponent>(current);
 
-		float health_fraction = p_health->mHealth / p_health->mBaseHealth;
-		uint3 color = uint3(0, 0, 0);
+		Color color = Color(0, 0, 0);
 		switch (p_unit->playerID)
 		{
 		case PLAYER1:		
@@ -402,6 +408,11 @@ void ecs::systems::UnitColorSwitchSystem::updateMultipleEntities(EntityIterator&
 			color = PLAYER4_COLOR;
 			break;
 		}
+
+		// Finding what percentage of health remains for color calculation.
+		float health_fraction = p_health->mHealth / p_health->mBaseHealth;
+		
+		// Applying health fraction to color channels to make units darker if damaged.
 		p_color->red	= (uint8_t)((float)color.r * health_fraction);
 		p_color->green	= (uint8_t)((float)color.g * health_fraction);
 		p_color->blue	= (uint8_t)((float)color.b * health_fraction);

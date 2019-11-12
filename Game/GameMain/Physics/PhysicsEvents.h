@@ -40,7 +40,7 @@ namespace ecs
 		// Did not know where to put this haha.
 		EVENT(ColorSwitchEvent)
 		{
-			uint3 mColor;
+			Color mColor;
 			ID mEntityID;
 			float mTime;
 		};

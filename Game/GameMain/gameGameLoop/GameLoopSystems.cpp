@@ -323,7 +323,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 void ecs::systems::RoundStartSystem::CreateUnits()
 {
-	uint3 army_colors[] =
+	Color army_colors[] =
 	{
 		PLAYER1_COLOR,
 		PLAYER2_COLOR,
