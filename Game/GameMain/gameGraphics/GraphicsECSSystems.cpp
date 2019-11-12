@@ -150,10 +150,14 @@ namespace ecs
 
 			systems::OceanRenderSystem* p_ocean_renderer = (systems::OceanRenderSystem*)GetSystem<systems::OceanRenderSystem>();
 
-
 			p_mesh_mgr->mgr.SetVertexBuffers();
 
-#ifndef _DEBUG
+#ifdef _DEBUG
+			p_render_mgr->mgr.ExecutePipeline(
+				p_pipeline_shadow_map->pipeline,
+				0,
+				0);
+#else
 			p_render_mgr->mgr.ExecutePipeline(
 				p_pipeline_shadow_map->pipeline,
 				0,
