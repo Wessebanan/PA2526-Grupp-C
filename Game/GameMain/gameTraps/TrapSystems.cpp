@@ -61,6 +61,7 @@ void ecs::systems::FreezingDurationSystem::updateEntity(FilteredEntity& _entityI
 	
 }
 
+
 /*
 ------------------------------------------------------------
 ------------------------------------------------------------
@@ -204,12 +205,7 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 	{
 		TypeID id = dynamic_cast<TriggerSpringTrapEvent*>(&event)->unitID;
 
-		// So they cant run and mess up the flight to the next tile
-		components::DynamicMovementComponent* p_movement_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
-		p_movement_comp->mMaxVelocity = 0.0f;
-		
 		GridProp* p_gp = GridProp::GetInstance();
-
 
 		// Loop over random tiles until a valid spot is found
 		TransformComponent* start_trans_comp;
