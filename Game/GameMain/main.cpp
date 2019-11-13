@@ -57,6 +57,7 @@
 #include "InitHttpServer.h"
 
 #include "gameTraps/InitTraps.h"
+#include "gameTraps/TrapComponents.h"
 
 
 
@@ -118,6 +119,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(5000);
+	ecs.reserveComponentCount<ecs::components::TrapComponent>(400);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
