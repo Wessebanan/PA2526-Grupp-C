@@ -1,11 +1,24 @@
 #pragma once
 #include "ecsSystemIncludes.h"
 #include "TrapEvents.h"
+#include "TrapComponentsLHURE.h"
+#include <vector>
 
 namespace ecs
 {
 	namespace systems
 	{
+		// ----------- UPDATE SYSTEMS ---------------
+
+		// Updates the timer on frozzen durations
+		class FreezingDurationSystem : public ecs::ECSSystem<FreezingDurationSystem>
+		{
+		public:
+			FreezingDurationSystem();
+			~FreezingDurationSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		private:
+		};
 
 		// ----------- EVENTREADERS -----------------
 
@@ -30,7 +43,7 @@ namespace ecs
 		private:
 
 			const float mDamage = 10.0f;
-			const float mPower = 0.5f;
+			const float mPower = 0.5f; // REMEMBER TO SYNC WITH FREEZING DURATION STSTEM
 		};
 	}
 }

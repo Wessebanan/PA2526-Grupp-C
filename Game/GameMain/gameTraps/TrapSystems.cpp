@@ -4,6 +4,61 @@
 #include "../gameAnimation/AnimationComponents.h"
 #include "../gameAI/AIComponents.h"
 
+
+/*
+------------------------------------------------------------
+------------------------------------------------------------
+------------------------------------------------------------
+------------------- UPDATE SYSTEMS -------------------------
+------------------------------------------------------------
+------------------------------------------------------------
+------------------------------------------------------------
+*/
+
+
+ecs::systems::FreezingDurationSystem::FreezingDurationSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(ecs::components::FreezingTimerComponent::typeID);
+}
+
+ecs::systems::FreezingDurationSystem::~FreezingDurationSystem()
+{
+}
+
+void ecs::systems::FreezingDurationSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	FreezingTimerComponent* p_ftimer_comp = _entityInfo.getComponent<components::FreezingTimerComponent>();
+
+	p_ftimer_comp->mElapsedTime += _delta;
+
+	if (p_ftimer_comp->mElapsedTime >= p_ftimer_comp->mDuration)
+	{
+		TypeID id = p_ftimer_comp->getEntityID();
+
+		components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
+		components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
+
+		p_move_comp->mMaxVelocity *= 2.0f;
+		p_ani_speed_comp->factor *= 2.0f;
+
+		removeComponent(p_ftimer_comp->getEntityID(), p_ftimer_comp->getTypeID());
+	}
+}
+
+/*
+------------------------------------------------------------
+------------------------------------------------------------
+------------------------------------------------------------
+------------------- EVENT READERS --------------------------
+------------------------------------------------------------
+------------------------------------------------------------
+------------------------------------------------------------
+*/
+
+
+
+
 ecs::systems::FireTrapEventSystem::FireTrapEventSystem()
 {
 	updateType = EventReader;
@@ -57,7 +112,7 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 	{
 		TypeID id = dynamic_cast<TriggerFreezeTrapEvent*>(&event)->unitID;
 
-		// Make the unit take damage
+
 		components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
 		components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
 
@@ -74,5 +129,14 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 			ecs::components::DeadComponent dead_comp;
 			ecs::ECSUser::createComponent(id, dead_comp);
 		}
+		else
+		{
+			FreezingTimerComponent f_comp;
+			f_comp.mDuration = 3.0f;
+			f_comp.mElapsedTime = 0.0f;
+
+			createComponent(id, f_comp);
+		}
 	}
+
 }
