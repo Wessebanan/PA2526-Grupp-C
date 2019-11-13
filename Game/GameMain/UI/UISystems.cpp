@@ -201,6 +201,7 @@ void ecs::systems::UICountDownSystem::updateEntity(FilteredEntity& _entityInfo, 
 
 	if (p_UI_time->elapsedTime > 4.f) //remove the entity after 4 second which stops the countdown system to update
 	{
+		this->mCounter = 3;
 		removeEntity(_entityInfo.entity->getID());
 		return;
 	}
