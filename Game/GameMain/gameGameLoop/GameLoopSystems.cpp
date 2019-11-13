@@ -20,10 +20,10 @@
 
 #include "..//gameUtility/CameraComponents.h"
 
+#include "..///gameUtility/CameraEcsFunctions.h"
+
 using namespace ecs;
 using namespace ecs::components;
-
-
 
 
 /*
@@ -300,6 +300,21 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 		// Create Battlephase system
 		CreateSystem<systems::BattlePhaseSystem>(1);
+		CreateSystem<systems::UpdateDynamicCameraSystem>(1);
+
+
+		// Change to dynamic camera
+		itt = getComponentsOfType<CameraComponent>();
+		CameraComponent* cam_comp = (CameraComponent*)itt.next();
+
+		removeEntity(cam_comp->getEntityID());
+
+		TransformComponent new_transf_comp;
+		CameraComponent new_cam_comp;
+
+		CameraEcsFunctions::CreateDynamicCamera(new_transf_comp, new_cam_comp);
+
+		createEntity(new_transf_comp, new_cam_comp);
 
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
@@ -316,6 +331,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		//createEvent(e);
 
 
+
 	}
 
 
@@ -323,37 +339,17 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 void ecs::systems::RoundStartSystem::CreateUnits()
 {
+	
+	events::CountdownStartEvent start_countdown;
+	createEvent(start_countdown);
 	/* TEAM COLORS */
-	struct uint3
+	Color army_colors[] =
 	{
-		UINT r, g, b;
+		PLAYER1_COLOR,
+		PLAYER2_COLOR,
+		PLAYER3_COLOR,
+		PLAYER4_COLOR
 	};
-
-	uint3 army_colors[4];
-
-
-	// Player 1 - Red
-	army_colors[0].r = 117;
-	army_colors[0].g = 1;
-	army_colors[0].b = 1;
-
-	// Player 2 - Purple
-	army_colors[1].r = 74;
-	army_colors[1].g = 1;
-	army_colors[1].b = 117;
-
-	// Player 3 - Blue
-	army_colors[2].r = 47;
-	army_colors[2].g = 62;
-	army_colors[2].b = 236;
-
-	// Player 4 - Green
-	army_colors[3].r = 0;
-	army_colors[3].g = 93;
-	army_colors[3].b = 5;
-
-	/* END	*/
-
 
 	//Create Components for a "Unit" entity.
 	ecs::components::TransformComponent transform;
@@ -421,10 +417,9 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			transform.scale.y = 0.1f;
 			transform.scale.z = 0.1f;
 
-
-			color_comp.red = army_colors[i].r;
-			color_comp.green = army_colors[i].g;
-			color_comp.blue = army_colors[i].b;
+			color_comp.red		= army_colors[i].r;
+			color_comp.green	= army_colors[i].g;
+			color_comp.blue		= army_colors[i].b;
 
 			// Create and init skeleton comp
 
@@ -674,10 +669,27 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 
 			// Remove battlephase and start prephase
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
+			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
+
+			//Change to overlook camera for the prephase
+			itt = getComponentsOfType<CameraComponent>();
+			CameraComponent* cam_comp = (CameraComponent*)itt.next();
+			removeEntity(cam_comp->getEntityID());
+
+			TransformComponent new_transf_comp;
+			CameraComponent new_cam_comp;
+
+			CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
+
+			createEntity(new_transf_comp, new_cam_comp);
 
 			this->mRoundOver = false;
 			this->mRoundOverDuration = 0.0f;
 		}
+
+
+		
 	}
+	
 }

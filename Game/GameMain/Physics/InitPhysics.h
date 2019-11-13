@@ -55,6 +55,9 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 	// Fighting
 	rEcs.createSystem<ecs::systems::WeaponInitSystem>();
 	rEcs.createSystem<ecs::systems::DamageSystem>();
+
+	// Color
+	rEcs.createSystem<ecs::systems::UnitColorSwitchSystem>();
 }
 
 inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh * pMesh)
