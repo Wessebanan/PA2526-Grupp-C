@@ -59,13 +59,6 @@
 #include "gameTraps/InitTraps.h"
 #include "gameTraps/TrapComponents.h"
 
-
-
-// REMOVE THIS MOTHAFOCKER
-#include "gameTraps/TrapEvents.h"
-
-
-
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>

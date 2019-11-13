@@ -268,9 +268,9 @@ namespace ecs
 			graphics::RenderBuffer* mpRenderBuffer;
 
 			UINT mObjectCount;
-			graphics::MeshRegion mObjectMeshRegion[SCENE_OBJECT_COUNT];
+			graphics::MeshRegion mObjectMeshRegion[SCENE_OBJECT_TYPE_COUNT];
 
-			UINT mObjectTypeCount[SCENE_OBJECT_COUNT];
+			UINT mObjectTypeCount[SCENE_OBJECT_TYPE_COUNT];
 		};
 
 		class SSAORenderSystem : public ECSSystem<SSAORenderSystem>
@@ -340,9 +340,9 @@ namespace ecs
 			graphics::RenderBuffer* mpRenderBuffer;
 
 			UINT mObjectCount;
-			graphics::MeshRegion mObjectMeshRegion[WEAPON_COUNT];
+			graphics::MeshRegion mObjectMeshRegion[WEAPON_TYPE_COUNT];
 
-			UINT mObjectTypeCount[WEAPON_COUNT];
+			UINT mObjectTypeCount[WEAPON_TYPE_COUNT];
 
 			void PlaceWorldMatrix(FilteredEntity& rWeapon, DirectX::XMFLOAT4X4& rDestination);
 		};
@@ -376,9 +376,9 @@ namespace ecs
 			graphics::RenderBuffer* mpRenderBuffer;
 
 			UINT mObjectCount;
-			graphics::MeshRegion mObjectMeshRegion[TRAP_COUNT];
+			graphics::MeshRegion mObjectMeshRegion[TRAP_TYPE_COUNT];
 
-			UINT mObjectTypeCount[TRAP_COUNT];
+			UINT mObjectTypeCount[TRAP_TYPE_COUNT];
 		};
 	}
 }

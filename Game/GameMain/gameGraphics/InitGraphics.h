@@ -141,7 +141,7 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	//systems::TileRenderSystem* p_tile_renderer = rEcs.createSystem<systems::TileRenderSystem>(9);
 	//systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<systems::OceanRenderSystem>(9);
 	//p_tile_renderer->Initialize(&r_render_mgr, &r_render_buffer);
-	//p_ocean_renderer->Initialize(&r_render_mgr, &r_render_buffer);s
+	//p_ocean_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 }
 
 void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)

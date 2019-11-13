@@ -508,7 +508,7 @@ namespace ecs
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::SceneObjectRenderSystem::GetPerInstanceSize());
 
 			// Count how many instances we have per scene object mesh
-			ZeroMemory(mObjectTypeCount, SCENE_OBJECT_COUNT * sizeof(UINT));
+			ZeroMemory(mObjectTypeCount, SCENE_OBJECT_TYPE_COUNT * sizeof(UINT));
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
@@ -516,9 +516,9 @@ namespace ecs
 			}
 
 			// Set index to write to in RenderBuffer, per mesh
-			UINT object_type_individual_index[SCENE_OBJECT_COUNT] = { 0 };
+			UINT object_type_individual_index[SCENE_OBJECT_TYPE_COUNT] = { 0 };
 
-			for (int i = 1; i < SCENE_OBJECT_COUNT; i++)
+			for (int i = 1; i < SCENE_OBJECT_TYPE_COUNT; i++)
 			{
 				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
 			}
@@ -554,7 +554,7 @@ namespace ecs
 				This converts the SCENE_OBJECT mesh enum to MESH_TYPE enum in MeshContainer.
 			*/
 
-			for (UINT i = 0; i < SCENE_OBJECT_COUNT; i++)
+			for (UINT i = 0; i < SCENE_OBJECT_TYPE_COUNT; i++)
 			{
 				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(SCENE_OBJECT_ENUM_OFFSET + i);
 			}
@@ -571,7 +571,7 @@ namespace ecs
 			//mObjectMeshRegion[7] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TOWER);
 			//mObjectMeshRegion[8] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_WINTERTREE);
 
-			mInstanceLayout.MeshCount = SCENE_OBJECT_COUNT;
+			mInstanceLayout.MeshCount = SCENE_OBJECT_TYPE_COUNT;
 			mInstanceLayout.pMeshes = mObjectMeshRegion;
 			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
 
@@ -764,7 +764,7 @@ namespace ecs
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::WeaponRenderSystem::GetPerInstanceSize());
 
 			// Count how many instances we have per scene object mesh
-			ZeroMemory(mObjectTypeCount, WEAPON_COUNT * sizeof(UINT));
+			ZeroMemory(mObjectTypeCount, WEAPON_TYPE_COUNT * sizeof(UINT));
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::WeaponComponent* p_obj_comp = object.getComponent<components::WeaponComponent>();
@@ -772,9 +772,9 @@ namespace ecs
 			}
 
 			// Set index to write to in RenderBuffer, per mesh
-			UINT object_type_individual_index[WEAPON_COUNT] = { 0 };
+			UINT object_type_individual_index[WEAPON_TYPE_COUNT] = { 0 };
 
-			for (int i = 1; i < WEAPON_COUNT; i++)
+			for (int i = 1; i < WEAPON_TYPE_COUNT; i++)
 			{
 				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
 			}
@@ -808,12 +808,12 @@ namespace ecs
 			/*
 				Set up mesh region for all meshes that will be rendered.
 			*/
-			for (int i = 0; i < WEAPON_COUNT; i++)
+			for (int i = 0; i < WEAPON_TYPE_COUNT; i++)
 			{
 				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE(i + (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1)));
 			}
 
-			mInstanceLayout.MeshCount = WEAPON_COUNT;
+			mInstanceLayout.MeshCount = WEAPON_TYPE_COUNT;
 			mInstanceLayout.pMeshes = mObjectMeshRegion;
 			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
 
@@ -906,7 +906,7 @@ namespace ecs
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::TrapRenderSystem::GetPerInstanceSize());
 
 			// Count how many instances we have per scene object mesh
-			ZeroMemory(mObjectTypeCount, TRAP_COUNT * sizeof(UINT));
+			ZeroMemory(mObjectTypeCount, TRAP_TYPE_COUNT * sizeof(UINT));
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::TrapComponent* p_obj_comp = object.getComponent<components::TrapComponent>();
@@ -915,9 +915,9 @@ namespace ecs
 			}
 
 			// Set index to write to in RenderBuffer, per mesh
-			UINT object_type_individual_index[TRAP_COUNT] = { 0 };
+			UINT object_type_individual_index[TRAP_TYPE_COUNT] = { 0 };
 
-			for (int i = 1; i < TRAP_COUNT; i++)
+			for (int i = 1; i < TRAP_TYPE_COUNT; i++)
 			{
 				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
 			}
@@ -962,12 +962,12 @@ namespace ecs
 			/*
 				Set up mesh region for all meshes that will be rendered.
 			*/
-			for (int i = 0; i < TRAP_COUNT; i++)
+			for (int i = 0; i < TRAP_TYPE_COUNT; i++)
 			{
 				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE(i + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1)));
 			}
 
-			mInstanceLayout.MeshCount = TRAP_COUNT;
+			mInstanceLayout.MeshCount = TRAP_TYPE_COUNT;
 			mInstanceLayout.pMeshes = mObjectMeshRegion;
 			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
 

@@ -39,7 +39,7 @@ namespace ecs
 				Never create a trap that isn't defined.
 			*/
 
-			if (r_trap_event.type <= GAME_OBJECT_TYPE_TRAP_OFFSET_TAG || r_trap_event.type > GAME_OBJECT_TYPE(GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + TRAP_COUNT))
+			if (r_trap_event.type <= GAME_OBJECT_TYPE_TRAP_OFFSET_TAG || r_trap_event.type > GAME_OBJECT_TYPE(GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + TRAP_TYPE_COUNT))
 			{
 				return;
 			}
