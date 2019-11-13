@@ -60,23 +60,5 @@ namespace ecs
 
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
-
-		class SmokeSpawnerSystem : public ECSSystem<SmokeSpawnerSystem>
-		{
-		public:
-			SmokeSpawnerSystem();
-			virtual ~SmokeSpawnerSystem() {}
-
-			void updateEntity(FilteredEntity& entity, float delta) override;
-		};
-
-		class SmokeUpdateSystem : public ECSSystem<SmokeUpdateSystem>
-		{
-		public:
-			SmokeUpdateSystem();
-			virtual ~SmokeUpdateSystem() {}
-
-			void updateEntity(FilteredEntity& entity, float delta) override;
-		};
 	}
 }

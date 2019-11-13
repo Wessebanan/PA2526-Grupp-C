@@ -112,6 +112,7 @@
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp" />
+    <ClCompile Include="gameGraphics\ParticleECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
     <ClCompile Include="gameRagdoll\Collision.cpp" />
@@ -167,6 +168,8 @@
     <ClInclude Include="gameGraphics\InitGraphics.h" />
     <ClInclude Include="gameGraphics\InitParticles.h" />
     <ClInclude Include="gameGraphics\OceanRenderingPipeline.h" />
+    <ClInclude Include="gameGraphics\ParticleECSComponents.h" />
+    <ClInclude Include="gameGraphics\ParticleECSSystems.h" />
     <ClInclude Include="gameGraphics\RenderBuffer.h" />
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
     <ClInclude Include="gameGraphics\SSAOPipeline.h" />

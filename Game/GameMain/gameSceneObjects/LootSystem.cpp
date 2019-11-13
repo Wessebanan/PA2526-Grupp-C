@@ -1,6 +1,6 @@
 #include "LootSystem.h"
 
-#include "../gameGraphics/GraphicsECSComponents.h"
+#include "../gameGraphics/ParticleECSComponents.h"
 
 #pragma region SpawnLootSystem
 ecs::systems::SpawnLootSystem::SpawnLootSystem()

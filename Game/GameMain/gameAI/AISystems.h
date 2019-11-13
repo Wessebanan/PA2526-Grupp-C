@@ -976,6 +976,16 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override
 			{	
+				// DEATH EFFECTS
+				DeadComponent* p_dead = getComponentFromKnownEntity<DeadComponent>(entity.entity->getID());
+				switch (p_dead->cause)
+				{
+				case DeadComponent::CAUSE_DROWNING:
+					std::cout << "Haha someone drowned\n";
+					break;
+				default:
+					break;
+				}
 				// saved fo future use
 				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
 				UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
