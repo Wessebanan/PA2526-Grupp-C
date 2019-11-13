@@ -11,6 +11,7 @@
 #include "../gameGraphics/OceanRenderingPipeline.h"
 #include "../Physics/PhysicsComponents.h"
 #include "../gameGraphics/GraphicsECSComponents.h"
+#include "../gameGraphics/ParticleECSComponents.h"
 
 
 #include "../gameGraphics/SSAOPipeline.h"

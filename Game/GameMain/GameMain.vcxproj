@@ -112,6 +112,7 @@
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp" />
+    <ClCompile Include="gameGraphics\ParticleECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
     <ClCompile Include="gameRagdoll\Collision.cpp" />
@@ -120,6 +121,7 @@
     <ClCompile Include="gameSceneObjects\LootSystem.cpp" />
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\SSAOPipeline.cpp" />
+    <ClCompile Include="gameTraps\TrapSystems.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\CameraSystems.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
@@ -167,6 +169,8 @@
     <ClInclude Include="gameGraphics\InitGraphics.h" />
     <ClInclude Include="gameGraphics\InitParticles.h" />
     <ClInclude Include="gameGraphics\OceanRenderingPipeline.h" />
+    <ClInclude Include="gameGraphics\ParticleECSComponents.h" />
+    <ClInclude Include="gameGraphics\ParticleECSSystems.h" />
     <ClInclude Include="gameGraphics\RenderBuffer.h" />
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
     <ClInclude Include="gameGraphics\SSAOPipeline.h" />
@@ -184,7 +188,9 @@
     <ClInclude Include="gameSceneObjects\LootSystem.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
+    <ClInclude Include="gameTraps\InitTraps.h" />
     <ClInclude Include="gameTraps\TrapEvents.h" />
+    <ClInclude Include="gameTraps\TrapSystems.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
     <ClInclude Include="gameUtility\CameraEvents.h" />
     <ClInclude Include="gameUtility\CameraEcsFunctions.h" />

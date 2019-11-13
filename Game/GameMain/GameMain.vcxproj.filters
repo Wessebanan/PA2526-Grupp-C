@@ -102,6 +102,12 @@
     <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="gameTraps\TrapSystems.cpp">
+      <Filter>Traps</Filter>
+    </ClCompile>
+    <ClCompile Include="gameGraphics\ParticleECSSystems.cpp">
+      <Filter>Graphics\ECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -344,6 +350,18 @@
     </ClInclude>
     <ClInclude Include="gameGraphics\InitParticles.h">
       <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\ParticleECSSystems.h">
+      <Filter>Graphics\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\ParticleECSComponents.h">
+      <Filter>Graphics\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="gameTraps\TrapSystems.h">
+      <Filter>Traps</Filter>
+    </ClInclude>
+    <ClInclude Include="gameTraps\InitTraps.h">
+      <Filter>Traps</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -69,13 +69,19 @@ namespace ecs
 		{
 
 			std::vector<int> unitIDs; //Holds the entity IDs of every unit in one players army.
-
+			
 			PLAYER playerID;
 		};
 
 		struct DeadComponent : public ECSComponent<DeadComponent>
 		{
-			int data;
+			enum CauseOfDeath
+			{
+				CAUSE_DROWNING,
+				CAUSE_DAMAGE
+			};
+			CauseOfDeath cause;
+			DirectX::XMFLOAT3 position;
 		};
 
 		struct PlayerStateComponent : public ECSComponent<PlayerStateComponent>
