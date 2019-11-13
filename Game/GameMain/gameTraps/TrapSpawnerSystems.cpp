@@ -39,7 +39,6 @@ namespace ecs
 				Never create a trap that isn't defined.
 			*/
 
-			std::cout << "Trap type: " << r_trap_event.type << std::endl;
 			if (r_trap_event.type <= GAME_OBJECT_TYPE_TRAP_OFFSET_TAG || r_trap_event.type > GAME_OBJECT_TYPE(GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + TRAP_COUNT))
 			{
 				return;
