@@ -68,17 +68,6 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			XMVECTOR colliding_center = XMLoadFloat3(&current_aabb.Center);
 			RevertMovement(p_transform->position, p_movement->mVelocity, &aabb, &current_aabb, p_event->mDelta);
 
-			if (getEntity(current_entity_id)->hasComponentOfType(DynamicMovementComponent::typeID))
-			{
-				DynamicMovementComponent* colliding_movement = getComponentFromKnownEntity<DynamicMovementComponent>(current_entity_id);
-
-				// Creating a shove event in the direction of the colliding entities movement.
-				ForceImpulseEvent shove;
-				shove.mDirection	= p_movement->mDirection;
-				shove.mForce		= BASE_KNOCKBACK;
-				shove.mEntityID		= current_entity_id;
-				createEvent(shove);
-			}
 			// Transforming the aabb again since the position has changed.
 			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
 			aabb.Transform(world_transform);
