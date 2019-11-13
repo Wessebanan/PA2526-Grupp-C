@@ -86,11 +86,16 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		private:
-			float x;
-			float yDistance;
-			float z;
-			float length;
+			float mX;
+			float mYDistance;
+			float mZ;
+			float mY;
+			float mTileSizeLength = sqrtf(3)/2.f;//sqrt(3)/2 is the length to one side if the tile if radius is 1
+			float mLength;
+			float mLengthOfVector;
 			float mMinimumDist;
+			float mAngle;
+			XMFLOAT3 mJumpVector;
 			//Returns the new state of the unit or STATE::NONE if it is supposed to stay in this state for the next update.
 			STATE CheckIfGoalIsMet(FilteredEntity& entity, float delta);
 			//Switch to the next units next state
