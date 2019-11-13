@@ -120,6 +120,7 @@
     <ClCompile Include="gameSceneObjects\LootSystem.cpp" />
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\SSAOPipeline.cpp" />
+    <ClCompile Include="gameTraps\TrapSystems.cpp" />
     <ClCompile Include="gameTraps\InitTrapsMACKE.cpp" />
     <ClCompile Include="gameTraps\TrapCollisionSystem.cpp" />
     <ClCompile Include="gameTraps\TrapSpawnerSystems.cpp" />
@@ -186,9 +187,11 @@
     <ClInclude Include="gameSceneObjects\LootSystem.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
+    <ClInclude Include="gameTraps\InitTraps.h" />
     <ClInclude Include="gameTraps\InitTrapsMACKE.h" />
     <ClInclude Include="gameTraps\TrapComponents.h" />
     <ClInclude Include="gameTraps\TrapEvents.h" />
+    <ClInclude Include="gameTraps\TrapSystems.h" />
     <ClInclude Include="gameTraps\TrapSpawnerSystems.h" />
     <ClInclude Include="gameTraps\TrapCollisionSystem.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />

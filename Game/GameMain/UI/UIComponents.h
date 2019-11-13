@@ -3,6 +3,7 @@
 #include "ecsComponentIncludes.h"
 #include "Direct2D.h"
 
+
 enum UITAG
 {
 	STARTTEXT,
@@ -50,10 +51,9 @@ namespace ecs
 			int mThickness; //uses an int to determin the thickness of the draw rect border
 		};
 
-		struct UIIWant : public ECSComponent<UIIWant>
+		struct UIIWant : public ECSComponent<UIIWant> //a pretty all around component used for extra stuff for special systems
 		{
-			bool yesPlease;
+			float elapsedTime = 0.f;
 		};
-
 	}
 }
