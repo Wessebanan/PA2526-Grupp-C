@@ -32,7 +32,7 @@ namespace ecs
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
 
-			const float mKnockback = 400.0f;
+			const float mKnockback = 10.0f;
 		};
 	}
 }

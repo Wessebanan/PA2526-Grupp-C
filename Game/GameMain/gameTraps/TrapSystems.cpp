@@ -86,7 +86,7 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 
 		XMFLOAT2 flight_direction;
 		flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
-		flight_direction.y = target_trans_comp->position.y - start_trans_comp->position.y;
+		flight_direction.y = target_trans_comp->position.z - start_trans_comp->position.z;
 
 		float dist = sqrtf(flight_direction.x * flight_direction.x + flight_direction.y * flight_direction.y);
 
@@ -95,10 +95,9 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 
 		// Make the unit jump a litte, fire is hot and so am I
 		ForceImpulseEvent knockback;
-		knockback.mDirection = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
-		knockback.mForce = mKnockback;
+		knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
+		knockback.mForce = dist * 10;
 		knockback.mEntityID = id;
 		createEvent(knockback);
-
 	}
 }
