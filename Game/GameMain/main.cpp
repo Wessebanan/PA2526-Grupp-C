@@ -55,6 +55,10 @@
 #include "InitHttpServer.h"
 
 #include "gameTraps/InitTraps.h"
+#include "gameWeapons/InitWeapons.h"
+
+// DELETE THIS FUCKERY
+#include "gameWeapons/WeaponEvents.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -268,11 +272,26 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
+	InitWeapons(rECS);
+
 	InitSpawnLootSystem(rECS);
 	InitHttpServer(rECS);
-
 
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
 
+	// Place at end of InitAll() function in main, to spawn fire traps at all tiles
+	events::SpawnWeaponEvent weapon_event;
+	weapon_event.weaponType = GAME_OBJECT_TYPE_WEAPON_SWORD;
+	TypeFilter tile_filter;
+	tile_filter.addRequirement(components::TileComponent::typeID);
+	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+	for (FilteredEntity& tile : tiles.entities)
+	{
+		if (tile.getComponent<components::TileComponent>()->tileType != WATER)
+		{
+			weapon_event.spawnTileId = tile.entity->getID();
+			rECS.createEvent(weapon_event);
+		}
+	}
 }
