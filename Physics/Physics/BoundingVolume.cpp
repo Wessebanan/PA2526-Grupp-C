@@ -7,18 +7,18 @@ void BoundingCylinder::CreateFromTile(XMFLOAT3 position, float height, float rad
 	mCenter = XMFLOAT3(position.x, position.y - (height / 2.0f), position.z);
 }
 
-bool BoundingCylinder::Intersects(BoundingBox& aabb)
+bool BoundingCylinder::Intersects(BoundingBox& rAabb)
 {
-	// Immediately return if aabb is above or below cylinder.
-	if (aabb.Center.y - aabb.Extents.y > mCenter.y + mExtentsY ||
-		aabb.Center.y + aabb.Extents.y < mCenter.y - mExtentsY)
+	// Immediately return if rAabb is above or below cylinder.
+	if (rAabb.Center.y - rAabb.Extents.y > mCenter.y + mExtentsY ||
+		rAabb.Center.y + rAabb.Extents.y < mCenter.y - mExtentsY)
 	{
 		return false;
 	}
 	
 	// Find closest x and z to cylinder center.
-	float x = (std::max)(aabb.Center.x - aabb.Extents.x, (std::min)(mCenter.x, aabb.Center.x + aabb.Extents.x));
-	float z = (std::max)(aabb.Center.z - aabb.Extents.z, (std::min)(mCenter.z, aabb.Center.z + aabb.Extents.z));
+	float x = (std::max)(rAabb.Center.x - rAabb.Extents.x, (std::min)(mCenter.x, rAabb.Center.x + rAabb.Extents.x));
+	float z = (std::max)(rAabb.Center.z - rAabb.Extents.z, (std::min)(mCenter.z, rAabb.Center.z + rAabb.Extents.z));
 
 	XMFLOAT3 x_z_to_center = XMFLOAT3(x - mCenter.x, 0.0f, z - mCenter.z);
 	float x_z_dist_to_center = PhysicsHelpers::CalculateVectorLength(x_z_to_center);
@@ -27,32 +27,32 @@ bool BoundingCylinder::Intersects(BoundingBox& aabb)
 	return x_z_dist_to_center < mRadius;
 }
 
-bool BoundingCylinder::Intersects(BoundingSphere& sphere)
+bool BoundingCylinder::Intersects(BoundingSphere& rSphere)
 {
-	// Immediately return if sphere is above or below cylinder.
-	if (sphere.Center.y - sphere.Radius > mCenter.y + mExtentsY ||
-		sphere.Center.y + sphere.Radius < mCenter.y - mExtentsY)
+	// Immediately return if rSphere is above or below cylinder.
+	if (rSphere.Center.y - rSphere.Radius > mCenter.y + mExtentsY ||
+		rSphere.Center.y + rSphere.Radius < mCenter.y - mExtentsY)
 	{
 		return false;
 	}
 
 	// Circle-circle intersection.
 	XMFLOAT3 x_z_cylinder_center = XMFLOAT3(mCenter.x, 0.0f, mCenter.z);
-	XMFLOAT3 x_z_sphere_center = XMFLOAT3(sphere.Center.x, 0.0f, sphere.Center.z);
-	float x_z_center_to_center_dist = PhysicsHelpers::CalculateDistance(x_z_cylinder_center, x_z_sphere_center);
+	XMFLOAT3 x_z_rSphere_center = XMFLOAT3(rSphere.Center.x, 0.0f, rSphere.Center.z);
+	float x_z_center_to_center_dist = PhysicsHelpers::CalculateDistance(x_z_cylinder_center, x_z_rSphere_center);
 
-	return x_z_center_to_center_dist < sphere.Radius + mRadius;
+	return x_z_center_to_center_dist < rSphere.Radius + mRadius;
 }
 
-bool BoundingCylinder::Intersects(BoundingOrientedBox& obb)
+bool BoundingCylinder::Intersects(BoundingOrientedBox& rObb)
 {
 	// Only corner intersection, edges are hard af.
-	XMFLOAT3* corners = new XMFLOAT3[obb.CORNER_COUNT];
-	obb.GetCorners(corners);
+	XMFLOAT3* p_corners = new XMFLOAT3[rObb.CORNER_COUNT];
+	rObb.GetCorners(p_corners);
 	bool y_check = false;
-	for (int i = 0; i < obb.CORNER_COUNT; i++)
+	for (int i = 0; i < rObb.CORNER_COUNT; i++)
 	{
-		XMFLOAT3 corner = corners[i];
+		XMFLOAT3 corner = p_corners[i];
 		// If a corner is within y range, check x-z.
 		if (corner.y < mCenter.y - mExtentsY ||
 			corner.y > mCenter.y + mExtentsY)
@@ -71,45 +71,45 @@ bool BoundingCylinder::Intersects(BoundingOrientedBox& obb)
 	return false;
 }
 
-bool BoundingCylinder::Intersects(BoundingCylinder& cylinder)
+bool BoundingCylinder::Intersects(BoundingCylinder& rCylinder)
 {
 	// Return if above or below.
-	if (cylinder.mCenter.y - cylinder.mExtentsY > mCenter.y + mExtentsY ||
-		cylinder.mCenter.y + cylinder.mExtentsY < mCenter.y - mExtentsY)
+	if (rCylinder.mCenter.y - rCylinder.mExtentsY > mCenter.y + mExtentsY ||
+		rCylinder.mCenter.y + rCylinder.mExtentsY < mCenter.y - mExtentsY)
 	{
 		return false;
 	}
 
 	// Circle-circle intersection.
-	XMFLOAT3 x_z_this_cylinder_center = XMFLOAT3(mCenter.x, 0.0f, mCenter.z);
-	XMFLOAT3 x_z_cylinder_center = XMFLOAT3(cylinder.mCenter.x, 0.0f, cylinder.mCenter.z);
-	float x_z_center_to_center_dist = PhysicsHelpers::CalculateDistance(x_z_this_cylinder_center, x_z_cylinder_center);
+	XMFLOAT3 x_z_this_rCylinder_center = XMFLOAT3(mCenter.x, 0.0f, mCenter.z);
+	XMFLOAT3 x_z_rCylinder_center = XMFLOAT3(rCylinder.mCenter.x, 0.0f, rCylinder.mCenter.z);
+	float x_z_center_to_center_dist = PhysicsHelpers::CalculateDistance(x_z_this_rCylinder_center, x_z_rCylinder_center);
 
-	return x_z_center_to_center_dist < cylinder.mRadius + mRadius;
+	return x_z_center_to_center_dist < rCylinder.mRadius + mRadius;
 }
 
-bool Sphere::Intersects(BoundingVolume* other)
+bool Sphere::Intersects(BoundingVolume* pOther)
 {
-	// Check which bounding volume 'other' is and test.
-	OBB* obb = dynamic_cast<OBB*>(other);
-	if (obb)
+	// Check which bounding volume 'pOther' is and test.
+	OBB* p_obb = dynamic_cast<OBB*>(pOther);
+	if (p_obb)
 	{
-		return BoundingSphere::Intersects(*(BoundingOrientedBox*)obb);
+		return BoundingSphere::Intersects(*(BoundingOrientedBox*)p_obb);
 	}
-	AABB* aabb = dynamic_cast<AABB*>(other);
-	if (aabb)
+	AABB* p_aabb = dynamic_cast<AABB*>(pOther);
+	if (p_aabb)
 	{
-		return BoundingSphere::Intersects(*(BoundingBox*)aabb);
+		return BoundingSphere::Intersects(*(BoundingBox*)p_aabb);
 	}
-	Sphere* sphere = dynamic_cast<Sphere*>(other);
-	if (sphere)
+	Sphere* p_sphere = dynamic_cast<Sphere*>(pOther);
+	if (p_sphere)
 	{
-		return BoundingSphere::Intersects(*(Sphere*)sphere);
+		return BoundingSphere::Intersects(*(Sphere*)p_sphere);
 	}
-	Cylinder* cylinder = dynamic_cast<Cylinder*>(other);
-	if (cylinder)
+	Cylinder* p_cylinder = dynamic_cast<Cylinder*>(pOther);
+	if (p_cylinder)
 	{
-		return cylinder->BoundingCylinder::Intersects(*(BoundingSphere*)this);
+		return p_cylinder->BoundingCylinder::Intersects(*(BoundingSphere*)this);
 	}
 	return false;
 }
@@ -124,28 +124,28 @@ XMFLOAT3 Sphere::GetCenter()
 	return Center;
 }
 
-bool OBB::Intersects(BoundingVolume* other)
+bool OBB::Intersects(BoundingVolume* pOther)
 {
-	// Check which bounding volume 'other' is and test.
-	OBB* obb = dynamic_cast<OBB*>(other);
-	if (obb)
+	// Check which bounding volume 'pOther' is and test.
+	OBB* p_obb = dynamic_cast<OBB*>(pOther);
+	if (p_obb)
 	{
-		return BoundingOrientedBox::Intersects(*(BoundingOrientedBox*)obb);
+		return BoundingOrientedBox::Intersects(*(BoundingOrientedBox*)p_obb);
 	}
-	AABB* aabb = dynamic_cast<AABB*>(other);
-	if (aabb)
+	AABB* p_aabb = dynamic_cast<AABB*>(pOther);
+	if (p_aabb)
 	{
-		return BoundingOrientedBox::Intersects(*(BoundingBox*)aabb);
+		return BoundingOrientedBox::Intersects(*(BoundingBox*)p_aabb);
 	}
-	Sphere* sphere = dynamic_cast<Sphere*>(other);
-	if (sphere)
+	Sphere* p_sphere = dynamic_cast<Sphere*>(pOther);
+	if (p_sphere)
 	{
-		return BoundingOrientedBox::Intersects(*(Sphere*)sphere);
+		return BoundingOrientedBox::Intersects(*(Sphere*)p_sphere);
 	}
-	Cylinder* cylinder = dynamic_cast<Cylinder*>(other);
-	if (cylinder)
+	Cylinder* p_cylinder = dynamic_cast<Cylinder*>(pOther);
+	if (p_cylinder)
 	{
-		return cylinder->BoundingCylinder::Intersects(*(BoundingOrientedBox*)this);
+		return p_cylinder->BoundingCylinder::Intersects(*(BoundingOrientedBox*)this);
 	}
 	return false;
 }
@@ -160,28 +160,28 @@ XMFLOAT3 OBB::GetCenter()
 	return Center;
 }
 
-bool AABB::Intersects(BoundingVolume* other)
+bool AABB::Intersects(BoundingVolume* pOther)
 {
-	// Check which bounding volume 'other' is and test.
-	OBB* obb = dynamic_cast<OBB*>(other);
-	if (obb)
+	// Check which bounding volume 'pOther' is and test.
+	OBB* p_obb = dynamic_cast<OBB*>(pOther);
+	if (p_obb)
 	{
-		return BoundingBox::Intersects(*(BoundingOrientedBox*)obb);
+		return BoundingBox::Intersects(*(BoundingOrientedBox*)p_obb);
 	}
-	AABB* aabb = dynamic_cast<AABB*>(other);
-	if (aabb)
+	AABB* p_aabb = dynamic_cast<AABB*>(pOther);
+	if (p_aabb)
 	{
-		return BoundingBox::Intersects(*(BoundingBox*)aabb);
+		return BoundingBox::Intersects(*(BoundingBox*)p_aabb);
 	}
-	Sphere* sphere = dynamic_cast<Sphere*>(other);
-	if (sphere)
+	Sphere* p_sphere = dynamic_cast<Sphere*>(pOther);
+	if (p_sphere)
 	{
-		return BoundingBox::Intersects(*(Sphere*)sphere);
+		return BoundingBox::Intersects(*(Sphere*)p_sphere);
 	}
-	Cylinder* cylinder = dynamic_cast<Cylinder*>(other);
-	if (cylinder)
+	Cylinder* p_cylinder = dynamic_cast<Cylinder*>(pOther);
+	if (p_cylinder)
 	{
-		return cylinder->BoundingCylinder::Intersects(*(BoundingBox*)this);
+		return p_cylinder->BoundingCylinder::Intersects(*(BoundingBox*)this);
 	}
 	return false;
 }
@@ -196,28 +196,28 @@ XMFLOAT3 AABB::GetCenter()
 	return Center;
 }
 
-bool Cylinder::Intersects(BoundingVolume* other)
+bool Cylinder::Intersects(BoundingVolume* pOther)
 {
-	// Check which bounding volume 'other' is and test.
-	OBB* obb = dynamic_cast<OBB*>(other);
-	if (obb)
+	// Check which bounding volume 'pOther' is and test.
+	OBB* p_obb = dynamic_cast<OBB*>(pOther);
+	if (p_obb)
 	{
-		return BoundingCylinder::Intersects(*(BoundingOrientedBox*)obb);
+		return BoundingCylinder::Intersects(*(BoundingOrientedBox*)p_obb);
 	}
-	AABB* aabb = dynamic_cast<AABB*>(other);
-	if (aabb)
+	AABB* p_aabb = dynamic_cast<AABB*>(pOther);
+	if (p_aabb)
 	{
-		return BoundingCylinder::Intersects(*(BoundingBox*)aabb);
+		return BoundingCylinder::Intersects(*(BoundingBox*)p_aabb);
 	}
-	Sphere* sphere = dynamic_cast<Sphere*>(other);
-	if (sphere)
+	Sphere* p_sphere = dynamic_cast<Sphere*>(pOther);
+	if (p_sphere)
 	{
-		return BoundingCylinder::Intersects(*(Sphere*)sphere);
+		return BoundingCylinder::Intersects(*(Sphere*)p_sphere);
 	}
-	Cylinder* cylinder = dynamic_cast<Cylinder*>(other);
-	if (cylinder)
+	Cylinder* p_cylinder = dynamic_cast<Cylinder*>(pOther);
+	if (p_cylinder)
 	{
-		return BoundingCylinder::Intersects(*cylinder);
+		return BoundingCylinder::Intersects(*p_cylinder);
 	}
 	return false;
 }

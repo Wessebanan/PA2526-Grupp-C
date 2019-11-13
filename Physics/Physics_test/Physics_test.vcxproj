@@ -47,20 +47,12 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Lib_d|x64'" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
-    <ClInclude Include="..\..\Game\GameMain\Physics\CollisionSystem.h" />
-    <ClInclude Include="..\..\Game\GameMain\Physics\MovementSystem.h" />
-    <ClInclude Include="..\..\Game\GameMain\Physics\PhysicsComponents.h" />
-    <ClInclude Include="..\..\Game\GameMain\Physics\PhysicsEvents.h" />
-    <ClInclude Include="GroundCollision.h" />
-    <ClInclude Include="MovementLogic.h" />
-    <ClInclude Include="ObjectCollision.h" />
+    <ClInclude Include="..\Physics\includes\BoundingVolume.h" />
+    <ClInclude Include="BoundingVolumeTests.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Game\GameMain\gameAI\GridEcsFunctions.cpp" />
-    <ClCompile Include="..\..\Game\GameMain\gameUtility\UtilityEcsFunctions.cpp" />
-    <ClCompile Include="..\..\Game\GameMain\Physics\CollisionSystem.cpp" />
-    <ClCompile Include="..\..\Game\GameMain\Physics\MovementSystem.cpp" />
+    <ClCompile Include="..\Physics\BoundingVolume.cpp" />
     <ClCompile Include="test.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -16,10 +16,10 @@ struct BoundingCylinder
 	// Radius is center to corner
 	void CreateFromTile(XMFLOAT3 position, float height, float radius = 1.0f);
 
-	bool Intersects(BoundingBox& aabb);
-	bool Intersects(BoundingSphere& sphere);
-	bool Intersects(BoundingOrientedBox& obb);
-	bool Intersects(BoundingCylinder& cylinder);
+	bool Intersects(BoundingBox& rAabb);
+	bool Intersects(BoundingSphere& rSphere);
+	bool Intersects(BoundingOrientedBox& rObb);
+	bool Intersects(BoundingCylinder& rCylinder);
 };
 
 
@@ -27,7 +27,7 @@ struct BoundingCylinder
 struct BoundingVolume
 {
 	virtual ~BoundingVolume() = default;
-	virtual bool Intersects(BoundingVolume* other)	= 0;
+	virtual bool Intersects(BoundingVolume* pOther)	= 0;
 	virtual void Transform(XMMATRIX transform)		= 0;
 	virtual XMFLOAT3 GetCenter()					= 0;
 };
@@ -35,35 +35,29 @@ struct BoundingVolume
 //Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingSphere.
 struct Sphere : public BoundingVolume, BoundingSphere 
 {
-	bool Intersects(BoundingVolume* other);
+	bool Intersects(BoundingVolume* pOther);
 	void Transform(XMMATRIX transform);
 	XMFLOAT3 GetCenter();
-//private:
-//	bool Intersects(Cylinder& cylinder);
 };
 //Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingOrientedBox.
 struct OBB : public BoundingVolume, BoundingOrientedBox 
 {
-	bool Intersects(BoundingVolume* other);
+	bool Intersects(BoundingVolume* pOther);
 	void Transform(XMMATRIX transform);
 	XMFLOAT3 GetCenter();
-//private:
-//	bool Intersects(Cylinder& cylinder);
 };
 //Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingBox.
 struct AABB : public BoundingVolume, BoundingBox 
 {
-	bool Intersects(BoundingVolume* other);
+	bool Intersects(BoundingVolume* pOther);
 	void Transform(XMMATRIX transform);
 	XMFLOAT3 GetCenter();
-//private:
-//	bool Intersects(Cylinder& cylinder);
 };
 
 //Axis aligned so that y is height, DO NOT ROTATE, specifically designed for tiles. 
 struct Cylinder : public BoundingVolume, BoundingCylinder
 {
-	bool Intersects(BoundingVolume* other);
+	bool Intersects(BoundingVolume* pOther);
 	void Transform(XMMATRIX transform);
 	XMFLOAT3 GetCenter();
 };
