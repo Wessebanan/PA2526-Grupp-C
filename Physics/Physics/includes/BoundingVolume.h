@@ -1,5 +1,8 @@
 #pragma once
 #include <DirectXCollision.h>
+#include <algorithm>
+#include "PhysicsHelperFunctions.h"
+
 #define HALF_SQRT_3 0.866f
 
 // Base struct for unspecified bounding volumes.
@@ -18,6 +21,8 @@ struct Sphere : public BoundingVolume, DirectX::BoundingSphere
 	bool Intersects(BoundingVolume* other);
 	void Transform(XMMATRIX transform);
 	XMFLOAT3 GetCenter();
+private:
+	bool Intersects(Cylinder& cylinder);
 };
 //Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingOrientedBox.
 struct OBB : public BoundingVolume, DirectX::BoundingOrientedBox 
@@ -25,6 +30,8 @@ struct OBB : public BoundingVolume, DirectX::BoundingOrientedBox
 	bool Intersects(BoundingVolume* other);
 	void Transform(XMMATRIX transform);
 	XMFLOAT3 GetCenter();
+private:
+	bool Intersects(Cylinder& cylinder);
 };
 //Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingBox.
 struct AABB : public BoundingVolume, DirectX::BoundingBox 
@@ -32,6 +39,8 @@ struct AABB : public BoundingVolume, DirectX::BoundingBox
 	bool Intersects(BoundingVolume* other);
 	void Transform(XMMATRIX transform);
 	XMFLOAT3 GetCenter();
+private:
+	bool Intersects(Cylinder& cylinder);
 };
 
 //Axis aligned so that y is height, DO NOT ROTATE, specifically designed for tiles. 
@@ -45,6 +54,11 @@ struct Cylinder : public BoundingVolume
 	void CreateFromTile(XMFLOAT3 position, float height, float radius = 1.0f);
 private:
 	XMFLOAT3 mCenter;
-	float mHeight;
+	float mExtentsY; // Half height.
 	float mRadius;
+
+	bool Intersects(BoundingBox& aabb);
+	bool Intersects(BoundingSphere& sphere);
+	bool Intersects(BoundingOrientedBox& obb);
+	bool Intersects(Cylinder& cylinder);
 };
