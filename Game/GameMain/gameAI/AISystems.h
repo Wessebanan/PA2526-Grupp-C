@@ -672,32 +672,33 @@ namespace ecs
 								this->mLength = sqrt(mX * mX + mZ * mZ);
 								dyn_move->mForward.x = this->mX / this->mLength;
 								dyn_move->mForward.z = this->mZ / this->mLength;
-
+								
 								if(this->mYDistance > 0.3f && dyn_move->mOnGround)
 								{
 									this->mLength = PhysicsHelpers::CalculateDistance(goal->position, transform_comp->position);//Length from unit to goal center
 									this->mLengthOfVector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&dyn_move->mVelocity)));//Length of velocity vector
 									this->mAngle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
 									(XMLoadFloat3(&dyn_move->mVelocity)), XMVector3Normalize(XMLoadFloat3(&dyn_move->mDirection))));//Get angle between velocity and direction vector
-									if ((this->mLengthOfVector >= (this->mLength - this->mTileSizeLength)) && this->mAngle > 0.85f)//sqrt(3)/2 is the length to one side if the tile if radius is 1
+									//if their velocity vector is same or larger then the vector between their position and the edge of a tile
+									//and they move in the same direction as they are looking
+									if ((this->mLengthOfVector >= (this->mLength - this->mTileSizeLength)) && this->mAngle > 0.9f)
 									{
-										this->mJumpVector.x /= 8.f;
+										//modify values so that they jump more upwards
+										this->mJumpVector.x /= 7.f;
 										this->mJumpVector.y *= 8.f;
-										this->mJumpVector.z /= 8.f;
+										this->mJumpVector.z /= 7.f;
+
 										ForceImpulseEvent jump;
-										XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&this->mJumpVector)));
-										//jump.mDirection.x = dyn_move->mForward.x * 0.1;
-										//jump.mDirection.y = 1.f;
-										//jump.mDirection.z = dyn_move->mForward.z * 0.1;
-										//jump.mDirection.x / 2.f;
-										//jump.mDirection.z / 2.f;
-										//jump.mForce = 170.f * (this->mYDistance * 0.6f);
-										jump.mForce = ((sqrtf(2.f * this->mYDistance * dyn_move->mGravity)) * dyn_move->mWeight)*1.1f;
-										/*if (this->mYDistance > 1.f)
-										{
-											jump.mForce = 170.f;
-										}*/
+										XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&this->mJumpVector)));//normalize the jump vector so that we just get direction
+										jump.mForce = ((sqrtf(2.f * this->mYDistance * dyn_move->mGravity)) * dyn_move->mWeight)*1.2f;
 										jump.mEntityID = entity.entity->getID();
+										if (this->mLengthOfVector < 0.25f)//if they are very slow and need to jump they get a boost
+										{
+											jump.mForce *= 1.25f;
+											this->mJumpVector.x *= 1.1f;
+											this->mJumpVector.z *= 1.1f;
+
+										}
 										createEvent(jump);
 									}
 								}
@@ -715,7 +716,7 @@ namespace ecs
 			float mYDistance;
 			float mZ;
 			float mY;
-			float mTileSizeLength = sqrtf(3) / 3;
+			float mTileSizeLength = sqrtf(3)/2.f;//sqrt(3)/2 is the length to one side if the tile if radius is 1
 			float mLength;
 			float mLengthOfVector;
 			float mMinimumDist;
