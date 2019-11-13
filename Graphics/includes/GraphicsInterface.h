@@ -90,4 +90,7 @@ namespace graphics
 	HRESULT AttachHwndToSwapChain(const HWND hWnd);
 
 	void Present(const UINT syncInterval);
+
+	DXGI_QUERY_VIDEO_MEMORY_INFO QueryVideoMemoryUsageNonLocal();
+	DXGI_QUERY_VIDEO_MEMORY_INFO QueryVideoMemoryUsageLocal();
 }

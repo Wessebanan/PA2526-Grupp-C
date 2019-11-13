@@ -56,6 +56,8 @@
 
 #include "gameTraps/InitTraps.h"
 
+#include <Psapi.h>
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -67,6 +69,28 @@ const UINT g_RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
 #define MAPSIZETEST true
 
+struct ProcessMemoryUsage
+{
+	UINT64 VideoMemoryUsageInBytes;		// VRAM (GPU)
+	UINT64 MemoryUsageInBytes;			// RAM  (CPU)
+};
+
+ProcessMemoryUsage QueryProcessMemoryUsage()
+{
+	ProcessMemoryUsage pmu;
+
+	// Query VRAM Usage
+	DXGI_QUERY_VIDEO_MEMORY_INFO mem_info_local = graphics::QueryVideoMemoryUsageLocal();
+
+	// Query RAM Usage
+	PROCESS_MEMORY_COUNTERS_EX pmc;
+	GetProcessMemoryInfo(GetCurrentProcess(), (PPROCESS_MEMORY_COUNTERS)&pmc, sizeof(pmc));
+
+	pmu.VideoMemoryUsageInBytes		= mem_info_local.CurrentUsage;
+	pmu.MemoryUsageInBytes			= pmc.PrivateUsage;
+
+	return pmu;
+}
 
 int main()
 {
@@ -181,6 +205,12 @@ int main()
 			ecs.update(timer.GetFrameTime());
 
 			graphics::Present(0);
+
+			ProcessMemoryUsage pmu = QueryProcessMemoryUsage();
+			
+			std::cout << "New Frame: \n";
+			std::cout << "VRAM Usage (MB): " << pmu.VideoMemoryUsageInBytes / 1048576.0f << "\n";
+			std::cout << "RAM Usage (MB):  " << (pmu.MemoryUsageInBytes - pmu.VideoMemoryUsageInBytes) / 1048576.0f << "\n";
 		}
 	}
 
