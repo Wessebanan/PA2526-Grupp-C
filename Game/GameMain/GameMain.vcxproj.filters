@@ -105,6 +105,9 @@
     <ClCompile Include="gameTraps\TrapSystems.cpp">
       <Filter>Traps</Filter>
     </ClCompile>
+    <ClCompile Include="gameAI\AISystems.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
