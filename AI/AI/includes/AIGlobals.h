@@ -52,12 +52,16 @@ struct Color
 };
 
 // Defining some useful colors.
-#define RED		Color(117, 1, 1)
-#define PURPLE	Color(74, 1, 117)
-#define BLUE	Color(47, 62, 236)
-#define GREEN	Color(0, 93, 5)
-#define WHITE	Color(255, 255, 255)
-#define BLACK	Color(0, 0, 0)
+#define RED				Color(117, 1, 1)
+#define BRIGHT_RED		Color(167, 51, 51)
+#define PURPLE			Color(74, 1, 117)
+#define BRIGHT_PURPLE	Color(124, 51, 167)
+#define BLUE			Color(47, 62, 236)
+#define BRIGHT_BLUE		Color(97, 112, 255)
+#define GREEN			Color(0, 93, 5)
+#define BRIGHT_GREEN	Color(50, 143, 55)
+#define WHITE			Color(255, 255, 255)
+#define BLACK			Color(0, 0, 0)
 
 // Defining player colors as current player colors.
 #define PLAYER1_COLOR RED

@@ -112,16 +112,8 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 	{
 		TypeID id = dynamic_cast<TriggerFreezeTrapEvent*>(&event)->unitID;
 
-
-		components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
-		components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
-
-		p_move_comp->mMaxVelocity *= mPower;
-		p_ani_speed_comp->factor = mPower;
-
 		HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(id);
 		p_hp_comp->mHealth -= mDamage;
-
 
 		// Check if the unit died
 		if (p_hp_comp->mHealth <= 0.0f)
@@ -131,11 +123,23 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 		}
 		else
 		{
+			components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
+			components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
+
+			p_move_comp->mMaxVelocity *= mPower;
+			p_ani_speed_comp->factor = mPower;
+
 			FreezingTimerComponent f_comp;
 			f_comp.mDuration = 3.0f;
 			f_comp.mElapsedTime = 0.0f;
 
 			createComponent(id, f_comp);
+
+
+			events::ColorSwitchEvent eve;
+			eve.mEntityID = id;
+			eve.mTime = 3.0f;
+			eve.mColor = Color;
 		}
 	}
 
