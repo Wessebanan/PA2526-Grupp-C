@@ -19,6 +19,7 @@ namespace ecs
 			virtual ~UpdateCameraSystem();
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
+
 		
 		class UpdateDynamicCameraSystem : public ECSSystem<UpdateDynamicCameraSystem>
 		{

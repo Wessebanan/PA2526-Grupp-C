@@ -151,6 +151,13 @@ int main()
 			{
 				wnd.Close();
 			}
+			
+			// Start a devcamera if pressing E
+			if (GetAsyncKeyState('E'))
+			{
+				ecs.removeSystem<ecs::systems::UpdateDynamicCameraSystem>();
+				ecs.createSystem<ecs::systems::UpdateCameraSystem>(0);
+			}
 
 			if (GetAsyncKeyState(VK_SPACE) && start_once)
 			{
