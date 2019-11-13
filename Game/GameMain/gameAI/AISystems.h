@@ -702,10 +702,10 @@ namespace ecs
 										createEvent(jump);
 									}
 								}
-								MovementInputEvent kek;
-								kek.mInput = FORWARD;
-								kek.mEntityID = entity.entity->getID();
-								createEvent(kek);//creates an event to physics to move character
+								MovementInputEvent move;
+								move.mInput = FORWARD;
+								move.mEntityID = entity.entity->getID();
+								createEvent(move);//creates an event to physics to move character
 							}
 						}
 					}
