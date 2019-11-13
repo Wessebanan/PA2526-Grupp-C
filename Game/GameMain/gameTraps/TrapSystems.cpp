@@ -123,23 +123,43 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 		}
 		else
 		{
+			components::UnitComponent* p_unit_comp = getComponentFromKnownEntity<UnitComponent>(id);
 			components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
 			components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
 
 			p_move_comp->mMaxVelocity *= mPower;
 			p_ani_speed_comp->factor = mPower;
 
+			// Add component 
 			FreezingTimerComponent f_comp;
 			f_comp.mDuration = 3.0f;
 			f_comp.mElapsedTime = 0.0f;
 
 			createComponent(id, f_comp);
 
-
+			// Make them brigther for the duration
 			events::ColorSwitchEvent eve;
 			eve.mEntityID = id;
-			eve.mTime = 3.0f;
-			eve.mColor = Color;
+			eve.mTime = f_comp.mDuration;
+			Color color = Color(0, 0, 0);
+			switch (p_unit_comp->playerID)
+			{
+			case PLAYER1:
+				color = BRIGHT_RED;
+				break;
+			case PLAYER2:
+				color = BRIGHT_PURPLE;
+				break;
+			case PLAYER3:
+				color = BRIGHT_BLUE;
+				break;
+			case PLAYER4:
+				color = BRIGHT_GREEN;
+				break;
+			}
+			eve.mColor = color;
+
+			createEvent(eve);
 		}
 	}
 
