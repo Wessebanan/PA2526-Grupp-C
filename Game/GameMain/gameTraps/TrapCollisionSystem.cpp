@@ -1,4 +1,5 @@
 #include "TrapCollisionSystem.h"
+#include "TrapEvents.h"
 #include "TrapComponents.h"
 #include "../gameUtility/UtilityComponents.h" // TransformComponent
 #include "../gameAI/AIComponents.h"	// UnitComponent
@@ -69,16 +70,28 @@ namespace ecs
 				switch (TRAP_TYPE)
 				{
 				case GAME_OBJECT_TYPE_TRAP_FIRE:
-					// TODO: Lhure create fire trigger event
+				{
+					events::TriggerFireTrapEvent fire_event;
+					fire_event.unitID = unit.entity->getID();
+					createEvent(fire_event);
 					break;
+				}
 
 				case GAME_OBJECT_TYPE_TRAP_FREEZE:
-					// TODO: Lhure create freeze trigger event
+				{
+					events::TriggerFreezeTrapEvent freeze_event;
+					freeze_event.unitID = unit.entity->getID();
+					createEvent(freeze_event);
 					break;
+				}
 
 				case GAME_OBJECT_TYPE_TRAP_SPRING:
-					// TODO: Lhure create spring trigger event
+				{
+					events::TriggerSpringTrapEvent spring_event;
+					spring_event.unitID = unit.entity->getID();
+					createEvent(spring_event);
 					break;
+				}
 				}
 			}
 
