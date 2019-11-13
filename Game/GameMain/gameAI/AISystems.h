@@ -18,6 +18,9 @@
 #include "../../AI/includes/AIGlobals.h"
 #include "../GameGlobals.h"
 
+#include "../gameGraphics/ParticleECSComponents.h"
+#include "../gameAudio/AudioECSEvents.h"
+
 
 namespace ecs
 {
@@ -978,13 +981,28 @@ namespace ecs
 			{	
 				// DEATH EFFECTS
 				DeadComponent* p_dead = getComponentFromKnownEntity<DeadComponent>(entity.entity->getID());
-				switch (p_dead->cause)
+				if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
 				{
-				case DeadComponent::CAUSE_DROWNING:
-					std::cout << "Haha someone drowned\n";
-					break;
-				default:
-					break;
+					//std::cout << "Haha someone drowned\n";
+					// Smoke Emitter
+					components::ParticleSpawnerComponent spawner;
+					components::SplashSpawnerComponent smoke;
+
+					spawner.StartPosition = p_dead->position;
+					spawner.SpawnFrequency = 0.005f;
+					spawner.TimerSinceLastSpawn = 0.0f;
+					spawner.LifeDuration = 1.0f;
+
+					smoke.InitialVelocity = 8.0f;
+					smoke.SpawnCount = 100;
+
+					createEntity(spawner, smoke);
+
+					// Doesnt work atm
+					/*PlaySound sound;
+					sound.audioName = SPLOOSH_SOUND;
+					sound.soundFlags = SF_NONE;
+					ecs::ECSUser::createEvent(sound);*/
 				}
 				// saved fo future use
 				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;

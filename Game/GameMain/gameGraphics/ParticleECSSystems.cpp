@@ -161,7 +161,7 @@ namespace ecs
 
 		void SplashUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
 		{
-			const float gravity = 4.0f;
+			const float gravity = 10.0f;
 
 			components::ParticleComponent* p_particle_component =
 				entity.getComponent<components::ParticleComponent>();

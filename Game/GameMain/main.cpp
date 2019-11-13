@@ -220,11 +220,10 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitGraphicsPreRenderSystems(rECS);
 	InitParticles(rECS);
 
+	InitAI(rECS);
+
 	InitSound(rECS);
 	InitSong(rECS);
-
-	InitAI(rECS);
-	
 
 	InitInput(rECS);
 	InitInterpreter(rECS);
