@@ -81,7 +81,8 @@ void ecs::systems::SpawnLootSystem::act(float _delta)
 		TransformComponent* tile_transform = getComponentFromKnownEntity<TransformComponent>(random_tile.Id);
 		sword_transform->position = tile_transform->position;
 
-		// Smoke Emitter
+
+		/* Spawn Smoke Emitter At Sword Spawn */
 		components::ParticleSpawnerComponent spawner;
 		components::SmokeSpawnerComponent smoke;
 
@@ -90,8 +91,8 @@ void ecs::systems::SpawnLootSystem::act(float _delta)
 		spawner.TimerSinceLastSpawn		= 0.0f;
 		spawner.LifeDuration			= 1.0f;
 
-		smoke.InitialVelocity = 8.0f;
-		smoke.SpawnCount = 100;
+		smoke.InitialVelocity	= 8.0f;
+		smoke.SpawnCount		= 100;
 
 		createEntity(spawner, smoke);
 	}

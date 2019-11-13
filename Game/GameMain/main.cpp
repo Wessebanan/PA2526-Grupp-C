@@ -30,12 +30,6 @@
 #include "../../Graphics/includes/RenderManager.h"
 #include "../../Graphics/includes/MeshManager.h"
 
-//#include "gameGraphics/ForwardRenderingPipeline.h"
-//#include "gameGraphics/ShadowMapPipeline.h"
-//#include "gameGraphics/SSAOPipeline.h"
-//#include "gameGraphics/CombineSSAOPipeline.h"
-//#include "gameGraphics/BlurPipeline.h"
-
 #include "gameAnimation/InitAnimation.h"
 
 #include "Renderers/Renderers.h"

@@ -184,15 +184,22 @@ namespace ecs
 			components::SmokeSpawnerComponent* p_smoke_component =
 				entity.getComponent<components::SmokeSpawnerComponent>();
 
+			
 			p_spawner_component->TimerSinceLastSpawn += delta;
+
+			// For as long as there are particles to spawn (lag can result in particles not being spawned)
 			for (; 
 				p_spawner_component->TimerSinceLastSpawn > p_spawner_component->SpawnFrequency; 
 				p_spawner_component->TimerSinceLastSpawn -= p_spawner_component->SpawnFrequency)
 			{
+				/* 
+					Create entity with starting variables 
+				*/
+
 				components::ParticleComponent particle;
 				components::SmokeParticleComponent smoke;
 
-				particle.Position = p_spawner_component->StartPosition;
+				particle.Position			= p_spawner_component->StartPosition;
 				smoke.TotalLifeDuration		= p_spawner_component->LifeDuration;
 				smoke.CurrentLifeDuration	= smoke.TotalLifeDuration;
 
@@ -200,7 +207,7 @@ namespace ecs
 				particle.Green	= 200;
 				particle.Blue	= 200;
 				particle.Scale	= 40;
-				smoke.MaxScale = particle.Scale;
+				smoke.MaxScale	= particle.Scale;
 
 				// Randomize x and y direction
 
@@ -215,6 +222,7 @@ namespace ecs
 
 				createEntity(particle, smoke);
 
+				// If maximum particles has been spawned by spawner delete it
 				if (--p_smoke_component->SpawnCount <= 0)
 				{
 					removeEntity(entity.entity->getID());
@@ -240,15 +248,18 @@ namespace ecs
 			components::SmokeParticleComponent* p_smoke_component =
 				entity.getComponent<components::SmokeParticleComponent>();
 
+			// decrease life duration and remove if they has lived past their life expectancy 
 			p_smoke_component->CurrentLifeDuration -= delta;
 			if (p_smoke_component->CurrentLifeDuration <= 0.0f)
 			{
 				removeEntity(entity.entity->getID());
 			}
 
-			int scale = p_smoke_component->MaxScale * p_smoke_component->CurrentLifeDuration / p_smoke_component->TotalLifeDuration;
+			// Decrease scale the longer they have lived
+			const int scale = p_smoke_component->MaxScale * p_smoke_component->CurrentLifeDuration / p_smoke_component->TotalLifeDuration;
 			p_particle_component->Scale = scale >= 0 ? scale : 0;
 
+			// Update Position
 			DirectX::XMVECTOR position = DirectX::XMLoadFloat3(&p_particle_component->Position);
 			DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&p_smoke_component->Direction);
 
