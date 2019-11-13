@@ -640,6 +640,7 @@ ecs::systems::MoveStateSystem::MoveStateSystem()
 	typeFilter.addRequirement(TransformComponent::typeID);
 	typeFilter.addRequirement(DynamicMovementComponent::typeID);
 	typeFilter.addRequirement(EquipmentComponent::typeID);
+	typeFilter.addRequirement(GroundCollisionComponent::typeID);
 }
 
 ecs::systems::MoveStateSystem::~MoveStateSystem()
@@ -666,6 +667,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 	TransformComponent* p_transform = entity.getComponent<TransformComponent>();
 	DynamicMovementComponent* p_dyn_move = entity.getComponent<DynamicMovementComponent>();
 	MoveStateComponent* p_move_comp = entity.getComponent<MoveStateComponent>();
+	GroundCollisionComponent* p_ground_comp = entity.getComponent<GroundCollisionComponent>();
 	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
 	TransformComponent* p_goal = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_move_comp->goalID);
 	float distance = 1000.0f;
@@ -704,28 +706,47 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 	if (p_goal != nullptr)
 	{
-		this->x = p_goal->position.x - p_transform->position.x;
-		this->z = p_goal->position.z - p_transform->position.z;
-		this->yDistance = p_goal->position.y - p_transform->position.y;
-		this->length = sqrt(x * x + z * z);
-		p_dyn_move->mForward.x = this->x / this->length;
-		p_dyn_move->mForward.z = this->z / this->length;
+		this->mJumpVector.x = this->mX = p_goal->position.x - p_transform->position.x;
+		this->mJumpVector.y = this->mY = p_goal->position.y - p_ground_comp->mLastTileY;
+		this->mJumpVector.z = this->mZ = p_goal->position.z - p_transform->position.z;
+		this->mYDistance = p_goal->position.y - (p_ground_comp->mLastTileY);
+		this->mLength = sqrt(mX * mX + mZ * mZ);
+		p_dyn_move->mForward.x = this->mX / this->mLength;
+		p_dyn_move->mForward.z = this->mZ / this->mLength;
 
-		if (this->yDistance > 0.1f && p_dyn_move->mOnGround)
+		if (this->mYDistance > 0.3f && p_dyn_move->mOnGround)
 		{
+			this->mLength = PhysicsHelpers::CalculateDistance(p_goal->position, p_transform->position);//Length from unit to goal center
+			this->mLengthOfVector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
+			this->mAngle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
+			(XMLoadFloat3(&p_dyn_move->mVelocity)), XMVector3Normalize(XMLoadFloat3(&p_dyn_move->mDirection))));//Get angle between velocity and direction vector
+			//if their velocity vector is same or larger then the vector between their position and the edge of a tile
+			//and they move in the same direction as they are looking
+			if ((this->mLengthOfVector >= (this->mLength - this->mTileSizeLength)) && this->mAngle > 0.9f)
+			{
+				//modify values so that they jump more upwards
+				this->mJumpVector.x /= 7.f;
+				this->mJumpVector.y *= 8.f;
+				this->mJumpVector.z /= 7.f;
 
-			//ForceImpulseEvent jump;
-			//jump.mDirection.x = 0.f;
-			//jump.mDirection.y = 1.f;
-			//jump.mDirection.z = 0.f;
-			//jump.mForce = 200.f;
-			//jump.mEntityID = entity.entity->getID();
-			//createEvent(jump);
+				ForceImpulseEvent jump;
+				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&this->mJumpVector)));//normalize the jump vector so that we just get direction
+				jump.mForce = ((sqrtf(2.f * this->mYDistance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.2f;
+				jump.mEntityID = entity.entity->getID();
+				if (this->mLengthOfVector < 0.25f)//if they are very slow and need to jump they get a boost
+				{
+					jump.mForce *= 1.25f;
+					this->mJumpVector.x *= 1.1f;
+					this->mJumpVector.z *= 1.1f;
+
+				}
+				createEvent(jump);
+			}
 		}
-		MovementInputEvent kek;
-		kek.mInput = FORWARD;
-		kek.mEntityID = entity.entity->getID();
-		createEvent(kek);//creates an event to physics to move character
+		MovementInputEvent move;
+		move.mInput = FORWARD;
+		move.mEntityID = entity.entity->getID();
+		createEvent(move);//creates an event to physics to move character
 	}	
 }
 
