@@ -185,6 +185,7 @@
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
     <ClInclude Include="gameTraps\InitTraps.h" />
+    <ClInclude Include="gameTraps\TrapComponentsLHURE.h" />
     <ClInclude Include="gameTraps\TrapEvents.h" />
     <ClInclude Include="gameTraps\TrapSystems.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
