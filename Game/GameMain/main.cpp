@@ -48,9 +48,6 @@
 #include <time.h>
 
 #include "gameUtility/Timer.h"
-
-#include "gameTraps/InitTrapsMACKE.h"
-
 #include "gameGameLoop/InitGameLoop.h"
 #include "gameGameLoop/GameLoopEvents.h"
 
@@ -58,6 +55,7 @@
 
 #include "gameTraps/InitTraps.h"
 #include "gameTraps/TrapComponents.h"
+#include "gameTraps/TrapEvents.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -248,7 +246,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitAnimation(rECS);
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT));
 
-	InitTrapTriggers(rECS);
 	InitGameLoop(rECS);
 
 	WorldMeshData mapMeshData;
