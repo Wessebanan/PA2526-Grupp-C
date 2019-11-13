@@ -87,9 +87,12 @@ namespace ecs
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		private:
 			float mX;
-			float mYDistance;
 			float mZ;
 			float mY;
+			float mNextX;
+			float mNextZ;
+			float mYDistance;
+			float mPercentageOfHowMuchWeWantToUseFromNextTile = 0.2;
 			float mTileSizeLength = sqrtf(3)/2.f;//sqrt(3)/2 is the length to one side if the tile if radius is 1
 			float mLength;
 			float mLengthOfVector;

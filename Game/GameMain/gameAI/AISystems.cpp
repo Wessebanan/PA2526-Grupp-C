@@ -706,13 +706,28 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 	if (p_goal != nullptr)
 	{
+		this->mNextX = 0;
+		this->mNextZ = 0;
+		if (p_move_comp->path.size() > 1)//if there are 2 or more tiles left we get the tile after the next
+		{
+			TransformComponent* p_next_goal = getComponentFromKnownEntity<TransformComponent>(p_move_comp->path.at(p_move_comp->path.size() - 2));
+			this->mNextX = p_next_goal->position.x - p_goal->position.x;
+			this->mNextZ = p_next_goal->position.z - p_goal->position.z;
+		}
 		this->mJumpVector.x = this->mX = p_goal->position.x - p_transform->position.x;
 		this->mJumpVector.y = this->mY = p_goal->position.y - p_ground_comp->mLastTileY;
 		this->mJumpVector.z = this->mZ = p_goal->position.z - p_transform->position.z;
 		this->mYDistance = p_goal->position.y - (p_ground_comp->mLastTileY);
+		this->mX = this->mX + (this->mNextX * this->mPercentageOfHowMuchWeWantToUseFromNextTile);//ad 20% of the direction from the tile next after "goal"
+		this->mZ = this->mZ + (this->mNextZ * this->mPercentageOfHowMuchWeWantToUseFromNextTile);
 		this->mLength = sqrt(mX * mX + mZ * mZ);
 		p_dyn_move->mForward.x = this->mX / this->mLength;
 		p_dyn_move->mForward.z = this->mZ / this->mLength;
+
+		if (ECSUser::getComponentFromKnownEntity<UnitComponent>(p_goal->getEntityID()))
+		{
+			this->mYDistance = this->mY = p_goal->position.y - p_transform->position.y;
+		}
 
 		if (this->mYDistance > 0.3f && p_dyn_move->mOnGround)
 		{
