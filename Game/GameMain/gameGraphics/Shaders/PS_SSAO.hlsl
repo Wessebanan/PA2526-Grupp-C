@@ -94,7 +94,7 @@ float main(PSIN input) : SV_TARGET
 	float2 random	= GetRandom(input.uv);
 	float radius	= sample_radius / pos.z;
 
-	const uint iterations = 2;
+	const uint iterations = 4;
 	for (uint i = 0; i < iterations; i++)
 	{
 		float2 coord1 = reflect(vec[i], random) * radius;

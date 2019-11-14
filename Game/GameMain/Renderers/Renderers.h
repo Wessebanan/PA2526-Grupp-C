@@ -258,7 +258,6 @@ namespace ecs
 				uint32_t color;
 			};
 
-
 			InputLayout* mpBuffer;
 
 			UINT mRenderProgram;
@@ -268,9 +267,9 @@ namespace ecs
 			graphics::RenderBuffer* mpRenderBuffer;
 
 			UINT mObjectCount;
-			graphics::MeshRegion mObjectMeshRegion[SCENE_OBJECT_COUNT];
 
-			UINT mObjectTypeCount[SCENE_OBJECT_COUNT];
+			graphics::MeshRegion mObjectMeshRegion[GAME_OBJECT_TYPE_MESH_COUNT];
+			UINT mInstancePerMesh[GAME_OBJECT_TYPE_MESH_COUNT];
 		};
 
 		class SSAORenderSystem : public ECSSystem<SSAORenderSystem>

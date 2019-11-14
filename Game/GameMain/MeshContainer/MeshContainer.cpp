@@ -87,7 +87,10 @@ ModelLoader::Mesh* MeshContainer::LoadMeshInternal(GAME_OBJECT_TYPE meshType, st
 			graphics::VERTEX_DATA data = { NULL };
 			data.pVertexPositions = p_new_mesh->GetVertexPositionVector()->data();
 			data.pVertexNormals = p_new_mesh->GetNormalVector()->data();
-			data.pVertexTexCoords = p_new_mesh->GetUVVector()->data();
+			if (p_new_mesh->HasUVs())
+			{
+				data.pVertexTexCoords = p_new_mesh->GetUVVector()->data();
+			}
 			if (p_new_mesh->HasSkeleton())
 			{
 				data.pVertexBlendWeights = p_new_mesh->GetBlendWeights()->data();

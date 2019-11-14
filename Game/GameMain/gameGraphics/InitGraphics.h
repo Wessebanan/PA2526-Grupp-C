@@ -174,4 +174,11 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_SWORD, "../meshes/sword.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BARREL_STONES, "../meshes/barrel_rock.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BARREL_BARREL, "../meshes/Barrel.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TREE_LEAVES, "../meshes/tree_leaves.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TREE_TRUNK, "../meshes/tree_trunk.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TREE_ROCK, "../meshes/tree_rock.fbx");
 }

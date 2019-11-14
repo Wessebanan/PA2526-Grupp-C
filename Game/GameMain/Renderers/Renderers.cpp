@@ -16,6 +16,13 @@
 #include "../gameGraphics/CombineSSAOPipeline.h"
 #include "../gameGraphics/BlurPipeline.h"
 
+#define BARREL_COLOR		104, 72, 59
+#define BARREL_STONE_COLOR	60, 60, 60
+
+#define TREE_TRUNK_COLOR	104, 72, 59
+#define TREE_LEAVES_COLOR	104, 200, 59
+#define TREE_ROCK_COLOR		60, 60, 60
+
 namespace ecs
 {
 	namespace systems
@@ -500,25 +507,49 @@ namespace ecs
 				index counter.
 			*/
 
-			mObjectCount = _entities.entities.size();
+#define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
+
+			ZeroMemory(mInstancePerMesh, sizeof(mInstancePerMesh));
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
+
+				// How many meshes per scene objects
+				switch (p_obj_comp->mObject)
+				{
+				case GAME_OBJECT_TYPE_BARREL:
+					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_BARREL_BARREL)]++;
+					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)]++;
+					break;
+
+				case GAME_OBJECT_TYPE_FRUITTREE:
+					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_TREE_LEAVES)]++;
+					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_TREE_TRUNK)]++;
+					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_TREE_ROCK)]++;
+					break;
+
+				default:
+					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_MESH_ERROR)]++;
+					break;
+				}
+			}
+			 
+			mObjectCount = 0;
+			for (UINT i = 0; i < GAME_OBJECT_TYPE_MESH_COUNT; i++)
+			{
+				mObjectCount += mInstancePerMesh[i];
+			}
 
 			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::SceneObjectRenderSystem::GetPerInstanceSize());
 
-			// Count how many instances we have per scene object mesh
-			ZeroMemory(mObjectTypeCount, SCENE_OBJECT_COUNT * sizeof(UINT));
-			for (FilteredEntity object : _entities.entities)
-			{
-				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
-				mObjectTypeCount[p_obj_comp->mObject - SCENE_OBJECT_ENUM_OFFSET]++;
-			}
 
 			// Set index to write to in RenderBuffer, per mesh
-			UINT object_type_individual_index[SCENE_OBJECT_COUNT] = { 0 };
+			UINT object_type_individual_index[GAME_OBJECT_TYPE_MESH_COUNT] = { 0 };
 
-			for (int i = 1; i < SCENE_OBJECT_COUNT; i++)
+			for (int i = 1; i < GAME_OBJECT_TYPE_MESH_COUNT; i++)
 			{
-				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
+				object_type_individual_index[i] = object_type_individual_index[i - 1] + mInstancePerMesh[i - 1];
 			}
 
 			// Iterate all objects and write their data to the RenderBuffer
@@ -526,20 +557,98 @@ namespace ecs
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
 				components::TransformComponent* p_transform_comp = object.getComponent<components::TransformComponent>();
-				components::ColorComponent* p_color_comp = object.getComponent<components::ColorComponent>();
 
-				// Get index, depending on mesh type
-				UINT& index = object_type_individual_index[p_obj_comp->mObject - SCENE_OBJECT_ENUM_OFFSET];
+				// How many meshes per scene objects
+				switch (p_obj_comp->mObject)
+				{
+				case GAME_OBJECT_TYPE_BARREL:
+					{
+						{
+							UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_BARREL_BARREL)];
+							mpBuffer[index].x = p_transform_comp->position.x;
+							mpBuffer[index].y = p_transform_comp->position.y;
+							mpBuffer[index].z = p_transform_comp->position.z;
 
-				mpBuffer[index].x = p_transform_comp->position.x;
-				mpBuffer[index].y = p_transform_comp->position.y;
-				mpBuffer[index].z = p_transform_comp->position.z;
+							mpBuffer[index].color = PACK(BARREL_COLOR, 0);
 
-				mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
-				index++;
+							index++;
+						}
+
+						{
+							UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)];
+
+							mpBuffer[index].x = p_transform_comp->position.x;
+							mpBuffer[index].y = p_transform_comp->position.y;
+							mpBuffer[index].z = p_transform_comp->position.z;
+
+							mpBuffer[index].color = PACK(BARREL_STONE_COLOR, 0);
+
+							index++;
+						}
+						break;
+					}
+
+				case GAME_OBJECT_TYPE_FRUITTREE:
+				{
+					{
+						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_TREE_LEAVES)];
+						mpBuffer[index].x = p_transform_comp->position.x;
+						mpBuffer[index].y = p_transform_comp->position.y;
+						mpBuffer[index].z = p_transform_comp->position.z;
+
+						mpBuffer[index].color = PACK(TREE_LEAVES_COLOR, 0);
+
+						index++;
+					}
+
+					{
+						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_TREE_TRUNK)];
+
+						mpBuffer[index].x = p_transform_comp->position.x;
+						mpBuffer[index].y = p_transform_comp->position.y;
+						mpBuffer[index].z = p_transform_comp->position.z;
+
+						mpBuffer[index].color = PACK(TREE_TRUNK_COLOR, 0);
+
+						index++;
+					}
+
+
+					{
+						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_TREE_ROCK)];
+
+						mpBuffer[index].x = p_transform_comp->position.x;
+						mpBuffer[index].y = p_transform_comp->position.y;
+						mpBuffer[index].z = p_transform_comp->position.z;
+
+						mpBuffer[index].color = PACK(TREE_ROCK_COLOR, 0);
+
+						index++;
+					}
+					break;
+				}
+					break;
+
+				default:
+					{
+						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_MESH_ERROR)];
+						mpBuffer[index].x = p_transform_comp->position.x;
+						mpBuffer[index].y = p_transform_comp->position.y;
+						mpBuffer[index].z = p_transform_comp->position.z;
+
+						/*mpBuffer[index].color = PACK(
+							0,
+							0,
+							0,
+							0);*/
+
+						index++;
+						break;
+					}
+				}
 			}
 
-			mInstanceLayout.pInstanceCountPerMesh = mObjectTypeCount;
+			mInstanceLayout.pInstanceCountPerMesh = mInstancePerMesh;
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
@@ -547,31 +656,27 @@ namespace ecs
 		{
 			mpRenderMgr = pRenderMgr;
 
-			/*
-				This is a temporary map, until we have ONE mesh enum that everyone reads from.
-				This converts the SCENE_OBJECT mesh enum to MESH_TYPE enum in MeshContainer.
-			*/
-
-			for (UINT i = 0; i < SCENE_OBJECT_COUNT; i++)
+			for (UINT i = 0; i < GAME_OBJECT_TYPE_MESH_COUNT - 1; i++) //Don't include error
 			{
-				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(SCENE_OBJECT_ENUM_OFFSET + i);
+				const UINT index = i + GAME_OBJECT_TYPE_MESH_START;
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(index);
 			}
 
-			//mObjectMeshRegion[0] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL);
-			//mObjectMeshRegion[1] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BOX);
-			//mObjectMeshRegion[2] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CACTUS);
+			//mObjectMeshRegion[TO_MESH(GAME_OBJECT_TYPE_BARREL_BARREL)]
+			//	= MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL_BARREL);
 
-			//mObjectMeshRegion[3] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CAGE);
-			//mObjectMeshRegion[4] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_COWSKULL);
-			//mObjectMeshRegion[5] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_FRUITTREE);
+			//mObjectMeshRegion[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)]
+			//	= MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL_STONES);
 
-			//mObjectMeshRegion[6] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_GIANTSKULL);
-			//mObjectMeshRegion[7] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TOWER);
-			//mObjectMeshRegion[8] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_WINTERTREE);
+			//mObjectMeshRegion[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)]
+			//	= MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL_STONES);
 
-			mInstanceLayout.MeshCount = SCENE_OBJECT_COUNT;
-			mInstanceLayout.pMeshes = mObjectMeshRegion;
-			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
+			mObjectMeshRegion[TO_MESH(GAME_OBJECT_TYPE_MESH_ERROR)]
+				= MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_FRUITTREE);
+
+			mInstanceLayout.MeshCount				= GAME_OBJECT_TYPE_MESH_COUNT;
+			mInstanceLayout.pMeshes					= mObjectMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh	= &mObjectCount;
 
 			const std::string vs = GetShaderFilepath("VS_Default.cso");
 			const std::string ps = GetShaderFilepath("PS_Default.cso");
