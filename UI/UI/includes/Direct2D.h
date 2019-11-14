@@ -64,7 +64,6 @@ struct cmp_str
 	}
 };
 
-
 class Direct2D
 {
 public:
@@ -83,8 +82,9 @@ public:
 	ID2D1Bitmap1* GetBitmap(char* bitmapName);//returns bitmap
 	//Returns a bitmap that has the same string name
 	ID2D1Bitmap1* GetBitmap(std::string bitmapName);//returns bitmap
+	//Returns the bitmap taken from the backbuffer which contains the resolution
 	ID2D1Bitmap1* GetBackbufferBitmap();
-	void setBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap);
+	void SetBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap);
 	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);
 	//ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS
 	bool DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect);
@@ -97,15 +97,15 @@ public:
 	bool PrintText(std::wstring text, D2D1_RECT_F rect, brushColors color, int size = 2); //only one used in ECS atm
 	bool PrintText(std::wstring text, int left, int top, int right, int bottom);
 
-	void setTextColor(float r, float g, float b, float a); //not in use atm by ECS
-	void setDrawColor(float r, float g, float b, float a); //not in use atm by ECS
-	void setBrushColor(char* name, float r, float g, float b, float a); //not in use atm by ECS
-	HRESULT setTextSize(unsigned int size); //Don't use in a loop because it creates a new textformat
-	HRESULT setFont(std::string font); //Don't use in a loop because it creates a new textformat
-	bool drawRect(D2D1_RECT_F rect, int thinkness, brushColors color); //draws a rect border/wireframe
-	bool solidRect(D2D1_RECT_F rect, brushColors color); //draws a filled solid rect
-	int charArrayCompare(char* s1, char* s2, size_t sz); //compares two char arrays
-	ID2D1HwndRenderTarget* getHwndRenderTarget();
+	void SetTextColor(float r, float g, float b, float a); //not in use atm by ECS
+	void SetDrawColor(float r, float g, float b, float a); //not in use atm by ECS
+	void SetBrushColor(char* name, float r, float g, float b, float a); //not in use atm by ECS
+	//HRESULT setTextSize(unsigned int size); //Don't use in a loop because it creates a new textformat
+	//HRESULT setFont(std::string font); //Don't use in a loop because it creates a new textformat
+	bool DrawRect(D2D1_RECT_F rect, int thinkness, brushColors color); //draws a rect border/wireframe
+	bool SolidRect(D2D1_RECT_F rect, brushColors color); //draws a filled solid rect
+	int CharArrayCompare(char* s1, char* s2, size_t sz); //compares two char arrays
+	ID2D1HwndRenderTarget* GetHwndRenderTarget();
 
 
 private:
@@ -130,8 +130,8 @@ private:
 	ID2D1DeviceContext* mpContext;
 
 	RECT* mpRect;
-	int width;
-	int height;
+	int mWidth;
+	int mHeight;
 	std::wstring mfont;
 	unsigned int mfontSize;
 	bool mFailBitMapLoaded = false;

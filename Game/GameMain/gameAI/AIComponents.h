@@ -39,7 +39,7 @@ namespace ecs
 
 		struct IdleStateComponent : public ECSComponent<IdleStateComponent>
 		{
-			int data = 0;
+			STATE activeCommand = STATE::IDLE;
 		};
 
 		struct MoveStateComponent : public ECSComponent<MoveStateComponent>
@@ -52,8 +52,7 @@ namespace ecs
 
 		struct FleeStateComponent : public ECSComponent<FleeStateComponent>
 		{
-			/*FILLED OUT WITH DATA IN ANOTHER TASK.*/
-			int data = 0;
+			STATE activeCommand = STATE::IDLE;
 		};
 
 		struct LootStateComponent : public ECSComponent<LootStateComponent>
@@ -76,7 +75,7 @@ namespace ecs
 		{
 
 			std::vector<int> unitIDs; //Holds the entity IDs of every unit in one players army.
-
+			
 			PLAYER playerID;
 		};
 

@@ -5,6 +5,7 @@
 #include "Mesh.h"
 #include "..//Physics/PhysicsComponents.h"
 #include "..//GameGlobals.h"
+#include "..//UI/UIEvents.h"
 
 #define ROUNDS_TO_WIN 2
 
@@ -33,6 +34,7 @@ namespace ecs
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 		private:
 		};
+
 
 		// Checks for transition to battlephase
 		class PrepPhaseSystem : public ecs::ECSSystem<PrepPhaseSystem>

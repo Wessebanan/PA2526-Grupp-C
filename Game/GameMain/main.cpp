@@ -54,6 +54,8 @@
 
 #include "InitHttpServer.h"
 
+#include "gameTraps/InitTraps.h"
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -149,6 +151,19 @@ int main()
 			{
 				wnd.Close();
 			}
+			
+			// Start a devcamera if pressing E
+			if (GetAsyncKeyState('E'))
+			{
+				ecs.removeSystem<ecs::systems::UpdateDynamicCameraSystem>();
+				ecs.createSystem<ecs::systems::UpdateCameraSystem>(0);
+			}
+			// Start a dyncamera if pressing F
+			if (GetAsyncKeyState('F'))
+			{
+				ecs.removeSystem<ecs::systems::UpdateCameraSystem>();
+				ecs.createSystem<ecs::systems::UpdateDynamicCameraSystem>(0);
+			}
 
 			if (GetAsyncKeyState(VK_SPACE) && start_once)
 			{
@@ -168,6 +183,8 @@ int main()
 					ecs.createEvent(m_event);
 				}
 				
+				
+
 				start_once = false;
 			}
 
@@ -240,7 +257,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitAnimation(rECS);
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT));
 
-
+	InitTrapTriggers(rECS);
 	InitGameLoop(rECS);
 
 	WorldMeshData mapMeshData;

@@ -2,6 +2,7 @@
 #include "ecs.h"
 #include "Direct2D.h"
 #include "UISystems.h"
+#include "UIEvents.h"
 #include "../../Graphics/includes/Window.h"
 #include "..//../Graphics/includes/GraphicsInterface.h"
 
@@ -14,6 +15,7 @@ struct TempUISystemPtrs
 	ecs::systems::UIDebugSystem* UIDebugSys;
 	ecs::systems::UIPostRenderSystem* UIpostSys;
 	ecs::systems::UIRectSystem* UIrectSys;
+	ecs::systems::UICountDownSystem* UICountDown;
 };
 
 void BindTextureToBitmap(Direct2D* d2d,ID3D11Texture2D* texture);
@@ -24,11 +26,12 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 {
 	Direct2D* my_d2d;
 	rSystemPointers.UIpreSys = rECS.createSystem<ecs::systems::UIPreRenderSystem>(8);
+	rSystemPointers.UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>(9);
 	rSystemPointers.UISolid = rECS.createSystem<ecs::systems::UISolidRectSystem>(9);
 	rSystemPointers.UITextSys = rECS.createSystem<ecs::systems::UITextSystem>(9);
 	rSystemPointers.UIrectSys = rECS.createSystem<ecs::systems::UIRectSystem>(9);
 	rSystemPointers.UIDebugSys = rECS.createSystem<ecs::systems::UIDebugSystem>(9);
-	rSystemPointers.UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>(9);
+	rSystemPointers.UICountDown = rECS.createSystem<ecs::systems::UICountDownSystem>(9);
 	rSystemPointers.UIpostSys = rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
 	my_d2d = new Direct2D;
 
@@ -45,16 +48,16 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	p_swapchain->Release();
 	BindTextureToBitmap(my_d2d, p_backbuffer);//Turn the texture to a surface then bind that surface to a Direct2D bitmap then draw things on that bitmap which is the backbuffer
 	p_backbuffer->Release();
-	//my_d2d->CreateHwndRenderTarget(window, graphics::GetClientResolution(window).x, graphics::GetClientResolution(window).y);
 	rSystemPointers.UIpreSys->mpD2D			=
 		rSystemPointers.UISolid->mpD2D		=
 		rSystemPointers.UITextSys->mpD2D	=
 		rSystemPointers.UIpostSys->mpD2D	=
 		rSystemPointers.UIrectSys->mpD2D	=
 		rSystemPointers.UIDebugSys->mpD2D	= 
+		rSystemPointers.UICountDown->mpD2D	=
 		rSystemPointers.UIBitmapSys->mpD2D	= my_d2d;
 
-	//initArmyText(rECS); //maybe use later donno 
+
 }
 void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)
 {
@@ -69,7 +72,7 @@ void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)
 		NULL,
 		&bitmap
 	);
-	d2d->setBackbufferBitmap(bitmap);
+	d2d->SetBackbufferBitmap(bitmap);
 	bitmap->Release();
 	surface->Release();
 }

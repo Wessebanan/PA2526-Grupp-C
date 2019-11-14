@@ -102,6 +102,12 @@
     <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="gameTraps\TrapSystems.cpp">
+      <Filter>Traps</Filter>
+    </ClCompile>
+    <ClCompile Include="gameAI\AISystems.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -341,6 +347,15 @@
     </ClInclude>
     <ClInclude Include="gameGraphics\OceanRenderingPipeline.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gameTraps\TrapSystems.h">
+      <Filter>Traps</Filter>
+    </ClInclude>
+    <ClInclude Include="gameTraps\InitTraps.h">
+      <Filter>Traps</Filter>
+    </ClInclude>
+    <ClInclude Include="gameTraps\TrapComponentsLHURE.h">
+      <Filter>Traps</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
