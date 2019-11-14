@@ -12,11 +12,11 @@
 #include <iostream>
 #include "../../Physics/includes/PhysicsHelperFunctions.h"
 #include "../gameAnimation/AnimationComponents.h"
-
 #include "../UI/UIComponents.h"
-
 #include "../../AI/includes/AIGlobals.h"
 #include "../GameGlobals.h"
+#include "../gameGraphics/ParticleECSComponents.h"	
+#include "../gameAudio/AudioECSEvents.h"
 
 
 namespace ecs

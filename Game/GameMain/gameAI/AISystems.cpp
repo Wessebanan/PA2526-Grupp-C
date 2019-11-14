@@ -1151,6 +1151,31 @@ ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
 
 void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, float delta)
 {
+	// DEATH EFFECTS	
+	DeadComponent* p_dead = getComponentFromKnownEntity<DeadComponent>(entity.entity->getID());
+	if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
+	{
+		// Splash Emitter - When drowned, spawn a water splash	
+		components::ParticleSpawnerComponent spawner;
+		components::SplashSpawnerComponent smoke;
+
+		spawner.StartPosition = p_dead->position;
+		spawner.SpawnFrequency = 0.005f;
+		spawner.TimerSinceLastSpawn = 0.0f;
+		spawner.LifeDuration = 1.0f;
+
+		smoke.InitialVelocity = 8.0f;
+		smoke.SpawnCount = 100;
+
+		createEntity(spawner, smoke);
+
+		// Doesnt work atm	
+		/*PlaySound sound;
+		sound.audioName = SPLOOSH_SOUND;
+		sound.soundFlags = SF_NONE;
+		ecs::ECSUser::createEvent(sound);*/
+	}
+
 	// saved fo future use
 				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
 	UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
