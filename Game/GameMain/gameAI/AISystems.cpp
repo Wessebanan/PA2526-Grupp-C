@@ -850,6 +850,10 @@ STATE ecs::systems::MoveStateSystem::CheckIfGoalIsMet(FilteredEntity& entity, fl
 		mMinimumDist = TILE_RADIUS / 2.0f;
 		returnState = STATE::LOOT;
 		break;
+	case STATE::RALLY:
+		mMinimumDist = TILE_RADIUS * 1.5f;
+		returnState = STATE::RALLY;
+		break;
 	default:
 		mMinimumDist = TILE_RADIUS / 2.0f;
 		returnState = STATE::IDLE;
@@ -916,6 +920,15 @@ void ecs::systems::MoveStateSystem::SwitchState(FilteredEntity& entity, STATE ne
 			LootStateComponent loot_state;
 			loot_state.goalID = move_comp->goalID;
 			ECSUser::createComponent(entity.entity->getID(), loot_state);
+		}
+	}
+	else if (newState == STATE::RALLY)
+	{
+		if (!entity.entity->hasComponentOfType(LootStateComponent::typeID))
+		{
+			IdleStateComponent idle_state;
+			idle_state.activeCommand = move_comp->activeCommand;
+			ECSUser::createComponent(entity.entity->getID(), idle_state);
 		}
 	}
 	//Remove the old state if a valid new state was given.
