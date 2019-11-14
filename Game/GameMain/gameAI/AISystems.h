@@ -100,6 +100,7 @@ namespace ecs
 			STATE CheckIfGoalIsMet(FilteredEntity& entity, float delta);
 			//Switch to the next units next state
 			void SwitchState(FilteredEntity& entity, STATE newState);
+			ID GetClosestTileId(TransformComponent& transform);
 		};
 
 		/*
@@ -181,54 +182,12 @@ namespace ecs
 		class PotentialWaterHazardSystem : public ECSSystem<PotentialWaterHazardSystem>
 		{
 		public:
-			PotentialWaterHazardSystem()
-			{
-				updateType = MultiEntityUpdate;
-				typeFilter.addRequirement(components::TileComponent::typeID);
-				typeFilter.addRequirement(components::TransformComponent::typeID);
-			}
-			virtual ~PotentialWaterHazardSystem() {}
+			PotentialWaterHazardSystem();
+			virtual ~PotentialWaterHazardSystem();
 
 			//Update function that prints the center position of every tile in the order they 
 			//were created.
-			void updateMultipleEntities(EntityIterator& entities, float delta) override
-			{
-				for (FilteredEntity& entity : entities.entities)
-				{
-					//Fetch relevant components from the current tile.
-					components::TileComponent* current_tile_comp = entity.getComponent<components::TileComponent>();
-					components::TransformComponent* current_tile_transform = entity.getComponent<components::TransformComponent>();
-					//Filter out all of the tiles in the world.
-					ecs::TypeFilter tile_filter;
-					tile_filter.addRequirement(components::TileComponent::typeID);
-					tile_filter.addRequirement(components::TransformComponent::typeID);
-					ecs::EntityIterator e_it = ecs::ECSUser::getEntitiesByFilter(tile_filter);
-					//Distance variable used to calculate the hazards charge of the current tile based on distance to other water tiles.
-					float distance;
-					//Check if the current tile is a water tile. If so we want to give it a very high hazards value.
-					if (current_tile_comp->tileType != WATER)
-					{
-						//Loop through every tile in the world and calculate its hazard impact on the current tile
-						for (FilteredEntity& tile : e_it.entities)
-						{
-							//Skip the tile if it is the current tile we are looking at or if the tile is not a water tile
-							if (current_tile_comp->getEntityID() != tile.entity->getID() && tile.getComponent<components::TileComponent>()->tileType == WATER)
-							{
-								distance = PhysicsHelpers::CalculateDistance(current_tile_transform->position, tile.getComponent<components::TransformComponent>()->position);
-								if (distance < TILE_RADIUS * 5)
-								{
-									current_tile_comp->charges.hazardCharge += 10.0f / sqrt(distance);
-								}
-							}
-						}
-					}
-					else
-					{
-						current_tile_comp->charges.hazardCharge = 100.0f; //If this is a water tile we want it to be the worst possible option always.
-					}
-				}
-				ecs::ECSUser::RemoveSystem<PotentialWaterHazardSystem>();
-			}
+			void updateMultipleEntities(EntityIterator& entities, float delta) override;
 		};
 
 		/*
@@ -238,72 +197,12 @@ namespace ecs
 		class PotentialArmyHazardSystem : public ECSSystem<PotentialArmyHazardSystem>
 		{
 		public:
-			PotentialArmyHazardSystem()
-			{
-				updateType = EntityUpdate;
-				typeFilter.addRequirement(components::TileComponent::typeID);
-				typeFilter.addRequirement(components::TransformComponent::typeID);
-			}
-			virtual ~PotentialArmyHazardSystem() {}
+			PotentialArmyHazardSystem();
+			virtual ~PotentialArmyHazardSystem();
 
 			//Update function that prints the center position of every tile in the order they 
 			//were created.
-			void updateEntity(FilteredEntity& entity, float delta) override
-			{
-				//Get relevant components of the current tile.
-				components::TileComponent* current_tile_comp = entity.getComponent<components::TileComponent>();
-				components::TransformComponent* current_tile_transform = entity.getComponent<components::TransformComponent>();
-				//Fetch the army components
-				ecs::ComponentIterator c_it = ecs::ECSUser::getComponentsOfType<components::ArmyComponent>();
-				ecs::components::ArmyComponent* current_army;
-				std::vector<components::ArmyComponent*> armies;
-				//Save the armies in a vector for easier access in the next loop.
-				while (current_army = static_cast<components::ArmyComponent*>(c_it.next()))
-				{
-					armies.push_back(current_army);
-				}
-				//Distance variable used to calculate the charge.
-				float distance;
-				if (current_tile_comp->tileType != WATER)
-				{
-					//Reset charges from last pass.
-					for (int i = 0; i < 4; i++)
-					{
-						current_tile_comp->charges.armyCharges[i] = 0.0f;
-					}
-					//Calculate each armies hazards factor on this tile based on their distance to it.
-					for (int a = 0; a < armies.size(); a++)
-					{
-						//For each unit of the current army calculate their hazard impact on this tile and save it in their charge variable in the tile component.
-						for (int u = 0; u < armies[a]->unitIDs.size(); u++)
-						{
-							distance = PhysicsHelpers::CalculateDistance(current_tile_transform->position, ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(armies[a]->unitIDs[u])->position);
-							current_tile_comp->charges.armyCharges[a] += 30.0f / sqrt(distance);
-						}
-					}
-					ecs::components::ColorComponent* p_color_comp = ecs::ECSUser::getComponentFromKnownEntity<components::ColorComponent>(entity.entity->getID());
-					p_color_comp->blue = 0.0f;
-					p_color_comp->green = 0.0f;
-					float charge = (current_tile_comp->charges.armyCharges[1] + current_tile_comp->charges.armyCharges[2] + current_tile_comp->charges.armyCharges[3] + current_tile_comp->charges.hazardCharge) / 255.0f;
-					if (charge > 1.0f)
-					{
-						charge = 255.0f;
-					}
-					else
-					{
-						charge *= 255.0f;
-					}
-					p_color_comp->red = charge;
-				}
-				else
-				{
-					//If this is a water tile we set the army hazards to 100 so that no one ever will want to walk on it.
-					for (int i = 0; i < 4; i++)
-					{
-						current_tile_comp->charges.armyCharges[i] = 100.0f;
-					}
-				}
-			}
+			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 	}
 }
