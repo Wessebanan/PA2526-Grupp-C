@@ -87,12 +87,14 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 	}
 	case STATE::LOOT:
 	{
+		
 		EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
 		WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
 		//Check if the unit have a weapon already. If so find a friendly unit without a weapon and follow that unit.
 		if (weapon_comp->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
 		{
 			goal_friend_id = this->FindClosestFriend(entity.entity);
+			if (other_unit_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
 			if (goal_friend_id != 0)
 			{
 				//Find the closest tile to the nearest friend.
@@ -127,6 +129,24 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 		calc_path = true;
 		break;
 	}
+	case STATE::RALLY:
+	{
+		goal_friend_id = this->FindClosestFriend(entity.entity);
+		if (goal_friend_id != 0)
+		{
+			//Find the closest tile to the nearest friend.
+			goal_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(goal_friend_id);
+			//goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
+			goal_tile_index = this->GetClosestTile(*goal_transform);
+			//Check that the tile is traversable
+			if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
+			{
+				goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].Id;
+			}
+			calc_path = true;
+		}
+		break;
+	}
 	default:
 	{
 		break;
@@ -159,6 +179,10 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 			FleeStateComponent flee_comp;
 			flee_comp.activeCommand = FLEE;
 			ECSUser::createComponent(entity.entity->getID(), flee_comp);
+		}
+		else if (move_comp.activeCommand == RALLY)
+		{
+			move_comp.goalID = goal_friend_id;
 		}
 		else
 		{
@@ -415,7 +439,7 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(Entity* cur
 	UnitComponent* other_unit_comp;
 	TransformComponent* curr_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(current_unit->getID());
 	TransformComponent* other_unit_transform;
-	Entity* other_unit_weapon;
+	//Entity* other_unit_weapon;
 	float dist = 1000.0f;
 	float temp_dist = 0.0f;
 	unsigned int friend_id = 0;
@@ -436,22 +460,18 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(Entity* cur
 				//Check so that the unit is part of the current units army.
 				if (other_unit_comp->playerID == curr_unit_comp->playerID)
 				{
+
 					if (other_unit->getID() != current_unit->getID())
-					{
-						other_unit_weapon = ECSUser::getEntity(ECSUser::getComponentFromKnownEntity<EquipmentComponent>(other_unit->getID())->mEquippedWeapon);
-						WeaponComponent* other_unit_weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(other_unit_weapon->getID());
-						//Check if the friendly unit is without a weapon. We only want to follow allies without weapons while they loot.
-						if (other_unit_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+					{						
+						other_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(other_unit->getID());
+						temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
+						//If the distance is smaller then the previously nearest friend we store the info of the new one.
+						if (temp_dist < dist)
 						{
-							other_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(other_unit->getID());
-							temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
-							//If the distance is smaller then the previously nearest friend we store the info of the new one.
-							if (temp_dist < dist)
-							{
-								dist = temp_dist;
-								friend_id = other_unit->getID();
-							}
+							dist = temp_dist;
+							friend_id = other_unit->getID();
 						}
+						
 					}
 				}
 				else
@@ -1215,4 +1235,3 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 /************************************************/
 /*********  SWITCHSTATESYSTEM END  *************/
 /**********************************************/
-

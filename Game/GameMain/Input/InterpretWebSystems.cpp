@@ -44,14 +44,14 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				createEvent(ping_event);
 			}
-			else if (ucComp->userCommands[i].mCommand == "idle" )
+			else if (ucComp->userCommands[i].mCommand == "regroup" )
 			{
 				// change state component
 				events::ChangeUserStateEvent cus_event;
-				cus_event.newState = STATE::IDLE;
+				cus_event.newState = STATE::RALLY;
 				cus_event.playerId = (PLAYER)i;
 
-				p_player_state_comp->mCurrentStates[i] = STATE::IDLE;
+				p_player_state_comp->mCurrentStates[i] = STATE::RALLY;
 
 				{
 					ecs::events::FadeOutSubMusic m_event;
