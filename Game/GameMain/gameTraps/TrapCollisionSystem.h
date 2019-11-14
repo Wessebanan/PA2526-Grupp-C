@@ -1,7 +1,7 @@
 #pragma once
-#include "ecsEventIncludes.h"
-#include "../GameGlobals.h"
 
+#include <DirectXMath.h>
+#include "ecsSystemIncludes.h"
 
 /*
 	-- HOW TO ADD A NEW TRAP --																						See file:
@@ -16,27 +16,27 @@
 
 namespace ecs
 {
-	namespace events
+	namespace systems
 	{
-		struct PlaceTrapEvent : public ecs::ECSEvent<PlaceTrapEvent>
+		/*
+			-- TrapCollisionSystem
+			Check collision between unit and traps. If a unit trigger a trap,
+			this system creates an event for that trap type that corresponding
+			trap trigger system will respond to.
+		*/
+		class TrapCollisionSystem : public ECSSystem<TrapCollisionSystem>
 		{
-			TypeID tileID;
-			GAME_OBJECT_TYPES type; // The winner of the round 
-		};
+		public:
 
-		// Trigger event for traps
-		struct TriggerFireTrapEvent : public ecs::ECSEvent<TriggerFireTrapEvent>
-		{
-			TypeID unitID;
-		};
-		struct TriggerFreezeTrapEvent : public ecs::ECSEvent<TriggerFreezeTrapEvent>
-		{
-			TypeID unitID;
-		};
-		struct TriggerSpringTrapEvent : public ecs::ECSEvent<TriggerSpringTrapEvent>
-		{
-			TypeID unitID;
-		};
+			TrapCollisionSystem();
+			~TrapCollisionSystem();
 
+			void updateEntity(FilteredEntity& trap, float delta) override;
+
+		private:
+
+			const float TRIGGER_DISTANCE = 0.5f;
+			const DirectX::XMFLOAT3 TRIGGER_POINT_OFFSET = { 0.f, 1.f, 0.f };
+		};
 	}
 }
