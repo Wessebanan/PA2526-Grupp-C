@@ -150,21 +150,24 @@ namespace ecs
 
 			systems::OceanRenderSystem* p_ocean_renderer = (systems::OceanRenderSystem*)GetSystem<systems::OceanRenderSystem>();
 
+			// Enable Standard Vertex Buffers
 			p_mesh_mgr->mgr.SetVertexBuffers();
 
 #ifdef _DEBUG
+			// Don't render shadow map if in debug (but execute the begin and end for the pipeline)
 			p_render_mgr->mgr.ExecutePipeline(
 				p_pipeline_shadow_map->pipeline,
 				0,
 				0);
 #else
+			// Render To Shadow Map
 			p_render_mgr->mgr.ExecutePipeline(
 				p_pipeline_shadow_map->pipeline,
 				0,
 				p_ocean_renderer->mRenderProgram - 1);
 #endif // !_DEBUG
 
-
+			// Render To Color Buffer
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
 		}
 	}
