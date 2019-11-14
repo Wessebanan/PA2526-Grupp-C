@@ -692,7 +692,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 		float next_tile_x = 0;
 		float next_tile_z = 0;
 		float y_distance;
-		float _length;
+		float length;
 		float length_of_vector;
 		float angle;
 		XMFLOAT3 jump_vector;
@@ -708,9 +708,9 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 		y_distance = p_goal->position.y - (p_ground_comp->mLastTileY);
 		curr_tile_x = curr_tile_x + (next_tile_x * DEFAULT_USAGE_OF_TILE);//ad percentage of the direction from the tile next after "goal"
 		curr_tile_z = curr_tile_z + (next_tile_z * DEFAULT_USAGE_OF_TILE);
-		_length = sqrt(curr_tile_x * curr_tile_x + curr_tile_z * curr_tile_z);
-		p_dyn_move->mForward.x = curr_tile_x / _length;
-		p_dyn_move->mForward.z = curr_tile_z / _length;
+		length = sqrt(curr_tile_x * curr_tile_x + curr_tile_z * curr_tile_z);
+		p_dyn_move->mForward.x = curr_tile_x / length;
+		p_dyn_move->mForward.z = curr_tile_z / length;
 
 		if (ECSUser::getComponentFromKnownEntity<UnitComponent>(p_goal->getEntityID()))//if the target is a unit we check y-value from same origin
 		{
@@ -719,13 +719,13 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 		if (y_distance > 0.3f && p_dyn_move->mOnGround)
 		{
-			_length = PhysicsHelpers::CalculateDistance(p_goal->position, p_transform->position);//Length from unit to goal center
+			length = PhysicsHelpers::CalculateDistance(p_goal->position, p_transform->position);//Length from unit to goal center
 			length_of_vector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
 			angle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
 			(XMLoadFloat3(&p_dyn_move->mVelocity)), XMVector3Normalize(XMLoadFloat3(&p_dyn_move->mDirection))));//Get angle between velocity and direction vector
 			//if their velocity vector is same or larger then the vector between their position and the edge of a tile
 			//and they move in the same direction as they are looking
-			if ((length_of_vector >= (_length - DEFAULT_TILE_SIDE_LENGTH)) && angle > 0.9f)
+			if ((length_of_vector >= (length - DEFAULT_TILE_SIDE_LENGTH)) && angle > 0.9f)
 			{
 				//modify values so that they jump more upwards
 				jump_vector.x /= 7.f;
