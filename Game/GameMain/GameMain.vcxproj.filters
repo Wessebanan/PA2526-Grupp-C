@@ -105,6 +105,9 @@
     <ClCompile Include="gameTraps\TrapSystems.cpp">
       <Filter>Traps</Filter>
     </ClCompile>
+    <ClCompile Include="gameAI\AISystems.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
     <ClCompile Include="gameGraphics\ParticleECSSystems.cpp">
       <Filter>Graphics\ECS</Filter>
     </ClCompile>
@@ -361,6 +364,9 @@
       <Filter>Traps</Filter>
     </ClInclude>
     <ClInclude Include="gameTraps\InitTraps.h">
+      <Filter>Traps</Filter>
+    </ClInclude>
+    <ClInclude Include="gameTraps\TrapComponentsLHURE.h">
       <Filter>Traps</Filter>
     </ClInclude>
   </ItemGroup>

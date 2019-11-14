@@ -104,6 +104,7 @@
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp" />
     <ClCompile Include="..\..\InputHandler\InputHandler\webConnection.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
+    <ClCompile Include="gameAI\AISystems.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
     <ClCompile Include="gameGameLoop\GameLoopSystems.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
     <ClInclude Include="gameTraps\InitTraps.h" />
+    <ClInclude Include="gameTraps\TrapComponentsLHURE.h" />
     <ClInclude Include="gameTraps\TrapEvents.h" />
     <ClInclude Include="gameTraps\TrapSystems.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />

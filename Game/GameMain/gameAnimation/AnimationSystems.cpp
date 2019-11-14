@@ -4,6 +4,7 @@ ecs::systems::SkeletonSystem::SkeletonSystem()
 {
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(components::SkeletonComponent::typeID);
+	typeFilter.addRequirement(components::AnimationSpeedComponent::typeID);
 }
 
 ecs::systems::SkeletonSystem::~SkeletonSystem()
@@ -13,6 +14,7 @@ ecs::systems::SkeletonSystem::~SkeletonSystem()
 void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float delta)
 {
 	components::SkeletonComponent* pSkeleton = entity.getComponent<components::SkeletonComponent>();
+	components::AnimationSpeedComponent* pAnimation = entity.getComponent<components::AnimationSpeedComponent>();
 	if (pSkeleton->pingTimeElapsed >= 0.0f && pSkeleton->pingTimeElapsed <= 1.0f)
 	{
 		pSkeleton->pingTimeElapsed += delta;
@@ -24,7 +26,7 @@ void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float de
 	}
 	else if (getComponentFromKnownEntity<ecs::components::MoveStateComponent>(pSkeleton->getEntityID()))
 	{
-		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::MOVE);
+		pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::MOVE);
 	}
 	else
 	{ 
