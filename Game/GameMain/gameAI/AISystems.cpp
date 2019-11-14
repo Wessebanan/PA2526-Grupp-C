@@ -718,13 +718,13 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 		this->mJumpVector.y = this->mY = p_goal->position.y - p_ground_comp->mLastTileY;
 		this->mJumpVector.z = this->mZ = p_goal->position.z - p_transform->position.z;
 		this->mYDistance = p_goal->position.y - (p_ground_comp->mLastTileY);
-		this->mX = this->mX + (this->mNextX * this->mPercentageOfHowMuchWeWantToUseFromNextTile);//ad 20% of the direction from the tile next after "goal"
-		this->mZ = this->mZ + (this->mNextZ * this->mPercentageOfHowMuchWeWantToUseFromNextTile);
+		this->mX = this->mX + (this->mNextX * this->mHowMuchWeWantToUse);//ad percentage of the direction from the tile next after "goal"
+		this->mZ = this->mZ + (this->mNextZ * this->mHowMuchWeWantToUse);
 		this->mLength = sqrt(mX * mX + mZ * mZ);
 		p_dyn_move->mForward.x = this->mX / this->mLength;
 		p_dyn_move->mForward.z = this->mZ / this->mLength;
 
-		if (ECSUser::getComponentFromKnownEntity<UnitComponent>(p_goal->getEntityID()))
+		if (ECSUser::getComponentFromKnownEntity<UnitComponent>(p_goal->getEntityID()))//if the target is a unit we check y-value from same origin
 		{
 			this->mYDistance = this->mY = p_goal->position.y - p_transform->position.y;
 		}

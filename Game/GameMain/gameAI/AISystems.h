@@ -92,7 +92,7 @@ namespace ecs
 			float mNextX;
 			float mNextZ;
 			float mYDistance;
-			float mPercentageOfHowMuchWeWantToUseFromNextTile = 0.2;
+			float mHowMuchWeWantToUse = 0.2; //20%
 			float mTileSizeLength = sqrtf(3)/2.f;//sqrt(3)/2 is the length to one side if the tile if radius is 1
 			float mLength;
 			float mLengthOfVector;
