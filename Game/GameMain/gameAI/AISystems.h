@@ -54,6 +54,7 @@ namespace ecs
 			int2 GetClosestTile(TransformComponent& transform);
 		private:
 			unsigned int FindClosestEnemy(ecs::Entity* current_unit);
+			unsigned int FindClosestFriendWithoutWeapon(ecs::Entity* current_unit);
 			unsigned int FindClosestFriend(ecs::Entity* current_unit);
 			unsigned int FindSafeTile(ecs::Entity* current_unit);
 			unsigned int FindClosestLootTile(ecs::Entity* current_unit);

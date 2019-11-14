@@ -93,8 +93,7 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 		//Check if the unit have a weapon already. If so find a friendly unit without a weapon and follow that unit.
 		if (weapon_comp->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
 		{
-			goal_friend_id = this->FindClosestFriend(entity.entity);
-			if (other_unit_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+			goal_friend_id = this->FindClosestFriendWithoutWeapon(entity.entity);
 			if (goal_friend_id != 0)
 			{
 				//Find the closest tile to the nearest friend.
@@ -428,7 +427,7 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestEnemy(Entity* curr
 	return enemy_id;
 }
 
-unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(Entity* current_unit)
+unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriendWithoutWeapon(Entity* current_unit)
 {
 	//Initialize components and variables that we will need.
 	ComponentIterator ittr;
@@ -439,7 +438,7 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(Entity* cur
 	UnitComponent* other_unit_comp;
 	TransformComponent* curr_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(current_unit->getID());
 	TransformComponent* other_unit_transform;
-	//Entity* other_unit_weapon;
+	Entity* other_unit_weapon;
 	float dist = 1000.0f;
 	float temp_dist = 0.0f;
 	unsigned int friend_id = 0;
@@ -460,9 +459,68 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(Entity* cur
 				//Check so that the unit is part of the current units army.
 				if (other_unit_comp->playerID == curr_unit_comp->playerID)
 				{
-
 					if (other_unit->getID() != current_unit->getID())
-					{						
+					{
+						other_unit_weapon = ECSUser::getEntity(ECSUser::getComponentFromKnownEntity<EquipmentComponent>(other_unit->getID())->mEquippedWeapon);
+						WeaponComponent* other_unit_weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(other_unit_weapon->getID());
+						//Check if the friendly unit is without a weapon. We only want to follow allies without weapons while they loot.
+						if (other_unit_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+						{
+							other_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(other_unit->getID());
+							temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
+							//If the distance is smaller then the previously nearest friend we store the info of the new one.
+							if (temp_dist < dist)
+							{
+								dist = temp_dist;
+								friend_id = other_unit->getID();
+							}
+						}
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+	//Return the nearest enemy units entity id.
+	return friend_id;
+}
+
+unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(ecs::Entity* current_unit)
+{
+	//Initialize components and variables that we will need.
+	ComponentIterator ittr;
+	BaseComponent* p_base_component;
+	ArmyComponent* army_comp;
+	Entity* other_unit;
+	UnitComponent* curr_unit_comp = ECSUser::getComponentFromKnownEntity<UnitComponent>(current_unit->getID());
+	UnitComponent* other_unit_comp;
+	TransformComponent* curr_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(current_unit->getID());
+	TransformComponent* other_unit_transform;
+	float dist = 1000.0f;
+	float temp_dist = 0.0f;
+	unsigned int friend_id = 0;
+
+	//Fetch the army components of all the players
+	ittr = ECSUser::getComponentsOfType(ArmyComponent::typeID);
+	while (p_base_component = ittr.next())
+	{
+		army_comp = static_cast<ArmyComponent*>(p_base_component);
+		//Loop through every unit of the current army.
+		for (int i = 0; i < army_comp->unitIDs.size(); i++)
+		{
+			other_unit = ECSUser::getEntity(army_comp->unitIDs[i]);
+			//Check so that the unit still exists
+			if (other_unit != nullptr)
+			{
+				other_unit_comp = static_cast<UnitComponent*>(ECSUser::getComponentFromKnownEntity(UnitComponent::typeID, other_unit->getID()));
+				//Check so that the unit is part of the current units army.
+				if (other_unit_comp->playerID == curr_unit_comp->playerID)
+				{
+					if (other_unit->getID() != current_unit->getID())
+					{
 						other_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(other_unit->getID());
 						temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
 						//If the distance is smaller then the previously nearest friend we store the info of the new one.
