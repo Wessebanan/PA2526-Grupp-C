@@ -148,9 +148,8 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 		These stay outcommented, so we can easily compare performance boost between instance and single mesh rendering
 	*/
 
-	//systems::TileRenderSystem* p_tile_renderer = rEcs.createSystem<systems::TileRenderSystem>(9);
+	//rEcs.createSystem<systems::TileInstanceRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 	//systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<systems::OceanRenderSystem>(9);
-	//p_tile_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	//p_ocean_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 }
 

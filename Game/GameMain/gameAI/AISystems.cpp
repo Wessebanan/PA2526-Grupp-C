@@ -467,60 +467,39 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(Entity* cur
 
 unsigned int ecs::systems::PathfindingStateSystem::FindSafeTile(Entity* current_unit)
 {
-	//Fetch and initialize components and variables that we will need.
-	UnitComponent* current_unit_comp = ECSUser::getComponentFromKnownEntity<UnitComponent>(current_unit->getID());
-	std::vector<ArmyComponent*> armies;
-	UnitComponent* other_unit_comp;
-	BaseComponent* p_base_comp;
-	ComponentIterator it = ECSUser::getComponentsOfType(ArmyComponent::typeID);
-	TransformComponent* current_tile_transform;
-	TransformComponent* other_unit_transform;
+	UnitComponent* p_current_unit_comp = ECSUser::getComponentFromKnownEntity<UnitComponent>(current_unit->getID());
+	TransformComponent* p_current_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(current_unit->getID());
+	int2 start_tile_index = GetClosestTile(*p_current_unit_transform);
 	GridProp* p_gp = GridProp::GetInstance();
-	float best_safe_value = 0;
-	float safe_value = 0;
-	unsigned int other_unit_id;
-	unsigned int goal_id;
-	//Fetch the army components of all the players.
-	while (p_base_comp = it.next())
+	ID start_tile_id = p_gp->mGrid[start_tile_index.y][start_tile_index.x].Id;
+
+	TileComponent* p_current_tile = ECSUser::getComponentFromKnownEntity<TileComponent>(start_tile_id);
+	TileComponent* p_current_neighbour;
+	int goal_tile_id = 0;
+	float current_safe = 0.0f;
+	float safest = 1000.0f;
+	for (int i = 0; i < 6; i++)
 	{
-		armies.push_back(static_cast<ArmyComponent*>(p_base_comp));
-	}
-	//For each tile we calculate the distance to every enemy unit and ads it together to find out which tile on the map that is the furthest from every enemy unit.
-	for (int y = 0; y < MAX_ARENA_ROWS; y++)
-	{
-		for (int x = 0; x < MAX_ARENA_COLUMNS; x++)
+		if (p_current_tile->neighboursIDArray[i] != 0)
 		{
-			if (p_gp->mGrid[y][x].isPassable)
+			p_current_neighbour = ECSUser::getComponentFromKnownEntity<TileComponent>(p_current_tile->neighboursIDArray[i]);
+			for (int a = 0; a < 4; a++)
 			{
-				for (int a = 0; a < armies.size(); a++)
+				if (a != p_current_unit_comp->playerID)
 				{
-					for (int u = 0; u < armies[a]->unitIDs.size(); u++)
-					{
-						other_unit_id = armies[a]->unitIDs[u];
-						if (ECSUser::getEntity(other_unit_id) != NULL)
-						{
-							other_unit_comp = ECSUser::getComponentFromKnownEntity<UnitComponent>(other_unit_id);
-							if (current_unit_comp->playerID != other_unit_comp->playerID)
-							{
-								other_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(other_unit_id);
-								current_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[y][x].Id);
-								safe_value += abs(PhysicsHelpers::CalculateDistance(current_tile_transform->position, other_unit_transform->position));
-							}
-						}
-					}
-				}
-				//If the current tile has a better safe_value we store it.
-				if (safe_value > best_safe_value)
-				{
-					best_safe_value = safe_value;
-					goal_id = p_gp->mGrid[y][x].Id;
+					current_safe += p_current_neighbour->charges.armyCharges[a];
 				}
 			}
-			safe_value = 0;
+			//current_safe += p_current_neighbour->charges.hazardCharge;
+			if (current_safe < safest)
+			{
+				safest = current_safe;
+				goal_tile_id = p_current_tile->neighboursIDArray[i];
+			}
+			current_safe = 0.0f;
 		}
 	}
-	//Return the entity id of the safest tile.
-	return goal_id;
+	return goal_tile_id;
 }
 
 unsigned int ecs::systems::PathfindingStateSystem::FindClosestLootTile(Entity* current_unit)
@@ -683,7 +662,8 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 			p_goal = getComponentFromKnownEntity<TransformComponent>(p_move_comp->path.back());
 			if (p_goal != nullptr)
 			{
-				if (abs(p_goal->position.x - p_transform->position.x) < 1.0f && abs(p_goal->position.z - p_transform->position.z) < 1.0f)
+				ID unit_tile = this->GetClosestTileId(*p_transform);
+				if (unit_tile == p_move_comp->path.back())
 				{
 					p_move_comp->path.pop_back();
 					if (p_move_comp->path.size() > 0)
@@ -844,6 +824,40 @@ void ecs::systems::MoveStateSystem::SwitchState(FilteredEntity& entity, STATE ne
 	}
 }
 
+ID ecs::systems::MoveStateSystem::GetClosestTileId(TransformComponent& transform)
+{
+	//Initialize components and variables that we will need.
+	int2 tile_index;
+	GridProp* p_gp = GridProp::GetInstance();
+	ecs::BaseComponent* p_base_component;
+	ecs::components::TransformComponent* p_curr_tile_transform;
+	ecs::components::TileComponent* p_curr_tile;
+	ecs::Entity* p_curr_entity;
+	float dist = 1000.0f;
+	float temp_dist = 0.0f;
+	//Loop through every tile in the grid.
+	for (int x = 0; x < p_gp->GetSize().x; x++)
+	{
+		for (int y = 0; y < p_gp->GetSize().y; y++)
+		{
+			//Check if the tile is a tile we can walk on.
+			if (p_gp->mGrid[y][x].isPassable)
+			{
+				p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
+				temp_dist = PhysicsHelpers::CalculateDistance(transform.position, p_curr_tile_transform->position);
+				//If the tile is closer than the previously closest tile we've found we store the new info.
+				if (temp_dist < dist)
+				{
+					dist = temp_dist;
+					tile_index.x = x;
+					tile_index.y = y;
+				}
+			}
+		}
+	}
+	//Return the index position of the closest tile in mGrid in the GridProp class.
+	return p_gp->mGrid[tile_index.y][tile_index.x].Id;
+}
 /************************************************/
 /**********  MOVESTATESYSTEM END  **************/
 /**********************************************/
@@ -857,7 +871,6 @@ ecs::systems::FleeStateSystem::FleeStateSystem()
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(FleeStateComponent::typeID);
 	typeFilter.addRequirement(UnitComponent::typeID);
-	typeFilter.addRequirement(EquipmentComponent::typeID);
 	typeFilter.addRequirement(TransformComponent::typeID);
 }
 
@@ -873,7 +886,6 @@ void ecs::systems::FleeStateSystem::updateEntity(FilteredEntity& entity, float d
 	//Fetch data of current entity.
 	UnitComponent* p_current_unit = entity.getComponent<UnitComponent>();
 	TransformComponent* p_current_unit_transform = entity.getComponent<TransformComponent>();
-	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
 	//Initialize data for other unit.
 	UnitComponent* p_other_unit;
 	TransformComponent* p_other_unit_transform;
@@ -1241,3 +1253,154 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 /*********  SWITCHSTATESYSTEM END  *************/
 /**********************************************/
 
+/************************************************/
+/*****  POTENTIALWATERHAZARDSYSTEM START  ******/
+/**********************************************/
+
+ecs::systems::PotentialWaterHazardSystem::PotentialWaterHazardSystem()
+{
+	updateType = MultiEntityUpdate;
+	typeFilter.addRequirement(components::TileComponent::typeID);
+	typeFilter.addRequirement(components::TransformComponent::typeID);
+}
+
+ecs::systems::PotentialWaterHazardSystem::~PotentialWaterHazardSystem()
+{
+
+}
+
+void ecs::systems::PotentialWaterHazardSystem::updateMultipleEntities(EntityIterator& entities, float delta)
+{
+	for (FilteredEntity& entity : entities.entities)
+	{
+		//Fetch relevant components from the current tile.
+		components::TileComponent* current_tile_comp = entity.getComponent<components::TileComponent>();
+		components::TransformComponent* current_tile_transform = entity.getComponent<components::TransformComponent>();
+		//Filter out all of the tiles in the world.
+		ecs::TypeFilter tile_filter;
+		tile_filter.addRequirement(components::TileComponent::typeID);
+		tile_filter.addRequirement(components::TransformComponent::typeID);
+		ecs::EntityIterator e_it = ecs::ECSUser::getEntitiesByFilter(tile_filter);
+		//Distance variable used to calculate the hazards charge of the current tile based on distance to other water tiles.
+		float distance;
+		//Check if the current tile is a water tile. If so we want to give it a very high hazards value.
+		if (current_tile_comp->tileType != WATER)
+		{
+			//Loop through every tile in the world and calculate its hazard impact on the current tile
+			for (FilteredEntity& tile : e_it.entities)
+			{
+				//Skip the tile if it is the current tile we are looking at or if the tile is not a water tile
+				if (current_tile_comp->getEntityID() != tile.entity->getID() && tile.getComponent<components::TileComponent>()->tileType == WATER)
+				{
+					XMFLOAT3 dist;
+					dist.x = current_tile_transform->position.x - tile.getComponent<TransformComponent>()->position.x;
+					dist.y = 0.0f;
+					dist.z = current_tile_transform->position.z - tile.getComponent<TransformComponent>()->position.z;
+					distance = sqrt(dist.x * dist.x + dist.z * dist.z);
+					if (distance < TILE_RADIUS * 5)
+					{
+						current_tile_comp->charges.hazardCharge += 10.0f / (distance * distance);
+					}
+				}
+			}
+		}
+		else
+		{
+			current_tile_comp->charges.hazardCharge = 100.0f; //If this is a water tile we want it to be the worst possible option always.
+		}
+	}
+	ecs::ECSUser::RemoveSystem<PotentialWaterHazardSystem>();
+}
+
+/************************************************/
+/****** POTENTIALWATERHAZARDSYSTEM END  ********/
+/**********************************************/
+
+/************************************************/
+/******  POTENTIALARMYHAZARDSYSTEM START  ******/
+/**********************************************/
+
+ecs::systems::PotentialArmyHazardSystem::PotentialArmyHazardSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(components::TileComponent::typeID);
+	typeFilter.addRequirement(components::TransformComponent::typeID);
+}
+
+ecs::systems::PotentialArmyHazardSystem::~PotentialArmyHazardSystem()
+{
+
+}
+
+void ecs::systems::PotentialArmyHazardSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	//Get relevant components of the current tile.
+	components::TileComponent* current_tile_comp = entity.getComponent<components::TileComponent>();
+	components::TransformComponent* current_tile_transform = entity.getComponent<components::TransformComponent>();
+	//Fetch the army components
+	ecs::ComponentIterator c_it = ecs::ECSUser::getComponentsOfType<components::ArmyComponent>();
+	ecs::components::ArmyComponent* current_army;
+	std::vector<components::ArmyComponent*> armies;
+	//Save the armies in a vector for easier access in the next loop.
+	while (current_army = static_cast<components::ArmyComponent*>(c_it.next()))
+	{
+		armies.push_back(current_army);
+	}
+	//Distance variable used to calculate the charge.
+	float distance;
+	if (current_tile_comp->tileType != WATER)
+	{
+		//Reset charges from last pass.
+		for (int i = 0; i < 4; i++)
+		{
+			current_tile_comp->charges.armyCharges[i] = 0.0f;
+		}
+		//Calculate each armies hazards factor on this tile based on their distance to it.
+		for (int a = 0; a < armies.size(); a++)
+		{
+			//For each unit of the current army calculate their hazard impact on this tile and save it in their charge variable in the tile component.
+			for (int u = 0; u < armies[a]->unitIDs.size(); u++)
+			{
+				XMFLOAT3 dist;
+				dist.x = current_tile_transform->position.x - ECSUser::getComponentFromKnownEntity<TransformComponent>(armies[a]->unitIDs[u])->position.x;
+				dist.y = 0.0f;
+				dist.z = current_tile_transform->position.z - ECSUser::getComponentFromKnownEntity<TransformComponent>(armies[a]->unitIDs[u])->position.z;
+				distance = sqrt(dist.x * dist.x + dist.z * dist.z);
+				//distance = PhysicsHelpers::CalculateDistance(current_tile_transform->position, ecs::ECSUser::getComponentFromKnownEntity<components::TransformComponent>(armies[a]->unitIDs[u])->position);
+				current_tile_comp->charges.armyCharges[a] += 60.0f / (distance * distance);
+			}
+		}
+
+		//DEBUG CODE//
+		//LETS THE DEVELOPER SEE THE POTENTIAL FIELD AS RED COLOR ON THE TILES.
+		//THE DARKER THE TILE THE BETTER THAT TILE IS FOR THE RED ARMY TO FLEE TO!
+		/*
+		ecs::components::ColorComponent* p_color_comp = ecs::ECSUser::getComponentFromKnownEntity<components::ColorComponent>(entity.entity->getID());
+		p_color_comp->blue = 0.0f;
+		p_color_comp->green = 0.0f;
+		float charge = (current_tile_comp->charges.armyCharges[1] + current_tile_comp->charges.armyCharges[2] + current_tile_comp->charges.armyCharges[3] + current_tile_comp->charges.hazardCharge) / 255.0f;
+		if (charge > 1.0f)
+		{
+			charge = 255.0f;
+		}
+		else
+		{
+			charge *= 255.0f;
+		}
+		p_color_comp->red = charge;
+		*/
+		//END OF DEBUG CODE//
+	}
+	else
+	{
+		//If this is a water tile we set the army hazards to 100 so that no one ever will want to walk on it.
+		for (int i = 0; i < 4; i++)
+		{
+			current_tile_comp->charges.armyCharges[i] = 100.0f;
+		}
+	}
+}
+
+/************************************************/
+/*******  POTENTIALARMYHAZARDSYSTEM END  *******/
+/**********************************************/
