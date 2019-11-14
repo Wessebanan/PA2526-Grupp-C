@@ -994,8 +994,7 @@ namespace ecs
 				DeadComponent* p_dead = getComponentFromKnownEntity<DeadComponent>(entity.entity->getID());
 				if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
 				{
-					//std::cout << "Haha someone drowned\n";
-					// Smoke Emitter
+					// Splash Emitter - When drowned, spawn a water splash
 					components::ParticleSpawnerComponent spawner;
 					components::SplashSpawnerComponent smoke;
 
@@ -1015,6 +1014,7 @@ namespace ecs
 					sound.soundFlags = SF_NONE;
 					ecs::ECSUser::createEvent(sound);*/
 				}
+
 				// saved fo future use
 				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
 				UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
