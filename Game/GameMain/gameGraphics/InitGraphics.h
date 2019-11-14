@@ -117,18 +117,17 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	graphics::MeshManager& r_mesh_mgr = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& r_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
 
-	rEcs.createSystem<systems::TileInstanceRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 	systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(9);
 	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);	
 	systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(9);
-	//systems::MapRenderSystem* p_map_renderer = rEcs.createSystem<MapRenderSystem>(9);
+	systems::MapRenderSystem* p_map_renderer = rEcs.createSystem<MapRenderSystem>(9);
 	systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<OceanRenderSystem>(9);
 
 	
 	p_unit_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_scenery_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	p_weapon_renderer->Initialize(&r_render_mgr, &r_render_buffer);
-	//p_map_renderer->Initialize(&r_render_mgr, &r_state_mgr, rMapMeshData.pMesh, rMapMeshData.vertexCount);
+	p_map_renderer->Initialize(&r_render_mgr, &r_state_mgr, rMapMeshData.pMesh, rMapMeshData.vertexCount);
 	p_ocean_renderer->Initialize(&r_render_mgr, &r_state_mgr, rOceanMeshData.pMesh, rOceanMeshData.vertexCount);
 
 	systems::SSAORenderSystem* p_ssao_renderer = rEcs.createSystem<systems::SSAORenderSystem>(9);
@@ -138,6 +137,7 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 		These stay outcommented, so we can easily compare performance boost between instance and single mesh rendering
 	*/
 
+	//rEcs.createSystem<systems::TileInstanceRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 	//systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<systems::OceanRenderSystem>(9);
 	//p_ocean_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 }
