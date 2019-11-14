@@ -50,9 +50,20 @@ namespace ecs
 			UnitColorSwitchSystem();
 			~UnitColorSwitchSystem();
 			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
-			void updateMultipleEntities(EntityIterator & _entities, float _delta) override;
+			void updateEntity(FilteredEntity & _entity, float _delta) override;
 		private:			
 			std::unordered_map<ID, float> mTimers;
+		};
+
+		/** Unit Invincibility Timer System:
+		* Handles invincibility components given to units when damage is taken 
+		* by deducting frame time from them and removing them when the time is up.
+		*/
+		SYSTEM(UnitInvincibilityTimerSystem)
+		{
+			UnitInvincibilityTimerSystem();
+			~UnitInvincibilityTimerSystem();			
+			void updateEntity(FilteredEntity & _entity, float _delta) override;		
 		};
 	} // systems
 } // ecs

@@ -119,6 +119,7 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	graphics::StateManager& r_state_mgr = static_cast<components::StateManagerComponent*>(rEcs.getAllComponentsOfType(components::StateManagerComponent::typeID).next())->mgr;
 	graphics::MeshManager& r_mesh_mgr = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& r_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
+	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 
 	rEcs.createSystem<systems::UnitRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
@@ -147,9 +148,8 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 		These stay outcommented, so we can easily compare performance boost between instance and single mesh rendering
 	*/
 
-	//systems::TileRenderSystem* p_tile_renderer = rEcs.createSystem<systems::TileRenderSystem>(9);
+	//rEcs.createSystem<systems::TileInstanceRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 	//systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<systems::OceanRenderSystem>(9);
-	//p_tile_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 	//p_ocean_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 }
 
@@ -174,6 +174,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	MeshContainer::Initialize(&mesh_manager);
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TILE, "../meshes/hexagon_tile5.fbx");
+
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BARREL, "../meshes/Barrel.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BOX, "../meshes/Box.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_CACTUS, "../meshes/Cactus.fbx");
@@ -183,7 +184,9 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_GIANTSKULL, "../meshes/GiantSkull.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER, "../meshes/Tower.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
+
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
+
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_SWORD, "../meshes/sword.fbx");
 
 	// Create Quad For GPU
@@ -226,4 +229,8 @@ void InitMeshes(EntityComponentSystem& rEcs)
 
 		MeshContainer::CreateGPUMesh(GAME_OBJECT_TYPE_QUAD, 6, 0, data, NULL);
 	}
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FIRE, "../meshes/TrapPlate.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FREEZE, "../meshes/TrapPlate.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_SPRING, "../meshes/TrapPlate.fbx");
 }
