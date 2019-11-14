@@ -54,6 +54,7 @@
 #include "InitHttpServer.h"
 
 #include "gameTraps/InitTraps.h"
+#include "gameWeapons/InitWeapons.h"
 #include "gameTraps/TrapComponents.h"
 #include "gameTraps/TrapEvents.h"
 
@@ -152,6 +153,19 @@ int main()
 			if (GetAsyncKeyState(VK_ESCAPE))
 			{
 				wnd.Close();
+			}
+			
+			// Start a devcamera if pressing E
+			if (GetAsyncKeyState('E'))
+			{
+				ecs.removeSystem<ecs::systems::UpdateDynamicCameraSystem>();
+				ecs.createSystem<ecs::systems::UpdateCameraSystem>(0);
+			}
+			// Start a dyncamera if pressing F
+			if (GetAsyncKeyState('F'))
+			{
+				ecs.removeSystem<ecs::systems::UpdateCameraSystem>();
+				ecs.createSystem<ecs::systems::UpdateDynamicCameraSystem>(0);
 			}
 
 			if (GetAsyncKeyState(VK_SPACE) && start_once)
@@ -271,6 +285,8 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	initArmyText(rECS);
 
 	InitSpawnLootSystem(rECS);
+	InitWeapons(rECS);
+
 	InitTraps(rECS);
 
 	InitHttpServer(rECS);

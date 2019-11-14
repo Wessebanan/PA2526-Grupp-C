@@ -237,7 +237,7 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		InputBackendComp* p_ib;
 		while (p_ib = (InputBackendComp*)itt.next())
 		{
-			p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
+			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
 		}
 
 	}
@@ -300,21 +300,26 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 		// Create Battlephase system
 		CreateSystem<systems::BattlePhaseSystem>(1);
-		CreateSystem<systems::UpdateDynamicCameraSystem>(1);
+
+		if (!GetSystem<systems::UpdateCameraSystem>())
+		{
+			CreateSystem<systems::UpdateDynamicCameraSystem>(1);
 
 
-		// Change to dynamic camera
-		itt = getComponentsOfType<CameraComponent>();
-		CameraComponent* cam_comp = (CameraComponent*)itt.next();
+			// Change to dynamic camera
+			itt = getComponentsOfType<CameraComponent>();
+			CameraComponent* cam_comp = (CameraComponent*)itt.next();
 
-		removeEntity(cam_comp->getEntityID());
+			removeEntity(cam_comp->getEntityID());
 
-		TransformComponent new_transf_comp;
-		CameraComponent new_cam_comp;
+			TransformComponent new_transf_comp;
+			CameraComponent new_cam_comp;
 
-		CameraEcsFunctions::CreateDynamicCamera(new_transf_comp, new_cam_comp);
+			CameraEcsFunctions::CreateDynamicCamera(new_transf_comp, new_cam_comp);
 
-		createEntity(new_transf_comp, new_cam_comp);
+			createEntity(new_transf_comp, new_cam_comp);
+		}
+		
 
 		/**************************************/
 		/********** USED FOR DEBUG ***********/

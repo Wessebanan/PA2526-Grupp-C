@@ -57,5 +57,18 @@ namespace ecs
 			const float mDamage = 10.0f;
 			const float mPower = 0.5f; // REMEMBER TO SYNC WITH FREEZING DURATION STSTEM
 		};
+
+
+		// Starts the game, launches the correct phase after reading event
+		class SpringTrapEventSystem : public ecs::ECSSystem<SpringTrapEventSystem>
+		{
+		public:
+			SpringTrapEventSystem();
+			~SpringTrapEventSystem();
+			void readEvent(BaseEvent& event, float delta) override;
+		private:
+
+			const float mKnockback = 10.0f;
+		};
 	}
 }
