@@ -159,7 +159,7 @@ void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::PipelineShadowMapSystem>(9);
 	rEcs.createSystem<systems::PipelineForwardSystem>(9);
 	rEcs.createSystem<systems::ExecuteGPURenderSystem>(9);
-	rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(1920, 1080);
+	rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
 }
 
 void InitMeshes(EntityComponentSystem& rEcs)
