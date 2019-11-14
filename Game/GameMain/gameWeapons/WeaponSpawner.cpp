@@ -7,6 +7,8 @@
 
 #include "../gameAI/AIComponents.h" // TileComponent
 
+#include "GridProp.h"
+
 using namespace DirectX;
 
 namespace ecs
@@ -141,29 +143,60 @@ namespace ecs
 
 		void MasterWeaponSpawner::Initialize()
 		{
+			/*
+				Fetch center tile position
+			*/
+
+			XMVECTOR center;
+
+			{
+				int2 grid_size = GridProp::GetInstance()->GetSize();
+				ID center_tile_id = GridProp::GetInstance()->mGrid[(int)(floor(grid_size.y / 2.f))][(int)(floor(grid_size.x / 2.f))].Id;
+				center = XMLoadFloat3(&getComponentFromKnownEntity<TransformComponent>(center_tile_id)->position);
+				XMVectorSetY(center, 0.f);
+			}
+
+			/*
+				Iterate all tiles and store all valid ones (not water and within radius).
+			*/
+
 			TypeFilter tile_filter;
 			tile_filter.addRequirement(components::TileComponent::typeID);
 			tile_filter.addRequirement(components::TransformComponent::typeID);
+			EntityIterator tiles = getEntitiesByFilter(tile_filter);
 
-			mTiles = getEntitiesByFilter(tile_filter);
+			XMVECTOR tile_position;
+			components::TileComponent* p_tile_comp;
+			for (FilteredEntity& tile : tiles.entities)
+			{
+				p_tile_comp = tile.getComponent<components::TileComponent>();
+
+				/*
+					Skip water tiles
+				*/
+
+				if (p_tile_comp->tileType == WATER)
+				{
+					continue;
+				}
+
+				tile_position = XMLoadFloat3(&tile.getComponent<components::TransformComponent>()->position);
+				XMVectorSetY(tile_position, 0.f);
+
+				if (XMVectorGetX(XMVector3Length(center - tile_position)) < SPAWN_RADIUS)
+				{
+					mPossibleTileIds.push_back(tile.entity->getID());
+				}
+			}
 		}
 
 		ID MasterWeaponSpawner::FindSpawnTile()
 		{
-			int random_index = 0;
-			do
-			{
-				random_index = rand() % mTiles.entities.size();
-				if (mTiles.entities[random_index].getComponent<components::TileComponent>()->tileType == WATER)
-				{
-					/*
-						Never spawn weapon in water.
-					*/
-					random_index = -1;
-				}
-			} while (random_index == -1);
+			int random_index = rand() % (int)mPossibleTileIds.size();
+
+			GridProp::GetInstance()->mLootTiles.push_back(mPossibleTileIds[random_index]);
 			
-			return mTiles.entities[random_index].entity->getID();
+			return mPossibleTileIds[random_index];
 		}
 
 		GAME_OBJECT_TYPE MasterWeaponSpawner::GetRandomWeaponType()
@@ -177,8 +210,8 @@ namespace ecs
 
 		void MasterWeaponSpawner::ResetSpawnTimer()
 		{
-			const float ORIGIN_OFFSET = 9;
-			const int VARIANCE = 3;
+			const float ORIGIN_OFFSET = 1;
+			const int VARIANCE = 1;
 
 			mSpawnTimer = ORIGIN_OFFSET + ((rand() % VARIANCE + 1) - VARIANCE / 2.f);
 		}

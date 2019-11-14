@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ecsSystemIncludes.h"
+
+#include <vector>
 #include "../GameGlobals.h"
 
 namespace ecs
@@ -42,12 +44,13 @@ namespace ecs
 		private:
 
 			float mSpawnTimer;
+			const float SPAWN_RADIUS = 0.1f;
+
+			std::vector<ID> mPossibleTileIds;
 
 			ID FindSpawnTile();
 			GAME_OBJECT_TYPE GetRandomWeaponType();
 			void ResetSpawnTimer();
-
-			EntityIterator mTiles;
 
 		};
 	}
