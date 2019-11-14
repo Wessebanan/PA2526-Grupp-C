@@ -58,6 +58,23 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 		rSystemPointers.UIBitmapSys->mpD2D	= my_d2d;
 
 
+
+
+	ecs::components::UIBitmapComponent bitmap_comp;
+	ecs::components::UIDrawPosComponent bitmap_pos_comp;
+	//bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/areaGrid75.png", "areaOverlay");
+	bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/areaGrid50.png", "areaOverlay");
+	//bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/areaGrid30.png", "areaOverlay");
+	bitmap_comp.mName = "areaOverlay";
+	bitmap_pos_comp.mDrawArea.top = 150;
+	bitmap_pos_comp.mDrawArea.bottom = 150;
+	//bitmap_pos_comp.mDrawArea.bottom = 800;
+	bitmap_pos_comp.mDrawArea.left = 690;
+	bitmap_pos_comp.mDrawArea.right = 690;
+	//bitmap_pos_comp.mDrawArea.right = 1230;
+
+	rECS.createEntity(bitmap_comp,bitmap_pos_comp);
+
 }
 void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)
 {
