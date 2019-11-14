@@ -99,14 +99,9 @@ namespace ecs
 			##########################################################
 		*/
 
-		MasterWeaponSpawner::MasterWeaponSpawner() :
-			mDurationSinceLastSpawn(0.f)
+		MasterWeaponSpawner::MasterWeaponSpawner()
 		{
-			TypeFilter tile_filter;
-			tile_filter.addRequirement(components::TileComponent::typeID);
-			tile_filter.addRequirement(components::TransformComponent::typeID);
-
-			mTiles = getEntitiesByFilter(tile_filter);
+			updateType = Actor;
 		}
 
 		MasterWeaponSpawner::~MasterWeaponSpawner()
@@ -115,23 +110,54 @@ namespace ecs
 
 		void MasterWeaponSpawner::act(float _delta)
 		{
-			mDurationSinceLastSpawn += _delta;
+			mSpawnTimer -= _delta;
 
-			if (mDurationSinceLastSpawn >= SPAWN_FREQUENCY)
+			if (mSpawnTimer <= 0.f)
 			{
-				mDurationSinceLastSpawn = 0;
-
 				events::SpawnWeaponEvent spawn_event;
-				spawn_event.weaponType = GAME_OBJECT_TYPE_WEAPON_SWORD;
+				spawn_event.weaponType = GetRandomWeaponType();
 				spawn_event.spawnTileId = FindSpawnTile();
 				createEvent(spawn_event);
+
+				ResetSpawnTimer();
 			}
+		}
+
+		void MasterWeaponSpawner::Initialize()
+		{
+			TypeFilter tile_filter;
+			tile_filter.addRequirement(components::TileComponent::typeID);
+			tile_filter.addRequirement(components::TransformComponent::typeID);
+
+			mTiles = getEntitiesByFilter(tile_filter);
 		}
 
 		ID MasterWeaponSpawner::FindSpawnTile()
 		{
-			int random_index = rand() % mTiles.entities.size();
+			int random_index = 0;
+			do
+			{
+				random_index = rand() % mTiles.entities.size();
+				if (mTiles.entities[random_index].getComponent<components::TileComponent>()->tileType == WATER)
+				{
+					random_index = -1;
+				}
+			} while (random_index == -1);
+			
 			return mTiles.entities[random_index].entity->getID();
+		}
+
+		GAME_OBJECT_TYPE MasterWeaponSpawner::GetRandomWeaponType()
+		{
+			return (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1) + rand() & WEAPON_COUNT;
+		}
+
+		void MasterWeaponSpawner::ResetSpawnTimer()
+		{
+			const float ORIGIN_OFFSET = 9;
+			const int VARIANCE = 3;
+
+			mSpawnTimer = ORIGIN_OFFSET + ((rand() % VARIANCE + 1) - VARIANCE / 2.f);
 		}
 	}
 }

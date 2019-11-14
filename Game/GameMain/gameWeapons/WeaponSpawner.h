@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ecsSystemIncludes.h"
+#include "../GameGlobals.h"
 
 namespace ecs
 {
@@ -36,14 +37,18 @@ namespace ecs
 
 			void act(float _delta) override;
 
+			void Initialize();
+
 		private:
 
-			const float SPAWN_FREQUENCY = 1.f;
-			float mDurationSinceLastSpawn;
+			float mSpawnTimer;
 
 			ID FindSpawnTile();
+			GAME_OBJECT_TYPE GetRandomWeaponType();
+			void ResetSpawnTimer();
 
 			EntityIterator mTiles;
+
 		};
 	}
 }
