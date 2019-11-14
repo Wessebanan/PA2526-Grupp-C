@@ -43,7 +43,6 @@
 #include <time.h>
 
 #include "gameUtility/Timer.h"
-
 #include "gameGameLoop/InitGameLoop.h"
 #include "gameGameLoop/GameLoopEvents.h"
 
@@ -51,9 +50,8 @@
 
 #include "gameTraps/InitTraps.h"
 #include "gameWeapons/InitWeapons.h"
-
-// DELETE THIS FUCKERY
-#include "gameWeapons/WeaponEvents.h"
+#include "gameTraps/TrapComponents.h"
+#include "gameTraps/TrapEvents.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -108,6 +106,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(5000);
+	ecs.reserveComponentCount<ecs::components::TrapComponent>(400);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -255,7 +254,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitAnimation(rECS);
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT));
 
-	InitTrapTriggers(rECS);
 	InitGameLoop(rECS);
 
 	WorldMeshData mapMeshData;
@@ -276,11 +274,14 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
+
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
 	InitSpawnLootSystem(rECS);
 	InitWeapons(rECS);
+
+	InitTraps(rECS);
 
 	InitHttpServer(rECS);
 

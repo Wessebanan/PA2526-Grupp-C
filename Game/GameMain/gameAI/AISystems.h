@@ -50,8 +50,7 @@ namespace ecs
 			PathfindingStateSystem();
 			virtual ~PathfindingStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that calculates the path for the given unit based on the command given.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 			std::vector<unsigned int> GetPath(unsigned int startID, unsigned int goalID);
 			int2 GetClosestTile(TransformComponent& transform);
@@ -71,22 +70,21 @@ namespace ecs
 			IdleStateSystem();
 			virtual ~IdleStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that makes the unit idle and if an enemy unit moves to close
+			//the unit will either attack or run away depending on what command it currently follows.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
 		/*
 		A system that moves a unit along a path calculated in the PathfindingSystem.
-	*/
+		*/
 		class MoveStateSystem : public ECSSystem<MoveStateSystem>
 		{
 		public:
 			MoveStateSystem();
 			virtual ~MoveStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that moves the unit along its calculated path from the Pathfindingsystem
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		private:
 			float mX;
@@ -103,6 +101,7 @@ namespace ecs
 			STATE CheckIfGoalIsMet(FilteredEntity& entity, float delta);
 			//Switch to the next units next state
 			void SwitchState(FilteredEntity& entity, STATE newState);
+			ID GetClosestTileId(TransformComponent& transform);
 		};
 
 		/*
@@ -114,8 +113,7 @@ namespace ecs
 			FleeStateSystem();
 			virtual ~FleeStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that checks if all enemy units is far enough away: if so the unit goes idle.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
@@ -128,8 +126,7 @@ namespace ecs
 			LootStateSystem();
 			virtual ~LootStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that doesn't do anything atm. Might be used in the future to start sounds or an animation.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
@@ -142,8 +139,8 @@ namespace ecs
 			AttackStateSystem();
 			virtual ~AttackStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that checks so that the units target is still alive and within attack range otherwise
+			//it makes the unit path to a new enemy target.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		private:
 			//Switch to the next units next state
@@ -160,8 +157,7 @@ namespace ecs
 			RemoveDeadUnitsSystem();
 			virtual ~RemoveDeadUnitsSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that removes units with the DeadComponent
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
@@ -175,6 +171,34 @@ namespace ecs
 			SwitchStateSystem();
 			virtual ~SwitchStateSystem();
 			void readEvent(BaseEvent& event, float delta) override;
+		};
+
+		/*
+			A system that calculate the water hazard effect on each tile on the map. This system is only supposed
+			to be updated once when a map has been created since the water tiles won't change during the game.
+		*/
+		class PotentialWaterHazardSystem : public ECSSystem<PotentialWaterHazardSystem>
+		{
+		public:
+			PotentialWaterHazardSystem();
+			virtual ~PotentialWaterHazardSystem();
+
+			//Update function that calculates the water tiles hazard influence on each tile.
+			void updateMultipleEntities(EntityIterator& entities, float delta) override;
+		};
+
+		/*
+			A system that calculate the each armies hazards on each tile in the world that is not a water tile. This
+			system should be run at the begining of each frame.
+		*/
+		class PotentialArmyHazardSystem : public ECSSystem<PotentialArmyHazardSystem>
+		{
+		public:
+			PotentialArmyHazardSystem();
+			virtual ~PotentialArmyHazardSystem();
+
+			//Update function that calculates the armies hazard influence on each tile.
+			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 	}
 }

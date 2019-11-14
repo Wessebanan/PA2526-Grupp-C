@@ -1,5 +1,6 @@
 #pragma once
-#include "ecsEventIncludes.h"
+
+#include "ecsComponentIncludes.h"
 #include "../GameGlobals.h"
 
 
@@ -16,27 +17,19 @@
 
 namespace ecs
 {
-	namespace events
+	namespace components
 	{
-		struct PlaceTrapEvent : public ecs::ECSEvent<PlaceTrapEvent>
+		struct TrapComponent : public ECSComponent<TrapComponent>
 		{
-			TypeID tileID;
-			GAME_OBJECT_TYPES type; // The winner of the round 
+			GAME_OBJECT_TYPE mObjectType;
 		};
 
-		// Trigger event for traps
-		struct TriggerFireTrapEvent : public ecs::ECSEvent<TriggerFireTrapEvent>
+		// Holds the time of how long the unit has been frozzen and the max time
+		struct FreezingTimerComponent : public ecs::ECSComponent<FreezingTimerComponent>
 		{
-			TypeID unitID;
-		};
-		struct TriggerFreezeTrapEvent : public ecs::ECSEvent<TriggerFreezeTrapEvent>
-		{
-			TypeID unitID;
-		};
-		struct TriggerSpringTrapEvent : public ecs::ECSEvent<TriggerSpringTrapEvent>
-		{
-			TypeID unitID;
-		};
+			float mDuration;
 
+			float mElapsedTime = 0;
+		};
 	}
 }
