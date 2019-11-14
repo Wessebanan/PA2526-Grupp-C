@@ -132,19 +132,23 @@ namespace ecs
 				entity.getComponent<components::SplashSpawnerComponent>();
 
 			p_spawner_component->TimerSinceLastSpawn += delta;
+			// As long as there are particles to spawn (lag can result in particles not being spawned)
 			for (;
 				p_spawner_component->TimerSinceLastSpawn > p_spawner_component->SpawnFrequency;
 				p_spawner_component->TimerSinceLastSpawn -= p_spawner_component->SpawnFrequency)
 			{
+				/* Set Initial Values For Particle */
 				components::ParticleComponent particle;
 				components::SplashParticleComponent splash;
 
+				// Set Position
 				particle.Position = p_spawner_component->StartPosition;
+				// Set Life Expectancy
 				splash.TotalLifeDuration = p_spawner_component->LifeDuration;
 				splash.CurrentLifeDuration = splash.TotalLifeDuration;
 
+				// Set Color
 				particle.Red = particle.Green = rand() % 155;
-				//particle.Green = 100 + rand() % 155;
 				particle.Blue = 200 + rand() % 55;
 				particle.Scale = 40;
 				splash.MaxScale = particle.Scale;
@@ -155,13 +159,18 @@ namespace ecs
 				float z = ((float)rand() / (float)RAND_MAX) - 0.5f;
 				float speed = ((float)rand() / (float)RAND_MAX * 0.6f + 0.4f) * p_splash_component->InitialVelocity;
 
+				// Normalize direction and scale with speed
 				DirectX::XMVECTOR direction = DirectX::XMVectorSet(x, 1.0f, z, 0.0f);
 				direction = DirectX::XMVector3Normalize(direction);
 				direction = DirectX::XMVectorScale(direction, speed);
+				
+				// Store direction
 				DirectX::XMStoreFloat3(&splash.Direction, direction);
 
+				// Create Particle
 				createEntity(particle, splash);
 
+				// Remove spawner component if they have spawned the specified amount
 				if (--p_splash_component->SpawnCount <= 0)
 				{
 					removeEntity(entity.entity->getID());
@@ -179,7 +188,7 @@ namespace ecs
 
 		void SplashUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
 		{
-			const float gravity = 10.0f;
+			const float gravity = 10.0f; // Gravity for particle
 
 			components::ParticleComponent* p_particle_component =
 				entity.getComponent<components::ParticleComponent>();
@@ -187,21 +196,26 @@ namespace ecs
 			components::SplashParticleComponent* p_splash_component =
 				entity.getComponent<components::SplashParticleComponent>();
 
+			// Decrease their life and terminate if life expectancy has reached
 			p_splash_component->CurrentLifeDuration -= delta;
 			if (p_splash_component->CurrentLifeDuration <= 0.0f)
 			{
 				removeEntity(entity.entity->getID());
 			}
 
-			int scale = p_splash_component->MaxScale * p_splash_component->CurrentLifeDuration / p_splash_component->TotalLifeDuration;
+			// Decrease scale with proptional to how long they have lived [1;0]
+			const int scale = p_splash_component->MaxScale * p_splash_component->CurrentLifeDuration / p_splash_component->TotalLifeDuration;
 			p_particle_component->Scale = scale >= 0 ? scale : 0;
 
+			// Get position and direction
 			DirectX::XMVECTOR position = DirectX::XMLoadFloat3(&p_particle_component->Position);
 			DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&p_splash_component->Direction);
 
+			// Transform particle
 			position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(direction, delta * p_splash_component->CurrentLifeDuration / p_splash_component->TotalLifeDuration));
 			direction = DirectX::XMVectorAdd(direction, DirectX::XMVectorSet(0.0f, -gravity * delta, 0.0f, 0.0f));
 
+			// Store position and direction
 			DirectX::XMStoreFloat3(&p_particle_component->Position, position);
 			DirectX::XMStoreFloat3(&p_splash_component->Direction, direction);
 		}

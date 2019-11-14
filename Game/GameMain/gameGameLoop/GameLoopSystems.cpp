@@ -300,21 +300,26 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 		// Create Battlephase system
 		CreateSystem<systems::BattlePhaseSystem>(1);
-		CreateSystem<systems::UpdateDynamicCameraSystem>(1);
+
+		if (!GetSystem<systems::UpdateCameraSystem>())
+		{
+			CreateSystem<systems::UpdateDynamicCameraSystem>(1);
 
 
-		// Change to dynamic camera
-		itt = getComponentsOfType<CameraComponent>();
-		CameraComponent* cam_comp = (CameraComponent*)itt.next();
+			// Change to dynamic camera
+			itt = getComponentsOfType<CameraComponent>();
+			CameraComponent* cam_comp = (CameraComponent*)itt.next();
 
-		removeEntity(cam_comp->getEntityID());
+			removeEntity(cam_comp->getEntityID());
 
-		TransformComponent new_transf_comp;
-		CameraComponent new_cam_comp;
+			TransformComponent new_transf_comp;
+			CameraComponent new_cam_comp;
 
-		CameraEcsFunctions::CreateDynamicCamera(new_transf_comp, new_cam_comp);
+			CameraEcsFunctions::CreateDynamicCamera(new_transf_comp, new_cam_comp);
 
-		createEntity(new_transf_comp, new_cam_comp);
+			createEntity(new_transf_comp, new_cam_comp);
+		}
+		
 
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
@@ -424,12 +429,31 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			// Create and init skeleton comp
 
 			ecs::components::SkeletonComponent skele_comp;
+			ecs::components::AnimationSpeedComponent ani_speed_comp;
+			ani_speed_comp.factor = 1.0f;
 
 			//ModelLoader::UniqueSkeletonData* skeletonData = &s.getComponent<ecs::components::SkeletonComponent>()->skeletonData;
 			//skeletonData->Init(MeshContainer::GetMeshCPU(MESH_TYPE::MESH_TYPE_UNIT)->GetSkeleton());
 			//skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
 
-			temp_entity = createEntity(transform, unit, idle_state, color_comp, skele_comp); //
+			ecs::BaseComponent* components[] =
+			{
+				&transform, 
+				&unit, 
+				&idle_state, 
+				&color_comp, 
+				&skele_comp, 
+				&ani_speed_comp
+			};
+
+			ecs::ComponentList list;
+
+			list.initialInfo = components;
+			list.componentCount = 6;
+
+			//// ENTITIES
+			temp_entity = createEntity(list);
+
 			PoiComponent poi_comp;
 			createComponent<PoiComponent>(temp_entity->getID(), poi_comp);
 			p_army->unitIDs.push_back(temp_entity->getID());
