@@ -7,7 +7,7 @@
 
 void InitHttpServer(ecs::EntityComponentSystem& rECS)
 {
-	HttpServer::RunHttpServer("../Sites/mobileSite.html", "../Sites/favicon.ico");
+	HttpServer::RunHttpServer("../Sites/newSite.html", "../Sites/favicon.ico");
 	UITextComponent text;
 	std::string text_str;
 	HttpServer::GetLocalIp4(text_str);
