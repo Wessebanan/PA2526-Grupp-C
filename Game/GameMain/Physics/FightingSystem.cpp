@@ -288,10 +288,10 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		float velocity = movement / _delta;
 
 		// Capping velocity to not get insane velocity when units rotate the same frame.
-		velocity = (std::min)(2.0f, velocity);
+		velocity = (std::min)(5.0f, velocity);
 
 		// Calculating damage by multiplying weapon velocity and the base damage.
-		float damage = velocity * weapon_component->mBaseDamage + weapon_component->mBaseDamage;
+		float damage = velocity * weapon_component->mBaseDamage;
 
 		HealthComponent *collided_constitution = getComponentFromKnownEntity<HealthComponent>(collided_unit);
 
@@ -310,6 +310,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		// Small y boost in knockback to send units FLYING.
 		knockback.mDirection.y += 0.3f;
 
+		// Normalize knockback direction so it's not CRAZY.
 		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 		
 		knockback.mForce = BASE_KNOCKBACK * velocity * weapon_component->mKnockback;

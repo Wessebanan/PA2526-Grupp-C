@@ -16,12 +16,12 @@ constexpr float DEFAULT_WEIGHT			= 250.0f;
 constexpr float DEFAULT_GRAVITY			= 9.82f;
 constexpr float DEFAULT_HEALTH			= 100.0f;
 
-constexpr float BASE_SWORD_DAMAGE		= 10.0f;
-constexpr float BASE_FIST_DAMAGE		= 2.0f;
+constexpr float BASE_SWORD_DAMAGE		= 5.0f;
+constexpr float BASE_FIST_DAMAGE		= 1.0f;
 
 // Base knockback is a force in newtons while weapon
 // specific knockbacks are multipliers.
-constexpr float BASE_KNOCKBACK			= 50.0f;
+constexpr float BASE_KNOCKBACK			= 30.0f;
 constexpr float SWORD_KNOCKBACK			= 2.0f;
 constexpr float FIST_KNOCKBACK			= 0.5f;
 
