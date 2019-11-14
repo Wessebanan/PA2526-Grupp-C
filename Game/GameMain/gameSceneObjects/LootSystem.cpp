@@ -1,6 +1,8 @@
 #include "LootSystem.h"
 #include "../gameWeapons/WeaponEvents.h"
 
+#include "../gameGraphics/ParticleECSComponents.h"
+
 #pragma region SpawnLootSystem
 ecs::systems::SpawnLootSystem::SpawnLootSystem()
 {

@@ -291,6 +291,10 @@ namespace graphics
 		pContext4->PSSetShaderResources(4, 1, &mpRandomNormals);
 	}
 
+	void SSAOPipeline::Clear(ID3D11DeviceContext4* pContext4)
+	{
+	}
+
 	void SSAOPipeline::PreProcess(
 		ID3D11DeviceContext4* pContext4,
 		ID3D11VertexShader* pVertexShader,
