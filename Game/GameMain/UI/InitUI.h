@@ -62,16 +62,20 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 
 	ecs::components::UIBitmapComponent bitmap_comp;
 	ecs::components::UIDrawPosComponent bitmap_pos_comp;
+
+	// save this to switch between different opacities
 	//bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/areaGrid75.png", "areaOverlay");
 	bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/areaGrid50.png", "areaOverlay");
 	//bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/areaGrid30.png", "areaOverlay");
+
 	bitmap_comp.mName = "areaOverlay";
 	bitmap_pos_comp.mDrawArea.top = 150;
+	bitmap_pos_comp.mDrawArea.left = 690;
+	bitmap_pos_comp.mDrawArea.right = 1230;
+
+	// Save these if you want to srtart with the overlay open or not
 	bitmap_pos_comp.mDrawArea.bottom = 150;
 	//bitmap_pos_comp.mDrawArea.bottom = 800;
-	bitmap_pos_comp.mDrawArea.left = 690;
-	bitmap_pos_comp.mDrawArea.right = 690;
-	//bitmap_pos_comp.mDrawArea.right = 1230;
 
 	rECS.createEntity(bitmap_comp,bitmap_pos_comp);
 

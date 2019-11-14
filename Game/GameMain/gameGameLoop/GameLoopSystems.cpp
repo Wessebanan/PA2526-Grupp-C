@@ -330,7 +330,6 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
 
 				bitmap_pos_comp->mDrawArea.bottom = 150;
-				bitmap_pos_comp->mDrawArea.right = 150;
 			}
 		}
 
@@ -735,7 +734,6 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 					ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
 
 					bitmap_pos_comp->mDrawArea.bottom = 800;
-					bitmap_pos_comp->mDrawArea.right = 1230;
 				}
 			}
 		}
