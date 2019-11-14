@@ -876,6 +876,7 @@ namespace ecs
 		{
 			components::WeaponComponent* p_weapon_comp = rWeapon.getComponent<components::WeaponComponent>();
 			components::TransformComponent* p_transform_comp = rWeapon.getComponent<components::TransformComponent>();
+			components::ColorComponent* p_color_comp = rWeapon.getComponent<components::ColorComponent>();
 				
 			if (!p_weapon_comp->mOwnerEntity)
 			{
@@ -884,27 +885,36 @@ namespace ecs
 				*/
 
 				XMStoreFloat4x4(&rDestination, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
-				return;
+			}
+			else
+			{
+				/*
+					Calculate position of owner entity's hand.
+				*/
+
+				// Overwrite transform component by by transform of owner entity.
+				p_transform_comp = getComponentFromKnownEntity<TransformComponent>(p_weapon_comp->mOwnerEntity);
+
+				SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(p_weapon_comp->mOwnerEntity);
+				XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");
+
+				// Hand position in model space.
+				XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
+				XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
+
+				// Final world transform.
+				XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
+
+				XMStoreFloat4x4(&rDestination, world);
 			}
 
 			/*
-				Calculate position of owner entity's hand.
+				-- Set color
+				Since we have to align instance data, we use the last element of the 
+				world matrix to store color data. This is extraxted later in the
+				vertex shader.
 			*/
-
-			// Overwrite transform component by by transform of owner entity.
-			p_transform_comp = getComponentFromKnownEntity<TransformComponent>(p_weapon_comp->mOwnerEntity);
-
-			SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(p_weapon_comp->mOwnerEntity);
-			XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
-						
-			// Hand position in model space.
-			XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
-			XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
-
-			// Final world transform.
-			XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
-						
-			XMStoreFloat4x4(&rDestination, world);
+			rDestination._44 = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 255);
 		}
 #pragma endregion WeaponRenderSystem
 }

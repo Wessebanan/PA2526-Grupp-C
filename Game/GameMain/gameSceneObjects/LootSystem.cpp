@@ -1,4 +1,5 @@
 #include "LootSystem.h"
+#include "../gameWeapons/WeaponEvents.h"
 
 #include "../gameGraphics/ParticleECSComponents.h"
 
@@ -39,18 +40,6 @@ void ecs::systems::SpawnLootSystem::act(float _delta)
 		// Bumping target time by 10 to spawn every 10 seconds.
 		mTargetTime += 10;
 
-		WeaponComponent		weapon_component;
-		TransformComponent	weapon_transform_component;
-		MeshComponent		weapon_mesh_component;
-		ColorComponent		color_comp;
-
-		weapon_component.mType = GAME_OBJECT_TYPE_WEAPON_SWORD;
-		weapon_mesh_component.mMesh = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_WEAPON_SWORD);
-		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
-
-		Entity *sword = createEntity(weapon_mesh_component, weapon_transform_component, weapon_component, color_comp);
-		TransformComponent* sword_transform = getComponentFromKnownEntity<TransformComponent>(sword->getID());
-
 		int2 grid_size = grid->GetSize();		
 		TileData random_tile;
 		random_tile.isPassable = false;
@@ -77,9 +66,11 @@ void ecs::systems::SpawnLootSystem::act(float _delta)
 		}
 		grid->mLootTiles.push_back(random_tile.Id);
 
-		// Place the sword on chosen tile's position.
-		TransformComponent* tile_transform = getComponentFromKnownEntity<TransformComponent>(random_tile.Id);
-		sword_transform->position = tile_transform->position;
+		events::SpawnWeaponEvent spawn_event;
+		spawn_event.weaponType = GAME_OBJECT_TYPE_WEAPON_SWORD;
+		spawn_event.spawnTileId = random_tile.Id;
+		createEvent(spawn_event);
+		
 
 
 		/* Spawn Smoke Emitter At Sword Spawn */
