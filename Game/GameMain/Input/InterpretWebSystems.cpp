@@ -106,16 +106,6 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				p_player_state_comp->mCurrentStates[i] = STATE::FLEE;
 
 				createEvent(cus_event);
-
-				/////// IS USED FOR WHEN TESTING TRAPS, WILL BE REMOVED AFTER SOMETHING BETTER IS IMPLEMENTED TO TEST
-				//ecs::events::TriggerSpringTrapEvent m_event;
-				//ComponentIterator itt;
-				//itt = getComponentsOfType(ecs::components::UnitComponent::typeID);
-				//while (UnitComponent * unit = (UnitComponent*)itt.next())
-				//{
-				//	m_event.unitID = unit->getEntityID();
-				//	createEvent(m_event);
-				//}
 			}
 		}
 	}
@@ -182,18 +172,10 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 					// Last part is falesafe if something would go wrong from the website
 					// The 1 is to work around the index of GAME_OBJECT_TYPE_TRAP
-					eve.type = (GAME_OBJECT_TYPES)(1 + p_butt_comp->userButtons[i].mButton + (int)GAME_OBJECT_TYPES::GAME_OBJECT_TYPE_TRAP);
+					eve.type = (GAME_OBJECT_TYPES)(1 + p_butt_comp->userButtons[i].mButton + (int)GAME_OBJECT_TYPES::GAME_OBJECT_TYPE_TRAP_OFFSET_TAG);
 					
 					createEvent(eve);
 
-					// For debugging, remove when placing trap system is online
-					TransformComponent* p_trans = getComponentFromKnownEntity<TransformComponent>(eve.tileID);
-					if (p_trans)
-					{
-						p_trans->position.y = 5.0f;
-					}
-
-				
 					InputBackendComp* p_backend = _entityInfo.getComponent<InputBackendComp>();
 
 					p_backend->backend->resetUserButtonAndTile(i);
