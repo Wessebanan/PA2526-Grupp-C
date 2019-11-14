@@ -48,19 +48,27 @@ namespace ecs
 			weapon_mesh_comp.mMesh = MeshContainer::GetMeshCPU(r_spawn_event.weaponType);
 
 			/*
-				Check what type of weapon to spawn, and set correct position offset from
-				tile and color of the weapon type.
-
-				If a type isn't specified in the switch case below, that weapon type will
-				just spawn above the tile. Default color is black.
+				Check weapon type and set specific values for that type.
 			*/
 
 			switch (r_spawn_event.weaponType)
 			{
 			case GAME_OBJECT_TYPE_WEAPON_SWORD:
 			{
-				//weapon_transform_comp.position.y += 0.3f;
+				/*
+					"Spear sword to the ground."
+					- Emil 2019
+				*/
+
 				weapon_transform_comp.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
+				weapon_transform_comp.position.y += 0.7f;
+				weapon_transform_comp.rotation.x -= 3.14f * 0.4f;
+				weapon_transform_comp.rotation.y += 3.14f * 0.3f;
+
+				weapon_color_comp.red = 200;
+				weapon_color_comp.green = 130;
+				weapon_color_comp.blue = 20;
+
 				break;
 			}
 
