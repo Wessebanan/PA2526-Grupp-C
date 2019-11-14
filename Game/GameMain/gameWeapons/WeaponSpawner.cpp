@@ -95,7 +95,7 @@ namespace ecs
 			components::ParticleSpawnerComponent spawner;
 			components::SmokeSpawnerComponent smoke;
 
-			spawner.StartPosition = weapon_transform_comp.position;
+			spawner.StartPosition = tile_position;
 			spawner.SpawnFrequency = 0.005f;
 			spawner.TimerSinceLastSpawn = 0.0f;
 			spawner.LifeDuration = 1.0f;
@@ -117,6 +117,7 @@ namespace ecs
 		MasterWeaponSpawner::MasterWeaponSpawner()
 		{
 			updateType = Actor;
+			ResetSpawnTimer();
 		}
 
 		MasterWeaponSpawner::~MasterWeaponSpawner()
@@ -164,7 +165,7 @@ namespace ecs
 
 		GAME_OBJECT_TYPE MasterWeaponSpawner::GetRandomWeaponType()
 		{
-			return (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1) + rand() & WEAPON_COUNT;
+			return (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1) + rand() % WEAPON_TYPE_COUNT;
 		}
 
 		void MasterWeaponSpawner::ResetSpawnTimer()
