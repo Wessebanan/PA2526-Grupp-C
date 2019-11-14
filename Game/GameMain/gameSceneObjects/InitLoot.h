@@ -3,5 +3,5 @@
 
 void InitSpawnLootSystem(ecs::EntityComponentSystem &rEcs)
 {
-	//rEcs.createSystem<ecs::systems::SpawnLootSystem>();
+	rEcs.createSystem<ecs::systems::SpawnLootSystem>();
 }
