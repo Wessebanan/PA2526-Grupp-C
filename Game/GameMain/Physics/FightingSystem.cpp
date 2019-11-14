@@ -288,7 +288,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		float velocity = movement / _delta;
 
 		// Capping velocity to not get insane velocity when units rotate the same frame.
-		velocity = (std::min)(5.0f, velocity);
+		velocity = (std::min)(2.0f, velocity);
 
 		// Calculating damage by multiplying weapon velocity and the base damage.
 		float damage = velocity * weapon_component->mBaseDamage;
