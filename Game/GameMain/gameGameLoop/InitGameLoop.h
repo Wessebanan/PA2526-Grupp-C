@@ -8,16 +8,7 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 {
 	// Update ssystems
 	rECS.createSystem<ecs::systems::GameLoopSystem>();
-
-//#ifdef _DEBUG
-//	//rECS.createSystem<ecs::systems::BattlePhaseSystem>(1);
-//	ecs::events::RoundStartEvent e;
-//	rECS.createEvent(e);
-//#else
-
 	rECS.createSystem<ecs::systems::WaitForStartupSystem>(1);
-//#endif // !_DEBUG
-
 
 	// Event systems
 	rECS.createSystem<ecs::systems::GameStartSystem>(0);

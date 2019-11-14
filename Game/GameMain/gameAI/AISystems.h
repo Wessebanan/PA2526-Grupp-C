@@ -47,8 +47,7 @@ namespace ecs
 			PathfindingStateSystem();
 			virtual ~PathfindingStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that calculates the path for the given unit based on the command given.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 			std::vector<unsigned int> GetPath(unsigned int startID, unsigned int goalID);
 			int2 GetClosestTile(TransformComponent& transform);
@@ -68,22 +67,21 @@ namespace ecs
 			IdleStateSystem();
 			virtual ~IdleStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that makes the unit idle and if an enemy unit moves to close
+			//the unit will either attack or run away depending on what command it currently follows.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
 		/*
 		A system that moves a unit along a path calculated in the PathfindingSystem.
-	*/
+		*/
 		class MoveStateSystem : public ECSSystem<MoveStateSystem>
 		{
 		public:
 			MoveStateSystem();
 			virtual ~MoveStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that moves the unit along its calculated path from the Pathfindingsystem
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		private:
 			float mX;
@@ -112,8 +110,7 @@ namespace ecs
 			FleeStateSystem();
 			virtual ~FleeStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that checks if all enemy units is far enough away: if so the unit goes idle.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
@@ -126,8 +123,7 @@ namespace ecs
 			LootStateSystem();
 			virtual ~LootStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that doesn't do anything atm. Might be used in the future to start sounds or an animation.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
@@ -140,8 +136,8 @@ namespace ecs
 			AttackStateSystem();
 			virtual ~AttackStateSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that checks so that the units target is still alive and within attack range otherwise
+			//it makes the unit path to a new enemy target.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		private:
 			//Switch to the next units next state
@@ -158,8 +154,7 @@ namespace ecs
 			RemoveDeadUnitsSystem();
 			virtual ~RemoveDeadUnitsSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that removes units with the DeadComponent
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
@@ -185,8 +180,7 @@ namespace ecs
 			PotentialWaterHazardSystem();
 			virtual ~PotentialWaterHazardSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that calculates the water tiles hazard influence on each tile.
 			void updateMultipleEntities(EntityIterator& entities, float delta) override;
 		};
 
@@ -200,8 +194,7 @@ namespace ecs
 			PotentialArmyHazardSystem();
 			virtual ~PotentialArmyHazardSystem();
 
-			//Update function that prints the center position of every tile in the order they 
-			//were created.
+			//Update function that calculates the armies hazard influence on each tile.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 	}
