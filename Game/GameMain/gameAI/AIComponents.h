@@ -74,7 +74,13 @@ namespace ecs
 
 		struct DeadComponent : public ECSComponent<DeadComponent>
 		{
-			int data;
+			enum CauseOfDeath
+			{
+				CAUSE_DROWNING,
+				CAUSE_DAMAGE
+			};
+			CauseOfDeath cause;			// Kind of death
+			DirectX::XMFLOAT3 position;	// Save position of where the dead happened
 		};
 
 		struct PlayerStateComponent : public ECSComponent<PlayerStateComponent>
