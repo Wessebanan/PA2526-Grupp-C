@@ -70,22 +70,6 @@ void ecs::systems::SpawnLootSystem::act(float _delta)
 		spawn_event.weaponType = GAME_OBJECT_TYPE_WEAPON_SWORD;
 		spawn_event.spawnTileId = random_tile.Id;
 		createEvent(spawn_event);
-		
-
-
-		/* Spawn Smoke Emitter At Sword Spawn */
-		components::ParticleSpawnerComponent spawner;
-		components::SmokeSpawnerComponent smoke;
-
-		spawner.StartPosition			= tile_transform->position;
-		spawner.SpawnFrequency			= 0.005f;
-		spawner.TimerSinceLastSpawn		= 0.0f;
-		spawner.LifeDuration			= 1.0f;
-
-		smoke.InitialVelocity	= 8.0f;
-		smoke.SpawnCount		= 100;
-
-		createEntity(spawner, smoke);
 	}
 }
 #pragma endregion
