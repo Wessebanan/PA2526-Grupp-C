@@ -16,14 +16,16 @@ constexpr float DEFAULT_WEIGHT			= 250.0f;
 constexpr float DEFAULT_GRAVITY			= 9.82f;
 constexpr float DEFAULT_HEALTH			= 100.0f;
 
-constexpr float BASE_SWORD_DAMAGE		= 2.0f;
-constexpr float BASE_FIST_DAMAGE		= 0.2f;
+constexpr float BASE_SWORD_DAMAGE		= 10.0f;
+constexpr float BASE_FIST_DAMAGE		= 2.0f;
 
 // Base knockback is a force in newtons while weapon
 // specific knockbacks are multipliers.
-constexpr float BASE_KNOCKBACK			= 5.0f;
+constexpr float BASE_KNOCKBACK			= 50.0f;
 constexpr float SWORD_KNOCKBACK			= 2.0f;
-constexpr float FIST_KNOCKBACK			= 1.0f;
+constexpr float FIST_KNOCKBACK			= 0.5f;
+
+constexpr float BASE_INVINCIBILITY_TIME = 0.2f;
 
 constexpr double PI = 3.14159265358979323846;
 
@@ -190,6 +192,14 @@ namespace ecs
 
 			// Attack range is sum of weapon range and melee range.
 			float mAttackRange = 0.0f;
+		};
+
+		/*
+		* Holds an invincibility timer for units.
+		*/
+		COMP(InvincilibityTimer)
+		{
+			float mTime;
 		};
 	} // components
 } // ecs
