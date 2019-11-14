@@ -1,0 +1,639 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>TEST</title>
+
+
+
+    <style>
+        @media screen and (min-width: 320px) and (max-width: 767px) and (orientation: landscape) {
+              html {
+                    transform: rotate(-90deg);
+                    transform-origin: left top;
+                    width: 100vh;
+                    overflow-x: hidden;
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+              }
+        }
+
+
+        body {
+            font-family: 'Comic Sans MS';
+            background-color: #000;
+            text-align: center;
+            color: white;
+            width: 100%;
+
+            /* Makes the website unselectable */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /*  START FIELD     */
+        #startfield {
+            height: 120px;
+            width: 60%;
+            margin-left: 17%;
+            
+        }
+        
+        #joinButton {
+            height: 60%;
+            width: 100%;
+            padding-top:30%;
+
+            
+            background-color: #3a3;
+            color: white;
+            border-style: solid;
+            border-width: 2px;
+            border-color: #fff;
+        }
+
+        
+        /*  COMMAND FIELD   */
+        #commandField {
+            background-color:none;
+
+            height: 500px;
+            width: 100%;
+
+            margin:0px;
+            margin-left:-10px;
+            margin-bottom:-10px;
+            padding:0px;
+        }
+        h3 {
+            font-size: 110%;
+        }
+
+        #CommandContainer {
+            width: 100%;
+            height: 100%;
+            margin-left: 0%;
+
+        }
+        .CommButton {
+            width: 38%;
+            height: 15%;
+            padding-top: 15%;
+            padding-bottom: 15%;
+            background-color: #666;
+            color: black;
+            font-display: auto;
+            margin-top: 5%;
+            margin-left: 5%;
+            margin-right: 5%;
+            float: left;
+
+            border-style: solid;
+            border-width: 2px;
+            border-color: #fff;
+        }
+
+        /*.CommButtonL {
+            width: 45%;
+            height: 25%;
+            padding-top: 10%;
+            background-color: #666;
+            color: black;
+            font-display: auto;
+            margin-top: 5%;
+            float: left;
+        }
+        
+        .CommButtonR {
+            width: 45%;
+            height: 25%;
+            padding-top: 10%;
+            background-color: #666;
+            color: black;
+            font-display: auto;
+            margin-top: 5%;
+            float: right;
+        }*/
+
+        #PingButton {
+            width: 40%;
+            height: 10%;
+            padding-top: 3%;
+            padding-bottom: 5%;
+            float: left;
+            margin-top: 5%;
+            margin-left: 30%;
+            background-color: #b33;
+            color: #ddd;
+            
+            border-style: solid;
+            border-width: 2px;
+            border-color: #fff;
+        }
+
+
+
+        /*  PREP FIELD      */
+        #prepField {
+            float: left;
+            height: 550px;
+            width: 100%;
+            
+            
+        }
+
+
+        #trapContainer {
+            float: left;
+            font-size: 15px;
+            height: 10%;
+            width: 100%;
+        }
+
+        .trapButton {
+            float: left;
+            width: 21%;
+            padding-top: 5%;
+            padding-bottom: 5%;
+            margin: 1%;
+            
+            background-color: #aa3;
+            border-style: solid;
+            border-width: 2px;
+            border-color: #fff;
+        }
+
+        #mapAreaContainer {
+            float: left;
+            margin-top: 5%;
+            font-size: 20px;
+            height: 70%;
+            width: 100%;
+
+        }
+        
+        /*h2 {
+            margin-top: 10px;
+            margin-bottom: 10px;
+            height: 0px;
+        }*/
+
+        .col {
+            width: 13%;
+            height: 10%;
+            background-color: darkgoldenrod;
+            float: left;
+            font-size: 150%;
+            padding: 10%;
+
+        }
+
+        #area01 {
+            background-color: purple;
+        }
+
+        #area12 {
+            background-color: cornflowerblue;
+        }
+
+        #area10 {
+            background-color: red;
+        }
+
+        #area21 {
+            background-color: green;
+        }
+
+        #sendButton {
+            float: left;
+            height: 18%;
+            margin-top: 5%;
+            margin-left: 7%;
+            padding-top: 10%;
+            width: 80%;
+            font-size: 120%;
+            
+            background-color: #aa3;
+            border-style: solid;
+            border-width: 2px;
+            border-color: #fff;
+        }
+
+        /*  OTHER THINGS    */
+        h1 {
+            font-size: 150%;
+            margin: 0px;
+            padding: 0px;
+        }
+        
+        h3 {
+            font-size: 110%;
+        }
+        button {
+            float: left;
+            background-color: #AAA;
+            margin: 5px;
+            font-style: normal;
+            font-size: 20px;
+        }
+        #readyButton {
+            width: 80%;
+            height: 5%;
+            padding-top: 3%;
+            padding-bottom: 3%;
+            margin-bottom:5%;
+            margin-left: 7%;
+
+            
+            background-color: #a33;
+            color: white;
+            border-style: solid;
+            border-width: 2px;
+            border-color: #fff;
+        }
+
+        #readyText {
+            margin: 0px;
+        }
+        p {
+            margin-bottom: 0px;
+        }
+
+
+    </style>
+
+    <script>
+        // GLOBALS
+        var socket = new WebSocket("ws://"+ip_address+":1337");
+
+
+        function resetAreaColors()
+        {
+            document.getElementById("area00").style.backgroundColor = "#444";
+            document.getElementById("area10").style.backgroundColor = "red";
+            document.getElementById("area20").style.backgroundColor = "#444";
+
+            document.getElementById("area01").style.backgroundColor = "purple";
+            document.getElementById("area11").style.backgroundColor = "#444";
+            document.getElementById("area21").style.backgroundColor = "green";
+
+            document.getElementById("area02").style.backgroundColor = "#444";
+            document.getElementById("area12").style.backgroundColor = "cornflowerblue";
+            document.getElementById("area22").style.backgroundColor = "#444";
+        }
+
+        function resetTrapColors()
+        {
+            document.getElementById("b0").style.backgroundColor = "#993";
+            document.getElementById("b1").style.backgroundColor = "#993";
+            document.getElementById("b2").style.backgroundColor = "#993";
+            document.getElementById("b3").style.backgroundColor = "#993";
+        }
+        
+        function resetCommandColors()
+        {
+            document.getElementById("CommandButton0").style.backgroundColor = "#333";
+            document.getElementById("CommandButton0").style.color = "#DDD";
+            document.getElementById("CommandButton1").style.backgroundColor = "#333";
+            document.getElementById("CommandButton1").style.color = "#DDD";
+            document.getElementById("CommandButton2").style.backgroundColor = "#333";
+            document.getElementById("CommandButton2").style.color = "#DDD";
+            document.getElementById("CommandButton3").style.backgroundColor = "#333";
+            document.getElementById("CommandButton3").style.color = "#DDD";
+        }
+
+        // SOCKET FUNCTIONS
+        socket.onopen = function (event)
+        {
+            socket.send("The connection was established");
+        }
+
+        socket.onmessage = function(e)
+        {
+            var msg = e.data;
+
+            console.log(msg);
+
+            if(msg == "start")
+            {
+                console.log("We are wating for the client to start");
+            }
+            else if(msg == "perror")
+            {
+                console.log("There was a error with sending the state");
+            }
+            else if(msg == "pprep")
+            {
+                document.getElementById('b0').style.display = "block";
+                document.getElementById('b1').style.display = "block";
+                document.getElementById('b2').style.display = "block";
+                document.getElementById('b3').style.display = "block";
+
+                openPrep();
+            }
+            else if(msg == "pbattle")
+            {
+                openCommand();
+            }
+            else if(msg == "pwait")
+            {
+                document.getElementById('readyButton').style.display = "block";
+                document.getElementById('startfield').innerHTML = "waiting";
+            }
+            else if(msg[0] == 'r')
+            {
+                if(msg[1] == 1)
+                {
+                    document.getElementById("readyButton").style.background = "green";
+                    document.getElementById("readyText").innerHTML = "YES";
+                }
+
+                else
+                {
+                    document.getElementById("readyButton").style.background = "red";
+                    document.getElementById("readyText").innerHTML = "NO";
+                }
+            }
+            else if(msg[0] == 3)
+            {
+                document.getElementById("playerIndex").innerHTML = msg.charAt(msg.length - 1);
+                if (msg.charAt(msg.length - 1) == '1')
+                {
+                    document.body.style.backgroundColor = "#b30707";
+                }
+                else if (msg.charAt(msg.length - 1) == '2')
+                {
+                    document.body.style.backgroundColor = "#9107b3";
+                }
+                else if (msg.charAt(msg.length - 1) == '3')
+                {
+                    document.body.style.backgroundColor = "#7686f6";
+                }
+                else if (msg.charAt(msg.length - 1) == '4')
+                {
+                    document.body.style.backgroundColor = "#01a12c";
+                }
+            }
+        }
+
+
+        // DEBUGGING FUNCTIONS
+        function interpertTrapIndex(id, trap)
+        {
+            var trapText = ""; 
+            switch (trap)
+            {
+                case 0: // FIRE
+                    trapText = "FIRE";
+                break;
+                case 1: // FREEZE
+                    trapText = "FREEZE";
+                break;
+                case 2: // SPRING
+                    trapText = "SPRING";
+                break;
+                default:
+                    trapText = "ERROR";
+                break;
+            }
+            
+
+
+            document.getElementById(id).innerHTML = trapText;
+        }
+
+        function openPrep()
+        {
+            window.selectedTrapMsg = 0;
+            window.selectedTileMsg = 0;
+            window.selectedButtonID = 0;
+            document.getElementById('prepField').style.display = "block";
+            document.getElementById('readyButton').style.display = "block";
+            document.getElementById('commandField').style.display = "none";
+            document.getElementById('startfield').style.display = "none";
+
+            resetAreaColors();
+            resetTrapColors();
+
+            var trapCount = 3;
+
+            window.trap0 = Math.floor(Math.random() * trapCount);
+            window.trap2 = Math.floor(Math.random() * trapCount);
+            window.trap3 = Math.floor(Math.random() * trapCount);
+            window.trap1 = Math.floor(Math.random() * trapCount);
+
+            interpertTrapIndex('b0', window.trap0);
+            interpertTrapIndex('b1', window.trap1);
+            interpertTrapIndex('b2', window.trap2);
+            interpertTrapIndex('b3', window.trap3);
+        }
+
+        function openCommand()
+        {
+            document.getElementById('prepField').style.display = "none";
+            document.getElementById('readyButton').style.display = "none";
+            document.getElementById('commandField').style.display = "block";
+            document.getElementById('startfield').style.display = "none";
+        
+            resetCommandColors()
+        }
+
+        // BUTTON FUNCTIONS
+        function start()
+        {
+            socket.send("start");
+        }
+        function ready()
+        {
+            socket.send("ready");
+        }
+        function join()
+        {
+            document.getElementById('readyButton').style.display = "block";
+            socket.send("join");
+        
+        }
+
+        function setArea(x,y)
+        {
+            var randomX = Math.floor(Math.random() * 12);
+            var randomY = Math.floor(Math.random() * 12);
+
+            var player = "0";
+            var action = "001";
+            x += 100;
+            y += 100;
+            var tileX = x.toString();
+            var tileY = y.toString();
+
+            var msg = player.concat(action.concat(tileX.concat(tileY)));
+
+            console.log("Saved tileMsg: " + msg);
+            window.selectedTileMsg = msg;
+
+            x -= 100;
+            y -= 100;
+            var id = "area" + x.toString() + y.toString();
+            resetAreaColors();
+            document.getElementById(id).style.backgroundColor = "#DDD";
+        }
+
+        function setTrap(x)
+        {
+            var player = "0";
+            var action = "002";
+            var Button;
+
+            if(x == 0)
+            Button = window.trap0;
+            else if(x == 1)
+            Button = window.trap1;
+            else if(x == 2)
+            Button = window.trap2;
+            else if(x == 3)
+            Button = window.trap3;
+
+            Button += 100;
+            var msg = player.concat(action.concat(Button));
+
+            console.log("Saved TrapMsg: " + msg);
+            window.selectedTrapMsg = msg;
+
+            var id = "b" + x.toString();
+            resetTrapColors();
+            document.getElementById(id).style.backgroundColor = "#DDD";
+
+            window.selectedButtonID = id;
+        }
+
+
+        function setCommand(buttonCommand, buttonIndex)
+        {
+            var player = "0";
+            var action = "003";
+            var Button = buttonCommand.toString();
+
+
+            var msg = player.concat(action.concat(Button));
+        
+            var id = "CommandButton" + buttonIndex.toString();
+
+            resetCommandColors();
+            document.getElementById(id).style.backgroundColor = "#DDD";
+            document.getElementById(id).style.color = "#000";
+
+            console.log(msg);
+            socket.send(msg);
+        }
+
+        function sendTrapAndTile()
+        {
+            if (window.selectedButtonID != 0 && window.selectedTileMsg != 0)
+            {
+                document.getElementById(window.selectedButtonID).style.display = "none";
+
+                var trap = window.selectedTrapMsg;
+
+                resetTrapColors();
+                resetAreaColors();
+
+                socket.send(trap);
+                socket.send(window.selectedTileMsg);
+
+                window.selectedTrapMsg = 0;
+                window.selectedTileMsg = 0;
+                window.selectedButtonID = 0;
+            }
+        };
+
+        function sendPing()
+        {
+            socket.send("0004ping");
+        }
+    </script>
+</head>
+<body>
+
+    <a href="https://forms.gle/cDaJdJjoNug9kbEM9">FEEDBACK</a>
+    <h1 id="playerIndex">Welcome!</h1>
+    
+    <div id="readyButton" onclick="ready()" style="display:none;">READY?<p id="readyText">NO</p></div>
+
+    <div id='startfield' class='buttonField' style='display:block;'>
+        <div id="joinButton" onclick="join()">JOIN</div>
+
+    </div>
+
+    <div id='prepField' class='buttonField' style='display:none;'>
+        <div id="trapContainer">
+            <div id='b0' class='trapButton' onclick="setTrap(0)">0</div>
+            <div id='b1' class='trapButton' onclick="setTrap(1)">1</div>
+            <div id='b2' class='trapButton' onclick="setTrap(2)">2</div>
+            <div id='b3' class='trapButton' onclick="setTrap(3)">3</div>
+        </div>
+
+        </br>
+
+        <div id="mapAreaContainer">
+            <div class="col2">
+                <div class="col" id="area02" onclick="setArea(0,2)">0,2</div>
+                <div class="col" id="area12" onclick="setArea(1,2)">1,2</div>
+                <div class="col" id="area22" onclick="setArea(2,2)">2,2</div>
+            </div>
+
+            <div class="col1">
+                <div class="col" id="area01" onclick="setArea(0,1)">0,1</div>
+                <div class="col" id="area11" onclick="setArea(1,1)">1,1</div>
+                <div class="col" id="area21" onclick="setArea(2,1)">2,1</div>
+            </div>
+
+            <div class="col0">
+                <div class="col" id="area00" onclick="setArea(0,0)">0,0</div>
+                <div class="col" id="area10" onclick="setArea(1,0)">1,0</div>
+                <div class="col" id="area20" onclick="setArea(2,0)">2,0</div>
+            </div>
+
+            </br>
+            <div id="sendButton" onclick="sendTrapAndTile()">SEND TRAP</div>
+
+        </div>
+
+    </div>
+
+    <div id='commandField' style='display:none;'>
+        <div id='CommandContainer'>
+            <div id="PingButton" onclick="sendPing()"><h3>PING</h3></div>
+
+            </br>
+
+            <div id='CommandButton0' class='CommButton' onclick="setCommand('regroup', 0)"><h3>REGROUP</h3></div>
+            <div id='CommandButton1' class='CommButton' onclick="setCommand('loot', 1)"><h3>LOOT   </h3></div>
+            <div id='CommandButton2' class='CommButton' onclick="setCommand('attack', 2)"><h3>ATTACK </h3></div>
+            <div id='CommandButton3' class='CommButton' onclick="setCommand('flee', 3)"><h3>FLEE   </h3></div>
+
+
+        </div>
+    </div>
+    </br>
+    </br>
+    </br>
+    <!--------------------------------------------------------->
+    <!--<button onclick="location.reload()">Reload game</button>
+    <button onclick="openPrep()">DEV: show prep</button>
+    <button onclick="openCommand()">DEV: show Commands</button>-->
+    <!--------------------------------------------------------->
+    </br>
+
+    <p>
+        Connected to:
+        <script>document.write(ip_address);</script>
+    </p>
+</body>
+
+</html>

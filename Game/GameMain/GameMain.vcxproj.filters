@@ -474,4 +474,8 @@
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Sites\mobileSite.html" />
+    <None Include="..\Sites\newSite.html" />
+  </ItemGroup>
 </Project>
