@@ -156,6 +156,9 @@ namespace ecs
 				random_index = rand() % mTiles.entities.size();
 				if (mTiles.entities[random_index].getComponent<components::TileComponent>()->tileType == WATER)
 				{
+					/*
+						Never spawn weapon in water.
+					*/
 					random_index = -1;
 				}
 			} while (random_index == -1);
@@ -165,6 +168,10 @@ namespace ecs
 
 		GAME_OBJECT_TYPE MasterWeaponSpawner::GetRandomWeaponType()
 		{
+			/*
+				Randomizes a weapon type from GAME_OBJECT_TYPE_WEAPON list.
+			*/
+
 			return (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1) + rand() % WEAPON_TYPE_COUNT;
 		}
 
