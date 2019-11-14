@@ -6,6 +6,12 @@
 #include "../../AI/includes/AIGlobals.h"
 #include <DirectXMath.h>
 
+struct PotentialFieldCharges
+{
+	float armyCharges[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+	float hazardCharge = 0.0f;
+};
+
 namespace ecs
 {
 	namespace components
@@ -21,6 +27,7 @@ namespace ecs
 			float niceness = 0.f;
 			bool goal = false;
 			unsigned int neighboursIDArray[6] = { 0 };
+			PotentialFieldCharges charges;
 
 			BIOME biome;
 		};
@@ -74,7 +81,13 @@ namespace ecs
 
 		struct DeadComponent : public ECSComponent<DeadComponent>
 		{
-			int data;
+			enum CauseOfDeath
+			{
+				CAUSE_DROWNING,
+				CAUSE_DAMAGE
+			};
+			CauseOfDeath cause;			// Kind of death
+			DirectX::XMFLOAT3 position;	// Save position of where the dead happened
 		};
 
 		struct PlayerStateComponent : public ECSComponent<PlayerStateComponent>

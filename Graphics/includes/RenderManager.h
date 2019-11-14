@@ -66,6 +66,11 @@ namespace graphics
 		UINT CreatePipeline(GraphicsPipeline* pPipeline, const void* pDescription);
 
 		/*
+			Clear pipeline (Should be executed in the beginning of a frame, if needed)
+		*/
+		void ClearPipeline(const UINT pipeline);
+
+		/*
 			Update pipeline data (Every pipeline has their own structs for data)
 		*/
 		void UpdatePipeline(const UINT pipeline, const void* pPipelineData);

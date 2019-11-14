@@ -89,6 +89,10 @@ namespace graphics
 		pContext4->OMSetRenderTargets(1, &mpBlurTarget, NULL);
 	}
 
+	void BlurPipeline::Clear(ID3D11DeviceContext4* pContext4)
+	{
+	}
+
 	void BlurPipeline::PreProcess(
 		ID3D11DeviceContext4* pContext4,
 		ID3D11VertexShader* pVertexShader,

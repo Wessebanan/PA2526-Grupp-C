@@ -3,6 +3,7 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "../Physics/PhysicsComponents.h"
 #include "../MeshContainer/MeshContainer.h"
+#include "../gameGraphics/ParticleECSComponents.h"
 
 #include "../gameAI/AIComponents.h" // TileComponent
 
@@ -89,6 +90,20 @@ namespace ecs
 			}
 
 			createEntity(weapon_mesh_comp, weapon_transform_comp, weapon_color_comp, weapon_comp);
+
+			/* Spawn Smoke Emitter At Sword Spawn */
+			components::ParticleSpawnerComponent spawner;
+			components::SmokeSpawnerComponent smoke;
+
+			spawner.StartPosition = weapon_transform_comp.position;
+			spawner.SpawnFrequency = 0.005f;
+			spawner.TimerSinceLastSpawn = 0.0f;
+			spawner.LifeDuration = 1.0f;
+
+			smoke.InitialVelocity = 8.0f;
+			smoke.SpawnCount = 100;
+
+			createEntity(spawner, smoke);
 		}
 
 

@@ -3,36 +3,16 @@
   <ItemGroup>
     <ClCompile Include="test.cpp" />
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="..\..\Game\GameMain\Physics\CollisionSystem.cpp">
-      <Filter>GameFiles</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Game\GameMain\Physics\MovementSystem.cpp">
-      <Filter>GameFiles</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Game\GameMain\gameUtility\UtilityEcsFunctions.cpp">
-      <Filter>GameFiles\External</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\Game\GameMain\gameAI\GridEcsFunctions.cpp">
+    <ClCompile Include="..\Physics\BoundingVolume.cpp">
       <Filter>GameFiles\External</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="..\..\Game\GameMain\Physics\CollisionSystem.h">
-      <Filter>GameFiles</Filter>
+    <ClInclude Include="BoundingVolumeTests.h" />
+    <ClInclude Include="..\Physics\includes\BoundingVolume.h">
+      <Filter>GameFiles\External</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Game\GameMain\Physics\MovementSystem.h">
-      <Filter>GameFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Game\GameMain\Physics\PhysicsComponents.h">
-      <Filter>GameFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\Game\GameMain\Physics\PhysicsEvents.h">
-      <Filter>GameFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="GroundCollision.h" />
-    <ClInclude Include="MovementLogic.h" />
-    <ClInclude Include="ObjectCollision.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -30,25 +30,19 @@
 #include "../../Graphics/includes/RenderManager.h"
 #include "../../Graphics/includes/MeshManager.h"
 
-#include "gameGraphics/ForwardRenderingPipeline.h"
-#include "gameGraphics/ShadowMapPipeline.h"
-#include "gameGraphics/SSAOPipeline.h"
-#include "gameGraphics/CombineSSAOPipeline.h"
-#include "gameGraphics/BlurPipeline.h"
-
 #include "gameAnimation/InitAnimation.h"
 
 #include "Renderers/Renderers.h"
 
 #include "gameGraphics/GraphicsECSSystems.h"
 #include "gameGraphics/InitGraphics.h"
+#include "gameGraphics/InitParticles.h"
 
 #include "gameWorld/InitWorld.h"
 
 #include <time.h>
 
 #include "gameUtility/Timer.h"
-
 #include "gameGameLoop/InitGameLoop.h"
 #include "gameGameLoop/GameLoopEvents.h"
 
@@ -56,9 +50,8 @@
 
 #include "gameTraps/InitTraps.h"
 #include "gameWeapons/InitWeapons.h"
-
-// DELETE THIS FUCKERY
-#include "gameWeapons/WeaponEvents.h"
+#include "gameTraps/TrapComponents.h"
+#include "gameTraps/TrapEvents.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -113,6 +106,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(5000);
+	ecs.reserveComponentCount<ecs::components::TrapComponent>(400);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -209,8 +203,7 @@ int main()
 	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& render_buffer = static_cast<components::RenderBufferComponent*>(ecs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
-
-	//renderer_ssao.Destroy();
+	
 	mesh_manager.Destroy();
 	render_manager.Destroy();
 
@@ -239,12 +232,12 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, clientWidth, clientHeight);
 	InitMeshes(rECS);
 	InitGraphicsPreRenderSystems(rECS);
+	InitParticles(rECS);
+
+	InitAI(rECS);
 
 	InitSound(rECS);
 	InitSong(rECS);
-
-	InitAI(rECS);
-	
 
 	InitInput(rECS);
 	InitInterpreter(rECS);
@@ -261,7 +254,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitAnimation(rECS);
 	InitPhysics(rECS, MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT));
 
-	InitTrapTriggers(rECS);
 	InitGameLoop(rECS);
 
 	WorldMeshData mapMeshData;
@@ -282,11 +274,14 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
+
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
 	//InitSpawnLootSystem(rECS);
 	InitWeapons(rECS);
+
+	InitTraps(rECS);
 
 	InitHttpServer(rECS);
 
