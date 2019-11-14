@@ -96,7 +96,7 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 			goal_friend_id = this->FindClosestFriendWithoutWeapon(entity.entity);
 			if (goal_friend_id != 0)
 			{
-				//Find the closest tile to the nearest friend.
+				//Find the closest tile to the nearest friend without a weapon.
 				goal_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(goal_friend_id);
 				//goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
 				goal_tile_index = this->GetClosestTile(*goal_transform);
@@ -524,7 +524,7 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(ecs::Entity
 						other_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(other_unit->getID());
 						temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
 						//If the distance is smaller then the previously nearest friend we store the info of the new one.
-						if (temp_dist < dist)
+						if (temp_dist < dist && temp_dist > TILE_RADIUS*2)
 						{
 							dist = temp_dist;
 							friend_id = other_unit->getID();
