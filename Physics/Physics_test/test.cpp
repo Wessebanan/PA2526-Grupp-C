@@ -1,7 +1,8 @@
 #include "gtest/gtest.h"
-#include "GroundCollision.h"
-#include "MovementLogic.h"
-#include "ObjectCollision.h"
+//#include "GroundCollision.h"
+//#include "MovementLogic.h"
+//#include "ObjectCollision.h"
+#include "BoundingVolumeTests.h"
 #include <crtdbg.h>
 
 int main(int argc, char** argv) {
