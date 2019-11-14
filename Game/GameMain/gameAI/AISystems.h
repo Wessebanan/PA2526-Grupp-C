@@ -19,6 +19,8 @@
 #include "../gameAudio/AudioECSEvents.h"
 
 
+constexpr float DEFAULT_USAGE_OF_TILE = 0.2; //20%
+constexpr float DEFAULT_TILE_SIDE_LENGTH = 0.866025403784438646763723170752f;//this value is sqrt(3)/2 that is the length to one side if the tile if radius is 1
 namespace ecs
 {
 	namespace systems
@@ -85,16 +87,7 @@ namespace ecs
 			//Update function that moves the unit along its calculated path from the Pathfindingsystem
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		private:
-			float mX;
-			float mYDistance;
-			float mZ;
-			float mY;
-			float mTileSizeLength = sqrtf(3)/2.f;//sqrt(3)/2 is the length to one side if the tile if radius is 1
-			float mLength;
-			float mLengthOfVector;
 			float mMinimumDist;
-			float mAngle;
-			XMFLOAT3 mJumpVector;
 			//Returns the new state of the unit or STATE::NONE if it is supposed to stay in this state for the next update.
 			STATE CheckIfGoalIsMet(FilteredEntity& entity, float delta);
 			//Switch to the next units next state
