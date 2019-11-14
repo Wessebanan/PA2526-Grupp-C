@@ -378,9 +378,6 @@
     <ClInclude Include="gameTraps\TrapSystems.h">
       <Filter>Traps</Filter>
     </ClInclude>
-    <ClInclude Include="gameTraps\TrapComponentsLHURE.h">
-      <Filter>Traps</Filter>
-    </ClInclude>
     <ClInclude Include="gameTraps\TrapComponents.h">
       <Filter>Traps</Filter>
     </ClInclude>

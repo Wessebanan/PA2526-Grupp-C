@@ -1,7 +1,7 @@
 #pragma once
 #include "ecsSystemIncludes.h"
 #include "TrapEvents.h"
-#include "TrapComponentsLHURE.h"
+#include "TrapComponents.h"
 #include <vector>
 
 
