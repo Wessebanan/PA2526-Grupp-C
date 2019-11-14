@@ -10,8 +10,8 @@ void BoundingCylinder::CreateFromTile(XMFLOAT3 position, float height, float rad
 bool BoundingCylinder::Intersects(BoundingBox& rAabb)
 {
 	// Immediately return if rAabb is above or below cylinder.
-	if (rAabb.Center.y - rAabb.Extents.y > mCenter.y + mExtentsY ||
-		rAabb.Center.y + rAabb.Extents.y < mCenter.y - mExtentsY)
+	if (rAabb.Center.y - rAabb.Extents.y >= mCenter.y + mExtentsY ||
+		rAabb.Center.y + rAabb.Extents.y <= mCenter.y - mExtentsY)
 	{
 		return false;
 	}
@@ -24,14 +24,14 @@ bool BoundingCylinder::Intersects(BoundingBox& rAabb)
 	float x_z_dist_to_center = PhysicsHelpers::CalculateVectorLength(x_z_to_center);
 
 	// True if inside cylinder circle.
-	return x_z_dist_to_center < mRadius;
+	return x_z_dist_to_center <= mRadius;
 }
 
 bool BoundingCylinder::Intersects(BoundingSphere& rSphere)
 {
 	// Immediately return if rSphere is above or below cylinder.
-	if (rSphere.Center.y - rSphere.Radius > mCenter.y + mExtentsY ||
-		rSphere.Center.y + rSphere.Radius < mCenter.y - mExtentsY)
+	if (rSphere.Center.y - rSphere.Radius >= mCenter.y + mExtentsY ||
+		rSphere.Center.y + rSphere.Radius <= mCenter.y - mExtentsY)
 	{
 		return false;
 	}
@@ -41,7 +41,7 @@ bool BoundingCylinder::Intersects(BoundingSphere& rSphere)
 	XMFLOAT3 x_z_rSphere_center = XMFLOAT3(rSphere.Center.x, 0.0f, rSphere.Center.z);
 	float x_z_center_to_center_dist = PhysicsHelpers::CalculateDistance(x_z_cylinder_center, x_z_rSphere_center);
 
-	return x_z_center_to_center_dist < rSphere.Radius + mRadius;
+	return x_z_center_to_center_dist <= rSphere.Radius + mRadius;
 }
 
 bool BoundingCylinder::Intersects(BoundingOrientedBox& rObb)
@@ -54,28 +54,30 @@ bool BoundingCylinder::Intersects(BoundingOrientedBox& rObb)
 	{
 		XMFLOAT3 corner = p_corners[i];
 		// If a corner is within y range, check x-z.
-		if (corner.y < mCenter.y - mExtentsY ||
-			corner.y > mCenter.y + mExtentsY)
+		if (corner.y >= mCenter.y - mExtentsY &&
+			corner.y <= mCenter.y + mExtentsY)
 		{
 			XMFLOAT3 x_z_cylinder_center = XMFLOAT3(mCenter.x, 0.0f, mCenter.z);
 			XMFLOAT3 x_z_corner = XMFLOAT3(corner.x, 0.0f, corner.z);
 			float x_z_center_to_corner_dist = PhysicsHelpers::CalculateDistance(x_z_cylinder_center, x_z_corner);
 
 			// If distance between corner x-z and sphere center is less than radius, intersection.
-			if (x_z_center_to_corner_dist < mRadius)
+			if (x_z_center_to_corner_dist <= mRadius)
 			{
+				delete p_corners;
 				return true;
 			}
 		}
 	}
+	delete p_corners;
 	return false;
 }
 
 bool BoundingCylinder::Intersects(BoundingCylinder& rCylinder)
 {
 	// Return if above or below.
-	if (rCylinder.mCenter.y - rCylinder.mExtentsY > mCenter.y + mExtentsY ||
-		rCylinder.mCenter.y + rCylinder.mExtentsY < mCenter.y - mExtentsY)
+	if (rCylinder.mCenter.y - rCylinder.mExtentsY >= mCenter.y + mExtentsY ||
+		rCylinder.mCenter.y + rCylinder.mExtentsY <= mCenter.y - mExtentsY)
 	{
 		return false;
 	}
@@ -85,7 +87,7 @@ bool BoundingCylinder::Intersects(BoundingCylinder& rCylinder)
 	XMFLOAT3 x_z_rCylinder_center = XMFLOAT3(rCylinder.mCenter.x, 0.0f, rCylinder.mCenter.z);
 	float x_z_center_to_center_dist = PhysicsHelpers::CalculateDistance(x_z_this_rCylinder_center, x_z_rCylinder_center);
 
-	return x_z_center_to_center_dist < rCylinder.mRadius + mRadius;
+	return x_z_center_to_center_dist <= rCylinder.mRadius + mRadius;
 }
 
 bool Sphere::Intersects(BoundingVolume* pOther)
