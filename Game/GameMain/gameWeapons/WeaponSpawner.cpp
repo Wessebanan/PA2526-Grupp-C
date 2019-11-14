@@ -4,12 +4,20 @@
 #include "../Physics/PhysicsComponents.h"
 #include "../MeshContainer/MeshContainer.h"
 
+#include "../gameAI/AIComponents.h" // TileComponent
+
 using namespace DirectX;
 
 namespace ecs
 {
 	namespace systems
 	{
+		/*
+			##########################################################
+			################## WEAPON SPAWNER ########################
+			##########################################################		
+		*/
+
 		WeaponSpawner::WeaponSpawner()
 		{
 			updateType = EventReader;
@@ -81,6 +89,49 @@ namespace ecs
 			}
 
 			createEntity(weapon_mesh_comp, weapon_transform_comp, weapon_color_comp, weapon_comp);
+		}
+
+
+
+		/*
+			##########################################################
+			############### MASTER WEAPON SPAWNER ####################
+			##########################################################
+		*/
+
+		MasterWeaponSpawner::MasterWeaponSpawner() :
+			mDurationSinceLastSpawn(0.f)
+		{
+			TypeFilter tile_filter;
+			tile_filter.addRequirement(components::TileComponent::typeID);
+			tile_filter.addRequirement(components::TransformComponent::typeID);
+
+			mTiles = getEntitiesByFilter(tile_filter);
+		}
+
+		MasterWeaponSpawner::~MasterWeaponSpawner()
+		{
+		}
+
+		void MasterWeaponSpawner::act(float _delta)
+		{
+			mDurationSinceLastSpawn += _delta;
+
+			if (mDurationSinceLastSpawn >= SPAWN_FREQUENCY)
+			{
+				mDurationSinceLastSpawn = 0;
+
+				events::SpawnWeaponEvent spawn_event;
+				spawn_event.weaponType = GAME_OBJECT_TYPE_WEAPON_SWORD;
+				spawn_event.spawnTileId = FindSpawnTile();
+				createEvent(spawn_event);
+			}
+		}
+
+		ID MasterWeaponSpawner::FindSpawnTile()
+		{
+			int random_index = rand() % mTiles.entities.size();
+			return mTiles.entities[random_index].entity->getID();
 		}
 	}
 }

@@ -285,7 +285,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
-	InitSpawnLootSystem(rECS);
+	//InitSpawnLootSystem(rECS);
 	InitWeapons(rECS);
 
 	InitHttpServer(rECS);
