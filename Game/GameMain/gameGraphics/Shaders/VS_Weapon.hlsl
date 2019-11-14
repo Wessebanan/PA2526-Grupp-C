@@ -55,6 +55,8 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 
 	// Get Color from matrix and restore Matrix
 	float4x4 world_matrix = gMesh[InstanceID].World;
+	uint color = (uint)world_matrix[3][3];
+	world_matrix[3][3] = 1.0f;
 
 	float4x4 wvpCam = mul(gPerspective, mul(gView, world_matrix));
 	float4x4 wvpSun = mul(gOrtographicsSun, mul(gViewSun, world_matrix));
@@ -65,7 +67,7 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 	output.pos = mul(wvpCam, world_pos);
 	output.sunPos = mul(wvpSun, world_pos);
 
-	output.color.rgb = float3(255.f / 255.f, 0.f / 255.f, 255.f / 255.f);
+	output.color.rgb = unpack(color).rgb / 255.f;
 
 	output.normal = mul(gMesh[InstanceID].World, float4(gVertexNormals[VertexID], 0.0f)).xyz;
 

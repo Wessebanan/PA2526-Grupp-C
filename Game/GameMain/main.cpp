@@ -55,6 +55,10 @@
 #include "InitHttpServer.h"
 
 #include "gameTraps/InitTraps.h"
+#include "gameWeapons/InitWeapons.h"
+
+// DELETE THIS FUCKERY
+#include "gameWeapons/WeaponEvents.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -282,10 +286,10 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	initArmyText(rECS);
 
 	InitSpawnLootSystem(rECS);
-	InitHttpServer(rECS);
+	InitWeapons(rECS);
 
+	InitHttpServer(rECS);
 
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
-
 }

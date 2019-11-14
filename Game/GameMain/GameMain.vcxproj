@@ -125,6 +125,8 @@
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\CameraSystems.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
+    <ClCompile Include="gameWeapons\InitWeapons.cpp" />
+    <ClCompile Include="gameWeapons\WeaponSpawner.cpp" />
     <ClCompile Include="gameWorld\UpdateOceanSystem.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
     <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
@@ -202,6 +204,9 @@
     <ClInclude Include="gameUtility\UtilityEcsFunctions.h" />
     <ClInclude Include="gameUtility\UtilityGraphics.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
+    <ClInclude Include="gameWeapons\InitWeapons.h" />
+    <ClInclude Include="gameWeapons\WeaponEvents.h" />
+    <ClInclude Include="gameWeapons\WeaponSpawner.h" />
     <ClInclude Include="gameWorld\InitWorld.h" />
     <ClInclude Include="gameWorld\WorldComponents.h" />
     <ClInclude Include="gameWorld\UpdateOceanSystem.h" />
