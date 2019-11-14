@@ -1,5 +1,6 @@
 #include "GraphicsECSSystems.h"
 #include "../gameUtility/CameraComponents.h"
+#include "../Renderers/Renderers.h"
 
 namespace ecs
 {
@@ -49,7 +50,7 @@ namespace ecs
 			typeFilter.addRequirement(components::RenderManagerComponent::typeID);
 			typeFilter.addRequirement(components::RenderBufferComponent::typeID);
 		}
-		
+
 		void UploadRenderBufferSystem::updateEntity(FilteredEntity& entity, float delta)
 		{
 			components::RenderManagerComponent* p_mgr = entity.getComponent<components::RenderManagerComponent>();
@@ -103,16 +104,31 @@ namespace ecs
 			components::PipelineForwardComponent* p_pipeline = entity.getComponent<components::PipelineForwardComponent>();
 
 			p_pipeline->data.ViewMatrix = p_camera->viewMatrix;
-			p_pipeline->data.Red = 0.25f;
-			p_pipeline->data.Green = 0.25f;
-			p_pipeline->data.Blue = 1.0f;
-
 			p_mgr->mgr.UpdatePipeline(p_pipeline->pipeline, &p_pipeline->data);
 		}
 
 
+		ClearGPURenderSystem::ClearGPURenderSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::RenderManagerComponent::typeID);
+			typeFilter.addRequirement(components::MeshManagerComponent::typeID);
 
+			typeFilter.addRequirement(components::PipelineShadowMapComponent::typeID);
+			typeFilter.addRequirement(components::PipelineForwardComponent::typeID);
+		}
 
+		void ClearGPURenderSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
+			components::MeshManagerComponent* p_mesh_mgr = entity.getComponent<components::MeshManagerComponent>();
+			components::RenderManagerComponent* p_render_mgr = entity.getComponent<components::RenderManagerComponent>();
+
+			components::PipelineShadowMapComponent* p_pipeline_shadow_map = entity.getComponent<components::PipelineShadowMapComponent>();
+			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
+
+			p_render_mgr->mgr.ClearPipeline(p_pipeline_shadow_map->pipeline);
+			p_render_mgr->mgr.ClearPipeline(p_pipeline_forward->pipeline);
+		}
 
 		ExecuteGPURenderSystem::ExecuteGPURenderSystem()
 		{
@@ -132,12 +148,26 @@ namespace ecs
 			components::PipelineShadowMapComponent* p_pipeline_shadow_map = entity.getComponent<components::PipelineShadowMapComponent>();
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
-			p_mesh_mgr->mgr.SetVertexBuffers();
-			p_render_mgr->mgr.ExecutePipeline(
-				p_pipeline_shadow_map->pipeline, 
-				0,
-				p_render_mgr->mgr.GetNumShaderPrograms() - 2);
+			systems::OceanRenderSystem* p_ocean_renderer = (systems::OceanRenderSystem*)GetSystem<systems::OceanRenderSystem>();
 
+			// Enable Standard Vertex Buffers
+			p_mesh_mgr->mgr.SetVertexBuffers();
+
+#ifdef _DEBUG
+			// Don't render shadow map if in debug (but execute the begin and end for the pipeline)
+			p_render_mgr->mgr.ExecutePipeline(
+				p_pipeline_shadow_map->pipeline,
+				0,
+				0);
+#else
+			// Render To Shadow Map
+			p_render_mgr->mgr.ExecutePipeline(
+				p_pipeline_shadow_map->pipeline,
+				0,
+				p_ocean_renderer->mRenderProgram - 1);
+#endif // !_DEBUG
+
+			// Render To Color Buffer
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
 		}
 	}

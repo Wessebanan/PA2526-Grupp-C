@@ -9,12 +9,12 @@ namespace graphics
 	{
 		UINT ClientWidth, ClientHeight;
 		float Fov, NearPlane, FarPlane;
+		float ClearColor[3];
 	};
 
 	struct FORWARD_RENDERING_PIPELINE_DATA
 	{
 		DirectX::XMFLOAT4X4 ViewMatrix;
-		float Red, Green, Blue;
 	};
 
 	class ForwardRenderingPipeline : public GraphicsPipeline
@@ -24,6 +24,7 @@ namespace graphics
 		virtual ~ForwardRenderingPipeline() override;
 
 		virtual HRESULT Initialize(ID3D11Device4* pDevice4, const void* pDescription) override;
+		virtual void Clear(ID3D11DeviceContext4* pContext4) override;
 		virtual void Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData) override;
 		virtual void Begin(ID3D11DeviceContext4* pContext4) override;
 
@@ -50,5 +51,7 @@ namespace graphics
 		ID3D11ShaderResourceView* mpDepthResource;
 
 		ID3D11SamplerState* mpSamplerState;
+
+		float mClearColor[3];
 	};
 }

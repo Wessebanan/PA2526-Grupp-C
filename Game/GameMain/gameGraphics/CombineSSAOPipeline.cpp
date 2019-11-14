@@ -37,6 +37,10 @@ namespace graphics
 		pContext4->OMSetRenderTargets(1, &mpBackBuffer, NULL);
 	}
 
+	void CombinePipeline::Clear(ID3D11DeviceContext4* pContext4)
+	{
+	}
+
 	void CombinePipeline::PreProcess(
 		ID3D11DeviceContext4* pContext4,
 		ID3D11VertexShader* pVertexShader,
