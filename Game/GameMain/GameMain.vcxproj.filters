@@ -114,6 +114,9 @@
     <ClCompile Include="MeshContainer\MeshContainer.cpp">
       <Filter>Meshes</Filter>
     </ClCompile>
+    <ClCompile Include="gameGraphics\ParticleECSSystems.cpp">
+      <Filter>Graphics\ECS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -354,6 +357,15 @@
     <ClInclude Include="gameGraphics\OceanRenderingPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="gameGraphics\InitParticles.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\ParticleECSSystems.h">
+      <Filter>Graphics\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\ParticleECSComponents.h">
+      <Filter>Graphics\ECS</Filter>
+    </ClInclude>
     <ClInclude Include="gameTraps\TrapSystems.h">
       <Filter>Traps</Filter>
     </ClInclude>
@@ -485,11 +497,21 @@
     <FxCompile Include="gameUtility\VS_Tile.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Particle.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Particle.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\PS_Ocean.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Ocean.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Sites\mobileSite.html" />
+    <None Include="..\Sites\newSite.html" />
   </ItemGroup>
 </Project>

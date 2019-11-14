@@ -30,6 +30,13 @@ public:
 	// Loads a mesh from file into MeshContainer. The mesh can be retrieved after this.
 	static ModelLoader::Mesh* LoadMesh(GAME_OBJECT_TYPE meshType, std::string filePath);
 
+	static void CreateGPUMesh(
+		const GAME_OBJECT_TYPE meshType,
+		const UINT vertexCount,
+		const UINT indexCount,
+		const graphics::VERTEX_DATA& vertexData,
+		const void* pIndices);
+
 	// Returns a pointer to a requested mesh. The mesh has to be loaded before this is called.
 	static ModelLoader::Mesh* GetMeshCPU(GAME_OBJECT_TYPE meshType);
 
@@ -50,9 +57,19 @@ private:
 	static MeshContainer* mpInstance;
 
 	void InitializeInternal(graphics::MeshManager* pMeshMgr);
+
 	ModelLoader::Mesh* LoadMeshInternal(GAME_OBJECT_TYPE meshType, std::string filePath);
+	
+	void CreateGPUMeshInternal(
+		const GAME_OBJECT_TYPE meshType,
+		const UINT vertexCount,
+		const UINT indexCount,
+		const graphics::VERTEX_DATA& vertexData,
+		const void* pIndices);
+
 	ModelLoader::Mesh* GetMeshCPUInternal(GAME_OBJECT_TYPE meshType);
 	graphics::MeshRegion GetMeshGPUInternal(GAME_OBJECT_TYPE meshType);
+
 	void TerminateInternal();
 
 	graphics::MeshManager* mpMeshMgr;

@@ -27,8 +27,6 @@ constexpr float FIST_KNOCKBACK			= 0.5f;
 
 constexpr float BASE_INVINCIBILITY_TIME = 0.2f;
 
-constexpr double PI = 3.14159265358979323846;
-
 // Specifically hard-coded for current dude mesh lmao.
 #define ORIGIN_TO_HAND XMFLOAT3(-4.99f, 2.55f, -0.329f)
 

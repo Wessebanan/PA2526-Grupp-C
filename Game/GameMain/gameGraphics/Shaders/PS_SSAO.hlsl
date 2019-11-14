@@ -8,7 +8,6 @@ SamplerState gSampler				: register (s1);
 
 float GetDepth(const float2 uv)
 {
-	//return gDepthMap.Sample(gSampler, uv).r;
 	return gNormalMap.Sample(gSampler, uv).w;
 }
 
@@ -36,7 +35,7 @@ float3 ViewPosFromDepth(const float depth, const float2 uv)
 
 float2 GetRandom(const float2 uv)
 {
-	const float2 screen_size = float2(1920, 1080) * 0.8f;
+	const float2 screen_size = float2(1920, 1080);
 	const float2 random_size = float2(64, 64);
 
 	return normalize(
@@ -51,9 +50,9 @@ float CalculateOcclusion(
 	const float3 pos,
 	const float3 normal)
 {
-	const float scale		= 0.1f;
+	const float scale		= 1.0f;
 	const float bias		= 0.2f;
-	const float intensity	= 4.0f;
+	const float intensity	= 8.0f;
 
 	const float3 occlusion_position = ViewPosFromDepth(
 		GetDepth(tcoord + uv), 
@@ -65,7 +64,7 @@ float CalculateOcclusion(
 	const float d		= length(diff) * scale;
 
 	return 
-		saturate(dot(normal, v) - bias) 
+		max(0.0f, dot(normal, v) - bias) 
 		* (1.0f / (1.0f + d)) * intensity;
 }
 
@@ -94,7 +93,7 @@ float main(PSIN input) : SV_TARGET
 	float2 random	= GetRandom(input.uv);
 	float radius	= sample_radius / pos.z;
 
-	const uint iterations = 2;
+	const uint iterations = 4;
 	for (uint i = 0; i < iterations; i++)
 	{
 		float2 coord1 = reflect(vec[i], random) * radius;
