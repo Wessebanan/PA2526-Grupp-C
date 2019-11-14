@@ -25,8 +25,6 @@ constexpr float BASE_KNOCKBACK			= 5.0f;
 constexpr float SWORD_KNOCKBACK			= 2.0f;
 constexpr float FIST_KNOCKBACK			= 1.0f;
 
-constexpr double PI = 3.14159265358979323846;
-
 // Specifically hard-coded for current dude mesh lmao.
 #define ORIGIN_TO_HAND XMFLOAT3(-4.99f, 2.55f, -0.329f)
 

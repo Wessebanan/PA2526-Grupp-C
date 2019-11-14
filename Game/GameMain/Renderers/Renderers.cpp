@@ -10,6 +10,8 @@
 #include "../gameGraphics/TileRenderingPipeline.h"
 #include "../gameGraphics/OceanRenderingPipeline.h"
 #include "../Physics/PhysicsComponents.h"
+#include "../gameGraphics/GraphicsECSComponents.h"
+#include "../gameGraphics/ParticleECSComponents.h"
 
 
 #include "../gameGraphics/SSAOPipeline.h"
@@ -190,6 +192,81 @@ namespace ecs
 		}
 #pragma endregion TileInstanceRenderSystem
 
+#pragma region ParticleRenderSystem
+		ParticleRenderSystem::ParticleRenderSystem()
+		{
+			mInstanceLayout = { 0 };
+			updateType = SystemUpdateType::MultiEntityUpdate;
+			typeFilter.addRequirement(components::ParticleComponent::typeID);
+
+		}
+
+		ParticleRenderSystem::~ParticleRenderSystem()
+		{
+
+		}
+
+		void ParticleRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		{
+			mParticleCount = (UINT)_entities.entities.size();
+
+			// Fetch pointer to write data to in RenderBuffer
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mParticleCount * GetPerInstanceSize());
+
+			uint32_t index = 0;
+			for (FilteredEntity tile : _entities.entities)
+			{
+				components::ParticleComponent* p_particle_comp = tile.getComponent<components::ParticleComponent>();
+
+				mpBuffer[index].x = p_particle_comp->Position.x;
+				mpBuffer[index].y = p_particle_comp->Position.y;
+				mpBuffer[index].z = p_particle_comp->Position.z;
+
+				mpBuffer[index].color = PACK(
+					p_particle_comp->Red, 
+					p_particle_comp->Green, 
+					p_particle_comp->Blue, 
+					p_particle_comp->Scale
+				);
+
+				index++;
+			}
+
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		}
+
+		void ParticleRenderSystem::Initialize(
+			graphics::RenderManager* pRenderMgr, 
+			graphics::RenderBuffer* pRenderBuffer,
+			graphics::StateManager* pStateMgr)
+		{
+			mpRenderMgr		= pRenderMgr;
+			mpStateMgr		= pStateMgr;
+			mpRenderBuffer	= pRenderBuffer;
+
+			mParticleMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
+
+			mInstanceLayout.MeshCount = 1;
+			mInstanceLayout.pMeshes = &mParticleMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mParticleCount;
+
+			const std::string vs = GetShaderFilepath("VS_Particle.cso");
+			const std::string ps = GetShaderFilepath("PS_Particle.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				systems::ParticleRenderSystem::GetPerInstanceSize());
+
+			//mStatePipeline = mpStateMgr->CreatePipelineState(NULL, NULL);
+		}
+
+		uint32_t ParticleRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(InputLayout);
+		}
+#pragma endregion ParticleRenderSystem
+
 #pragma region OceanInstanceRenderSystem
 		OceanInstanceRenderSystem::OceanInstanceRenderSystem()
 		{
@@ -225,7 +302,11 @@ namespace ecs
 				mpBuffer[index].y = p_transform_comp->position.y;
 				mpBuffer[index].z = p_transform_comp->position.z;
 
-				mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+				mpBuffer[index].color = PACK(
+					p_color_comp->red, 
+					p_color_comp->green, 
+					p_color_comp->blue, 
+					0);
 
 				index++;
 			}
@@ -348,7 +429,7 @@ namespace ecs
 			trpDesc.size = worldMeshVertexCount * stride;
 
 			mPipelineState = mpStateMgr->CreatePipelineState(new graphics::OceanRenderingPipeline(), &trpDesc);
-			
+			  
 			// Grabbing and storing all ocean tiles.
 			TypeFilter ocean_filter;
 			ocean_filter.addRequirement(components::OceanTileComponent::typeID);
@@ -600,21 +681,24 @@ namespace ecs
 
 		SSAORenderSystem::~SSAORenderSystem()
 		{
+			mRenderMgr.Destroy();
 		}
 
 		void SSAORenderSystem::act(float _delta)
 		{
+#ifndef _DEBUG
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
 				mShaderSSAO);
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineBlur,
-				mShaderBlur_v);
+				mShaderBlur);
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
-				mShaderBlur);
+				mShaderBlur_v);
+#endif // !_DEBUG
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineCombine,
@@ -622,52 +706,10 @@ namespace ecs
 		}
 
 		void SSAORenderSystem::Initialize(
-			graphics::MeshManager* pMeshMgr,
 			const UINT clientWidth,
 			const UINT clientHeight)
 		{
-			mScreenSpaceTriangle = pMeshMgr->CreateMeshRegion(6, 0);
-			{
-				struct float3
-				{
-					float x, y, z;
-				};
-
-				struct float2
-				{
-					float x, y;
-				};
-
-				float3 vertices[6] =
-				{
-					-1.0f, -1.0f, 0.5f,
-					-1.0f,  1.0f, 0.5f,
-					 1.0f, -1.0f, 0.5f,
-
-					 1.0f, -1.0f, 0.5f,
-					-1.0f,  1.0f, 0.5f,
-					 1.0f,  1.0f, 0.5f,
-				};
-
-				float2 uv[6] =
-				{
-					0.0f, 1.0f,
-					0.0f, 0.0f,
-					1.0f, 1.0f,
-
-					1.0f, 1.0f,
-					0.0f, 0.0f,
-					1.0f, 0.0f,
-				};
-
-				graphics::VERTEX_DATA data = { NULL };
-				data.pVertexPositions = vertices;
-				data.pVertexTexCoords = uv;
-
-				pMeshMgr->UploadData(mScreenSpaceTriangle, data, NULL);
-			}
-
-			//graphics::RenderManager renderer_ssao;
+			mScreenSpaceTriangle = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
 			mRenderMgr.Initialize(0);
 
 			{
@@ -688,7 +730,6 @@ namespace ecs
 					&desc);
 			}
 
-			//UINT pipeline_combine;
 			{
 				graphics::COMBINE_PIPELINE_DESC desc = { };
 				desc.Width = clientWidth;

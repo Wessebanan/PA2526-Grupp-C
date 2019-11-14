@@ -80,6 +80,11 @@ namespace graphics
 		return (UINT)m_pipelines.size() - 1;
 	}
 
+	void RenderManager::ClearPipeline(const UINT pipeline)
+	{
+		m_pipelines[pipeline]->Clear(m_pContext4);
+	}
+
 	UINT RenderManager::CreateShaderProgram(
 		const char* pVSFilepath,
 		const char* pPSFilepath,

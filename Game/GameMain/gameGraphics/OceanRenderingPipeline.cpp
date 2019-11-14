@@ -49,6 +49,10 @@ namespace graphics
 			0);
 	}
 
+	void OceanRenderingPipeline::Clear(ID3D11DeviceContext4* pContext4)
+	{
+	}
+
 	void OceanRenderingPipeline::SetState(ID3D11DeviceContext4* pContext4)
 	{
 		pContext4->VSSetConstantBuffers(6, 1, &mpDataBuffer);

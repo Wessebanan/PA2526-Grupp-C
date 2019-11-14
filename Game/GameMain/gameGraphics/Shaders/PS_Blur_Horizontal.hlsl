@@ -21,20 +21,20 @@ float Blur(
 	const float center_depth, 
 	const float center_occlusion)
 {
-	float blur_radius = 5.0f;
+	int blur_radius = 5;
 	float weights[11] =
-	{ 
+	{
 		0.05f, 0.05f, 0.1f, 0.1f, 0.1f, 0.2f, 0.1f, 0.1f, 0.1f, 0.05f, 0.05f
 	};
 
 	float total_weight	= weights[5];
 	float occlusion		= center_occlusion * weights[5];
 
-	for (int i = -blur_radius; i <= blur_radius; ++i)
+	for (int i = -blur_radius; i <= blur_radius; i++)
 	{
 		if (i == 0) continue;
 
-		float2 tex	= i * dir * 0.003f + uv;
+		float2 tex	= i * dir * 0.002f + uv;
 		float depth = GetDepth(tex);
 
 		if (abs(depth - center_depth) <= 0.2f)
@@ -46,7 +46,7 @@ float Blur(
 		}
 	}
 
-	return occlusion / total_weight;
+	return occlusion * total_weight;
 }
 
 float main(PSIN input) : SV_TARGET

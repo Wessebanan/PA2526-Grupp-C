@@ -30,18 +30,13 @@
 #include "../../Graphics/includes/RenderManager.h"
 #include "../../Graphics/includes/MeshManager.h"
 
-#include "gameGraphics/ForwardRenderingPipeline.h"
-#include "gameGraphics/ShadowMapPipeline.h"
-#include "gameGraphics/SSAOPipeline.h"
-#include "gameGraphics/CombineSSAOPipeline.h"
-#include "gameGraphics/BlurPipeline.h"
-
 #include "gameAnimation/InitAnimation.h"
 
 #include "Renderers/Renderers.h"
 
 #include "gameGraphics/GraphicsECSSystems.h"
 #include "gameGraphics/InitGraphics.h"
+#include "gameGraphics/InitParticles.h"
 
 #include "gameWorld/InitWorld.h"
 
@@ -208,8 +203,7 @@ int main()
 	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& render_buffer = static_cast<components::RenderBufferComponent*>(ecs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
-
-	//renderer_ssao.Destroy();
+	
 	mesh_manager.Destroy();
 	render_manager.Destroy();
 
@@ -238,12 +232,12 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, clientWidth, clientHeight);
 	InitMeshes(rECS);
 	InitGraphicsPreRenderSystems(rECS);
+	InitParticles(rECS);
+
+	InitAI(rECS);
 
 	InitSound(rECS);
 	InitSong(rECS);
-
-	InitAI(rECS);
-	
 
 	InitInput(rECS);
 	InitInterpreter(rECS);

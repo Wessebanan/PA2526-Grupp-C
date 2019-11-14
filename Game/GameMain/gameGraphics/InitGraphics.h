@@ -92,17 +92,20 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	p_pfComp->pipelineDesc.Fov = 3.14f / 2.0f;
 	p_pfComp->pipelineDesc.NearPlane = 1.0f;
 	p_pfComp->pipelineDesc.FarPlane = 100.0f;
+	p_pfComp->pipelineDesc.ClearColor[0] = 0.25f;
+	p_pfComp->pipelineDesc.ClearColor[1] = 0.25f;
+	p_pfComp->pipelineDesc.ClearColor[2] = 1.00f;
 	p_pfComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ForwardRenderingPipeline, &p_pfComp->pipelineDesc);
 
 	components::RenderBufferComponent* p_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next());
 	p_render_buffer->buffer.Initialize(renderBufferSize, 256);
 	p_render_buffer->bufferSize = renderBufferSize;
-
 }
 
 void InitGraphicsPreRenderSystems(EntityComponentSystem& rEcs)
 {
 	rEcs.createSystem<systems::RenderBufferResetSystem>(0);
+	rEcs.createSystem<systems::ClearGPURenderSystem>(0);
 }
 
 void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapMeshData, WorldMeshData& rOceanMeshData, const UINT clientWidth, const UINT clientHeight)
@@ -118,21 +121,28 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	graphics::RenderBuffer& r_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
 	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 
-	systems::UnitRenderSystem* p_unit_renderer = rEcs.createSystem<systems::UnitRenderSystem>(9);
-	systems::SceneObjectRenderSystem* p_scenery_renderer = rEcs.createSystem<systems::SceneObjectRenderSystem>(9);	
-	systems::WeaponRenderSystem* p_weapon_renderer = rEcs.createSystem<systems::WeaponRenderSystem>(9);
-	systems::MapRenderSystem* p_map_renderer = rEcs.createSystem<MapRenderSystem>(9);
-	systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<OceanRenderSystem>(9);
+	rEcs.createSystem<systems::UnitRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
 
-	
-	p_unit_renderer->Initialize(&r_render_mgr, &r_render_buffer);
-	p_scenery_renderer->Initialize(&r_render_mgr, &r_render_buffer);
-	p_weapon_renderer->Initialize(&r_render_mgr, &r_render_buffer);
-	p_map_renderer->Initialize(&r_render_mgr, &r_state_mgr, rMapMeshData.pMesh, rMapMeshData.vertexCount);
-	p_ocean_renderer->Initialize(&r_render_mgr, &r_state_mgr, rOceanMeshData.pMesh, rOceanMeshData.vertexCount);
+	rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
 
-	systems::SSAORenderSystem* p_ssao_renderer = rEcs.createSystem<systems::SSAORenderSystem>(9);
-	p_ssao_renderer->Initialize(&r_mesh_mgr, clientWidth, clientHeight);
+	rEcs.createSystem<systems::WeaponRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	rEcs.createSystem<MapRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_state_mgr, 
+			rMapMeshData.pMesh, 
+			rMapMeshData.vertexCount);
+
+	rEcs.createSystem<ParticleRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer, &r_state_mgr);
+
+	rEcs.createSystem<OceanRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_state_mgr, 
+			rOceanMeshData.pMesh,
+			rOceanMeshData.vertexCount);
+
 
 	/*
 		These stay outcommented, so we can easily compare performance boost between instance and single mesh rendering
@@ -150,6 +160,7 @@ void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::PipelineShadowMapSystem>(9);
 	rEcs.createSystem<systems::PipelineForwardSystem>(9);
 	rEcs.createSystem<systems::ExecuteGPURenderSystem>(9);
+	rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(1920, 1080);
 }
 
 void InitMeshes(EntityComponentSystem& rEcs)
@@ -178,6 +189,47 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_SWORD, "../meshes/sword.fbx");
+
+	// Create Quad For GPU
+	{
+		struct float3
+		{
+			float x, y, z;
+		};
+
+		struct float2
+		{
+			float x, y;
+		};
+
+		float3 vertices[6] =
+		{
+			-1.0f, -1.0f, 0.5f,
+			-1.0f,  1.0f, 0.5f,
+			 1.0f, -1.0f, 0.5f,
+
+			 1.0f, -1.0f, 0.5f,
+			-1.0f,  1.0f, 0.5f,
+			 1.0f,  1.0f, 0.5f,
+		};
+
+		float2 uv[6] =
+		{
+			0.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 1.0f,
+
+			1.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+		};
+
+		graphics::VERTEX_DATA data = { NULL };
+		data.pVertexPositions = vertices;
+		data.pVertexTexCoords = uv;
+
+		MeshContainer::CreateGPUMesh(GAME_OBJECT_TYPE_QUAD, 6, 0, data, NULL);
+	}
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FIRE, "../meshes/TrapPlate.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FREEZE, "../meshes/TrapPlate.fbx");

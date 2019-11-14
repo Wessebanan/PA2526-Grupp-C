@@ -45,6 +45,11 @@ namespace graphics
 		return (UINT)m_pipelines.size() - 1;
 	}
 
+	void ComputeManager::ClearPipeline(const UINT pipeline)
+	{
+		m_pipelines[pipeline]->Clear(m_pContext4);
+	}
+
 	void ComputeManager::UpdatePipeline(const UINT pipeline, const void* pPipelineData)
 	{
 		m_pipelines[pipeline]->Update(m_pContext4, pPipelineData);

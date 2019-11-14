@@ -18,6 +18,9 @@
 #include "../../AI/includes/AIGlobals.h"
 #include "../GameGlobals.h"
 
+#include "../gameGraphics/ParticleECSComponents.h"
+#include "../gameAudio/AudioECSEvents.h"
+
 
 namespace ecs
 {

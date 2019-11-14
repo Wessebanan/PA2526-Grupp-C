@@ -27,6 +27,8 @@ namespace graphics
 		virtual HRESULT Initialize(ID3D11Device4* pDevice4, const void* pDescription) override;
 		virtual void Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData) override;
 
+		virtual void Clear(ID3D11DeviceContext4* pContext4) override;
+
 		virtual void SetState(ID3D11DeviceContext4* pContext4) override;
 
 	private:

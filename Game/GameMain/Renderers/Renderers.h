@@ -118,6 +118,44 @@ namespace ecs
 			graphics::MeshRegion mTileMeshRegion;
 		};
 
+		class ParticleRenderSystem : public ECSSystem<ParticleRenderSystem>
+		{
+		public:
+
+			ParticleRenderSystem();
+			~ParticleRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(
+				graphics::RenderManager* pRenderMgr, 
+				graphics::RenderBuffer* pRenderBuffer,
+				graphics::StateManager* pStateMgr);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				float x, y, z;
+				uint32_t color;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			UINT mStatePipeline;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::StateManager* mpStateMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mParticleCount;
+			graphics::MeshRegion mParticleMeshRegion;
+		};
+
 		class OceanInstanceRenderSystem : public ECSSystem<OceanInstanceRenderSystem>
 		{
 		public:
@@ -165,6 +203,8 @@ namespace ecs
 				void* pWorldMesh,
 				UINT worldMeshVertexCount);
 
+			UINT mRenderProgram;
+
 		private:
 			EntityIterator mOceanTiles;
 
@@ -177,7 +217,6 @@ namespace ecs
 
 			UINT mInstanceCount;
 
-			UINT mRenderProgram;
 			UINT mPipelineState;
 			graphics::RenderManager* mpRenderMgr;
 			graphics::StateManager* mpStateMgr;
@@ -283,17 +322,10 @@ namespace ecs
 			void act(float _delta) override;
 
 			void Initialize(
-				graphics::MeshManager* pMeshMgr,
 				const UINT clientWidth,
 				const UINT clientHeight);
 
 		private:
-
-			/*struct InputLayout
-			{
-				float x, y, z;
-				uint32_t color;
-			};*/
 
 			UINT mPipelineSSAO,
 				mPipelineBlur,
