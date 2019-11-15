@@ -336,6 +336,18 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 			createEntity(new_transf_comp, new_cam_comp);
 		}
 		
+		itt = getComponentsOfType<components::UIBitmapComponent>();
+		UIBitmapComponent* bitmap_comp;
+
+		while (bitmap_comp = (UIBitmapComponent*)itt.next())
+		{
+			if (bitmap_comp->mName == "areaOverlay")
+			{
+				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+				bitmap_pos_comp->mDrawArea.bottom = 150;
+			}
+		}
 
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
@@ -726,6 +738,20 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 
 			this->mRoundOver = false;
 			this->mRoundOverDuration = 0.0f;
+
+			// Enlarge the overlay
+			itt = getComponentsOfType<components::UIBitmapComponent>();
+			UIBitmapComponent* bitmap_comp;
+
+			while (bitmap_comp = (UIBitmapComponent*)itt.next())
+			{
+				if (bitmap_comp->mName == "areaOverlay")
+				{
+					ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+					bitmap_pos_comp->mDrawArea.bottom = 800;
+				}
+			}
 		}
 
 
