@@ -313,7 +313,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		// Normalize knockback direction so it's not CRAZY.
 		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 		
-		knockback.mForce = BASE_KNOCKBACK * velocity * weapon_component->mKnockback;
+		knockback.mForce = (1.0f + (BASE_KNOCKBACK * velocity)) * weapon_component->mKnockback;
 		knockback.mEntityID = collided_unit;
 		createEvent(knockback);
 

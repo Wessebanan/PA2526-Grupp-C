@@ -72,6 +72,17 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
 			aabb.Transform(world_transform);
 			center = XMLoadFloat3(&aabb.Center);
+
+			ForceImpulseEvent right;
+			right.mForce = 50.0f;
+			
+			XMVECTOR y_axis = XMVectorZero();
+			y_axis = XMVectorSetY(y_axis, 1.0f);
+
+			XMStoreFloat3(&right.mDirection, XMVector3Cross(XMLoadFloat3(&p_movement->mDirection), y_axis));
+			right.mEntityID = entity_id;
+
+			createEvent(right);
 		}
 	}
 	p_collision->mIntersect = intersect;
