@@ -13,6 +13,8 @@
 
 #include "../Renderers/Renderers.h"
 
+#define Clamp(value, min_value, max_value) max(min_value, min(value, max_value))
+
 using namespace DirectX;
 using namespace ecs;
 using namespace ecs::components;
@@ -232,14 +234,77 @@ static void GenerateTileMesh(EntityComponentSystem& rEcs, void** pVertexBuffer, 
 		p_transform		= r_tile.getComponent<TransformComponent>();
 		xm_world		= XMMatrixTranslation(p_transform->position.x, 0.f, p_transform->position.z);
 
+		UINT islet_color;
+		bool is_islet = r_tile.entity->hasComponentOfType<IsletComponent>();
+
+		if (is_islet)
+		{
+			IsletComponent* p_islet_component = rEcs.getComponentFromEntity<IsletComponent>(r_tile.entity->getID());
+			
+			switch (p_islet_component->playerId)
+			{
+			case 0:
+			{
+				int offset = rand() % 100 - 50;
+				islet_color = PACK(
+					Clamp(PURPLE.r + offset, 0, 255),
+					Clamp(PURPLE.g + offset, 0, 255),
+					Clamp(PURPLE.b + offset, 0, 255),
+					255);
+				break;
+			}
+
+			case 1:
+			{
+				int offset = rand() % 100 - 50;
+				islet_color = PACK(
+					Clamp(RED.r + offset, 0, 255),
+					Clamp(RED.g + offset, 0, 255),
+					Clamp(RED.b + offset, 0, 255),
+					255);
+				break;
+			}
+
+			case 2:
+			{
+				int offset = rand() % 100 - 50;
+				islet_color = PACK(
+					Clamp(GREEN.r + offset, 0, 255),
+					Clamp(GREEN.g + offset, 0, 255),
+					Clamp(GREEN.b + offset, 0, 255),
+					255);
+				break;
+			}
+
+			case 3:
+			{
+				int offset = rand() % 100 - 50;
+				islet_color = PACK(
+					Clamp(BLUE.r + offset, 0, 255),
+					Clamp(BLUE.g + offset, 0, 255),
+					Clamp(BLUE.b + offset, 0, 255),
+					255);
+				break;
+			}
+			}
+		}
+
 		for (int i : r_mesh_indices)
 		{
 			xm_pos = XMLoadFloat3(&r_mesh_vertices[i]);
 			xm_pos = XMVector3Transform(xm_pos, xm_world);
 
 			XMStoreFloat3(&vertex_buffer[index_counter].position, xm_pos);
-			vertex_buffer[index_counter].color = PACK(p_color->red, p_color->green, p_color->blue, 1.f);
 			vertex_buffer[index_counter].normal = r_mesh_normals[i];
+
+			if (is_islet)
+			{
+				vertex_buffer[index_counter].color = islet_color;
+			}
+			else
+			{
+				vertex_buffer[index_counter].color = PACK(p_color->red, p_color->green, p_color->blue, 255);
+			}
 
 			index_counter++;
 		}
