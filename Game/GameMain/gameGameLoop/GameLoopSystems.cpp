@@ -22,6 +22,8 @@
 
 #include "..///gameUtility/CameraEcsFunctions.h"
 
+#include "../gameWeapons/WeaponSpawner.h"
+
 using namespace ecs;
 using namespace ecs::components;
 
@@ -330,6 +332,14 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
 
 				bitmap_pos_comp->mDrawArea.bottom = 150;
+			}
+		}
+
+		{
+			void* p_spawn_system;
+			if (p_spawn_system = CreateSystem<systems::MasterWeaponSpawner>(2))
+			{
+				((systems::MasterWeaponSpawner*)p_spawn_system)->Initialize();
 			}
 		}
 
@@ -706,6 +716,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			// Remove battlephase and start prephase
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
 			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
+			RemoveSystem(systems::MasterWeaponSpawner::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
 
 			//Change to overlook camera for the prephase

@@ -44,7 +44,7 @@ namespace ecs
 		private:
 
 			float mSpawnTimer;
-			const float SPAWN_RADIUS = 0.1f;
+			const float SPAWN_RADIUS = 7.f;
 			const float COOLDOWN_BASE_TIME = 9;
 			const int COOLDOWN_TIME_VARIANCE = 3;
 
