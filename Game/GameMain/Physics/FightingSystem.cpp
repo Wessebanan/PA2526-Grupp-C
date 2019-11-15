@@ -300,7 +300,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		// INVINCIBILITY
 		// (based on damage dealt)
 		InvincilibityTimer timer;
-		timer.mTime = log2f(damage) * BASE_INVINCIBILITY_TIME;
+		timer.mTime = (1.0f + log2f(damage)) * BASE_INVINCIBILITY_TIME;
 		createComponent<InvincilibityTimer>(collided_unit, timer);
 
 		// KNOCKBACK
