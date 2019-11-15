@@ -686,38 +686,61 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 	if (p_goal != nullptr)
 	{
-		this->mJumpVector.x = this->mX = p_goal->position.x - p_transform->position.x;
-		this->mJumpVector.y = this->mY = p_goal->position.y - p_ground_comp->mLastTileY;
-		this->mJumpVector.z = this->mZ = p_goal->position.z - p_transform->position.z;
-		this->mYDistance = p_goal->position.y - (p_ground_comp->mLastTileY);
-		this->mLength = sqrt(mX * mX + mZ * mZ);
-		p_dyn_move->mForward.x = this->mX / this->mLength;
-		p_dyn_move->mForward.z = this->mZ / this->mLength;
-
-		if (this->mYDistance > 0.3f && p_dyn_move->mOnGround)
+		float curr_tile_x;
+		float curr_tile_y;
+		float curr_tile_z;
+		float next_tile_x = 0;
+		float next_tile_z = 0;
+		float y_distance;
+		float length;
+		float length_of_vector;
+		float angle;
+		XMFLOAT3 jump_vector;
+		if (p_move_comp->path.size() > 1)//if there are 2 or more tiles left we get the tile after the next
 		{
-			this->mLength = PhysicsHelpers::CalculateDistance(p_goal->position, p_transform->position);//Length from unit to goal center
-			this->mLengthOfVector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
-			this->mAngle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
+			TransformComponent* p_next_goal = getComponentFromKnownEntity<TransformComponent>(p_move_comp->path.at(p_move_comp->path.size() - 2));
+			next_tile_x = p_next_goal->position.x - p_goal->position.x;
+			next_tile_z = p_next_goal->position.z - p_goal->position.z;
+		}
+		jump_vector.x = curr_tile_x = p_goal->position.x - p_transform->position.x;
+		jump_vector.y = curr_tile_y = p_goal->position.y - p_ground_comp->mLastTileY;
+		jump_vector.z = curr_tile_z = p_goal->position.z - p_transform->position.z;
+		y_distance = p_goal->position.y - (p_ground_comp->mLastTileY);
+		curr_tile_x = curr_tile_x + (next_tile_x * DEFAULT_USAGE_OF_TILE);//ad percentage of the direction from the tile next after "goal"
+		curr_tile_z = curr_tile_z + (next_tile_z * DEFAULT_USAGE_OF_TILE);
+		length = sqrt(curr_tile_x * curr_tile_x + curr_tile_z * curr_tile_z);
+		p_dyn_move->mForward.x = curr_tile_x / length;
+		p_dyn_move->mForward.z = curr_tile_z / length;
+
+		if (ECSUser::getComponentFromKnownEntity<UnitComponent>(p_goal->getEntityID()))//if the target is a unit we check y-value from same origin
+		{
+			y_distance = p_goal->position.y - p_transform->position.y;
+		}
+
+		if (y_distance > 0.3f && p_dyn_move->mOnGround)
+		{
+			length = PhysicsHelpers::CalculateDistance(p_goal->position, p_transform->position);//Length from unit to goal center
+			length_of_vector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
+			angle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
 			(XMLoadFloat3(&p_dyn_move->mVelocity)), XMVector3Normalize(XMLoadFloat3(&p_dyn_move->mDirection))));//Get angle between velocity and direction vector
 			//if their velocity vector is same or larger then the vector between their position and the edge of a tile
 			//and they move in the same direction as they are looking
-			if ((this->mLengthOfVector >= (this->mLength - this->mTileSizeLength)) && this->mAngle > 0.9f)
+			if ((length_of_vector >= (length - DEFAULT_TILE_SIDE_LENGTH)) && angle > 0.9f)
 			{
 				//modify values so that they jump more upwards
-				this->mJumpVector.x /= 7.f;
-				this->mJumpVector.y *= 8.f;
-				this->mJumpVector.z /= 7.f;
+				jump_vector.x /= 7.f;
+				jump_vector.y *= 8.f;
+				jump_vector.z /= 7.f;
 
 				ForceImpulseEvent jump;
-				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&this->mJumpVector)));//normalize the jump vector so that we just get direction
-				jump.mForce = ((sqrtf(2.f * this->mYDistance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.2f;
+				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&jump_vector)));//normalize the jump vector so that we just get direction
+				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.2f;
 				jump.mEntityID = entity.entity->getID();
-				if (this->mLengthOfVector < 0.25f)//if they are very slow and need to jump they get a boost
+				if (length_of_vector < 0.25f)//if they are very slow and need to jump they get a boost
 				{
 					jump.mForce *= 1.25f;
-					this->mJumpVector.x *= 1.1f;
-					this->mJumpVector.z *= 1.1f;
+					jump_vector.x *= 1.1f;
+					jump_vector.z *= 1.1f;
 
 				}
 				createEvent(jump);
@@ -1085,11 +1108,11 @@ ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
 
 void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, float delta)
 {
-	// DEATH EFFECTS
+	// DEATH EFFECTS	
 	DeadComponent* p_dead = getComponentFromKnownEntity<DeadComponent>(entity.entity->getID());
 	if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
 	{
-		// Splash Emitter - When drowned, spawn a water splash
+		// Splash Emitter - When drowned, spawn a water splash	
 		components::ParticleSpawnerComponent spawner;
 		components::SplashSpawnerComponent smoke;
 
@@ -1103,13 +1126,12 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 
 		createEntity(spawner, smoke);
 
-		// Doesnt work atm
+		// Doesnt work atm	
 		/*PlaySound sound;
 		sound.audioName = SPLOOSH_SOUND;
 		sound.soundFlags = SF_NONE;
 		ecs::ECSUser::createEvent(sound);*/
 	}
-
 	// saved fo future use
 				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
 	UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());

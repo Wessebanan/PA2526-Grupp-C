@@ -40,4 +40,5 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 		text_pos_comp, 
 		text_color_comp
 	);
+
 }
