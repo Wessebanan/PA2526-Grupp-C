@@ -592,11 +592,8 @@ namespace ecs
 
 #define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
 
-			// Fetch pointer to write data to in RenderBuffer
-			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::SceneObjectRenderSystem::GetPerInstanceSize());
-
 			// Count how many instances we have per scene object mesh
-			ZeroMemory(mObjectTypeCount, SCENE_OBJECT_COUNT * sizeof(UINT));
+			ZeroMemory(mInstancePerMesh, GAME_OBJECT_TYPE_MESH_COUNT * sizeof(UINT));
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
