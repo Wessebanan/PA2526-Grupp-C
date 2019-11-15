@@ -144,6 +144,15 @@ namespace ecs
 		void MasterWeaponSpawner::Initialize()
 		{
 			/*
+				We want weapons to spawn on the inner-island; not not the islets. To do this, we find and
+				store all the tiles we are interested in for spawning and randomizes a spawn on these when
+				spawn cooldown has reached zero.
+
+				Since tiles never change, we can store the interesting tiles early so we don't have to fetch
+				all tiles every update.
+			*/
+
+			/*
 				Fetch center tile position
 			*/
 
@@ -210,10 +219,7 @@ namespace ecs
 
 		void MasterWeaponSpawner::ResetSpawnTimer()
 		{
-			const float ORIGIN_OFFSET = 1;
-			const int VARIANCE = 1;
-
-			mSpawnTimer = ORIGIN_OFFSET + ((rand() % VARIANCE + 1) - VARIANCE / 2.f);
+			mSpawnTimer = COOLDOWN_BASE_TIME + ((rand() % COOLDOWN_TIME_VARIANCE + 1) - COOLDOWN_TIME_VARIANCE / 2.f);
 		}
 	}
 }
