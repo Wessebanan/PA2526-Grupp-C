@@ -44,8 +44,6 @@ cbuffer gSunOrto : register (b4)
 StructuredBuffer<float3> gVertexPositions		: register (t0);
 StructuredBuffer<float3> gVertexNormals			: register (t1);
 StructuredBuffer<float2> gVertexTexCoords		: register (t2);
-StructuredBuffer<float3> gVertexBlendWeight		: register (t3);
-StructuredBuffer<int4>   gVertexBlendIndices	: register (t4);
 
 struct VSOUT
 {

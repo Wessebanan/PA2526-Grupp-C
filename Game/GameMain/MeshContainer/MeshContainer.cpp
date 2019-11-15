@@ -21,6 +21,11 @@ ModelLoader::Mesh* MeshContainer::LoadMesh(GAME_OBJECT_TYPE meshType, std::strin
 	return GetInstance().LoadMeshInternal(meshType, filePath);
 }
 
+void MeshContainer::CreateGPUMesh(const GAME_OBJECT_TYPE meshType, const UINT vertexCount, const UINT indexCount, const graphics::VERTEX_DATA& vertexData, const void* pIndices)
+{
+	GetInstance().CreateGPUMeshInternal(meshType, vertexCount, indexCount, vertexData, pIndices);
+}
+
 ModelLoader::Mesh* MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE meshType) // static
 {
 	return GetInstance().GetMeshCPUInternal(meshType);
@@ -107,6 +112,22 @@ ModelLoader::Mesh* MeshContainer::LoadMeshInternal(GAME_OBJECT_TYPE meshType, st
 	mMeshRegions[meshType] = mesh_region;
 
 	return p_new_mesh;
+}
+
+void MeshContainer::CreateGPUMeshInternal(
+	const GAME_OBJECT_TYPE meshType,
+	const UINT vertexCount,
+	const UINT indexCount, 
+	const graphics::VERTEX_DATA& vertexData, 
+	const void* pIndices)
+{	
+	// Create GPU region for mesh
+	graphics::MeshRegion mesh_region;
+
+	mesh_region = mpMeshMgr->CreateMeshRegion(vertexCount, indexCount);
+	mpMeshMgr->UploadData(mesh_region, vertexData, pIndices);
+
+	mMeshRegions[meshType] = mesh_region;
 }
 
 ModelLoader::Mesh* MeshContainer::GetMeshCPUInternal(GAME_OBJECT_TYPE meshType)

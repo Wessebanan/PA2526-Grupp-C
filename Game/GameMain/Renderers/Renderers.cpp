@@ -10,11 +10,15 @@
 #include "../gameGraphics/TileRenderingPipeline.h"
 #include "../gameGraphics/OceanRenderingPipeline.h"
 #include "../Physics/PhysicsComponents.h"
+#include "../gameGraphics/GraphicsECSComponents.h"
+#include "../gameGraphics/ParticleECSComponents.h"
 
 
 #include "../gameGraphics/SSAOPipeline.h"
 #include "../gameGraphics/CombineSSAOPipeline.h"
 #include "../gameGraphics/BlurPipeline.h"
+
+#include "../gameTraps/TrapComponents.h"
 
 #define BARREL_COLOR		104, 72, 59
 #define BARREL_STONE_COLOR	60, 60, 60
@@ -195,6 +199,81 @@ namespace ecs
 		}
 #pragma endregion TileInstanceRenderSystem
 
+#pragma region ParticleRenderSystem
+		ParticleRenderSystem::ParticleRenderSystem()
+		{
+			mInstanceLayout = { 0 };
+			updateType = SystemUpdateType::MultiEntityUpdate;
+			typeFilter.addRequirement(components::ParticleComponent::typeID);
+
+		}
+
+		ParticleRenderSystem::~ParticleRenderSystem()
+		{
+
+		}
+
+		void ParticleRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		{
+			mParticleCount = (UINT)_entities.entities.size();
+
+			// Fetch pointer to write data to in RenderBuffer
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mParticleCount * GetPerInstanceSize());
+
+			uint32_t index = 0;
+			for (FilteredEntity tile : _entities.entities)
+			{
+				components::ParticleComponent* p_particle_comp = tile.getComponent<components::ParticleComponent>();
+
+				mpBuffer[index].x = p_particle_comp->Position.x;
+				mpBuffer[index].y = p_particle_comp->Position.y;
+				mpBuffer[index].z = p_particle_comp->Position.z;
+
+				mpBuffer[index].color = PACK(
+					p_particle_comp->Red, 
+					p_particle_comp->Green, 
+					p_particle_comp->Blue, 
+					p_particle_comp->Scale
+				);
+
+				index++;
+			}
+
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		}
+
+		void ParticleRenderSystem::Initialize(
+			graphics::RenderManager* pRenderMgr, 
+			graphics::RenderBuffer* pRenderBuffer,
+			graphics::StateManager* pStateMgr)
+		{
+			mpRenderMgr		= pRenderMgr;
+			mpStateMgr		= pStateMgr;
+			mpRenderBuffer	= pRenderBuffer;
+
+			mParticleMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
+
+			mInstanceLayout.MeshCount = 1;
+			mInstanceLayout.pMeshes = &mParticleMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mParticleCount;
+
+			const std::string vs = GetShaderFilepath("VS_Particle.cso");
+			const std::string ps = GetShaderFilepath("PS_Particle.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				systems::ParticleRenderSystem::GetPerInstanceSize());
+
+			//mStatePipeline = mpStateMgr->CreatePipelineState(NULL, NULL);
+		}
+
+		uint32_t ParticleRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(InputLayout);
+		}
+#pragma endregion ParticleRenderSystem
+
 #pragma region OceanInstanceRenderSystem
 		OceanInstanceRenderSystem::OceanInstanceRenderSystem()
 		{
@@ -230,7 +309,11 @@ namespace ecs
 				mpBuffer[index].y = p_transform_comp->position.y;
 				mpBuffer[index].z = p_transform_comp->position.z;
 
-				mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+				mpBuffer[index].color = PACK(
+					p_color_comp->red, 
+					p_color_comp->green, 
+					p_color_comp->blue, 
+					0);
 
 				index++;
 			}
@@ -353,7 +436,7 @@ namespace ecs
 			trpDesc.size = worldMeshVertexCount * stride;
 
 			mPipelineState = mpStateMgr->CreatePipelineState(new graphics::OceanRenderingPipeline(), &trpDesc);
-			
+			  
 			// Grabbing and storing all ocean tiles.
 			TypeFilter ocean_filter;
 			ocean_filter.addRequirement(components::OceanTileComponent::typeID);
@@ -509,7 +592,11 @@ namespace ecs
 
 #define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
 
-			ZeroMemory(mInstancePerMesh, sizeof(mInstancePerMesh));
+			// Fetch pointer to write data to in RenderBuffer
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::SceneObjectRenderSystem::GetPerInstanceSize());
+
+			// Count how many instances we have per scene object mesh
+			ZeroMemory(mObjectTypeCount, SCENE_OBJECT_COUNT * sizeof(UINT));
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
@@ -703,21 +790,24 @@ namespace ecs
 
 		SSAORenderSystem::~SSAORenderSystem()
 		{
+			mRenderMgr.Destroy();
 		}
 
 		void SSAORenderSystem::act(float _delta)
 		{
+#ifndef _DEBUG
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
 				mShaderSSAO);
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineBlur,
-				mShaderBlur_v);
+				mShaderBlur);
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
-				mShaderBlur);
+				mShaderBlur_v);
+#endif // !_DEBUG
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineCombine,
@@ -725,52 +815,10 @@ namespace ecs
 		}
 
 		void SSAORenderSystem::Initialize(
-			graphics::MeshManager* pMeshMgr,
 			const UINT clientWidth,
 			const UINT clientHeight)
 		{
-			mScreenSpaceTriangle = pMeshMgr->CreateMeshRegion(6, 0);
-			{
-				struct float3
-				{
-					float x, y, z;
-				};
-
-				struct float2
-				{
-					float x, y;
-				};
-
-				float3 vertices[6] =
-				{
-					-1.0f, -1.0f, 0.5f,
-					-1.0f,  1.0f, 0.5f,
-					 1.0f, -1.0f, 0.5f,
-
-					 1.0f, -1.0f, 0.5f,
-					-1.0f,  1.0f, 0.5f,
-					 1.0f,  1.0f, 0.5f,
-				};
-
-				float2 uv[6] =
-				{
-					0.0f, 1.0f,
-					0.0f, 0.0f,
-					1.0f, 1.0f,
-
-					1.0f, 1.0f,
-					0.0f, 0.0f,
-					1.0f, 0.0f,
-				};
-
-				graphics::VERTEX_DATA data = { NULL };
-				data.pVertexPositions = vertices;
-				data.pVertexTexCoords = uv;
-
-				pMeshMgr->UploadData(mScreenSpaceTriangle, data, NULL);
-			}
-
-			//graphics::RenderManager renderer_ssao;
+			mScreenSpaceTriangle = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
 			mRenderMgr.Initialize(0);
 
 			{
@@ -791,7 +839,6 @@ namespace ecs
 					&desc);
 			}
 
-			//UINT pipeline_combine;
 			{
 				graphics::COMBINE_PIPELINE_DESC desc = { };
 				desc.Width = clientWidth;
@@ -867,17 +914,17 @@ namespace ecs
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::WeaponRenderSystem::GetPerInstanceSize());
 
 			// Count how many instances we have per scene object mesh
-			ZeroMemory(mObjectTypeCount, WEAPON_COUNT * sizeof(UINT));
+			ZeroMemory(mObjectTypeCount, WEAPON_TYPE_COUNT * sizeof(UINT));
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::WeaponComponent* p_obj_comp = object.getComponent<components::WeaponComponent>();
-				mObjectTypeCount[p_obj_comp->mType - (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG+1)]++;
+				mObjectTypeCount[p_obj_comp->mType - (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1)]++;
 			}
 
 			// Set index to write to in RenderBuffer, per mesh
-			UINT object_type_individual_index[WEAPON_COUNT] = { 0 };
+			UINT object_type_individual_index[WEAPON_TYPE_COUNT] = { 0 };
 
-			for (int i = 1; i < WEAPON_COUNT; i++)
+			for (int i = 1; i < WEAPON_TYPE_COUNT; i++)
 			{
 				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
 			}
@@ -911,12 +958,12 @@ namespace ecs
 			/*
 				Set up mesh region for all meshes that will be rendered.
 			*/
-			for (int i = 0; i < WEAPON_COUNT; i++)
+			for (int i = 0; i < WEAPON_TYPE_COUNT; i++)
 			{
 				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE(i + (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1)));
 			}
 
-			mInstanceLayout.MeshCount = WEAPON_COUNT;
+			mInstanceLayout.MeshCount = WEAPON_TYPE_COUNT;
 			mInstanceLayout.pMeshes = mObjectMeshRegion;
 			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
 
@@ -940,6 +987,7 @@ namespace ecs
 		{
 			components::WeaponComponent* p_weapon_comp = rWeapon.getComponent<components::WeaponComponent>();
 			components::TransformComponent* p_transform_comp = rWeapon.getComponent<components::TransformComponent>();
+			components::ColorComponent* p_color_comp = rWeapon.getComponent<components::ColorComponent>();
 				
 			if (!p_weapon_comp->mOwnerEntity)
 			{
@@ -948,28 +996,156 @@ namespace ecs
 				*/
 
 				XMStoreFloat4x4(&rDestination, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
-				return;
+			}
+			else
+			{
+				/*
+					Calculate position of owner entity's hand.
+				*/
+
+				// Overwrite transform component by by transform of owner entity.
+				p_transform_comp = getComponentFromKnownEntity<TransformComponent>(p_weapon_comp->mOwnerEntity);
+
+				SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(p_weapon_comp->mOwnerEntity);
+				XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");
+
+				// Hand position in model space.
+				XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
+				XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
+
+				// Final world transform.
+				XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
+
+				XMStoreFloat4x4(&rDestination, world);
 			}
 
 			/*
-				Calculate position of owner entity's hand.
+				-- Set color
+				Since we have to align instance data, we use the last element of the 
+				world matrix to store color data. This is extraxted later in the
+				vertex shader.
 			*/
-
-			// Overwrite transform component by by transform of owner entity.
-			p_transform_comp = getComponentFromKnownEntity<TransformComponent>(p_weapon_comp->mOwnerEntity);
-
-			SkeletonComponent* p_skeleton = getComponentFromKnownEntity<SkeletonComponent>(p_weapon_comp->mOwnerEntity);
-			XMFLOAT4X4 right_hand_offset_matrix = p_skeleton->skeletonData.GetOffsetMatrixUsingJointName("Hand.r");	
-						
-			// Hand position in model space.
-			XMFLOAT3 origin_to_hand = ORIGIN_TO_HAND;
-			XMMATRIX hand_trans = XMMatrixTranslationFromVector(XMLoadFloat3(&origin_to_hand));
-
-			// Final world transform.
-			XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
-						
-			XMStoreFloat4x4(&rDestination, world);
+			rDestination._44 = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 255);
 		}
 #pragma endregion WeaponRenderSystem
-}
+
+#pragma region TrapRenderSystem
+		TrapRenderSystem::TrapRenderSystem()
+		{
+			updateType = SystemUpdateType::MultiEntityUpdate;
+			typeFilter.addRequirement(components::TrapComponent::typeID);
+			typeFilter.addRequirement(components::TransformComponent::typeID);
+			typeFilter.addRequirement(components::ColorComponent::typeID);
+		}
+
+		TrapRenderSystem::~TrapRenderSystem()
+		{
+			//
+		}
+
+		void TrapRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		{
+			/*
+				We don't know the order of entities EntityIterator, meaning that we can't expect
+				the entities to be ordered by mesh type like we want them to be in the RenderBuffer
+				(output of this function).
+
+				So, this function first calculate how many instances we have of each mesh. With this,
+				we can calculate from which index in the RenderBuffer we can start writing each mesh
+				to. Each mesh we care about in this function, that is tree, stone etc., has its own
+				index counter.
+
+				When rendering traps specific, we create two meshes for each trap. The first is the 
+				trap itself, and the other one is the same mesh but larger and black in color. This
+				gives a simple mesh "outline" for viewing meshes during development.
+			*/
+
+			mObjectCount = _entities.entities.size() * 2;
+
+			// Fetch pointer to write data to in RenderBuffer
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::TrapRenderSystem::GetPerInstanceSize());
+
+			// Count how many instances we have per scene object mesh
+			ZeroMemory(mObjectTypeCount, TRAP_TYPE_COUNT * sizeof(UINT));
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::TrapComponent* p_obj_comp = object.getComponent<components::TrapComponent>();
+				mObjectTypeCount[p_obj_comp->mObjectType - (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1)]++;
+				mObjectTypeCount[p_obj_comp->mObjectType - (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1)]++;
+			}
+
+			// Set index to write to in RenderBuffer, per mesh
+			UINT object_type_individual_index[TRAP_TYPE_COUNT] = { 0 };
+
+			for (int i = 1; i < TRAP_TYPE_COUNT; i++)
+			{
+				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
+			}
+
+			// Iterate all objects and write their data to the RenderBuffer
+			for (FilteredEntity trap : _entities.entities)
+			{
+				components::TrapComponent* p_trap_comp = trap.getComponent<components::TrapComponent>();
+				components::ColorComponent* p_color_comp = trap.getComponent<components::ColorComponent>();
+				components::TransformComponent* p_transform_comp = trap.getComponent<components::TransformComponent>();
+
+				// Get index, depending on mesh type
+				UINT& index = object_type_individual_index[p_trap_comp->mObjectType - (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1)];
+
+				/*
+					Create a world matrix out of the trap's transform.
+					Place color of trap in the last element of the world
+					matrix. Color will be extracted in the shader.
+				*/
+
+				components::TransformComponent outline_transform = *p_transform_comp;
+				outline_transform.position.y -= 0.002f;
+				outline_transform.scale = { 1.f, 1.f, 1.f };
+
+				// Set "outline" mesh
+				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(outline_transform));
+				mpBuffer[index++].world._44 = PACK(0, 0, 0, 255);
+
+				// Set trap mesh
+				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
+				mpBuffer[index++].world._44 = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 255);
+			}
+
+			mInstanceLayout.pInstanceCountPerMesh = mObjectTypeCount;
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		}
+
+		void TrapRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+		{
+			mpRenderMgr = pRenderMgr;
+
+			/*
+				Set up mesh region for all meshes that will be rendered.
+			*/
+			for (int i = 0; i < TRAP_TYPE_COUNT; i++)
+			{
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE(i + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1)));
+			}
+
+			mInstanceLayout.MeshCount = TRAP_TYPE_COUNT;
+			mInstanceLayout.pMeshes = mObjectMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
+
+			const std::string vs = GetShaderFilepath("VS_Trap.cso");
+			const std::string ps = GetShaderFilepath("PS_Ocean.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				systems::TrapRenderSystem::GetPerInstanceSize());
+
+			mpRenderBuffer = pRenderBuffer;
+		}
+
+		uint32_t TrapRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(TrapRenderSystem::InputLayout);
+		}
+#pragma endregion TrapRenderSystem
+	}
 }

@@ -104,6 +104,7 @@
     <ClCompile Include="..\..\InputHandler\InputHandler\InputBackend.cpp" />
     <ClCompile Include="..\..\InputHandler\InputHandler\webConnection.cpp" />
     <ClCompile Include="gameAI\AIEcsFunctions.cpp" />
+    <ClCompile Include="gameAI\AISystems.cpp" />
     <ClCompile Include="gameAI\GridEcsFunctions.cpp" />
     <ClCompile Include="gameAnimation\AnimationSystems.cpp" />
     <ClCompile Include="gameGameLoop\GameLoopSystems.cpp" />
@@ -112,6 +113,7 @@
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp" />
+    <ClCompile Include="gameGraphics\ParticleECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
     <ClCompile Include="gameRagdoll\Collision.cpp" />
@@ -120,10 +122,15 @@
     <ClCompile Include="gameSceneObjects\LootSystem.cpp" />
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\SSAOPipeline.cpp" />
+    <ClCompile Include="gameTraps\InitTraps.cpp" />
     <ClCompile Include="gameTraps\TrapSystems.cpp" />
+    <ClCompile Include="gameTraps\TrapCollisionSystem.cpp" />
+    <ClCompile Include="gameTraps\TrapSpawnerSystems.cpp" />
     <ClCompile Include="gameUtility\CameraEcsFunctions.cpp" />
     <ClCompile Include="gameUtility\CameraSystems.cpp" />
     <ClCompile Include="gameUtility\Timer.cpp" />
+    <ClCompile Include="gameWeapons\InitWeapons.cpp" />
+    <ClCompile Include="gameWeapons\WeaponSpawner.cpp" />
     <ClCompile Include="gameWorld\UpdateOceanSystem.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
     <ClCompile Include="gameAudio\AudioECSSystems.cpp" />
@@ -166,7 +173,10 @@
     <ClInclude Include="gameGraphics\GraphicsECSComponents.h" />
     <ClInclude Include="gameGraphics\GraphicsECSSystems.h" />
     <ClInclude Include="gameGraphics\InitGraphics.h" />
+    <ClInclude Include="gameGraphics\InitParticles.h" />
     <ClInclude Include="gameGraphics\OceanRenderingPipeline.h" />
+    <ClInclude Include="gameGraphics\ParticleECSComponents.h" />
+    <ClInclude Include="gameGraphics\ParticleECSSystems.h" />
     <ClInclude Include="gameGraphics\RenderBuffer.h" />
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
     <ClInclude Include="gameGraphics\SSAOPipeline.h" />
@@ -185,8 +195,11 @@
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
     <ClInclude Include="gameTraps\InitTraps.h" />
+    <ClInclude Include="gameTraps\TrapComponents.h" />
     <ClInclude Include="gameTraps\TrapEvents.h" />
     <ClInclude Include="gameTraps\TrapSystems.h" />
+    <ClInclude Include="gameTraps\TrapSpawnerSystems.h" />
+    <ClInclude Include="gameTraps\TrapCollisionSystem.h" />
     <ClInclude Include="gameUtility\CameraComponents.h" />
     <ClInclude Include="gameUtility\CameraEvents.h" />
     <ClInclude Include="gameUtility\CameraEcsFunctions.h" />
@@ -200,6 +213,9 @@
     <ClInclude Include="gameUtility\UtilityEcsFunctions.h" />
     <ClInclude Include="gameUtility\UtilityGraphics.h" />
     <ClInclude Include="gameUtility\UtilitySystems.h" />
+    <ClInclude Include="gameWeapons\InitWeapons.h" />
+    <ClInclude Include="gameWeapons\WeaponEvents.h" />
+    <ClInclude Include="gameWeapons\WeaponSpawner.h" />
     <ClInclude Include="gameWorld\InitWorld.h" />
     <ClInclude Include="gameWorld\WorldComponents.h" />
     <ClInclude Include="gameWorld\UpdateOceanSystem.h" />
@@ -248,6 +264,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Particle.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\PS_SSAO.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -260,11 +280,19 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Particle.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_SSAO.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Trap.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
@@ -280,6 +308,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Sites\mobileSite.html" />
+    <None Include="..\Sites\newSite.html" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
