@@ -147,11 +147,14 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 
 	itt = getComponentsOfType(components::GameLoopComponent::typeID);
 	components::GameLoopComponent* p_gl = (components::GameLoopComponent*)itt.next();
-	itt = getComponentsOfType(components::UserCommandComponent::typeID);
-	components::UserCommandComponent* p_cmd_comp = (components::UserCommandComponent*)itt.next();
+	/*itt = getComponentsOfType(components::UserCommandComponent::typeID);
+	components::UserCommandComponent* p_cmd_comp = (components::UserCommandComponent*)itt.next();*///not in use?
 
 	ss.append(L"Score: ");
-	ss.append(std::to_wstring(p_gl->mPlayerPoints[(int)p_army->playerID]));
+	if (p_gl != nullptr)
+	{
+		ss.append(std::to_wstring(p_gl->mPlayerPoints[(int)p_army->playerID]));
+	}
 	ss.append(L"\n");
 	//ss.append("Command: ");
 	//ss.append((p_cmd_comp->userCommands[(int)p_army->playerID].mCommand));
