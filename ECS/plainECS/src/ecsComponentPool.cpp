@@ -106,11 +106,17 @@ void ecs::ECSComponentPool::removeAllFlagged()
 	while (toRemove.size())
 	{
 		ID id = toRemove.back();
+
 		if (lookUpList.count(id))
 		{
-			void* p = lookUpList[id];
+			BaseComponent* p_component = (BaseComponent*)lookUpList[id];
+
+			// Fetch free function, which will call the components own destructor
+			ComponentFreeFunction ff = p_component->getFreeFunction();
+			ff(p_component);
+
 			lookUpList.erase(id);
-			allocator.free(p);
+			allocator.free((void*)p_component);
 			toRemove.pop_back();
 		}
 	}
