@@ -851,7 +851,7 @@ STATE ecs::systems::MoveStateSystem::CheckIfGoalIsMet(FilteredEntity& entity, fl
 		returnState = STATE::LOOT;
 		break;
 	case STATE::RALLY:
-		mMinimumDist = TILE_RADIUS * 1.5f;
+		mMinimumDist = TILE_RADIUS * 1.0f;
 		returnState = STATE::IDLE; 
 		break;
 	default:
