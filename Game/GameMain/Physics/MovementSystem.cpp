@@ -184,6 +184,8 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	if (transform_component->position.y <= -1.0f)
 	{
 		DeadComponent dead_comp;
+		dead_comp.cause = DeadComponent::CAUSE_DROWNING;
+		dead_comp.position = transform_component->position;
 		ecs::ECSUser::createComponent(transform_component->getEntityID(), dead_comp);
 	}
 	

@@ -10,6 +10,8 @@
 #include "..//gameAI/AIComponents.h"
 #include "..//gameAudio/AudioECSEvents.h"
 #include "..//gameAudio/AudioGlobals.h"
+#include <unordered_map>
+
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
 namespace ecs
@@ -41,6 +43,27 @@ namespace ecs
 			DamageSystem();
 			~DamageSystem();
 			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
+		};
+
+		SYSTEM(UnitColorSwitchSystem)
+		{
+			UnitColorSwitchSystem();
+			~UnitColorSwitchSystem();
+			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
+			void updateEntity(FilteredEntity & _entity, float _delta) override;
+		private:			
+			std::unordered_map<ID, float> mTimers;
+		};
+
+		/** Unit Invincibility Timer System:
+		* Handles invincibility components given to units when damage is taken 
+		* by deducting frame time from them and removing them when the time is up.
+		*/
+		SYSTEM(UnitInvincibilityTimerSystem)
+		{
+			UnitInvincibilityTimerSystem();
+			~UnitInvincibilityTimerSystem();			
+			void updateEntity(FilteredEntity & _entity, float _delta) override;		
 		};
 	} // systems
 } // ecs

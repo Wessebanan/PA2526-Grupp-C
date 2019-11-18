@@ -43,6 +43,15 @@ namespace ecs
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
+		class ClearGPURenderSystem : public ECSSystem<ClearGPURenderSystem>
+		{
+		public:
+			ClearGPURenderSystem();
+			virtual ~ClearGPURenderSystem() {}
+
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
+
 		class PipelineFakeStencilSystem : public ECSSystem<PipelineFakeStencilSystem>
 		{
 		public:

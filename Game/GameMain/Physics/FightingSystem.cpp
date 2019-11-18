@@ -211,6 +211,12 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			}
 		}
 
+		// Don't do anything with a unit that is invincible.
+		if (units.entities.at(i).entity->hasComponentOfType<InvincilibityTimer>())
+		{
+			continue;
+		}
+
 		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(current_unit);
 		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(current_unit);
 
@@ -282,7 +288,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		float velocity = movement / _delta;
 
 		// Capping velocity to not get insane velocity when units rotate the same frame.
-		velocity = (std::min)(2.0f, velocity);
+		velocity = (std::min)(5.0f, velocity);
 
 		// Calculating damage by multiplying weapon velocity and the base damage.
 		float damage = velocity * weapon_component->mBaseDamage;
@@ -291,10 +297,22 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		collided_constitution->mHealth -= damage;
 		
+		// INVINCIBILITY
+		// (based on damage dealt)
+		InvincilibityTimer timer;
+		timer.mTime = log2f(damage) * BASE_INVINCIBILITY_TIME;
+		createComponent<InvincilibityTimer>(collided_unit, timer);
+
 		// KNOCKBACK
 		ForceImpulseEvent knockback;
 		knockback.mDirection = getComponentFromKnownEntity<DynamicMovementComponent>(unit_entity->getID())->mDirection;
-		//XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMVectorSubtract(XMLoadFloat3(&weapon_bv->GetCenter()), XMLoadFloat3(&weapon_component->mPreviousPos))));
+
+		// Small y boost in knockback to send units FLYING.
+		knockback.mDirection.y += 0.3f;
+
+		// Normalize knockback direction so it's not CRAZY.
+		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
+		
 		knockback.mForce = BASE_KNOCKBACK * velocity * weapon_component->mKnockback;
 		knockback.mEntityID = collided_unit;
 		createEvent(knockback);
@@ -322,8 +340,114 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			damage_sound_event.invokerEntityId = collided_unit;
 			createEvent(damage_sound_event); // Play damage sound
 		}
+
+		// VISUAL
+		ColorSwitchEvent damage_flash;
+		damage_flash.mColor = WHITE;
+		damage_flash.mEntityID = collided_unit;
+		damage_flash.mTime = 0.05f;
+		createEvent(damage_flash);
 	}
 	
 	weapon_component->mPreviousPos = weapon_bv->GetCenter();
 	delete weapon_bv;
 }
+#pragma endregion
+#pragma region UnitColorSwitchSystem
+ecs::systems::UnitColorSwitchSystem::UnitColorSwitchSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(UnitComponent::typeID);
+	typeFilter.addRequirement(ColorComponent::typeID);
+	typeFilter.addRequirement(HealthComponent::typeID);
+
+	subscribeEventCreation(ColorSwitchEvent::typeID);
+}
+ecs::systems::UnitColorSwitchSystem::~UnitColorSwitchSystem()
+{
+
+}
+void ecs::systems::UnitColorSwitchSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
+{
+	ColorSwitchEvent* p_color_switch = static_cast<ColorSwitchEvent*>(_event);
+	
+	ColorComponent* p_unit_color = getComponentFromKnownEntity<ColorComponent>(p_color_switch->mEntityID);
+	
+	Color color = p_color_switch->mColor;
+	p_unit_color->red	= color.r;
+	p_unit_color->green = color.g;
+	p_unit_color->blue	= color.b;
+
+	// Inserting given time by event into [ID] in unordered_map.
+	mTimers[p_color_switch->mEntityID] = p_color_switch->mTime;
+}
+void ecs::systems::UnitColorSwitchSystem::updateEntity(FilteredEntity& _entity, float _delta)
+{
+		ID current = _entity.entity->getID();
+
+		// Checking to see if the current entity has a color switch timer.
+		auto timer = mTimers.find(current);
+		if (timer != mTimers.end())
+		{
+			// Decreasing the timer by delta and erasing if time's up.
+			timer->second -= _delta;
+			if (timer->second < 0.0f)
+			{
+				mTimers.erase(timer->first);
+			}
+			// Return if unit has a timer.
+			return;
+		}
+
+		UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(current);
+		ColorComponent* p_color = getComponentFromKnownEntity<ColorComponent>(current);
+		HealthComponent* p_health = getComponentFromKnownEntity<HealthComponent>(current);
+
+		Color color = Color(0, 0, 0);
+		switch (p_unit->playerID)
+		{
+		case PLAYER1:		
+			color = PLAYER1_COLOR;
+			break;		
+		case PLAYER2:
+			color = PLAYER2_COLOR;
+			break;
+		case PLAYER3:
+			color = PLAYER3_COLOR;
+			break;
+		case PLAYER4:
+			color = PLAYER4_COLOR;
+			break;
+		}
+
+		// Finding what percentage of health remains for color calculation.
+		float health_fraction = p_health->mHealth / p_health->mBaseHealth;
+		
+		// Applying health fraction to color channels to make units darker if damaged.
+		p_color->red	= (uint8_t)((float)color.r * health_fraction);
+		p_color->green	= (uint8_t)((float)color.g * health_fraction);
+		p_color->blue	= (uint8_t)((float)color.b * health_fraction);
+}
+#pragma endregion
+#pragma region UnitInvincibilityTimerSystem
+ecs::systems::UnitInvincibilityTimerSystem::UnitInvincibilityTimerSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(InvincilibityTimer::typeID);
+}
+
+ecs::systems::UnitInvincibilityTimerSystem::~UnitInvincibilityTimerSystem()
+{
+
+}
+
+void ecs::systems::UnitInvincibilityTimerSystem::updateEntity(FilteredEntity& _entity, float _delta)
+{
+	InvincilibityTimer* timer = getComponentFromKnownEntity<InvincilibityTimer>(_entity.entity->getID());
+	timer->mTime -= _delta;
+	if (timer->mTime < 0.0f)
+	{
+		removeComponent(_entity.entity->getID(), InvincilibityTimer::typeID);
+	}
+}
+#pragma endregion

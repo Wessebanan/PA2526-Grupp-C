@@ -49,6 +49,10 @@ namespace graphics
 			0);
 	}
 
+	void TileRenderingPipeline::Clear(ID3D11DeviceContext4* pContext4)
+	{
+	}
+
 	void TileRenderingPipeline::SetState(ID3D11DeviceContext4* pContext4)
 	{
 		pContext4->VSSetConstantBuffers(5, 1, &mpDataBuffer);

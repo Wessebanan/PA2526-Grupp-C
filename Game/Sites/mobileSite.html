@@ -14,6 +14,14 @@
             text-align: center;
             color: white;
             width: 90%;
+
+            /* Makes the website unselectable */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         button {
@@ -55,7 +63,7 @@
         }
 
         #trapContainer {
-            font-size: 20px;
+            font-size: 15px;
             height: 10%;
         }
 
@@ -106,7 +114,8 @@
 
         .CommButtonL {
             width: 45%;
-            height: 30%;
+            height: 20%;
+            padding-top: 10%;
             background-color: #666;
             color: black;
             font-display: auto;
@@ -116,7 +125,8 @@
         
         .CommButtonR {
             width: 45%;
-            height: 30%;
+            height: 20%;
+            padding-top: 10%;
             background-color: #666;
             color: black;
             font-display: auto;
@@ -132,7 +142,8 @@
 
         #PingButton {
             width: 55%;
-            height: 100px;
+            height: 80px;
+            padding-top: 20px;
             float: left right;
             margin-left: auto;
             margin-right: auto;
@@ -141,7 +152,7 @@
         }
 
         h3 {
-            font-size: 200%;
+            font-size: 110%;
         }
 
         #commandField {
@@ -327,7 +338,13 @@
         }
         else if(msg == "pprep")
         {
-        openPrep();
+            document.getElementById('b0').style.display = "block";
+            document.getElementById('b1').style.display = "block";
+            document.getElementById('b2').style.display = "block";
+            document.getElementById('b3').style.display = "block";
+
+            openPrep();
+            
         }
         else if(msg == "pbattle")
         {
@@ -392,8 +409,36 @@
         {
         socket.send("ping");
         }
+
+        function interpertTrapIndex(id, trap)
+        {
+            var trapText = ""; 
+            switch (trap)
+            {
+                case 0: // FIRE
+                    trapText = "FIRE";
+                break;
+                case 1: // FREEZE
+                    trapText = "FREEZE";
+                break;
+                case 2: // SPRING
+                    trapText = "SPRING";
+                break;
+                default:
+                    trapText = "ERROR";
+                break;
+            }
+            
+
+
+            document.getElementById(id).innerHTML = trapText;
+        }
+
         function openPrep()
         {
+        window.selectedTrapMsg = 0;
+        window.selectedTileMsg = 0;
+        window.selectedButtonID = 0;
         document.getElementById('prepField').style.display = "block";
         document.getElementById('readyButton').style.display = "block";
         document.getElementById('commandField').style.display = "none";
@@ -402,18 +447,17 @@
         resetAreaColors();
         resetTrapColors();
 
-        var trapCount = 10;
+        var trapCount = 3;
 
         window.trap0 = Math.floor(Math.random() * trapCount);
         window.trap2 = Math.floor(Math.random() * trapCount);
         window.trap3 = Math.floor(Math.random() * trapCount);
         window.trap1 = Math.floor(Math.random() * trapCount);
 
-
-        document.getElementById('b0').innerHTML = window.trap0.toString();
-        document.getElementById('b1').innerHTML = window.trap1.toString();
-        document.getElementById('b2').innerHTML = window.trap2.toString();
-        document.getElementById('b3').innerHTML = window.trap3.toString();
+        interpertTrapIndex('b0', window.trap0);
+        interpertTrapIndex('b1', window.trap1);
+        interpertTrapIndex('b2', window.trap2);
+        interpertTrapIndex('b3', window.trap3);
         }
 
         function openCommand()
@@ -422,6 +466,8 @@
         document.getElementById('readyButton').style.display = "none";
         document.getElementById('commandField').style.display = "block";
         document.getElementById('startfield').style.display = "none";
+        
+        resetCommandColors()
         }
 
         // BUTTON FUNCTIONS
@@ -579,10 +625,10 @@
     </div>
     <div id='prepField' class='buttonField' style='display:none;padding:3px'>
         <div id="trapContainer">
-            <div class='trapButton' onclick="setTrap(0)" id='b0'>0</div>
-            <div class='trapButton' onclick="setTrap(1)" id='b1'>1</div>
-            <div class='trapButton' onclick="setTrap(2)" id='b2'>2</div>
-            <div class='trapButton' onclick="setTrap(3)" id='b3'>3</div>
+            <div id='b0' class='trapButton' onclick="setTrap(0)">0</div>
+            <div id='b1' class='trapButton' onclick="setTrap(1)">1</div>
+            <div id='b2' class='trapButton' onclick="setTrap(2)">2</div>
+            <div id='b3' class='trapButton' onclick="setTrap(3)">3</div>
         </div>
 
         </br>
@@ -636,7 +682,7 @@
         Connected to:
         <script>document.write(ip_address);</script>
     </p>
-</body>
+</bodycontenteditable=false>
 
 </html>
 

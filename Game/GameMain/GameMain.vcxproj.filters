@@ -45,9 +45,6 @@
     <ClCompile Include="gameUtility\Timer.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="MeshContainer\MeshContainer.cpp">
-      <Filter>Meshes</Filter>
-    </ClCompile>
     <ClCompile Include="Renderers\Renderers.cpp">
       <Filter>Renderers</Filter>
     </ClCompile>
@@ -104,6 +101,30 @@
     </ClCompile>
     <ClCompile Include="gameTraps\TrapSystems.cpp">
       <Filter>Traps</Filter>
+    </ClCompile>
+    <ClCompile Include="gameAI\AISystems.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="gameWeapons\WeaponSpawner.cpp">
+      <Filter>Weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="gameWeapons\InitWeapons.cpp">
+      <Filter>Init</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshContainer\MeshContainer.cpp">
+      <Filter>Meshes</Filter>
+    </ClCompile>
+    <ClCompile Include="gameGraphics\ParticleECSSystems.cpp">
+      <Filter>Graphics\ECS</Filter>
+    </ClCompile>
+    <ClCompile Include="gameTraps\TrapSpawnerSystems.cpp">
+      <Filter>Traps</Filter>
+    </ClCompile>
+    <ClCompile Include="gameTraps\TrapCollisionSystem.cpp">
+      <Filter>Traps</Filter>
+    </ClCompile>
+    <ClCompile Include="gameTraps\InitTraps.cpp">
+      <Filter>Init</Filter>
     </ClCompile>
     <ClCompile Include="gameGraphics\FakeStencilPipeline.cpp" />
   </ItemGroup>
@@ -346,11 +367,38 @@
     <ClInclude Include="gameGraphics\OceanRenderingPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="gameGraphics\InitParticles.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\ParticleECSSystems.h">
+      <Filter>Graphics\ECS</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\ParticleECSComponents.h">
+      <Filter>Graphics\ECS</Filter>
+    </ClInclude>
     <ClInclude Include="gameTraps\TrapSystems.h">
       <Filter>Traps</Filter>
     </ClInclude>
-    <ClInclude Include="gameTraps\InitTraps.h">
+    <ClInclude Include="gameTraps\TrapComponents.h">
       <Filter>Traps</Filter>
+    </ClInclude>
+    <ClInclude Include="gameTraps\TrapSpawnerSystems.h">
+      <Filter>Traps</Filter>
+    </ClInclude>
+    <ClInclude Include="gameTraps\TrapCollisionSystem.h">
+      <Filter>Traps</Filter>
+    </ClInclude>
+    <ClInclude Include="gameWeapons\WeaponSpawner.h">
+      <Filter>Weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="gameWeapons\WeaponEvents.h">
+      <Filter>Weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="gameWeapons\InitWeapons.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gameTraps\InitTraps.h">
+      <Filter>Init</Filter>
     </ClInclude>
     <ClInclude Include="gameGraphics\FakeStencilPipeline.h">
       <Filter>Graphics</Filter>
@@ -420,6 +468,9 @@
     <Filter Include="Traps">
       <UniqueIdentifier>{12d7a6d1-4f26-4de3-9c87-1c2e98b055f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Weapons">
+      <UniqueIdentifier>{a5ea2955-cdc5-4843-a6cf-fb12e4929899}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="SceneObjects">
@@ -464,6 +515,12 @@
     <FxCompile Include="gameUtility\VS_Tile.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Particle.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Particle.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\PS_Ocean.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -482,5 +539,12 @@
     <FxCompile Include="gameGraphics\Shaders\PS_Army.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Trap.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Sites\mobileSite.html" />
+    <None Include="..\Sites\newSite.html" />
   </ItemGroup>
 </Project>

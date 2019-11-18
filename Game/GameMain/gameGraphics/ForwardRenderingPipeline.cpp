@@ -266,7 +266,20 @@ namespace graphics
 			pDevice4->CreateSamplerState(&desc, &mpSamplerState);
 		}
 
+		mClearColor[0] = pDesc->ClearColor[0];
+		mClearColor[1] = pDesc->ClearColor[1];
+		mClearColor[2] = pDesc->ClearColor[2];
+
 		return S_OK;
+	}
+
+	void ForwardRenderingPipeline::Clear(ID3D11DeviceContext4* pContext4)
+	{
+		float color_clear[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		pContext4->ClearRenderTargetView(mpRenderTargets[0], mClearColor);
+		pContext4->ClearRenderTargetView(mpRenderTargets[1], color_clear);
+
+		pContext4->ClearDepthStencilView(mpDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
 	void ForwardRenderingPipeline::Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData)
@@ -280,13 +293,6 @@ namespace graphics
 			&pData->ViewMatrix,
 			sizeof(pData->ViewMatrix),
 			0);
-
-		float color[4] = { pData->Red, pData->Green, pData->Blue, 1.0f };
-		float color_clear[4] = { 0.0f, 0.0f, 0.0f, 1.0f };		
-		pContext4->ClearRenderTargetView(mpRenderTargets[0], color);
-		pContext4->ClearRenderTargetView(mpRenderTargets[1], color_clear);
-
-		pContext4->ClearDepthStencilView(mpDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
 	void ForwardRenderingPipeline::Begin(ID3D11DeviceContext4* pContext4)

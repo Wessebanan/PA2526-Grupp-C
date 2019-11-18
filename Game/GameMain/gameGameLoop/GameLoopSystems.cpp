@@ -300,21 +300,38 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 		// Create Battlephase system
 		CreateSystem<systems::BattlePhaseSystem>(1);
-		CreateSystem<systems::UpdateDynamicCameraSystem>(1);
+
+		if (!GetSystem<systems::UpdateCameraSystem>())
+		{
+			CreateSystem<systems::UpdateDynamicCameraSystem>(1);
 
 
-		// Change to dynamic camera
-		itt = getComponentsOfType<CameraComponent>();
-		CameraComponent* cam_comp = (CameraComponent*)itt.next();
+			// Change to dynamic camera
+			itt = getComponentsOfType<CameraComponent>();
+			CameraComponent* cam_comp = (CameraComponent*)itt.next();
 
-		removeEntity(cam_comp->getEntityID());
+			removeEntity(cam_comp->getEntityID());
 
-		TransformComponent new_transf_comp;
-		CameraComponent new_cam_comp;
+			TransformComponent new_transf_comp;
+			CameraComponent new_cam_comp;
 
-		CameraEcsFunctions::CreateDynamicCamera(new_transf_comp, new_cam_comp);
+			CameraEcsFunctions::CreateDynamicCamera(new_transf_comp, new_cam_comp);
 
-		createEntity(new_transf_comp, new_cam_comp);
+			createEntity(new_transf_comp, new_cam_comp);
+		}
+		
+		itt = getComponentsOfType<components::UIBitmapComponent>();
+		UIBitmapComponent* bitmap_comp;
+
+		while (bitmap_comp = (UIBitmapComponent*)itt.next())
+		{
+			if (bitmap_comp->mName == "areaOverlay")
+			{
+				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+				bitmap_pos_comp->mDrawArea.bottom = 150;
+			}
+		}
 
 		/**************************************/
 		/********** USED FOR DEBUG ***********/
@@ -343,40 +360,13 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 	events::CountdownStartEvent start_countdown;
 	createEvent(start_countdown);
 	/* TEAM COLORS */
-	struct uint4
+	Color army_colors[] =
 	{
-		UINT r, g, b, a;
+		PLAYER1_COLOR,
+		PLAYER2_COLOR,
+		PLAYER3_COLOR,
+		PLAYER4_COLOR
 	};
-
-	uint4 army_colors[4];
-
-
-	// Player 1 - Red
-	army_colors[0].r = 117;
-	army_colors[0].g = 1;
-	army_colors[0].b = 1;
-	army_colors[0].a = 1;
-
-	// Player 2 - Purple
-	army_colors[1].r = 74;
-	army_colors[1].g = 1;
-	army_colors[1].b = 117;
-	army_colors[1].a = 2;
-
-	// Player 3 - Blue
-	army_colors[2].r = 47;
-	army_colors[2].g = 62;
-	army_colors[2].b = 236;
-	army_colors[2].a = 3;
-
-	// Player 4 - Green
-	army_colors[3].r = 0;
-	army_colors[3].g = 93;
-	army_colors[3].b = 5;
-	army_colors[3].a = 4;
-
-	/* END	*/
-
 
 	//Create Components for a "Unit" entity.
 	ecs::components::TransformComponent transform;
@@ -453,12 +443,31 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			// Create and init skeleton comp
 
 			ecs::components::SkeletonComponent skele_comp;
+			ecs::components::AnimationSpeedComponent ani_speed_comp;
+			ani_speed_comp.factor = 1.0f;
 
 			//ModelLoader::UniqueSkeletonData* skeletonData = &s.getComponent<ecs::components::SkeletonComponent>()->skeletonData;
 			//skeletonData->Init(MeshContainer::GetMeshCPU(MESH_TYPE::MESH_TYPE_UNIT)->GetSkeleton());
 			//skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
 
-			temp_entity = createEntity(transform, unit, idle_state, color_comp, skele_comp); //
+			ecs::BaseComponent* components[] =
+			{
+				&transform, 
+				&unit, 
+				&idle_state, 
+				&color_comp, 
+				&skele_comp, 
+				&ani_speed_comp
+			};
+
+			ecs::ComponentList list;
+
+			list.initialInfo = components;
+			list.componentCount = 6;
+
+			//// ENTITIES
+			temp_entity = createEntity(list);
+
 			PoiComponent poi_comp;
 			createComponent<PoiComponent>(temp_entity->getID(), poi_comp);
 			p_army->unitIDs.push_back(temp_entity->getID());
@@ -715,6 +724,20 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 
 			this->mRoundOver = false;
 			this->mRoundOverDuration = 0.0f;
+
+			// Enlarge the overlay
+			itt = getComponentsOfType<components::UIBitmapComponent>();
+			UIBitmapComponent* bitmap_comp;
+
+			while (bitmap_comp = (UIBitmapComponent*)itt.next())
+			{
+				if (bitmap_comp->mName == "areaOverlay")
+				{
+					ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+					bitmap_pos_comp->mDrawArea.bottom = 800;
+				}
+			}
 		}
 
 
