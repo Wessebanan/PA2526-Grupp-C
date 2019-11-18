@@ -111,6 +111,9 @@ namespace ecs
 			p_mgr->mgr.UpdatePipeline(p_pipeline->pipeline, &p_pipeline->data);
 		}
 
+
+
+
 		PipelineFakeStencilSystem::PipelineFakeStencilSystem()
 		{
 			updateType = EntityUpdate;

@@ -88,7 +88,7 @@ namespace graphics {
 
 	void graphics::FakeStencilPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
-		float clear[4] = { 0.0f };
+		float clear[4] = { 8.0f, 0.0f, 0.0f, 0.0f };
 		ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
 		pContext4->PSSetShaderResources(6, 1, nullSRV); 
 		pContext4->ClearRenderTargetView(this->mpRenderTarget, clear);
