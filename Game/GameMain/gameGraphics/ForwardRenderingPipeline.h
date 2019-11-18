@@ -48,6 +48,7 @@ namespace graphics
 		ID3D11Texture2D* mpDepthTexture;
 		ID3D11DepthStencilView* mpDepthBuffer;
 		ID3D11ShaderResourceView* mpDepthResource;
+		ID3D11DepthStencilState* mpDepthStencilState;
 
 		ID3D11SamplerState* mpSamplerState;
 	};

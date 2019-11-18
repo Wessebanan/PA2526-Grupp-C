@@ -69,7 +69,7 @@ namespace graphics
 			texture_desc.ArraySize = 1;
 			texture_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 			texture_desc.CPUAccessFlags = 0;
-			texture_desc.Format = DXGI_FORMAT_R32_TYPELESS;
+			texture_desc.Format = DXGI_FORMAT_R24G8_TYPELESS;
 			texture_desc.SampleDesc = { 1, 0 };
 			texture_desc.Usage = D3D11_USAGE_DEFAULT;
 
@@ -77,18 +77,51 @@ namespace graphics
 
 			D3D11_DEPTH_STENCIL_VIEW_DESC depth_desc = {};
 			depth_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-			depth_desc.Format = DXGI_FORMAT_D32_FLOAT;
+			depth_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 			depth_desc.Texture2D.MipSlice = 0;
 
 			pDevice4->CreateDepthStencilView(mpDepthTexture, &depth_desc, &mpDepthBuffer);
 		
 			D3D11_SHADER_RESOURCE_VIEW_DESC srv_desc = {};
 			srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-			srv_desc.Format = DXGI_FORMAT_R32_FLOAT;
+			srv_desc.Format = DXGI_FORMAT_X24_TYPELESS_G8_UINT;
 			srv_desc.Texture2D.MipLevels = 1;
 			srv_desc.Texture2D.MostDetailedMip = 0;
 
 			pDevice4->CreateShaderResourceView(mpDepthTexture, &srv_desc, &mpDepthResource);
+
+
+		}
+		// Create depth stencil state
+		{
+			D3D11_DEPTH_STENCIL_DESC dsDesc;
+
+			// Depth test parameters
+			dsDesc.DepthEnable = true;
+			dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+			// Stencil test parameters
+			dsDesc.StencilEnable = true;
+			dsDesc.StencilReadMask = 0xFF;
+			dsDesc.StencilWriteMask = 0xFF;
+
+			// Stencil operations if pixel is front-facing
+			dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+			dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_REPLACE;
+			// Write to the stencil on pass
+			dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;
+			dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+			// Stencil operations if pixel is back-facing
+			dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+			dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+			dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+			dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+			// Create depth stencil state
+			pDevice4->CreateDepthStencilState(&dsDesc, &mpDepthStencilState);
+
 
 		}
 
@@ -267,6 +300,7 @@ namespace graphics
 		pContext4->OMSetRenderTargets(2, mpRenderTargets, mpDepthBuffer);
 
 		pContext4->VSSetConstantBuffers(1, 2, mpMatrixBuffers);
+		pContext4->OMSetDepthStencilState(this->mpDepthStencilState, 0);
 	}
 
 	void ForwardRenderingPipeline::PreProcess(

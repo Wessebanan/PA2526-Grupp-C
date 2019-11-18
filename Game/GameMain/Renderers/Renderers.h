@@ -60,7 +60,7 @@ namespace ecs
 			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
 
 			static uint32_t GetPerInstanceSize();
-
+			UINT mRenderProgram;
 		private:
 
 			struct InputLayout
@@ -75,7 +75,7 @@ namespace ecs
 			int mFrameCounter;
 			int mAnimationFrameCounter;
 
-			UINT mRenderProgram;
+
 			graphics::RenderManager* mpRenderMgr;
 			graphics::ShaderModelLayout mInstanceLayout;
 

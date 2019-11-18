@@ -31,26 +31,26 @@ PSOut PS(VSOut input) : SV_Target
 	// Valid stencil values are 1, 5, 26, 105 that correspond to different colours
 	// Assuming all adjacent pixels are stenciled
 	// Colors should be set to the various army colors
-	float4 finalColor = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	float4 final_color = float4(0.0f, 0.0f, 0.0f, 1.0f);
 	if (stencil_sum >= 105)
 	{
-		finalColor = float4(0.5f, 0.8f, 0.0f, 1.0f);
+		final_color = float4(0.5f, 0.8f, 0.0f, 1.0f);
 	}
 	else if (stencil_sum >= 26)
 	{
-		finalColor = float4(0.5f, 0.2f, 0.9f, 1.0f);
+		final_color = float4(0.5f, 0.2f, 0.9f, 1.0f);
 	}
 	else if (stencil_sum >= 5)
 	{
-		finalColor.x = 1.0f;
+		final_color.x = 1.0f;
 	}
 	else if (stencil_sum > 0)
 	{
-		finalColor.y = 1.0f;
+		final_color.y = 1.0f;
 	}
 
 
-	output.Color = finalColor;
+	output.Color = final_color;
 
 	if (stencil_sum > 0)
 		return output;

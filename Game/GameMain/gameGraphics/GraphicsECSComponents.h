@@ -7,6 +7,7 @@
 #include "RenderBuffer.h"
 #include "ShadowMapPipeline.h"
 #include "ForwardRenderingPipeline.h"
+#include "FakeStencilPipeline.h"
 
 namespace ecs
 {
@@ -47,6 +48,13 @@ namespace ecs
 		};
 
 		struct PipelineForwardComponent : public ECSComponent<PipelineForwardComponent>
+		{
+			graphics::FORWARD_RENDERING_PIPELINE_DESC pipelineDesc;
+			graphics::FORWARD_RENDERING_PIPELINE_DATA data;
+			UINT pipeline;
+		};
+
+		struct PipelineFakeStencilComponent : public ECSComponent<PipelineFakeStencilComponent>
 		{
 			graphics::FORWARD_RENDERING_PIPELINE_DESC pipelineDesc;
 			graphics::FORWARD_RENDERING_PIPELINE_DATA data;

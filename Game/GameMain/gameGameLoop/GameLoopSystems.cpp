@@ -343,33 +343,37 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 	events::CountdownStartEvent start_countdown;
 	createEvent(start_countdown);
 	/* TEAM COLORS */
-	struct uint3
+	struct uint4
 	{
-		UINT r, g, b;
+		UINT r, g, b, a;
 	};
 
-	uint3 army_colors[4];
+	uint4 army_colors[4];
 
 
 	// Player 1 - Red
 	army_colors[0].r = 117;
 	army_colors[0].g = 1;
 	army_colors[0].b = 1;
+	army_colors[0].a = 1;
 
 	// Player 2 - Purple
 	army_colors[1].r = 74;
 	army_colors[1].g = 1;
 	army_colors[1].b = 117;
+	army_colors[1].a = 2;
 
 	// Player 3 - Blue
 	army_colors[2].r = 47;
 	army_colors[2].g = 62;
 	army_colors[2].b = 236;
+	army_colors[2].a = 3;
 
 	// Player 4 - Green
 	army_colors[3].r = 0;
 	army_colors[3].g = 93;
 	army_colors[3].b = 5;
+	army_colors[3].a = 4;
 
 	/* END	*/
 
@@ -444,6 +448,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			color_comp.red = army_colors[i].r;
 			color_comp.green = army_colors[i].g;
 			color_comp.blue = army_colors[i].b;
+			color_comp.alpha = army_colors[i].a;
 
 			// Create and init skeleton comp
 

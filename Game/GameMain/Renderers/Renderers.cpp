@@ -65,7 +65,7 @@ namespace ecs
 					p_color_comp->red,
 					p_color_comp->green,
 					p_color_comp->blue,
-					0);
+					p_color_comp->alpha);
 
 				memcpy(
 					mpBuffer[index].boneMatrices,

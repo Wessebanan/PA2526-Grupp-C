@@ -105,6 +105,7 @@
     <ClCompile Include="gameTraps\TrapSystems.cpp">
       <Filter>Traps</Filter>
     </ClCompile>
+    <ClCompile Include="gameGraphics\FakeStencilPipeline.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -351,6 +352,9 @@
     <ClInclude Include="gameTraps\InitTraps.h">
       <Filter>Traps</Filter>
     </ClInclude>
+    <ClInclude Include="gameGraphics\FakeStencilPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -439,7 +443,6 @@
     <FxCompile Include="gameGraphics\VS_Transformation.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl" />
     <FxCompile Include="gameGraphics\Shaders\VS_SSAO.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -471,6 +474,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Outline.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Skinning.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Army.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

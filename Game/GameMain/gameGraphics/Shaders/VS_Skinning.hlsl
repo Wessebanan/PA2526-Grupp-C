@@ -55,6 +55,7 @@ struct VSOut
 	// SSAO
 	float3 normalViewSpace		: NORMAL1;
 	float3 positionViewSpace	: POSITION2;
+
 };
 
 VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
@@ -93,6 +94,8 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 
 	output.normalViewSpace		= mul(wvCam, float4(gVertexNormals[VertexID], 0.0f)).xyz;
 	output.positionViewSpace	= mul(wvCam, v).xyz;
+
+	output.positionViewSpace.x	= (float)unpack(color).a; // Hijacked for outline army identifier
 
 	return output;
 }
