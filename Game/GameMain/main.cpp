@@ -16,7 +16,6 @@
 
 #include "gameSceneObjects/InitSceneObjectsh.h"
 #include "gameSceneObjects/InitBiomes.h"
-#include "gameSceneObjects/InitLoot.h"
 
 #include "gameUtility/UtilityEcsFunctions.h"
 
@@ -278,7 +277,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
-	InitSpawnLootSystem(rECS);
 	InitWeapons(rECS);
 
 	InitTraps(rECS);

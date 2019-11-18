@@ -66,9 +66,6 @@
     <ClCompile Include="gameAnimation\AnimationSystems.cpp">
       <Filter>Animation</Filter>
     </ClCompile>
-    <ClCompile Include="gameSceneObjects\LootSystem.cpp">
-      <Filter>SceneObjects</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\InputHandler\InputHandler\webConnection.cpp">
       <Filter>Init</Filter>
     </ClCompile>
@@ -298,12 +295,6 @@
     </ClInclude>
     <ClInclude Include="gameAnimation\AnimationSystems.h">
       <Filter>Animation</Filter>
-    </ClInclude>
-    <ClInclude Include="gameSceneObjects\LootSystem.h">
-      <Filter>SceneObjects</Filter>
-    </ClInclude>
-    <ClInclude Include="gameSceneObjects\InitLoot.h">
-      <Filter>Init</Filter>
     </ClInclude>
     <ClInclude Include="gameGraphics\SSAOPipeline.h">
       <Filter>Graphics</Filter>

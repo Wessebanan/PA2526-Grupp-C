@@ -119,7 +119,6 @@
     <ClCompile Include="gameRagdoll\Collision.cpp" />
     <ClCompile Include="gameRagdoll\CollisionObject.cpp" />
     <ClCompile Include="gameRagdoll\Ragdoll.cpp" />
-    <ClCompile Include="gameSceneObjects\LootSystem.cpp" />
     <ClCompile Include="gameGraphics\TileRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\SSAOPipeline.cpp" />
     <ClCompile Include="gameTraps\InitTraps.cpp" />
@@ -189,9 +188,7 @@
     <ClInclude Include="gameRendering\InitMesh.h" />
     <ClInclude Include="gameRendering\PlaceMesh.h" />
     <ClInclude Include="gameSceneObjects\InitBiomes.h" />
-    <ClInclude Include="gameSceneObjects\InitLoot.h" />
     <ClInclude Include="gameSceneObjects\InitSceneObjectsh.h" />
-    <ClInclude Include="gameSceneObjects\LootSystem.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectComponents.h" />
     <ClInclude Include="gameSceneObjects\SceneObjectGlobals.h" />
     <ClInclude Include="gameTraps\InitTraps.h" />
