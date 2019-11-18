@@ -524,7 +524,7 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(ecs::Entity
 						other_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(other_unit->getID());
 						temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
 						//If the distance is smaller then the previously nearest friend we store the info of the new one.
-						if (temp_dist < dist && temp_dist > TILE_RADIUS*2)
+						if (temp_dist < dist && temp_dist)
 						{
 							dist = temp_dist;
 							friend_id = other_unit->getID();
@@ -1292,7 +1292,7 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 		// Chagne the command on the UI
 		BaseComponent* p_base_comp = getComponentFromKnownEntity<UITextComponent>(p_army->getEntityID());
 
-		UITextComponent* p_text_comp = static_cast<UITextComponent*>(p_base_comp);
+		/*UITextComponent* p_text_comp = static_cast<UITextComponent*>(p_base_comp);
 
 		switch (state)
 		{
@@ -1312,7 +1312,7 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 			p_text_comp->mStrText = L"no case for state";
 			break;
 		}
-
+*/
 		//Loop through the players units and remove their old state component.
 		Entity* unit;
 		for (int u = 0; u < p_army->unitIDs.size(); u++)
