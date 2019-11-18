@@ -43,14 +43,15 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	for (int i = 0; i < collision_list.size(); i++)
 	{
 		ID current_entity_id = collision_list.at(i).pTransform->getEntityID();
+		QuadTreeObject current_qt_object = collision_list.at(i);
 		// Skip yourself.
 		if (current_entity_id == entity_id)
 		{
 			continue;
 		}
 		// Grabbing the collision and transform component from the current entity.
-		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(current_entity_id);
-		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(current_entity_id);
+		ObjectCollisionComponent* p_current_collision	= current_qt_object.pBoundingBox;
+		TransformComponent* p_current_transform			= current_qt_object.pTransform;
 		
 		// Grabbing copy of AABB from current and transforming to world space.
 		AABB current_aabb = p_current_collision->mAABB;
