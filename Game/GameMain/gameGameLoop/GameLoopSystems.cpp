@@ -548,7 +548,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 			// Set attack range to melee range since fist adds no range.
 			equipment_component.mAttackRange = equipment_component.mMeleeRange;
 
-			Entity* weapon_entity = CreateWeaponEntity(nullptr, GAME_OBJECT_TYPE_WEAPON_FIST, current->getID());
+			Entity* weapon_entity = CreateWeaponEntity(GAME_OBJECT_TYPE_WEAPON_FIST, current->getID());
 			
 			equipment_component.mEquippedWeapon = weapon_entity->getID();
 			createComponent<EquipmentComponent>(current->getID(), equipment_component);
@@ -556,7 +556,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	}
 }
 
-ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(ModelLoader::Mesh* pMesh, GAME_OBJECT_TYPE weaponType, ID ownerEntity)
+ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(GAME_OBJECT_TYPE weaponType, ID ownerEntity)
 {
 	WeaponComponent		weapon_component;
 	TransformComponent	weapon_transform_component;
@@ -567,15 +567,11 @@ ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(ModelLoader::Mes
 	switch (weaponType)
 	{
 	case GAME_OBJECT_TYPE_WEAPON_SWORD:
-	{
 		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
 		break;
-	}
+
 	case GAME_OBJECT_TYPE_WEAPON_FIST:
 		weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		break;
-	case GAME_OBJECT_TYPE_WEAPON_PROJECTILE:
-		MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
 		break;
 	}
 

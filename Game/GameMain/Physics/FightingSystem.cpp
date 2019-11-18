@@ -27,16 +27,15 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		return;
 	}
 
-	Entity* entity = getEntity(create_component_event->entityID);
-
+	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(create_component_event->entityID);
+	
 	// Need transform component for scaling attack range.
-	if (!entity->hasComponentOfType(TransformComponent::typeID))
+	if (!transform_component)
 	{
 		return;
 	}
 	
-	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
-	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(entity->getID());
+	WeaponComponent* weapon_component = getComponent<WeaponComponent>(create_component_event->componentID);
 	std::vector<XMFLOAT3>* vertices = nullptr;
 
 	switch (weapon_component->mType)
@@ -109,6 +108,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(weapon->getID());
 	TransformComponent* weapon_transform_component = getComponentFromKnownEntity<TransformComponent>(weapon->getID());
+	
+	// If the owner unit does not have an attack state component, return.
 	Entity* unit_entity = ECSUser::getEntity(weapon_component->mOwnerEntity);
 	if (unit_entity != nullptr)
 	{
@@ -117,6 +118,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			return;
 		}
 	}
+	
 	
 
 	// FILL OUT WITH OTHER WEAPONS LATER
@@ -227,7 +229,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 	// If a unit collides with an unowned weapon, set colliding unit to weapon owner
 	// and colliding unit equipment to weapon.
-	if (weapon_component->mOwnerEntity == 0 && intersect)
+	if (unit_entity == nullptr && intersect)
 	{
 		EquipmentComponent *equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
 		if (equipment_component->mEquippedWeapon != 0)
