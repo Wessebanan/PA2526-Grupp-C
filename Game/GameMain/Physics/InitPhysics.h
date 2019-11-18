@@ -92,11 +92,9 @@ ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::M
 {
 	WeaponComponent		weapon_component;
 	TransformComponent	weapon_transform_component;
-	MeshComponent		weapon_mesh_component;
 
 	weapon_component.mType = weaponType;
-	weapon_component.mOwnerEntity = ownerEntity;
-	weapon_mesh_component.mMesh = pMesh;
+	weapon_component.mOwnerEntity = ownerEntity;	
 
 	switch (weaponType)
 	{
@@ -111,7 +109,7 @@ ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::M
 		break;
 	}
 	 
-	return rEcs.createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
+	return rEcs.createEntity(weapon_transform_component, weapon_component);
 }
 
 inline void MoveEntity(ecs::EntityComponentSystem &rEcs, ID entityID, XMFLOAT3 direction)

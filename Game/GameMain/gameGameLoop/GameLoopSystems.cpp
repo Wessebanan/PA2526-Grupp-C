@@ -497,10 +497,6 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	filter.addRequirement(UnitComponent::typeID);
 	ecs::EntityIterator it = getEntitiesByFilter(filter);
 	
-	ModelLoader::Mesh* pMesh = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT);
-
-	MeshComponent mesh_component;
-	mesh_component.mMesh = pMesh;
 	ObjectCollisionComponent object_collision;
 	GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
@@ -510,10 +506,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	for (int i = 0; i < it.entities.size(); i++)
 	{
 		ecs::Entity* current = it.entities.at(i).entity;
-		if (!current->hasComponentOfType<MeshComponent>())
-		{
-			createComponent<MeshComponent>(current->getID(), mesh_component);
-		}
+		
 
 		if (!current->hasComponentOfType<ObjectCollisionComponent>())
 		{
@@ -567,11 +560,9 @@ ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(ModelLoader::Mes
 {
 	WeaponComponent		weapon_component;
 	TransformComponent	weapon_transform_component;
-	MeshComponent		weapon_mesh_component;
 
 	weapon_component.mType = weaponType;
 	weapon_component.mOwnerEntity = ownerEntity;
-	weapon_mesh_component.mMesh = pMesh;
 
 	switch (weaponType)
 	{
@@ -588,7 +579,7 @@ ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(ModelLoader::Mes
 		break;
 	}
 
-	return createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
+	return createEntity(weapon_transform_component, weapon_component);
 }
 ///////////////////
 

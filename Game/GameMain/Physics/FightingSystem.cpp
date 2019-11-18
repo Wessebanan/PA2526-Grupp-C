@@ -1,6 +1,7 @@
 #include "FightingSystem.h"
 #include "GridProp.h"
 #include "GridFunctions.h"
+#include "../MeshContainer/MeshContainer.h"
 
 #pragma region WeaponInitSystem
 ecs::systems::WeaponInitSystem::WeaponInitSystem()
@@ -28,26 +29,15 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 	Entity* entity = getEntity(create_component_event->entityID);
 
-	if (!entity->hasComponentOfType(MeshComponent::typeID))
-	{
-		return;
-	}
 	// Need transform component for scaling attack range.
 	if (!entity->hasComponentOfType(TransformComponent::typeID))
 	{
 		return;
 	}
-
-	MeshComponent* mesh_component = getComponentFromKnownEntity<MeshComponent>(entity->getID());
+	
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(entity->getID());
 	std::vector<XMFLOAT3>* vertices = nullptr;
-
-	// Fist has no mesh.
-	if (weapon_component->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
-	{
-		vertices = mesh_component->mMesh->GetVertexPositionVector();
-	}
 
 	switch (weapon_component->mType)
 	{
@@ -56,6 +46,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	// outside of the OBB.
 	case GAME_OBJECT_TYPE_WEAPON_SWORD:
 	{
+		vertices = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPES::GAME_OBJECT_TYPE_WEAPON_SWORD)->GetVertexPositionVector();
 		weapon_component->mBoundingVolume = new OBB;
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
 		obb->CreateFromPoints(*(BoundingOrientedBox*)obb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
