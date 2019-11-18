@@ -35,7 +35,7 @@ float3 ViewPosFromDepth(const float depth, const float2 uv)
 
 float2 GetRandom(const float2 uv)
 {
-	const float2 screen_size = float2(1920, 1080);
+	const float2 screen_size = float2(1920, 1080) * 0.5f;
 	const float2 random_size = float2(64, 64);
 
 	return normalize(
@@ -50,9 +50,9 @@ float CalculateOcclusion(
 	const float3 pos,
 	const float3 normal)
 {
-	const float scale		= 1.0f;
-	const float bias		= 0.2f;
-	const float intensity	= 8.0f;
+	const float scale		= 5.1f;
+	const float bias		= 0.1f;
+	const float intensity	= 2.0f;
 
 	const float3 occlusion_position = ViewPosFromDepth(
 		GetDepth(tcoord + uv), 
@@ -81,10 +81,10 @@ float main(PSIN input) : SV_TARGET
 	float occlusion = 0.0f;
 
 	const float2 vec[4] = {
-		float2( 1,  0),
-		float2(0,  1),
-		float2(0, -1),
-		float2(-1,  0),
+		float2( 1,  1),
+		float2(-1,  1),
+		float2(1, -1),
+		float2(-1,  -1),
 	};
 
 	float3 pos		= ViewPosFromDepth(GetDepth(input.uv), input.uv);
