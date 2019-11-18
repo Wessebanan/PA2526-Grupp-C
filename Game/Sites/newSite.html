@@ -360,20 +360,20 @@
             else if(msg == "pwait")
             {
                 document.getElementById('readyButton').style.display = "block";
-                document.getElementById('startfield').innerHTML = "waiting";
+                //document.getElementById('startfield').innerHTML = "waiting";
             }
             else if(msg[0] == 'r')
             {
                 if(msg[1] == 1)
                 {
                     document.getElementById("readyButton").style.background = "green";
-                    document.getElementById("readyText").innerHTML = "YES";
+                    document.getElementById("readyText").innerHTML = "YOU ARE READY";
                 }
 
                 else
                 {
                     document.getElementById("readyButton").style.background = "red";
-                    document.getElementById("readyText").innerHTML = "NO";
+                    document.getElementById("readyText").innerHTML = "YOU ARE NOT READY";
                 }
             }
             else if(msg[0] == 3)
@@ -433,7 +433,6 @@
             document.getElementById('readyButton').style.display = "block";
             document.getElementById('commandField').style.display = "none";
             document.getElementById('startfield').style.display = "none";
-            document.getElementById('waitField').style.display = "none";
 
             resetAreaColors();
             resetTrapColors();
@@ -457,7 +456,6 @@
             document.getElementById('readyButton').style.display = "none";
             document.getElementById('commandField').style.display = "block";
             document.getElementById('startfield').style.display = "none";
-            document.getElementById('waitField').style.display = "none";
         
             resetCommandColors()
         }
@@ -473,6 +471,7 @@
         }
         function join()
         {
+            document.getElementById('joinButton').style.display = "none";
             document.getElementById('readyButton').style.display = "block";
             document.getElementById('waitField').style.display = "block";
             socket.send("join");
