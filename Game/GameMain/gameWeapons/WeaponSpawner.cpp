@@ -49,14 +49,11 @@ namespace ecs
 			components::TransformComponent weapon_transform_comp;
 			components::WeaponComponent weapon_comp;
 			components::ColorComponent weapon_color_comp;
-			components::MeshComponent weapon_mesh_comp;
 
 			weapon_transform_comp.position = tile_position;
 			weapon_transform_comp.position.y += 0.2f; // Default position right above the tile. No rotation per default. Default default.
 
-			weapon_comp.mType = r_spawn_event.weaponType;
-			
-			weapon_mesh_comp.mMesh = MeshContainer::GetMeshCPU(r_spawn_event.weaponType);
+			weapon_comp.mType = r_spawn_event.weaponType;			
 
 			/*
 				Check weapon type and set specific values for that type.
@@ -91,7 +88,7 @@ namespace ecs
 			}
 			}
 
-			createEntity(weapon_mesh_comp, weapon_transform_comp, weapon_color_comp, weapon_comp);
+			createEntity(weapon_transform_comp, weapon_color_comp, weapon_comp);
 
 			/* Spawn Smoke Emitter At Sword Spawn */
 			components::ParticleSpawnerComponent spawner;

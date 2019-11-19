@@ -233,7 +233,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitCamera(rECS);
 
 	InitAnimation(rECS);
-	InitPhysics(rECS, MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT));
+	InitPhysics(rECS);
 
 	InitGameLoop(rECS);
 
