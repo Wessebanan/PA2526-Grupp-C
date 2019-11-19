@@ -154,22 +154,124 @@ CollisionInfo Sphere::GetCollisionInfo(BoundingVolume* pOther)
 
 CollisionInfo Sphere::GetCollisionInfo(BoundingSphere& rSphere)
 {
-	return CollisionInfo();
+	CollisionInfo return_info;
+
+	// Normal will be the vector between this center and the other normalized.
+	XMVECTOR this_center_to_other_center = XMVectorSubtract(XMLoadFloat3(&this->Center), XMLoadFloat3(&rSphere.Center));
+	XMStoreFloat3(&return_info.mNormal, XMVector3Normalize(this_center_to_other_center));
+
+	// Overlap will be the difference between the sum of the radii and the length of previous vector.
+	float length = XMVectorGetX(XMVector3Length(this_center_to_other_center));
+	float radii_sum = this->Radius + rSphere.Radius;
+	return_info.mOverlap = radii_sum - length;
+
+	// Spheres are so fn easy omg.
+	return return_info;
 }
 
 CollisionInfo Sphere::GetCollisionInfo(BoundingBox& rAabb)
 {
-	return CollisionInfo();
+	// Normal will be the side of the aabb collided into.
+
+	// Calculate closest point of aabb to sphere center (sunglasses emoji).
+	XMFLOAT3 closest_point = XMFLOAT3(
+		(std::max)(rAabb.Center.x - rAabb.Extents.x, (std::min)(Center.x, rAabb.Center.x + rAabb.Extents.x)),
+		(std::max)(rAabb.Center.y - rAabb.Extents.y, (std::min)(Center.y, rAabb.Center.y + rAabb.Extents.y)),
+		(std::max)(rAabb.Center.z - rAabb.Extents.z, (std::min)(Center.z, rAabb.Center.z + rAabb.Extents.z))
+	);
+
+	// Get a vector from closest point to sphere center.
+	// center-closest point
+	XMFLOAT3 center_to_closest;
+	XMStoreFloat3(&center_to_closest, XMVectorSubtract(XMLoadFloat3(&Center), XMLoadFloat3(&rAabb.Center)));
+
+	// Saving the abs values of center_to_closest to find largest component.
+	XMFLOAT3 abs_center_to_closest;
+	XMStoreFloat3(&abs_center_to_closest, XMVectorAbs(XMLoadFloat3(&center_to_closest)));
+
+	CollisionInfo return_info;
+
+	// Determining the collision normal and overlap based on largest component of center_to_closest.
+	if (abs_center_to_closest.x > abs_center_to_closest.y && abs_center_to_closest.x > abs_center_to_closest.z)
+	{
+		return_info.mOverlap = rAabb.Extents.x - abs_center_to_closest.x;
+		return_info.mNormal.x = Sign(center_to_closest.x);
+	}
+	else if (abs_center_to_closest.z > abs_center_to_closest.x && abs_center_to_closest.z > abs_center_to_closest.y)
+	{
+		return_info.mOverlap = rAabb.Extents.z - abs_center_to_closest.z;
+		return_info.mNormal.z = Sign(center_to_closest.z);
+	}
+	else
+	{
+		return_info.mOverlap = rAabb.Extents.y - abs_center_to_closest.y;
+		return_info.mNormal.y = Sign(center_to_closest.y);
+	}	
+
+	return return_info;
 }
 
 CollisionInfo Sphere::GetCollisionInfo(BoundingOrientedBox& rObb)
 {
-	return CollisionInfo();
+	// Grabbing a copy of the obb and sphere.
+	OBB obb_copy = OBB(*(OBB*)& rObb);
+	Sphere sphere_copy = Sphere(*this);
+
+	// Moving obb to origin and sphere the same relative distance.
+	obb_copy.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMStoreFloat3(&sphere_copy.Center, XMVectorSubtract(XMLoadFloat3(&sphere_copy.Center), XMLoadFloat3(&rObb.Center));
+
+	// Rotating obb by inverse of current rotation and sphere the same to make obb axis aligned.
+	XMMATRIX obb_rotation = XMMatrixRotationQuaternion(XMLoadFloat4(&rObb.Orientation));
+	XMMATRIX obb_rotation_inverse = XMMatrixInverse(nullptr, obb_rotation);
+
+	obb_copy.Transform(obb_rotation_inverse);
+	sphere_copy.Transform(obb_rotation_inverse);
+
+	AABB temp_aabb;
+	temp_aabb.Center = obb_copy.Center;
+	temp_aabb.Extents = obb_copy.Extents;
+
+	// Grabbing the reverse and flipping the normal.
+	CollisionInfo return_info = GetCollisionInfo(temp_aabb);
+	XMStoreFloat3(&return_info.mNormal, XMVectorSubtract(XMVectorZero(), XMLoadFloat3(&return_info.mNormal)));
+
+	// Rotating normal back into orientation of the obb.
+	XMStoreFloat3(&return_info.mNormal, XMVector3TransformNormal(XMLoadFloat3(&return_info.mNormal), obb_rotation));
+
+	return return_info;
 }
 
 CollisionInfo Sphere::GetCollisionInfo(BoundingCylinder& rCylinder)
 {
-	return CollisionInfo();
+	// Grabbing vector from center of cylinder to center of sphere.
+	XMFLOAT3 sphere_center_to_cyl_center;
+	XMStoreFloat3(&sphere_center_to_cyl_center, XMVectorSubtract(XMLoadFloat3(&this->Center), XMLoadFloat3(&rCylinder.mCenter)));
+	
+	// Saving abs value of vector components for size comparison.
+	XMFLOAT3 abs_sphere_to_cyl;
+	XMStoreFloat3(&abs_sphere_to_cyl, XMVectorAbs(XMLoadFloat3(&sphere_center_to_cyl_center)));
+
+	CollisionInfo return_info;
+
+	// If y is the largest component, collision happens on top or bottom.
+	if (abs_sphere_to_cyl.y > abs_sphere_to_cyl.z && abs_sphere_to_cyl.y > abs_sphere_to_cyl.x)
+	{
+		return_info.mNormal.y = Sign(sphere_center_to_cyl_center.y - rCylinder.mExtentsY);
+		return_info.mOverlap = rCylinder.mExtentsY - fabsf(sphere_center_to_cyl_center.y);
+	}
+	// Otherwise around the circle.
+	else
+	{
+		XMFLOAT3 x_z_center_to_center = sphere_center_to_cyl_center;
+		x_z_center_to_center.y = 0.0f;
+		XMVECTOR normalized = XMVector3Normalize(XMLoadFloat3(&x_z_center_to_center));
+		XMStoreFloat3(&return_info.mNormal, normalized);
+		float length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&x_z_center_to_center)));
+		return_info.mOverlap = rCylinder.mRadius - length;
+	}
+	
+	return return_info;
 }
 
 bool OBB::Intersects(BoundingVolume* pOther)
@@ -298,21 +400,18 @@ CollisionInfo OBB::GetCollisionInfo(BoundingBox& rAabb)
 	// Determining the collision normal and overlap based on largest component of center_to_closest.
 	if (abs_center_to_closest.x > abs_center_to_closest.y && abs_center_to_closest.x > abs_center_to_closest.z)
 	{
-		int sign = Sign(center_to_closest.x);
 		return_info.mOverlap = rAabb.Extents.x - abs_center_to_closest.x;
-		return_info.mNormal.x = sign;
+		return_info.mNormal.x = Sign(center_to_closest.x);
 	}
 	else if (abs_center_to_closest.z > abs_center_to_closest.x && abs_center_to_closest.z > abs_center_to_closest.y)
 	{
-		int sign = Sign(center_to_closest.z);
 		return_info.mOverlap = rAabb.Extents.z - abs_center_to_closest.z;
-		return_info.mNormal.z = sign;
+		return_info.mNormal.z = Sign(center_to_closest.z);
 	}
 	else
 	{
-		int sign = Sign(center_to_closest.y);
 		return_info.mOverlap = rAabb.Extents.y - abs_center_to_closest.y;
-		return_info.mNormal.y = sign;
+		return_info.mNormal.y = Sign(center_to_closest.y);
 	}
 
 	return return_info;
@@ -321,29 +420,29 @@ CollisionInfo OBB::GetCollisionInfo(BoundingBox& rAabb)
 CollisionInfo OBB::GetCollisionInfo(BoundingOrientedBox& rObb)
 {
 	// Grabbing copies of obbs to check.
-	OBB object_obb_copy = OBB(*this);
+	OBB this_obb_copy = OBB(*this);
 	OBB obb_copy = OBB(*(OBB*)&rObb); // lmao
 
 	// Taking the inverse of the object obb's orientation to transform it into axis aligned.
-	XMMATRIX object_obb_rotation = XMMatrixRotationQuaternion(XMLoadFloat4(&this->Orientation));
-	XMMATRIX object_obb_rotation_inverse = XMMatrixInverse(nullptr, object_obb_rotation);
+	XMMATRIX obb_rotation = XMMatrixRotationQuaternion(XMLoadFloat4(&rObb.Orientation));
+	XMMATRIX obb_rotation_inverse = XMMatrixInverse(nullptr, obb_rotation);
 
-	// Moving object obb to origin and placing bone obb in the same relative position.
-	object_obb_copy.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMStoreFloat3(&obb_copy.Center, XMVectorSubtract(XMLoadFloat3(&this->Center), XMLoadFloat3(&rObb.Center)));
+	// Moving parameter obb to origin and moving this obb the same distance.
+	obb_copy.Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMStoreFloat3(&this_obb_copy.Center, XMVectorSubtract(XMLoadFloat3(&this->Center), XMLoadFloat3(&rObb.Center)));
 
-	// Transforming both with the inverse orientation, making object_obb_copy axis aligned.
-	object_obb_copy.Transform(object_obb_rotation_inverse);
-	obb_copy.Transform(object_obb_rotation_inverse);
+	// Transforming both with the inverse orientation, making parameter obb axis aligned.
+	this_obb_copy.Transform(obb_rotation_inverse);
+	obb_copy.Transform(obb_rotation_inverse);
 
 	// Using copies to get collision info as if the object had an AABB.
 	AABB temp_aabb;
-	temp_aabb.Center = object_obb_copy.Center;
-	temp_aabb.Extents = object_obb_copy.Center;
+	temp_aabb.Center = obb_copy.Center;
+	temp_aabb.Extents = obb_copy.Extents;
 
 	// Rotating normal back according to obb orientation for true orientation of normal.
-	CollisionInfo return_info = GetCollisionInfo(temp_aabb);
-	XMStoreFloat3(&return_info.mNormal, XMVector3TransformNormal(XMLoadFloat3(&return_info.mNormal), object_obb_rotation));
+	CollisionInfo return_info = this_obb_copy.GetCollisionInfo(temp_aabb);
+	XMStoreFloat3(&return_info.mNormal, XMVector3TransformNormal(XMLoadFloat3(&return_info.mNormal), obb_rotation));
 	return return_info;
 }
 
@@ -368,15 +467,19 @@ CollisionInfo OBB::GetCollisionInfo(BoundingCylinder& rCylinder)
 	XMFLOAT3 center_to_closest;
 	XMStoreFloat3(&center_to_closest, XMVectorSubtract(XMLoadFloat3(&closest_corner), XMLoadFloat3(&rCylinder.mCenter)));
 
+	// Saving abs of vector from center to closest to check for largest component.
+	XMFLOAT3 abs_center_to_closest;
+	XMStoreFloat3(&abs_center_to_closest, XMVectorAbs(XMLoadFloat3(&center_to_closest)));
+
 	CollisionInfo return_info;
 
-	// Normal will be y if y is the largest component of center_to_closest,
+	// Normal will be +-y if y is the largest component of center_to_closest,
 	// and overlap will be the difference of the half-height and the y component
 	// of center_to_closest.
-	if (center_to_closest.y > center_to_closest.x && center_to_closest.y > center_to_closest.z)
+	if (abs_center_to_closest.y > abs_center_to_closest.x && abs_center_to_closest.y > abs_center_to_closest.z)
 	{
-		return_info.mNormal.y = 1.0f;
-		return_info.mOverlap = rCylinder.mExtentsY - center_to_closest.y;
+		return_info.mNormal.y = Sign(center_to_closest.y - rCylinder.mExtentsY);
+		return_info.mOverlap = rCylinder.mExtentsY - fabsf(center_to_closest.y);
 	}
 	// Otherwise somewhere around the circle (center_to_closest in x-z only).
 	else
@@ -470,7 +573,10 @@ CollisionInfo AABB::GetCollisionInfo(BoundingBox& rAabb)
 
 CollisionInfo AABB::GetCollisionInfo(BoundingOrientedBox& rObb)
 {
-	return CollisionInfo();
+	// Grabbing the reverse and flipping the normal.
+	CollisionInfo return_info = ((OBB*)& rObb)->GetCollisionInfo(this);
+	XMStoreFloat3(&return_info.mNormal, XMVectorSubtract(XMVectorZero(), XMLoadFloat3(&return_info.mNormal)));
+	return return_info;
 }
 
 CollisionInfo AABB::GetCollisionInfo(BoundingCylinder& rCylinder)
@@ -553,7 +659,10 @@ CollisionInfo Cylinder::GetCollisionInfo(BoundingBox& rAabb)
 
 CollisionInfo Cylinder::GetCollisionInfo(BoundingOrientedBox& rObb)
 {
-	return CollisionInfo();
+	// Grabbing the reverse and flipping the normal.
+	CollisionInfo return_info = ((OBB*)& rObb)->GetCollisionInfo(this);
+	XMStoreFloat3(&return_info.mNormal, XMVectorSubtract(XMVectorZero(), XMLoadFloat3(&return_info.mNormal)));
+	return return_info;
 }
 
 CollisionInfo Cylinder::GetCollisionInfo(BoundingCylinder& rCylinder)
