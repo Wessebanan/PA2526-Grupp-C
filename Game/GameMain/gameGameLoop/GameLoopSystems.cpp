@@ -277,10 +277,14 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 		ComponentIterator it = ecs::ECSUser::getComponentsOfType(PlayerStateComponent::typeID);
 		PlayerStateComponent* p_player_state_comp = dynamic_cast<PlayerStateComponent*>(it.next());
-		for (int i = 0; i < 4; i++)
+		if (p_player_state_comp)
 		{
-			p_player_state_comp->mCurrentStates[i] = IDLE;
+			for (int i = 0; i < 4; i++)
+			{
+				p_player_state_comp->mCurrentStates[i] = IDLE;
+			}
 		}
+		
 
 		itt = getComponentsOfType<UITextComponent>();
 		UITextComponent* text_comp;
