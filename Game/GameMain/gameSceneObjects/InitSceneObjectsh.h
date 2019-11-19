@@ -8,6 +8,8 @@
 
 void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 {
+	std::cout << "SOME OUTPRINT" << std::endl;
+
 	const unsigned int OBJECTCOUNT = 12;
 	
 	ecs::components::SceneObjectComponent p_scene_obj;
@@ -76,6 +78,8 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 
 	for (FilteredEntity& r_obj : scene_obj_iterator.entities)
 	{
+		float r = rand();
+
 		p_scene_comp = r_obj.getComponent<SceneObjectComponent>();
 		p_obj_transform_comp = r_obj.getComponent<TransformComponent>();
 		p_obj_color_cmp = r_obj.getComponent<ColorComponent>();
@@ -85,6 +89,7 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 
 		p_scene_comp->ChangeModelByBiome(p_tile_comp->biome);
 		p_obj_transform_comp->position = p_tile_transform_comp->position;
+		p_obj_transform_comp->rotation.y = (r / (float)RAND_MAX) * 3.14f * 2.0f;
 
 		p_obj_color_cmp->red = rand() % 130 + 50;
 		p_obj_color_cmp->green = rand() % 130 + 50;

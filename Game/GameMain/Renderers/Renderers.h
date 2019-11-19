@@ -292,9 +292,10 @@ namespace ecs
 		private:
 
 			struct InputLayout
-			{
+			{/*
 				float x, y, z;
-				uint32_t color;
+				uint32_t color;*/
+				DirectX::XMFLOAT4X4 world;
 			};
 
 			InputLayout* mpBuffer;

@@ -17,8 +17,8 @@ float4 GetNormalAndDepth(const float2 uv)
 	return float4(normalize(data.xyz), data.w);
 }
 
-#define TEXEL_WIDTH		(1.0f / 960.0f)
-#define TEXEL_HEIGHT	(1.0f / 540.0f)
+#define TEXEL_WIDTH		(1.0f / (960.0f))
+#define TEXEL_HEIGHT	(1.0f / (540.0f))
 
 float Blur(
 	const float2 dir, 
@@ -40,11 +40,11 @@ float Blur(
 	{
 		if (i == 0) continue;
 
-		const float2 tex			= i * dir + uv;
+		const float2 tex = i * dir + uv;
 		const float4 nor_depth	= GetNormalAndDepth(tex);
 
-		if (abs(nor_depth.w - center_nor_depth.w) <= 0.2f &&
-			dot(center_nor_depth.xyz, nor_depth.xyz) >= 0.8f)
+		if (abs(nor_depth.w - center_nor_depth.w) <= 0.1f &&
+			dot(center_nor_depth.xyz, nor_depth.xyz) > 0.5f)
 		{
 			const float w = weights[i + blur_radius];
 

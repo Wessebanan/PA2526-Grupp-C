@@ -649,11 +649,12 @@ namespace ecs
 					{
 						{
 							UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_BARREL_BARREL)];
-							mpBuffer[index].x = p_transform_comp->position.x;
-							mpBuffer[index].y = p_transform_comp->position.y;
-							mpBuffer[index].z = p_transform_comp->position.z;
 
-							mpBuffer[index].color = PACK(BARREL_COLOR, 0);
+							DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
+
+							XMStoreFloat4x4(&mpBuffer[index].world, world);
+
+							mpBuffer[index].world._44 = PACK(BARREL_COLOR, 0);
 
 							index++;
 						}
@@ -661,11 +662,11 @@ namespace ecs
 						{
 							UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)];
 
-							mpBuffer[index].x = p_transform_comp->position.x;
-							mpBuffer[index].y = p_transform_comp->position.y;
-							mpBuffer[index].z = p_transform_comp->position.z;
+							DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 
-							mpBuffer[index].color = PACK(BARREL_STONE_COLOR, 0);
+							XMStoreFloat4x4(&mpBuffer[index].world, world);
+
+							mpBuffer[index].world._44 = PACK(BARREL_STONE_COLOR, 0);
 
 							index++;
 						}
@@ -676,11 +677,12 @@ namespace ecs
 				{
 					{
 						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_TREE_LEAVES)];
-						mpBuffer[index].x = p_transform_comp->position.x;
-						mpBuffer[index].y = p_transform_comp->position.y;
-						mpBuffer[index].z = p_transform_comp->position.z;
+						
+						DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 
-						mpBuffer[index].color = PACK(TREE_LEAVES_COLOR, 0);
+						XMStoreFloat4x4(&mpBuffer[index].world, world);
+
+						mpBuffer[index].world._44 = PACK(TREE_LEAVES_COLOR, 0);
 
 						index++;
 					}
@@ -688,11 +690,11 @@ namespace ecs
 					{
 						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_TREE_TRUNK)];
 
-						mpBuffer[index].x = p_transform_comp->position.x;
-						mpBuffer[index].y = p_transform_comp->position.y;
-						mpBuffer[index].z = p_transform_comp->position.z;
+						DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 
-						mpBuffer[index].color = PACK(TREE_TRUNK_COLOR, 0);
+						XMStoreFloat4x4(&mpBuffer[index].world, world);
+
+						mpBuffer[index].world._44 = PACK(TREE_TRUNK_COLOR, 0);
 
 						index++;
 					}
@@ -701,11 +703,13 @@ namespace ecs
 					{
 						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_TREE_ROCK)];
 
-						mpBuffer[index].x = p_transform_comp->position.x;
-						mpBuffer[index].y = p_transform_comp->position.y;
-						mpBuffer[index].z = p_transform_comp->position.z;
+						//p_transform_comp->rotation.x = 3.14f;
+						DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 
-						mpBuffer[index].color = PACK(TREE_ROCK_COLOR, 0);
+						//std::cout << p_transform_comp->rotation.x << "\n";
+						XMStoreFloat4x4(&mpBuffer[index].world, world);
+
+						mpBuffer[index].world._44 = PACK(TREE_ROCK_COLOR, 0);
 
 						index++;
 					}
@@ -716,15 +720,12 @@ namespace ecs
 				default:
 					{
 						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_MESH_ERROR)];
-						mpBuffer[index].x = p_transform_comp->position.x;
-						mpBuffer[index].y = p_transform_comp->position.y;
-						mpBuffer[index].z = p_transform_comp->position.z;
+						
+						DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 
-						/*mpBuffer[index].color = PACK(
-							0,
-							0,
-							0,
-							0);*/
+						XMStoreFloat4x4(&mpBuffer[index].world, world);
+
+						mpBuffer[index].world._44 = PACK(0, 0, 0, 0);
 
 						index++;
 						break;
@@ -762,7 +763,7 @@ namespace ecs
 			mInstanceLayout.pMeshes					= mObjectMeshRegion;
 			mInstanceLayout.pInstanceCountPerMesh	= &mObjectCount;
 
-			const std::string vs = GetShaderFilepath("VS_Default.cso");
+			const std::string vs = GetShaderFilepath("VS_Weapon.cso");
 			const std::string ps = GetShaderFilepath("PS_Default.cso");
 
 			mRenderProgram = mpRenderMgr->CreateShaderProgram(
@@ -818,10 +819,13 @@ namespace ecs
 			mScreenSpaceTriangle = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
 			mRenderMgr.Initialize(0);
 
+			const UINT width = clientWidth;
+			const UINT height = clientHeight;
+
 			{
 				graphics::SSAO_PIPELINE_DESC desc = { };
-				desc.Width = clientWidth / 2.0f;
-				desc.Height = clientHeight / 2.0f;
+				desc.Width = width;
+				desc.Height = height;
 				mPipelineSSAO = mRenderMgr.CreatePipeline(
 					new graphics::SSAOPipeline,
 					&desc);
@@ -829,8 +833,8 @@ namespace ecs
 
 			{
 				graphics::BLUR_PIPELINE_DESC desc = { };
-				desc.Width = clientWidth / 2.0f;
-				desc.Height = clientHeight / 2.0f;
+				desc.Width = width;
+				desc.Height = height;
 				mPipelineBlur = mRenderMgr.CreatePipeline(
 					new graphics::BlurPipeline,
 					&desc);
