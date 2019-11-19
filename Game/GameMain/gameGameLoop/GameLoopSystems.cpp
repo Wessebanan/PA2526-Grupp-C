@@ -22,6 +22,8 @@
 
 #include "..///gameUtility/CameraEcsFunctions.h"
 
+#include "..//gameAudio/AudioECSEvents.h"
+
 #include "../gameWeapons/WeaponSpawner.h"
 
 using namespace ecs;
@@ -270,7 +272,21 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		{
 			p_ib->backend->changeGamestate(WEBGAMESTATE::BATTLEPHASE);
 		}
-
+		{
+			ecs::events::PlayMusic m_event;
+			m_event.audioName = AudioName::CC_TEST_SONG;
+			createEvent(m_event);
+		}
+		{
+			ecs::events::MusicSetVolume m_event;
+			m_event.volume = 0.0f;
+			createEvent(m_event);
+		}
+		{
+			ecs::events::FadeInMusic m_event;
+			m_event.fadeInTimeInSeconds = 2.0f;
+			createEvent(m_event);
+		}
 
 		this->CreateUnits();
 		this->CreateUnitPhysics();
@@ -507,10 +523,6 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	filter.addRequirement(UnitComponent::typeID);
 	ecs::EntityIterator it = getEntitiesByFilter(filter);
 	
-	ModelLoader::Mesh* pMesh = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT);
-
-	MeshComponent mesh_component;
-	mesh_component.mMesh = pMesh;
 	ObjectCollisionComponent object_collision;
 	GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
@@ -520,10 +532,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	for (int i = 0; i < it.entities.size(); i++)
 	{
 		ecs::Entity* current = it.entities.at(i).entity;
-		if (!current->hasComponentOfType<MeshComponent>())
-		{
-			createComponent<MeshComponent>(current->getID(), mesh_component);
-		}
+		
 
 		if (!current->hasComponentOfType<ObjectCollisionComponent>())
 		{
@@ -565,7 +574,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 			// Set attack range to melee range since fist adds no range.
 			equipment_component.mAttackRange = equipment_component.mMeleeRange;
 
-			Entity* weapon_entity = CreateWeaponEntity(nullptr, GAME_OBJECT_TYPE_WEAPON_FIST, current->getID());
+			Entity* weapon_entity = CreateWeaponEntity(GAME_OBJECT_TYPE_WEAPON_FIST, current->getID());
 			
 			equipment_component.mEquippedWeapon = weapon_entity->getID();
 			createComponent<EquipmentComponent>(current->getID(), equipment_component);
@@ -573,32 +582,26 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	}
 }
 
-ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(ModelLoader::Mesh* pMesh, GAME_OBJECT_TYPE weaponType, ID ownerEntity)
+ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(GAME_OBJECT_TYPE weaponType, ID ownerEntity)
 {
 	WeaponComponent		weapon_component;
 	TransformComponent	weapon_transform_component;
-	MeshComponent		weapon_mesh_component;
 
 	weapon_component.mType = weaponType;
 	weapon_component.mOwnerEntity = ownerEntity;
-	weapon_mesh_component.mMesh = pMesh;
 
 	switch (weaponType)
 	{
 	case GAME_OBJECT_TYPE_WEAPON_SWORD:
-	{
 		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
 		break;
-	}
+
 	case GAME_OBJECT_TYPE_WEAPON_FIST:
 		weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		break;
-	case GAME_OBJECT_TYPE_WEAPON_PROJECTILE:
-		MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
-		break;
 	}
 
-	return createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
+	return createEntity(weapon_transform_component, weapon_component);
 }
 ///////////////////
 
