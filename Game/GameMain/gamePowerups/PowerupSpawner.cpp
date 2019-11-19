@@ -38,8 +38,8 @@ namespace ecs
 				Create the general description components for powerup loot
 			*/
 
-			components::PowerupLootComponent loot_comp;
 			components::TransformComponent transform_comp;
+			components::PowerupLootComponent loot_comp;
 
 			/*
 				Copy position of spawn tile, and increase y-value to make
@@ -47,10 +47,12 @@ namespace ecs
 			*/
 
 			transform_comp.position = p_tile_transform_comp->position;
-			transform_comp.position.y += 0.5f;
+			transform_comp.position.y += 0.7f;
 
-			transform_comp.scale.y = 0.1f;
+			transform_comp.scale = { 0.5f, 0.03f, 0.5f };
 			transform_comp.rotation.x = 3.14f / 2.f;
+
+			loot_comp.mObjectType = r_event.powerupType;
 
 			/*
 				Create powerup loot entity. Then, add type specific components to it.

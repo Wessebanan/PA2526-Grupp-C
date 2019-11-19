@@ -129,6 +129,9 @@
     <ClCompile Include="gamePowerups\InitPowerups.cpp">
       <Filter>Init</Filter>
     </ClCompile>
+    <ClCompile Include="gamePowerups\PowerupVisuals.cpp">
+      <Filter>Powerups</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -407,6 +410,9 @@
     </ClInclude>
     <ClInclude Include="gamePowerups\InitPowerups.h">
       <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gamePowerups\PowerupVisuals.h">
+      <Filter>Powerups</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

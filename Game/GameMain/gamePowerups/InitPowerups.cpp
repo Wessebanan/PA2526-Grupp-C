@@ -2,6 +2,7 @@
 #include "PowerupSpawner.h"
 #include "PowerupEvents.h"
 #include "PowerupComponents.h"
+#include "PowerupVisuals.h"
 
 using namespace ecs;
 using namespace ecs::events;
@@ -14,4 +15,5 @@ void InitPowerups(ecs::EntityComponentSystem& rEcs)
 	rEcs.reserveComponentCount<HealthPackComponent>(400);
 
 	rEcs.createSystem<PowerupSpawner>(5);
+	rEcs.createSystem<PowerupLootAnimator>(5);
 }
