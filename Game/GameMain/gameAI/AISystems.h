@@ -12,13 +12,10 @@
 #include <iostream>
 #include "../../Physics/includes/PhysicsHelperFunctions.h"
 #include "../gameAnimation/AnimationComponents.h"
-
 #include "../UI/UIComponents.h"
-
 #include "../../AI/includes/AIGlobals.h"
 #include "../GameGlobals.h"
-
-#include "../gameGraphics/ParticleECSComponents.h"
+#include "../gameGraphics/ParticleECSComponents.h"	
 #include "../gameAudio/AudioECSEvents.h"
 
 
@@ -58,6 +55,7 @@ namespace ecs
 			int2 GetClosestTile(TransformComponent& transform);
 		private:
 			unsigned int FindClosestEnemy(ecs::Entity* current_unit);
+			unsigned int FindClosestFriendWithoutWeapon(ecs::Entity* current_unit);
 			unsigned int FindClosestFriend(ecs::Entity* current_unit);
 			unsigned int FindSafeTile(ecs::Entity* current_unit);
 			unsigned int FindClosestLootTile(ecs::Entity* current_unit);
