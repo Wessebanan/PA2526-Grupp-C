@@ -288,7 +288,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		float velocity = movement / _delta;
 
 		// Capping velocity to not get insane velocity when units rotate the same frame.
-		velocity = (std::min)(2.0f, velocity);
+		velocity = (std::min)(5.0f, velocity);
 
 		// Calculating damage by multiplying weapon velocity and the base damage.
 		float damage = velocity * weapon_component->mBaseDamage;
@@ -300,7 +300,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		// INVINCIBILITY
 		// (based on damage dealt)
 		InvincilibityTimer timer;
-		timer.mTime = (1.0f + log2f(damage)) * BASE_INVINCIBILITY_TIME;
+		timer.mTime = log2f(damage) * BASE_INVINCIBILITY_TIME;
 		createComponent<InvincilibityTimer>(collided_unit, timer);
 
 		// KNOCKBACK
@@ -313,7 +313,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		// Normalize knockback direction so it's not CRAZY.
 		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 		
-		knockback.mForce = (1.0f + (BASE_KNOCKBACK * velocity)) * weapon_component->mKnockback;
+		knockback.mForce = BASE_KNOCKBACK * velocity * weapon_component->mKnockback;
 		knockback.mEntityID = collided_unit;
 		createEvent(knockback);
 
