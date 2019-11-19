@@ -127,6 +127,9 @@
       <Filter>Init</Filter>
     </ClCompile>
     <ClCompile Include="gameGraphics\FakeStencilPipeline.cpp" />
+    <ClCompile Include="gameGraphics\OutlinePipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -401,6 +404,9 @@
       <Filter>Init</Filter>
     </ClInclude>
     <ClInclude Include="gameGraphics\FakeStencilPipeline.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\OutlinePipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>

@@ -108,7 +108,11 @@ namespace graphics {
 	void graphics::FakeStencilPipeline::End(ID3D11DeviceContext4* pContext4)
 	{
 		pContext4->OMSetRenderTargets(0, NULL, NULL);
-		pContext4->PSSetShaderResources(6, 1, &this->mpFakeStencilSRV);
+	}
+
+	ID3D11ShaderResourceView* FakeStencilPipeline::GetFakeStencilSRVPtr()
+	{
+		return this->mpFakeStencilSRV;
 	}
 
 	void graphics::FakeStencilPipeline::Destroy()

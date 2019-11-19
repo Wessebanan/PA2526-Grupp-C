@@ -130,9 +130,20 @@ namespace ecs
 
 			p_mgr->mgr.UpdatePipeline(p_pipeline->pipeline, &p_pipeline->data);
 
-			
+		}
 
 
+		PipelineOutlineSystem::PipelineOutlineSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::RenderManagerComponent::typeID);
+			typeFilter.addRequirement(components::MeshManagerComponent::typeID);
+
+			typeFilter.addRequirement(components::PipelineFakeStencilComponent::typeID);
+		}
+
+		void PipelineOutlineSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
 		}
 
 		ClearGPURenderSystem::ClearGPURenderSystem()
@@ -205,7 +216,9 @@ namespace ecs
 
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_fake_stencil->pipeline, p_unit_system->mRenderProgram);
 
+
 		}
+
 
 }
 }
