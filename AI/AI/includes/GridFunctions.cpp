@@ -326,6 +326,7 @@ namespace GridFunctions
 			{
 				height_values[start][i] = 0.0f;
 				height_values[start + 1][i] = 0.0f;
+				height_values[start - 1][i] = 0.0f;
 
 				if (islet_counter < 2)
 				{
@@ -349,6 +350,7 @@ namespace GridFunctions
 			{
 				height_values[i][start] = 0.0f;
 				height_values[i][start + 1] = 0.0f;
+				height_values[i][start - 1] = 0.0f;
 
 				if (islet_counter < 2)
 				{
@@ -371,6 +373,7 @@ namespace GridFunctions
 			{
 				height_values[start][columns - 1 - i] = 0.0f;
 				height_values[start + 1][columns - 1 - i] = 0.0f;
+				height_values[start - 1][columns - 1 - i] = 0.0f;
 
 				if (islet_counter < 2)
 				{
@@ -393,6 +396,7 @@ namespace GridFunctions
 			{
 				height_values[rows - 1 - i][start] = 0.0f;
 				height_values[rows - 1 - i][start + 1] = 0.0f;
+				height_values[rows - 1 - i][start - 1] = 0.0f;
 
 				if (islet_counter < 2)
 				{
@@ -404,6 +408,11 @@ namespace GridFunctions
 			rIsletCoords.push_back(IsletTileCoordinate(rows - 1, start + 1, 3));
 			rIsletCoords.push_back(IsletTileCoordinate(rows - 1, start - 1, 3));
 			rIsletCoords.push_back(IsletTileCoordinate(rows - 2, start - 1, 3));
+
+
+			height_values[rows - 1 - i][start] = 0.0f;
+			height_values[rows - 1 - i][start + 1] = 0.0f;
+			height_values[rows - 1 - i][start + 2] = 0.0f;
 		}
 
 
