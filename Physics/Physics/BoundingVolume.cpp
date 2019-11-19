@@ -157,6 +157,84 @@ void OBB::Transform(XMMATRIX transform)
 	BoundingOrientedBox::Transform(*(BoundingOrientedBox*)this, transform);
 }
 
+CollisionInfo OBB::GetCollisionInfo(BoundingVolume* pOther)
+{
+	// Check which bounding volume 'pOther' is and test.
+	OBB* p_obb = dynamic_cast<OBB*>(pOther);
+	if (p_obb)
+	{
+		return GetCollisionInfo(*(BoundingOrientedBox*)p_obb);
+	}
+	AABB* p_aabb = dynamic_cast<AABB*>(pOther);
+	if (p_aabb)
+	{
+		return GetCollisionInfo(*(BoundingBox*)p_aabb);
+	}
+	Sphere* p_sphere = dynamic_cast<Sphere*>(pOther);
+	if (p_sphere)
+	{
+		return GetCollisionInfo(*(Sphere*)p_sphere);
+	}
+	Cylinder* p_cylinder = dynamic_cast<Cylinder*>(pOther);
+	if (p_cylinder)
+	{
+		return GetCollisionInfo(*(BoundingOrientedBox*)p_cylinder);
+	}
+	return CollisionInfo();
+}
+
+CollisionInfo OBB::GetCollisionInfo(BoundingSphere& rSphere)
+{
+	XMFLOAT3* corners = new XMFLOAT3[CORNER_COUNT];
+	GetCorners(corners);
+
+	// Grab direction of corner closest to center of Sphere.
+	float closest_distance = FLT_MAX;
+	XMFLOAT3 closest_corner = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	for (int i = 0; i < CORNER_COUNT; i++)
+	{
+		float distance = CalculateDistance(rSphere.Center, corners[i]);
+		if (distance < closest_distance)
+		{
+			closest_corner = corners[i];
+			closest_distance = distance;
+		}
+	}
+	delete[] corners;
+
+	// Saving vector from center of aabb to closest corner of obb.
+	XMVECTOR vec_center_to_closest = XMVectorSubtract(XMLoadFloat3(&closest_corner), XMLoadFloat3(&rSphere.Center));
+
+	CollisionInfo return_info;
+
+	// Taking normal as the normalized vector from the closest corner to sphere center.
+	return_info.mNormal;
+	XMStoreFloat3(&return_info.mNormal, XMVector3Normalize(vec_center_to_closest));
+
+	// Projecting vec_center_to_closest on normal to find remainder to center
+	// which is then subtracted from the radius to get the magnitude of the overlap
+	// in the direction of the normal.
+	XMVECTOR v_prime = XMVector3Dot(XMLoadFloat3(&return_info.mNormal), vec_center_to_closest);
+	return_info.mOverlap = rSphere.Radius - fabsf(XMVectorGetX(v_prime));
+
+	return return_info;
+}
+
+CollisionInfo OBB::GetCollisionInfo(BoundingBox& rAabb)
+{
+	return CollisionInfo();
+}
+
+CollisionInfo OBB::GetCollisionInfo(BoundingOrientedBox& rObb)
+{
+	return CollisionInfo();
+}
+
+CollisionInfo OBB::GetCollisionInfo(BoundingCylinder& rCylinder)
+{
+	return CollisionInfo();
+}
+
 XMFLOAT3 OBB::GetCenter()
 {
 	return Center;

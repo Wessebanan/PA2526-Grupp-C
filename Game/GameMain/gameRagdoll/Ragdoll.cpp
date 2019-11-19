@@ -294,7 +294,7 @@ bool Ragdoll::ProcessCollisions(DWORD boneNum, Collision* pCollision)
 
 		if (collision)
 		{
-			CollisionInfo collision_info = p_object->GetCollisionInfo(bone_obb);
+			CollisionInfo collision_info = p_object->mBoundingVolume->GetCollisionInfo(&bone_obb);
 
 			// Additional check for the naïve solution, if no corner is within the checked object.
 			if (collision_info.mOverlap > 0.0f)
