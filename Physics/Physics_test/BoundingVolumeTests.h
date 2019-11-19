@@ -1,5 +1,11 @@
 #pragma once
 #include "BoundingVolume.h"
+#include <iostream>
+
+inline void PrintVec(const XMFLOAT3 &rVec)
+{
+	std::cout << "( " << rVec.x << ", " << rVec.y << ", " << rVec.z << " )" << std::endl;
+}
 
 #pragma region Intersection
 
@@ -349,3 +355,46 @@ TEST(Intersection, CylinderCylinder)
 	delete p_bv1;
 	delete p_bv2;
 }
+
+#pragma region NormalAndOverlap
+TEST(NormalAndOverlap, AABBAABB)
+{
+
+}
+TEST(NormalAndOverlap, AABBSphere)
+{
+
+}
+TEST(NormalAndOverlap, AABBOBB)
+{
+
+}
+TEST(NormalAndOverlap, AABBCylinder)
+{
+
+}
+TEST(NormalAndOverlap, OBBOBB)
+{
+
+}
+TEST(NormalAndOverlap, OBBSphere)
+{
+
+}
+TEST(NormalAndOverlap, OBBCylinder)
+{
+
+}
+TEST(NormalAndOverlap, SphereSphere)
+{
+
+}
+TEST(NormalAndOverlap, SphereCylinder)
+{
+
+}
+TEST(NormalAndOverlap, CylinderCylinder)
+{
+
+}
+#pragma endregion
