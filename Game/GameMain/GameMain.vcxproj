@@ -116,6 +116,7 @@
     <ClCompile Include="gameGraphics\ParticleECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
+    <ClCompile Include="gamePowerups\PowerupSpawner.cpp" />
     <ClCompile Include="gameRagdoll\Collision.cpp" />
     <ClCompile Include="gameRagdoll\CollisionObject.cpp" />
     <ClCompile Include="gameRagdoll\Ragdoll.cpp" />
@@ -180,6 +181,9 @@
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
     <ClInclude Include="gameGraphics\SSAOPipeline.h" />
     <ClInclude Include="gameGraphics\TileRenderingPipeline.h" />
+    <ClInclude Include="gamePowerups\PowerupComponents.h" />
+    <ClInclude Include="gamePowerups\PowerupEvents.h" />
+    <ClInclude Include="gamePowerups\PowerupSpawner.h" />
     <ClInclude Include="gameRagdoll\Collision.h" />
     <ClInclude Include="gameRagdoll\CollisionObject.h" />
     <ClInclude Include="gameRagdoll\Ragdoll.h" />
