@@ -58,6 +58,22 @@
             border-color: #fff;
         }
 
+        #nameButton {
+            height: 20%;
+            width: 60%;
+            /*padding-top:10%;*/
+            /*padding-bottom:10%;*/
+            margin-left:20%;
+            margin-top:5%;
+            margin-bottom:5%;
+            
+            background-color: #33a;
+            color: white;
+            border-style: solid;
+            border-width: 2px;
+            border-color: #fff;
+        }
+
         
         /*  COMMAND FIELD   */
         #commandField {
@@ -344,20 +360,20 @@
             else if(msg == "pwait")
             {
                 document.getElementById('readyButton').style.display = "block";
-                document.getElementById('startfield').innerHTML = "waiting";
+                //document.getElementById('startfield').innerHTML = "waiting";
             }
             else if(msg[0] == 'r')
             {
                 if(msg[1] == 1)
                 {
                     document.getElementById("readyButton").style.background = "green";
-                    document.getElementById("readyText").innerHTML = "YES";
+                    document.getElementById("readyText").innerHTML = "YOU ARE READY";
                 }
 
                 else
                 {
                     document.getElementById("readyButton").style.background = "red";
-                    document.getElementById("readyText").innerHTML = "NO";
+                    document.getElementById("readyText").innerHTML = "YOU ARE NOT READY";
                 }
             }
             else if(msg[0] == 3)
@@ -455,9 +471,30 @@
         }
         function join()
         {
+            document.getElementById('joinButton').style.display = "none";
             document.getElementById('readyButton').style.display = "block";
+            document.getElementById('waitField').style.display = "block";
             socket.send("join");
         
+        }
+        
+
+        function setName(name)
+        {
+            socket.send("0000" +  name.toString());
+        }
+
+        function sendName()
+        {
+            var name = document.getElementById('nameInput').value;
+            
+            if (name < " ")
+            {
+                name = "PLAYER";
+            } 
+            
+            console.log(name);
+           setName(name);
         }
 
         function setArea(x,y)
@@ -566,9 +603,18 @@
     <div id="readyButton" onclick="ready()" style="display:none;">READY?<p id="readyText">NO</p></div>
 
     <div id='startfield' class='buttonField' style='display:block;'>
+        <div id='waitField' class='buttonField' style='display:none;'>
+            <!--<form id="nameForm">-->
+            <h4>Name:</h4><input id="nameInput" type="text" placeholder="PLAYER" />
+            <div id="nameButton" onclick="sendName()">SEND NAME</div>
+            <!--</form>-->
+        </div>
         <div id="joinButton" onclick="join()">JOIN</div>
 
+
     </div>
+
+    
 
     <div id='prepField' class='buttonField' style='display:none;'>
         <div id="trapContainer">

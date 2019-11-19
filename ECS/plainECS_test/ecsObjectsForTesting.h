@@ -21,12 +21,16 @@ namespace ecs
 		{
 			TestComponent(int initData = -1) : data(initData) {};
 			int data;
+
+			virtual ~TestComponent() { data = 0; }
 		};
 
 		struct OtherTestComponent : public ecs::ECSComponent<OtherTestComponent>
 		{
 			OtherTestComponent(int _data) : data(_data) {}
 			int data;
+
+			virtual ~OtherTestComponent() { data = 0; }
 		};
 	}
 
