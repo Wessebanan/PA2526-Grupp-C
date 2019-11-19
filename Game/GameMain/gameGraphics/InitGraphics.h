@@ -80,9 +80,9 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::PipelineShadowMapComponent* p_psmComp = rEcs.getComponentFromEntity<components::PipelineShadowMapComponent>(graphics_entity_id);
 	components::PipelineForwardComponent* p_pfComp = rEcs.getComponentFromEntity<components::PipelineForwardComponent>(graphics_entity_id);
 
-	p_psmComp->pipelineDesc.PixelsWidth = 2048;
-	p_psmComp->pipelineDesc.Width = 30.0f;
-	p_psmComp->pipelineDesc.Height = 20.0f;
+	p_psmComp->pipelineDesc.PixelsWidth = 4096;
+	p_psmComp->pipelineDesc.Width = 90.0f;
+	p_psmComp->pipelineDesc.Height = 60.0f;
 	p_psmComp->pipelineDesc.NearPlane = 1.0f;
 	p_psmComp->pipelineDesc.FarPlane = 70.0f;
 	p_psmComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ShadowMapPipeline, &p_psmComp->pipelineDesc);
