@@ -599,7 +599,7 @@ namespace GridFunctions
 					if (p_gp->mGrid[0][i].isPassable)
 					{
 						index.x = 0;
-						index.y = i;
+						index.y = i + 1;
 						break;
 					}
 				}
@@ -609,7 +609,7 @@ namespace GridFunctions
 				{
 					if (p_gp->mGrid[i][0].isPassable)
 					{
-						index.x = i;
+						index.x = i + 1;
 						index.y = 0;
 						break;
 					}
@@ -621,7 +621,7 @@ namespace GridFunctions
 					if (p_gp->mGrid[Rows - 1][i].isPassable)
 					{
 						index.x = Rows - 1;
-						index.y = i;
+						index.y = i + 1;
 						break;
 					}
 				}
@@ -631,7 +631,7 @@ namespace GridFunctions
 				{
 					if (p_gp->mGrid[i][Columns - 1].isPassable)
 					{
-						index.x = i;
+						index.x = i + 1;
 						index.y = Columns - 1;
 						break;
 					}
