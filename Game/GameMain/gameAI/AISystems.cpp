@@ -52,7 +52,6 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 	GridProp* g_prop = GridProp::GetInstance();
 	TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
 	TransformComponent* goal_transform = nullptr;
-	//start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
 	start_tile = this->GetClosestTile(*p_transfrom);
 	unsigned int start_tile_id = g_prop->mGrid[start_tile.y][start_tile.x].Id;
 	unsigned int goal_id = 0;
@@ -74,7 +73,6 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 		{
 			//Find the closest tile to the nearest enemy.
 			goal_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(goal_enemy_id);
-			//goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
 			goal_tile_index = this->GetClosestTile(*goal_transform);
 			//Check that the tile is traversable
 			if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
@@ -98,7 +96,6 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 			{
 				//Find the closest tile to the nearest friend without a weapon.
 				goal_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(goal_friend_id);
-				//goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
 				goal_tile_index = this->GetClosestTile(*goal_transform);
 				//Check that the tile is traversable
 				if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
@@ -135,7 +132,6 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 		{
 			//Find the closest tile to the nearest friend.
 			goal_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(goal_friend_id);
-			//goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
 			goal_tile_index = this->GetClosestTile(*goal_transform);
 			//Check that the tile is traversable
 			if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
