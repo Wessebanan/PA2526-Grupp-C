@@ -49,6 +49,9 @@ namespace ecs
 			transform_comp.position = p_tile_transform_comp->position;
 			transform_comp.position.y += 0.5f;
 
+			transform_comp.scale.y = 0.1f;
+			transform_comp.rotation.x = 3.14f / 2.f;
+
 			/*
 				Create powerup loot entity. Then, add type specific components to it.
 			*/
@@ -60,8 +63,7 @@ namespace ecs
 			case GAME_OBJECT_TYPE_POWERUP_HEALTH_PACK:
 			{
 				components::HealthPackComponent health_pack_comp;
-				health_pack_comp.healAmount = 100.f;
-
+				health_pack_comp.mHealAmount = 100.f;
 				createComponent(p_powerup_loot_entity->getID(), health_pack_comp);
 				break;
 			}

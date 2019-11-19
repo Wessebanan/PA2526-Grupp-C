@@ -119,7 +119,12 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	graphics::StateManager& r_state_mgr = static_cast<components::StateManagerComponent*>(rEcs.getAllComponentsOfType(components::StateManagerComponent::typeID).next())->mgr;
 	graphics::MeshManager& r_mesh_mgr = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& r_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
-	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
+	
+	rEcs.createSystem<TrapRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	//rEcs.createSystem<PowerupLootRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_render_buffer);
 
 	rEcs.createSystem<systems::UnitRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
@@ -233,4 +238,6 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FIRE, "../meshes/TrapPlate.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FREEZE, "../meshes/TrapPlate.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_SPRING, "../meshes/TrapPlate.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_POWERUP_HEALTH_PACK, "../meshes/hexagon_tile5.fbx");
 }
