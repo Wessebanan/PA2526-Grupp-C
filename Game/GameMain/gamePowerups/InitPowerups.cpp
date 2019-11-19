@@ -3,6 +3,7 @@
 #include "PowerupEvents.h"
 #include "PowerupComponents.h"
 #include "PowerupVisuals.h"
+#include "PowerupLogic.h"
 
 using namespace ecs;
 using namespace ecs::events;
@@ -16,4 +17,5 @@ void InitPowerups(ecs::EntityComponentSystem& rEcs)
 
 	rEcs.createSystem<PowerupSpawner>(5);
 	rEcs.createSystem<PowerupLootAnimator>(5);
+	rEcs.createSystem<PowerupLootCollisionSystem>(7);
 }

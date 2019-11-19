@@ -117,6 +117,7 @@
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
     <ClCompile Include="gamePowerups\InitPowerups.cpp" />
+    <ClCompile Include="gamePowerups\PowerupLogic.cpp" />
     <ClCompile Include="gamePowerups\PowerupSpawner.cpp" />
     <ClCompile Include="gamePowerups\PowerupVisuals.cpp" />
     <ClCompile Include="gameRagdoll\Collision.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="gamePowerups\InitPowerups.h" />
     <ClInclude Include="gamePowerups\PowerupComponents.h" />
     <ClInclude Include="gamePowerups\PowerupEvents.h" />
+    <ClInclude Include="gamePowerups\PowerupLogic.h" />
     <ClInclude Include="gamePowerups\PowerupSpawner.h" />
     <ClInclude Include="gamePowerups\PowerupVisuals.h" />
     <ClInclude Include="gameRagdoll\Collision.h" />

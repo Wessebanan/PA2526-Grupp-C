@@ -1109,7 +1109,7 @@ namespace ecs
 
 				// Set "outline" mesh
 				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
-				mpBuffer[index++].world._44 = PACK(0, 255, 0, 255);
+				mpBuffer[index++].world._44 = p_loot_comp->mColor;
 			}
 
 			mInstanceLayout.pInstanceCountPerMesh = mObjectTypeCount;

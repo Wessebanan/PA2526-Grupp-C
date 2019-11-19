@@ -3,6 +3,8 @@
 #include "PowerupComponents.h"
 #include "../gameUtility/UtilityComponents.h"
 
+#include "../gameUtility/UtilityGraphics.h"
+
 namespace ecs
 {
 	namespace systems
@@ -67,6 +69,8 @@ namespace ecs
 				components::HealthPackComponent health_pack_comp;
 				health_pack_comp.mHealAmount = 100.f;
 				createComponent(p_powerup_loot_entity->getID(), health_pack_comp);
+
+				getComponentFromKnownEntity<components::PowerupLootComponent>(p_powerup_loot_entity->getID())->mColor = PACK(0, 255, 0, 255);
 				break;
 			}
 			}
