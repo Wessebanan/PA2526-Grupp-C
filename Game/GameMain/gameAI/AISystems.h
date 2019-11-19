@@ -21,6 +21,7 @@
 
 constexpr float DEFAULT_USAGE_OF_TILE = 0.2; //20%
 constexpr float DEFAULT_TILE_SIDE_LENGTH = 0.866025403784438646763723170752f;//this value is sqrt(3)/2 that is the length to one side if the tile if radius is 1
+constexpr float KILL_SCALE = 1.2f;
 namespace ecs
 {
 	namespace systems

@@ -162,6 +162,7 @@ namespace ecs
 		{
 			float mBaseHealth	= DEFAULT_HEALTH;
 			float mHealth		= DEFAULT_HEALTH;
+			unsigned int mHitBy = 0;
 		};
 
 		COMP(QuadTreeComponent)
@@ -182,6 +183,9 @@ namespace ecs
 
 			// Attack range is sum of weapon range and melee range.
 			float mAttackRange = 0.0f;
+
+			// How much damage the units attacks does 1 is normal.
+			float mAttackMultiplier = 1.0f;
 		};
 
 		/*
