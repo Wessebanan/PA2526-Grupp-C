@@ -46,16 +46,21 @@ enum MAPINITSETTING
 
 struct Color
 {
-	unsigned char r, g, b;
-	Color() : r(0), g(0), b(0) {}
-	Color(unsigned char r, unsigned char g, unsigned char b) : r(r), g(g), b(b) {}
+	unsigned char r, g, b, a;
+	Color() : r(0), g(0), b(0), a(0) {}
+	Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 1) : r(r), g(g), b(b), a(a) {}
 };
 
 // Defining some useful colors.
-#define RED				Color(117, 1, 1)
-#define PURPLE			Color(74, 1, 117)
-#define BLUE			Color(47, 62, 236)
-#define GREEN			Color(0, 93, 5)
+#define RED				Color(117, 1, 1, 1)
+#define PURPLE			Color(74, 1, 117, 5)
+#define BLUE			Color(47, 62, 236, 26)
+#define GREEN			Color(0, 93, 5, 105)      
+
+#define OLD_RED				Color(117, 1, 1, 69)
+#define OLD_PURPLE			Color(74, 1, 117, 69)
+#define OLD_BLUE			Color(47, 62, 236, 69)
+#define OLD_GREEN			Color(0, 93, 5, 69)   
 #define WHITE			Color(255, 255, 255)
 #define BLACK			Color(0, 0, 0)
 

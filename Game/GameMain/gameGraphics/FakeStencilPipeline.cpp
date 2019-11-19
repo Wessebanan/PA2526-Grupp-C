@@ -82,18 +82,21 @@ namespace graphics {
 		return S_OK;
 	}
 
+	void FakeStencilPipeline::Clear(ID3D11DeviceContext4* pContext4)
+	{
+	}
+
 	void graphics::FakeStencilPipeline::Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData)
 	{
 	}
 
 	void graphics::FakeStencilPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
-		float clear[4] = { 8.0f, 0.0f, 0.0f, 0.0f };
+		float clear[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
 		pContext4->PSSetShaderResources(6, 1, nullSRV); 
-		pContext4->ClearRenderTargetView(this->mpRenderTarget, clear);
 		pContext4->OMSetRenderTargets(1, &this->mpRenderTarget, NULL);
-
+		pContext4->ClearRenderTargetView(this->mpRenderTarget, clear);
 	}
 
 	void graphics::FakeStencilPipeline::PreProcess(ID3D11DeviceContext4* pContext4, ID3D11VertexShader* pVertexShader, ID3D11PixelShader* pPixelShader)

@@ -618,7 +618,7 @@ namespace ecs
 				mpBuffer[index].y = p_transform_comp->position.y;
 				mpBuffer[index].z = p_transform_comp->position.z;
 
-				mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+				mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, p_color_comp->alpha);
 				index++;
 			}
 

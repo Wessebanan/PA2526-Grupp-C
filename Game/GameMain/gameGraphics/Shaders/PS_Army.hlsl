@@ -10,41 +10,21 @@ uint4 unpack(const uint packedData)
 	return unpacked_data;
 }
 
-Texture2D<float> gShadowMap			: register (t0);
-SamplerComparisonState gSmpCmp		: register (s0);
-
-float shadow(const float2 pos, const float depth)
-{
-	float2 shadowMapUV = float2(
-		(1.0f + pos.x) * 0.5f,
-		(1.0f - pos.y) * 0.5f
-		);
-
-	return gShadowMap.SampleCmpLevelZero(
-		gSmpCmp,
-		shadowMapUV,
-		depth - 0.003f);
-}
-
 struct PSIN
 {
 	float4 pos			: SV_POSITION;
 	float4 sunPos		: POSITION1;
 
-	float3 color		: COLOR0;
+	float4 color		: COLOR0;
 	float3 normal		: NORMAL0;
 
 	float3 normalViewSpace		: NORMAL1;
 	float3 positionViewSpace	: POSITION2;
-};
 
-//struct PSOUT
-//{
-//	uint BackBuffer		: SV_TARGET0;
-//};
+	uint   fakeStencilValue		: FAKESTENCIL;
+};
 
 uint main(PSIN input) : SV_TARGET0
 {
-
-	return (uint)input.positionViewSpace.x;
+	return input.fakeStencilValue;
 }
