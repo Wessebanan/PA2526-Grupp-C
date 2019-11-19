@@ -22,6 +22,8 @@ InputBackend::InputBackend()
 		mpUserTile[i] = new WebTile();
 		mpUserCommand[i] = new WebCommand();
 		mpUserPing[i] = new bool();
+
+		mpUserNames[i] = "";
 	}
 }
 

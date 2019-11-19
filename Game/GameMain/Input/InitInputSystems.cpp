@@ -77,6 +77,7 @@ ecs::systems::HandleWebSystem::HandleWebSystem()
 	typeFilter.addRequirement(ecs::components::UserButtonComponent::typeID);
 	typeFilter.addRequirement(ecs::components::UserTileComponent::typeID);
 	typeFilter.addRequirement(ecs::components::UserCommandComponent::typeID);
+	typeFilter.addRequirement(ecs::components::UserNameComponent::typeID);
 }
 
 ecs::systems::HandleWebSystem::~HandleWebSystem()
@@ -90,22 +91,42 @@ void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, fl
 	UserButtonComponent* p_button_comp = _entityInfo.getComponent<components::UserButtonComponent>();
 	UserTileComponent* p_tile_comp = _entityInfo.getComponent<components::UserTileComponent>();
 	UserCommandComponent* p_command_comp = _entityInfo.getComponent<components::UserCommandComponent>();
+	UserNameComponent* p_name_comp = _entityInfo.getComponent<components::UserNameComponent>();
 
 	for (int i = 0; i < 4; i++)
 	{
-		p_button_comp->userButtons[i].mButton = p_backend_comp->backend->mpUserButton[i]->mButton;
-
-		p_tile_comp->userTiles[i].mCordX = p_backend_comp->backend->mpUserTile[i]->mCordX;
-		p_tile_comp->userTiles[i].mCordY = p_backend_comp->backend->mpUserTile[i]->mCordY;
-
-		p_command_comp->userCommands[i].mCommand = p_backend_comp->backend->mpUserCommand[i]->mCommand;
-
-		if (*p_backend_comp->backend->mpUserPing[i] == true)
+		if (p_button_comp)
 		{
-			ecs::events::PingEvent eve;
-			eve.playerId = (PLAYER)i;
-			createEvent(eve);
+			p_button_comp->userButtons[i].mButton = p_backend_comp->backend->mpUserButton[i]->mButton;
 		}
+
+		if (p_tile_comp)
+		{
+			p_tile_comp->userTiles[i].mCordX = p_backend_comp->backend->mpUserTile[i]->mCordX;
+			p_tile_comp->userTiles[i].mCordY = p_backend_comp->backend->mpUserTile[i]->mCordY;
+
+		}
+		
+		if (p_command_comp)
+		{
+			p_command_comp->userCommands[i].mCommand = p_backend_comp->backend->mpUserCommand[i]->mCommand;
+		}
+		
+		if (p_name_comp)
+		{
+			p_name_comp->names[i] = p_backend_comp->backend->mpUserNames[i];
+		}
+		
+		if (p_backend_comp)
+		{
+			if (*p_backend_comp->backend->mpUserPing[i] == true)
+			{
+				ecs::events::PingEvent eve;
+				eve.playerId = (PLAYER)i;
+				createEvent(eve);
+			}
+		}
+		
 	}	
 }
 
