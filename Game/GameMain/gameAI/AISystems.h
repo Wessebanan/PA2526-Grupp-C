@@ -133,9 +133,6 @@ namespace ecs
 			//Update function that checks so that the units target is still alive and within attack range otherwise
 			//it makes the unit path to a new enemy target.
 			void updateEntity(FilteredEntity& entity, float delta) override;
-		private:
-			//Switch to the next units next state
-			void SwitchState(FilteredEntity& entity, STATE newState);	
 		};
 
 		/*

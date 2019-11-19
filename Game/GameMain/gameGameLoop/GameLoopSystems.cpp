@@ -22,6 +22,10 @@
 
 #include "..///gameUtility/CameraEcsFunctions.h"
 
+#include "..//gameAudio/AudioECSEvents.h"
+
+#include "../gameWeapons/WeaponSpawner.h"
+
 using namespace ecs;
 using namespace ecs::components;
 
@@ -268,7 +272,21 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		{
 			p_ib->backend->changeGamestate(WEBGAMESTATE::BATTLEPHASE);
 		}
-
+		{
+			ecs::events::PlayMusic m_event;
+			m_event.audioName = AudioName::CC_TEST_SONG;
+			createEvent(m_event);
+		}
+		{
+			ecs::events::MusicSetVolume m_event;
+			m_event.volume = 0.0f;
+			createEvent(m_event);
+		}
+		{
+			ecs::events::FadeInMusic m_event;
+			m_event.fadeInTimeInSeconds = 2.0f;
+			createEvent(m_event);
+		}
 
 		this->CreateUnits();
 		this->CreateUnitPhysics();
@@ -330,6 +348,14 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
 
 				bitmap_pos_comp->mDrawArea.bottom = 150;
+			}
+		}
+
+		{
+			void* p_spawn_system;
+			if (p_spawn_system = CreateSystem<systems::MasterWeaponSpawner>(2))
+			{
+				((systems::MasterWeaponSpawner*)p_spawn_system)->Initialize();
 			}
 		}
 
@@ -706,6 +732,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			// Remove battlephase and start prephase
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
 			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
+			RemoveSystem(systems::MasterWeaponSpawner::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
 
 			//Change to overlook camera for the prephase

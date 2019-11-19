@@ -16,7 +16,6 @@
 
 #include "gameSceneObjects/InitSceneObjectsh.h"
 #include "gameSceneObjects/InitBiomes.h"
-#include "gameSceneObjects/InitLoot.h"
 
 #include "gameUtility/UtilityEcsFunctions.h"
 
@@ -165,24 +164,6 @@ int main()
 
 			if (GetAsyncKeyState(VK_SPACE) && start_once)
 			{
-				{
-					ecs::events::PlayMusic m_event;
-					m_event.audioName = AudioName::CC_TEST_SONG;
-					ecs.createEvent(m_event);
-				}
-				{
-					ecs::events::MusicSetVolume m_event;
-					m_event.volume = 0.0f;
-					ecs.createEvent(m_event);
-				}
-				{
-					ecs::events::FadeInMusic m_event;
-					m_event.fadeInTimeInSeconds = 2.0f;
-					ecs.createEvent(m_event);
-				}
-				
-				
-
 				start_once = false;
 			}
 
@@ -278,7 +259,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
-	InitSpawnLootSystem(rECS);
 	InitWeapons(rECS);
 
 	InitTraps(rECS);

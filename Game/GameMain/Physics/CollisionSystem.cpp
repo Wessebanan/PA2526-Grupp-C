@@ -43,14 +43,15 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	for (int i = 0; i < collision_list.size(); i++)
 	{
 		ID current_entity_id = collision_list.at(i).pTransform->getEntityID();
+		QuadTreeObject current_qt_object = collision_list.at(i);
 		// Skip yourself.
 		if (current_entity_id == entity_id)
 		{
 			continue;
 		}
 		// Grabbing the collision and transform component from the current entity.
-		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(current_entity_id);
-		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(current_entity_id);
+		ObjectCollisionComponent* p_current_collision	= current_qt_object.pBoundingBox;
+		TransformComponent* p_current_transform			= current_qt_object.pTransform;
 		
 		// Grabbing copy of AABB from current and transforming to world space.
 		AABB current_aabb = p_current_collision->mAABB;
@@ -72,6 +73,17 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
 			aabb.Transform(world_transform);
 			center = XMLoadFloat3(&aabb.Center);
+
+			ForceImpulseEvent right;
+			right.mForce = 50.0f;
+			
+			XMVECTOR y_axis = XMVectorZero();
+			y_axis = XMVectorSetY(y_axis, 1.0f);
+
+			XMStoreFloat3(&right.mDirection, XMVector3Cross(XMLoadFloat3(&p_movement->mDirection), y_axis));
+			right.mEntityID = entity_id;
+
+			createEvent(right);
 		}
 	}
 	p_collision->mIntersect = intersect;
