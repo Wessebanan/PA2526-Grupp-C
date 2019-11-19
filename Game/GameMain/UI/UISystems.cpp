@@ -157,8 +157,7 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	ss.append(L"\n");
 	ss.append(L"Name: ");
 	std::string player_name = p_name_comp->names[(int)p_army->playerID];
-	cout << player_name << endl;
-	//ss.append(std::wstring(player_name.begin(),player_name.end()));
+	ss.append(std::wstring(player_name.begin(),player_name.end()));
 	ss.append(L"\n");
 	ss.append(L"Health:\n");
 	for (size_t i = 0; i < p_army->unitIDs.size(); i++)
