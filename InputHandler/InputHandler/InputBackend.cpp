@@ -137,7 +137,13 @@ bool InputBackend::updateWeb()
 	this->updateButtons();
 	this->updateCommands();
 	this->updatePings();
-	//this->updateName();
+	this->updateName();
+
+	for (size_t i = 0; i < 4; i++)
+	{
+		if (mpWebConn->IsUserConnected(i))
+			mConnectedPlayers[i].mIsConnected;
+	}
 
 	return true;
 }

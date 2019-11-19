@@ -408,6 +408,11 @@ std::string WebConnection::GetUserName(int player)
 	return mUsers[player].name;
 }
 
+bool WebConnection::IsUserConnected(int player)
+{
+	return  mUsers[player].connected;
+}
+
 int WebConnection::GetUserTile(int player, int axis)
 {
 	return mUsers[player].tile[axis];
@@ -749,6 +754,7 @@ bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 			nrOfPlayers--;
 
 		this->mPlayerSockets[player_id] = -1;
+		this->mUsers[player_id].connected = false;
 
 		if (error == 0)
 		{
@@ -854,6 +860,7 @@ bool WebConnection::AddPlayerSocket(SOCKET sock)
 	cout << "-Assigning PLAYER to slot: " << first_empty << endl;
 
 	mPlayerSockets[first_empty] = IdUserSocket(sock);
+	mUsers[first_empty].connected = true;
 	this->nrOfPlayers++;
 
 	return true;

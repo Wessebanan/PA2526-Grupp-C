@@ -85,6 +85,11 @@ struct WebCommand
 	string mCommand = "NaN";
 };
 
+struct ConnectedPlayers
+{
+	bool mIsConnected[4];
+};
+
 class InputBackend
 {
 public:
@@ -124,6 +129,8 @@ public:
 	// The users that have pinged
 	bool* mpUserPing[4];
 
+	// Holds a array of bools that knwo if the player is connected or not
+	ConnectedPlayers mConnectedPlayers;
 private:
 	// Handle for the connection to the website
 	WebConnection* mpWebConn = nullptr;
@@ -142,6 +149,6 @@ private:
 	void updateCommands();
 	// Reads and updates the commands for all users
 	void updatePings();
-	// not implemented but webb has it stored
-	//void updateName();
+	// Updates names
+	void updateName();
 };
