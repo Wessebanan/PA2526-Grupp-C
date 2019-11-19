@@ -85,11 +85,6 @@ struct WebCommand
 	string mCommand = "NaN";
 };
 
-struct ConnectedPlayers
-{
-	bool mIsConnected[4];
-};
-
 class InputBackend
 {
 public:
@@ -124,13 +119,16 @@ public:
 	// To reset the buttons when the two has been picked up
 	void resetUserButtonAndTile(int player);
 
+	// Holds the players names that they have put in, if nothing was put it they will have PLAYER
+	std::string mpUserNames[4];
+
 	// The user command selected
 	WebCommand* mpUserCommand[4];
 	// The users that have pinged
 	bool* mpUserPing[4];
 
 	// Holds a array of bools that knwo if the player is connected or not
-	ConnectedPlayers mConnectedPlayers;
+	bool mpPlayerIsConnected[4];
 private:
 	// Handle for the connection to the website
 	WebConnection* mpWebConn = nullptr;

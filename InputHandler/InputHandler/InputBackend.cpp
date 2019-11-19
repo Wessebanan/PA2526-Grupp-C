@@ -142,7 +142,9 @@ bool InputBackend::updateWeb()
 	for (size_t i = 0; i < 4; i++)
 	{
 		if (mpWebConn->IsUserConnected(i))
-			mConnectedPlayers[i].mIsConnected;
+			mpPlayerIsConnected[i] = true;
+		else
+			mpPlayerIsConnected[i] = false;
 	}
 
 	return true;
@@ -205,6 +207,14 @@ void InputBackend::updatePings()
 	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
 	{
 		*mpUserPing[playerIndex] = mpWebConn->GetUserPing(playerIndex);
+	}
+}
+
+void InputBackend::updateName()
+{
+	for (size_t i = 0; i < 4; i++)
+	{
+		mpUserNames[i] = mpWebConn->GetUserName(i);
 	}
 }
 
