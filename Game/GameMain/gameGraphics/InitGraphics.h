@@ -240,4 +240,20 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TREE_LEAVES, "../meshes/tree_leaves.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TREE_TRUNK, "../meshes/tree_trunk.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TREE_ROCK, "../meshes/tree_rock.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_PINE_LEAVES, "../meshes/pine_tree_leaves.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_PINE_TRUNK, "../meshes/pine_tree_trunk.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_DESERT_CACTUS, "../meshes/desert_cactus.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_DESERT_BOX, "../meshes/desert_box.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_DESERT_SKULL, "../meshes/desert_skull.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER_TOWER, "../meshes/tower_tower.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER_CAGE, "../meshes/tower_cage.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_GIANTSKULL, "../meshes/GiantSkull.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_CAGE, "../meshes/Cage.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_COWSKULL, "../meshes/CowSkull.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_BOX, "../meshes/Box.fbx");
+
 }

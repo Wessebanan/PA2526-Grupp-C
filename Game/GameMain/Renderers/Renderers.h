@@ -292,9 +292,7 @@ namespace ecs
 		private:
 
 			struct InputLayout
-			{/*
-				float x, y, z;
-				uint32_t color;*/
+			{
 				DirectX::XMFLOAT4X4 world;
 			};
 
@@ -310,6 +308,21 @@ namespace ecs
 
 			graphics::MeshRegion mObjectMeshRegion[GAME_OBJECT_TYPE_MESH_COUNT];
 			UINT mInstancePerMesh[GAME_OBJECT_TYPE_MESH_COUNT];
+
+			struct SceneToMesh
+			{
+				UINT 
+					Start	= GAME_OBJECT_TYPE_MESH_ERROR, 
+					End		= GAME_OBJECT_TYPE_MESH_ERROR;
+			};
+
+			struct uint3
+			{
+				UINT Red = 0, Green = 0, Blue = 0;
+			};
+
+			SceneToMesh mMap[SCENE_OBJECT_TYPE_COUNT];
+			uint3 mColors[GAME_OBJECT_TYPE_MESH_COUNT];
 		};
 
 		class SSAORenderSystem : public ECSSystem<SSAORenderSystem>

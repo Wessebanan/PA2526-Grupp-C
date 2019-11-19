@@ -20,12 +20,12 @@
 
 #include "../gameTraps/TrapComponents.h"
 
-#define BARREL_COLOR		104, 72, 59
-#define BARREL_STONE_COLOR	60, 60, 60
 
-#define TREE_TRUNK_COLOR	104, 72, 59
-#define TREE_LEAVES_COLOR	104, 200, 59
-#define TREE_ROCK_COLOR		60, 60, 60
+
+#define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
+#define TO_SCENE(x) (x - SCENE_OBJECT_ENUM_OFFSET)
+
+//#define RUN_SSAO	// Comment this out if performance is unbearable
 
 namespace ecs
 {
@@ -590,7 +590,6 @@ namespace ecs
 				index counter.
 			*/
 
-#define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
 
 			// Count how many instances we have per scene object mesh
 			ZeroMemory(mInstancePerMesh, GAME_OBJECT_TYPE_MESH_COUNT * sizeof(UINT));
@@ -598,23 +597,11 @@ namespace ecs
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
 
-				// How many meshes per scene objects
-				switch (p_obj_comp->mObject)
+				const UINT scene_object_index = TO_SCENE(p_obj_comp->mObject);
+
+				for (UINT i = mMap[scene_object_index].Start; i <= mMap[scene_object_index].End; i++)
 				{
-				case GAME_OBJECT_TYPE_BARREL:
-					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_BARREL_BARREL)]++;
-					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)]++;
-					break;
-
-				case GAME_OBJECT_TYPE_FRUITTREE:
-					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_TREE_LEAVES)]++;
-					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_TREE_TRUNK)]++;
-					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_TREE_ROCK)]++;
-					break;
-
-				default:
-					mInstancePerMesh[TO_MESH(GAME_OBJECT_TYPE_MESH_ERROR)]++;
-					break;
+					mInstancePerMesh[TO_MESH(i)]++;
 				}
 			}
 			 
@@ -642,94 +629,20 @@ namespace ecs
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
 				components::TransformComponent* p_transform_comp = object.getComponent<components::TransformComponent>();
 
-				// How many meshes per scene objects
-				switch (p_obj_comp->mObject)
+				const UINT scene_object_index = TO_SCENE(p_obj_comp->mObject);
+
+				for (UINT i = mMap[scene_object_index].Start; i <= mMap[scene_object_index].End; i++)
 				{
-				case GAME_OBJECT_TYPE_BARREL:
-					{
-						{
-							UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_BARREL_BARREL)];
+					UINT& index = object_type_individual_index[TO_MESH(i)];
 
-							DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
+					DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 
-							XMStoreFloat4x4(&mpBuffer[index].world, world);
+					XMStoreFloat4x4(&mpBuffer[index].world, world);
 
-							mpBuffer[index].world._44 = PACK(BARREL_COLOR, 0);
+					const uint3 color = mColors[TO_MESH(i)];
+					mpBuffer[index].world._44 = PACK(color.Red, color.Green, color.Blue, 0);
 
-							index++;
-						}
-
-						{
-							UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)];
-
-							DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
-
-							XMStoreFloat4x4(&mpBuffer[index].world, world);
-
-							mpBuffer[index].world._44 = PACK(BARREL_STONE_COLOR, 0);
-
-							index++;
-						}
-						break;
-					}
-
-				case GAME_OBJECT_TYPE_FRUITTREE:
-				{
-					{
-						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_TREE_LEAVES)];
-						
-						DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
-
-						XMStoreFloat4x4(&mpBuffer[index].world, world);
-
-						mpBuffer[index].world._44 = PACK(TREE_LEAVES_COLOR, 0);
-
-						index++;
-					}
-
-					{
-						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_TREE_TRUNK)];
-
-						DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
-
-						XMStoreFloat4x4(&mpBuffer[index].world, world);
-
-						mpBuffer[index].world._44 = PACK(TREE_TRUNK_COLOR, 0);
-
-						index++;
-					}
-
-
-					{
-						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_TREE_ROCK)];
-
-						//p_transform_comp->rotation.x = 3.14f;
-						DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
-
-						//std::cout << p_transform_comp->rotation.x << "\n";
-						XMStoreFloat4x4(&mpBuffer[index].world, world);
-
-						mpBuffer[index].world._44 = PACK(TREE_ROCK_COLOR, 0);
-
-						index++;
-					}
-					break;
-				}
-					break;
-
-				default:
-					{
-						UINT& index = object_type_individual_index[TO_MESH(GAME_OBJECT_TYPE_MESH_ERROR)];
-						
-						DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
-
-						XMStoreFloat4x4(&mpBuffer[index].world, world);
-
-						mpBuffer[index].world._44 = PACK(0, 0, 0, 0);
-
-						index++;
-						break;
-					}
+					index++;
 				}
 			}
 
@@ -747,21 +660,97 @@ namespace ecs
 				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(index);
 			}
 
-			//mObjectMeshRegion[TO_MESH(GAME_OBJECT_TYPE_BARREL_BARREL)]
-			//	= MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL_BARREL);
-
-			//mObjectMeshRegion[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)]
-			//	= MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL_STONES);
-
-			//mObjectMeshRegion[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)]
-			//	= MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL_STONES);
-
 			mObjectMeshRegion[TO_MESH(GAME_OBJECT_TYPE_MESH_ERROR)]
 				= MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_FRUITTREE);
 
 			mInstanceLayout.MeshCount				= GAME_OBJECT_TYPE_MESH_COUNT;
 			mInstanceLayout.pMeshes					= mObjectMeshRegion;
 			mInstanceLayout.pInstanceCountPerMesh	= &mObjectCount;
+
+
+			/* --- Fruit Tree --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_FRUITTREE)] = { 
+				GAME_OBJECT_TYPE_TREE_LEAVES,
+				GAME_OBJECT_TYPE_TREE_ROCK 
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TREE_LEAVES)]	= { 104, 200, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TREE_TRUNK)]	= { 104, 72, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TREE_ROCK)]	= { 60, 60, 60 };
+			
+
+			/* -- Barrel --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_BARREL)] = { 
+				GAME_OBJECT_TYPE_BARREL_STONES, 
+				GAME_OBJECT_TYPE_BARREL_BARREL 
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)] = { 60,  60, 60 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_BARREL_BARREL)] = { 104, 72, 59 };
+
+
+			/* -- Winter Tree --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_WINTERTREE)] = {
+				GAME_OBJECT_TYPE_PINE_LEAVES,
+				GAME_OBJECT_TYPE_PINE_TRUNK
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_PINE_LEAVES)]	= { 200, 200, 200 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_PINE_TRUNK)]	= { 104, 72, 59 };
+
+
+			/* -- Cactus --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_CACTUS)] = {
+				GAME_OBJECT_TYPE_DESERT_CACTUS,
+				GAME_OBJECT_TYPE_DESERT_SKULL
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_DESERT_CACTUS)] = { 104, 200, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_DESERT_BOX)] = { 104, 72, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_DESERT_SKULL)] = { 160, 150, 140 };
+
+
+			/* -- Tower --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_TOWER)] = {
+				GAME_OBJECT_TYPE_TOWER_TOWER,
+				GAME_OBJECT_TYPE_TOWER_CAGE
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TOWER_TOWER)] = { 60,  60, 60 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TOWER_CAGE)] = { 60,  60, 60 };
+
+			/* -- Giant Skull --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_GIANTSKULL)] = {
+				GAME_OBJECT_TYPE_MESH_GIANTSKULL,
+				GAME_OBJECT_TYPE_MESH_GIANTSKULL
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_GIANTSKULL)] = { 160, 150, 140 };
+
+			/* -- Box --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_BOX)] = {
+				GAME_OBJECT_TYPE_MESH_BOX,
+				GAME_OBJECT_TYPE_MESH_BOX
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_BOX)] = { 104, 72, 59 };
+
+			/* -- Cow Skull --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_COWSKULL)] = {
+				GAME_OBJECT_TYPE_MESH_COWSKULL,
+				GAME_OBJECT_TYPE_MESH_COWSKULL
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_COWSKULL)] = { 160, 150, 140 };
+
+			/* -- Cage --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_CAGE)] = {
+				GAME_OBJECT_TYPE_MESH_CAGE,
+				GAME_OBJECT_TYPE_MESH_CAGE
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_CAGE)] = { 60,  60, 60 };
+
 
 			const std::string vs = GetShaderFilepath("VS_Weapon.cso");
 			const std::string ps = GetShaderFilepath("PS_Default.cso");
@@ -793,7 +782,7 @@ namespace ecs
 
 		void SSAORenderSystem::act(float _delta)
 		{
-#ifndef _DEBUG
+#ifdef RUN_SSAO
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
 				mShaderSSAO);
@@ -805,7 +794,7 @@ namespace ecs
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
 				mShaderBlur_v);
-#endif // !_DEBUG
+#endif // !RUN_SSAO
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineCombine,
