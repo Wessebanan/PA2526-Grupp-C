@@ -324,15 +324,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			death_sound_event.invokerEntityId = collided_unit;
 			createEvent(death_sound_event); // Play death sound
 
-			// If we only want to give kill reward on killing blows needs some tweaks
-			
-			/*HealthComponent* killer = getComponentFromKnownEntity<HealthComponent>(unit_entity->getID());
-			killer->mHealth += killer->mBaseHealth * 0.2f;
-			getComponentFromKnownEntity<EquipmentComponent>(unit_entity->getID())->mAttackMultiplier *= 1.1f;
-			TransformComponent* kek = getComponentFromKnownEntity<TransformComponent>(unit_entity->getID());
-			kek->scale.x *= 2.0f; 
-			kek->scale.y *= 2.0f;
-			kek->scale.z *= 2.0f;*/
+			// If we only want to give kill reward on killing blows put that code here
+
 		}
 		else
 		{

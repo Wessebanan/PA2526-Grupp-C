@@ -1241,19 +1241,19 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		ECSUser::removeEntity(weapon_entity->getID());
 		//weapon_comp->mOwnerEntity = 0;
 	}
-
+	// Check if the killer is legal and exists 
 	if (getEntity(killer_id))
 	{
 		HealthComponent* killer_health = getComponentFromKnownEntity<HealthComponent>(killer_id);
-		killer_health->mHealth += killer_health->mBaseHealth * 0.2f;
+		killer_health->mHealth += killer_health->mBaseHealth * HEALTH_REWARD;
 		EquipmentComponent* killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
-		killer_equipment->mAttackMultiplier *= 1.1f;
-		killer_equipment->mAttackRange		*= KILL_SCALE;
-		killer_equipment->mMeleeRange		*= KILL_SCALE;
+		killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
+		killer_equipment->mAttackRange		*= SIZE_REWARD;
+		killer_equipment->mMeleeRange		*= SIZE_REWARD;
 		TransformComponent* kek = getComponentFromKnownEntity<TransformComponent>(killer_id);
-		kek->scale.x *= KILL_SCALE;
-		kek->scale.y *= KILL_SCALE;
-		kek->scale.z *= KILL_SCALE; 
+		kek->scale.x *= SIZE_REWARD;
+		kek->scale.y *= SIZE_REWARD;
+		kek->scale.z *= SIZE_REWARD;
 	}
 	
 
