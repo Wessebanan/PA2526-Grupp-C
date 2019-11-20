@@ -3,6 +3,8 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameAI/AIComponents.h"
 
+#include "../gameUtility/UtilityGraphics.h"
+
 using namespace DirectX;
 using namespace ecs::components;
 
@@ -38,12 +40,13 @@ namespace ecs
 				Iterate all powerups
 			*/
 
-			TransformComponent* p_unit_transf;
-			TransformComponent* p_powerup_transf;
+			XMVECTOR unit_xz_location;
+			XMVECTOR powerup_xz_location;
 			PowerupLootComponent* p_powerup_loot;
 			for (FilteredEntity powerup : rPowerups.entities)
 			{
-				p_powerup_transf = powerup.getComponent<TransformComponent>();
+				powerup_xz_location = XMLoadFloat3(&powerup.getComponent<TransformComponent>()->position);
+				XMVectorSetY(powerup_xz_location, 0.f);
 
 				/*
 					Iterate all units and handle all that are within pickup range.
@@ -51,9 +54,11 @@ namespace ecs
 
 				for (FilteredEntity unit : units.entities)
 				{
-					p_unit_transf = unit.getComponent<TransformComponent>();
+					// We can safely expect units to have a transform component.
+					unit_xz_location = XMLoadFloat3(&unit.getComponent<TransformComponent>()->position);
+					XMVectorSetY(unit_xz_location, 0.f);
 
-					if (XMVectorGetX(XMLoadFloat3(&p_powerup_transf->position) - XMLoadFloat3(&p_unit_transf->position)) <= PICKUP_RANGE)
+					if (XMVectorGetX(XMVector3Length(powerup_xz_location - unit_xz_location)) <= PICKUP_RANGE)
 					{
 						p_powerup_loot = powerup.getComponent<PowerupLootComponent>();
 
@@ -61,7 +66,9 @@ namespace ecs
 							Handle pickup
 						*/
 
-						removeEntity(powerup.entity->getID());
+						//removeEntity(powerup.entity->getID());
+
+						p_powerup_loot->mColor = PACK(0, 255, 255, 255);
 
 						break;
 					}

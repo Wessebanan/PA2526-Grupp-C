@@ -5,6 +5,8 @@
 
 #include "../gameUtility/UtilityGraphics.h"
 
+#include <iostream>
+
 namespace ecs
 {
 	namespace systems
@@ -22,6 +24,19 @@ namespace ecs
 
 		void PowerupSpawner::readEvent(BaseEvent& _event, float _delta)
 		{
+			/*
+				Sanity check event type.
+			*/
+
+			if (_event.getTypeID() != events::SpawnPowerupEvent::typeID)
+			{
+				return;
+			}
+
+			/*
+				Cast event in order to read its data.
+			*/
+
 			events::SpawnPowerupEvent& r_event = static_cast<events::SpawnPowerupEvent&>(_event);
 
 			components::TransformComponent* p_tile_transform_comp =
