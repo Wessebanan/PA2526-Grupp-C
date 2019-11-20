@@ -67,7 +67,7 @@ namespace graphics
 
 		{
 			D3D11_SAMPLER_DESC desc = {};
-			desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+			desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 			desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 			desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 			desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
