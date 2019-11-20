@@ -687,17 +687,17 @@ namespace ecs
 		void SSAORenderSystem::act(float _delta)
 		{
 #ifndef _DEBUG
-			mRenderMgr.ExecutePipeline(
-				mPipelineSSAO,
-				mShaderSSAO);
+			//mRenderMgr.ExecutePipeline(
+			//	mPipelineSSAO,
+			//	mShaderSSAO);
 
-			mRenderMgr.ExecutePipeline(
-				mPipelineBlur,
-				mShaderBlur);
+			//mRenderMgr.ExecutePipeline(
+			//	mPipelineBlur,
+			//	mShaderBlur);
 
-			mRenderMgr.ExecutePipeline(
-				mPipelineSSAO,
-				mShaderBlur_v);
+			//mRenderMgr.ExecutePipeline(
+			//	mPipelineSSAO,
+			//	mShaderBlur_v);
 #endif // !_DEBUG
 
 			mRenderMgr.ExecutePipeline(

@@ -58,7 +58,7 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 	rEcs.createSystem<ecs::systems::UnitInvincibilityTimerSystem>();
 
 	// Color
-	rEcs.createSystem<ecs::systems::UnitColorSwitchSystem>();
+	//rEcs.createSystem<ecs::systems::UnitColorSwitchSystem>();
 }
 
 inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh * pMesh)

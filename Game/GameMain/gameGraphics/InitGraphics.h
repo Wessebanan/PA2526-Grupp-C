@@ -92,8 +92,8 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	p_pfComp->pipelineDesc.Fov = 3.14f / 2.0f;
 	p_pfComp->pipelineDesc.NearPlane = 1.0f;
 	p_pfComp->pipelineDesc.FarPlane = 100.0f;
-	p_pfComp->pipelineDesc.ClearColor[0] = 0.25f;
-	p_pfComp->pipelineDesc.ClearColor[1] = 0.25f;
+	p_pfComp->pipelineDesc.ClearColor[0] = 1.0f;
+	p_pfComp->pipelineDesc.ClearColor[1] = 1.0f;
 	p_pfComp->pipelineDesc.ClearColor[2] = 1.00f;
 	p_pfComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ForwardRenderingPipeline, &p_pfComp->pipelineDesc);
 
@@ -124,24 +124,24 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	rEcs.createSystem<systems::UnitRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
 
-	rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_render_buffer);
+	//rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_render_buffer);
 
 	rEcs.createSystem<systems::WeaponRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
 
-	rEcs.createSystem<MapRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_state_mgr, 
-			rMapMeshData.pMesh, 
-			rMapMeshData.vertexCount);
+	//rEcs.createSystem<MapRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_state_mgr, 
+	//		rMapMeshData.pMesh, 
+	//		rMapMeshData.vertexCount);
 
-	rEcs.createSystem<ParticleRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_render_buffer, &r_state_mgr);
+	//rEcs.createSystem<ParticleRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_render_buffer, &r_state_mgr);
 
-	rEcs.createSystem<OceanRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_state_mgr, 
-			rOceanMeshData.pMesh,
-			rOceanMeshData.vertexCount);
+	//rEcs.createSystem<OceanRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_state_mgr, 
+	//		rOceanMeshData.pMesh,
+	//		rOceanMeshData.vertexCount);
 
 
 	/*

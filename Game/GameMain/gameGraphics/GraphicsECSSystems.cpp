@@ -164,7 +164,7 @@ namespace ecs
 			p_render_mgr->mgr.ExecutePipeline(
 				p_pipeline_shadow_map->pipeline,
 				0,
-				p_ocean_renderer->mRenderProgram - 1);
+				/*p_ocean_renderer->mRenderProgram - 1*/0);
 #endif // !_DEBUG
 
 			// Render To Color Buffer
