@@ -352,11 +352,16 @@ namespace ecs
 		{
 			updateType = SystemUpdateType::Actor;
 			mInstanceLayout = { 0 };
+
+			mpHeightData = NULL;
 		}
 
 		OceanRenderSystem::~OceanRenderSystem()
 		{
-
+			if (mpHeightData)
+			{
+				free(mpHeightData);
+			}
 		}
 
 		void OceanRenderSystem::act(float _delta)

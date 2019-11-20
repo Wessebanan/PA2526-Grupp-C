@@ -101,11 +101,12 @@ int main()
 	ecs::EntityComponentSystem ecs;
 	TempUISystemPtrs my_UI_systems;
 
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::TrapComponent>(400);
+	constexpr UINT RESERVED_COMPONENTS = 50000;
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::TrapComponent>(RESERVED_COMPONENTS);
 
 	/*
 		InitAll is a list of ecs system Init-functions.

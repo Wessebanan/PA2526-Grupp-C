@@ -80,7 +80,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::PipelineShadowMapComponent* p_psmComp = rEcs.getComponentFromEntity<components::PipelineShadowMapComponent>(graphics_entity_id);
 	components::PipelineForwardComponent* p_pfComp = rEcs.getComponentFromEntity<components::PipelineForwardComponent>(graphics_entity_id);
 
-	p_psmComp->pipelineDesc.PixelsWidth = 4096;
+	p_psmComp->pipelineDesc.PixelsWidth = 2048;
 	p_psmComp->pipelineDesc.Width = 90.0f;
 	p_psmComp->pipelineDesc.Height = 60.0f;
 	p_psmComp->pipelineDesc.NearPlane = 1.0f;
@@ -187,7 +187,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
 
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_SWORD, "../meshes/sword.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_SWORD, "../meshes/weapon_maul.fbx");
 
 	// Create Quad For GPU
 	{
