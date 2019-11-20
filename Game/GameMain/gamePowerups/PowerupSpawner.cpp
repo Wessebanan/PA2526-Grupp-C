@@ -69,7 +69,7 @@ namespace ecs
 			transform_comp.scale = { 0.5f, 0.03f, 0.5f };
 			transform_comp.rotation.x = 3.14f / 2.f;
 
-			loot_comp.mObjectType = r_event.powerupType;
+			loot_comp.mPowerupType = r_event.powerupType;
 
 			/*
 				Create powerup loot entity. Then, add type specific components to it.

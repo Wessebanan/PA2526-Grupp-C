@@ -9,7 +9,7 @@ namespace ecs
 	{
 		struct PowerupLootComponent : public ECSComponent<PowerupLootComponent>
 		{
-			GAME_OBJECT_TYPE mObjectType;
+			GAME_OBJECT_TYPE mPowerupType;
 			uint32_t mColor;
 		};
 

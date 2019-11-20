@@ -1,9 +1,8 @@
 #include "PowerupLogic.h"
+#include "PowerupEvents.h"
 #include "PowerupComponents.h"
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameAI/AIComponents.h"
-
-#include "../gameUtility/UtilityGraphics.h"
 
 using namespace DirectX;
 using namespace ecs::components;
@@ -63,17 +62,25 @@ namespace ecs
 						p_powerup_loot = powerup.getComponent<PowerupLootComponent>();
 
 						/*
-							Handle pickup
+							Create powerup trigger event and remove powerup loot entity.
 						*/
 
-						//removeEntity(powerup.entity->getID());
+						events::PowerupTrigger trigger_event;
+						trigger_event.powerupType = p_powerup_loot->mPowerupType;
+						trigger_event.affectedUnitId = unit.entity->getID();
+						createEvent(trigger_event);
 
-						p_powerup_loot->mColor = PACK(0, 255, 255, 255);
+						removeEntity(powerup.entity->getID());
+
+						/*
+							Break out from checking any other unit colliding with current powerup,
+							since the powerup is now removed.
+						*/
 
 						break;
 					}
-				}
-			}
+				} // end for units
+			} // end for powerups
 		}
 	}
 }

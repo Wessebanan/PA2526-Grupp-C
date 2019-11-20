@@ -1081,7 +1081,7 @@ namespace ecs
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::PowerupLootComponent* p_loot_comp = object.getComponent<components::PowerupLootComponent>();
-				mObjectTypeCount[p_loot_comp->mObjectType - (GAME_OBJECT_TYPE_POWERUP_OFFSET_TAG + 1)]++;
+				mObjectTypeCount[p_loot_comp->mPowerupType - (GAME_OBJECT_TYPE_POWERUP_OFFSET_TAG + 1)]++;
 			}
 
 			// Set index to write to in RenderBuffer, per mesh
@@ -1099,7 +1099,7 @@ namespace ecs
 				components::TransformComponent* p_transform_comp = powerup.getComponent<components::TransformComponent>();
 
 				// Get index, depending on mesh type
-				UINT& index = object_type_individual_index[p_loot_comp->mObjectType - (GAME_OBJECT_TYPE_POWERUP_OFFSET_TAG + 1)];
+				UINT& index = object_type_individual_index[p_loot_comp->mPowerupType - (GAME_OBJECT_TYPE_POWERUP_OFFSET_TAG + 1)];
 
 				/*
 					Create a world matrix out of the powerup's transform.

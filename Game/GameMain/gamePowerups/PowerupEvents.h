@@ -12,5 +12,11 @@ namespace ecs
 			GAME_OBJECT_TYPE powerupType;
 			ID spawnTileId;
 		};
+
+		struct PowerupTrigger : public ECSEvent<PowerupTrigger>
+		{
+			GAME_OBJECT_TYPE powerupType;
+			ID affectedUnitId;
+		};
 	}
 }
