@@ -6,11 +6,11 @@ namespace ecs
 {
 	namespace systems
 	{
-		class PowerupLootAnimator : public ECSSystem<PowerupLootAnimator>
+		class PowerupLootAnimatorSystem : public ECSSystem<PowerupLootAnimatorSystem>
 		{
 		public:
-			PowerupLootAnimator();
-			~PowerupLootAnimator();
+			PowerupLootAnimatorSystem();
+			~PowerupLootAnimatorSystem();
 
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 		};

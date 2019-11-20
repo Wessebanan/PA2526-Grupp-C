@@ -6,19 +6,19 @@ namespace ecs
 {
 	namespace systems
 	{
-		PowerupLootAnimator::PowerupLootAnimator()
+		PowerupLootAnimatorSystem::PowerupLootAnimatorSystem()
 		{
 			updateType = EntityUpdate;
 			typeFilter.addRequirement(components::PowerupLootComponent::typeID);
 			typeFilter.addRequirement(components::TransformComponent::typeID);
 		}
 
-		PowerupLootAnimator::~PowerupLootAnimator()
+		PowerupLootAnimatorSystem::~PowerupLootAnimatorSystem()
 		{
 			//
 		}
 
-		void PowerupLootAnimator::updateEntity(FilteredEntity& _entityInfo, float _delta)
+		void PowerupLootAnimatorSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 		{
 			components::TransformComponent* p_transform_comp = _entityInfo.getComponent<components::TransformComponent>();
 			p_transform_comp->rotation.y += 0.5f * _delta;

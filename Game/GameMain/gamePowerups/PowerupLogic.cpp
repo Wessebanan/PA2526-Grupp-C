@@ -65,7 +65,7 @@ namespace ecs
 							Create powerup trigger event and remove powerup loot entity.
 						*/
 
-						events::PowerupTrigger trigger_event;
+						events::PowerupTriggerEvent trigger_event;
 						trigger_event.powerupType = p_powerup_loot->mPowerupType;
 						trigger_event.affectedUnitId = unit.entity->getID();
 						createEvent(trigger_event);

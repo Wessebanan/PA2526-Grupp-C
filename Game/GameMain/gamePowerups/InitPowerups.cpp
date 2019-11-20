@@ -16,6 +16,6 @@ void InitPowerups(ecs::EntityComponentSystem& rEcs)
 	rEcs.reserveComponentCount<HealthPackComponent>(400);
 
 	rEcs.createSystem<PowerupSpawner>(5);
-	rEcs.createSystem<PowerupLootAnimator>(5);
+	rEcs.createSystem<PowerupLootAnimatorSystem>(5);
 	rEcs.createSystem<PowerupLootCollisionSystem>(7);
 }
