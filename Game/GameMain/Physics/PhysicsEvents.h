@@ -44,5 +44,14 @@ namespace ecs
 			ID mEntityID;
 			float mTime;
 		};
+
+		EVENT(WeaponOnHitEvent)
+		{
+			GAME_OBJECT_TYPE Type;
+			DirectX::XMFLOAT3 Position;
+			float Range;
+			float Damage;
+			float Knockback;
+		};
 	} // events
 } // ecs

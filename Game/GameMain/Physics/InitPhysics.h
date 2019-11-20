@@ -59,6 +59,9 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 
 	// Color
 	rEcs.createSystem<ecs::systems::UnitColorSwitchSystem>();
+
+	// OnHit
+	rEcs.createSystem<ecs::systems::WeaponOnHitSystem>();
 }
 
 inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs)

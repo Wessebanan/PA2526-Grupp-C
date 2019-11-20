@@ -45,7 +45,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	// outside of the OBB.
 	case GAME_OBJECT_TYPE_WEAPON_SWORD:
 	{
-		vertices = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPES::GAME_OBJECT_TYPE_WEAPON_SWORD)->GetVertexPositionVector();
+		vertices = MeshContainer::GetMeshCPU(weapon_component->mType)->GetVertexPositionVector();
 		weapon_component->mBoundingVolume = new OBB;
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
 		obb->CreateFromPoints(*(BoundingOrientedBox*)obb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
@@ -65,6 +65,29 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		break;
 	}
 
+
+	case GAME_OBJECT_TYPE_WEAPON_HAMMER:
+	{
+		vertices = MeshContainer::GetMeshCPU(weapon_component->mType)->GetVertexPositionVector();
+		weapon_component->mBoundingVolume = new OBB;
+		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
+		obb->CreateFromPoints(*(BoundingOrientedBox*)obb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
+
+		OBB temp_obb = OBB(*obb);
+		// Applying scale to aabb to find actual range.
+		temp_obb.Transform(UtilityEcsFunctions::GetWorldMatrix(*transform_component));
+
+		// Finding greatest extent in obb and setting that (*2) to attack range (for now).
+		XMFLOAT3 extents = temp_obb.Extents;
+		weapon_component->mWeaponRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
+		weapon_component->mWeaponRange *= 2;
+
+		weapon_component->mBaseDamage = BASE_HAMMER_DAMAGE;
+
+		weapon_component->mKnockback = HAMMER_KNOCKBACK;
+		break;
+	}
+
 	case GAME_OBJECT_TYPE_WEAPON_FIST:
 	{
 		// Fist is only a unit sphere, supposed to get hand transform.
@@ -79,6 +102,22 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		weapon_component->mBaseDamage = BASE_FIST_DAMAGE;
 
 		weapon_component->mKnockback = FIST_KNOCKBACK;
+		break;
+	}
+	case GAME_OBJECT_TYPE_WEAPON_BOMB:
+	{
+		// Fist is only a unit sphere, supposed to get hand transform.
+		weapon_component->mBoundingVolume = new Sphere;
+		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
+		sphere->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		sphere->Radius = 20.0f;
+
+		// TODO: Get arm length and set to attack range.
+		weapon_component->mWeaponRange = 5.0f;
+
+		weapon_component->mBaseDamage = BASE_FIST_DAMAGE;
+
+		weapon_component->mKnockback = 10.0f;
 		break;
 	}
 	default:
@@ -127,12 +166,14 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	switch (weapon_component->mType)
 	{
 	case GAME_OBJECT_TYPE_WEAPON_SWORD:
+	case GAME_OBJECT_TYPE_WEAPON_HAMMER:
 	{
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
 		weapon_bv = new OBB(*obb);
 		break;
 	}
 	case GAME_OBJECT_TYPE_WEAPON_FIST:
+	case GAME_OBJECT_TYPE_WEAPON_BOMB:
 	{
 		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
 		weapon_bv = new Sphere(*sphere);
@@ -222,6 +263,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		intersect = weapon_bv->Intersects(&current_aabb);
 		if (intersect)
 		{
+
 			collided_unit = current_unit;
 			break;
 		}
@@ -271,6 +313,19 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 				break;
 			}
 		}
+	}
+	else if (intersect && weapon_component->mType == GAME_OBJECT_TYPE_WEAPON_BOMB)
+	{
+		std::cout << "BOOOOOMB! 0" << "\n";
+
+		WeaponOnHitEvent hit_event;
+		hit_event.Type		= weapon_component->mType;
+		hit_event.Position	= weapon_transform_component->position;
+		hit_event.Range		= weapon_component->mWeaponRange;
+		hit_event.Damage	= weapon_component->mBaseDamage;
+		hit_event.Knockback = weapon_component->mKnockback;
+
+		createEvent(hit_event);
 	}
 	else if (intersect)
 	{
@@ -443,4 +498,76 @@ void ecs::systems::UnitInvincibilityTimerSystem::updateEntity(FilteredEntity& _e
 		removeComponent(_entity.entity->getID(), InvincilibityTimer::typeID);
 	}
 }
+#pragma endregion
+
+#pragma region WeaponOnHitSystem
+
+ecs::systems::WeaponOnHitSystem::WeaponOnHitSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(WeaponOnHitEvent::typeID);
+}
+
+ecs::systems::WeaponOnHitSystem::~WeaponOnHitSystem()
+{
+
+}
+
+void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
+{
+	if (_event.getTypeID() != WeaponOnHitEvent::typeID)
+	{
+		return;
+	}
+
+	std::cout << "BOOOOOMB! 1" << "\n";
+
+	const WeaponOnHitEvent& hit_event = static_cast<WeaponOnHitEvent&>(_event);
+	const XMVECTOR weapon_position = XMLoadFloat3(&hit_event.Position);
+
+	// Grabbing and storing all ocean tiles.
+	TypeFilter unit_filter;
+	unit_filter.addRequirement(components::UnitComponent::typeID);
+	unit_filter.addRequirement(components::TransformComponent::typeID);
+	unit_filter.addRequirement(components::HealthComponent::typeID);
+	unit_filter.addRequirement(components::DynamicMovementComponent::typeID);
+
+	EntityIterator iter = getEntitiesByFilter(unit_filter);
+
+
+	for (FilteredEntity& unit : iter.entities)
+	{
+		const TransformComponent* p_unit_transform = unit.getComponent<TransformComponent>();
+		const XMVECTOR unit_position = XMLoadFloat3(&p_unit_transform->position);
+		const float unit_weapon_dist = XMVectorGetX(XMVector3Length(unit_position - weapon_position));
+		
+		
+		// Calculating damage by multiplying weapon velocity and the base damage.
+		const float damage = hit_event.Damage;
+		HealthComponent* p_collided_constitution = unit.getComponent<HealthComponent>();
+		p_collided_constitution->mHealth -= damage;
+
+		// INVINCIBILITY
+		// (based on damage dealt)
+		/*InvincilibityTimer timer;
+		timer.mTime = log2f(damage) * BASE_INVINCIBILITY_TIME;
+		createComponent<InvincilibityTimer>(collided_unit, timer);*/
+
+		// KNOCKBACK
+		ForceImpulseEvent knockback;
+		knockback.mDirection = unit.getComponent<DynamicMovementComponent>()->mDirection;
+
+		// Small y boost in knockback to send units FLYING.
+		knockback.mDirection.y += 0.3f;
+
+		// Normalize knockback direction so it's not CRAZY.
+		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
+
+		knockback.mForce		= hit_event.Knockback;
+		knockback.mEntityID		= unit.entity->getID();
+		createEvent(knockback);
+		
+	}
+}
+
 #pragma endregion

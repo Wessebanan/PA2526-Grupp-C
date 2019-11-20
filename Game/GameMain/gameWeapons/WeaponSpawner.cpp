@@ -62,6 +62,8 @@ namespace ecs
 			switch (r_spawn_event.weaponType)
 			{
 			case GAME_OBJECT_TYPE_WEAPON_SWORD:
+			case GAME_OBJECT_TYPE_WEAPON_HAMMER:
+			case GAME_OBJECT_TYPE_WEAPON_BOMB:
 			{
 				/*
 					"Spear sword to the ground."
