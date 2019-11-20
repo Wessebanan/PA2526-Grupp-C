@@ -271,4 +271,18 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
+
+	TypeFilter tile_filter;
+	tile_filter.addRequirement(TileComponent::typeID);
+	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+	SpawnPowerupEvent spawn_event;
+	spawn_event.powerupType = GAME_OBJECT_TYPE_POWERUP_HEALTH_PACK;
+	for (FilteredEntity& tile : tiles.entities)
+	{
+		if (tile.getComponent<TileComponent>()->tileType != WATER)
+		{
+			spawn_event.spawnTileId = tile.entity->getID();
+			rECS.createEvent(spawn_event);
+		}
+	}
 }

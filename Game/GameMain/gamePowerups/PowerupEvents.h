@@ -13,9 +13,9 @@ namespace ecs
 			ID spawnTileId;
 		};
 
-		struct PowerupTriggerEvent : public ECSEvent<PowerupTriggerEvent>
+		struct HealthPackPickupEvent : public ECSEvent<HealthPackPickupEvent>
 		{
-			GAME_OBJECT_TYPE powerupType;
+			float healPercentOfBaseHp;
 			ID affectedUnitId;
 		};
 	}

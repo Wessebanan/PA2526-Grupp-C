@@ -3,6 +3,7 @@
 #include "PowerupComponents.h"
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameAI/AIComponents.h"
+#include "../Physics/PhysicsComponents.h"
 
 using namespace DirectX;
 using namespace ecs::components;
@@ -11,6 +12,12 @@ namespace ecs
 {
 	namespace systems
 	{
+		/*
+			#################################
+			-- PowerupLootCollisionSystem
+			#################################
+		*/
+
 		PowerupLootCollisionSystem::PowerupLootCollisionSystem()
 		{
 			updateType = MultiEntityUpdate;
@@ -65,12 +72,24 @@ namespace ecs
 							Create powerup trigger event and remove powerup loot entity.
 						*/
 
-						events::PowerupTriggerEvent trigger_event;
-						trigger_event.powerupType = p_powerup_loot->mPowerupType;
-						trigger_event.affectedUnitId = unit.entity->getID();
-						createEvent(trigger_event);
+						switch (p_powerup_loot->mPowerupType)
+						{
+						case GAME_OBJECT_TYPE_POWERUP_HEALTH_PACK:
+						{
+							events::HealthPackPickupEvent trigger_event;
+							trigger_event.affectedUnitId = unit.entity->getID();
+							trigger_event.healPercentOfBaseHp = 50.f;
+							createEvent(trigger_event);
 
-						removeEntity(powerup.entity->getID());
+							removeEntity(powerup.entity->getID());
+							break;
+						}
+
+						default:
+							break;
+						}
+
+						
 
 						/*
 							Break out from checking any other unit colliding with current powerup,
@@ -81,6 +100,56 @@ namespace ecs
 					}
 				} // end for units
 			} // end for powerups
+		}
+
+
+
+		/*
+			#################################
+			-- HealthPackTriggerSystem
+			#################################
+		*/
+
+		HealthPackTriggerSystem::HealthPackTriggerSystem()
+		{
+			updateType = EventReader;
+			typeFilter.addRequirement(events::HealthPackPickupEvent::typeID);
+		}
+
+		HealthPackTriggerSystem::~HealthPackTriggerSystem()
+		{
+			//
+		}
+
+		void HealthPackTriggerSystem::readEvent(BaseEvent& _event, float _delta)
+		{
+			// Sanity check event type
+			if (_event.getTypeID() != events::HealthPackPickupEvent::typeID)
+			{
+				return;
+			}
+
+			/*
+				Cast event in order to extract its data.
+			*/
+
+			events::HealthPackPickupEvent& r_event = static_cast<events::HealthPackPickupEvent&>(_event);
+
+			// Sanity check unit existance
+			if (!getEntity(r_event.affectedUnitId))
+			{
+				return;
+			}
+
+			components::HealthComponent* p_health_comp = getComponentFromKnownEntity<HealthComponent>(r_event.affectedUnitId);
+
+			// Sanity check component existance
+			if (!p_health_comp)
+			{
+				return;
+			}
+
+			p_health_comp->mHealth = min(p_health_comp->mHealth + r_event.healPercentOfBaseHp, p_health_comp->mBaseHealth);
 		}
 	}
 }

@@ -29,5 +29,19 @@ namespace ecs
 
 			const float PICKUP_RANGE = 0.7f;
 		};
+
+		/*
+			Below are all systems that handle powerup triggers.
+		*/
+
+		class HealthPackTriggerSystem : public ECSSystem<HealthPackTriggerSystem>
+		{
+		public:
+
+			HealthPackTriggerSystem();
+			~HealthPackTriggerSystem();
+
+			void readEvent(BaseEvent& _event, float _delta) override;
+		};
 	}
 }
