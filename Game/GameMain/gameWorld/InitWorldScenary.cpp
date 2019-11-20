@@ -2,6 +2,7 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameWorld/WorldComponents.h"
 #include "../Physics/PhysicsComponents.h"
+#include "../gameWorld/WorldScenerySystems.h"
 #include <DirectXMath.h>
 
 using namespace DirectX;
@@ -21,7 +22,9 @@ void InitWorldScenary(ecs::EntityComponentSystem& rECS)
 	trans_comp.scale.y *= 5;
 	trans_comp.scale.z *= 5;
 	shark_move_comp.mGravity = 0.f;
-	shark_move_comp.mOnGround = true; 
+	shark_move_comp.mOnGround = true;
+	shark_move_comp.mMaxVelocity = 0.15f;
 
 	rECS.createEntity(trans_comp, color_comp, shark_comp, shark_move_comp);
+	rECS.createSystem<ecs::systems::WorldSceneryUpdateSystem>(9);
 }

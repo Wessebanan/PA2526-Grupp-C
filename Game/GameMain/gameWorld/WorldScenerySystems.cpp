@@ -4,6 +4,7 @@
 #include "../Physics/PhysicsComponents.h"
 #include "../Physics/PhysicsEvents.h"
 
+
 namespace ecs
 {
 	namespace systems
@@ -24,7 +25,7 @@ namespace ecs
 		void WorldSceneryUpdateSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 		{
 			components::DynamicMovementComponent* kek = getComponentFromKnownEntity<components::DynamicMovementComponent>(_entityInfo.entity->getID());
-			XMFLOAT3 temp_move(1, 0, 0);
+			XMFLOAT3 temp_move(0.2f, 0, 0.2f);
 			
 			kek->mForward = temp_move;
 			
