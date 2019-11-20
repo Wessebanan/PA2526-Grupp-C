@@ -8,8 +8,6 @@
 
 void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 {
-	std::cout << "SOME OUTPRINT" << std::endl;
-
 	const unsigned int OBJECTCOUNT = 12;
 	
 	ecs::components::SceneObjectComponent p_scene_obj;

@@ -21,9 +21,9 @@
 #include "../gameTraps/TrapComponents.h"
 
 
-
+// Normalizes scene objects and scene meshes to allow for indexing in array
 #define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
-#define TO_SCENE(x) (x - SCENE_OBJECT_ENUM_OFFSET)
+#define TO_SCENE(x) (x - SCENE_OBJECT_ENUM_OFFSET) 
 
 //#define RUN_SSAO	// Comment this out if performance is unbearable
 
@@ -605,7 +605,7 @@ namespace ecs
 				}
 			}
 			 
-			mObjectCount = 0;
+			mObjectCount = 0; // Sum it up
 			for (UINT i = 0; i < GAME_OBJECT_TYPE_MESH_COUNT; i++)
 			{
 				mObjectCount += mInstancePerMesh[i];
@@ -631,6 +631,7 @@ namespace ecs
 
 				const UINT scene_object_index = TO_SCENE(p_obj_comp->mObject);
 
+				// For each scene object add their respective scene mesh for rendering
 				for (UINT i = mMap[scene_object_index].Start; i <= mMap[scene_object_index].End; i++)
 				{
 					UINT& index = object_type_individual_index[TO_MESH(i)];
@@ -667,6 +668,12 @@ namespace ecs
 			mInstanceLayout.pMeshes					= mObjectMeshRegion;
 			mInstanceLayout.pInstanceCountPerMesh	= &mObjectCount;
 
+			/*
+				Add new meshes here
+
+				Use 'mMap' to map scene object to scene mesh
+				Use 'mColors' to apply color to each mesh (colors will not differ between same scene object)
+			*/
 
 			/* --- Fruit Tree --- */
 			mMap[TO_SCENE(GAME_OBJECT_TYPE_FRUITTREE)] = { 
@@ -675,8 +682,8 @@ namespace ecs
 			};
 
 			mColors[TO_MESH(GAME_OBJECT_TYPE_TREE_LEAVES)]	= { 104, 200, 59 };
-			mColors[TO_MESH(GAME_OBJECT_TYPE_TREE_TRUNK)]	= { 104, 72, 59 };
-			mColors[TO_MESH(GAME_OBJECT_TYPE_TREE_ROCK)]	= { 60, 60, 60 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TREE_TRUNK)]	= { 104,  72, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TREE_ROCK)]	= {  60,  60, 60 };
 			
 
 			/* -- Barrel --- */
@@ -685,8 +692,8 @@ namespace ecs
 				GAME_OBJECT_TYPE_BARREL_BARREL 
 			};
 
-			mColors[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)] = { 60,  60, 60 };
-			mColors[TO_MESH(GAME_OBJECT_TYPE_BARREL_BARREL)] = { 104, 72, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)] = {  60,  60, 60 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_BARREL_BARREL)] = { 104,  72, 59 };
 
 
 			/* -- Winter Tree --- */
@@ -751,6 +758,7 @@ namespace ecs
 
 			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_CAGE)] = { 60,  60, 60 };
 
+			// End
 
 			const std::string vs = GetShaderFilepath("VS_Weapon.cso");
 			const std::string ps = GetShaderFilepath("PS_Default.cso");
