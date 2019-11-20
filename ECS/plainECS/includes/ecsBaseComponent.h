@@ -7,6 +7,7 @@ namespace ecs
 {
 	struct BaseComponent;
 	typedef ID(*ComponentCreateFunction)(void* _memoryPtr, BaseComponent* _initialData);
+	typedef void(*ComponentFreeFunction)(BaseComponent* _initialData);
 
 	/*
 		BaseComponent is a top level struct in the component inheritance.
@@ -29,6 +30,7 @@ namespace ecs
 		virtual TypeID getTypeID() { return 0; }
 		virtual std::string getName() { return ""; }
 		virtual ComponentCreateFunction getCreateFunction() { return nullptr; }
+		virtual ComponentFreeFunction getFreeFunction() { return nullptr; }
 
 	protected:
 		static TypeID typeIDCounter;
@@ -52,11 +54,13 @@ namespace ecs
 		static const TypeID typeID;
 		static const std::string name;
 		static const ComponentCreateFunction createFunction;
+		static const ComponentFreeFunction freeFunction;
 
 		virtual size_t getSize() { return T::size; }
 		virtual TypeID getTypeID() { return T::typeID; }
 		virtual std::string getName() { return T::name; }
 		virtual ComponentCreateFunction getCreateFunction() { return ECSComponent<T>::createFunction; }
+		virtual ComponentFreeFunction getFreeFunction() { return ECSComponent<T>::freeFunction; }
 	};
 
 	/*
@@ -70,6 +74,17 @@ namespace ecs
 		_initialData->id = BaseComponent::uniqueIDCounter++;
 		new(_memoryPtr) T(*(T*)_initialData);
 		return _initialData->id;
+	}
+
+	/*
+		Defines a dynamic free function. This function will call the correct
+		destructor of the component.
+	*/
+	template <typename T>
+	void componentFree(BaseComponent* _initialData)
+	{
+		T* p_typed_ptr = (T*)_initialData;
+		p_typed_ptr->~T();
 	}
 
 
@@ -87,7 +102,9 @@ namespace ecs
 	template <typename T>
 	const std::string ECSComponent<T>::name(__nameof<T>());
 
-
 	template <typename T>
 	const ComponentCreateFunction ECSComponent<T>::createFunction(componentCreate<T>);
+
+	template <typename T>
+	const ComponentFreeFunction ECSComponent<T>::freeFunction(componentFree<T>);
 }

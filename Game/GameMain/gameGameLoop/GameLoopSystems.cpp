@@ -22,6 +22,10 @@
 
 #include "..///gameUtility/CameraEcsFunctions.h"
 
+#include "..//gameAudio/AudioECSEvents.h"
+
+#include "../gameWeapons/WeaponSpawner.h"
+
 using namespace ecs;
 using namespace ecs::components;
 
@@ -38,7 +42,6 @@ using namespace ecs::components;
 ecs::systems::GameLoopSystem::GameLoopSystem()
 {
 	updateType = ecs::EntityUpdate;
-	typeFilter.addRequirement(ecs::components::GameLoopComponent::typeID);
 	typeFilter.addRequirement(ecs::components::UITextComponent::typeID);
 }
 
@@ -49,7 +52,6 @@ ecs::systems::GameLoopSystem::~GameLoopSystem()
 // Runs neccesary gameloops, timers etc
 void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
 	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
 
 	static float total_time;
@@ -69,18 +71,13 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 
 	if (p_text)
 	{
+		// To be sent to the UI
 		wstring ss = L"";
 	
-	
-		// To be sent to the UI
-		//ss.append("ROUNDTIME: ");
-		//ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
 		ss.append(L"\nFRAMERATE: ");
 		ss.append(to_wstring(framerate_to_print));
 		ss.append(L"\nFRAMETIME: ");
 		ss.append(to_wstring(frametime_to_print));
-		//ss.append(L"\nGAMETIME: ");
-		//ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
 	
 		p_text->mStrText = ss;
 	}
@@ -232,6 +229,7 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		QuadTreeComponent quad_tree;
 		int2 grid_size = GridProp::GetInstance()->GetSize();
 		createEntity(quad_tree);
+
 		// Puts the players into waiting phase
 		itt = getComponentsOfType<InputBackendComp>();
 		InputBackendComp* p_ib;
@@ -268,7 +266,21 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		{
 			p_ib->backend->changeGamestate(WEBGAMESTATE::BATTLEPHASE);
 		}
-
+		{
+			ecs::events::PlayMusic m_event;
+			m_event.audioName = AudioName::CC_TEST_SONG;
+			createEvent(m_event);
+		}
+		{
+			ecs::events::MusicSetVolume m_event;
+			m_event.volume = 0.0f;
+			createEvent(m_event);
+		}
+		{
+			ecs::events::FadeInMusic m_event;
+			m_event.fadeInTimeInSeconds = 2.0f;
+			createEvent(m_event);
+		}
 
 		this->CreateUnits();
 		this->CreateUnitPhysics();
@@ -282,11 +294,15 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		}
 
 		ComponentIterator it = ecs::ECSUser::getComponentsOfType(PlayerStateComponent::typeID);
-		PlayerStateComponent* p_player_state_comp = static_cast<PlayerStateComponent*>(it.next());
-		for (int i = 0; i < 4; i++)
+		PlayerStateComponent* p_player_state_comp = dynamic_cast<PlayerStateComponent*>(it.next());
+		if (p_player_state_comp)
 		{
-			p_player_state_comp->mCurrentStates[i] = IDLE;
+			for (int i = 0; i < 4; i++)
+			{
+				p_player_state_comp->mCurrentStates[i] = IDLE;
+			}
 		}
+		
 
 		itt = getComponentsOfType<UITextComponent>();
 		UITextComponent* text_comp;
@@ -330,6 +346,14 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
 
 				bitmap_pos_comp->mDrawArea.bottom = 150;
+			}
+		}
+
+		{
+			void* p_spawn_system;
+			if (p_spawn_system = CreateSystem<systems::MasterWeaponSpawner>(2))
+			{
+				((systems::MasterWeaponSpawner*)p_spawn_system)->Initialize();
 			}
 		}
 
@@ -499,10 +523,6 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	filter.addRequirement(UnitComponent::typeID);
 	ecs::EntityIterator it = getEntitiesByFilter(filter);
 	
-	ModelLoader::Mesh* pMesh = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT);
-
-	MeshComponent mesh_component;
-	mesh_component.mMesh = pMesh;
 	ObjectCollisionComponent object_collision;
 	GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
@@ -512,10 +532,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	for (int i = 0; i < it.entities.size(); i++)
 	{
 		ecs::Entity* current = it.entities.at(i).entity;
-		if (!current->hasComponentOfType<MeshComponent>())
-		{
-			createComponent<MeshComponent>(current->getID(), mesh_component);
-		}
+		
 
 		if (!current->hasComponentOfType<ObjectCollisionComponent>())
 		{
@@ -557,7 +574,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 			// Set attack range to melee range since fist adds no range.
 			equipment_component.mAttackRange = equipment_component.mMeleeRange;
 
-			Entity* weapon_entity = CreateWeaponEntity(nullptr, GAME_OBJECT_TYPE_WEAPON_FIST, current->getID());
+			Entity* weapon_entity = CreateWeaponEntity(GAME_OBJECT_TYPE_WEAPON_FIST, current->getID());
 			
 			equipment_component.mEquippedWeapon = weapon_entity->getID();
 			createComponent<EquipmentComponent>(current->getID(), equipment_component);
@@ -565,32 +582,26 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	}
 }
 
-ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(ModelLoader::Mesh* pMesh, GAME_OBJECT_TYPE weaponType, ID ownerEntity)
+ecs::Entity* ecs::systems::RoundStartSystem::CreateWeaponEntity(GAME_OBJECT_TYPE weaponType, ID ownerEntity)
 {
 	WeaponComponent		weapon_component;
 	TransformComponent	weapon_transform_component;
-	MeshComponent		weapon_mesh_component;
 
 	weapon_component.mType = weaponType;
 	weapon_component.mOwnerEntity = ownerEntity;
-	weapon_mesh_component.mMesh = pMesh;
 
 	switch (weaponType)
 	{
 	case GAME_OBJECT_TYPE_WEAPON_SWORD:
-	{
 		weapon_transform_component.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
 		break;
-	}
+
 	case GAME_OBJECT_TYPE_WEAPON_FIST:
 		weapon_transform_component.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		break;
-	case GAME_OBJECT_TYPE_WEAPON_PROJECTILE:
-		MessageBoxA(NULL, "Projectile weapon not yet implemented.", NULL, MB_YESNO);
-		break;
 	}
 
-	return createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
+	return createEntity(weapon_transform_component, weapon_component);
 }
 ///////////////////
 
@@ -618,7 +629,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 		{
 			ComponentIterator itt = ecs::ECSUser::getComponentsOfType(ecs::components::GameLoopComponent::typeID);
 			GameLoopComponent* p_gl;
-			while (p_gl = static_cast<GameLoopComponent*>(itt.next()))
+			while (p_gl = (GameLoopComponent*)itt.next())
 			{
 
 				// Check if the winner will sin the game now or not
@@ -708,12 +719,16 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			// Remove battlephase and start prephase
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
 			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
+			RemoveSystem(systems::MasterWeaponSpawner::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
 
 			//Change to overlook camera for the prephase
 			itt = getComponentsOfType<CameraComponent>();
 			CameraComponent* cam_comp = (CameraComponent*)itt.next();
-			removeEntity(cam_comp->getEntityID());
+			if (cam_comp)
+			{
+				removeEntity(cam_comp->getEntityID());
+			}
 
 			TransformComponent new_transf_comp;
 			CameraComponent new_cam_comp;
@@ -739,9 +754,5 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 				}
 			}
 		}
-
-
-		
 	}
-	
 }

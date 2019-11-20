@@ -79,7 +79,7 @@ namespace ecs
 			SetViewMatrix(
 				p_pipeline->data.ViewMatrix,
 				-8.0f, 10.0f, -2.0f,
-				1.2f, -0.7f, 1.0f);
+				0.5f, -1.0f, 0.5f);
 
 			p_mgr->mgr.UpdatePipeline(p_pipeline->pipeline, &p_pipeline->data);
 		}

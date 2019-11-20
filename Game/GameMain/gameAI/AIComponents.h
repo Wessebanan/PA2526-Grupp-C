@@ -60,6 +60,11 @@ namespace ecs
 			unsigned int goalID;
 		};
 
+		struct RallyStateComponent : public ECSComponent<RallyStateComponent>
+		{
+
+		};
+
 		struct AttackStateComponent : public ECSComponent<AttackStateComponent>
 		{
 			int enemyEntityId = 0;

@@ -123,14 +123,6 @@ namespace ecs
 		};
 
 		/*
-		* Temporary mesh component to test with ECS.
-		*/
-		COMP(MeshComponent)
-		{
-			ModelLoader::Mesh *mMesh;
-		};
-		
-		/*
 		* Holds weapon type (SWORD, PROJECTILE etc.), unspecified bounding volume,
 		* previous position for damage calculation on impact and base damage specific
 		* to a weapon.

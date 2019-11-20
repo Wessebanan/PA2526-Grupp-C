@@ -23,6 +23,13 @@
 #include "../gameGraphics/FakeStencilPipeline.h"
 #include "../gameGraphics/OutlinePipeline.h"
 
+
+// Normalizes scene objects and scene meshes to allow for indexing in array
+#define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
+#define TO_SCENE(x) (x - SCENE_OBJECT_ENUM_OFFSET) 
+
+//#define RUN_SSAO	// Comment this out if performance is unbearable
+
 namespace ecs
 {
 	namespace systems
@@ -588,25 +595,37 @@ namespace ecs
 				index counter.
 			*/
 
-			mObjectCount = _entities.entities.size();
+
+			// Count how many instances we have per scene object mesh
+			ZeroMemory(mInstancePerMesh, GAME_OBJECT_TYPE_MESH_COUNT * sizeof(UINT));
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
+
+				const UINT scene_object_index = TO_SCENE(p_obj_comp->mObject);
+
+				for (UINT i = mMap[scene_object_index].Start; i <= mMap[scene_object_index].End; i++)
+				{
+					mInstancePerMesh[TO_MESH(i)]++;
+				}
+			}
+			 
+			mObjectCount = 0; // Sum it up
+			for (UINT i = 0; i < GAME_OBJECT_TYPE_MESH_COUNT; i++)
+			{
+				mObjectCount += mInstancePerMesh[i];
+			}
 
 			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::SceneObjectRenderSystem::GetPerInstanceSize());
 
-			// Count how many instances we have per scene object mesh
-			ZeroMemory(mObjectTypeCount, SCENE_OBJECT_TYPE_COUNT * sizeof(UINT));
-			for (FilteredEntity object : _entities.entities)
-			{
-				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
-				mObjectTypeCount[p_obj_comp->mObject - SCENE_OBJECT_ENUM_OFFSET]++;
-			}
 
 			// Set index to write to in RenderBuffer, per mesh
-			UINT object_type_individual_index[SCENE_OBJECT_TYPE_COUNT] = { 0 };
+			UINT object_type_individual_index[GAME_OBJECT_TYPE_MESH_COUNT] = { 0 };
 
-			for (int i = 1; i < SCENE_OBJECT_TYPE_COUNT; i++)
+			for (int i = 1; i < GAME_OBJECT_TYPE_MESH_COUNT; i++)
 			{
-				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
+				object_type_individual_index[i] = object_type_individual_index[i - 1] + mInstancePerMesh[i - 1];
 			}
 
 			// Iterate all objects and write their data to the RenderBuffer
@@ -614,20 +633,26 @@ namespace ecs
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
 				components::TransformComponent* p_transform_comp = object.getComponent<components::TransformComponent>();
-				components::ColorComponent* p_color_comp = object.getComponent<components::ColorComponent>();
 
-				// Get index, depending on mesh type
-				UINT& index = object_type_individual_index[p_obj_comp->mObject - SCENE_OBJECT_ENUM_OFFSET];
+				const UINT scene_object_index = TO_SCENE(p_obj_comp->mObject);
 
-				mpBuffer[index].x = p_transform_comp->position.x;
-				mpBuffer[index].y = p_transform_comp->position.y;
-				mpBuffer[index].z = p_transform_comp->position.z;
+				// For each scene object add their respective scene mesh for rendering
+				for (UINT i = mMap[scene_object_index].Start; i <= mMap[scene_object_index].End; i++)
+				{
+					UINT& index = object_type_individual_index[TO_MESH(i)];
 
-				mpBuffer[index].color = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, p_color_comp->alpha);
-				index++;
+					DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
+
+					XMStoreFloat4x4(&mpBuffer[index].world, world);
+
+					const uint3 color = mColors[TO_MESH(i)];
+					mpBuffer[index].world._44 = PACK(color.Red, color.Green, color.Blue, 0);
+
+					index++;
+				}
 			}
 
-			mInstanceLayout.pInstanceCountPerMesh = mObjectTypeCount;
+			mInstanceLayout.pInstanceCountPerMesh = mInstancePerMesh;
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
@@ -635,33 +660,112 @@ namespace ecs
 		{
 			mpRenderMgr = pRenderMgr;
 
-			/*
-				This is a temporary map, until we have ONE mesh enum that everyone reads from.
-				This converts the SCENE_OBJECT mesh enum to MESH_TYPE enum in MeshContainer.
-			*/
-
-			for (UINT i = 0; i < SCENE_OBJECT_TYPE_COUNT; i++)
+			for (UINT i = 0; i < GAME_OBJECT_TYPE_MESH_COUNT - 1; i++) //Don't include error
 			{
-				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(SCENE_OBJECT_ENUM_OFFSET + i);
+				const UINT index = i + GAME_OBJECT_TYPE_MESH_START;
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(index);
 			}
 
-			//mObjectMeshRegion[0] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BARREL);
-			//mObjectMeshRegion[1] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_BOX);
-			//mObjectMeshRegion[2] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CACTUS);
+			mObjectMeshRegion[TO_MESH(GAME_OBJECT_TYPE_MESH_ERROR)]
+				= MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_FRUITTREE);
 
-			//mObjectMeshRegion[3] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_CAGE);
-			//mObjectMeshRegion[4] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_COWSKULL);
-			//mObjectMeshRegion[5] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_FRUITTREE);
+			mInstanceLayout.MeshCount				= GAME_OBJECT_TYPE_MESH_COUNT;
+			mInstanceLayout.pMeshes					= mObjectMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh	= &mObjectCount;
 
-			//mObjectMeshRegion[6] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_GIANTSKULL);
-			//mObjectMeshRegion[7] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_TOWER);
-			//mObjectMeshRegion[8] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_WINTERTREE);
+			/*
+				Add new meshes here
 
-			mInstanceLayout.MeshCount = SCENE_OBJECT_TYPE_COUNT;
-			mInstanceLayout.pMeshes = mObjectMeshRegion;
-			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
+				Use 'mMap' to map scene object to scene mesh
+				Use 'mColors' to apply color to each mesh (colors will not differ between same scene object)
+			*/
 
-			const std::string vs = GetShaderFilepath("VS_Default.cso");
+			/* --- Fruit Tree --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_FRUITTREE)] = { 
+				GAME_OBJECT_TYPE_TREE_LEAVES,
+				GAME_OBJECT_TYPE_TREE_ROCK 
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TREE_LEAVES)]	= { 104, 200, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TREE_TRUNK)]	= { 104,  72, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TREE_ROCK)]	= {  60,  60, 60 };
+			
+
+			/* -- Barrel --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_BARREL)] = { 
+				GAME_OBJECT_TYPE_BARREL_STONES, 
+				GAME_OBJECT_TYPE_BARREL_BARREL 
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_BARREL_STONES)] = {  60,  60, 60 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_BARREL_BARREL)] = { 104,  72, 59 };
+
+
+			/* -- Winter Tree --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_WINTERTREE)] = {
+				GAME_OBJECT_TYPE_PINE_LEAVES,
+				GAME_OBJECT_TYPE_PINE_TRUNK
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_PINE_LEAVES)]	= { 200, 200, 200 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_PINE_TRUNK)]	= { 104, 72, 59 };
+
+
+			/* -- Cactus --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_CACTUS)] = {
+				GAME_OBJECT_TYPE_DESERT_CACTUS,
+				GAME_OBJECT_TYPE_DESERT_SKULL
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_DESERT_CACTUS)] = { 104, 200, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_DESERT_BOX)] = { 104, 72, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_DESERT_SKULL)] = { 160, 150, 140 };
+
+
+			/* -- Tower --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_TOWER)] = {
+				GAME_OBJECT_TYPE_TOWER_TOWER,
+				GAME_OBJECT_TYPE_TOWER_CAGE
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TOWER_TOWER)] = { 60,  60, 60 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_TOWER_CAGE)] = { 60,  60, 60 };
+
+			/* -- Giant Skull --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_GIANTSKULL)] = {
+				GAME_OBJECT_TYPE_MESH_GIANTSKULL,
+				GAME_OBJECT_TYPE_MESH_GIANTSKULL
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_GIANTSKULL)] = { 160, 150, 140 };
+
+			/* -- Box --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_BOX)] = {
+				GAME_OBJECT_TYPE_MESH_BOX,
+				GAME_OBJECT_TYPE_MESH_BOX
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_BOX)] = { 104, 72, 59 };
+
+			/* -- Cow Skull --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_COWSKULL)] = {
+				GAME_OBJECT_TYPE_MESH_COWSKULL,
+				GAME_OBJECT_TYPE_MESH_COWSKULL
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_COWSKULL)] = { 160, 150, 140 };
+
+			/* -- Cage --- */
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_CAGE)] = {
+				GAME_OBJECT_TYPE_MESH_CAGE,
+				GAME_OBJECT_TYPE_MESH_CAGE
+			};
+
+			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_CAGE)] = { 60,  60, 60 };
+
+			// End
+
+			const std::string vs = GetShaderFilepath("VS_Weapon.cso");
 			const std::string ps = GetShaderFilepath("PS_Default.cso");
 
 			mRenderProgram = mpRenderMgr->CreateShaderProgram(
@@ -691,7 +795,7 @@ namespace ecs
 
 		void SSAORenderSystem::act(float _delta)
 		{
-#ifndef _DEBUG
+#ifdef RUN_SSAO
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
 				mShaderSSAO);
@@ -703,7 +807,7 @@ namespace ecs
 			mRenderMgr.ExecutePipeline(
 				mPipelineSSAO,
 				mShaderBlur_v);
-#endif // !_DEBUG
+#endif // !RUN_SSAO
 
 			mRenderMgr.ExecutePipeline(
 				mPipelineCombine,
@@ -717,10 +821,13 @@ namespace ecs
 			mScreenSpaceTriangle = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
 			mRenderMgr.Initialize(0);
 
+			const UINT width = clientWidth;
+			const UINT height = clientHeight;
+
 			{
 				graphics::SSAO_PIPELINE_DESC desc = { };
-				desc.Width = clientWidth / 2.0f;
-				desc.Height = clientHeight / 2.0f;
+				desc.Width = width;
+				desc.Height = height;
 				mPipelineSSAO = mRenderMgr.CreatePipeline(
 					new graphics::SSAOPipeline,
 					&desc);
@@ -728,8 +835,8 @@ namespace ecs
 
 			{
 				graphics::BLUR_PIPELINE_DESC desc = { };
-				desc.Width = clientWidth / 2.0f;
-				desc.Height = clientHeight / 2.0f;
+				desc.Width = width;
+				desc.Height = height;
 				mPipelineBlur = mRenderMgr.CreatePipeline(
 					new graphics::BlurPipeline,
 					&desc);
