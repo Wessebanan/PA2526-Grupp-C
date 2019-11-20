@@ -754,24 +754,145 @@ CollisionInfo Cylinder::GetCollisionInfo(BoundingVolume* pOther)
 
 CollisionInfo Cylinder::GetCollisionInfo(BoundingSphere& rSphere)
 {
-	return CollisionInfo();
+	// Getting a vector from sphere center to cylinder center.
+	XMVECTOR sphere_to_cyl_center = XMVectorSubtract(XMLoadFloat3(&this->mCenter), XMLoadFloat3(&rSphere.Center));
+
+	CollisionInfo return_info;
+	
+	XMStoreFloat3(&return_info.mNormal, XMVector3Normalize(sphere_to_cyl_center));
+
+	XMFLOAT3 abs_s_to_c_center;
+	XMStoreFloat3(&abs_s_to_c_center, XMVectorAbs(sphere_to_cyl_center));
+	
+	XMVECTOR x_z_center_to_center = XMVectorSetY(sphere_to_cyl_center, 0.0f);
+	float x_z_length = XMVectorGetX(XMVector3Length(x_z_center_to_center));
+	float y_length = XMVectorGetY(sphere_to_cyl_center);
+
+	// If y is largest component of sphere_to_cyl_center (or normal) then check overlap in height.
+	if (abs_s_to_c_center.y > abs_s_to_c_center.x && abs_s_to_c_center.y > abs_s_to_c_center.z)
+	{
+		return_info.mOverlap = this->mExtentsY + rSphere.Radius - y_length;
+	}
+	// Otherwise check with radius.
+	else
+	{
+		return_info.mOverlap = this->mRadius + rSphere.Radius - x_z_length;
+	}
+
+	return return_info;
 }
 
 CollisionInfo Cylinder::GetCollisionInfo(BoundingBox& rAabb)
 {
-	return CollisionInfo();
+	XMVECTOR aabb_to_cyl_center = XMVectorSubtract(XMLoadFloat3(&this->mCenter), XMLoadFloat3(&rAabb.Center));
+
+	XMFLOAT3 xmf_aabb_to_cyl_center;
+	XMStoreFloat3(&xmf_aabb_to_cyl_center, aabb_to_cyl_center);
+
+	XMFLOAT3 abs_aabb_to_cyl_center;
+	XMStoreFloat3(&abs_aabb_to_cyl_center, XMVectorAbs(aabb_to_cyl_center));
+
+	CollisionInfo return_info;
+
+	// Getting normal and overlap by largest component of center-to-center vector.
+	if (abs_aabb_to_cyl_center.y > abs_aabb_to_cyl_center.x && abs_aabb_to_cyl_center.y > abs_aabb_to_cyl_center.z)
+	{
+		return_info.mNormal.y = Sign(xmf_aabb_to_cyl_center.y);
+		// If y specifically, check against cylinder height.
+		return_info.mOverlap = rAabb.Extents.y + this->mExtentsY - xmf_aabb_to_cyl_center.y;
+	}
+	else
+	{
+		if (abs_aabb_to_cyl_center.x > abs_aabb_to_cyl_center.z)
+		{
+			return_info.mNormal.x = Sign(xmf_aabb_to_cyl_center.x);
+		}
+		else
+		{
+			return_info.mNormal.z = Sign(xmf_aabb_to_cyl_center.z);
+		}
+		// Find closest x and z to cylinder center.
+		float x = (std::max)(rAabb.Center.x - rAabb.Extents.x, (std::min)(this->mCenter.x, rAabb.Center.x + rAabb.Extents.x));
+		float z = (std::max)(rAabb.Center.z - rAabb.Extents.z, (std::min)(this->mCenter.z, rAabb.Center.z + rAabb.Extents.z));
+
+		XMFLOAT3 xz_cyl_center_to_closest = XMFLOAT3(x - this->mCenter.x, 0.0f, z - this->mCenter.z);
+
+		float length = XMVectorGetX(XMVector3Length(XMLoadFloat3(&xz_cyl_center_to_closest)));
+		return_info.mOverlap = this->mRadius - length;
+	}
+
+	return return_info;
 }
 
 CollisionInfo Cylinder::GetCollisionInfo(BoundingOrientedBox& rObb)
 {
-	// Grabbing the reverse and flipping the normal.
-	CollisionInfo return_info = ((OBB*)& rObb)->GetCollisionInfo(this);
-	XMStoreFloat3(&return_info.mNormal, XMVectorSubtract(XMVectorZero(), XMLoadFloat3(&return_info.mNormal)));
+	// Grabbing the reverse and recomputing the normal.
+	CollisionInfo return_info = ((OBB*)&rObb)->GetCollisionInfo(this);
+
+	// Transform standard axes by orientation
+	// Project center-to-center on each axis, largest result in size wins.
+	XMVECTOR x, y, z;
+	x = XMVectorSetX(XMVectorZero(), 1.0f);
+	y = XMVectorSetY(XMVectorZero(), 1.0f);
+	z = XMVectorSetZ(XMVectorZero(), 1.0f);
+
+	XMMATRIX orientation = XMMatrixRotationQuaternion(XMLoadFloat4(&rObb.Orientation));
+
+	XMVECTOR xt, yt, zt;
+	xt = XMVector3TransformNormal(x, orientation);
+	yt = XMVector3TransformNormal(y, orientation);
+	zt = XMVector3TransformNormal(z, orientation);
+
+	XMVECTOR obb_to_aabb_center = XMVectorSubtract(XMLoadFloat3(&this->mCenter), XMLoadFloat3(&rObb.Center));
+
+	float length_xt = XMVectorGetX(XMVector3Dot(xt, obb_to_aabb_center));
+	float length_yt = XMVectorGetX(XMVector3Dot(yt, obb_to_aabb_center));
+	float length_zt = XMVectorGetX(XMVector3Dot(zt, obb_to_aabb_center));
+
+	if (length_xt > length_yt && length_xt > length_zt)
+	{
+		XMStoreFloat3(&return_info.mNormal, xt);
+	}
+	else if (length_yt > length_xt && length_yt > length_zt)
+	{
+		XMStoreFloat3(&return_info.mNormal, yt);
+	}
+	else
+	{
+		XMStoreFloat3(&return_info.mNormal, zt);
+	}
+
 	return return_info;
 }
 
 CollisionInfo Cylinder::GetCollisionInfo(BoundingCylinder& rCylinder)
 {
-	return CollisionInfo();
+	XMVECTOR other_to_this_center = XMVectorSubtract(XMLoadFloat3(&this->mCenter), XMLoadFloat3(&rCylinder.mCenter));
+	XMFLOAT3 xmf_other_to_this_center;
+	XMStoreFloat3(&xmf_other_to_this_center, other_to_this_center);
+
+	XMFLOAT3 abs_other_to_this_center;
+	XMStoreFloat3(&abs_other_to_this_center, XMVectorAbs(other_to_this_center));
+
+	CollisionInfo return_info;
+
+	float length_center_to_center = XMVectorGetX(XMVector3Length(other_to_this_center));
+
+	// If y is the largest component, get overlap and normal in y.
+	if (abs_other_to_this_center.y > abs_other_to_this_center.x && abs_other_to_this_center.y > abs_other_to_this_center.z)
+	{
+		return_info.mNormal.y = Sign(xmf_other_to_this_center.y);
+		return_info.mOverlap = this->mExtentsY + rCylinder.mExtentsY - xmf_other_to_this_center.y;
+	}
+	else
+	{
+		XMVECTOR xz_center_to_center = XMVectorSetY(other_to_this_center, 0.0f);
+		float xz_length = XMVectorGetX(XMVector3Length(xz_center_to_center));
+
+		XMStoreFloat3(&return_info.mNormal, XMVector3Normalize(xz_center_to_center));
+		return_info.mOverlap = this->mRadius + rCylinder.mRadius - xz_length;
+	}
+
+	return return_info;
 }
 
