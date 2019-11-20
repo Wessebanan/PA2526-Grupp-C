@@ -51,6 +51,7 @@
 #include "gameWeapons/InitWeapons.h"
 #include "gameTraps/TrapComponents.h"
 #include "gameTraps/TrapEvents.h"
+#include "gameWorld/InitWorldScenary.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -262,6 +263,8 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitWeapons(rECS);
 
 	InitTraps(rECS);
+
+	InitWorldScenary(rECS);
 
 	InitHttpServer(rECS);
 

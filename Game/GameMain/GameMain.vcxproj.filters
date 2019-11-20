@@ -123,6 +123,12 @@
     <ClCompile Include="gameTraps\InitTraps.cpp">
       <Filter>Init</Filter>
     </ClCompile>
+    <ClCompile Include="gameWorld\WorldScenerySystems.cpp">
+      <Filter>World</Filter>
+    </ClCompile>
+    <ClCompile Include="gameWorld\InitWorldScenary.cpp">
+      <Filter>Init</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -388,6 +394,12 @@
       <Filter>Init</Filter>
     </ClInclude>
     <ClInclude Include="gameTraps\InitTraps.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gameWorld\WorldScenerySystems.h">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="gameWorld\InitWorldScenary.h">
       <Filter>Init</Filter>
     </ClInclude>
   </ItemGroup>

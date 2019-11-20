@@ -356,6 +356,40 @@ namespace ecs
 			graphics::MeshRegion mScreenSpaceTriangle;
 		};
 
+		class WorldSceneRenderSystem : public ECSSystem<WorldSceneRenderSystem>
+		{
+		public:
+
+			WorldSceneRenderSystem();
+			~WorldSceneRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				DirectX::XMFLOAT4X4 world;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mObjectCount;
+			graphics::MeshRegion mObjectMeshRegion[WORLD_SCENERY_TYPE_COUNT];
+
+			UINT mObjectTypeCount[WORLD_SCENERY_TYPE_COUNT];
+		};
+
 		class WeaponRenderSystem : public ECSSystem<WeaponRenderSystem>
 		{
 		public:
