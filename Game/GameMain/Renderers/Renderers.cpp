@@ -818,30 +818,6 @@ namespace ecs
 
 			}
 
-			//mShaderFakeStencil = mRenderMgr.CreateShaderProgram(
-			//	GetShaderFilepath("VS_Skinning.cso").c_str(),
-			//	GetShaderFilepath("PS_Army.cso").c_str(),
-			//	systems::UnitRenderSystem::GetPerInstanceSize());
-
-			//mShaderOutline = mRenderMgr.CreateShaderProgram(
-			//	GetShaderFilepath("VS_Outline.cso").c_str(),
-			//	GetShaderFilepath("PS_Outline.cso").c_str(),
-			//	0);
-
-			//mRenderProgram = mRenderMgr.CreateShaderProgram(
-			//	GetShaderFilepath("VS_Outline.cso").c_str(),
-			//	GetShaderFilepath("PS_Outline.cso").c_str(),
-			//	0);
-
-			//mObjectCount = 1;
-			//mInstanceLayout.MeshCount = 1;
-			//mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
-			//mInstanceLayout.pMeshes = &mScreenSpaceTriangle;
-
-			//mRenderMgr.SetShaderModelLayout(mShaderFakeStencil, mInstanceLayout);
-			//mRenderMgr.SetShaderModelLayout(mShaderOutline, mInstanceLayout);
-			//mRenderMgr.SetShaderModelLayout(mRenderProgram, mInstanceLayout);
-
 			
 		}
 #pragma endregion OutlineRenderSystem
