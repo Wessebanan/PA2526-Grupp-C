@@ -45,6 +45,9 @@ void graphics::OutlinePipeline::Update(ID3D11DeviceContext4* pContext4, const vo
 void graphics::OutlinePipeline::Begin(ID3D11DeviceContext4* pContext4)
 {
 	pContext4->PSSetShaderResources(6, 1, &this->mpFakeStencilSRV);
+	ID3D11RenderTargetView* pBackBuffer;
+	internal::GetBackBuffer(&pBackBuffer);
+	pContext4->OMSetRenderTargets(1, &pBackBuffer, NULL);
 }
 
 void graphics::OutlinePipeline::PreProcess(ID3D11DeviceContext4* pContext4, ID3D11VertexShader* pVertexShader, ID3D11PixelShader* pPixelShader)

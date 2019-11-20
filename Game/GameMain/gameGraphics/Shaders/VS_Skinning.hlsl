@@ -67,7 +67,9 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 	// Get Color from matrix and restore Matrix
 	float4x4 world_matrix	= gMesh[InstanceID].World;
 	uint color				= (uint)world_matrix[3][3];
+	uint fakeStencil = (uint)world_matrix[3][2];
 	world_matrix[3][3]		= 1.0f;
+	world_matrix[3][2]		= 0.0f;
 	
 	float4x4 wvCam = mul(gView, world_matrix);
 	float4x4 wvpCam = mul(gPerspective, wvCam);
@@ -99,6 +101,8 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 
 	output.positionViewSpace.x	= (float)unpack(color).a / 255.0f; // Hijacked for outline army identifier
 
+	
+
 	if (unpacked_color.r == 117)
 	{
 		output.fakeStencilValue = 1;
@@ -111,10 +115,16 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 	{
 		output.fakeStencilValue = 26;
 	}
-	else
+	else if (unpacked_color.r == 0)
 	{
 		output.fakeStencilValue = 105;
 	}
+	else
+	{
+		output.fakeStencilValue = 0;
+	}
+
+	output.fakeStencilValue = fakeStencil;
 
 	return output;
 }

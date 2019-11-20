@@ -343,6 +343,42 @@ namespace ecs
 			graphics::MeshRegion mScreenSpaceTriangle;
 		};
 
+		class OutlineRenderSystem : public ECSSystem<OutlineRenderSystem>
+		{
+		public:
+
+			OutlineRenderSystem();
+			virtual ~OutlineRenderSystem();
+
+			void act(float _delta) override;
+
+			void Initialize(
+				const UINT clientWidth,
+				const UINT clientHeight,
+				const UINT unitRenderProgram,
+				graphics::RenderManager* unitRenderManager);
+
+			UINT mRenderProgram;
+
+		private:
+
+			UINT mPipelineFakeStencil,
+				mPipelineOutline;
+
+			UINT mShaderFakeStencil,
+				mShaderOutline;
+
+			graphics::RenderManager* mRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			UINT unitRenderProgram;
+
+
+
+			UINT mObjectCount;
+			graphics::MeshRegion mScreenSpaceTriangle;
+		};
+
 		class WeaponRenderSystem : public ECSSystem<WeaponRenderSystem>
 		{
 		public:

@@ -20,6 +20,9 @@
 
 #include "../gameTraps/TrapComponents.h"
 
+#include "../gameGraphics/FakeStencilPipeline.h"
+#include "../gameGraphics/OutlinePipeline.h"
+
 namespace ecs
 {
 	namespace systems
@@ -64,6 +67,8 @@ namespace ecs
 				DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 
 				XMStoreFloat4x4(&mpBuffer[index].world, world);
+
+				mpBuffer[index].world._34 = (uint32_t)p_color_comp->alpha;
 
 				mpBuffer[index].world._44 = PACK(
 					p_color_comp->red,
@@ -772,6 +777,75 @@ namespace ecs
 		}
 #pragma endregion SSAORenderSystem
 
+#pragma region OutlineRenderSystem
+		OutlineRenderSystem::OutlineRenderSystem()
+		{
+			updateType = Actor;
+		}
+		OutlineRenderSystem::~OutlineRenderSystem()
+		{
+			// Borrowing the rendermgr from UnitRenderSystem so don't destroy
+			//mRenderMgr.Destroy();
+		}
+		void OutlineRenderSystem::act(float _delta)
+		{
+			//mRenderMgr.ExecutePipeline(
+			//	this->mPipelineFakeStencil,
+			//	this->mShaderFakeStencil);
+
+			//mRenderMgr.ExecutePipeline(
+			//	this->mPipelineOutline,
+			//	this->mShaderOutline);
+
+			mRenderMgr->ExecutePipeline(mPipelineFakeStencil, this->unitRenderProgram);
+		}
+		void OutlineRenderSystem::Initialize(const UINT clientWidth, const UINT clientHeight,
+			const UINT unitRenderProgram, graphics::RenderManager* unitRenderManager)
+		{
+			mScreenSpaceTriangle = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
+			//mRenderMgr.Initialize(0);
+
+			this->unitRenderProgram = unitRenderProgram;
+			this->mRenderMgr = unitRenderManager;
+			{
+				graphics::FAKE_STENCIL_PIPELINE_DESC fake_stencil_desc = { };
+				fake_stencil_desc.ClientWidth = clientWidth / 2.0f;
+				fake_stencil_desc.ClientHeight = clientHeight / 2.0f;
+				graphics::FakeStencilPipeline* fake_stencil_pipeline = new graphics::FakeStencilPipeline;
+				this->mPipelineFakeStencil = mRenderMgr->CreatePipeline(
+					fake_stencil_pipeline,
+					&fake_stencil_desc);
+
+			}
+
+			//mShaderFakeStencil = mRenderMgr.CreateShaderProgram(
+			//	GetShaderFilepath("VS_Skinning.cso").c_str(),
+			//	GetShaderFilepath("PS_Army.cso").c_str(),
+			//	systems::UnitRenderSystem::GetPerInstanceSize());
+
+			//mShaderOutline = mRenderMgr.CreateShaderProgram(
+			//	GetShaderFilepath("VS_Outline.cso").c_str(),
+			//	GetShaderFilepath("PS_Outline.cso").c_str(),
+			//	0);
+
+			//mRenderProgram = mRenderMgr.CreateShaderProgram(
+			//	GetShaderFilepath("VS_Outline.cso").c_str(),
+			//	GetShaderFilepath("PS_Outline.cso").c_str(),
+			//	0);
+
+			//mObjectCount = 1;
+			//mInstanceLayout.MeshCount = 1;
+			//mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
+			//mInstanceLayout.pMeshes = &mScreenSpaceTriangle;
+
+			//mRenderMgr.SetShaderModelLayout(mShaderFakeStencil, mInstanceLayout);
+			//mRenderMgr.SetShaderModelLayout(mShaderOutline, mInstanceLayout);
+			//mRenderMgr.SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+
+			
+		}
+#pragma endregion OutlineRenderSystem
+
 #pragma region WeaponRenderSystem
 		WeaponRenderSystem::WeaponRenderSystem()
 		{
@@ -1038,5 +1112,6 @@ namespace ecs
 			return sizeof(TrapRenderSystem::InputLayout);
 		}
 #pragma endregion TrapRenderSystem
-	}
+
+}
 }

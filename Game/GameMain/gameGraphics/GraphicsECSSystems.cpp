@@ -189,8 +189,10 @@ namespace ecs
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
 			components::PipelineFakeStencilComponent* p_pipeline_fake_stencil = entity.getComponent<components::PipelineFakeStencilComponent>();
+			components::PipelineOutlineComponent* p_pipeline_outline = entity.getComponent<components::PipelineOutlineComponent>();
 
 			UnitRenderSystem* p_unit_system = (UnitRenderSystem*)GetSystem<UnitRenderSystem>();
+			OutlineRenderSystem* p_outline_system = (OutlineRenderSystem*)GetSystem<OutlineRenderSystem>();
 
 			systems::OceanRenderSystem* p_ocean_renderer = (systems::OceanRenderSystem*)GetSystem<systems::OceanRenderSystem>();
 
@@ -214,7 +216,8 @@ namespace ecs
 			// Render To Color Buffer
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
 
-			p_render_mgr->mgr.ExecutePipeline(p_pipeline_fake_stencil->pipeline, p_unit_system->mRenderProgram);
+			//p_render_mgr->mgr.ExecutePipeline(p_pipeline_fake_stencil->pipeline, p_unit_system->mRenderProgram);
+			
 
 
 		}

@@ -126,8 +126,10 @@
     <ClCompile Include="gameTraps\InitTraps.cpp">
       <Filter>Init</Filter>
     </ClCompile>
-    <ClCompile Include="gameGraphics\FakeStencilPipeline.cpp" />
     <ClCompile Include="gameGraphics\OutlinePipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gameGraphics\FakeStencilPipeline.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
   </ItemGroup>

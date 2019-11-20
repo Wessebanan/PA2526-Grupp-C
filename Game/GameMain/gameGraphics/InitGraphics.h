@@ -4,6 +4,7 @@
 #include "GraphicsECSSystems.h"
 #include "../Renderers/Renderers.h"
 
+
 struct WorldMeshData
 {
 	void* pMesh;
@@ -83,6 +84,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::PipelineShadowMapComponent* p_psmComp = rEcs.getComponentFromEntity<components::PipelineShadowMapComponent>(graphics_entity_id);
 	components::PipelineForwardComponent* p_pfComp = rEcs.getComponentFromEntity<components::PipelineForwardComponent>(graphics_entity_id);
 	components::PipelineFakeStencilComponent* p_pfsComp = rEcs.getComponentFromEntity<components::PipelineFakeStencilComponent>(graphics_entity_id);
+	components::PipelineOutlineComponent* p_poComp = rEcs.getComponentFromEntity<components::PipelineOutlineComponent>(graphics_entity_id);
 
 	p_psmComp->pipelineDesc.PixelsWidth = 2048;
 	p_psmComp->pipelineDesc.Width = 30.0f;
@@ -106,7 +108,8 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	p_pfsComp->pipelineDesc.NearPlane = 1.0f;
 	p_pfsComp->pipelineDesc.FarPlane = 100.0f;
 	p_pfsComp->pipelineDesc.Fov = 3.14f / 2.0f;
-	p_pfsComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::FakeStencilPipeline, &p_pfsComp->pipelineDesc);
+	graphics::FakeStencilPipeline* fs_pipe = new graphics::FakeStencilPipeline;
+	p_pfsComp->pipeline = r_renderer_mgr.CreatePipeline(fs_pipe, &p_pfsComp->pipelineDesc);
 
 	components::RenderBufferComponent* p_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next());
 	p_render_buffer->buffer.Initialize(renderBufferSize, 256);
@@ -134,6 +137,8 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 
 	rEcs.createSystem<systems::UnitRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	
 
 	rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
@@ -170,8 +175,14 @@ void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::PipelineShadowMapSystem>(9);
 	rEcs.createSystem<systems::PipelineForwardSystem>(9);
 	rEcs.createSystem<systems::PipelineFakeStencilSystem>(9);
+	rEcs.createSystem<systems::PipelineOutlineSystem>(9);
 	rEcs.createSystem<systems::ExecuteGPURenderSystem>(9);
 	rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(1920, 1080);
+	
+	UnitRenderSystem* p_unit_system = (UnitRenderSystem*)rEcs.getSystem<UnitRenderSystem>();
+
+	rEcs.createSystem<systems::OutlineRenderSystem>(9)
+		->Initialize(1920, 1080, p_unit_system->mRenderProgram, &static_cast<components::RenderManagerComponent*>(rEcs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr);
 }
 
 void InitMeshes(EntityComponentSystem& rEcs)

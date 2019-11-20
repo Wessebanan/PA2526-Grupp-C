@@ -44,6 +44,8 @@ namespace graphics
 		UINT mClientWidth, mClientHeight;
 
 		ID3D11PixelShader* mpArmyShader;
+		ID3D11VertexShader* mpOutlineVS;
+		ID3D11PixelShader* mpOutlinePS;
 
 		ID3D11Texture2D* mpFakeStencilTexture;
 

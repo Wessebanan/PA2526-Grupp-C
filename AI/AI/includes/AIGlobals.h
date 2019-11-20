@@ -57,10 +57,6 @@ struct Color
 #define BLUE			Color(47, 62, 236, 26)
 #define GREEN			Color(0, 93, 5, 105)      
 
-#define OLD_RED				Color(117, 1, 1, 69)
-#define OLD_PURPLE			Color(74, 1, 117, 69)
-#define OLD_BLUE			Color(47, 62, 236, 69)
-#define OLD_GREEN			Color(0, 93, 5, 69)   
 #define WHITE			Color(255, 255, 255)
 #define BLACK			Color(0, 0, 0)
 

@@ -20,8 +20,8 @@ namespace graphics {
 
 		FAKE_STENCIL_PIPELINE_DESC* pDesc = (FAKE_STENCIL_PIPELINE_DESC*)pDescription;
 
-		descOutlineBase.Width = pDesc->ClientWidth;
-		descOutlineBase.Height = pDesc->ClientHeight;
+		descOutlineBase.Width = 1920;
+		descOutlineBase.Height = 1080;
 		descOutlineBase.MipLevels = 1;
 		descOutlineBase.ArraySize = 1;
 		descOutlineBase.Format = DXGI_FORMAT_R32_TYPELESS;
@@ -78,6 +78,19 @@ namespace graphics {
 			return E_ABORT;
 		}
 
+		hr = graphics::CreatePixelShaderFromFile(pDevice4, GetShaderFilepath("PS_Outline.cso").c_str(), &mpOutlinePS);
+		if (FAILED(hr))
+		{
+			MessageBox(0, "CreatePixelShaderFromFile for PS_Outline.cso failed", 0, 0);
+			return E_ABORT;
+		}
+
+		hr = graphics::CreateVertexShaderFromFile(pDevice4, GetShaderFilepath("VS_Outline.cso").c_str(), &mpOutlineVS);
+		if (FAILED(hr))
+		{
+			MessageBox(0, "CreatePixelShaderFromFile for VS_Outline.cso failed", 0, 0);
+			return E_ABORT;
+		}
 
 		return S_OK;
 	}
@@ -95,6 +108,7 @@ namespace graphics {
 		float clear[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
 		pContext4->PSSetShaderResources(6, 1, nullSRV); 
+		graphics::SetViewport(pContext4, 0, 0, 1920, 1080);
 		pContext4->OMSetRenderTargets(1, &this->mpRenderTarget, NULL);
 		pContext4->ClearRenderTargetView(this->mpRenderTarget, clear);
 	}
@@ -107,7 +121,16 @@ namespace graphics {
 
 	void graphics::FakeStencilPipeline::End(ID3D11DeviceContext4* pContext4)
 	{
-		pContext4->OMSetRenderTargets(0, NULL, NULL);
+		// Perform the outline pass here because I'm naughty like that
+		ID3D11RenderTargetView* p_back_buffer;
+		internal::GetBackBuffer(&p_back_buffer);
+		pContext4->OMSetRenderTargets(1, &p_back_buffer, NULL);
+		pContext4->VSSetShader(this->mpOutlineVS, NULL, 0);
+		pContext4->PSSetShader(this->mpOutlinePS, NULL, 0);
+		pContext4->PSSetShaderResources(6, 1, &this->mpFakeStencilSRV);
+		pContext4->Draw(3, 0);
+		pContext4->VSSetShader(NULL, NULL, 0);
+		pContext4->PSSetShader(NULL, NULL, 0);
 	}
 
 	ID3D11ShaderResourceView* FakeStencilPipeline::GetFakeStencilSRVPtr()
