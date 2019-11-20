@@ -569,10 +569,8 @@ namespace ecs
 #pragma region SceneObjectRenderSystem
 		SceneObjectRenderSystem::SceneObjectRenderSystem()
 		{
-			updateType = SystemUpdateType::MultiEntityUpdate;
-			typeFilter.addRequirement(components::SceneObjectComponent::typeID);
-			typeFilter.addRequirement(components::TransformComponent::typeID);
-			typeFilter.addRequirement(components::ColorComponent::typeID);
+			updateType = SystemUpdateType::Actor;
+			
 
 			mInstanceLayout = { 0 };
 		}
@@ -582,7 +580,7 @@ namespace ecs
 			//
 		}
 
-		void SceneObjectRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		void SceneObjectRenderSystem::act(float _delta)
 		{
 			/*
 				We don't know the order of entities EntityIterator, meaning that we can't expect
@@ -598,7 +596,7 @@ namespace ecs
 
 			// Count how many instances we have per scene object mesh
 			ZeroMemory(mInstancePerMesh, GAME_OBJECT_TYPE_MESH_COUNT * sizeof(UINT));
-			for (FilteredEntity object : _entities.entities)
+			for (FilteredEntity object : mSceneObjects.entities)
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
 
@@ -629,7 +627,7 @@ namespace ecs
 			}
 
 			// Iterate all objects and write their data to the RenderBuffer
-			for (FilteredEntity object : _entities.entities)
+			for (FilteredEntity object : mSceneObjects.entities)
 			{
 				components::SceneObjectComponent* p_obj_comp = object.getComponent<components::SceneObjectComponent>();
 				components::TransformComponent* p_transform_comp = object.getComponent<components::TransformComponent>();
@@ -774,6 +772,15 @@ namespace ecs
 				systems::SceneObjectRenderSystem::GetPerInstanceSize());
 
 			mpRenderBuffer = pRenderBuffer;
+
+			/*
+				Store scene object entities
+			*/
+
+			typeFilter.addRequirement(components::SceneObjectComponent::typeID);
+			typeFilter.addRequirement(components::TransformComponent::typeID);
+			typeFilter.addRequirement(components::ColorComponent::typeID);
+			mSceneObjects = getEntitiesByFilter(typeFilter);
 		}
 
 		uint32_t SceneObjectRenderSystem::GetPerInstanceSize()

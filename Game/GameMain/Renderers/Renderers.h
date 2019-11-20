@@ -283,7 +283,7 @@ namespace ecs
 			SceneObjectRenderSystem();
 			~SceneObjectRenderSystem();
 
-			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+			void act(float _delta) override;
 
 			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
 
@@ -323,6 +323,8 @@ namespace ecs
 
 			SceneToMesh mMap[SCENE_OBJECT_TYPE_COUNT];
 			uint3 mColors[GAME_OBJECT_TYPE_MESH_COUNT];
+
+			EntityIterator mSceneObjects;
 		};
 
 		class SSAORenderSystem : public ECSSystem<SSAORenderSystem>
