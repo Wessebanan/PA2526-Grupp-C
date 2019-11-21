@@ -189,7 +189,9 @@ namespace ecs
 				tile_position = XMLoadFloat3(&tile.getComponent<components::TransformComponent>()->position);
 				XMVectorSetY(tile_position, 0.f);
 
-				if (XMVectorGetX(XMVector3Length(center - tile_position)) < SPAWN_RADIUS)
+				float distance_from_center = XMVectorGetX(XMVector3Length(center - tile_position));
+				if (distance_from_center >= SPAWN_INNER_RADIUS &&
+					distance_from_center <= SPAWN_OUTER_RADIUS)
 				{
 					mPossibleTileIds.push_back(tile.entity->getID());
 				}
