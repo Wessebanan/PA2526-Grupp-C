@@ -62,6 +62,44 @@ void ecs::systems::FreezingDurationSystem::updateEntity(FilteredEntity& _entityI
 }
 
 
+
+ecs::systems::SpringRetractionSystem::SpringRetractionSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(ecs::components::SpringRetractionComponent::typeID);
+	typeFilter.addRequirement(ecs::components::TransformComponent::typeID);
+}
+
+ecs::systems::SpringRetractionSystem::~SpringRetractionSystem()
+{
+}
+
+void ecs::systems::SpringRetractionSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	SpringRetractionComponent* p_sr_comp = _entityInfo.getComponent<components::SpringRetractionComponent>();
+
+	if (p_sr_comp)
+	{
+		p_sr_comp->mElapsedTime += _delta;
+
+		if (p_sr_comp->mElapsedTime >= p_sr_comp->mDuration)
+		{
+			removeComponent(p_sr_comp->getEntityID(), p_sr_comp->getTypeID());	
+		}
+		else
+		{
+			TransformComponent* p_transf_comp = _entityInfo.getComponent<components::TransformComponent>();
+
+			if (p_transf_comp)
+			{
+				float retraction_dist = (_delta / p_sr_comp->mDuration) * 3.0f;
+				p_transf_comp->position.y -= retraction_dist;
+			}
+		}
+	}
+}
+
+
 /*
 ------------------------------------------------------------
 ------------------------------------------------------------
@@ -230,6 +268,7 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 			// units transformcomponent
 			start_trans_comp = getComponentFromKnownEntity<TransformComponent>(id);
 
+			start_trans_comp->position.y += 3.0f;
 
 			XMFLOAT2 flight_direction;
 			flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
@@ -246,6 +285,21 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 			knockback.mForce = 150;
 			knockback.mEntityID = id;
 			createEvent(knockback);
+
+
+			// Send the tile up
+
+			TypeID tileID = dynamic_cast<TriggerSpringTrapEvent*>(&event)->tileID;
+				
+			TransformComponent* p_tile_transf = getComponentFromKnownEntity<TransformComponent>(tileID);
+
+			p_tile_transf->position.y += 2.95f;
+
+			// Create a component to have the tile get lowered to the original space
+			SpringRetractionComponent p_sr_comp;
+			p_sr_comp.mDuration = 3.0f;
+
+			createComponent(tileID,p_sr_comp);
 		}
 	}
 }
