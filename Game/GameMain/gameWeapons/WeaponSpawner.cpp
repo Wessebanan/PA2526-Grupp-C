@@ -192,8 +192,6 @@ namespace ecs
 		ID MasterWeaponSpawner::FindSpawnTile()
 		{
 			int random_index = rand() % (int)mPossibleTileIds.size();
-
-			//GridProp::GetInstance()->mLootTiles.push_back(mPossibleTileIds[random_index]);
 			
 			return mPossibleTileIds[random_index];
 		}
