@@ -322,7 +322,7 @@ namespace GridFunctions
 			height_values[start - 1][1] = 0.0f;
 
 			int islet_counter = 0;
-			for (i = 0; height_values[start][i] < -0.5f; i++)
+			for (i = 0; height_values[start][i] < -0.5f || height_values[start +1][i] < -0.5f || height_values[start-1][i] < -0.5f; i++)
 			{
 				height_values[start][i] = 0.0f;
 				height_values[start + 1][i] = 0.0f;
@@ -350,7 +350,7 @@ namespace GridFunctions
 			height_values[0][start - 1] = 0.0f;
 			height_values[1][start - 1] = 0.0f;
 			islet_counter = 0;
-			for (i = 0; height_values[i][start] < -0.5f; i++)
+			for (i = 0; height_values[i][start] < -0.5f || height_values[i][start + 1] < -0.5f || height_values[i][start - 1] < -0.5f; i++)
 			{
 				height_values[i][start] = 0.0f;
 				height_values[i][start + 1] = 0.0f;
@@ -377,7 +377,7 @@ namespace GridFunctions
 			height_values[start - 1][columns - 1] = 0.0f;
 			height_values[start - 1][columns - 2] = 0.0f;
 			islet_counter = 0;
-			for (i = 0; height_values[start][columns - 1 - i] < -0.5f; i++)
+			for (i = 0; height_values[start][columns - 1 - i] < -0.5f || height_values[start + 1][columns - 1 - i] < -0.5f || height_values[start - 1][columns - 1 - i] < -0.5f; i++)
 			{
 				height_values[start][columns - 1 - i] = 0.0f;
 				height_values[start + 1][columns - 1 - i] = 0.0f;
@@ -405,7 +405,7 @@ namespace GridFunctions
 			height_values[rows - 1][start - 1] = 0.0f;
 			height_values[rows - 2][start - 1] = 0.0f;
 			islet_counter = 0;
-			for (i = 0; height_values[rows - 1 - i][start] < -0.5f; i++)
+			for (i = 0; height_values[rows - 1 - i][start] < -0.5f || height_values[rows - 1 - i][start + 1] < -0.5f || height_values[rows - 1 - i][start - 1] < -0.5f; i++)
 			{
 				height_values[rows - 1 - i][start] = 0.0f;
 				height_values[rows - 1 - i][start + 1] = 0.0f;
