@@ -29,7 +29,6 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	rEcs.reserveComponentCount<RenderBufferComponent>(1);
 	rEcs.reserveComponentCount<PipelineShadowMapComponent>(1);
 	rEcs.reserveComponentCount<PipelineForwardComponent>(1);
-	//rEcs.reserveComponentCount<PipelineFakeStencilComponent>(1);
 
 	/*
 		To create an entity we need some component info, but all these have their
