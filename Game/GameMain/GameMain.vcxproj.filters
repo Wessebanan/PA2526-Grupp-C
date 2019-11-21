@@ -390,6 +390,9 @@
     <ClInclude Include="gameTraps\InitTraps.h">
       <Filter>Init</Filter>
     </ClInclude>
+    <ClInclude Include="gameAudio\SoundIncludes">
+      <Filter>Audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">

@@ -72,7 +72,7 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				// TEMP GROUND HIT SOUND
 				ecs::events::PlaySound sound_event;
-				sound_event.audioName = AudioName::COIN_TEST_SOUND;
+				sound_event.audioName = AudioName::SOUND_coin;
 				sound_event.soundFlags = SoundFlags::SF_NONE;
 				sound_event.invokerEntityId = _entityInfo.entity->getID();
 				createEvent(sound_event);

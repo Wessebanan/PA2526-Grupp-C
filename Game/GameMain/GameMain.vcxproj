@@ -161,6 +161,7 @@
     <ClInclude Include="gameAudio\AudioECSSystems.h" />
     <ClInclude Include="gameAudio\AudioGlobals.h" />
     <ClInclude Include="gameAudio\InitAudio.h" />
+    <ClInclude Include="gameAudio\SoundIncludes" />
     <ClInclude Include="GameGlobals.h" />
     <ClInclude Include="gameGraphics\BlurPipeline.h" />
     <ClInclude Include="gameGraphics\CombineSSAOPipeline.h" />

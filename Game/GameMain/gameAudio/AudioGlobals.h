@@ -18,43 +18,20 @@ enum MusicFlags
 	MF_REPLACE = 0x1
 };
 
+#define SOUND_FOLDER "../AudioFiles/"
+
+#define ADD_SOUND(x) SOUND_##x,
 enum AudioName
 {
-	COIN_TEST_SOUND,
-	CC_TEST_SONG,
-	CC_TEST_SONG_DRUMS,
-	CC_TEST_CALM_SONG,
-	SILENCE_SOUND,
-	TRUMPET_FANFARE_SOUND,
-	GRUNT_HURT_1_SOUND,
-	GRUNT_HURT_2_SOUND,
-	PLOP_1_SOUND,
-	PLOP_2_SOUND,
-	PUNCH_SOUND,
-	SCREAM_SOUND,
-	SWISH_SOUND,
-	SWORD_CLANG_SOUND,
-	ITEM_GET_SOUND,
-	SPLOOSH_SOUND
+	#include "SoundIncludes"
+	SOUND_COUNT
 };
+#undef ADD_SOUND
 
+#define ADD_SOUND(x) SOUND_FOLDER #x ".wav",
 const std::string AUDIO_NAME_PATHS[] =
 {
-	"../AudioFiles/coin.wav",
-	"../AudioFiles/cc_song.wav",
-	"../AudioFiles/cc_drums.wav",
-	"../AudioFiles/cc_chill.wav",
-	"../AudioFiles/silence.wav",
-	"../AudioFiles/fanfare.wav",
-	"../AudioFiles/grunt1.wav",
-	"../AudioFiles/grunt2.wav",
-	"../AudioFiles/plop1.wav",
-	"../AudioFiles/plop2.wav",
-	"../AudioFiles/punch1.wav",
-	"../AudioFiles/scream.wav",
-	"../AudioFiles/swish.wav",
-	"../AudioFiles/sword.wav",
-	"../AudioFiles/get_item.wav",
-	"../AudioFiles/sploosh.wav"
+	#include "SoundIncludes"
+	SOUND_FOLDER "coin.wav"
 };
-
+#undef ADD_SOUND

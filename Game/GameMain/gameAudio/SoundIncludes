@@ -1,0 +1,18 @@
+// Add sounds like the examples below
+// Exclude .wav at the end
+ADD_SOUND(coin)
+ADD_SOUND(cc_song)
+ADD_SOUND(cc_drums)
+ADD_SOUND(cc_chill)
+ADD_SOUND(silence)
+ADD_SOUND(fanfare)
+ADD_SOUND(grunt1)
+ADD_SOUND(grunt2)
+ADD_SOUND(plop1)
+ADD_SOUND(plop2)
+ADD_SOUND(punch1)
+ADD_SOUND(scream)
+ADD_SOUND(swish)
+ADD_SOUND(sword)
+ADD_SOUND(get_item)
+ADD_SOUND(sploosh)
