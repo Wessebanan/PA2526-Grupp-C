@@ -19,7 +19,8 @@ namespace graphics {
 		D3D11_TEXTURE2D_DESC descOutlineBase;
 
 		FAKE_STENCIL_PIPELINE_DESC* pDesc = (FAKE_STENCIL_PIPELINE_DESC*)pDescription;
-
+		// Create the texture for the fake stencil, first for rendering the "stencil" and in the second
+		// pass as a resource for drawing the actual outline
 		descOutlineBase.Width = 1920;
 		descOutlineBase.Height = 1080;
 		descOutlineBase.MipLevels = 1;
@@ -65,6 +66,9 @@ namespace graphics {
 			&outlineBasesrvDesc,
 			&this->mpFakeStencilSRV
 		);
+
+		// Create all the necessary shaders
+
 		if (FAILED(hr))
 		{
 			MessageBox(0, "CreateShaderResourceView for mpFakeStencilSRV failed", 0, 0);
@@ -101,14 +105,17 @@ namespace graphics {
 
 	void graphics::FakeStencilPipeline::Update(ID3D11DeviceContext4* pContext4, const void* pPipelineData)
 	{
+		// Nothing needs updating here :)
 	}
 
 	void graphics::FakeStencilPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
 		float clear[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+		// Unset the stencil SRV if it was set as it can't be bound as
+		// both a render target and a SRV at the same time
 		pContext4->PSSetShaderResources(6, 1, nullSRV); 
-		graphics::SetViewport(pContext4, 0, 0, 1920, 1080);
+		
 		pContext4->OMSetRenderTargets(1, &this->mpRenderTarget, NULL);
 		pContext4->ClearRenderTargetView(this->mpRenderTarget, clear);
 	}
@@ -122,6 +129,9 @@ namespace graphics {
 	void graphics::FakeStencilPipeline::End(ID3D11DeviceContext4* pContext4)
 	{
 		// Perform the outline pass here because I'm naughty like that
+		// The Draw(3,0) call renders a full screen triangle in the OutlineVS
+		// The Pixel shader uses the SRV from the pipeline render pass which is
+		// out "fake stencil" that is used to draw outlines
 		ID3D11RenderTargetView* p_back_buffer;
 		internal::GetBackBuffer(&p_back_buffer);
 		pContext4->OMSetRenderTargets(1, &p_back_buffer, NULL);

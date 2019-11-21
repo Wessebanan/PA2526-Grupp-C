@@ -382,14 +382,10 @@ namespace ecs
 				mShaderOutline;
 
 			graphics::RenderManager* mRenderMgr;
-			graphics::ShaderModelLayout mInstanceLayout;
 
 			UINT unitRenderProgram;
 
 
-
-			UINT mObjectCount;
-			graphics::MeshRegion mScreenSpaceTriangle;
 		};
 
 		class WeaponRenderSystem : public ECSSystem<WeaponRenderSystem>

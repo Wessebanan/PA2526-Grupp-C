@@ -52,24 +52,6 @@ namespace ecs
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
-		class PipelineFakeStencilSystem : public ECSSystem<PipelineFakeStencilSystem>
-		{
-		public:
-			PipelineFakeStencilSystem();
-			virtual ~PipelineFakeStencilSystem() {}
-
-			void updateEntity(FilteredEntity& entity, float delta) override;
-		};
-
-		class PipelineOutlineSystem : public ECSSystem<PipelineOutlineSystem>
-		{
-		public:
-			PipelineOutlineSystem();
-			virtual ~PipelineOutlineSystem() {}
-
-			void updateEntity(FilteredEntity& entity, float delta) override;
-		};
-
 		class ExecuteGPURenderSystem : public ECSSystem<ExecuteGPURenderSystem>
 		{
 		public:

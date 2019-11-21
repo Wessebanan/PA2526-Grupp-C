@@ -107,45 +107,6 @@ namespace ecs
 			p_mgr->mgr.UpdatePipeline(p_pipeline->pipeline, &p_pipeline->data);
 		}
 
-
-
-
-		PipelineFakeStencilSystem::PipelineFakeStencilSystem()
-		{
-			updateType = EntityUpdate;
-			typeFilter.addRequirement(components::RenderManagerComponent::typeID);
-			typeFilter.addRequirement(components::MeshManagerComponent::typeID);
-
-			typeFilter.addRequirement(components::PipelineFakeStencilComponent::typeID);
-		}
-		void PipelineFakeStencilSystem::updateEntity(FilteredEntity& entity, float delta)
-		{
-			// Fetch camera entity
-			components::CameraComponent* p_camera = getEntitiesWithComponent<components::CameraComponent>().entities.front().getComponent<components::CameraComponent>();
-
-			components::RenderManagerComponent* p_mgr = entity.getComponent<components::RenderManagerComponent>();
-			components::PipelineFakeStencilComponent* p_pipeline = entity.getComponent<components::PipelineFakeStencilComponent>();
-
-			p_pipeline->data.ViewMatrix = p_camera->viewMatrix;
-
-			p_mgr->mgr.UpdatePipeline(p_pipeline->pipeline, &p_pipeline->data);
-
-		}
-
-
-		PipelineOutlineSystem::PipelineOutlineSystem()
-		{
-			updateType = EntityUpdate;
-			typeFilter.addRequirement(components::RenderManagerComponent::typeID);
-			typeFilter.addRequirement(components::MeshManagerComponent::typeID);
-
-			typeFilter.addRequirement(components::PipelineFakeStencilComponent::typeID);
-		}
-
-		void PipelineOutlineSystem::updateEntity(FilteredEntity& entity, float delta)
-		{
-		}
-
 		ClearGPURenderSystem::ClearGPURenderSystem()
 		{
 			updateType = EntityUpdate;
@@ -177,7 +138,6 @@ namespace ecs
 
 			typeFilter.addRequirement(components::PipelineShadowMapComponent::typeID);
 			typeFilter.addRequirement(components::PipelineForwardComponent::typeID);
-			typeFilter.addRequirement(components::PipelineFakeStencilComponent::typeID);
 		}
 
 		void ExecuteGPURenderSystem::updateEntity(FilteredEntity& entity, float delta)
@@ -188,10 +148,9 @@ namespace ecs
 			components::PipelineShadowMapComponent* p_pipeline_shadow_map = entity.getComponent<components::PipelineShadowMapComponent>();
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
-			components::PipelineFakeStencilComponent* p_pipeline_fake_stencil = entity.getComponent<components::PipelineFakeStencilComponent>();
 
-			UnitRenderSystem* p_unit_system = (UnitRenderSystem*)GetSystem<UnitRenderSystem>();
-			OutlineRenderSystem* p_outline_system = (OutlineRenderSystem*)GetSystem<OutlineRenderSystem>();
+			//UnitRenderSystem* p_unit_system = (UnitRenderSystem*)GetSystem<UnitRenderSystem>();
+			//OutlineRenderSystem* p_outline_system = (OutlineRenderSystem*)GetSystem<OutlineRenderSystem>();
 
 			systems::OceanRenderSystem* p_ocean_renderer = (systems::OceanRenderSystem*)GetSystem<systems::OceanRenderSystem>();
 
@@ -214,8 +173,6 @@ namespace ecs
 
 			// Render To Color Buffer
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
-
-			//p_render_mgr->mgr.ExecutePipeline(p_pipeline_fake_stencil->pipeline, p_unit_system->mRenderProgram);
 			
 
 

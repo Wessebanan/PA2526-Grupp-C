@@ -29,7 +29,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	rEcs.reserveComponentCount<RenderBufferComponent>(1);
 	rEcs.reserveComponentCount<PipelineShadowMapComponent>(1);
 	rEcs.reserveComponentCount<PipelineForwardComponent>(1);
-	rEcs.reserveComponentCount<PipelineFakeStencilComponent>(1);
+	//rEcs.reserveComponentCount<PipelineFakeStencilComponent>(1);
 
 	/*
 		To create an entity we need some component info, but all these have their
@@ -44,7 +44,6 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::RenderBufferComponent rbDummy;
 	components::PipelineShadowMapComponent psmDummy;
 	components::PipelineForwardComponent pfDummy;
-	components::PipelineFakeStencilComponent pfsDummy;
 
 	BaseComponent* graphics_components[] =
 	{
@@ -54,13 +53,12 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 
 		&rbDummy,
 		&psmDummy,
-		&pfDummy,
-		&pfsDummy
+		&pfDummy
 	};
 
 	ComponentList list;
 	list.initialInfo = graphics_components;
-	list.componentCount = 7;
+	list.componentCount = 6;
 
 	/*
 		Fetch id of the graphics entity. All graphic components used by renderer systems
@@ -83,7 +81,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 
 	components::PipelineShadowMapComponent* p_psmComp = rEcs.getComponentFromEntity<components::PipelineShadowMapComponent>(graphics_entity_id);
 	components::PipelineForwardComponent* p_pfComp = rEcs.getComponentFromEntity<components::PipelineForwardComponent>(graphics_entity_id);
-	components::PipelineFakeStencilComponent* p_pfsComp = rEcs.getComponentFromEntity<components::PipelineFakeStencilComponent>(graphics_entity_id);
+	//components::PipelineFakeStencilComponent* p_pfsComp = rEcs.getComponentFromEntity<components::PipelineFakeStencilComponent>(graphics_entity_id);
 
 	p_psmComp->pipelineDesc.PixelsWidth = 4096;
 	p_psmComp->pipelineDesc.Width = 90.0f;
@@ -101,14 +99,6 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	p_pfComp->pipelineDesc.ClearColor[1] = 0.25f;
 	p_pfComp->pipelineDesc.ClearColor[2] = 1.00f;
 	p_pfComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ForwardRenderingPipeline, &p_pfComp->pipelineDesc);
-
-	p_pfsComp->pipelineDesc.ClientWidth = clientWidth;
-	p_pfsComp->pipelineDesc.ClientHeight = clientHeight;
-	p_pfsComp->pipelineDesc.NearPlane = 1.0f;
-	p_pfsComp->pipelineDesc.FarPlane = 100.0f;
-	p_pfsComp->pipelineDesc.Fov = 3.14f / 2.0f;
-	graphics::FakeStencilPipeline* fs_pipe = new graphics::FakeStencilPipeline;
-	p_pfsComp->pipeline = r_renderer_mgr.CreatePipeline(fs_pipe, &p_pfsComp->pipelineDesc);
 
 	components::RenderBufferComponent* p_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next());
 	p_render_buffer->buffer.Initialize(renderBufferSize, 256);
@@ -175,8 +165,6 @@ void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::UploadRenderBufferSystem>(9);
 	rEcs.createSystem<systems::PipelineShadowMapSystem>(9);
 	rEcs.createSystem<systems::PipelineForwardSystem>(9);
-	rEcs.createSystem<systems::PipelineFakeStencilSystem>(9);
-	rEcs.createSystem<systems::PipelineOutlineSystem>(9);
 	rEcs.createSystem<systems::ExecuteGPURenderSystem>(9);
 	rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
 	

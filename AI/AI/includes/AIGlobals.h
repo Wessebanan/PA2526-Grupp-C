@@ -52,6 +52,7 @@ struct Color
 };
 
 // Defining some useful colors.
+// Alpha value is currently being used to determine outline colors in the outline pass, pls no touch
 #define RED				Color(117, 1, 1, 1)
 #define PURPLE			Color(74, 1, 117, 5)
 #define BLUE			Color(47, 62, 236, 26)

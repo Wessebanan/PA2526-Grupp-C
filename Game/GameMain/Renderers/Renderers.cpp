@@ -74,6 +74,8 @@ namespace ecs
 
 				XMStoreFloat4x4(&mpBuffer[index].world, world);
 
+				// This world matrix value is being hijacked for rendering the "fake stencil" for outlines
+				// The defining army color value is stored in the alpha and used in the outline shaders
 				mpBuffer[index].world._34 = (uint32_t)p_color_comp->alpha;
 
 				mpBuffer[index].world._44 = PACK(
@@ -895,21 +897,15 @@ namespace ecs
 		}
 		void OutlineRenderSystem::act(float _delta)
 		{
-			//mRenderMgr.ExecutePipeline(
-			//	this->mPipelineFakeStencil,
-			//	this->mShaderFakeStencil);
-
-			//mRenderMgr.ExecutePipeline(
-			//	this->mPipelineOutline,
-			//	this->mShaderOutline);
 
 			mRenderMgr->ExecutePipeline(mPipelineFakeStencil, this->unitRenderProgram);
 		}
 		void OutlineRenderSystem::Initialize(const UINT clientWidth, const UINT clientHeight,
 			const UINT unitRenderProgram, graphics::RenderManager* unitRenderManager)
 		{
-			mScreenSpaceTriangle = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
-			//mRenderMgr.Initialize(0);
+			// This render system uses the render manager of the regular Unit render system but with
+			// different shaders
+
 
 			this->unitRenderProgram = unitRenderProgram;
 			this->mRenderMgr = unitRenderManager;
