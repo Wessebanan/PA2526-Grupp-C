@@ -91,10 +91,10 @@ namespace ecs
 
 			case GAME_OBJECT_TYPE_WEAPON_BOMB:
 			{
-				weapon_transform_comp.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
-				//weapon_transform_comp.position.y += 0.7f;
+				weapon_transform_comp.scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
+				weapon_transform_comp.position.y += 0.7f;/*
 				weapon_transform_comp.rotation.x -= 3.14f * 0.4f;
-				weapon_transform_comp.rotation.y += 3.14f * 0.3f;
+				weapon_transform_comp.rotation.y += 3.14f * 0.3f;*/
 
 				weapon_color_comp.red = 200;
 				weapon_color_comp.green = 130;
