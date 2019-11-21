@@ -458,9 +458,11 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			transform.scale.y = 0.1f;
 			transform.scale.z = 0.1f;
 
-			color_comp.red		= army_colors[i].r;
-			color_comp.green	= army_colors[i].g;
-			color_comp.blue		= army_colors[i].b;
+
+			color_comp.red = army_colors[i].r;
+			color_comp.green = army_colors[i].g;
+			color_comp.blue = army_colors[i].b;
+			color_comp.alpha = army_colors[i].a;
 
 			// Create and init skeleton comp
 
