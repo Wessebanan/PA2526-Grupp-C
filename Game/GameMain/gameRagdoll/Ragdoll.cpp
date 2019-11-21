@@ -55,7 +55,36 @@ void Ragdoll::GetBoundingBoxSize(ModelLoader::Joint* pJoint, DirectX::XMFLOAT3* 
 			}		
 			delete[] vertices;
 		}	
+		
+		// Factor in child bone connections to size
+
+		// CODE HERE
+
+		  // Set the bounding box size
+		pVecSize->x = (float)fabs(vec_max.x - vec_min.x);
+		pVecSize->y = (float)fabs(vec_max.y - vec_min.y);
+		pVecSize->z = (float)fabs(vec_max.z - vec_min.z);
+
+		// Make sure each bone has a minimal size
+		if (pVecSize->x < MINIMUM_BONE_SIZE) {
+			pVecSize->x = MINIMUM_BONE_SIZE;
+			vec_max.x = MINIMUM_BONE_SIZE * 0.5f;
+		}
+		if (pVecSize->y < MINIMUM_BONE_SIZE) {
+			pVecSize->y = MINIMUM_BONE_SIZE;
+			vec_max.y = MINIMUM_BONE_SIZE * 0.5f;
+		}
+		if (pVecSize->z < MINIMUM_BONE_SIZE) {
+			pVecSize->z = MINIMUM_BONE_SIZE;
+			vec_max.z = MINIMUM_BONE_SIZE * 0.5f;
+		}
+
+		// Set the bone's offset to center based on half the size 
+		// of the bounding box and the max position
+		XMStoreFloat3(pVecJointOffset, (XMLoadFloat3(pVecSize) * 0.5f) - XMLoadFloat3(&vec_max));
 	}
+
+
 }
 
 void Ragdoll::BuildBoneData(DWORD boneNum, RagdollBone* pParentBone)
