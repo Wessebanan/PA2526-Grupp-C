@@ -47,6 +47,9 @@ struct VSOut
 
 	float3 color		: COLOR0;
 	float3 normal		: NORMAL0;
+
+	float3 normalViewSpace		: NORMAL1;
+	float3 positionViewSpace	: POSITION2;
 };
 
 VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
@@ -59,17 +62,22 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 	world_matrix[3][3] = 1.0f;
 
 	float4x4 wvpCam = mul(gPerspective, mul(gView, world_matrix));
-	float4x4 wvpSun = mul(gOrtographicsSun, mul(gViewSun, world_matrix));
+	float4x4 wvpSun = mul(gOrtographicsSun, gViewSun);
 
-	float4 world_pos = float4(gVertexPositions[VertexID].xyz, 1.0f);
+	float4 world_pos	= mul(world_matrix, float4(gVertexPositions[VertexID].xyz, 1.0f));
+	float4 view_pos		= mul(gView, world_pos);
 
 	// Output Data
-	output.pos = mul(wvpCam, world_pos);
-	output.sunPos = mul(wvpSun, world_pos);
+	output.pos		= mul(gPerspective, view_pos);
+	output.sunPos	= mul(wvpSun, world_pos);
 
 	output.color.rgb = unpack(color).rgb / 255.f;
 
 	output.normal = mul(gMesh[InstanceID].World, float4(gVertexNormals[VertexID], 0.0f)).xyz;
+
+
+	output.normalViewSpace		= mul((float3x3)gView, output.normal).xyz;
+	output.positionViewSpace	= view_pos.xyz;
 
 	return output;
 }

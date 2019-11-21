@@ -96,21 +96,23 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 
 			// Make the unit take damage
 			HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(id);
-			p_hp_comp->mHealth -= mDamage;
-
-
-			// Make the unit jump a litte, fire is hot and so am I
-			ForceImpulseEvent knockback;
-			knockback.mDirection = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
-			knockback.mForce = mKnockback;
-			knockback.mEntityID = id;
-			createEvent(knockback);
-
-			// Check if the unit died
-			if (p_hp_comp->mHealth <= 0.0f)
+			if (p_hp_comp)
 			{
-				ecs::components::DeadComponent dead_comp;
-				ecs::ECSUser::createComponent(id, dead_comp);
+				p_hp_comp->mHealth -= mDamage;
+
+				// Make the unit jump a litte, fire is hot and so am I
+				ForceImpulseEvent knockback;
+				knockback.mDirection = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
+				knockback.mForce = mKnockback;
+				knockback.mEntityID = id;
+				createEvent(knockback);
+
+				// Check if the unit died
+				if (p_hp_comp->mHealth <= 0.0f)
+				{
+					ecs::components::DeadComponent dead_comp;
+					ecs::ECSUser::createComponent(id, dead_comp);
+				}
 			}
 		}
 	}
@@ -135,58 +137,59 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 		if (id > 0)
 		{
 			HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(id);
-			p_hp_comp->mHealth -= mDamage;
-
-			// Check if the unit died
-			if (p_hp_comp->mHealth <= 0.0f)
+			if (p_hp_comp)
 			{
-				ecs::components::DeadComponent dead_comp;
-				ecs::ECSUser::createComponent(id, dead_comp);
-			}
-			else
-			{
-				components::UnitComponent* p_unit_comp = getComponentFromKnownEntity<UnitComponent>(id);
-				components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
-				components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
+				p_hp_comp->mHealth -= mDamage;
 
-				p_move_comp->mMaxVelocity *= mPower;
-				p_ani_speed_comp->factor = mPower;
-
-				// Add component 
-				FreezingTimerComponent f_comp;
-				f_comp.mDuration = 3.0f;
-				f_comp.mElapsedTime = 0.0f;
-
-				createComponent(id, f_comp);
-
-				// Make them brigther for the duration
-				events::ColorSwitchEvent eve;
-				eve.mEntityID = id;
-				eve.mTime = f_comp.mDuration;
-				Color color = Color(0, 0, 0);
-				switch (p_unit_comp->playerID)
+				// Check if the unit died
+				if (p_hp_comp->mHealth <= 0.0f)
 				{
-				case PLAYER1:
-					color = BRIGHT_RED;
-					break;
-				case PLAYER2:
-					color = BRIGHT_PURPLE;
-					break;
-				case PLAYER3:
-					color = BRIGHT_BLUE;
-					break;
-				case PLAYER4:
-					color = BRIGHT_GREEN;
-					break;
+					ecs::components::DeadComponent dead_comp;
+					ecs::ECSUser::createComponent(id, dead_comp);
 				}
-				eve.mColor = color;
+				else
+				{
+					components::UnitComponent* p_unit_comp = getComponentFromKnownEntity<UnitComponent>(id);
+					components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
+					components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
 
-				createEvent(eve);
+					p_move_comp->mMaxVelocity *= mPower;
+					p_ani_speed_comp->factor = mPower;
+
+					// Add component 
+					FreezingTimerComponent f_comp;
+					f_comp.mDuration = 3.0f;
+					f_comp.mElapsedTime = 0.0f;
+
+					createComponent(id, f_comp);
+
+					// Make them brigther for the duration
+					events::ColorSwitchEvent eve;
+					eve.mEntityID = id;
+					eve.mTime = f_comp.mDuration;
+					Color color = Color(0, 0, 0);
+					switch (p_unit_comp->playerID)
+					{
+					case PLAYER1:
+						color = BRIGHT_RED;
+						break;
+					case PLAYER2:
+						color = BRIGHT_PURPLE;
+						break;
+					case PLAYER3:
+						color = BRIGHT_BLUE;
+						break;
+					case PLAYER4:
+						color = BRIGHT_GREEN;
+						break;
+					}
+					eve.mColor = color;
+
+					createEvent(eve);
+				}
 			}
 		}
-		
 	}
-
 }
 
 ecs::systems::SpringTrapEventSystem::SpringTrapEventSystem()
@@ -205,41 +208,44 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 	{
 		TypeID id = dynamic_cast<TriggerSpringTrapEvent*>(&event)->unitID;
 
-		GridProp* p_gp = GridProp::GetInstance();
-
-		// Loop over random tiles until a valid spot is found
-		TransformComponent* start_trans_comp;
-		TransformComponent* target_trans_comp;
-		int2 area_size = p_gp->GetSize();
-
-		int rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
-		int rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
-		while (!p_gp->mGrid[rand_x][rand_y].isPassable)
+		if (id > 0)
 		{
-			rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
-			rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
+			GridProp* p_gp = GridProp::GetInstance();
+
+			// Loop over random tiles until a valid spot is found
+			TransformComponent* start_trans_comp;
+			TransformComponent* target_trans_comp;
+			int2 area_size = p_gp->GetSize();
+
+			int rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
+			int rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
+			while (!p_gp->mGrid[rand_x][rand_y].isPassable)
+			{
+				rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
+				rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
+			}
+
+			target_trans_comp = getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[rand_x][rand_y].Id);
+
+			// units transformcomponent
+			start_trans_comp = getComponentFromKnownEntity<TransformComponent>(id);
+
+
+			XMFLOAT2 flight_direction;
+			flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
+			flight_direction.y = target_trans_comp->position.z - start_trans_comp->position.z;
+
+			float dist = sqrtf(flight_direction.x * flight_direction.x + flight_direction.y * flight_direction.y);
+
+			flight_direction.x /= dist;
+			flight_direction.y /= dist;
+
+			// Make the unit jump a litte, fire is hot and so am I
+			ForceImpulseEvent knockback;
+			knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
+			knockback.mForce = 150;
+			knockback.mEntityID = id;
+			createEvent(knockback);
 		}
-
-		target_trans_comp = getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[rand_x][rand_y].Id);
-
-		// units transformcomponent
-		start_trans_comp = getComponentFromKnownEntity<TransformComponent>(id);
-		
-
-		XMFLOAT2 flight_direction;
-		flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
-		flight_direction.y = target_trans_comp->position.z - start_trans_comp->position.z;
-
-		float dist = sqrtf(flight_direction.x * flight_direction.x + flight_direction.y * flight_direction.y);
-
-		flight_direction.x /= dist;
-		flight_direction.y /= dist;
-
-		// Make the unit jump a litte, fire is hot and so am I
-		ForceImpulseEvent knockback;
-		knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
-		knockback.mForce = dist * 10;
-		knockback.mEntityID = id;
-		createEvent(knockback);
 	}
 }
