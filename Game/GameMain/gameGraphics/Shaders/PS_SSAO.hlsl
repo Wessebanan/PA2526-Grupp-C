@@ -50,9 +50,9 @@ float CalculateOcclusion(
 	const float3 pos,
 	const float3 normal)
 {
-	const float scale		= 1.0f;
-	const float bias		= 0.2f;
-	const float intensity	= 8.0f;
+	const float scale		= 0.5f;
+	const float bias		= 0.0f;
+	const float intensity	= 1.0f;
 
 	const float3 occlusion_position = ViewPosFromDepth(
 		GetDepth(tcoord + uv), 
@@ -81,10 +81,10 @@ float main(PSIN input) : SV_TARGET
 	float occlusion = 0.0f;
 
 	const float2 vec[4] = {
-		float2( 1,  0),
-		float2(0,  1),
-		float2(0, -1),
-		float2(-1,  0),
+		float2( 1,  1),
+		float2(-1,  1),
+		float2(1, -1),
+		float2(-1,  -1),
 	};
 
 	float3 pos		= ViewPosFromDepth(GetDepth(input.uv), input.uv);
@@ -93,7 +93,7 @@ float main(PSIN input) : SV_TARGET
 	float2 random	= GetRandom(input.uv);
 	float radius	= sample_radius / pos.z;
 
-	const uint iterations = 4;
+	const uint iterations = 2;
 	for (uint i = 0; i < iterations; i++)
 	{
 		float2 coord1 = reflect(vec[i], random) * radius;
@@ -109,5 +109,5 @@ float main(PSIN input) : SV_TARGET
 
 	occlusion /= (float)iterations * 4.0f;
 	
-	return saturate(pow(occlusion, 4.0f));
+	return saturate(pow(occlusion, 2.0f));
 }

@@ -42,7 +42,6 @@ using namespace ecs::components;
 ecs::systems::GameLoopSystem::GameLoopSystem()
 {
 	updateType = ecs::EntityUpdate;
-	typeFilter.addRequirement(ecs::components::GameLoopComponent::typeID);
 	typeFilter.addRequirement(ecs::components::UITextComponent::typeID);
 }
 
@@ -53,7 +52,6 @@ ecs::systems::GameLoopSystem::~GameLoopSystem()
 // Runs neccesary gameloops, timers etc
 void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	GameLoopComponent* p_gl = _entityInfo.getComponent<components::GameLoopComponent>();
 	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
 
 	static float total_time;
@@ -73,18 +71,13 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 
 	if (p_text)
 	{
+		// To be sent to the UI
 		wstring ss = L"";
 	
-	
-		// To be sent to the UI
-		//ss.append("ROUNDTIME: ");
-		//ss.append(to_string(p_gl->mRoundTime.GetRoundTime()));
 		ss.append(L"\nFRAMERATE: ");
 		ss.append(to_wstring(framerate_to_print));
 		ss.append(L"\nFRAMETIME: ");
 		ss.append(to_wstring(frametime_to_print));
-		//ss.append(L"\nGAMETIME: ");
-		//ss.append(to_string(p_gl->mRoundTime.GetGameTime()));
 	
 		p_text->mStrText = ss;
 	}
@@ -236,6 +229,7 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		QuadTreeComponent quad_tree;
 		int2 grid_size = GridProp::GetInstance()->GetSize();
 		createEntity(quad_tree);
+
 		// Puts the players into waiting phase
 		itt = getComponentsOfType<InputBackendComp>();
 		InputBackendComp* p_ib;
@@ -300,11 +294,15 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		}
 
 		ComponentIterator it = ecs::ECSUser::getComponentsOfType(PlayerStateComponent::typeID);
-		PlayerStateComponent* p_player_state_comp = static_cast<PlayerStateComponent*>(it.next());
-		for (int i = 0; i < 4; i++)
+		PlayerStateComponent* p_player_state_comp = dynamic_cast<PlayerStateComponent*>(it.next());
+		if (p_player_state_comp)
 		{
-			p_player_state_comp->mCurrentStates[i] = IDLE;
+			for (int i = 0; i < 4; i++)
+			{
+				p_player_state_comp->mCurrentStates[i] = IDLE;
+			}
 		}
+		
 
 		itt = getComponentsOfType<UITextComponent>();
 		UITextComponent* text_comp;
@@ -629,7 +627,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 		{
 			ComponentIterator itt = ecs::ECSUser::getComponentsOfType(ecs::components::GameLoopComponent::typeID);
 			GameLoopComponent* p_gl;
-			while (p_gl = static_cast<GameLoopComponent*>(itt.next()))
+			while (p_gl = (GameLoopComponent*)itt.next())
 			{
 
 				// Check if the winner will sin the game now or not
@@ -725,7 +723,10 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			//Change to overlook camera for the prephase
 			itt = getComponentsOfType<CameraComponent>();
 			CameraComponent* cam_comp = (CameraComponent*)itt.next();
-			removeEntity(cam_comp->getEntityID());
+			if (cam_comp)
+			{
+				removeEntity(cam_comp->getEntityID());
+			}
 
 			TransformComponent new_transf_comp;
 			CameraComponent new_cam_comp;
@@ -751,9 +752,5 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 				}
 			}
 		}
-
-
-		
 	}
-	
 }
