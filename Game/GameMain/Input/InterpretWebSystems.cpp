@@ -107,17 +107,17 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				createEvent(cus_event);
 
+				// USED FOR TESTING DEBUGGING
+				//events::TriggerFireTrapEvent trap_event;
 
-				events::TriggerFireTrapEvent trap_event;
-
-				ComponentIterator itt;
-				itt = getComponentsOfType<UnitComponent>();
-				trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
-				createEvent(trap_event);
-				trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
-				createEvent(trap_event);
-				trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
-				createEvent(trap_event);
+				//ComponentIterator itt;
+				//itt = getComponentsOfType<UnitComponent>();
+				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//createEvent(trap_event);
+				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//createEvent(trap_event);
+				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//createEvent(trap_event);
 
 
 

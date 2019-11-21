@@ -254,10 +254,10 @@ namespace ecs
 				splash.CurrentLifeDuration = splash.TotalLifeDuration;
 
 				// Set Color
-				particle.Red = 255;
+				particle.Red = 200 + rand() % 55;
 				particle.Green = 100 + rand() % 55;
 				particle.Blue = 60;
-				particle.Scale = 40;
+				particle.Scale = 60;
 				splash.MaxScale = particle.Scale;
 
 				// Randomize x and y direction
