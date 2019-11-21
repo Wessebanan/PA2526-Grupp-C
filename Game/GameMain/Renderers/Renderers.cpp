@@ -969,8 +969,8 @@ namespace ecs
 			mInstanceLayout.pMeshes = mObjectMeshRegion;
 			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
 
-			const std::string vs = GetShaderFilepath("VS_Trap.cso");
-			const std::string ps = GetShaderFilepath("PS_Ocean.cso");
+			const std::string vs = GetShaderFilepath("VS_Weapon.cso");
+			const std::string ps = GetShaderFilepath("PS_Default.cso");
 
 			mRenderProgram = mpRenderMgr->CreateShaderProgram(
 				vs.c_str(),
