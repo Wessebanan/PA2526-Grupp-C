@@ -129,6 +129,18 @@
     <ClCompile Include="gameWorld\InitWorldScenary.cpp">
       <Filter>Init</Filter>
     </ClCompile>
+    <ClCompile Include="gamePowerups\PowerupSpawner.cpp">
+      <Filter>Powerups</Filter>
+    </ClCompile>
+    <ClCompile Include="gamePowerups\InitPowerups.cpp">
+      <Filter>Init</Filter>
+    </ClCompile>
+    <ClCompile Include="gamePowerups\PowerupVisuals.cpp">
+      <Filter>Powerups</Filter>
+    </ClCompile>
+    <ClCompile Include="gamePowerups\PowerupLogic.cpp">
+      <Filter>Powerups</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -402,6 +414,24 @@
     <ClInclude Include="gameWorld\InitWorldScenary.h">
       <Filter>Init</Filter>
     </ClInclude>
+    <ClInclude Include="gamePowerups\PowerupSpawner.h">
+      <Filter>Powerups</Filter>
+    </ClInclude>
+    <ClInclude Include="gamePowerups\PowerupComponents.h">
+      <Filter>Powerups</Filter>
+    </ClInclude>
+    <ClInclude Include="gamePowerups\PowerupEvents.h">
+      <Filter>Powerups</Filter>
+    </ClInclude>
+    <ClInclude Include="gamePowerups\InitPowerups.h">
+      <Filter>Init</Filter>
+    </ClInclude>
+    <ClInclude Include="gamePowerups\PowerupVisuals.h">
+      <Filter>Powerups</Filter>
+    </ClInclude>
+    <ClInclude Include="gamePowerups\PowerupLogic.h">
+      <Filter>Powerups</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
@@ -469,6 +499,9 @@
     </Filter>
     <Filter Include="Weapons">
       <UniqueIdentifier>{a5ea2955-cdc5-4843-a6cf-fb12e4929899}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Powerups">
+      <UniqueIdentifier>{a278737d-dd8e-4f81-b17f-2a8ecae1cae6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

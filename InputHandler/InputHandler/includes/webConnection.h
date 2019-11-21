@@ -82,10 +82,12 @@ struct webMsgData
 // Collected information to be requested by frontend
 struct playerInfo
 {
+	// If the player is connected
+	bool connected = false;
 	// What plaer this struct is
 	int playerIndex = -1;
 	// Name that the player can change
-	string name = "No name yet";
+	string name = "Not joined";
 	// crrent selected tile
 	int tile[2] = { -1,-1 };
 	// current selected button
@@ -112,6 +114,7 @@ public:
 
 	// Returns the name of the set player (playres cant change this yet)
 	std::string GetUserName(int player);
+	bool IsUserConnected(int player);
 
 	// Returns the button index the player has selected
 	int GetUserButton(int player);
@@ -139,7 +142,7 @@ public:
 		}
 		return this->nrOfPlayers; 
 	};
-	
+
 	// Changes the gamestate for the users
 	bool SetGamestate(WEBGAMESTATE gamestate);
 

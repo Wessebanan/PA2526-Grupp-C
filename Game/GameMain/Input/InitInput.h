@@ -11,6 +11,7 @@ void InitInput(ecs::EntityComponentSystem& rECS)
 	rECS.reserveComponentCount<UserButtonComponent>(1);
 	rECS.reserveComponentCount<UserTileComponent>(1);
 	rECS.reserveComponentCount<UserCommandComponent>(1);
+	rECS.reserveComponentCount<UserNameComponent>(1);
 
 	InputBackend* inp = new InputBackend();
 
@@ -38,10 +39,12 @@ void InitInput(ecs::EntityComponentSystem& rECS)
 	ecs::components::UserButtonComponent user_buttonComp = ecs::components::UserButtonComponent();
 	ecs::components::UserTileComponent user_tileComp = ecs::components::UserTileComponent();
 	ecs::components::UserCommandComponent user_commandComp = ecs::components::UserCommandComponent();
+	ecs::components::UserNameComponent user_name_comp = ecs::components::UserNameComponent();
 	
 	ecs::BaseComponent* components[] =
 	{
 		&user_buttonComp,
+		&user_name_comp,
 		& user_tileComp,
 		& user_commandComp,
 		&mouse_comp,
@@ -52,7 +55,7 @@ void InitInput(ecs::EntityComponentSystem& rECS)
 	ecs::ComponentList list;
 
 	list.initialInfo = components;
-	list.componentCount = 6;
+	list.componentCount = 7;
 
 	//// ENTITIES
 	rECS.createEntity(

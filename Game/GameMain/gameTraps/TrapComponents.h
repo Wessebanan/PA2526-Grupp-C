@@ -22,10 +22,18 @@ namespace ecs
 		struct TrapComponent : public ECSComponent<TrapComponent>
 		{
 			GAME_OBJECT_TYPE mObjectType;
+			TypeID mTileID;
 		};
 
 		// Holds the time of how long the unit has been frozzen and the max time
 		struct FreezingTimerComponent : public ecs::ECSComponent<FreezingTimerComponent>
+		{
+			float mDuration;
+
+			float mElapsedTime = 0;
+		};
+
+		struct SpringRetractionComponent : public ecs::ECSComponent<SpringRetractionComponent>
 		{
 			float mDuration;
 
