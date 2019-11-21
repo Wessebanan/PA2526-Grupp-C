@@ -14,12 +14,6 @@ enum BV_TYPE
 	COLLISION_ERROR
 };
 
-struct CollisionInfo
-{
-	float mOverlap;
-	XMFLOAT3 mNormal;
-};
-
 class CollisionObject
 {
 public:
@@ -28,15 +22,4 @@ public:
 	CollisionObject* mNext			= nullptr;
 
 	~CollisionObject();
-
-	CollisionInfo GetCollisionInfo(OBB& obb);
-
-private:
-	// Functions that return the collision normal 
-	// and overlap of the collision based on type
-	// of this collision object.
-	CollisionInfo GetOBBCollisionInfo(OBB& obb);
-	CollisionInfo GetAABBCollisionInfo(OBB& obb);
-	CollisionInfo GetSphereCollisionInfo(OBB& obb);
-	CollisionInfo GetCylinderCollisionInfo(OBB& obb);
 };

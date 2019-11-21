@@ -110,12 +110,17 @@
     <ClCompile Include="gameGameLoop\GameLoopSystems.cpp" />
     <ClCompile Include="gameGraphics\BlurPipeline.cpp" />
     <ClCompile Include="gameGraphics\CombineSSAOPipeline.cpp" />
+    <ClCompile Include="gameGraphics\FakeStencilPipeline.cpp" />
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
     <ClCompile Include="gameGraphics\OceanRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\ParticleECSSystems.cpp" />
     <ClCompile Include="gameGraphics\RenderBuffer.cpp" />
     <ClCompile Include="gameGraphics\ShadowMapPipeline.cpp" />
+    <ClCompile Include="gamePowerups\InitPowerups.cpp" />
+    <ClCompile Include="gamePowerups\PowerupLogic.cpp" />
+    <ClCompile Include="gamePowerups\PowerupSpawner.cpp" />
+    <ClCompile Include="gamePowerups\PowerupVisuals.cpp" />
     <ClCompile Include="gameRagdoll\Collision.cpp" />
     <ClCompile Include="gameRagdoll\CollisionObject.cpp" />
     <ClCompile Include="gameRagdoll\Ragdoll.cpp" />
@@ -169,6 +174,7 @@
     <ClInclude Include="gameGameLoop\GameLoopEvents.h" />
     <ClInclude Include="gameGameLoop\GameLoopSystems.h" />
     <ClInclude Include="gameGameLoop\InitGameLoop.h" />
+    <ClInclude Include="gameGraphics\FakeStencilPipeline.h" />
     <ClInclude Include="gameGraphics\ForwardRenderingPipeline.h" />
     <ClInclude Include="gameGraphics\GraphicsECSComponents.h" />
     <ClInclude Include="gameGraphics\GraphicsECSSystems.h" />
@@ -181,6 +187,12 @@
     <ClInclude Include="gameGraphics\ShadowMapPipeline.h" />
     <ClInclude Include="gameGraphics\SSAOPipeline.h" />
     <ClInclude Include="gameGraphics\TileRenderingPipeline.h" />
+    <ClInclude Include="gamePowerups\InitPowerups.h" />
+    <ClInclude Include="gamePowerups\PowerupComponents.h" />
+    <ClInclude Include="gamePowerups\PowerupEvents.h" />
+    <ClInclude Include="gamePowerups\PowerupLogic.h" />
+    <ClInclude Include="gamePowerups\PowerupSpawner.h" />
+    <ClInclude Include="gamePowerups\PowerupVisuals.h" />
     <ClInclude Include="gameRagdoll\Collision.h" />
     <ClInclude Include="gameRagdoll\CollisionObject.h" />
     <ClInclude Include="gameRagdoll\Ragdoll.h" />
@@ -242,6 +254,10 @@
     <ClInclude Include="UI\UISystems.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="gameGraphics\Shaders\PS_Army.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\PS_Blur_Horizontal.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -262,6 +278,12 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\PS_Outline.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PS</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PS</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\PS_Particle.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
@@ -277,6 +299,12 @@
     <FxCompile Include="gameGraphics\Shaders\VS_Ocean.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\VS_Outline.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VS</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">VS</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
     <FxCompile Include="gameGraphics\Shaders\VS_Particle.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>

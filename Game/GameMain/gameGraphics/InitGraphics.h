@@ -4,6 +4,7 @@
 #include "GraphicsECSSystems.h"
 #include "../Renderers/Renderers.h"
 
+
 struct WorldMeshData
 {
 	void* pMesh;
@@ -119,10 +120,14 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	graphics::StateManager& r_state_mgr = static_cast<components::StateManagerComponent*>(rEcs.getAllComponentsOfType(components::StateManagerComponent::typeID).next())->mgr;
 	graphics::MeshManager& r_mesh_mgr = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& r_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
-	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 
+	// Make sure no render system is created before UnitRenderSystem if they use the same constant buffer
+	// That will cause outlines to break suuuper hard
+	// No touch >:(
 	rEcs.createSystem<systems::UnitRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 
 	rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
@@ -143,6 +148,9 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 			rOceanMeshData.pMesh,
 			rOceanMeshData.vertexCount);
 
+	rEcs.createSystem<PowerupLootRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
 
 	/*
 		These stay outcommented, so we can easily compare performance boost between instance and single mesh rendering
@@ -160,6 +168,11 @@ void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::PipelineForwardSystem>(9);
 	rEcs.createSystem<systems::ExecuteGPURenderSystem>(9);
 	rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
+	
+	UnitRenderSystem* p_unit_system = (UnitRenderSystem*)rEcs.getSystem<UnitRenderSystem>();
+
+	rEcs.createSystem<systems::OutlineRenderSystem>(9)
+		->Initialize(graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y, p_unit_system->mRenderProgram, &static_cast<components::RenderManagerComponent*>(rEcs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr);
 }
 
 void InitMeshes(EntityComponentSystem& rEcs)
@@ -233,6 +246,8 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FIRE, "../meshes/TrapPlate.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FREEZE, "../meshes/TrapPlate.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_SPRING, "../meshes/TrapPlate.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_POWERUP_HEALTH_PACK, "../meshes/hexagon_tile5.fbx");
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BARREL_STONES, "../meshes/barrel_rock.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BARREL_BARREL, "../meshes/Barrel.fbx");

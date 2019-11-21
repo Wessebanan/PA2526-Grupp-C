@@ -20,12 +20,16 @@
 
 #include "../gameTraps/TrapComponents.h"
 
+#include "../gameGraphics/FakeStencilPipeline.h"
+
 
 // Normalizes scene objects and scene meshes to allow for indexing in array
 #define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
 #define TO_SCENE(x) (x - SCENE_OBJECT_ENUM_OFFSET) 
 
 //#define RUN_SSAO	// Comment this out if performance is unbearable
+
+#include "../gamePowerups/PowerupComponents.h"
 
 namespace ecs
 {
@@ -72,11 +76,15 @@ namespace ecs
 
 				XMStoreFloat4x4(&mpBuffer[index].world, world);
 
+				// This world matrix value is being hijacked for rendering the "fake stencil" for outlines
+				// The defining army color value is stored in the alpha and used in the outline shaders
+				mpBuffer[index].world._34 = (uint32_t)p_color_comp->alpha;
+
 				mpBuffer[index].world._44 = PACK(
 					p_color_comp->red,
 					p_color_comp->green,
 					p_color_comp->blue,
-					0);
+					p_color_comp->alpha);
 
 				memcpy(
 					mpBuffer[index].boneMatrices,
@@ -879,6 +887,45 @@ namespace ecs
 		}
 #pragma endregion SSAORenderSystem
 
+#pragma region OutlineRenderSystem
+		OutlineRenderSystem::OutlineRenderSystem()
+		{
+			updateType = Actor;
+		}
+		OutlineRenderSystem::~OutlineRenderSystem()
+		{
+			// Borrowing the rendermgr from UnitRenderSystem so don't destroy
+			//mRenderMgr.Destroy();
+		}
+		void OutlineRenderSystem::act(float _delta)
+		{
+
+			mRenderMgr->ExecutePipeline(mPipelineFakeStencil, this->unitRenderProgram);
+		}
+		void OutlineRenderSystem::Initialize(const UINT clientWidth, const UINT clientHeight,
+			const UINT unitRenderProgram, graphics::RenderManager* unitRenderManager)
+		{
+			// This render system uses the render manager of the regular Unit render system but with
+			// different shaders
+
+
+			this->unitRenderProgram = unitRenderProgram;
+			this->mRenderMgr = unitRenderManager;
+			{
+				graphics::FAKE_STENCIL_PIPELINE_DESC fake_stencil_desc = { };
+				fake_stencil_desc.ClientWidth = clientWidth;
+				fake_stencil_desc.ClientHeight = clientHeight;
+				graphics::FakeStencilPipeline* fake_stencil_pipeline = new graphics::FakeStencilPipeline;
+				this->mPipelineFakeStencil = mRenderMgr->CreatePipeline(
+					fake_stencil_pipeline,
+					&fake_stencil_desc);
+
+			}
+
+			
+		}
+#pragma endregion OutlineRenderSystem
+
 #pragma region WeaponRenderSystem
 		WeaponRenderSystem::WeaponRenderSystem()
 		{
@@ -1145,5 +1192,114 @@ namespace ecs
 			return sizeof(TrapRenderSystem::InputLayout);
 		}
 #pragma endregion TrapRenderSystem
+
+#pragma region PowerupLootRenderSystem
+		PowerupLootRenderSystem::PowerupLootRenderSystem()
+		{
+			updateType = SystemUpdateType::MultiEntityUpdate;
+			typeFilter.addRequirement(components::PowerupLootComponent::typeID);
+			typeFilter.addRequirement(components::TransformComponent::typeID);
+		}
+
+		PowerupLootRenderSystem::~PowerupLootRenderSystem()
+		{
+			//
+		}
+
+		void PowerupLootRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		{
+			/*
+				We don't know the order of entities EntityIterator, meaning that we can't expect
+				the entities to be ordered by mesh type like we want them to be in the RenderBuffer
+				(output of this function).
+
+				So, this function first calculate how many instances we have of each mesh. With this,
+				we can calculate from which index in the RenderBuffer we can start writing each mesh
+				to. Each mesh we care about in this function, that is tree, stone etc., has its own
+				index counter.
+
+				When rendering traps specific, we create two meshes for each trap. The first is the
+				trap itself, and the other one is the same mesh but larger and black in color. This
+				gives a simple mesh "outline" for viewing meshes during development.
+			*/
+
+			mObjectCount = _entities.entities.size();
+
+			// Fetch pointer to write data to in RenderBuffer
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::PowerupLootRenderSystem::GetPerInstanceSize());
+
+			// Count how many instances we have per scene object mesh
+			ZeroMemory(mObjectTypeCount, POWERUP_TYPE_COUNT * sizeof(UINT));
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::PowerupLootComponent* p_loot_comp = object.getComponent<components::PowerupLootComponent>();
+				mObjectTypeCount[p_loot_comp->mPowerupType - (GAME_OBJECT_TYPE_POWERUP_OFFSET_TAG + 1)]++;
+			}
+
+			// Set index to write to in RenderBuffer, per mesh
+			UINT object_type_individual_index[POWERUP_TYPE_COUNT] = { 0 };
+
+			for (int i = 1; i < POWERUP_TYPE_COUNT; i++)
+			{
+				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
+			}
+
+			// Iterate all objects and write their data to the RenderBuffer
+			for (FilteredEntity powerup : _entities.entities)
+			{
+				components::PowerupLootComponent* p_loot_comp = powerup.getComponent<components::PowerupLootComponent>();
+				components::TransformComponent* p_transform_comp = powerup.getComponent<components::TransformComponent>();
+
+				// Get index, depending on mesh type
+				UINT& index = object_type_individual_index[p_loot_comp->mPowerupType - (GAME_OBJECT_TYPE_POWERUP_OFFSET_TAG + 1)];
+
+				/*
+					Create a world matrix out of the powerup's transform.
+					Place color in the last element of the world
+					matrix. Color will be extracted in the shader.
+				*/
+
+				// Set "outline" mesh
+				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
+				mpBuffer[index++].world._44 = p_loot_comp->mColor;
+			}
+
+			mInstanceLayout.pInstanceCountPerMesh = mObjectTypeCount;
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		}
+
+		void PowerupLootRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+		{
+			mpRenderMgr = pRenderMgr;
+
+			/*
+				Set up mesh region for all meshes that will be rendered.
+			*/
+
+			for (int i = 0; i < POWERUP_TYPE_COUNT; i++)
+			{
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE(i + (GAME_OBJECT_TYPE_POWERUP_OFFSET_TAG + 1)));
+			}
+
+			mInstanceLayout.MeshCount = POWERUP_TYPE_COUNT;
+			mInstanceLayout.pMeshes = mObjectMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
+
+			const std::string vs = GetShaderFilepath("VS_Trap.cso");
+			const std::string ps = GetShaderFilepath("PS_Ocean.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				systems::PowerupLootRenderSystem::GetPerInstanceSize());
+
+			mpRenderBuffer = pRenderBuffer;
+		}
+
+		uint32_t PowerupLootRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(PowerupLootRenderSystem::InputLayout);
+		}
+#pragma endregion PowerupLootRenderSystem
 	}
 }

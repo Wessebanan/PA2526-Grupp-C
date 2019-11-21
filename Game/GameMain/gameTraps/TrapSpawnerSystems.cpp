@@ -54,10 +54,11 @@ namespace ecs
 			components::TransformComponent transf_comp;
 
 			/*
-				-- Set trap type
+				-- Set trap type and tileID
 			*/
 
 			trap_comp.mObjectType = r_trap_event.type;
+			trap_comp.mTileID = r_trap_event.tileID;
 
 			/*
 				-- Set trap position

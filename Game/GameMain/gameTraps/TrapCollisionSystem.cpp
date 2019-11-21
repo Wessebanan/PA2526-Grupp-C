@@ -3,6 +3,7 @@
 #include "TrapComponents.h"
 #include "../gameUtility/UtilityComponents.h" // TransformComponent
 #include "../gameAI/AIComponents.h"	// UnitComponent
+#include "../gameAI/AISystems.h"	// GetCloseset tiel
 
 using namespace DirectX;
 
@@ -89,6 +90,7 @@ namespace ecs
 				{
 					events::TriggerSpringTrapEvent spring_event;
 					spring_event.unitID = unit.entity->getID();
+					spring_event.tileID = p_trap_comp->mTileID;
 					createEvent(spring_event);
 					break;
 				}
