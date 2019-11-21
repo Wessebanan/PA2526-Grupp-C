@@ -386,6 +386,11 @@ namespace GridFunctions
 			rIsletCoords.push_back(IsletTileCoordinate(start - 1, columns - 1, 2));
 			rIsletCoords.push_back(IsletTileCoordinate(start - 1, columns - 2, 2));
 
+
+			height_values[start][columns - 1 - i]		=	(height_values[start][columns - 1 - i])		+ (height_values[start][columns - 3 - i]) / 2.0f;
+			height_values[start + 1][columns - 1 - i] = (height_values[start + 1][columns - 1 - i]) + (height_values[start + 1][columns - 3 - i]) / 2.0f;
+			height_values[start - 1][columns - 1 - i] = (height_values[start - 1][columns - 1 - i]) + (height_values[start - 1][columns - 3 - i]) / 2.0f;
+
 			// forth side
 			start = start3;
 			height_values[rows - 1][start + 1] = 0.0f;
@@ -410,9 +415,9 @@ namespace GridFunctions
 			rIsletCoords.push_back(IsletTileCoordinate(rows - 2, start - 1, 3));
 
 
-			height_values[rows - 1 - i][start] = 0.0f;
-			height_values[rows - 1 - i][start + 1] = 0.0f;
-			height_values[rows - 1 - i][start + 2] = 0.0f;
+			height_values[rows - 1 - i - 1][start] = (height_values[rows - 1 - i][start]) + (height_values[rows - 3 - i][start]) / 2.0f;
+			height_values[rows - 1 - i - 1][start] = (height_values[rows - 1 - i][start]) + (height_values[rows - 3 - i][start + 1]) / 2.0f;
+			height_values[rows - 1 - i - 1][start] = (height_values[rows - 1 - i][start]) + (height_values[rows - 3 - i][start - 1]) / 2.0f;
 		}
 
 
