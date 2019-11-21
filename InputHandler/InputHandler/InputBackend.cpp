@@ -22,6 +22,8 @@ InputBackend::InputBackend()
 		mpUserTile[i] = new WebTile();
 		mpUserCommand[i] = new WebCommand();
 		mpUserPing[i] = new bool();
+
+		mpUserNames[i] = "";
 	}
 }
 
@@ -137,7 +139,16 @@ bool InputBackend::updateWeb()
 	this->updateButtons();
 	this->updateCommands();
 	this->updatePings();
-	//this->updateName();
+	this->updateName();
+
+	for (size_t i = 0; i < 4; i++)
+	{
+		// Checks the webconnection if its playerslots is filled up and converts to the inputbackend
+		if (mpWebConn->IsUserConnected(i))
+			mpPlayerIsConnected[i] = true;
+		else
+			mpPlayerIsConnected[i] = false;
+	}
 
 	return true;
 }
@@ -199,6 +210,14 @@ void InputBackend::updatePings()
 	for (size_t playerIndex = 0; playerIndex < 4; playerIndex++)
 	{
 		*mpUserPing[playerIndex] = mpWebConn->GetUserPing(playerIndex);
+	}
+}
+
+void InputBackend::updateName()
+{
+	for (size_t i = 0; i < 4; i++)
+	{
+		mpUserNames[i] = mpWebConn->GetUserName(i);
 	}
 }
 

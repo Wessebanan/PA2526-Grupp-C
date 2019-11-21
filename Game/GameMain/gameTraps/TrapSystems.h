@@ -32,6 +32,16 @@ namespace ecs
 		private:
 		};
 
+		// Updates Tiels that are beeing retracted
+		class SpringRetractionSystem : public ecs::ECSSystem<SpringRetractionSystem>
+		{
+		public:
+			SpringRetractionSystem();
+			~SpringRetractionSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		private:
+		};
+
 		// ----------- EVENTREADERS -----------------
 
 		class FireTrapEventSystem : public ecs::ECSSystem<FireTrapEventSystem>
@@ -59,7 +69,6 @@ namespace ecs
 		};
 
 
-		// Starts the game, launches the correct phase after reading event
 		class SpringTrapEventSystem : public ecs::ECSSystem<SpringTrapEventSystem>
 		{
 		public:

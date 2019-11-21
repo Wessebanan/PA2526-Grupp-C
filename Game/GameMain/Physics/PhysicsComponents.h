@@ -199,6 +199,18 @@ namespace ecs
 		{
 			float mTime;
 		};
+
+		/*
+		* Holds the tile ID and tile Y-pos that the weapon should fall to.
+		*/
+		COMP(FallingWeaponComponent)
+		{
+			//I'm important! Please don't remove me Baka Master-senpai!
+			float mPosY;
+			float mPosYOffset;
+			ID mTileId;
+			XMFLOAT3 rotation;
+		};
 	} // components
 } // ecs
 
