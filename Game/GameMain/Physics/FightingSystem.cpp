@@ -110,14 +110,14 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		weapon_component->mBoundingVolume = new Sphere;
 		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
 		sphere->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		sphere->Radius = 20.0f;
+		sphere->Radius = BOMB_BLAST_RADIUS;
 
 		// TODO: Get arm length and set to attack range.
-		weapon_component->mWeaponRange = 5.0f;
+		weapon_component->mWeaponRange = BOMB_START_ATTACK_RANGE;
 
-		weapon_component->mBaseDamage = BASE_FIST_DAMAGE;
+		weapon_component->mBaseDamage = BASE_BOMB_DAMAGE;
 
-		weapon_component->mKnockback = 10.0f;
+		weapon_component->mKnockback = BOMB_KNOCKBACK;
 		break;
 	}
 	default:
@@ -278,7 +278,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		{
 			WeaponComponent* current_weapon = getComponentFromKnownEntity<WeaponComponent>(equipment_component->mEquippedWeapon);
 			// If it's the same weapon type, don't do anything.
-			if (current_weapon->mType == weapon_component->mType)
+			if (!current_weapon || current_weapon->mType == weapon_component->mType)
 			{
 				return;
 			}
@@ -316,14 +316,14 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	}
 	else if (intersect && weapon_component->mType == GAME_OBJECT_TYPE_WEAPON_BOMB)
 	{
-		std::cout << "BOOOOOMB! 0" << "\n";
-
 		WeaponOnHitEvent hit_event;
 		hit_event.Type		= weapon_component->mType;
 		hit_event.Position	= weapon_transform_component->position;
-		hit_event.Range		= weapon_component->mWeaponRange;
+		hit_event.Range		= BOMB_BLAST_RADIUS;
 		hit_event.Damage	= weapon_component->mBaseDamage;
 		hit_event.Knockback = weapon_component->mKnockback;
+		hit_event.WeaponID	= weapon_component->getEntityID();
+		hit_event.OwnerUnitID = weapon_component->mOwnerEntity;
 
 		createEvent(hit_event);
 	}
@@ -520,8 +520,6 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 		return;
 	}
 
-	std::cout << "BOOOOOMB! 1" << "\n";
-
 	const WeaponOnHitEvent& hit_event = static_cast<WeaponOnHitEvent&>(_event);
 	const XMVECTOR weapon_position = XMLoadFloat3(&hit_event.Position);
 
@@ -530,7 +528,6 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 	unit_filter.addRequirement(components::UnitComponent::typeID);
 	unit_filter.addRequirement(components::TransformComponent::typeID);
 	unit_filter.addRequirement(components::HealthComponent::typeID);
-	unit_filter.addRequirement(components::DynamicMovementComponent::typeID);
 
 	EntityIterator iter = getEntitiesByFilter(unit_filter);
 
@@ -538,36 +535,55 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 	for (FilteredEntity& unit : iter.entities)
 	{
 		const TransformComponent* p_unit_transform = unit.getComponent<TransformComponent>();
-		const XMVECTOR unit_position = XMLoadFloat3(&p_unit_transform->position);
-		const float unit_weapon_dist = XMVectorGetX(XMVector3Length(unit_position - weapon_position));
+		const XMVECTOR unit_position	= XMLoadFloat3(&p_unit_transform->position);
+		const XMVECTOR unit_weapon_v	= unit_position - weapon_position;
+		const float unit_weapon_dist	= XMVectorGetX(XMVector3Length(unit_weapon_v));
 		
-		
-		// Calculating damage by multiplying weapon velocity and the base damage.
-		const float damage = hit_event.Damage;
-		HealthComponent* p_collided_constitution = unit.getComponent<HealthComponent>();
-		p_collided_constitution->mHealth -= damage;
+		if (unit_weapon_dist <= hit_event.Range)
+		{
+			// Calculating damage by multiplying weapon velocity and the base damage.
+			const float damage = hit_event.Damage;
+			HealthComponent* p_collided_constitution = unit.getComponent<HealthComponent>();
+			p_collided_constitution->mHealth -= damage;
 
-		// INVINCIBILITY
-		// (based on damage dealt)
-		/*InvincilibityTimer timer;
-		timer.mTime = log2f(damage) * BASE_INVINCIBILITY_TIME;
-		createComponent<InvincilibityTimer>(collided_unit, timer);*/
+			// KNOCKBACK
+			ForceImpulseEvent knockback; 
+			XMStoreFloat3(&knockback.mDirection, unit_weapon_v);
+			XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 
-		// KNOCKBACK
-		ForceImpulseEvent knockback;
-		knockback.mDirection = unit.getComponent<DynamicMovementComponent>()->mDirection;
+			// Small y boost in knockback to send units FLYING.
+			knockback.mDirection.y += 1.f;
 
-		// Small y boost in knockback to send units FLYING.
-		knockback.mDirection.y += 0.3f;
+			// Normalize knockback direction so it's not CRAZY.
+			XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 
-		// Normalize knockback direction so it's not CRAZY.
-		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
-
-		knockback.mForce		= hit_event.Knockback;
-		knockback.mEntityID		= unit.entity->getID();
-		createEvent(knockback);
-		
+			knockback.mForce = hit_event.Knockback;
+			knockback.mEntityID = unit.entity->getID();
+			createEvent(knockback);
+		}
 	}
+
+	components::EquipmentComponent* p_equipment = getComponentFromKnownEntity<components::EquipmentComponent>(hit_event.OwnerUnitID);
+	
+	if (p_equipment)
+	{
+		removeEntity(hit_event.WeaponID);
+		
+		/*
+			Create fist entity
+		*/
+
+		WeaponComponent fist_weapon;
+		TransformComponent fist_transform;
+		fist_weapon.mType = GAME_OBJECT_TYPE_WEAPON_FIST;
+		fist_weapon.mOwnerEntity = hit_event.OwnerUnitID;
+		fist_transform.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+		Entity* p_fist = createEntity(fist_weapon, fist_transform);
+
+		p_equipment->mEquippedWeapon = p_fist->getID();
+		p_equipment->mAttackRange = p_equipment->mMeleeRange;
+	}
+	
 }
 
 #pragma endregion

@@ -19,6 +19,7 @@ constexpr float DEFAULT_HEALTH			= 100.0f;
 constexpr float BASE_SWORD_DAMAGE		= 5.0f;
 constexpr float BASE_HAMMER_DAMAGE		= 2.5f;
 constexpr float BASE_FIST_DAMAGE		= 1.0f;
+constexpr float BASE_BOMB_DAMAGE		= 1.0f;
 
 // Base knockback is a force in newtons while weapon
 // specific knockbacks are multipliers.
@@ -26,6 +27,11 @@ constexpr float BASE_KNOCKBACK			= 30.0f;
 constexpr float HAMMER_KNOCKBACK		= 2.0f;
 constexpr float SWORD_KNOCKBACK			= 1.0f;
 constexpr float FIST_KNOCKBACK			= 0.5f;
+constexpr float BOMB_KNOCKBACK			= 200.0f;
+
+constexpr float BOMB_START_ATTACK_RANGE = 1.0f;
+
+constexpr float BOMB_BLAST_RADIUS		= 6.0f; // Also pick-up radius
 
 constexpr float BASE_INVINCIBILITY_TIME = 0.2f;
 
