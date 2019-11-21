@@ -189,7 +189,6 @@ namespace ecs
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
 			components::PipelineFakeStencilComponent* p_pipeline_fake_stencil = entity.getComponent<components::PipelineFakeStencilComponent>();
-			components::PipelineOutlineComponent* p_pipeline_outline = entity.getComponent<components::PipelineOutlineComponent>();
 
 			UnitRenderSystem* p_unit_system = (UnitRenderSystem*)GetSystem<UnitRenderSystem>();
 			OutlineRenderSystem* p_outline_system = (OutlineRenderSystem*)GetSystem<OutlineRenderSystem>();

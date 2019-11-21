@@ -21,7 +21,6 @@
 #include "../gameTraps/TrapComponents.h"
 
 #include "../gameGraphics/FakeStencilPipeline.h"
-#include "../gameGraphics/OutlinePipeline.h"
 
 
 // Normalizes scene objects and scene meshes to allow for indexing in array
