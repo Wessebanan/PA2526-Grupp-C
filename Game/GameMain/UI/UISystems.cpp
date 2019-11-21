@@ -150,6 +150,12 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	itt = getComponentsOfType(components::UserNameComponent::typeID);
 	components::UserNameComponent* p_name_comp = (components::UserNameComponent*)itt.next();
 
+
+	/*
+		Here we update the information in the players corner UI
+
+		We can update the name of all the playesr when the UI has bitmais instead of hwo it is now
+	*/
 	ss.append(L"Score: ");
 	if (p_gl != nullptr)
 	{

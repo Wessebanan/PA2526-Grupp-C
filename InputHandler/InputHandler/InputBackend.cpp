@@ -143,6 +143,7 @@ bool InputBackend::updateWeb()
 
 	for (size_t i = 0; i < 4; i++)
 	{
+		// Checks the webconnection if its playerslots is filled up and converts to the inputbackend
 		if (mpWebConn->IsUserConnected(i))
 			mpPlayerIsConnected[i] = true;
 		else

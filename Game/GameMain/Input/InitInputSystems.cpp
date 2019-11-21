@@ -95,28 +95,37 @@ void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 	for (int i = 0; i < 4; i++)
 	{
+		// Sanity check
 		if (p_button_comp)
 		{
+			// Updates the ECS buttons
 			p_button_comp->userButtons[i].mButton = p_backend_comp->backend->mpUserButton[i]->mButton;
 		}
 
+		// Sanity check
 		if (p_tile_comp)
 		{
+			// Updates the ECS tiles
 			p_tile_comp->userTiles[i].mCordX = p_backend_comp->backend->mpUserTile[i]->mCordX;
 			p_tile_comp->userTiles[i].mCordY = p_backend_comp->backend->mpUserTile[i]->mCordY;
 
 		}
-		
+
+		// Sanity check
 		if (p_command_comp)
 		{
+			// Updates the ECS commands
 			p_command_comp->userCommands[i].mCommand = p_backend_comp->backend->mpUserCommand[i]->mCommand;
 		}
-		
+
+		// Sanity check
 		if (p_name_comp)
 		{
+			// Updates the ECS names
 			p_name_comp->names[i] = p_backend_comp->backend->mpUserNames[i];
 		}
-		
+
+		// Sanity check
 		if (p_backend_comp)
 		{
 			if (*p_backend_comp->backend->mpUserPing[i] == true)
