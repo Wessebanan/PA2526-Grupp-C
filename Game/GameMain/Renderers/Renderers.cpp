@@ -1302,6 +1302,4 @@ namespace ecs
 		}
 #pragma endregion PowerupLootRenderSystem
 	}
-
-}
 }
