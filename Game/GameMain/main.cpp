@@ -52,6 +52,9 @@
 #include "gameTraps/TrapComponents.h"
 #include "gameTraps/TrapEvents.h"
 
+#include "gamePowerups/InitPowerups.h"
+#include "gamePowerups/PowerupEvents.h"
+
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
 #include <crtdbg.h>
@@ -261,6 +264,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitWeapons(rECS);
 
 	InitTraps(rECS);
+	InitPowerups(rECS);
 
 	InitHttpServer(rECS);
 

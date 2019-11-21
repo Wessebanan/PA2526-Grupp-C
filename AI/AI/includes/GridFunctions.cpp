@@ -322,10 +322,11 @@ namespace GridFunctions
 			height_values[start - 1][1] = 0.0f;
 
 			int islet_counter = 0;
-			for (i = 0; height_values[start][i] < -0.5f; i++)
+			for (i = 0; height_values[start][i] < -0.5f || height_values[start +1][i] < -0.5f || height_values[start-1][i] < -0.5f; i++)
 			{
 				height_values[start][i] = 0.0f;
 				height_values[start + 1][i] = 0.0f;
+				height_values[start - 1][i] = 0.0f;
 
 				if (islet_counter < 2)
 				{
@@ -338,6 +339,10 @@ namespace GridFunctions
 			rIsletCoords.push_back(IsletTileCoordinate(start - 1, 0, 0));
 			rIsletCoords.push_back(IsletTileCoordinate(start - 1, 1, 0));
 
+			height_values[start][i + 1]		*= 0.5f;
+			height_values[start + 1][i + 1] *= 0.5f;
+			height_values[start - 1][i + 1] *= 0.5f;
+
 
 			// second side
 			start = start1;
@@ -345,10 +350,11 @@ namespace GridFunctions
 			height_values[0][start - 1] = 0.0f;
 			height_values[1][start - 1] = 0.0f;
 			islet_counter = 0;
-			for (i = 0; height_values[i][start] < -0.5f; i++)
+			for (i = 0; height_values[i][start] < -0.5f || height_values[i][start + 1] < -0.5f || height_values[i][start - 1] < -0.5f; i++)
 			{
 				height_values[i][start] = 0.0f;
 				height_values[i][start + 1] = 0.0f;
+				height_values[i][start - 1] = 0.0f;
 
 				if (islet_counter < 2)
 				{
@@ -361,16 +367,21 @@ namespace GridFunctions
 			rIsletCoords.push_back(IsletTileCoordinate(0, start - 1, 1));
 			rIsletCoords.push_back(IsletTileCoordinate(1, start - 1, 1));
 
+			height_values[i + 1][start]		*=	0.5f; 
+			height_values[i + 1][start + 1]	*=	0.5f; 
+			height_values[i + 1][start - 1] *=	0.5f; 
+
 			// third side
 			start = start2;
 			height_values[start + 1][columns - 1] = 0.0f;
 			height_values[start - 1][columns - 1] = 0.0f;
 			height_values[start - 1][columns - 2] = 0.0f;
 			islet_counter = 0;
-			for (i = 0; height_values[start][columns - 1 - i] < -0.5f; i++)
+			for (i = 0; height_values[start][columns - 1 - i] < -0.5f || height_values[start + 1][columns - 1 - i] < -0.5f || height_values[start - 1][columns - 1 - i] < -0.5f; i++)
 			{
 				height_values[start][columns - 1 - i] = 0.0f;
 				height_values[start + 1][columns - 1 - i] = 0.0f;
+				height_values[start - 1][columns - 1 - i] = 0.0f;
 
 				if (islet_counter < 2)
 				{
@@ -383,16 +394,22 @@ namespace GridFunctions
 			rIsletCoords.push_back(IsletTileCoordinate(start - 1, columns - 1, 2));
 			rIsletCoords.push_back(IsletTileCoordinate(start - 1, columns - 2, 2));
 
+
+			height_values[start][columns - 1 - i - 1]		*= 0.5f;
+			height_values[start + 1][columns - 1 - i - 1]	*= 0.5f;
+			height_values[start - 1][columns - 1 - i - 1]	*= 0.5f;
+
 			// forth side
 			start = start3;
 			height_values[rows - 1][start + 1] = 0.0f;
 			height_values[rows - 1][start - 1] = 0.0f;
 			height_values[rows - 2][start - 1] = 0.0f;
 			islet_counter = 0;
-			for (i = 0; height_values[rows - 1 - i][start] < -0.5f; i++)
+			for (i = 0; height_values[rows - 1 - i][start] < -0.5f || height_values[rows - 1 - i][start + 1] < -0.5f || height_values[rows - 1 - i][start - 1] < -0.5f; i++)
 			{
 				height_values[rows - 1 - i][start] = 0.0f;
 				height_values[rows - 1 - i][start + 1] = 0.0f;
+				height_values[rows - 1 - i][start - 1] = 0.0f;
 
 				if (islet_counter < 2)
 				{
@@ -404,6 +421,11 @@ namespace GridFunctions
 			rIsletCoords.push_back(IsletTileCoordinate(rows - 1, start + 1, 3));
 			rIsletCoords.push_back(IsletTileCoordinate(rows - 1, start - 1, 3));
 			rIsletCoords.push_back(IsletTileCoordinate(rows - 2, start - 1, 3));
+
+
+			height_values[rows - 1 - i - 1][start] *= 0.5f;
+			height_values[rows - 1 - i - 1][start] *= 0.5f;
+			height_values[rows - 1 - i - 1][start] *= 0.5f;
 		}
 
 
@@ -590,7 +612,7 @@ namespace GridFunctions
 					if (p_gp->mGrid[0][i].isPassable)
 					{
 						index.x = 0;
-						index.y = i;
+						index.y = i + 1;
 						break;
 					}
 				}
@@ -600,7 +622,7 @@ namespace GridFunctions
 				{
 					if (p_gp->mGrid[i][0].isPassable)
 					{
-						index.x = i;
+						index.x = i + 1;
 						index.y = 0;
 						break;
 					}
@@ -612,7 +634,7 @@ namespace GridFunctions
 					if (p_gp->mGrid[Rows - 1][i].isPassable)
 					{
 						index.x = Rows - 1;
-						index.y = i;
+						index.y = i + 1;
 						break;
 					}
 				}
@@ -622,7 +644,7 @@ namespace GridFunctions
 				{
 					if (p_gp->mGrid[i][Columns - 1].isPassable)
 					{
-						index.x = i;
+						index.x = i + 1;
 						index.y = Columns - 1;
 						break;
 					}

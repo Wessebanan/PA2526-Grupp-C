@@ -5,6 +5,7 @@
 #include "../gameAI/AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
 #include "GridProp.h"
+#include "../gameGraphics/ParticleECSComponents.h"
 
 
 /*
@@ -106,6 +107,25 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 				knockback.mForce = mKnockback;
 				knockback.mEntityID = id;
 				createEvent(knockback);
+
+				/* Spawn Smoke Emitter At Sword Spawn */
+				components::ParticleSpawnerComponent spawner;
+				components::FireSpawnerComponent smoke;
+
+
+				TransformComponent* p_transf_comp = getComponentFromKnownEntity<TransformComponent>(id);
+
+				spawner.StartPosition = p_transf_comp->position;
+				spawner.StartPosition.y -=  1.0f;
+				spawner.SpawnFrequency = 0.005f;
+				spawner.TimerSinceLastSpawn = 0.0f;
+				spawner.LifeDuration = 0.4f;
+
+				smoke.InitialVelocity = 12.0f;
+				smoke.SpawnCount = 150;
+
+				createEntity(spawner, smoke);
+
 
 				// Check if the unit died
 				if (p_hp_comp->mHealth <= 0.0f)
