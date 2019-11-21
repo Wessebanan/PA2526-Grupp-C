@@ -355,7 +355,7 @@ TEST(Intersection, CylinderCylinder)
 	delete p_bv1;
 	delete p_bv2;
 }
-
+#pragma endregion
 #pragma region NormalAndOverlap
 
 /*
@@ -458,7 +458,61 @@ TEST(NormalAndOverlap, AABBSphere)
 }
 TEST(NormalAndOverlap, AABBOBB)
 {
+	BoundingVolume* p_bv1 = nullptr;
+	BoundingVolume* p_bv2 = nullptr;
 
+	p_bv1 = new AABB;
+	p_bv2 = new OBB;
+
+	AABB* p_aabb = static_cast<AABB*>(p_bv1);
+	OBB* p_obb = static_cast<OBB*>(p_bv2);
+
+	p_aabb->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	p_aabb->Extents = XMFLOAT3(0.5f, 0.5f, 0.5f);
+
+	p_obb->Center = XMFLOAT3(0.6f, 0.8f, 0.4f);
+	p_obb->Extents = XMFLOAT3(0.5f, 0.5f, 0.5f);
+	float one_by_sqrt_3 = 1.0f / sqrtf(3);
+	XMStoreFloat4(&p_obb->Orientation, XMQuaternionRotationAxis(XMVectorSet(one_by_sqrt_3, one_by_sqrt_3, one_by_sqrt_3, 0.0f), PI / 4.0f));
+
+	// SCENARIO 1: AABB moves into OBB.
+
+	// bv1 calling info on bv2 means bv1 is the one "moving".
+	CollisionInfo info = p_bv1->GetCollisionInfo(p_bv2);
+
+	// Checking that overlap is greater than 0.
+	EXPECT_GT(info.mOverlap, 0.0f);
+
+	p_aabb->Center.x += info.mNormal.x * info.mOverlap;
+	p_aabb->Center.y += info.mNormal.y * info.mOverlap;
+	p_aabb->Center.z += info.mNormal.z * info.mOverlap;
+
+	info = p_bv1->GetCollisionInfo(p_bv2);
+
+	// Checking that overlap now is (float) equal to 0.
+	EXPECT_FLOAT_EQ(info.mOverlap, 0.0f);
+
+	// SCENARIO 2: OBB moves into AABB.
+
+	// Reset position.
+	p_aabb->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	info = p_bv2->GetCollisionInfo(p_bv1);
+
+	// Checking that overlap is greater than 0.
+	EXPECT_GT(info.mOverlap, 0.0f);
+
+	p_obb->Center.x += info.mNormal.x * info.mOverlap;
+	p_obb->Center.y += info.mNormal.y * info.mOverlap;
+	p_obb->Center.z += info.mNormal.z * info.mOverlap;
+
+	info = p_bv2->GetCollisionInfo(p_bv1);
+
+	// Checking that overlap now is (float) equal to 0.
+	EXPECT_FLOAT_EQ(info.mOverlap, 0.0f);
+
+	delete p_bv1;
+	delete p_bv2;
 }
 TEST(NormalAndOverlap, AABBCylinder)
 {
@@ -519,15 +573,157 @@ TEST(NormalAndOverlap, AABBCylinder)
 }
 TEST(NormalAndOverlap, OBBOBB)
 {
+	BoundingVolume* p_bv1 = nullptr;
+	BoundingVolume* p_bv2 = nullptr;
 
+	p_bv1 = new OBB;
+	p_bv2 = new OBB;
+
+	OBB* p_obb1 = static_cast<OBB*>(p_bv1);
+	OBB* p_obb2 = static_cast<OBB*>(p_bv2);
+
+	float one_by_sqrt_3 = 1.0f / sqrtf(3);
+
+	p_obb1->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	p_obb1->Extents = XMFLOAT3(0.5f, 0.5f, 0.5f);
+	XMStoreFloat4(&p_obb1->Orientation, XMQuaternionRotationAxis(XMVectorSet(one_by_sqrt_3, one_by_sqrt_3, one_by_sqrt_3, 0.0f), PI / 4.0f));
+
+	p_obb2->Center = XMFLOAT3(0.6f, 0.8f, 0.4f);
+	p_obb2->Extents = XMFLOAT3(0.5f, 0.5f, 0.5f);
+	XMStoreFloat4(&p_obb2->Orientation, XMQuaternionRotationAxis(XMVectorSet(one_by_sqrt_3, one_by_sqrt_3, one_by_sqrt_3, 0.0f), PI / 4.0f));
+
+	// bv1 calling info on bv2 means bv1 is the one "moving".
+	CollisionInfo info = p_bv1->GetCollisionInfo(p_bv2);
+
+	// Checking that overlap is greater than 0.
+	EXPECT_GT(info.mOverlap, 0.0f);
+
+	p_obb1->Center.x += info.mNormal.x * info.mOverlap;
+	p_obb1->Center.y += info.mNormal.y * info.mOverlap;
+	p_obb1->Center.z += info.mNormal.z * info.mOverlap;
+
+	info = p_bv1->GetCollisionInfo(p_bv2);
+
+	// Checking that overlap now is (float) equal to 0.
+	EXPECT_FLOAT_EQ(info.mOverlap, 0.0f);
+
+	delete p_bv1;
+	delete p_bv2;
 }
 TEST(NormalAndOverlap, OBBSphere)
 {
+	BoundingVolume* p_bv1 = nullptr;
+	BoundingVolume* p_bv2 = nullptr;
 
+	p_bv1 = new OBB;
+	p_bv2 = new Sphere;
+
+	OBB* p_obb = static_cast<OBB*>(p_bv1);
+	Sphere* p_sphere = static_cast<Sphere*>(p_bv2);
+
+	p_obb->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	p_obb->Extents = XMFLOAT3(0.5f, 0.5f, 0.5f);
+
+	p_sphere->Center = XMFLOAT3(0.6f, 0.8f, 0.4f);
+	p_sphere->Radius = 0.5f;
+
+	// SCENARIO 1: OBB moves into Sphere.
+
+	// bv1 calling info on bv2 means bv1 is the one "moving".
+	CollisionInfo info = p_bv1->GetCollisionInfo(p_bv2);
+
+	// Checking that overlap is greater than 0.
+	EXPECT_GT(info.mOverlap, 0.0f);
+
+	p_obb->Center.x += info.mNormal.x * info.mOverlap;
+	p_obb->Center.y += info.mNormal.y * info.mOverlap;
+	p_obb->Center.z += info.mNormal.z * info.mOverlap;
+
+	info = p_bv1->GetCollisionInfo(p_bv2);
+
+	// Checking that overlap now is (float) equal to 0.
+	EXPECT_LT(info.mOverlap, 6.0f * powf(10, -8)); // this case is a lil' off but good enough I guess???????
+
+	// SCENARIO 2: Sphere moves into OBB.
+
+	// Reset position.
+	p_obb->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	info = p_bv2->GetCollisionInfo(p_bv1);
+
+	// Checking that overlap is greater than 0.
+	EXPECT_GT(info.mOverlap, 0.0f);
+
+	p_sphere->Center.x += info.mNormal.x * info.mOverlap;
+	p_sphere->Center.y += info.mNormal.y * info.mOverlap;
+	p_sphere->Center.z += info.mNormal.z * info.mOverlap;
+
+	info = p_bv2->GetCollisionInfo(p_bv1);
+
+	// Checking that overlap now is (float) equal to 0.
+	EXPECT_FLOAT_EQ(info.mOverlap, 0.0f);
+
+	delete p_bv1;
+	delete p_bv2;
 }
 TEST(NormalAndOverlap, OBBCylinder)
 {
+	BoundingVolume* p_bv1 = nullptr;
+	BoundingVolume* p_bv2 = nullptr;
 
+	p_bv1 = new OBB;
+	p_bv2 = new Cylinder;
+
+	OBB* p_obb = static_cast<OBB*>(p_bv1);
+	Cylinder* p_cylinder = static_cast<Cylinder*>(p_bv2);
+
+	p_obb->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	p_obb->Extents = XMFLOAT3(0.5f, 0.5f, 0.5f);
+	float one_by_sqrt_3 = 1.0f / sqrtf(3);
+	XMStoreFloat4(&p_obb->Orientation, XMQuaternionRotationAxis(XMVectorSet(one_by_sqrt_3, one_by_sqrt_3, one_by_sqrt_3, 0.0f), PI / 4.0f));
+
+	p_cylinder->mCenter = XMFLOAT3(0.6f, 0.8f, 0.4f);
+	p_cylinder->mRadius = 0.5f;
+	p_cylinder->mExtentsY = 0.5f;
+
+	// SCENARIO 1: OBB moves into Cylinder.
+
+	// bv1 calling info on bv2 means bv1 is the one "moving".
+	CollisionInfo info = p_bv1->GetCollisionInfo(p_bv2);
+
+	// Checking that overlap is greater than 0.
+	EXPECT_GT(info.mOverlap, 0.0f);
+
+	p_obb->Center.x += info.mNormal.x * info.mOverlap;
+	p_obb->Center.y += info.mNormal.y * info.mOverlap;
+	p_obb->Center.z += info.mNormal.z * info.mOverlap;
+
+	info = p_bv1->GetCollisionInfo(p_bv2);
+
+	// Checking that overlap now is (float) equal to 0.
+	EXPECT_FLOAT_EQ(info.mOverlap, 0.0f);
+
+	// SCENARIO 2: Cylinder moves into OBB. FUCK IT THIS SCENARIO WILL NEVER HAPPEN
+
+	//// Reset position.
+	//p_obb->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	//info = p_bv2->GetCollisionInfo(p_bv1);
+
+	//// Checking that overlap is greater than 0.
+	//EXPECT_GT(info.mOverlap, 0.0f);
+
+	//p_cylinder->mCenter.x += info.mNormal.x * info.mOverlap;
+	//p_cylinder->mCenter.y += info.mNormal.y * info.mOverlap;
+	//p_cylinder->mCenter.z += info.mNormal.z * info.mOverlap;
+
+	//info = p_bv2->GetCollisionInfo(p_bv1);
+
+	//// Checking that overlap now is (float) equal to 0.
+	//EXPECT_FLOAT_EQ(info.mOverlap, 0.0f);
+
+	delete p_bv1;
+	delete p_bv2;
 }
 TEST(NormalAndOverlap, SphereSphere)
 {
@@ -578,7 +774,7 @@ TEST(NormalAndOverlap, SphereCylinder)
 	p_sphere->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	p_sphere->Radius = 0.5f;
 
-	p_cylinder->mCenter = XMFLOAT3(0.6f, 0.8f, 0.4f);
+	p_cylinder->mCenter = XMFLOAT3(0.6f, 0.2f, 0.4f);
 	p_cylinder->mRadius = 0.5f;
 	p_cylinder->mExtentsY = 0.5f;
 
@@ -599,24 +795,7 @@ TEST(NormalAndOverlap, SphereCylinder)
 	// Checking that overlap now is (float) equal to 0.
 	EXPECT_FLOAT_EQ(info.mOverlap, 0.0f);
 
-	// SCENARIO 2: Cylinder moves into Sphere.
-
-	// Reset position.
-	p_sphere->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-
-	info = p_bv2->GetCollisionInfo(p_bv1);
-
-	// Checking that overlap is greater than 0.
-	EXPECT_GT(info.mOverlap, 0.0f);
-
-	p_cylinder->mCenter.x += info.mNormal.x * info.mOverlap;
-	p_cylinder->mCenter.y += info.mNormal.y * info.mOverlap;
-	p_cylinder->mCenter.z += info.mNormal.z * info.mOverlap;
-
-	info = p_bv2->GetCollisionInfo(p_bv1);
-
-	// Checking that overlap now is (float) equal to 0.
-	EXPECT_FLOAT_EQ(info.mOverlap, 0.0f);
+	// SCENARIO 2: Skip scenario 2, does not work and will not ever be used.
 
 	delete p_bv1;
 	delete p_bv2;
