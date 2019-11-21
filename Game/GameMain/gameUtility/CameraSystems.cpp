@@ -1,24 +1,29 @@
 #include "CameraSystems.h"
+#include "CameraEcsFunctions.h"
+#include "..//gameAI/AIComponents.h"
 
 using namespace DirectX;
+using namespace ecs;
+using namespace ecs::components;
 
 /***************************************************************/
 /********************* DEV CAMERA SYSTEM **********************/
 /*************************************************************/
 
-ecs::systems::UpdateCameraSystem::UpdateCameraSystem()
+ecs::systems::FreelookCameraSystem::FreelookCameraSystem()
 {
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(components::CameraComponent::typeID);
 	typeFilter.addRequirement(components::TransformComponent::typeID);
+	typeFilter.addRequirement(components::FreeLookCameraSystemComponent::typeID);
 }
 
-ecs::systems::UpdateCameraSystem::~UpdateCameraSystem()
+ecs::systems::FreelookCameraSystem::~FreelookCameraSystem()
 {
 
 }
 
-void ecs::systems::UpdateCameraSystem::updateEntity(FilteredEntity& entity, float delta)
+void ecs::systems::FreelookCameraSystem::updateEntity(FilteredEntity& entity, float delta)
 {
 	//Initialize standard values.
 	GridProp* p_gp = GridProp::GetInstance();
@@ -115,37 +120,50 @@ void ecs::systems::UpdateCameraSystem::updateEntity(FilteredEntity& entity, floa
 /******************* DYNAMIC CAMERA SYSTEM ********************/
 /*************************************************************/
 
-ecs::systems::UpdateDynamicCameraSystem::UpdateDynamicCameraSystem()
+ecs::systems::DynamicCameraSystem::DynamicCameraSystem()
 {
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(components::TransformComponent::typeID);
 	typeFilter.addRequirement(components::CameraComponent::typeID);
+	typeFilter.addRequirement(components::DynamicCameraSystemComponent::typeID);
 }
 
-ecs::systems::UpdateDynamicCameraSystem::~UpdateDynamicCameraSystem()
+ecs::systems::DynamicCameraSystem::~DynamicCameraSystem()
 {
 
 }
 
-void ecs::systems::UpdateDynamicCameraSystem::updateEntity(FilteredEntity& entity, float delta)
+void ecs::systems::DynamicCameraSystem::updateEntity(FilteredEntity& entity, float delta)
 {
-	ecs::components::CameraComponent* p_cam_component = entity.getComponent<ecs::components::CameraComponent>();
-	ecs::components::TransformComponent* p_cam_transform = entity.getComponent<ecs::components::TransformComponent>();
-	XMFLOAT4 targetPos = p_cam_component->target;
-	targetPos.x += 2.0f;
-	targetPos.y += 2.0f;
+	CameraComponent* p_cam_component = entity.getComponent<CameraComponent>();
+	TransformComponent* p_cam_transform = entity.getComponent<TransformComponent>();
+	DynamicCameraSystemComponent* p_dyn_comp = entity.getComponent<DynamicCameraSystemComponent>();
+
+	XMVECTOR cam_target = XMLoadFloat4(&p_cam_component->target);
+	XMVECTOR cam_final_target = XMLoadFloat4(&p_dyn_comp->target);
+	XMVECTOR cam_target_dir = XMVectorSubtract(cam_final_target, cam_target);
+	XMVECTOR cam_target_dir_length = XMVector3Length(cam_target_dir);
+	cam_target_dir = XMVector3Normalize(cam_target_dir);
+
+	if (!(XMVectorGetX(cam_target_dir_length) < 0.5f))
+	{
+		cam_target = cam_target + 0.04f * cam_target_dir;
+		XMStoreFloat4(&p_cam_component->target, cam_target);
+	}
+
+	XMFLOAT4 targetPos = p_dyn_comp->target;
 
 	XMVECTOR target_pos = XMLoadFloat4(&p_cam_component->target);
 	XMVECTOR start_pos = XMLoadFloat3(&p_cam_transform->position) - target_pos;
 	XMVECTOR end_pos;// = XMLoadFloat4(&targetPos) - target_pos;
 	GetTargetPosition(end_pos, target_pos);
-	XMVECTOR new_camera_pos = this->Nlerp(start_pos, end_pos);
+	XMVECTOR new_camera_pos = CameraEcsFunctions::Nlerp(start_pos, end_pos);
 	new_camera_pos = target_pos + (XMVector3Length(start_pos) + mPercent * (XMVector3Length(end_pos) - XMVector3Length(start_pos))) * new_camera_pos;
 	XMStoreFloat3(&p_cam_transform->position, new_camera_pos);
-	this->UpdateViewMatrix(*p_cam_component, *p_cam_transform);
+	CameraEcsFunctions::UpdateViewMatrix(*p_cam_component, *p_cam_transform);
 }
 
-void ecs::systems::UpdateDynamicCameraSystem::GetTargetPosition(DirectX::XMVECTOR& rTarget, DirectX::XMVECTOR& rLookAt)
+void ecs::systems::DynamicCameraSystem::GetTargetPosition(DirectX::XMVECTOR& rTarget, DirectX::XMVECTOR& rLookAt)
 {
 	const float FOV = (90.f / 2.0f) * PI / 180.f;
 	// Zero rTarget
@@ -204,7 +222,7 @@ void ecs::systems::UpdateDynamicCameraSystem::GetTargetPosition(DirectX::XMVECTO
 	//std::cout << radius << std::endl; //Used for debug.
 }
 
-void ecs::systems::UpdateDynamicCameraSystem::CheckCameraAngle(DirectX::XMVECTOR& cameraPos, DirectX::XMVECTOR& targetPos)
+void ecs::systems::DynamicCameraSystem::CheckCameraAngle(DirectX::XMVECTOR& cameraPos, DirectX::XMVECTOR& targetPos)
 {
 	/***********************************************/
 				/******* DOES NOT WORK AS INTENDED ATM ********/
@@ -231,51 +249,165 @@ void ecs::systems::UpdateDynamicCameraSystem::CheckCameraAngle(DirectX::XMVECTOR
 	}
 }
 
-XMVECTOR ecs::systems::UpdateDynamicCameraSystem::Lerp(const XMVECTOR& v1, const XMVECTOR& v2)
+
+/***************************************************************/
+/***************** ARMY SPAWN CAMERA SYSTEM *******************/
+/*************************************************************/
+
+ecs::systems::ArmyZoomCameraSystem::ArmyZoomCameraSystem()
 {
-	XMVECTOR vec_lerp = v1 + mPercent * (v2 - v1);
-	return vec_lerp;
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(components::TransformComponent::typeID);
+	typeFilter.addRequirement(components::CameraComponent::typeID);
+	typeFilter.addRequirement(components::ArmyZoomCameraSystemComponent::typeID);
+	mCurrentArmyTarget = 0;
+	mZoomIn = true;
+	mCameraInPosition = false;
 }
 
-XMFLOAT3 ecs::systems::UpdateDynamicCameraSystem::Slerp(const XMFLOAT3& v1, const XMFLOAT3& v2)
+ecs::systems::ArmyZoomCameraSystem::~ArmyZoomCameraSystem()
 {
-	//Initialize variables and store the vectors XMVECTOR:s so that we can work with them.
-	XMFLOAT3 return_position;
-	float omega;
-	XMVECTOR vec_1 = XMLoadFloat3(&v1);
-	XMVECTOR vec_2 = XMLoadFloat3(&v2);
-	XMVECTOR vec_1_norm = XMVector3Normalize(vec_1);
-	XMVECTOR vec_2_norm = XMVector3Normalize(vec_2);
-	XMVECTOR new_position;
-	XMVECTOR dot;
-	//Calculate dot between the two positions on the dome.
-	dot = XMVector3Dot(vec_1_norm, vec_2_norm);
-	omega = XMVectorGetX(dot);
-	omega = asinf(omega);
-	//Calculate the new position along the dome using the Slerp algorithm.
-	new_position = (sinf((1.0f - mT) * omega) * vec_1_norm + sinf(mT * omega) * vec_2_norm) / sinf(omega);
 
-	//(1.0f - mT)* vec_1 + mT * vec_2;//
-
-	XMStoreFloat3(&return_position, new_position);
-	//return v1;
-	return return_position;
 }
 
-XMVECTOR ecs::systems::UpdateDynamicCameraSystem::Nlerp(const XMVECTOR& v1, const XMVECTOR& v2)
+void ecs::systems::ArmyZoomCameraSystem::updateEntity(FilteredEntity& entity, float delta)
 {
-	XMVECTOR vec_norm = Lerp(v1, v2);
-	vec_norm = XMVector3Normalize(vec_norm);
-	return vec_norm;
+
+	CameraComponent* p_cam_component = entity.getComponent<CameraComponent>();
+	TransformComponent* p_cam_transform = entity.getComponent<TransformComponent>();
+	ArmyZoomCameraSystemComponent* p_army_zoom = entity.getComponent<ArmyZoomCameraSystemComponent>();
+
+	XMVECTOR cam_pos = XMLoadFloat3(&p_cam_transform->position);
+	XMVECTOR cam_target;
+	XMVECTOR unit_pos;
+	XMVECTOR cam_direction;
+	XMVECTOR distance_vector;
+	XMVECTOR camera_start_pos = XMLoadFloat3(&p_army_zoom->startPos);
+
+	if (!mCameraInPosition)
+	{
+		cam_direction = XMVectorSubtract(camera_start_pos, cam_pos);
+		cam_direction = XMVector3Normalize(cam_direction);
+
+		cam_pos = cam_pos + (0.1f * cam_direction);
+		distance_vector = XMVectorSubtract(cam_pos, camera_start_pos);
+		float distance = XMVectorGetX(XMVector3Length(distance_vector));
+		if (distance < 1.0f)
+		{
+			mCameraInPosition = true;
+		}
+		XMStoreFloat3(&p_cam_transform->position, cam_pos);
+		CameraEcsFunctions::UpdateViewMatrix(*p_cam_component, *p_cam_transform);
+	}
+	else
+	{
+		std::vector<ArmyComponent*> armies;
+		ComponentIterator it = ECSUser::getComponentsOfType<ArmyComponent>();
+		BaseComponent* p_base_component;
+		it = ECSUser::getComponentsOfType(ArmyComponent::typeID);
+		while (p_base_component = it.next())
+		{
+			armies.push_back(static_cast<ArmyComponent*>(p_base_component));
+		}
+
+		if (mCurrentArmyTarget < armies.size())
+		{
+			if (armies.size() > 0)
+			{
+				TransformComponent* p_target_unit_transform;
+				XMFLOAT3 direction;
+				switch (mCurrentArmyTarget)
+				{
+				case 0:
+					p_target_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(armies[0]->unitIDs[0]);
+					unit_pos = XMLoadFloat3(&p_target_unit_transform->position);
+					cam_target = XMLoadFloat3(&p_target_unit_transform->position);
+					if (mZoomIn)
+						cam_direction = XMVectorSubtract(unit_pos, cam_pos);
+					else
+						cam_direction = XMVectorSubtract(camera_start_pos, cam_pos);
+					cam_direction = XMVector3Normalize(cam_direction);
+					break;
+				case 1:
+					p_target_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(armies[1]->unitIDs[0]);
+					unit_pos = XMLoadFloat3(&p_target_unit_transform->position);
+					cam_target = XMLoadFloat3(&p_target_unit_transform->position);
+					if (mZoomIn)
+						cam_direction = XMVectorSubtract(unit_pos, cam_pos);
+					else
+						cam_direction = XMVectorSubtract(camera_start_pos, cam_pos);
+					cam_direction = XMVector3Normalize(cam_direction);
+					break;
+				case 2:
+					p_target_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(armies[2]->unitIDs[0]);
+					unit_pos = XMLoadFloat3(&p_target_unit_transform->position);
+					cam_target = XMLoadFloat3(&p_target_unit_transform->position);
+					if (mZoomIn)
+						cam_direction = XMVectorSubtract(unit_pos, cam_pos);
+					else
+						cam_direction = XMVectorSubtract(camera_start_pos, cam_pos);
+					cam_direction = XMVector3Normalize(cam_direction);
+					break;
+				case 3:
+					p_target_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(armies[3]->unitIDs[0]);
+					unit_pos = XMLoadFloat3(&p_target_unit_transform->position);
+					cam_target = XMLoadFloat3(&p_target_unit_transform->position);
+					if (mZoomIn)
+						cam_direction = XMVectorSubtract(unit_pos, cam_pos);
+					else
+						cam_direction = XMVectorSubtract(camera_start_pos, cam_pos);
+					cam_direction = XMVector3Normalize(cam_direction);
+					break;
+				default:
+					break;
+				}
+
+
+				cam_pos = cam_pos + (0.1f * cam_direction);
+				distance_vector = XMVectorSubtract(cam_pos, unit_pos);
+				float distance = XMVectorGetX(XMVector3Length(distance_vector));
+				if (mZoomIn && distance < 5.0f)
+				{
+					mZoomIn = false;
+					mCameraInPosition = false;
+				}
+				else if (!mZoomIn)
+				{
+					mZoomIn = true;
+					mCurrentArmyTarget++;
+				}
+				XMStoreFloat3(&p_cam_transform->position, cam_pos);
+				XMStoreFloat4(&p_cam_component->target, cam_target);
+				CameraEcsFunctions::UpdateViewMatrix(*p_cam_component, *p_cam_transform);
+			}
+		}
+		else
+		{
+			DynamicCameraSystemComponent dynamic_camera_comp;
+			CameraEcsFunctions::InitDynamicCameraComponent(dynamic_camera_comp);
+			ECSUser::createComponent(entity.entity->getID(), dynamic_camera_comp);
+			ECSUser::removeComponent(entity.entity->getID(), ArmyZoomCameraSystemComponent::typeID);
+		}
+	}	
 }
 
-void ecs::systems::UpdateDynamicCameraSystem::UpdateViewMatrix(ecs::components::CameraComponent& cam, ecs::components::TransformComponent& camTransform)
+/***************************************************************/
+/****************** OVERLOOK CAMERA SYSTEM ********************/
+/*************************************************************/
+
+ecs::systems::OverlookCameraSystem::OverlookCameraSystem()
 {
-	XMMATRIX view = XMMatrixIdentity();
-	XMVECTOR cam_pos = XMLoadFloat3(&camTransform.position);
-	XMVECTOR cam_up = XMLoadFloat4(&cam.up);
-	XMVECTOR cam_target = XMLoadFloat4(&cam.target);
-	view = XMMatrixLookAtLH(cam_pos, cam_target, cam_up);
-	XMStoreFloat4x4(&cam.viewMatrix, view);
+	typeFilter.addRequirement(components::TransformComponent::typeID);
+	typeFilter.addRequirement(components::CameraComponent::typeID);
+	typeFilter.addRequirement(components::OverlookCameraSystemComponent::typeID);
 }
 
+ecs::systems::OverlookCameraSystem::~OverlookCameraSystem()
+{
+
+}
+
+void ecs::systems::OverlookCameraSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+
+}

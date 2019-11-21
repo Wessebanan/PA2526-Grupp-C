@@ -152,14 +152,14 @@ int main()
 			// Start a devcamera if pressing E
 			if (GetAsyncKeyState('E'))
 			{
-				ecs.removeSystem<ecs::systems::UpdateDynamicCameraSystem>();
-				ecs.createSystem<ecs::systems::UpdateCameraSystem>(0);
+				//ecs.removeSystem<ecs::systems::UpdateDynamicCameraSystem>();
+				//ecs.createSystem<ecs::systems::UpdateCameraSystem>(0);
 			}
 			// Start a dyncamera if pressing F
 			if (GetAsyncKeyState('F'))
 			{
-				ecs.removeSystem<ecs::systems::UpdateCameraSystem>();
-				ecs.createSystem<ecs::systems::UpdateDynamicCameraSystem>(0);
+				//ecs.removeSystem<ecs::systems::UpdateCameraSystem>();
+				//ecs.createSystem<ecs::systems::UpdateDynamicCameraSystem>(0);
 			}
 
 			if (GetAsyncKeyState(VK_SPACE) && start_once)

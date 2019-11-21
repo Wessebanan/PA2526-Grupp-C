@@ -303,23 +303,46 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		// Create Battlephase system
 		CreateSystem<systems::BattlePhaseSystem>(1);
 
-		if (!GetSystem<systems::UpdateCameraSystem>())
+		if (true/*GetSystem<systems::FreelookCameraSystem>()*/)
 		{
-			CreateSystem<systems::UpdateDynamicCameraSystem>(1);
+			ecs::TypeFilter filter;
+			filter.addRequirement(TransformComponent::typeID);
+			filter.addRequirement(CameraComponent::typeID);
+			filter.addRequirement(OverlookCameraSystemComponent::typeID);
+			EntityIterator entity_it = ECSUser::getEntitiesByFilter(filter);
+			
+			for (FilteredEntity camera : entity_it.entities)
+			{
+				ecs::ECSUser::removeComponent(camera.entity->getID(), OverlookCameraSystemComponent::typeID);
+				ArmyZoomCameraSystemComponent army_zoom;
+				CameraEcsFunctions::InitArmyZoomCameraComponent(army_zoom);
+				ecs::ECSUser::createComponent(camera.entity->getID(), army_zoom);
+				
+				/*DynamicCameraSystemComponent dynamic_cam_comp;
+				CameraEcsFunctions::InitDynamicCameraComponent(dynamic_cam_comp);
+				ecs::ECSUser::createComponent(camera.entity->getID(), dynamic_cam_comp);*/
 
 
-			// Change to dynamic camera
-			itt = getComponentsOfType<CameraComponent>();
-			CameraComponent* cam_comp = (CameraComponent*)itt.next();
+				//FreeLookCameraSystemComponent freelook_comp;
+				//ecs::ECSUser::createComponent(camera.entity->getID(), freelook_comp);
+			}
+			
+			//CreateSystem<systems::UpdateArmySpawnCameraSystem>(1);
 
-			removeEntity(cam_comp->getEntityID());
+			//CreateSystem<systems::DynamicCameraSystem>(1);
 
-			TransformComponent new_transf_comp;
-			CameraComponent new_cam_comp;
+			//// Change to dynamic camera
+			//itt = getComponentsOfType<CameraComponent>();
+			//CameraComponent* cam_comp = (CameraComponent*)itt.next();
 
-			CameraEcsFunctions::CreateDynamicCamera(new_transf_comp, new_cam_comp);
+			//removeEntity(cam_comp->getEntityID());
 
-			createEntity(new_transf_comp, new_cam_comp);
+			//TransformComponent new_transf_comp;
+			//CameraComponent new_cam_comp;
+
+			//CameraEcsFunctions::CreateDynamicCamera(new_transf_comp, new_cam_comp);
+
+			//createEntity(new_transf_comp, new_cam_comp);
 		}
 		
 		itt = getComponentsOfType<components::UIBitmapComponent>();
@@ -715,7 +738,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 
 			// Remove battlephase and start prephase
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
-			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
+			RemoveSystem(systems::DynamicCameraSystem::typeID);
 			RemoveSystem(systems::MasterWeaponSpawner::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
 
@@ -727,7 +750,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			TransformComponent new_transf_comp;
 			CameraComponent new_cam_comp;
 
-			CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
+			//CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
 
 			createEntity(new_transf_comp, new_cam_comp);
 

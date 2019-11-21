@@ -12,32 +12,49 @@ namespace ecs
 {
 	namespace systems
 	{
-		class UpdateCameraSystem : public ECSSystem<UpdateCameraSystem>
+		class FreelookCameraSystem : public ECSSystem<FreelookCameraSystem>
 		{
 		public:
-			UpdateCameraSystem();
-			virtual ~UpdateCameraSystem();
+			FreelookCameraSystem();
+			virtual ~FreelookCameraSystem();
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
-		
-		class UpdateDynamicCameraSystem : public ECSSystem<UpdateDynamicCameraSystem>
+
+		class DynamicCameraSystem : public ECSSystem<DynamicCameraSystem>
 		{
 		public:
-			UpdateDynamicCameraSystem();
-			virtual ~UpdateDynamicCameraSystem();
+			DynamicCameraSystem();
+			virtual ~DynamicCameraSystem();
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		private:
 			ID mCamEntityId;
-			const float mT = 0.001f;
+			const float mT = 0.01f;
 			const float mPercent = 0.02;
 			inline void GetTargetPosition(DirectX::XMVECTOR& rTarget, DirectX::XMVECTOR& rLookAt);
 			inline void CheckCameraAngle(DirectX::XMVECTOR& cameraPos, DirectX::XMVECTOR& targetPos);
-			DirectX::XMVECTOR Lerp(const DirectX::XMVECTOR& v1, const DirectX::XMVECTOR& v2);
-			DirectX::XMFLOAT3 Slerp(const DirectX::XMFLOAT3& v1, const DirectX::XMFLOAT3& v2);
-			DirectX::XMVECTOR Nlerp(const DirectX::XMVECTOR& v1, const DirectX::XMVECTOR& v2);
-			void UpdateViewMatrix(ecs::components::CameraComponent& cam, ecs::components::TransformComponent& camTransform);
 
+		};
+
+		class ArmyZoomCameraSystem : public ECSSystem<ArmyZoomCameraSystem>
+		{
+		public:
+			ArmyZoomCameraSystem();
+			virtual ~ArmyZoomCameraSystem();
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		private:
+			int mCurrentArmyTarget;
+			bool mZoomIn;
+			bool mCameraInPosition;
+		};
+
+		class OverlookCameraSystem : public ECSSystem<OverlookCameraSystem>
+		{
+		public:
+			OverlookCameraSystem();
+			virtual ~OverlookCameraSystem();
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		private:
 		};
 
 	}

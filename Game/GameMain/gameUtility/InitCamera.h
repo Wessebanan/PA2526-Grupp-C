@@ -5,19 +5,15 @@
 
 void InitCamera(ecs::EntityComponentSystem& rECS)
 {
-	TransformComponent p_transform;
-	CameraComponent p_camera;
-
-
-	//CameraEcsFunctions::CreateDevCamera(rECS);
-	CameraEcsFunctions::CreateOverlookCamera(p_transform, p_camera);
-	//CameraEcsFunctions::CreateDynamicCamera(p_transform, p_camera);
-	//rECS.createSystem<ecs::systems::UpdateDynamicCameraSystem>();
-#ifdef _DEBUG
-	rECS.createSystem<ecs::systems::UpdateCameraSystem>();
-#endif //_DEBUG
-
-
+	//Create all of the camera systems
+	rECS.createSystem<ecs::systems::FreelookCameraSystem>(1);
+	rECS.createSystem<ecs::systems::DynamicCameraSystem>(1);
+	rECS.createSystem<ecs::systems::ArmyZoomCameraSystem>(1);
+	rECS.createSystem<ecs::systems::OverlookCameraSystem>(1);
 	//Create the camera entity
-	rECS.createEntity(p_transform, p_camera);
+	ecs::components::TransformComponent p_transform;
+	ecs::components::CameraComponent p_camera;
+	ecs::Entity* p_cam = rECS.createEntity(p_transform, p_camera);
+	//Give the camera entity an OverlookCameraSystemComponent since that is the first state
+	CameraEcsFunctions::InitializeCamera(rECS, *p_cam);
 }

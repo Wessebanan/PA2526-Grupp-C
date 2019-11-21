@@ -20,7 +20,41 @@ namespace ecs
 
 		struct PoiComponent : public ECSComponent<PoiComponent>
 		{
+			DirectX::XMFLOAT3 startPos;
+			DirectX::XMFLOAT4 target;
+		};
+
+		struct FreeLookCameraSystemComponent : public ECSComponent< FreeLookCameraSystemComponent>
+		{
 
 		};
+
+		struct OverlookCameraSystemComponent : public ECSComponent<OverlookCameraSystemComponent>
+		{
+			DirectX::XMFLOAT3 startPos;
+			DirectX::XMFLOAT4 target;
+		};
+
+		struct StartPosCameraSystemComponent : public ECSComponent<StartPosCameraSystemComponent>
+		{
+			DirectX::XMFLOAT3 startPos;
+			DirectX::XMFLOAT4 target;
+		};
+
+		struct DynamicCameraSystemComponent : public ECSComponent<DynamicCameraSystemComponent>
+		{
+			DirectX::XMFLOAT3 startPos;
+			DirectX::XMFLOAT4 target;
+		};
+
+		struct ArmyZoomCameraSystemComponent : public ECSComponent<ArmyZoomCameraSystemComponent>
+		{
+			DirectX::XMFLOAT3 startPos;
+			DirectX::XMFLOAT4 target;
+		};
+
+
+
+
 	}
 }
