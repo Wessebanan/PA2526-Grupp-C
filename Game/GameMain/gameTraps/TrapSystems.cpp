@@ -244,6 +244,24 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 					eve.mColor = color;
 
 					createEvent(eve);
+
+					/* Spawn Smoke Emitter on dude */
+					components::ParticleSpawnerComponent spawner;
+					components::SplashSpawnerComponent smoke;
+
+					TransformComponent* p_transf_comp = getComponentFromKnownEntity<TransformComponent>(id);
+
+					spawner.StartPosition = p_transf_comp->position;
+					spawner.StartPosition.y += 1.0f;
+					spawner.SpawnFrequency = 0.005f;
+					spawner.TimerSinceLastSpawn = 0.0f;
+					spawner.LifeDuration = 0.4f;
+
+					smoke.InitialVelocity = -12.0f;
+					smoke.SpawnCount = 350;
+
+					createEntity(spawner, smoke);
+
 				}
 			}
 		}
