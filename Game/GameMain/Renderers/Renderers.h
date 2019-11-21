@@ -60,7 +60,7 @@ namespace ecs
 			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
 
 			static uint32_t GetPerInstanceSize();
-
+			UINT mRenderProgram;
 		private:
 
 			struct InputLayout
@@ -75,7 +75,7 @@ namespace ecs
 			int mFrameCounter;
 			int mAnimationFrameCounter;
 
-			UINT mRenderProgram;
+
 			graphics::RenderManager* mpRenderMgr;
 			graphics::ShaderModelLayout mInstanceLayout;
 
@@ -354,6 +354,38 @@ namespace ecs
 
 			UINT mObjectCount;
 			graphics::MeshRegion mScreenSpaceTriangle;
+		};
+
+		class OutlineRenderSystem : public ECSSystem<OutlineRenderSystem>
+		{
+		public:
+
+			OutlineRenderSystem();
+			virtual ~OutlineRenderSystem();
+
+			void act(float _delta) override;
+
+			void Initialize(
+				const UINT clientWidth,
+				const UINT clientHeight,
+				const UINT unitRenderProgram,
+				graphics::RenderManager* unitRenderManager);
+
+			UINT mRenderProgram;
+
+		private:
+
+			UINT mPipelineFakeStencil,
+				mPipelineOutline;
+
+			UINT mShaderFakeStencil,
+				mShaderOutline;
+
+			graphics::RenderManager* mRenderMgr;
+
+			UINT unitRenderProgram;
+
+
 		};
 
 		class WeaponRenderSystem : public ECSSystem<WeaponRenderSystem>
