@@ -56,5 +56,20 @@ namespace ecs
 			void ResetSpawnTimer();
 
 		};
+
+		/*
+			A system that removes the dynamic movement component from the weapon once it reaches its tile and 
+			set its correct y-position and rotation according to the tile.
+		*/
+		class FallingWeaponSystem : public ECSSystem<FallingWeaponSystem>
+		{
+		public:
+			FallingWeaponSystem();
+			virtual ~FallingWeaponSystem();
+
+			//Update function that prints the center position of every tile in the order they 
+			//were created.
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
 	}
 }
