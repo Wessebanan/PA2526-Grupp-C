@@ -493,10 +493,13 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 	ecs::EntityIterator skeletons = getEntitiesByFilter(skeleton_filter);
 
 	// Initalize the skeleton data structs and start the Idle animation as default
+	// Also create the ragdoll
 	for (ecs::FilteredEntity s : skeletons.entities)
 	{
 		ModelLoader::UniqueSkeletonData* skeletonData = &s.getComponent<ecs::components::SkeletonComponent>()->skeletonData;
 		skeletonData->Init(MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT)->GetSkeleton());
+		Ragdoll* ragdoll = &s.getComponent<ecs::components::SkeletonComponent>()->ragdoll;
+		ragdoll->Create(skeletonData->parentSkeleton, skeletonData, MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT));
 		skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
 	}
 }

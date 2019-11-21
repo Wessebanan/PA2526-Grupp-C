@@ -431,7 +431,7 @@ bool Ragdoll::Create(ModelLoader::Skeleton* pSkeleton,
 	{
 		return false;
 	}
-	if (!mpMesh || !pUniqueSkeletonData)
+	if (!(this->mpMesh = mpMesh) || !(this->mpUniqueSkeletonData = pUniqueSkeletonData))
 	{
 		return false;
 	}
