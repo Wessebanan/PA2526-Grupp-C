@@ -43,5 +43,15 @@ namespace ecs
 
 			void readEvent(BaseEvent& _event, float _delta) override;
 		};
+
+		class PowerupSpeedTriggerSystem : public ECSSystem<PowerupSpeedTriggerSystem>
+		{
+		public:
+
+			PowerupSpeedTriggerSystem();
+			~PowerupSpeedTriggerSystem();
+
+			void readEvent(BaseEvent& _event, float _delta) override;
+		};
 	}
 }

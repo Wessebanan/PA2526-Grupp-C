@@ -18,5 +18,10 @@ namespace ecs
 			float healPercentOfBaseHp;
 			ID affectedUnitId;
 		};
+
+		struct PowerupSpeedComponent : public ECSEvent<PowerupSpeedComponent>
+		{
+
+		};
 	}
 }

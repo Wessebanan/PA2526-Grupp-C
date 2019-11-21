@@ -17,5 +17,10 @@ namespace ecs
 		{
 			float mHealAmount;
 		};
+
+		struct SpeedPowerupComponent : public ECSComponent<SpeedPowerupComponent>
+		{
+			float mOriginalMaxVelocity;
+		};
 	}
 }
