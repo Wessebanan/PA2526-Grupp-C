@@ -911,8 +911,8 @@ namespace ecs
 			this->mRenderMgr = unitRenderManager;
 			{
 				graphics::FAKE_STENCIL_PIPELINE_DESC fake_stencil_desc = { };
-				fake_stencil_desc.ClientWidth = clientWidth / 2.0f;
-				fake_stencil_desc.ClientHeight = clientHeight / 2.0f;
+				fake_stencil_desc.ClientWidth = clientWidth;
+				fake_stencil_desc.ClientHeight = clientHeight;
 				graphics::FakeStencilPipeline* fake_stencil_pipeline = new graphics::FakeStencilPipeline;
 				this->mPipelineFakeStencil = mRenderMgr->CreatePipeline(
 					fake_stencil_pipeline,

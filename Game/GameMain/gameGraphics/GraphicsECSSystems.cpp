@@ -148,10 +148,6 @@ namespace ecs
 			components::PipelineShadowMapComponent* p_pipeline_shadow_map = entity.getComponent<components::PipelineShadowMapComponent>();
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
-
-			//UnitRenderSystem* p_unit_system = (UnitRenderSystem*)GetSystem<UnitRenderSystem>();
-			//OutlineRenderSystem* p_outline_system = (OutlineRenderSystem*)GetSystem<OutlineRenderSystem>();
-
 			systems::OceanRenderSystem* p_ocean_renderer = (systems::OceanRenderSystem*)GetSystem<systems::OceanRenderSystem>();
 
 			// Enable Standard Vertex Buffers

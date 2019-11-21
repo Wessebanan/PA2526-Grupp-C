@@ -81,7 +81,6 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 
 	components::PipelineShadowMapComponent* p_psmComp = rEcs.getComponentFromEntity<components::PipelineShadowMapComponent>(graphics_entity_id);
 	components::PipelineForwardComponent* p_pfComp = rEcs.getComponentFromEntity<components::PipelineForwardComponent>(graphics_entity_id);
-	//components::PipelineFakeStencilComponent* p_pfsComp = rEcs.getComponentFromEntity<components::PipelineFakeStencilComponent>(graphics_entity_id);
 
 	p_psmComp->pipelineDesc.PixelsWidth = 4096;
 	p_psmComp->pipelineDesc.Width = 90.0f;
@@ -122,14 +121,14 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	graphics::StateManager& r_state_mgr = static_cast<components::StateManagerComponent*>(rEcs.getAllComponentsOfType(components::StateManagerComponent::typeID).next())->mgr;
 	graphics::MeshManager& r_mesh_mgr = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& r_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
+
+	// Make sure no render system is created before UnitRenderSystem if they use the same constant buffer
+	// That will cause outlines to break suuuper hard
+	// No touch >:(
 	rEcs.createSystem<systems::UnitRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
 
 	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
-
-
-
-	
 
 	rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);

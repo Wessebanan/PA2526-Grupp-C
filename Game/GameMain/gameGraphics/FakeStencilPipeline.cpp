@@ -16,54 +16,54 @@ namespace graphics {
 	HRESULT graphics::FakeStencilPipeline::Initialize(ID3D11Device4* pDevice4, const void* pDescription)
 	{
 		HRESULT hr;
-		D3D11_TEXTURE2D_DESC descOutlineBase;
+		D3D11_TEXTURE2D_DESC desc_outline_base;
 
-		FAKE_STENCIL_PIPELINE_DESC* pDesc = (FAKE_STENCIL_PIPELINE_DESC*)pDescription;
+		FAKE_STENCIL_PIPELINE_DESC* p_desc = (FAKE_STENCIL_PIPELINE_DESC*)pDescription;
 		// Create the texture for the fake stencil, first for rendering the "stencil" and in the second
 		// pass as a resource for drawing the actual outline
-		descOutlineBase.Width = 1920;
-		descOutlineBase.Height = 1080;
-		descOutlineBase.MipLevels = 1;
-		descOutlineBase.ArraySize = 1;
-		descOutlineBase.Format = DXGI_FORMAT_R32_TYPELESS;
-		descOutlineBase.SampleDesc.Count = 1;
-		descOutlineBase.SampleDesc.Quality = 0;
-		descOutlineBase.Usage = D3D11_USAGE_DEFAULT;
-		descOutlineBase.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-		descOutlineBase.CPUAccessFlags = 0;
-		descOutlineBase.MiscFlags = 0;
-		hr = pDevice4->CreateTexture2D(&descOutlineBase, NULL, &this->mpFakeStencilTexture);
+		desc_outline_base.Width = p_desc->ClientWidth;
+		desc_outline_base.Height = p_desc->ClientHeight;
+		desc_outline_base.MipLevels = 1;
+		desc_outline_base.ArraySize = 1;
+		desc_outline_base.Format = DXGI_FORMAT_R32_TYPELESS;
+		desc_outline_base.SampleDesc.Count = 1;
+		desc_outline_base.SampleDesc.Quality = 0;
+		desc_outline_base.Usage = D3D11_USAGE_DEFAULT;
+		desc_outline_base.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		desc_outline_base.CPUAccessFlags = 0;
+		desc_outline_base.MiscFlags = 0;
+		hr = pDevice4->CreateTexture2D(&desc_outline_base, NULL, &this->mpFakeStencilTexture);
 		if (FAILED(hr))
 		{
 			MessageBox(0, "CreateTexture2D for mpFakeStencilTexture failed", 0, 0);
 			return E_ABORT;
 		}
 
-		D3D11_RENDER_TARGET_VIEW_DESC outlineRTVDesc;
-		D3D11_TEX2D_RTV tex2drtv;
-		ZeroMemory(&tex2drtv, sizeof(D3D11_TEX2D_RTV));
-		tex2drtv.MipSlice = 0;
-		outlineRTVDesc.Texture2D = tex2drtv;
-		outlineRTVDesc.Format = DXGI_FORMAT_R32_UINT;
-		outlineRTVDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		D3D11_RENDER_TARGET_VIEW_DESC outline_RTV_desc;
+		D3D11_TEX2D_RTV tex_2d_rtv;
+		ZeroMemory(&tex_2d_rtv, sizeof(D3D11_TEX2D_RTV));
+		tex_2d_rtv.MipSlice = 0;
+		outline_RTV_desc.Texture2D = tex_2d_rtv;
+		outline_RTV_desc.Format = DXGI_FORMAT_R32_UINT;
+		outline_RTV_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
-		hr = pDevice4->CreateRenderTargetView(this->mpFakeStencilTexture, &outlineRTVDesc, &mpRenderTarget);
+		hr = pDevice4->CreateRenderTargetView(this->mpFakeStencilTexture, &outline_RTV_desc, &mpRenderTarget);
 		if (FAILED(hr))
 		{
 			MessageBox(0, "CreateRenderTargetView for mpRenderTarget failed", 0, 0);
 			return E_ABORT;
 		}
 
-		D3D11_SHADER_RESOURCE_VIEW_DESC outlineBasesrvDesc;
-		D3D11_TEX2D_SRV tex2doutlinesrv;
-		tex2doutlinesrv.MostDetailedMip = 0;
-		tex2doutlinesrv.MipLevels = 1;
-		outlineBasesrvDesc.Texture2D = tex2doutlinesrv;
-		outlineBasesrvDesc.Format = DXGI_FORMAT_R32_UINT;
-		outlineBasesrvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		D3D11_SHADER_RESOURCE_VIEW_DESC outline_base_srv_desc;
+		D3D11_TEX2D_SRV tex2d_outline_srv;
+		tex2d_outline_srv.MostDetailedMip = 0;
+		tex2d_outline_srv.MipLevels = 1;
+		outline_base_srv_desc.Texture2D = tex2d_outline_srv;
+		outline_base_srv_desc.Format = DXGI_FORMAT_R32_UINT;
+		outline_base_srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		hr = pDevice4->CreateShaderResourceView(
 			mpFakeStencilTexture,
-			&outlineBasesrvDesc,
+			&outline_base_srv_desc,
 			&this->mpFakeStencilSRV
 		);
 
@@ -111,10 +111,10 @@ namespace graphics {
 	void graphics::FakeStencilPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
 		float clear[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-		ID3D11ShaderResourceView* nullSRV[1] = { nullptr };
+		ID3D11ShaderResourceView* null_SRV[1] = { nullptr };
 		// Unset the stencil SRV if it was set as it can't be bound as
 		// both a render target and a SRV at the same time
-		pContext4->PSSetShaderResources(6, 1, nullSRV); 
+		pContext4->PSSetShaderResources(6, 1, null_SRV);
 		
 		pContext4->OMSetRenderTargets(1, &this->mpRenderTarget, NULL);
 		pContext4->ClearRenderTargetView(this->mpRenderTarget, clear);
