@@ -47,7 +47,6 @@ namespace ecs
 
 		void WorldSceneryUpdateSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 		{
-			components::DynamicMovementComponent* dyn_move_comp = getComponentFromKnownEntity<components::DynamicMovementComponent>(_entityInfo.entity->getID());
 			components::TransformComponent* p_transform = _entityInfo.getComponent<components::TransformComponent>();
 
 			XMVECTOR center_pos = XMLoadFloat3(&this->mCenter);
