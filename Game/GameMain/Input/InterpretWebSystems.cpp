@@ -106,6 +106,21 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				p_player_state_comp->mCurrentStates[i] = STATE::FLEE;
 
 				createEvent(cus_event);
+
+
+				events::TriggerFireTrapEvent trap_event;
+
+				ComponentIterator itt;
+				itt = getComponentsOfType<UnitComponent>();
+				trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				createEvent(trap_event);
+				trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				createEvent(trap_event);
+				trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				createEvent(trap_event);
+
+
+
 			}
 		}
 	}
