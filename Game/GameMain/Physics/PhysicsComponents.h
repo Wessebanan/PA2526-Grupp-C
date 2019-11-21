@@ -197,6 +197,7 @@ namespace ecs
 		*/
 		COMP(FallingWeaponComponent)
 		{
+			//I'm important! Please don't remove me Baka Master-senpai!
 			float mPosY;
 			float mPosYOffset;
 			ID mTileId;
