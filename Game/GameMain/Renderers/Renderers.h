@@ -293,10 +293,8 @@ namespace ecs
 
 			struct InputLayout
 			{
-				float x, y, z;
-				uint32_t color;
+				DirectX::XMFLOAT4X4 world;
 			};
-
 
 			InputLayout* mpBuffer;
 
@@ -307,9 +305,24 @@ namespace ecs
 			graphics::RenderBuffer* mpRenderBuffer;
 
 			UINT mObjectCount;
-			graphics::MeshRegion mObjectMeshRegion[SCENE_OBJECT_TYPE_COUNT];
 
-			UINT mObjectTypeCount[SCENE_OBJECT_TYPE_COUNT];
+			graphics::MeshRegion mObjectMeshRegion[GAME_OBJECT_TYPE_MESH_COUNT];
+			UINT mInstancePerMesh[GAME_OBJECT_TYPE_MESH_COUNT];
+
+			struct SceneToMesh
+			{
+				UINT 
+					Start	= GAME_OBJECT_TYPE_MESH_ERROR, 
+					End		= GAME_OBJECT_TYPE_MESH_ERROR;
+			};
+
+			struct uint3
+			{
+				UINT Red = 0, Green = 0, Blue = 0;
+			};
+
+			SceneToMesh mMap[SCENE_OBJECT_TYPE_COUNT];
+			uint3 mColors[GAME_OBJECT_TYPE_MESH_COUNT];
 		};
 
 		class SSAORenderSystem : public ECSSystem<SSAORenderSystem>
@@ -411,6 +424,40 @@ namespace ecs
 			graphics::MeshRegion mObjectMeshRegion[TRAP_TYPE_COUNT];
 
 			UINT mObjectTypeCount[TRAP_TYPE_COUNT];
+		};
+
+		class PowerupLootRenderSystem : public ECSSystem<PowerupLootRenderSystem>
+		{
+		public:
+
+			PowerupLootRenderSystem();
+			~PowerupLootRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				DirectX::XMFLOAT4X4 world;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mObjectCount;
+			graphics::MeshRegion mObjectMeshRegion[POWERUP_TYPE_COUNT];
+
+			UINT mObjectTypeCount[POWERUP_TYPE_COUNT];
 		};
 	}
 }
