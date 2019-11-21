@@ -1027,7 +1027,7 @@ namespace ecs
 				XMMATRIX world = hand_trans * XMMatrixTranspose(XMLoadFloat4x4(&right_hand_offset_matrix)) * UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
 
 				XMStoreFloat4x4(&rDestination, world);
-			}
+			} 
 
 			/*
 				-- Set color

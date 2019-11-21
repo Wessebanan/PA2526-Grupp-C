@@ -53,8 +53,8 @@ namespace ecs
 			weapon_transform_comp.position = tile_position;
 			weapon_transform_comp.position.y += 0.2f; // Default position right above the tile. No rotation per default. Default default.
 
-			weapon_comp.mType = GAME_OBJECT_TYPE_WEAPON_BOMB;			
-			//weapon_comp.mType = r_spawn_event.weaponType;			
+			//weapon_comp.mType = GAME_OBJECT_TYPE_WEAPON_BOMB;			
+			weapon_comp.mType = r_spawn_event.weaponType;			
 
 			/*
 				Check weapon type and set specific values for that type.
@@ -64,16 +64,28 @@ namespace ecs
 			{
 			case GAME_OBJECT_TYPE_WEAPON_SWORD:
 			case GAME_OBJECT_TYPE_WEAPON_HAMMER:
-			case GAME_OBJECT_TYPE_WEAPON_BOMB:
 			{
 				/*
 					"Spear sword to the ground."
 					- Emil 2019
 				*/
 
-				weapon_transform_comp.scale = XMFLOAT3(0.6f, 0.6f, 0.6f);
-				//weapon_transform_comp.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
+				weapon_transform_comp.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
 				weapon_transform_comp.position.y += 0.7f;
+				weapon_transform_comp.rotation.x -= 3.14f * 0.4f;
+				weapon_transform_comp.rotation.y += 3.14f * 0.3f;
+
+				weapon_color_comp.red = 200;
+				weapon_color_comp.green = 130;
+				weapon_color_comp.blue = 20;
+
+				break;
+			}
+
+			case GAME_OBJECT_TYPE_WEAPON_BOMB:
+			{
+				weapon_transform_comp.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
+				//weapon_transform_comp.position.y += 0.7f;
 				weapon_transform_comp.rotation.x -= 3.14f * 0.4f;
 				weapon_transform_comp.rotation.y += 3.14f * 0.3f;
 

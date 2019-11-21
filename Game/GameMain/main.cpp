@@ -271,18 +271,18 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
 
-	events::SpawnWeaponEvent spawn_event;
-	spawn_event.weaponType = GAME_OBJECT_TYPE_WEAPON_BOMB;
-	TypeFilter tile_filter;
-	tile_filter.addRequirement(ecs::components::TileComponent::typeID);
-	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
-	for (FilteredEntity tile : tiles.entities)
-	{
-		components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
-		if (p_tile->tileType != WATER)
-		{
-			spawn_event.spawnTileId = p_tile->getEntityID();
-			rECS.createEvent(spawn_event);
-		}
-	}
+	//events::SpawnWeaponEvent spawn_event;
+	//spawn_event.weaponType = GAME_OBJECT_TYPE_WEAPON_BOMB;
+	//TypeFilter tile_filter;
+	//tile_filter.addRequirement(ecs::components::TileComponent::typeID);
+	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+	//for (FilteredEntity tile : tiles.entities)
+	//{
+	//	components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
+	//	if (p_tile->tileType != WATER)
+	//	{
+	//		spawn_event.spawnTileId = p_tile->getEntityID();
+	//		rECS.createEvent(spawn_event);
+	//	}
+	//}
 }

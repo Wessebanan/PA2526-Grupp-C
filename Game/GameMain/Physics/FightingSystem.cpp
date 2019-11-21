@@ -314,16 +314,17 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			}
 		}
 	}
+	// If weapon is a bomb, create "OnHitEvent" with a bomb
 	else if (intersect && weapon_component->mType == GAME_OBJECT_TYPE_WEAPON_BOMB)
 	{
 		WeaponOnHitEvent hit_event;
-		hit_event.Type		= weapon_component->mType;
-		hit_event.Position	= weapon_transform_component->position;
-		hit_event.Range		= BOMB_BLAST_RADIUS;
-		hit_event.Damage	= weapon_component->mBaseDamage;
-		hit_event.Knockback = weapon_component->mKnockback;
-		hit_event.WeaponID	= weapon_component->getEntityID();
-		hit_event.OwnerUnitID = weapon_component->mOwnerEntity;
+		hit_event.Type			= weapon_component->mType;
+		hit_event.Position		= weapon_transform_component->position;
+		hit_event.Range			= BOMB_BLAST_RADIUS;
+		hit_event.Damage		= weapon_component->mBaseDamage;
+		hit_event.Knockback		= weapon_component->mKnockback;
+		hit_event.WeaponID		= weapon_component->getEntityID();
+		hit_event.OwnerUnitID	= weapon_component->mOwnerEntity;
 
 		createEvent(hit_event);
 	}
@@ -531,59 +532,63 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 
 	EntityIterator iter = getEntitiesByFilter(unit_filter);
 
-
-	for (FilteredEntity& unit : iter.entities)
+	// If type is a bomb
+	if (hit_event.Type == GAME_OBJECT_TYPE_WEAPON_BOMB)
 	{
-		const TransformComponent* p_unit_transform = unit.getComponent<TransformComponent>();
-		const XMVECTOR unit_position	= XMLoadFloat3(&p_unit_transform->position);
-		const XMVECTOR unit_weapon_v	= unit_position - weapon_position;
-		const float unit_weapon_dist	= XMVectorGetX(XMVector3Length(unit_weapon_v));
-		
-		if (unit_weapon_dist <= hit_event.Range)
+		for (FilteredEntity& unit : iter.entities)
 		{
-			// Calculating damage by multiplying weapon velocity and the base damage.
-			const float damage = hit_event.Damage;
-			HealthComponent* p_collided_constitution = unit.getComponent<HealthComponent>();
-			p_collided_constitution->mHealth -= damage;
+			const TransformComponent* p_unit_transform = unit.getComponent<TransformComponent>();
+			const XMVECTOR unit_position = XMLoadFloat3(&p_unit_transform->position);
+			const XMVECTOR unit_weapon_v = unit_position - weapon_position;
+			const float unit_weapon_dist = XMVectorGetX(XMVector3Length(unit_weapon_v));
 
-			// KNOCKBACK
-			ForceImpulseEvent knockback; 
-			XMStoreFloat3(&knockback.mDirection, unit_weapon_v);
-			XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
+			// if within proximity add dmg and knockback to unit (everyone affected)
+			if (unit_weapon_dist <= hit_event.Range)
+			{
+				// Calculating damage by multiplying weapon velocity and the base damage.
+				const float damage = hit_event.Damage;
+				HealthComponent* p_collided_constitution = unit.getComponent<HealthComponent>();
+				p_collided_constitution->mHealth -= damage;
 
-			// Small y boost in knockback to send units FLYING.
-			knockback.mDirection.y += 1.f;
+				// KNOCKBACK
+				ForceImpulseEvent knockback;
+				XMStoreFloat3(&knockback.mDirection, unit_weapon_v);
+				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 
-			// Normalize knockback direction so it's not CRAZY.
-			XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
+				// Small y boost in knockback to send units FLYING.
+				knockback.mDirection.y += 1.f;
 
-			knockback.mForce = hit_event.Knockback;
-			knockback.mEntityID = unit.entity->getID();
-			createEvent(knockback);
+				// Normalize knockback direction so it's not CRAZY.
+				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
+
+				knockback.mForce = hit_event.Knockback;
+				knockback.mEntityID = unit.entity->getID();
+				createEvent(knockback);
+			}
+		}
+
+		components::EquipmentComponent* p_equipment = getComponentFromKnownEntity<components::EquipmentComponent>(hit_event.OwnerUnitID);
+
+		// Remove bomb after use
+		if (p_equipment)
+		{
+			removeEntity(hit_event.WeaponID);
+
+			/*
+				Create fist entity
+			*/
+
+			WeaponComponent fist_weapon;
+			TransformComponent fist_transform;
+			fist_weapon.mType = GAME_OBJECT_TYPE_WEAPON_FIST;
+			fist_weapon.mOwnerEntity = hit_event.OwnerUnitID;
+			fist_transform.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+			Entity* p_fist = createEntity(fist_transform, fist_weapon);
+
+			p_equipment->mEquippedWeapon = p_fist->getID();
+			p_equipment->mAttackRange = p_equipment->mMeleeRange;
 		}
 	}
-
-	components::EquipmentComponent* p_equipment = getComponentFromKnownEntity<components::EquipmentComponent>(hit_event.OwnerUnitID);
-	
-	if (p_equipment)
-	{
-		removeEntity(hit_event.WeaponID);
-		
-		/*
-			Create fist entity
-		*/
-
-		WeaponComponent fist_weapon;
-		TransformComponent fist_transform;
-		fist_weapon.mType = GAME_OBJECT_TYPE_WEAPON_FIST;
-		fist_weapon.mOwnerEntity = hit_event.OwnerUnitID;
-		fist_transform.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		Entity* p_fist = createEntity(fist_weapon, fist_transform);
-
-		p_equipment->mEquippedWeapon = p_fist->getID();
-		p_equipment->mAttackRange = p_equipment->mMeleeRange;
-	}
-	
 }
 
 #pragma endregion

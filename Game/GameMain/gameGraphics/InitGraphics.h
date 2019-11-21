@@ -189,7 +189,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_SWORD, "../meshes/sword.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_HAMMER, "../meshes/weapon_maul.fbx");
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_BOMB, "../meshes/Box.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_BOMB, "../meshes/weapon_bomb.fbx");
 
 	// Create Quad For GPU
 	{
