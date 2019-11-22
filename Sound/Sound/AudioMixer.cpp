@@ -54,10 +54,7 @@ void Audio::Mixer::ProcessMessages()
 	{
 		ProcessSoundMessages();
 	}
-	//if (!mMusicMessageBuffer.isEmpty())
-	//{
 	mMusicManager.ProcessMusicMessages();
-	//}
 }
 
 void Audio::Mixer::ProcessSoundMessages()

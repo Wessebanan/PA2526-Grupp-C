@@ -9,7 +9,8 @@
 enum SoundFlags
 {
 	SF_NONE = 0x0,
-	SF_REPEAT = 0x1
+	SF_REPEAT = 0x1,
+	SF_RANDOM_PITCH = 0x2
 };
 
 enum MusicFlags
