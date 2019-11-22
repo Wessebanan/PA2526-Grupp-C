@@ -438,6 +438,9 @@
     <ClInclude Include="gamePowerups\PowerupLogic.h">
       <Filter>Powerups</Filter>
     </ClInclude>
+    <ClInclude Include="gameAudio\SoundIncludes">
+      <Filter>Audio</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">

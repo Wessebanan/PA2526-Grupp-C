@@ -69,7 +69,7 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 		total_time = 0.0f;
 	}
 
-	if (p_text)
+	if (p_text->tag != UITAG::STARTTEXT)
 	{
 		// To be sent to the UI
 		wstring ss = L"";
@@ -268,7 +268,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		}
 		{
 			ecs::events::PlayMusic m_event;
-			m_event.audioName = AudioName::CC_TEST_SONG;
+			m_event.audioName = AudioName::SOUND_cc_song;
 			createEvent(m_event);
 		}
 		{

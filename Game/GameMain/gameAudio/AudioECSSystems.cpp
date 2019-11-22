@@ -155,7 +155,7 @@ void ecs::systems::SoundMessageSystem::ProcessPlaySound(ecs::events::PlaySound* 
 {
 	// Check if entity is already making a sound
 	// Always allow SCREAM_SOUND to play, even it the entity is already playing a sound.
-	if (pEvent->audioName != SCREAM_SOUND && pEvent->invokerEntityId != 0)
+	if (pEvent->audioName != SOUND_scream && pEvent->invokerEntityId != 0)
 	{
 		Entity* p_entity = getEntity(pEvent->invokerEntityId);
 
