@@ -3,6 +3,8 @@
 #include "GridFunctions.h"
 #include "../MeshContainer/MeshContainer.h"
 
+#include "../gameGraphics/ParticleECSComponents.h"
+
 #pragma region WeaponInitSystem
 ecs::systems::WeaponInitSystem::WeaponInitSystem()
 {
@@ -597,11 +599,26 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 			}
 		}
 
+		// Make Explosion!
+		ecs::components::ParticleSpawnerComponent particle_spawner;
+		ecs::components::BombSpawnerComponent bomb_spawner;
+
+		particle_spawner.StartPosition = hit_event.Position;
+		particle_spawner.SpawnFrequency = 0.1f;
+		particle_spawner.LifeDuration = 0.5f;
+
+		bomb_spawner.InitialVelocity = 16.0f;
+		bomb_spawner.SpawnCount = 2000.0f;
+
+		createEntity(particle_spawner, bomb_spawner);
+		// ---
+
 		components::EquipmentComponent* p_equipment = getComponentFromKnownEntity<components::EquipmentComponent>(hit_event.OwnerUnitID);
 
 		// Remove bomb after use
 		if (p_equipment)
 		{
+
 			removeEntity(hit_event.WeaponID);
 
 			/*
