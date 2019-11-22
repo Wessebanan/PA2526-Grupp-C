@@ -50,14 +50,14 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 		&mmDummy,
 		&smDummy,
 
-		&rbDummy,
+		//&rbDummy,
 		&psmDummy,
 		&pfDummy
 	};
 
 	ComponentList list;
 	list.initialInfo = graphics_components;
-	list.componentCount = 6;
+	list.componentCount = 5;
 
 	/*
 		Fetch id of the graphics entity. All graphic components used by renderer systems
@@ -65,6 +65,10 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	*/
 
 	ID graphics_entity_id = rEcs.createEntity(list)->getID();
+	components::RenderBufferComponent* rb = rEcs.createComponent(graphics_entity_id, rbDummy);
+	ID rb_id = rb->getID();
+
+	std::cout << "RENDER BUFFER ID: " << rb_id << std::endl;
 
 	/*
 		Initialize all 'singleton' graphic components.
