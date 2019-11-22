@@ -19,7 +19,7 @@ namespace ecs
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 		private:
 			DirectX::XMFLOAT3 mCenter;
-			const float m_MAP_RADIOUS = 22.5f;
+			const float m_MAP_RADIUS = 22.5f;
 			const float m_WATER_HEIGHT = -1.2f;
 		};
 	

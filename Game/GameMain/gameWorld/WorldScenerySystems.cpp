@@ -23,7 +23,7 @@ namespace ecs
 		{
 			//
 		}
-
+		//find the center of the map
 		void WorldSceneryUpdateSystem::Initialize()
 		{
 			TypeFilter map_filter;
@@ -61,7 +61,7 @@ namespace ecs
 
 			shark_pos += pre_forward_vector * 5.f * _delta;
 			center_to_shark_normalized = XMVector3Normalize(shark_pos - center_pos);
-			shark_pos = center_pos + center_to_shark_normalized * m_MAP_RADIOUS;
+			shark_pos = center_pos + center_to_shark_normalized * m_MAP_RADIUS;
 
 			post_forward_vector = XMVector3Cross(center_to_shark_normalized, { 0.f,1.f,0.f,0.f });
 
@@ -69,7 +69,7 @@ namespace ecs
 
 			XMStoreFloat3(&p_transform->position, shark_pos);
 			p_transform->rotation.y = Sign(XMVectorGetX(post_forward_vector)) * acosf(XMVectorGetX(XMVector3Dot(post_forward_vector, { 0.f, 0.f, 1.f, 0.f }))); // Rotate the shark
-			p_transform->rotation.y -= 3.14f / 2.f;
+			p_transform->rotation.y -= 3.14f / 2.f; //turn the shark 90 degrees 
 
 		}
 	}
