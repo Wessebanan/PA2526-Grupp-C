@@ -45,7 +45,9 @@ BaseComponent* ECSComponentPool::create(BaseComponent& _component, bool _visible
 
 	BaseComponent* p_comp = (BaseComponent*)p;
 
-	p_comp->flags = p_comp->flags | COMP_FLAG_ALIVE | (_visible ? COMP_FLAG_VISIBLE : 0);
+	//p_comp->flags = p_comp->flags | COMP_FLAG_ALIVE | (_visible ? COMP_FLAG_VISIBLE : 0);
+	p_comp->flags = p_comp->flags | COMP_FLAG_ALIVE;
+	p_comp->flags = p_comp->flags | COMP_FLAG_VISIBLE;
 
 	lookUpList[_component.getID()] = p_comp;
 	return p_comp;
@@ -101,7 +103,7 @@ void ECSComponentPool::initialize(size_t _startCap, size_t _componentSize)
 
 void ecs::ECSComponentPool::flagRemoval(ID _componentID)
 {
-	lookUpList[_componentID]->flags = (lookUpList[_componentID]->flags & (~COMP_FLAG_ALIVE) & (~COMP_FLAG_VISIBLE));
+	lookUpList[_componentID]->flags = (lookUpList[_componentID]->flags & ~(COMP_FLAG_ALIVE & COMP_FLAG_VISIBLE));
 	toRemove.push_back(_componentID);
 }
 
