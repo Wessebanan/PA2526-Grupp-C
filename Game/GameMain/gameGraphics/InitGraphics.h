@@ -140,6 +140,9 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 			rMapMeshData.pMesh, 
 			rMapMeshData.vertexCount);
 
+	rEcs.createSystem<DefaultRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
 	rEcs.createSystem<ParticleRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer, &r_state_mgr);
 
@@ -149,6 +152,9 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 			rOceanMeshData.vertexCount);
 
 	rEcs.createSystem<PowerupLootRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	rEcs.createSystem<WorldSceneRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
 
 
@@ -197,6 +203,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_GIANTSKULL, "../meshes/GiantSkull.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER, "../meshes/Tower.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WORLD_SCENE_SHARK, "../meshes/shark_fin.fbx");
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
 
