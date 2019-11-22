@@ -206,43 +206,47 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 				}
 				else
 				{
-					components::UnitComponent* p_unit_comp = getComponentFromKnownEntity<UnitComponent>(id);
-					components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
-					components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
-
-					p_move_comp->mMaxVelocity *= mPower;
-					p_ani_speed_comp->factor = mPower;
-
-					// Add component 
-					FreezingTimerComponent f_comp;
-					f_comp.mDuration = 3.0f;
-					f_comp.mElapsedTime = 0.0f;
-
-					createComponent(id, f_comp);
-
-					// Make them brigther for the duration
-					events::ColorSwitchEvent eve;
-					eve.mEntityID = id;
-					eve.mTime = f_comp.mDuration;
-					Color color = Color(0, 0, 0);
-					switch (p_unit_comp->playerID)
+					// Check if the unit already have the freezing component
+					if (!getComponentFromKnownEntity<FreezingTimerComponent>(id))
 					{
-					case PLAYER1:
-						color = BRIGHT_RED;
-						break;
-					case PLAYER2:
-						color = BRIGHT_PURPLE;
-						break;
-					case PLAYER3:
-						color = BRIGHT_BLUE;
-						break;
-					case PLAYER4:
-						color = BRIGHT_GREEN;
-						break;
-					}
-					eve.mColor = color;
+						components::UnitComponent* p_unit_comp = getComponentFromKnownEntity<UnitComponent>(id);
+						components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
+						components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
 
-					createEvent(eve);
+						p_move_comp->mMaxVelocity *= mPower;
+						p_ani_speed_comp->factor = mPower;
+
+						// Add component 
+						FreezingTimerComponent f_comp;
+						f_comp.mDuration = 3.0f;
+						f_comp.mElapsedTime = 0.0f;
+
+						createComponent(id, f_comp);
+
+						// Make them brigther for the duration
+						events::ColorSwitchEvent eve;
+						eve.mEntityID = id;
+						eve.mTime = f_comp.mDuration;
+						Color color = Color(0, 0, 0);
+						switch (p_unit_comp->playerID)
+						{
+						case PLAYER1:
+							color = BRIGHT_RED;
+							break;
+						case PLAYER2:
+							color = BRIGHT_PURPLE;
+							break;
+						case PLAYER3:
+							color = BRIGHT_BLUE;
+							break;
+						case PLAYER4:
+							color = BRIGHT_GREEN;
+							break;
+						}
+						eve.mColor = color;
+
+						createEvent(eve);
+					}
 
 					/* Spawn Smoke Emitter on dude */
 					components::ParticleSpawnerComponent spawner;
@@ -260,7 +264,6 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 					smoke.SpawnCount = 350;
 
 					createEntity(spawner, smoke);
-
 				}
 			}
 		}
@@ -325,18 +328,22 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 
 
 			// Send the tile up
-
 			TypeID tileID = dynamic_cast<TriggerSpringTrapEvent*>(&event)->tileID;
-				
-			TransformComponent* p_tile_transf = getComponentFromKnownEntity<TransformComponent>(tileID);
+			
+			// Check to know if the tile was already sent up
+			if (!getComponentFromKnownEntity<SpringRetractionComponent>(tileID))
+			{
+				TransformComponent* p_tile_transf = getComponentFromKnownEntity<TransformComponent>(tileID);
 
-			p_tile_transf->position.y += 2.95f;
+				p_tile_transf->position.y += 2.95f;
 
-			// Create a component to have the tile get lowered to the original space
-			SpringRetractionComponent p_sr_comp;
-			p_sr_comp.mDuration = 3.0f;
+				// Create a component to have the tile get lowered to the original space
+				SpringRetractionComponent p_sr_comp;
+				p_sr_comp.mDuration = 3.0f;
 
-			createComponent(tileID,p_sr_comp);
+				createComponent(tileID, p_sr_comp);
+			}
+			
 		}
 	}
 }
