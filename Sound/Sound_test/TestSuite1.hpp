@@ -283,6 +283,15 @@ TEST(SoundAPI, SoundBankReadMany)
 		"sine.wav","sine2.wav","square.wav",
 		"sine.wav","sine2.wav","square.wav",
 		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
+		"sine.wav","sine2.wav","square.wav",
 		"sine.wav","sine2.wav","square.wav"
 	};
 	Audio::Bank bank_3;
