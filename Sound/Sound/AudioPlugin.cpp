@@ -127,14 +127,32 @@ void Audio::Plugin::Gain::FadeToEmpty(unsigned long sampleDuration)
 
 Audio::Plugin::Status Audio::Plugin::Gain::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
 {
-	Status status = mpNext->Process(start, sampleCount, pData, channelCount);
-	for (int i = 0; i < sampleCount; i++)
+	Status status;
+	// If the gain is 0, just fill with 0, so sound will be playing
+	if (mGain == 0.0f)
 	{
-		for (int j = 0; j < channelCount; j++)
+		status = Status::STATUS_OK;
+		for (int i = 0; i < sampleCount; i++)
 		{
-			pData[i*2+j] *= mGain + mGainSpeed * i;
+			for (int j = 0; j < channelCount; j++)
+			{
+				pData[i * 2 + j] = 0.0f;
+			}
 		}
 	}
+	// Else, process and adjust gain
+	else
+	{
+		status = mpNext->Process(start, sampleCount, pData, channelCount);
+		for (int i = 0; i < sampleCount; i++)
+		{
+			for (int j = 0; j < channelCount; j++)
+			{
+				pData[i*2+j] *= mGain + mGainSpeed * i;
+			}
+		}
+	}
+	// Interpolate the gain and clamp if necessary
 	mGain += mGainSpeed * sampleCount;
 	if (mGain > 1.0f)
 	{
