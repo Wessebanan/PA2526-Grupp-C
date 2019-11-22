@@ -69,7 +69,7 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 		total_time = 0.0f;
 	}
 
-	if (p_text)
+	if (p_text->tag != UITAG::STARTTEXT)
 	{
 		// To be sent to the UI
 		wstring ss = L"";
