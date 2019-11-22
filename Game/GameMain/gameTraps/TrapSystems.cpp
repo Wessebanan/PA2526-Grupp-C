@@ -45,7 +45,7 @@ void ecs::systems::FreezingDurationSystem::updateEntity(FilteredEntity& _entityI
 			if (id > 0)
 			{
 				//components::HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(id);
-				if (p_hp_comp)
+				if (p_hp_comp->mHealth >= 0)
 				{
 					components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
 					components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
@@ -53,8 +53,8 @@ void ecs::systems::FreezingDurationSystem::updateEntity(FilteredEntity& _entityI
 					p_move_comp->mMaxVelocity *= 2.0f;
 					p_ani_speed_comp->factor *= 2.0f;
 				}
-
-				removeComponent(p_ftimer_comp->getEntityID(), p_ftimer_comp->getTypeID());
+				else
+					removeComponent(p_ftimer_comp->getEntityID(), p_ftimer_comp->getTypeID());
 			}
 
 		}
@@ -132,7 +132,6 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 
 		if (id > 0)
 		{
-
 			// Make the unit take damage
 			HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(id);
 			if (p_hp_comp)
