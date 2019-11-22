@@ -148,7 +148,6 @@ int main()
 	*/
 	bool start_once = true;
 	int kill_me = 0;
-	uint32_t press_me = TRUE;
 	while (wnd.IsOpen())
 	{
 		if (!wnd.Update())
@@ -177,25 +176,6 @@ int main()
 				start_once = false;
 			}
 
-			if (press_me && GetAsyncKeyState(VK_CONTROL))
-			{
-				ecs::components::ParticleSpawnerComponent particle_spawner;
-				ecs::components::BombSpawnerComponent bomb_spawner;
-
-				particle_spawner.StartPosition = { 10.0f, 5.0f, 10.0f };
-				particle_spawner.SpawnFrequency = 0.1f;
-				particle_spawner.LifeDuration = 0.5f;
-
-				bomb_spawner.InitialVelocity = 16.0f;
-				bomb_spawner.SpawnCount = 2000.0f;
-
-				ecs.createEntity(particle_spawner, bomb_spawner);
-				press_me = FALSE;
-			}
-			else if (!GetAsyncKeyState(VK_CONTROL))
-			{
-				press_me = TRUE;
-			}
 			/*
 				Update all ECS systems, and give them the delta time.
 			*/
