@@ -20,6 +20,8 @@
 
 #include "../gameTraps/TrapComponents.h"
 
+#include "../gameGraphics/FakeStencilPipeline.h"
+
 
 // Normalizes scene objects and scene meshes to allow for indexing in array
 #define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
@@ -74,11 +76,15 @@ namespace ecs
 
 				XMStoreFloat4x4(&mpBuffer[index].world, world);
 
+				// This world matrix value is being hijacked for rendering the "fake stencil" for outlines
+				// The defining army color value is stored in the alpha and used in the outline shaders
+				mpBuffer[index].world._34 = (uint32_t)p_color_comp->alpha;
+
 				mpBuffer[index].world._44 = PACK(
 					p_color_comp->red,
 					p_color_comp->green,
 					p_color_comp->blue,
-					0);
+					p_color_comp->alpha);
 
 				memcpy(
 					mpBuffer[index].boneMatrices,
@@ -880,6 +886,45 @@ namespace ecs
 			mRenderMgr.SetShaderModelLayout(mShaderCombine, mInstanceLayout);
 		}
 #pragma endregion SSAORenderSystem
+
+#pragma region OutlineRenderSystem
+		OutlineRenderSystem::OutlineRenderSystem()
+		{
+			updateType = Actor;
+		}
+		OutlineRenderSystem::~OutlineRenderSystem()
+		{
+			// Borrowing the rendermgr from UnitRenderSystem so don't destroy
+			//mRenderMgr.Destroy();
+		}
+		void OutlineRenderSystem::act(float _delta)
+		{
+
+			mRenderMgr->ExecutePipeline(mPipelineFakeStencil, this->unitRenderProgram);
+		}
+		void OutlineRenderSystem::Initialize(const UINT clientWidth, const UINT clientHeight,
+			const UINT unitRenderProgram, graphics::RenderManager* unitRenderManager)
+		{
+			// This render system uses the render manager of the regular Unit render system but with
+			// different shaders
+
+
+			this->unitRenderProgram = unitRenderProgram;
+			this->mRenderMgr = unitRenderManager;
+			{
+				graphics::FAKE_STENCIL_PIPELINE_DESC fake_stencil_desc = { };
+				fake_stencil_desc.ClientWidth = clientWidth;
+				fake_stencil_desc.ClientHeight = clientHeight;
+				graphics::FakeStencilPipeline* fake_stencil_pipeline = new graphics::FakeStencilPipeline;
+				this->mPipelineFakeStencil = mRenderMgr->CreatePipeline(
+					fake_stencil_pipeline,
+					&fake_stencil_desc);
+
+			}
+
+			
+		}
+#pragma endregion OutlineRenderSystem
 
 #pragma region WeaponRenderSystem
 		WeaponRenderSystem::WeaponRenderSystem()

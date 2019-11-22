@@ -200,6 +200,25 @@ int main()
 	return 0;
 
 }
+void DebuggFunctions(EntityComponentSystem& rECS)
+{
+	// FOR DEBBUGING TRAPS: SPAWNS TRAPS OVER THE WHOLE MAP
+	//events::PlaceTrapEvent place_event;
+	//place_event.type = GAME_OBJECT_TYPE_TRAP_SPRING;
+	//components::TileComponent* p_tile;
+	//TypeFilter tile_filter;
+	//tile_filter.addRequirement(components::TileComponent::typeID);
+	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+	//for (FilteredEntity tile : tiles.entities)
+	//{
+	//	p_tile = tile.getComponent<components::TileComponent>();
+	//	if (p_tile->tileType != WATER)
+	//	{
+	//		place_event.tileID = p_tile->getEntityID();
+	//		rECS.createEvent(place_event);
+	//	}
+	//}
+}
 
 void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight)
 {
@@ -258,7 +277,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
-
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
@@ -271,4 +289,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
+
+	DebuggFunctions(rECS);
 }
