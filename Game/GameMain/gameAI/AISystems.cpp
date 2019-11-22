@@ -1,4 +1,5 @@
 #include "AISystems.h"
+#include "../gameUtility/CameraComponents.h"
 
 using namespace ecs::components;
 using namespace ecs::events;
@@ -1199,95 +1200,119 @@ ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
 
 void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, float delta)
 {
-	// The killers ID
-	unsigned int killer_id = getComponentFromKnownEntity<HealthComponent>(entity.entity->getID())->mHitBy;
-	// DEATH EFFECTS	
-	DeadComponent* p_dead = getComponentFromKnownEntity<DeadComponent>(entity.entity->getID());
-	if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
-	{
-		// Splash Emitter - When drowned, spawn a water splash	
-		components::ParticleSpawnerComponent spawner;
-		components::SplashSpawnerComponent smoke;
-
-		spawner.StartPosition = p_dead->position;
-		spawner.SpawnFrequency = 0.005f;
-		spawner.TimerSinceLastSpawn = 0.0f;
-		spawner.LifeDuration = 1.0f;
-
-		smoke.InitialVelocity = 8.0f;
-		smoke.SpawnCount = 100;
-
-		createEntity(spawner, smoke);
-
-		// Doesnt work atm	
-		/*PlaySound sound;
-		sound.audioName = SPLOOSH_SOUND;
-		sound.soundFlags = SF_NONE;
-		ecs::ECSUser::createEvent(sound);*/
-	}
-	// saved fo future use
-				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
-	UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
-	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
-	ArmyComponent* p_army;
-	while (p_army = (ArmyComponent*)itt.next())
-	{
-		//Check if it is the right player.
-		if (p_army->playerID == p_unit->playerID)
+	DeadComponent* p_dead = entity.getComponent<DeadComponent>();
+	if(!p_dead->hasDiedBefore)
+	{ 
+		// The killers ID
+		unsigned int killer_id = getComponentFromKnownEntity<HealthComponent>(entity.entity->getID())->mHitBy;
+		// DEATH EFFECTS	
+		if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
 		{
-			//Loop through the players army and remove the id of the dead unit.
-			for (int i = 0; i < p_army->unitIDs.size(); i++)
+			// Splash Emitter - When drowned, spawn a water splash	
+			components::ParticleSpawnerComponent spawner;
+			components::SplashSpawnerComponent smoke;
+
+			spawner.StartPosition = p_dead->position;
+			spawner.SpawnFrequency = 0.005f;
+			spawner.TimerSinceLastSpawn = 0.0f;
+			spawner.LifeDuration = 1.0f;
+
+			smoke.InitialVelocity = 8.0f;
+			smoke.SpawnCount = 100;
+
+			createEntity(spawner, smoke);
+
+			// Doesnt work atm	
+			/*PlaySound sound;
+			sound.audioName = SPLOOSH_SOUND;
+			sound.soundFlags = SF_NONE;
+			ecs::ECSUser::createEvent(sound);*/
+		}
+		// saved fo future use
+					//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
+		//UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
+		UnitComponent* p_unit = entity.getComponent<UnitComponent>();
+		ComponentIterator itt = getComponentsOfType<ArmyComponent>();
+		ArmyComponent* p_army;
+		while (p_army = (ArmyComponent*)itt.next())
+		{
+			//Check if it is the right player.
+			if (p_army->playerID == p_unit->playerID)
 			{
-				if (p_army->unitIDs[i] == entity.entity->getID())
+				//Loop through the players army and remove the id of the dead unit.
+				for (int i = 0; i < p_army->unitIDs.size(); i++)
 				{
-					p_army->unitIDs.erase(p_army->unitIDs.begin() + i);
+					if (p_army->unitIDs[i] == entity.entity->getID())
+					{
+						p_army->unitIDs.erase(p_army->unitIDs.begin() + i);
+					}
 				}
 			}
 		}
+		
+		// Check if the killer is legal and exists 
+		if (getEntity(killer_id))
+		{
+			HealthComponent* killer_health = getComponentFromKnownEntity<HealthComponent>(killer_id);
+			EquipmentComponent* killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
+			UnitScalePercent* killer_add_scale = getComponentFromKnownEntity<UnitScalePercent>(killer_id);
+			killer_health->mHealth += killer_health->mBaseHealth * HEALTH_REWARD;
+			if (killer_health->mHealth > 100.f)
+				killer_health->mHealth = 100.f;
+			killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
+			killer_equipment->mAttackRange		*= SIZE_REWARD;
+			killer_equipment->mMeleeRange		*= SIZE_REWARD;
+			TransformComponent* killer_scale = getComponentFromKnownEntity<TransformComponent>(killer_id);
+
+			float scale_offset_y = killer_scale->scale.y;
+
+			killer_scale->scale.x		*= SIZE_REWARD;
+			killer_scale->scale.y		*= SIZE_REWARD;
+			killer_scale->scale.z		*= SIZE_REWARD;
+			killer_add_scale->UnitScale *= SIZE_REWARD;
+
+			scale_offset_y = fabsf(killer_scale->scale.y - killer_add_scale->UnitScale);
+
+			killer_scale->position.y += killer_scale->scale.y * scale_offset_y;
+		}
+		ECSUser::removeComponent(entity.entity->getID(), PoiComponent::typeID);
+		p_dead->hasDiedBefore = true;
 	}
-	//Fetch the units weapon data.
-	EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
-	Entity* weapon_entity = ECSUser::getEntity(equipment_comp->mEquippedWeapon);
-	WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
-	//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
-	if (weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
-	{
-		ECSUser::removeEntity(weapon_entity->getID());
-	}
-	else
-	{
-		ECSUser::removeEntity(weapon_entity->getID());
-		//weapon_comp->mOwnerEntity = 0;
-	}
-	// Check if the killer is legal and exists 
-	if (getEntity(killer_id))
-	{
-		HealthComponent* killer_health = getComponentFromKnownEntity<HealthComponent>(killer_id);
-		EquipmentComponent* killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
-		UnitScalePercent* killer_add_scale = getComponentFromKnownEntity<UnitScalePercent>(killer_id);
-		killer_health->mHealth += killer_health->mBaseHealth * HEALTH_REWARD;
-		if (killer_health->mHealth > 100.f)
-			killer_health->mHealth = 100.f;
-		killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
-		killer_equipment->mAttackRange		*= SIZE_REWARD;
-		killer_equipment->mMeleeRange		*= SIZE_REWARD;
-		TransformComponent* killer_scale = getComponentFromKnownEntity<TransformComponent>(killer_id);
 
-		float scale_offset_y = killer_scale->scale.y;
-
-		killer_scale->scale.x		*= SIZE_REWARD;
-		killer_scale->scale.y		*= SIZE_REWARD;
-		killer_scale->scale.z		*= SIZE_REWARD;
-		killer_add_scale->UnitScale *= SIZE_REWARD;
-
-		scale_offset_y = fabsf(killer_scale->scale.y - killer_add_scale->UnitScale);
-
-		killer_scale->position.y += killer_scale->scale.y * scale_offset_y;
-	}
-	
-
+	// Make them fly and turn white :)
+	DynamicMovementComponent* unit_dyn_move = getComponentFromKnownEntity<DynamicMovementComponent>(entity.entity->getID());
+	TransformComponent* unit_transform = getComponentFromKnownEntity<TransformComponent>(entity.entity->getID());
+	ColorComponent* unit_color = getComponentFromKnownEntity<ColorComponent>(entity.entity->getID());
+	unit_color->red		= 255;
+	unit_color->green	= 255;
+	unit_color->blue	= 255;
+	unit_dyn_move->mGravity = 0.f;
+	unit_dyn_move->mVelocity.y = 2.f;
+	unit_dyn_move->mVelocity.x = 0.f;
+	unit_dyn_move->mVelocity.z = 0.f;
 	//Remove the dead unit
-	ECSUser::removeEntity(entity.entity->getID());
+	if(unit_transform->position.y >= 20.f)
+	{
+		//Fetch the units weapon data.
+		EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
+		Entity* weapon_entity = ECSUser::getEntity(equipment_comp->mEquippedWeapon);
+		WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
+		//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
+
+		if(weapon_entity)
+		{
+			if (weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+			{
+				ECSUser::removeEntity(weapon_entity->getID());
+			}
+			else
+			{
+				ECSUser::removeEntity(weapon_entity->getID());
+				//weapon_comp->mOwnerEntity = 0;
+			}
+		}
+		ECSUser::removeEntity(entity.entity->getID());
+	}
 }
 
 /************************************************/

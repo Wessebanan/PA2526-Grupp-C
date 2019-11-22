@@ -93,6 +93,7 @@ namespace ecs
 			};
 			CauseOfDeath cause;			// Kind of death
 			DirectX::XMFLOAT3 position;	// Save position of where the dead happened
+			bool hasDiedBefore = false;
 		};
 
 		struct UnitScalePercent : public ECSComponent<UnitScalePercent>
