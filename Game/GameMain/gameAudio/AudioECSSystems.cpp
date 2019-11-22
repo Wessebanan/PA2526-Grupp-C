@@ -179,7 +179,12 @@ void ecs::systems::SoundMessageSystem::ProcessPlaySound(ecs::events::PlaySound* 
 		return;
 	}
 	bool temp_loop_bool = pEvent->soundFlags & SoundFlags::SF_REPEAT;
-	Audio::Plugin::Plugin* temp_plugin = new Audio::Plugin::Sampler(temp_data, (temp_loop_bool ? 0 : 1));
+	float pitch = 1.0f;
+	if (pEvent->soundFlags & SoundFlags::SF_RANDOM_PITCH)
+	{
+		pitch = (rand() % 1000) / 4000.f + 0.85f;
+	}
+	Audio::Plugin::Plugin* temp_plugin = new Audio::Plugin::Sampler(temp_data, (temp_loop_bool ? 0 : 1),pitch);
 	mSoundMixer->AddSoundMessage({ temp_plugin });
 }
 
