@@ -95,6 +95,11 @@ namespace ecs
 			DirectX::XMFLOAT3 position;	// Save position of where the dead happened
 		};
 
+		struct UnitScalePercent : public ECSComponent<UnitScalePercent>
+		{
+			float UnitScale = 1.f; //Holds an enum to know which player the unit belongs to.
+		};
+
 		struct PlayerStateComponent : public ECSComponent<PlayerStateComponent>
 		{
 			STATE mCurrentStates[4];

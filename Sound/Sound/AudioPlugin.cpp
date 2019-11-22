@@ -1,11 +1,13 @@
 #include "AudioPlugin.h"
 #include <cmath>
 
-Audio::Plugin::Sampler::Sampler(FileData* pFile, int repeatAmount)
+Audio::Plugin::Sampler::Sampler(FileData* pFile, int repeatAmount, float rateModifier)
 {
 	mpFile = pFile;
 	mRepeatAmount = repeatAmount;
 	mReadPointer = 0;
+	mReadFraction = 0.0f;
+	mPlayRate = rateModifier;
 }
 
 Audio::Plugin::Sampler::Sampler()
@@ -13,6 +15,8 @@ Audio::Plugin::Sampler::Sampler()
 	mpFile = nullptr;
 	mRepeatAmount = 0;
 	mReadPointer = 0;
+	mReadFraction = 0.0f;
+	mPlayRate = 1.0f;
 }
 
 void Audio::Plugin::Sampler::SetFileAndReset(FileData* pFile)
@@ -64,9 +68,23 @@ Audio::Plugin::Status Audio::Plugin::Sampler::Process(Samples start, Samples sam
 					}
 					mRepeatAmount--;
 				}
-				// Read the data from the file
-				*(pData++) = data_pointer[mReadPointer++];
+				// ---  Interpolation  ---
+				// Get the next sample to interpolate towards
+				// and wrap if outside the file
+				Samples next_sample =
+					(mReadPointer + j + channelCount) % sample_count;
+
+				// Read the data from the file and interpolate
+				*(pData++) =
+					data_pointer[mReadPointer + j] * (1.0f - mReadFraction)
+					+ data_pointer[next_sample] * mReadFraction;
 			}
+			// Progress the sound with the play rate
+			float temp_float;
+			mReadFraction = modf(
+				mReadFraction + mPlayRate,
+				&temp_float);
+			mReadPointer += (Samples)temp_float * channelCount;
 		}
 	}
 	return STATUS_OK;

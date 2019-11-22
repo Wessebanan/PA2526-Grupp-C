@@ -1129,10 +1129,32 @@ void ecs::systems::AttackStateSystem::updateEntity(FilteredEntity& entity, float
 	//Check if the enemy unit still exists
 	if (p_enemy_entity)
 	{
+		float y_distance = 0;
 		//Fetch the enemy units data
 		p_enemy_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_enemy_entity->getID());
+		XMFLOAT3 direction;
+		direction.x = p_enemy_unit_transform->position.x - p_current_unit_transform->position.x;
+		direction.y = p_enemy_unit_transform->position.y - p_current_unit_transform->position.y;
+		direction.z = p_enemy_unit_transform->position.z - p_current_unit_transform->position.z;
+		XMVECTOR dir_vec = XMLoadFloat3(&direction);
+		dir_vec = XMVector3Normalize(dir_vec);
+		XMStoreFloat3(&direction, dir_vec);
+		// NOTE: No way of finding default direction of mesh so it's hard coded.
+		XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
+		XMFLOAT3* movement_forward = &direction;
+
+		// Finding the angle between default forward and enemy direction.
+		XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
+
+		// Using Sign to find if the angle is negative or positive relative to default forward.
+		p_current_unit_transform->rotation.y = -Sign(movement_forward->x) * acos(XMVectorGetX(cos_angle));
+
 		//Calculate distance to the enemy unit
-		distance = PhysicsHelpers::CalculateDistance(p_current_unit_transform->position, p_enemy_unit_transform->position);
+		XMFLOAT3 friendly_pos = p_current_unit_transform->position;
+		XMFLOAT3 enemy_pos = p_enemy_unit_transform->position;
+		friendly_pos.y = 0;
+		enemy_pos.y = 0;
+		distance = PhysicsHelpers::CalculateDistance(friendly_pos, enemy_pos);
 		//If the enemy is not within attack range remove attack component
 		if (distance > p_equipment_comp->mAttackRange * 1.5f)
 		{
@@ -1177,6 +1199,8 @@ ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
 
 void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, float delta)
 {
+	// The killers ID
+	unsigned int killer_id = getComponentFromKnownEntity<HealthComponent>(entity.entity->getID())->mHitBy;
 	// DEATH EFFECTS	
 	DeadComponent* p_dead = getComponentFromKnownEntity<DeadComponent>(entity.entity->getID());
 	if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
@@ -1235,6 +1259,33 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		ECSUser::removeEntity(weapon_entity->getID());
 		//weapon_comp->mOwnerEntity = 0;
 	}
+	// Check if the killer is legal and exists 
+	if (getEntity(killer_id))
+	{
+		HealthComponent* killer_health = getComponentFromKnownEntity<HealthComponent>(killer_id);
+		EquipmentComponent* killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
+		UnitScalePercent* killer_add_scale = getComponentFromKnownEntity<UnitScalePercent>(killer_id);
+		killer_health->mHealth += killer_health->mBaseHealth * HEALTH_REWARD;
+		if (killer_health->mHealth > 100.f)
+			killer_health->mHealth = 100.f;
+		killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
+		killer_equipment->mAttackRange		*= SIZE_REWARD;
+		killer_equipment->mMeleeRange		*= SIZE_REWARD;
+		TransformComponent* killer_scale = getComponentFromKnownEntity<TransformComponent>(killer_id);
+
+		float scale_offset_y = killer_scale->scale.y;
+
+		killer_scale->scale.x		*= SIZE_REWARD;
+		killer_scale->scale.y		*= SIZE_REWARD;
+		killer_scale->scale.z		*= SIZE_REWARD;
+		killer_add_scale->UnitScale *= SIZE_REWARD;
+
+		scale_offset_y = fabsf(killer_scale->scale.y - killer_add_scale->UnitScale);
+
+		killer_scale->position.y += killer_scale->scale.y * scale_offset_y;
+	}
+	
+
 	//Remove the dead unit
 	ECSUser::removeEntity(entity.entity->getID());
 }
