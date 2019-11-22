@@ -580,6 +580,14 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 				knockback.mForce = hit_event.Knockback;
 				knockback.mEntityID = unit.entity->getID();
 				createEvent(knockback);
+
+
+				// VISUAL
+				ColorSwitchEvent damage_flash;
+				damage_flash.mColor = WHITE;
+				damage_flash.mEntityID = unit.entity->getID();
+				damage_flash.mTime = 0.05f;
+				createEvent(damage_flash);
 			}
 		}
 
