@@ -45,14 +45,14 @@ void ecs::systems::FreezingDurationSystem::updateEntity(FilteredEntity& _entityI
 		{
 			TypeID id = _entityInfo.entity->getID();
 			
-			p_move_comp->mMaxVelocity = DEFAULT_MAX_VELOCITY * 0.1f;
+			p_move_comp->mMaxVelocity = DEFAULT_MAX_VELOCITY * 0.1f; // for scale
 			p_ani_speed_comp->factor = 1.0f;
 				
 			removeComponent(id, p_ftimer_comp->getTypeID());
 		}
 		else
 		{
-			p_move_comp->mMaxVelocity = 0.1f;//(DEFAULT_MAX_VELOCITY * 0.1f) / 2.0f;
+			p_move_comp->mMaxVelocity = 0.1f;// == (DEFAULT_MAX_VELOCITY * 0.1f) / 2.0f;
 			p_ani_speed_comp->factor = 0.5f;
 		}
 	}
@@ -203,8 +203,6 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 				}
 				else
 				{
-					// Check if the unit already have the freezing component
-					if (true/*!getComponentFromKnownEntity<FreezingTimerComponent>(id)*/)
 					{
 						components::UnitComponent* p_unit_comp = getComponentFromKnownEntity<UnitComponent>(id);
 						components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
