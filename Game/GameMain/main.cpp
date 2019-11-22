@@ -204,21 +204,22 @@ int main()
 void DebuggFunctions(EntityComponentSystem& rECS)
 {
 	// FOR DEBBUGING TRAPS: SPAWNS TRAPS OVER THE WHOLE MAP
-	//events::PlaceTrapEvent place_event;
-	//place_event.type = GAME_OBJECT_TYPE_TRAP_SPRING;
-	//components::TileComponent* p_tile;
-	//TypeFilter tile_filter;
-	//tile_filter.addRequirement(components::TileComponent::typeID);
-	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
-	//for (FilteredEntity tile : tiles.entities)
-	//{
-	//	p_tile = tile.getComponent<components::TileComponent>();
-	//	if (p_tile->tileType != WATER)
-	//	{
-	//		place_event.tileID = p_tile->getEntityID();
-	//		rECS.createEvent(place_event);
-	//	}
-	//}
+	events::PlaceTrapEvent place_event;
+	place_event.type = GAME_OBJECT_TYPE_TRAP_FIRE;
+	components::TileComponent* p_tile;
+	TypeFilter tile_filter;
+	tile_filter.addRequirement(components::TileComponent::typeID);
+	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+	for (FilteredEntity tile : tiles.entities)
+	{
+		p_tile = tile.getComponent<components::TileComponent>();
+		if (p_tile->tileType != WATER)
+		{
+			place_event.type = (GAME_OBJECT_TYPES)((rand() % TRAP_TYPE_COUNT) + (int)(GAME_OBJECT_TYPE_TRAP_OFFSET_TAG)+1);
+			place_event.tileID = p_tile->getEntityID();
+			rECS.createEvent(place_event);
+		}
+	}
 }
 
 void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight)

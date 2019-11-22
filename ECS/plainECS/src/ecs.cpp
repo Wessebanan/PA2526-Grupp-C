@@ -1,5 +1,7 @@
 #include "ecs.h"
 
+#include <iostream>
+
 using namespace ecs;
 
 EntityComponentSystem::EntityComponentSystem()
@@ -210,53 +212,61 @@ void EntityComponentSystem::update(float _delta)
 			*	Fetch the system's update behaviour and act accordingly.
 			*/
 
-			switch (s->updateType)
+			
+			try
 			{
-			case EntityUpdate:
-				// Fill list with entities that own all of the system's
-				// required component types.
-				fillEntityIteratorInternal(s->typeFilter, entities);
-
-				// Iterate through all the entites of interest and update the system.
-				for (FilteredEntity e : entities.entities)
+				switch (s->updateType)
 				{
-					s->updateEntity(e, _delta);
-				}
-				break;
+				case EntityUpdate:
+					// Fill list with entities that own all of the system's
+					// required component types.
+					fillEntityIteratorInternal(s->typeFilter, entities);
 
-			case MultiEntityUpdate:
-				// Fill list with entities that own all of the system's
-				// required component types.
-				fillEntityIteratorInternal(s->typeFilter, entities);
-
-				// Update the system with the list of all entities of interest.
-				s->updateMultipleEntities(entities, _delta);
-				break;
-
-			case EventReader:
-				// Fill list with events of the system's interest
-				fillEventIteratorInternal(s->typeFilter, events);
-
-				// Iterator through all event types
-				for (EventTypeIterator::TypePair list : events.eventTypes)
-				{
-					// Iterates through all events of current type
-					for (BaseEvent* e : list.second)
+					// Iterate through all the entites of interest and update the system.
+					for (FilteredEntity e : entities.entities)
 					{
-						s->readEvent(*e, _delta);
+						s->updateEntity(e, _delta);
 					}
+					break;
+
+				case MultiEntityUpdate:
+					// Fill list with entities that own all of the system's
+					// required component types.
+					fillEntityIteratorInternal(s->typeFilter, entities);
+
+					// Update the system with the list of all entities of interest.
+					s->updateMultipleEntities(entities, _delta);
+					break;
+
+				case EventReader:
+					// Fill list with events of the system's interest
+					fillEventIteratorInternal(s->typeFilter, events);
+
+					// Iterator through all event types
+					for (EventTypeIterator::TypePair list : events.eventTypes)
+					{
+						// Iterates through all events of current type
+						for (BaseEvent* e : list.second)
+						{
+							s->readEvent(*e, _delta);
+						}
+					}
+					break;
+				case Actor:
+					s->act(_delta);
+					break;
+
+					//#ifdef _DEBUG
+					//	case Undefined:
+					//		debugPrint += "(Undefined update type)";
+					//		break;
+					//#endif
+
 				}
-				break;
-			case Actor:
-				s->act(_delta);
-				break;
-
-		//#ifdef _DEBUG
-		//	case Undefined:
-		//		debugPrint += "(Undefined update type)";
-		//		break;
-		//#endif
-
+			}
+			catch (...)
+			{
+				std::cout << "Error updating " << s->getName() << std::endl;
 			}
 
 			//#ifdef _DEBUG

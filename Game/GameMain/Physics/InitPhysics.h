@@ -8,6 +8,8 @@
 #include "PhysicsComponents.h"
 #include "PhysicsEvents.h"
 
+using namespace ecs;
+
 // Must be called after InitMesh and InitArmy.
 void InitPhysics(ecs::EntityComponentSystem& rEcs);
 
