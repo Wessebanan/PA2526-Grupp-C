@@ -146,7 +146,7 @@ ComponentIterator::~ComponentIterator()
 {
 	//
 }
-#include <iostream>
+
 BaseComponent* ComponentIterator::next()
 {
 	// Iterate in memory until next alive component is found (!alive => deleted),
@@ -163,8 +163,6 @@ BaseComponent* ComponentIterator::next()
 		current = (void*)((char*)current + objectSize);
 		iterationSize += objectSize;
 	} while (!(pComponent->flags & COMP_FLAG_ALIVE));
-
-	std::cout << "Iterator::next() returning " << pComponent->getName() << " TypeID=" << pComponent->getTypeID() << " ID=" << pComponent->getID() << " Flags=" << std::to_string(pComponent->flags) << std::endl;
 
 	return pComponent;
 }
