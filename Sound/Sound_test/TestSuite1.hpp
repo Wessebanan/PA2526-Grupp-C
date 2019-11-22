@@ -287,7 +287,7 @@ TEST(SoundAPI, SoundBankReadMany)
 	};
 	Audio::Bank bank_3;
 	// Should fail
-	EXPECT_FALSE(bank_3.LoadMultipleFiles(FILE_NAMES_3, 27));
+	EXPECT_FALSE(bank_3.LoadMultipleFiles(FILE_NAMES_3, SOUND_MAX_BANK_FILES + 1));
 }
 
 
