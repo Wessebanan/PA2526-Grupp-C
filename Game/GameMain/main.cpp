@@ -52,6 +52,7 @@
 #include "gameTraps/TrapComponents.h"
 #include "gameTraps/TrapEvents.h"
 #include "gameWorld/InitWorldScenery.h"
+#include "InitIslands.h"
 
 #include "gamePowerups/InitPowerups.h"
 #include "gamePowerups/PowerupEvents.h"
@@ -249,6 +250,8 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitGrid(rECS);
 	InitArmy(rECS);
 	InitSceneObjects(rECS);
+
+	InitIslands(rECS);
 
 	InitOceanEntities(rECS);
 	InitOceanUpdateSystem(rECS);

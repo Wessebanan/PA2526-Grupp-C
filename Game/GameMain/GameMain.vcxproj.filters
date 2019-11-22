@@ -441,6 +441,9 @@
     <ClInclude Include="gameWorld\InitWorldScenery.h">
       <Filter>Init</Filter>
     </ClInclude>
+    <ClInclude Include="InitIslands.h">
+      <Filter>World</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="AI">
