@@ -20,6 +20,8 @@
 
 #include "../gameTraps/TrapComponents.h"
 
+#include "../gameGraphics/FakeStencilPipeline.h"
+
 
 // Normalizes scene objects and scene meshes to allow for indexing in array
 #define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
@@ -74,11 +76,15 @@ namespace ecs
 
 				XMStoreFloat4x4(&mpBuffer[index].world, world);
 
+				// This world matrix value is being hijacked for rendering the "fake stencil" for outlines
+				// The defining army color value is stored in the alpha and used in the outline shaders
+				mpBuffer[index].world._34 = (uint32_t)p_color_comp->alpha;
+
 				mpBuffer[index].world._44 = PACK(
 					p_color_comp->red,
 					p_color_comp->green,
 					p_color_comp->blue,
-					0);
+					p_color_comp->alpha);
 
 				memcpy(
 					mpBuffer[index].boneMatrices,
@@ -881,6 +887,150 @@ namespace ecs
 		}
 #pragma endregion SSAORenderSystem
 
+#pragma region WorldSceneRenderSystem
+		WorldSceneRenderSystem::WorldSceneRenderSystem()
+		{
+			updateType = SystemUpdateType::MultiEntityUpdate;
+			typeFilter.addRequirement(components::WorldSceneryComponent::typeID);
+			typeFilter.addRequirement(components::TransformComponent::typeID);
+			typeFilter.addRequirement(components::ColorComponent::typeID);
+		}
+
+		WorldSceneRenderSystem::~WorldSceneRenderSystem()
+		{
+			//
+		}
+
+		void WorldSceneRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		{
+			/*
+				We don't know the order of entities EntityIterator, meaning that we can't expect
+				the entities to be ordered by mesh type like we want them to be in the RenderBuffer
+				(output of this function).
+
+				So, this function first calculate how many instances we have of each mesh. With this,
+				we can calculate from which index in the RenderBuffer we can start writing each mesh
+				to. Each mesh we care about in this function, that is tree, stone etc., has its own
+				index counter.
+			*/
+
+			mObjectCount = _entities.entities.size();
+
+			// Fetch pointer to write data to in RenderBuffer
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::WorldSceneRenderSystem::GetPerInstanceSize());
+
+			// Count how many instances we have per scene object mesh
+			ZeroMemory(mObjectTypeCount, WORLD_SCENERY_TYPE_COUNT * sizeof(UINT));
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::WorldSceneryComponent* p_obj_comp = object.getComponent<components::WorldSceneryComponent>();
+				mObjectTypeCount[p_obj_comp->sceneryType - (GAME_OBJECT_TYPE_WORLD_SCENE_OFFSET_TAG + 1)]++;
+			}
+
+			// Set index to write to in RenderBuffer, per mesh
+			UINT object_type_individual_index[WORLD_SCENERY_TYPE_COUNT] = { 0 };
+
+			for (int i = 1; i < WORLD_SCENERY_TYPE_COUNT; i++)
+			{
+				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
+			}
+
+			// Iterate all objects and write their data to the RenderBuffer
+			for (FilteredEntity trap : _entities.entities)
+			{
+				components::WorldSceneryComponent* p_scenery_comp = trap.getComponent<components::WorldSceneryComponent>();
+				components::ColorComponent* p_color_comp = trap.getComponent<components::ColorComponent>();
+				components::TransformComponent* p_transform_comp = trap.getComponent<components::TransformComponent>();
+
+				// Get index, depending on mesh type
+				UINT& index = object_type_individual_index[p_scenery_comp->sceneryType - (GAME_OBJECT_TYPE_WORLD_SCENE_OFFSET_TAG + 1)];
+
+				/*
+					Create a world matrix out of the object's transform.
+					Place color of trap in the last element of the world
+					matrix. Color will be extracted in the shader.
+				*/
+
+				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
+				mpBuffer[index++].world._44 = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 255);
+			}
+
+			mInstanceLayout.pInstanceCountPerMesh = mObjectTypeCount;
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		}
+
+		void WorldSceneRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+		{
+			mpRenderMgr = pRenderMgr;
+
+			/*
+				Set up mesh region for all meshes that will be rendered.
+			*/
+			for (int i = 0; i < WORLD_SCENERY_TYPE_COUNT; i++)
+			{
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE(i + (GAME_OBJECT_TYPE_WORLD_SCENE_OFFSET_TAG + 1)));
+			}
+
+			mInstanceLayout.MeshCount = WORLD_SCENERY_TYPE_COUNT;
+			mInstanceLayout.pMeshes = mObjectMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
+
+			const std::string vs = GetShaderFilepath("VS_Weapon.cso");
+			const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				systems::WorldSceneRenderSystem::GetPerInstanceSize());
+
+			mpRenderBuffer = pRenderBuffer;
+		}
+
+		uint32_t WorldSceneRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(WorldSceneRenderSystem::InputLayout);
+		}
+#pragma endregion WorldSceneRenderSystem
+
+#pragma region OutlineRenderSystem
+		OutlineRenderSystem::OutlineRenderSystem()
+		{
+			updateType = Actor;
+		}
+		OutlineRenderSystem::~OutlineRenderSystem()
+		{
+			// Borrowing the rendermgr from UnitRenderSystem so don't destroy
+			//mRenderMgr.Destroy();
+		}
+		void OutlineRenderSystem::act(float _delta)
+		{
+
+			mRenderMgr->ExecutePipeline(mPipelineFakeStencil, this->unitRenderProgram);
+		}
+		void OutlineRenderSystem::Initialize(const UINT clientWidth, const UINT clientHeight,
+			const UINT unitRenderProgram, graphics::RenderManager* unitRenderManager)
+		{
+			// This render system uses the render manager of the regular Unit render system but with
+			// different shaders
+
+
+			this->unitRenderProgram = unitRenderProgram;
+			this->mRenderMgr = unitRenderManager;
+			{
+				graphics::FAKE_STENCIL_PIPELINE_DESC fake_stencil_desc = { };
+				fake_stencil_desc.ClientWidth = clientWidth;
+				fake_stencil_desc.ClientHeight = clientHeight;
+				graphics::FakeStencilPipeline* fake_stencil_pipeline = new graphics::FakeStencilPipeline;
+				this->mPipelineFakeStencil = mRenderMgr->CreatePipeline(
+					fake_stencil_pipeline,
+					&fake_stencil_desc);
+
+			}
+
+			
+		}
+#pragma endregion OutlineRenderSystem
+
 #pragma region WeaponRenderSystem
 		WeaponRenderSystem::WeaponRenderSystem()
 		{
@@ -1256,5 +1406,117 @@ namespace ecs
 			return sizeof(PowerupLootRenderSystem::InputLayout);
 		}
 #pragma endregion PowerupLootRenderSystem
+
+#pragma region DefaultRenderSystem
+		DefaultRenderSystem::DefaultRenderSystem()
+		{
+			updateType = SystemUpdateType::MultiEntityUpdate;
+			typeFilter.addRequirement(components::DefaultRenderObjectComponent::typeID);
+			typeFilter.addRequirement(components::TransformComponent::typeID);
+			typeFilter.addRequirement(components::ColorComponent::typeID);
+
+			mInstanceLayout = { 0 };
+		}
+
+		DefaultRenderSystem::~DefaultRenderSystem()
+		{
+			//
+		}
+
+		void DefaultRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		{
+			/*
+				We don't know the order of entities EntityIterator, meaning that we can't expect
+				the entities to be ordered by mesh type like we want them to be in the RenderBuffer
+				(output of this function).
+
+				So, this function first calculate how many instances we have of each mesh. With this,
+				we can calculate from which index in the RenderBuffer we can start writing each mesh
+				to. Each mesh we care about in this function, that is tree, stone etc., has its own
+				index counter.
+			*/
+
+
+			//// Count how many instances we have per scene object mesh
+			ZeroMemory(mInstancePerMesh, GAME_OBJECT_TYPE_COUNT * sizeof(UINT));
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::DefaultRenderObjectComponent* p_obj_comp = object.getComponent<components::DefaultRenderObjectComponent>();
+
+				mInstancePerMesh[p_obj_comp->type]++;
+			}
+
+			//// Fetch pointer to write data to in RenderBuffer
+			mObjectCount = _entities.entities.size();
+			//std::cout << mObjectCount << std::endl; //DEBUG PRINT
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::DefaultRenderSystem::GetPerInstanceSize());
+
+
+			// Set index to write to in RenderBuffer, per mesh
+			UINT object_type_individual_index[GAME_OBJECT_TYPE_COUNT] = { 0 };
+
+			for (int i = 1; i < GAME_OBJECT_TYPE_COUNT; i++)
+			{
+				object_type_individual_index[i] = object_type_individual_index[i - 1] + mInstancePerMesh[i - 1];
+			}
+
+			// Iterate all objects and write their data to the RenderBuffer
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::ColorComponent* p_color_comp = object.getComponent<components::ColorComponent>();
+				components::TransformComponent* p_transform_comp = object.getComponent<components::TransformComponent>();
+				components::DefaultRenderObjectComponent* p_object_comp = object.getComponent<components::DefaultRenderObjectComponent>();
+				
+				UINT& index = object_type_individual_index[p_object_comp->type];
+
+				DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
+
+				XMStoreFloat4x4(&mpBuffer[index].world, world);
+				mpBuffer[index].world._44 = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+
+				index++;
+			}
+
+			mInstanceLayout.MeshCount				= GAME_OBJECT_TYPE_COUNT;
+			mInstanceLayout.pInstanceCountPerMesh	= mInstancePerMesh;
+
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		}
+
+		void DefaultRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+		{
+			mpRenderMgr = pRenderMgr;
+
+			for (UINT i = 0; i < GAME_OBJECT_TYPE_COUNT; i++)
+			{
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(i);
+			}
+			mInstanceLayout.pMeshes = mObjectMeshRegion;
+
+			/*
+				Add new meshes here
+
+				Use 'mMap' to map scene object to scene mesh
+				Use 'mColors' to apply color to each mesh (colors will not differ between same scene object)
+			*/
+
+			// End
+
+			const std::string vs = GetShaderFilepath("VS_Weapon.cso");
+			const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				systems::DefaultRenderSystem::GetPerInstanceSize());
+
+			mpRenderBuffer = pRenderBuffer;
+		}
+
+		uint32_t DefaultRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(InputLayout);
+		}
+#pragma endregion DefaultRenderSystem
 	}
 }

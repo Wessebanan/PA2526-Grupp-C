@@ -51,6 +51,7 @@
 #include "gameWeapons/InitWeapons.h"
 #include "gameTraps/TrapComponents.h"
 #include "gameTraps/TrapEvents.h"
+#include "gameWorld/InitWorldScenery.h"
 
 #include "gamePowerups/InitPowerups.h"
 #include "gamePowerups/PowerupEvents.h"
@@ -277,7 +278,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
-
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
@@ -285,6 +285,8 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitTraps(rECS);
 	InitPowerups(rECS);
+
+	InitWorldScenery(rECS);
 
 	InitHttpServer(rECS);
 

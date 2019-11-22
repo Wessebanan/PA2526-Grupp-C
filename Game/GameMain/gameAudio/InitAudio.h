@@ -23,7 +23,7 @@ void InitSong(ecs::EntityComponentSystem& rECS)
 {
 	{
 		ecs::events::PlayMusic m_event;
-		m_event.audioName = AudioName::CC_TEST_CALM_SONG;
+		m_event.audioName = AudioName::SOUND_cc_chill;
 		rECS.createEvent(m_event);
 	}
 	{
@@ -39,7 +39,7 @@ void InitSong(ecs::EntityComponentSystem& rECS)
 
 	{
 		ecs::events::PlaySubMusic m_event;
-		m_event.audioName = AudioName::CC_TEST_SONG_DRUMS;
+		m_event.audioName = AudioName::SOUND_cc_drums;
 		rECS.createEvent(m_event);
 	}
 

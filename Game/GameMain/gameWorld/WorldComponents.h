@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ecsComponentIncludes.h"
+#include "../GameGlobals.h"
 
 namespace ecs
 {
@@ -14,6 +15,11 @@ namespace ecs
 		struct IsletComponent : public ECSComponent<IsletComponent>
 		{
 			ID playerId;
+		};
+
+		struct WorldSceneryComponent : public ECSComponent<WorldSceneryComponent>
+		{
+			GAME_OBJECT_TYPE sceneryType;
 		};
 	}
 }
