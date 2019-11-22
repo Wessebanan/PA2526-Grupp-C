@@ -23,7 +23,8 @@ ecs::systems::FreezingDurationSystem::FreezingDurationSystem()
 {
 	updateType = ecs::EntityUpdate;
 	typeFilter.addRequirement(ecs::components::FreezingTimerComponent::typeID);
-	typeFilter.addRequirement(ecs::components::HealthComponent::typeID);
+	typeFilter.addRequirement(ecs::components::DynamicMovementComponent::typeID);
+	typeFilter.addRequirement(ecs::components::AnimationSpeedComponent::typeID);
 }
 
 ecs::systems::FreezingDurationSystem::~FreezingDurationSystem()
@@ -33,30 +34,26 @@ ecs::systems::FreezingDurationSystem::~FreezingDurationSystem()
 void ecs::systems::FreezingDurationSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	FreezingTimerComponent* p_ftimer_comp = _entityInfo.getComponent<components::FreezingTimerComponent>();
-	HealthComponent* p_hp_comp = _entityInfo.getComponent<components::HealthComponent>();
+	DynamicMovementComponent* p_move_comp = _entityInfo.getComponent<components::DynamicMovementComponent>();
+	AnimationSpeedComponent* p_ani_speed_comp = _entityInfo.getComponent<components::AnimationSpeedComponent>();
 
-	if (p_ftimer_comp)
+	if (p_ftimer_comp && p_move_comp && p_ani_speed_comp)
 	{
 		p_ftimer_comp->mElapsedTime += _delta;
 
 		if (p_ftimer_comp->mElapsedTime >= p_ftimer_comp->mDuration)
 		{
 			TypeID id = _entityInfo.entity->getID();
-			if (id > 0)
-			{
-				//components::HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(id);
-				if (p_hp_comp->mHealth >= 0)
-				{
-					components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
-					components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
-
-					p_move_comp->mMaxVelocity *= 2.0f;
-					p_ani_speed_comp->factor *= 2.0f;
-				}
-				else
-					removeComponent(p_ftimer_comp->getEntityID(), p_ftimer_comp->getTypeID());
-			}
-
+			
+			p_move_comp->mMaxVelocity = DEFAULT_MAX_VELOCITY * 0.1f;
+			p_ani_speed_comp->factor = 1.0f;
+				
+			removeComponent(id, p_ftimer_comp->getTypeID());
+		}
+		else
+		{
+			p_move_comp->mMaxVelocity = 0.1f;//(DEFAULT_MAX_VELOCITY * 0.1f) / 2.0f;
+			p_ani_speed_comp->factor = 0.5f;
 		}
 	}
 	
@@ -207,14 +204,14 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 				else
 				{
 					// Check if the unit already have the freezing component
-					if (!getComponentFromKnownEntity<FreezingTimerComponent>(id))
+					if (true/*!getComponentFromKnownEntity<FreezingTimerComponent>(id)*/)
 					{
 						components::UnitComponent* p_unit_comp = getComponentFromKnownEntity<UnitComponent>(id);
 						components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
 						components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
 
-						p_move_comp->mMaxVelocity *= mPower;
-						p_ani_speed_comp->factor = mPower;
+						//p_move_comp->mMaxVelocity = 10.0f;//DEFAULT_MAX_VELOCITY * mPower;
+						//p_ani_speed_comp->factor = mPower;
 
 						// Add component 
 						FreezingTimerComponent f_comp;
