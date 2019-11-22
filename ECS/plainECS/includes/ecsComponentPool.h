@@ -30,7 +30,7 @@ namespace ecs
 
 		// Calls for a custom allocation in ECS memory and creates a component with given initial data,
 		// then returns a base pointer to the new component.
-		BaseComponent* create(BaseComponent& _component);
+		BaseComponent* create(BaseComponent& _component, bool _visible = true);
 
 		// Frees given component in ECS memory.
 		void remove(ID _id);

@@ -24,7 +24,7 @@ ECSComponentPool::~ECSComponentPool()
 	}
 }
 
-BaseComponent* ECSComponentPool::create(BaseComponent& _component)
+BaseComponent* ECSComponentPool::create(BaseComponent& _component, bool _visible)
 {
 	this->componentName = _component.getName(); // TODO: remove this
 	void* p = allocator.allocate();
@@ -43,8 +43,12 @@ BaseComponent* ECSComponentPool::create(BaseComponent& _component)
 		return nullptr;
 	}
 
-	lookUpList[_component.getID()] = (BaseComponent*)p;
-	return (BaseComponent*)p;
+	BaseComponent* p_comp = (BaseComponent*)p;
+
+	p_comp->flags = p_comp->flags | COMP_FLAG_ALIVE | (_visible ? COMP_FLAG_VISIBLE : 0);
+
+	lookUpList[_component.getID()] = p_comp;
+	return p_comp;
 }
 
 void ECSComponentPool::remove(ID _id)
@@ -97,7 +101,7 @@ void ECSComponentPool::initialize(size_t _startCap, size_t _componentSize)
 
 void ecs::ECSComponentPool::flagRemoval(ID _componentID)
 {
-	lookUpList[_componentID]->alive = false;
+	lookUpList[_componentID]->flags = (lookUpList[_componentID]->flags & (~COMP_FLAG_ALIVE) & (~COMP_FLAG_VISIBLE));
 	toRemove.push_back(_componentID);
 }
 
@@ -156,7 +160,7 @@ BaseComponent* ComponentIterator::next()
 		pComponent = (BaseComponent*)current;
 		current = (void*)((char*)current + objectSize);
 		iterationSize += objectSize;
-	} while (!pComponent->alive);
+	} while (!(pComponent->flags & COMP_FLAG_VISIBLE));
 
 	return pComponent;
 }
