@@ -123,6 +123,9 @@
     <ClCompile Include="gameTraps\InitTraps.cpp">
       <Filter>Init</Filter>
     </ClCompile>
+    <ClCompile Include="gameWorld\WorldScenerySystems.cpp">
+      <Filter>World</Filter>
+    </ClCompile>
     <ClCompile Include="gamePowerups\PowerupSpawner.cpp">
       <Filter>Powerups</Filter>
     </ClCompile>
@@ -137,6 +140,9 @@
     </ClCompile>
     <ClCompile Include="gameGraphics\FakeStencilPipeline.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="gameWorld\InitWorldScenery.cpp">
+      <Filter>Init</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -405,6 +411,9 @@
     <ClInclude Include="gameTraps\InitTraps.h">
       <Filter>Init</Filter>
     </ClInclude>
+    <ClInclude Include="gameWorld\WorldScenerySystems.h">
+      <Filter>World</Filter>
+    </ClInclude>
     <ClInclude Include="gameGraphics\FakeStencilPipeline.h">
       <Filter>Graphics</Filter>
     </ClInclude>
@@ -428,6 +437,9 @@
     </ClInclude>
     <ClInclude Include="gameAudio\SoundIncludes">
       <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="gameWorld\InitWorldScenery.h">
+      <Filter>Init</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

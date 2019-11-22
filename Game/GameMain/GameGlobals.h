@@ -21,6 +21,7 @@ enum GAME_OBJECT_TYPES
 	GAME_OBJECT_TYPE_GIANTSKULL,
 	GAME_OBJECT_TYPE_TOWER,
 	GAME_OBJECT_TYPE_WINTERTREE,
+	
 
 	/*
 		Living things
@@ -85,6 +86,13 @@ enum GAME_OBJECT_TYPES
 	GAME_OBJECT_TYPE_MESH_END,
 
 	/*
+		World scenery
+	*/
+
+	GAME_OBJECT_TYPE_WORLD_SCENE_OFFSET_TAG, // When adding more, add WORLD_SCENERY_TYPE_COUNT
+	GAME_OBJECT_TYPE_WORLD_SCENE_SHARK,
+
+	/*
 		Powerups
 	*/
 
@@ -107,6 +115,8 @@ constexpr int WEAPON_TYPE_COUNT = 1; // Number of different weapon types to be r
 constexpr int POWERUP_TYPE_COUNT = 1; // Number of different weapon types to be rendered
 
 constexpr int SCENE_OBJECT_ENUM_OFFSET = GAME_OBJECT_TYPE_SCENE_OBJECT + 1;
+
+constexpr int WORLD_SCENERY_TYPE_COUNT = 1;
 
 /* MESH QUICK VALUES */
 constexpr int GAME_OBJECT_TYPE_MESH_START = GAME_OBJECT_TYPE_BARREL_STONES;

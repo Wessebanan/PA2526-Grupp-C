@@ -887,6 +887,111 @@ namespace ecs
 		}
 #pragma endregion SSAORenderSystem
 
+#pragma region WorldSceneRenderSystem
+		WorldSceneRenderSystem::WorldSceneRenderSystem()
+		{
+			updateType = SystemUpdateType::MultiEntityUpdate;
+			typeFilter.addRequirement(components::WorldSceneryComponent::typeID);
+			typeFilter.addRequirement(components::TransformComponent::typeID);
+			typeFilter.addRequirement(components::ColorComponent::typeID);
+		}
+
+		WorldSceneRenderSystem::~WorldSceneRenderSystem()
+		{
+			//
+		}
+
+		void WorldSceneRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		{
+			/*
+				We don't know the order of entities EntityIterator, meaning that we can't expect
+				the entities to be ordered by mesh type like we want them to be in the RenderBuffer
+				(output of this function).
+
+				So, this function first calculate how many instances we have of each mesh. With this,
+				we can calculate from which index in the RenderBuffer we can start writing each mesh
+				to. Each mesh we care about in this function, that is tree, stone etc., has its own
+				index counter.
+			*/
+
+			mObjectCount = _entities.entities.size();
+
+			// Fetch pointer to write data to in RenderBuffer
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::WorldSceneRenderSystem::GetPerInstanceSize());
+
+			// Count how many instances we have per scene object mesh
+			ZeroMemory(mObjectTypeCount, WORLD_SCENERY_TYPE_COUNT * sizeof(UINT));
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::WorldSceneryComponent* p_obj_comp = object.getComponent<components::WorldSceneryComponent>();
+				mObjectTypeCount[p_obj_comp->sceneryType - (GAME_OBJECT_TYPE_WORLD_SCENE_OFFSET_TAG + 1)]++;
+			}
+
+			// Set index to write to in RenderBuffer, per mesh
+			UINT object_type_individual_index[WORLD_SCENERY_TYPE_COUNT] = { 0 };
+
+			for (int i = 1; i < WORLD_SCENERY_TYPE_COUNT; i++)
+			{
+				object_type_individual_index[i] = object_type_individual_index[i - 1] + mObjectTypeCount[i - 1];
+			}
+
+			// Iterate all objects and write their data to the RenderBuffer
+			for (FilteredEntity trap : _entities.entities)
+			{
+				components::WorldSceneryComponent* p_scenery_comp = trap.getComponent<components::WorldSceneryComponent>();
+				components::ColorComponent* p_color_comp = trap.getComponent<components::ColorComponent>();
+				components::TransformComponent* p_transform_comp = trap.getComponent<components::TransformComponent>();
+
+				// Get index, depending on mesh type
+				UINT& index = object_type_individual_index[p_scenery_comp->sceneryType - (GAME_OBJECT_TYPE_WORLD_SCENE_OFFSET_TAG + 1)];
+
+				/*
+					Create a world matrix out of the object's transform.
+					Place color of trap in the last element of the world
+					matrix. Color will be extracted in the shader.
+				*/
+
+				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
+				mpBuffer[index++].world._44 = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 255);
+			}
+
+			mInstanceLayout.pInstanceCountPerMesh = mObjectTypeCount;
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		}
+
+		void WorldSceneRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+		{
+			mpRenderMgr = pRenderMgr;
+
+			/*
+				Set up mesh region for all meshes that will be rendered.
+			*/
+			for (int i = 0; i < WORLD_SCENERY_TYPE_COUNT; i++)
+			{
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE(i + (GAME_OBJECT_TYPE_WORLD_SCENE_OFFSET_TAG + 1)));
+			}
+
+			mInstanceLayout.MeshCount = WORLD_SCENERY_TYPE_COUNT;
+			mInstanceLayout.pMeshes = mObjectMeshRegion;
+			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
+
+			const std::string vs = GetShaderFilepath("VS_Weapon.cso");
+			const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				systems::WorldSceneRenderSystem::GetPerInstanceSize());
+
+			mpRenderBuffer = pRenderBuffer;
+		}
+
+		uint32_t WorldSceneRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(WorldSceneRenderSystem::InputLayout);
+		}
+#pragma endregion WorldSceneRenderSystem
+
 #pragma region OutlineRenderSystem
 		OutlineRenderSystem::OutlineRenderSystem()
 		{
