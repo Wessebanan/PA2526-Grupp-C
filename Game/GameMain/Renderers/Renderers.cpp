@@ -1301,5 +1301,117 @@ namespace ecs
 			return sizeof(PowerupLootRenderSystem::InputLayout);
 		}
 #pragma endregion PowerupLootRenderSystem
+
+#pragma region DefaultRenderSystem
+		DefaultRenderSystem::DefaultRenderSystem()
+		{
+			updateType = SystemUpdateType::MultiEntityUpdate;
+			typeFilter.addRequirement(components::DefaultRenderObjectComponent::typeID);
+			typeFilter.addRequirement(components::TransformComponent::typeID);
+			typeFilter.addRequirement(components::ColorComponent::typeID);
+
+			mInstanceLayout = { 0 };
+		}
+
+		DefaultRenderSystem::~DefaultRenderSystem()
+		{
+			//
+		}
+
+		void DefaultRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
+		{
+			/*
+				We don't know the order of entities EntityIterator, meaning that we can't expect
+				the entities to be ordered by mesh type like we want them to be in the RenderBuffer
+				(output of this function).
+
+				So, this function first calculate how many instances we have of each mesh. With this,
+				we can calculate from which index in the RenderBuffer we can start writing each mesh
+				to. Each mesh we care about in this function, that is tree, stone etc., has its own
+				index counter.
+			*/
+
+
+			//// Count how many instances we have per scene object mesh
+			ZeroMemory(mInstancePerMesh, GAME_OBJECT_TYPE_COUNT * sizeof(UINT));
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::DefaultRenderObjectComponent* p_obj_comp = object.getComponent<components::DefaultRenderObjectComponent>();
+
+				mInstancePerMesh[p_obj_comp->type]++;
+			}
+
+			//// Fetch pointer to write data to in RenderBuffer
+			mObjectCount = _entities.entities.size();
+			//std::cout << mObjectCount << std::endl; //DEBUG PRINT
+			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::DefaultRenderSystem::GetPerInstanceSize());
+
+
+			// Set index to write to in RenderBuffer, per mesh
+			UINT object_type_individual_index[GAME_OBJECT_TYPE_COUNT] = { 0 };
+
+			for (int i = 1; i < GAME_OBJECT_TYPE_COUNT; i++)
+			{
+				object_type_individual_index[i] = object_type_individual_index[i - 1] + mInstancePerMesh[i - 1];
+			}
+
+			// Iterate all objects and write their data to the RenderBuffer
+			for (FilteredEntity object : _entities.entities)
+			{
+				components::ColorComponent* p_color_comp = object.getComponent<components::ColorComponent>();
+				components::TransformComponent* p_transform_comp = object.getComponent<components::TransformComponent>();
+				components::DefaultRenderObjectComponent* p_object_comp = object.getComponent<components::DefaultRenderObjectComponent>();
+				
+				UINT& index = object_type_individual_index[p_object_comp->type];
+
+				DirectX::XMMATRIX world = UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp);
+
+				XMStoreFloat4x4(&mpBuffer[index].world, world);
+				mpBuffer[index].world._44 = PACK(p_color_comp->red, p_color_comp->green, p_color_comp->blue, 0);
+
+				index++;
+			}
+
+			mInstanceLayout.MeshCount				= GAME_OBJECT_TYPE_COUNT;
+			mInstanceLayout.pInstanceCountPerMesh	= mInstancePerMesh;
+
+			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
+		}
+
+		void DefaultRenderSystem::Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer)
+		{
+			mpRenderMgr = pRenderMgr;
+
+			for (UINT i = 0; i < GAME_OBJECT_TYPE_COUNT; i++)
+			{
+				mObjectMeshRegion[i] = MeshContainer::GetMeshGPU(i);
+			}
+			mInstanceLayout.pMeshes = mObjectMeshRegion;
+
+			/*
+				Add new meshes here
+
+				Use 'mMap' to map scene object to scene mesh
+				Use 'mColors' to apply color to each mesh (colors will not differ between same scene object)
+			*/
+
+			// End
+
+			const std::string vs = GetShaderFilepath("VS_Weapon.cso");
+			const std::string ps = GetShaderFilepath("PS_Default.cso");
+
+			mRenderProgram = mpRenderMgr->CreateShaderProgram(
+				vs.c_str(),
+				ps.c_str(),
+				systems::DefaultRenderSystem::GetPerInstanceSize());
+
+			mpRenderBuffer = pRenderBuffer;
+		}
+
+		uint32_t DefaultRenderSystem::GetPerInstanceSize()
+		{
+			return sizeof(InputLayout);
+		}
+#pragma endregion DefaultRenderSystem
 	}
 }
