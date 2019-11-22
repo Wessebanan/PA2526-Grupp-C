@@ -268,7 +268,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		}
 		{
 			ecs::events::PlayMusic m_event;
-			m_event.audioName = AudioName::CC_TEST_SONG;
+			m_event.audioName = AudioName::SOUND_cc_song;
 			createEvent(m_event);
 		}
 		{
