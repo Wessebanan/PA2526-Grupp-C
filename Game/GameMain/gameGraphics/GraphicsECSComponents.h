@@ -7,6 +7,7 @@
 #include "RenderBuffer.h"
 #include "ShadowMapPipeline.h"
 #include "ForwardRenderingPipeline.h"
+#include "FakeStencilPipeline.h"
 
 namespace ecs
 {
@@ -52,5 +53,6 @@ namespace ecs
 			graphics::FORWARD_RENDERING_PIPELINE_DATA data;
 			UINT pipeline;
 		};
+
 	}
 }

@@ -53,7 +53,7 @@ namespace ecs
 			components::FallingWeaponComponent falling_comp;			
 
 			weapon_transform_comp.position = tile_position;
-			weapon_transform_comp.position.y += 20.2f; // Default position right above the tile. No rotation per default. Default default.
+			weapon_transform_comp.position.y += 20.2f; // Default position right above the tile up in the air. No rotation per default. Default default.
 
 			//weapon_comp.mType = r_spawn_event.weaponType = GAME_OBJECT_TYPE_WEAPON_BOMB;			
 			weapon_comp.mType = r_spawn_event.weaponType;			
@@ -115,7 +115,35 @@ namespace ecs
 			falling_comp.mPosYOffset = weapon_offset_y;
 			falling_comp.mPosY = tile_position.y;
 
-			createEntity(weapon_transform_comp, weapon_color_comp, weapon_dyn_move_comp, falling_comp, weapon_comp);
+			/*CAREPACKAGE ENTITY*/
+			/*MIGHT WANT IT BACK LATER*/
+			//components::TransformComponent cp_transform;
+			//cp_transform.position = weapon_transform_comp.position;
+			//cp_transform.scale = { 1.0f, 1.0f, 1.0f };
+			//components::DefaultRenderObjectComponent dro_comp;
+			//dro_comp.type = GAME_OBJECT_TYPE_BOX;
+			//components::ColorComponent color_comp;
+			//color_comp.red = 101.0f;
+			//color_comp.green = 67.0f;
+			//color_comp.blue = 33.0f;
+			//components::DynamicMovementComponent dyn_move_comp;
+			//Entity* carepackage_entity = ECSUser::createEntity(cp_transform, dro_comp, color_comp, dyn_move_comp);
+			//falling_comp.mCarepackageId = carepackage_entity->getID();
+			
+			//Create the Weapon entity.
+			ecs::BaseComponent* components[] =
+			{
+				&weapon_transform_comp, 
+				&weapon_color_comp, 
+				&weapon_comp, 
+				&weapon_dyn_move_comp, 
+				&falling_comp, 
+			};
+			ecs::ComponentList list;
+			list.initialInfo = components;
+			list.componentCount = 5;
+				
+			createEntity(list);
 		}
 
 
@@ -254,7 +282,10 @@ namespace ecs
 		{
 			TransformComponent* p_weapon_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(entity.entity->getID());
 			FallingWeaponComponent* p_falling_weapon = ECSUser::getComponentFromKnownEntity<FallingWeaponComponent>(entity.entity->getID());
-		
+			//Carepackage stuff.
+			//TransformComponent* p_carepackage_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_falling_weapon->mCarepackageId);
+
+			
 			if (p_weapon_transform->position.y < p_falling_weapon->mPosY + p_falling_weapon->mPosYOffset)
 			{
 				//Set the tile to a loot tile so that units can loot the weapon
@@ -265,6 +296,8 @@ namespace ecs
 				//Remove the movement component and the falling component from the weapon
 				ECSUser::removeComponent(entity.entity->getID(), DynamicMovementComponent::typeID);
 				ECSUser::removeComponent(entity.entity->getID(), FallingWeaponComponent::typeID);
+				//Remove the carepackage
+				//ECSUser::removeEntity(p_falling_weapon->mCarepackageId);
 
 				/* Spawn Smoke Emitter At Sword Spawn */
 				components::ParticleSpawnerComponent spawner;
@@ -284,7 +317,11 @@ namespace ecs
 			else
 			{
 				//Rotate the weapon while falling.
-				p_weapon_transform->rotation.x += 0.2f;
+				p_weapon_transform->rotation.x += 10.0f * delta;
+				p_weapon_transform->rotation.z += 10.0f * delta;
+
+				//Rotate carepackage, might want it later.
+				//p_carepackage_transform->rotation.x += 0.2f;
 			}
 		}
 	}

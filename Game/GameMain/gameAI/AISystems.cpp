@@ -1167,6 +1167,7 @@ ecs::systems::RemoveDeadUnitsSystem::RemoveDeadUnitsSystem()
 {
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(DeadComponent::typeID);
+	typeFilter.addRequirement(UnitComponent::typeID);
 }
 
 ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()

@@ -107,7 +107,6 @@ namespace ecs
 			p_mgr->mgr.UpdatePipeline(p_pipeline->pipeline, &p_pipeline->data);
 		}
 
-
 		ClearGPURenderSystem::ClearGPURenderSystem()
 		{
 			updateType = EntityUpdate;
@@ -129,6 +128,7 @@ namespace ecs
 			p_render_mgr->mgr.ClearPipeline(p_pipeline_shadow_map->pipeline);
 			p_render_mgr->mgr.ClearPipeline(p_pipeline_forward->pipeline);
 		}
+
 
 		ExecuteGPURenderSystem::ExecuteGPURenderSystem()
 		{
@@ -169,6 +169,11 @@ namespace ecs
 
 			// Render To Color Buffer
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
+			
+
+
 		}
-	}
+
+
+}
 }

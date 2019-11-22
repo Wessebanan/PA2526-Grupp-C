@@ -8,9 +8,9 @@ namespace ecs
 	{
 		struct PlaySound : public ECSEvent<PlaySound>
 		{
-			AudioName audioName;
-			SoundFlags soundFlags;
-			ID invokerEntityId;
+			AudioName audioName = (AudioName)0;
+			SoundFlags soundFlags = (SoundFlags)0;
+			ID invokerEntityId = 0;
 		};
 		struct PlayMusic : public ECSEvent<PlayMusic>
 		{

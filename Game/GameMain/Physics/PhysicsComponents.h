@@ -224,6 +224,7 @@ namespace ecs
 			float mPosYOffset;
 			ID mTileId;
 			XMFLOAT3 rotation;
+			ID mCarepackageId;
 		};
 	} // components
 } // ecs
