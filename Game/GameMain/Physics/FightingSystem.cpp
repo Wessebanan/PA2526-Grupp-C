@@ -276,6 +276,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	{
 		// DAMAGE
 
+		// Equipment component used for damage multiplier
+		EquipmentComponent* equipment_component = getComponentFromKnownEntity<EquipmentComponent>(unit_entity->getID());
 		// Calculating velocity on weapon.
 		float movement = CalculateDistance(weapon_component->mPreviousPos, weapon_bv->GetCenter());
 		float velocity = movement / _delta;
@@ -284,11 +286,12 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		velocity = (std::min)(5.0f, velocity);
 
 		// Calculating damage by multiplying weapon velocity and the base damage.
-		float damage = velocity * weapon_component->mBaseDamage;
+		float damage = velocity * weapon_component->mBaseDamage * equipment_component->mAttackMultiplier;
 
 		HealthComponent *collided_constitution = getComponentFromKnownEntity<HealthComponent>(collided_unit);
 
 		collided_constitution->mHealth -= damage;
+		collided_constitution->mHitBy = unit_entity->getID();
 		
 		// INVINCIBILITY
 		// (based on damage dealt)
@@ -320,6 +323,9 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			death_sound_event.audioName = AudioName::SOUND_scream;
 			death_sound_event.invokerEntityId = collided_unit;
 			createEvent(death_sound_event); // Play death sound
+
+			// If we only want to give kill reward on killing blows put that code here
+
 		}
 		else
 		{
