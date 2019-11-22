@@ -1249,6 +1249,8 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		EquipmentComponent* killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
 		UnitScalePercent* killer_add_scale = getComponentFromKnownEntity<UnitScalePercent>(killer_id);
 		killer_health->mHealth += killer_health->mBaseHealth * HEALTH_REWARD;
+		if (killer_health->mHealth > 100.f)
+			killer_health->mHealth = 100.f;
 		killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
 		killer_equipment->mAttackRange		*= SIZE_REWARD;
 		killer_equipment->mMeleeRange		*= SIZE_REWARD;
