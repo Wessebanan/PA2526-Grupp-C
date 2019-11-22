@@ -110,10 +110,10 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		weapon_component->mBoundingVolume = new Sphere;
 		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
 		sphere->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-		sphere->Radius = BOMB_BLAST_RADIUS;
+		sphere->Radius = BOMB_PICKUP_RADIUS;
 
 		// TODO: Get arm length and set to attack range.
-		weapon_component->mWeaponRange = BOMB_START_ATTACK_RANGE;
+		weapon_component->mWeaponRange = BOMB_ATTACK_RANGE;
 
 		weapon_component->mBaseDamage = BASE_BOMB_DAMAGE;
 
@@ -299,6 +299,11 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		}
 
 		equipment_component->mAttackRange = equipment_component->mMeleeRange + weapon_component->mWeaponRange;
+
+		if (weapon_component->mType == GAME_OBJECT_TYPE_WEAPON_BOMB)
+		{
+			static_cast<Sphere*>(weapon_component->mBoundingVolume)->Radius = TO_UNIT_SCALE(BOMB_ATTACK_RANGE);
+		}
 
 		equipment_component->mEquippedWeapon = weapon->getID();
 		weapon_component->mOwnerEntity = collided_unit;
@@ -541,9 +546,20 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 			const XMVECTOR unit_position = XMLoadFloat3(&p_unit_transform->position);
 			const XMVECTOR unit_weapon_v = unit_position - weapon_position;
 			const float unit_weapon_dist = XMVectorGetX(XMVector3Length(unit_weapon_v));
+			
+			/*
+				Impact:
+					 = 1.0f : At Bomb
+					>= 0.0f : Within Range
+					<  0.0f : Not within range
 
-			// if within proximity add dmg and knockback to unit (everyone affected)
-			if (unit_weapon_dist <= hit_event.Range)
+				Can be used to decrease dmg and knockback with distance
+			*/
+			const float impact = (hit_event.Range - unit_weapon_dist) / hit_event.Range;
+
+
+			// if unit will receive impact (Looks at all units)
+			if (impact >= 0.0f)
 			{
 				// Calculating damage by multiplying weapon velocity and the base damage.
 				const float damage = hit_event.Damage;

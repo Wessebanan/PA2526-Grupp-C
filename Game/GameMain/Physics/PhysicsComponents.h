@@ -8,6 +8,17 @@
 
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
+
+/*
+	TO_UNIT_SCALE (x)
+	
+	Unit applies 0.1 scale to weapon's bounding volume to fit in hand
+
+	'x' is defined in world space but will be projected onto unit scale
+	Does ONLY apply to weapon when hitting other units
+*/
+#define TO_UNIT_SCALE(x) (x / 0.1f)  
+
 // A bunch of default values.
 constexpr float DEFAULT_MOVEMENT_FORCE	= 300.0f;
 constexpr float DEFAULT_DECELERATION	= 200.0f;
@@ -29,9 +40,12 @@ constexpr float SWORD_KNOCKBACK			= 1.0f;
 constexpr float FIST_KNOCKBACK			= 0.5f;
 constexpr float BOMB_KNOCKBACK			= 200.0f;
 
-constexpr float BOMB_START_ATTACK_RANGE = 1.0f;
-
-constexpr float BOMB_BLAST_RADIUS		= 6.0f; // Also pick-up radius
+/* 
+	BOMB SPECIFIC CONSTANTS 
+*/
+constexpr float BOMB_ATTACK_RANGE	= 0.3f;	// Activation Range
+constexpr float BOMB_BLAST_RADIUS	= 8.0f;	// Blast Radius
+constexpr float BOMB_PICKUP_RADIUS	= 1.0f;	// Pick-up Radius
 
 constexpr float BASE_INVINCIBILITY_TIME = 0.2f;
 

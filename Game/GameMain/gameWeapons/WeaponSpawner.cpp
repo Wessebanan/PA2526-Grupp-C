@@ -50,21 +50,21 @@ namespace ecs
 			components::WeaponComponent weapon_comp;
 			components::ColorComponent weapon_color_comp;
 			components::DynamicMovementComponent weapon_dyn_move_comp;
-			components::FallingWeaponComponent falling_comp;
-			falling_comp.mTileId = r_spawn_event.spawnTileId;
-			falling_comp.mPosYOffset = 1.0f;
-			falling_comp.mPosY = tile_position.y;
-			
+			components::FallingWeaponComponent falling_comp;			
 
 			weapon_transform_comp.position = tile_position;
 			weapon_transform_comp.position.y += 20.2f; // Default position right above the tile. No rotation per default. Default default.
 
-			//weapon_comp.mType = GAME_OBJECT_TYPE_WEAPON_BOMB;			
+			//weapon_comp.mType = r_spawn_event.weaponType = GAME_OBJECT_TYPE_WEAPON_BOMB;			
 			weapon_comp.mType = r_spawn_event.weaponType;			
 
 			/*
 				Check weapon type and set specific values for that type.
 			*/
+
+			
+			float weapon_offset_y = 0.f; // How far above the tile the weapon should be at pick-up stage 
+			weapon_transform_comp.scale = XMFLOAT3(0.1f, 0.1f, 0.1f); // To have same scale as when picked up
 
 			switch (r_spawn_event.weaponType)
 			{
@@ -76,11 +76,13 @@ namespace ecs
 					- Emil 2019
 				*/
 
-				weapon_transform_comp.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
-				weapon_transform_comp.position.y += 0.7f;
+				//weapon_transform_comp.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
+				weapon_offset_y = 0.7f;
+
+				// Set Rotation when at pick-up stage
 				weapon_transform_comp.rotation.x -= 3.14f * 0.4f;
 				weapon_transform_comp.rotation.y += 3.14f * 0.3f;
-				falling_comp.rotation = weapon_transform_comp.rotation;
+				
 
 				weapon_color_comp.red = 200;
 				weapon_color_comp.green = 130;
@@ -91,10 +93,7 @@ namespace ecs
 
 			case GAME_OBJECT_TYPE_WEAPON_BOMB:
 			{
-				weapon_transform_comp.scale = XMFLOAT3(0.5f, 0.5f, 0.5f);
-				weapon_transform_comp.position.y += 0.7f;/*
-				weapon_transform_comp.rotation.x -= 3.14f * 0.4f;
-				weapon_transform_comp.rotation.y += 3.14f * 0.3f;*/
+				weapon_offset_y = 0.05f;
 
 				weapon_color_comp.red = 200;
 				weapon_color_comp.green = 130;
@@ -111,7 +110,12 @@ namespace ecs
 			}
 			}
 
-			createEntity(weapon_transform_comp, weapon_color_comp, weapon_comp, weapon_dyn_move_comp, falling_comp);
+			falling_comp.rotation = weapon_transform_comp.rotation;
+			falling_comp.mTileId = r_spawn_event.spawnTileId;
+			falling_comp.mPosYOffset = weapon_offset_y;
+			falling_comp.mPosY = tile_position.y;
+
+			createEntity(weapon_transform_comp, weapon_color_comp, weapon_dyn_move_comp, falling_comp, weapon_comp);
 		}
 
 
