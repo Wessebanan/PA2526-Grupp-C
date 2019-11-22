@@ -235,7 +235,8 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		InputBackendComp* p_ib;
 		while (p_ib = (InputBackendComp*)itt.next())
 		{
-			p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
+			// Sets the users layout on join
+			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
 		}
 
 	}
