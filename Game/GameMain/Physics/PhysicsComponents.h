@@ -5,6 +5,7 @@
 #include <DirectXCollision.h>
 #include "BoundingVolume.h"
 #include "../GameGlobals.h"
+#include "..//MeshContainer/MeshContainer.h"
 
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
@@ -70,18 +71,6 @@ namespace ecs
 		};
 
 		/*
-		* BoundingSphereComponent holds a description
-		* of a bounding sphere, which is necessary
-		* to calculate collision. Any entity that
-		* should check collision needs this.
-		*/
-		COMP(BoundingSphereComponent)
-		{
-			DirectX::XMFLOAT3 mCenter;
-			float mRadius;
-		};
-
-		/*
 		* GroundCollisionComponent is an OBB which only checks
 		* against the ground plane for collision. Not using lowest
 		* point as objects may rotate which requires recalculation 
@@ -104,10 +93,9 @@ namespace ecs
 		*/
 		COMP(ObjectCollisionComponent)
 		{
-			AABB mAABB;
-
-			Sphere *mSpheres = nullptr;
-			unsigned int mSphereCount = 0;
+			BoundingVolume * mBV		= nullptr;
+			BV_TYPE mBvType				= COLLISION_ERROR;
+			GAME_OBJECT_TYPES mObjType	= GAME_OBJECT_TYPE_MESH_ERROR;
 
 			// States if the last movement resulted in collision
 			// and needs to be reverted.
@@ -115,9 +103,9 @@ namespace ecs
 
 			~ObjectCollisionComponent()
 			{
-				if (mSpheres)
+				if (mBV)
 				{
-					delete[] mSpheres;
+					delete mBV;
 				}
 			}
 		};

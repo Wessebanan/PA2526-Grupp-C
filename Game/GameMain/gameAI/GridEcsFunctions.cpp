@@ -24,6 +24,10 @@ namespace GridEcsFunctions
 		TransformComponent transform;
 		ColorComponent color;
 		TileComponent tile;
+		ObjectCollisionComponent collision;
+		collision.mBvType = COLLISION_CYLINDER;
+		collision.mObjType = GAME_OBJECT_TYPE_TILE;
+
 		ecs::Entity* current_tile;
 
 		const int mapsze = MAX_ARENA_ROWS*MAX_ARENA_ROWS; // Max size
@@ -95,7 +99,7 @@ namespace GridEcsFunctions
 
 				components::IsletComponent islet_comp_info;
 
-				current_tile = rEcs.createEntity(transform, color, tile);
+				current_tile = rEcs.createEntity(transform, color, tile, collision);
 
 				// Check if islet
 				for (size_t k = 0; k < islet_coordinates.size(); k++)

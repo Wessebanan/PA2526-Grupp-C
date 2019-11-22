@@ -109,6 +109,8 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(5000);
 	ecs.reserveComponentCount<ecs::components::TrapComponent>(400);
+	ecs.reserveComponentCount<ecs::components::ObjectCollisionComponent>(500);
+
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -245,6 +247,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitInput(rECS);
 	InitInterpreter(rECS);
 
+	InitPhysics(rECS);
 	InitGrid(rECS);
 	InitArmy(rECS);
 	InitSceneObjects(rECS);
@@ -255,7 +258,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitCamera(rECS);
 
 	InitAnimation(rECS);
-	InitPhysics(rECS);
 
 	InitGameLoop(rECS);
 
