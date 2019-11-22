@@ -466,6 +466,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 
 			ecs::components::SkeletonComponent skele_comp;
 			ecs::components::AnimationSpeedComponent ani_speed_comp;
+			ecs::components::UnitScalePercent unit_scale_comp;
 			ani_speed_comp.factor = 1.0f;
 
 			//ModelLoader::UniqueSkeletonData* skeletonData = &s.getComponent<ecs::components::SkeletonComponent>()->skeletonData;
@@ -479,13 +480,14 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 				&idle_state, 
 				&color_comp, 
 				&skele_comp, 
-				&ani_speed_comp
+				&ani_speed_comp,
+				&unit_scale_comp
 			};
 
 			ecs::ComponentList list;
 
 			list.initialInfo = components;
-			list.componentCount = 6;
+			list.componentCount = 7;
 
 			//// ENTITIES
 			temp_entity = createEntity(list);
