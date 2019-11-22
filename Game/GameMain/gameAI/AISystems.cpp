@@ -1131,6 +1131,23 @@ void ecs::systems::AttackStateSystem::updateEntity(FilteredEntity& entity, float
 	{
 		//Fetch the enemy units data
 		p_enemy_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_enemy_entity->getID());
+		XMFLOAT3 direction;
+		direction.x = p_enemy_unit_transform->position.x - p_current_unit_transform->position.x;
+		direction.y = p_enemy_unit_transform->position.y - p_current_unit_transform->position.y;
+		direction.z = p_enemy_unit_transform->position.z - p_current_unit_transform->position.z;
+		XMVECTOR dir_vec = XMLoadFloat3(&direction);
+		dir_vec = XMVector3Normalize(dir_vec);
+		XMStoreFloat3(&direction, dir_vec);
+		// NOTE: No way of finding default direction of mesh so it's hard coded.
+		XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
+		XMFLOAT3* movement_forward = &direction;
+
+		// Finding the angle between default forward and enemy direction.
+		XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
+
+		// Using Sign to find if the angle is negative or positive relative to default forward.
+		p_current_unit_transform->rotation.y = -Sign(movement_forward->x) * acos(XMVectorGetX(cos_angle));
+
 		//Calculate distance to the enemy unit
 		distance = PhysicsHelpers::CalculateDistance(p_current_unit_transform->position, p_enemy_unit_transform->position);
 		//If the enemy is not within attack range remove attack component
