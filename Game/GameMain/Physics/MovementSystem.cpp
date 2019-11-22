@@ -182,7 +182,7 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	transform_component->position.z += movement_component->mVelocity.z * _delta;
 
 	//If the unit is bellow -0.9 in y we know that the unit is on a water tile. Kill the unit.
-	if (transform_component->position.y - transform_component->scale.y * unit_scale->UnitScale <= -1.0f)
+	if (transform_component->position.y - transform_component->scale.y * unit_scale->UnitScale <= -1.0f && _entityInfo.entity->hasComponentOfType<UnitComponent>())
 	{
 		DeadComponent dead_comp;
 		dead_comp.cause = DeadComponent::CAUSE_DROWNING;

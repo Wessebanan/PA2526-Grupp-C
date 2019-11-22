@@ -72,7 +72,7 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				// TEMP GROUND HIT SOUND
 				ecs::events::PlaySound sound_event;
-				sound_event.audioName = AudioName::COIN_TEST_SOUND;
+				sound_event.audioName = AudioName::SOUND_coin;
 				sound_event.soundFlags = SoundFlags::SF_NONE;
 				sound_event.invokerEntityId = _entityInfo.entity->getID();
 				createEvent(sound_event);
@@ -106,6 +106,21 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				p_player_state_comp->mCurrentStates[i] = STATE::FLEE;
 
 				createEvent(cus_event);
+
+				// USED FOR TESTING DEBUGGING
+				//events::TriggerFireTrapEvent trap_event;
+
+				//ComponentIterator itt;
+				//itt = getComponentsOfType<UnitComponent>();
+				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//createEvent(trap_event);
+				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//createEvent(trap_event);
+				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//createEvent(trap_event);
+
+
+
 			}
 		}
 	}

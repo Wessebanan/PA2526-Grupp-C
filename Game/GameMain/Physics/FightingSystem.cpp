@@ -250,7 +250,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		{
 			ecs::events::PlaySound sound;
-			sound.audioName = AudioName::ITEM_GET_SOUND;
+			sound.audioName = AudioName::SOUND_get_item;
 			sound.soundFlags = SF_NONE;
 			sound.invokerEntityId = 0;
 			createEvent(sound);
@@ -320,7 +320,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			ecs::ECSUser::createComponent(collided_constitution->getEntityID(), dead_comp);
 			ecs::events::PlaySound death_sound_event;
 			death_sound_event.soundFlags = SF_NONE;
-			death_sound_event.audioName = AudioName::SCREAM_SOUND;
+			death_sound_event.audioName = AudioName::SOUND_scream;
 			death_sound_event.invokerEntityId = collided_unit;
 			createEvent(death_sound_event); // Play death sound
 
@@ -333,9 +333,9 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			damage_sound_event.soundFlags = SF_NONE;
 			float choose_hurt_sound = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 			if(choose_hurt_sound <= 0.4999999f)
-				damage_sound_event.audioName = AudioName::GRUNT_HURT_1_SOUND;
+				damage_sound_event.audioName = AudioName::SOUND_grunt1;
 			else
-				damage_sound_event.audioName = AudioName::GRUNT_HURT_2_SOUND;
+				damage_sound_event.audioName = AudioName::SOUND_grunt2;
 			damage_sound_event.invokerEntityId = collided_unit;
 			createEvent(damage_sound_event); // Play damage sound
 		}
