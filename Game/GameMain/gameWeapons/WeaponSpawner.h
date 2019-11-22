@@ -44,7 +44,8 @@ namespace ecs
 		private:
 
 			float mSpawnTimer;
-			const float SPAWN_RADIUS = 7.f;
+			const float SPAWN_OUTER_RADIUS = 8.f;
+			const float SPAWN_INNER_RADIUS = 5.f;
 			const float COOLDOWN_BASE_TIME = 9;
 			const int COOLDOWN_TIME_VARIANCE = 3;
 
@@ -54,6 +55,21 @@ namespace ecs
 			GAME_OBJECT_TYPE GetRandomWeaponType();
 			void ResetSpawnTimer();
 
+		};
+
+		/*
+			A system that removes the dynamic movement component from the weapon once it reaches its tile and 
+			set its correct y-position and rotation according to the tile.
+		*/
+		class FallingWeaponSystem : public ECSSystem<FallingWeaponSystem>
+		{
+		public:
+			FallingWeaponSystem();
+			virtual ~FallingWeaponSystem();
+
+			//Update function that prints the center position of every tile in the order they 
+			//were created.
+			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 	}
 }

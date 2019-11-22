@@ -123,14 +123,6 @@ namespace ecs
 		};
 
 		/*
-		* Temporary mesh component to test with ECS.
-		*/
-		COMP(MeshComponent)
-		{
-			ModelLoader::Mesh *mMesh;
-		};
-		
-		/*
 		* Holds weapon type (SWORD, PROJECTILE etc.), unspecified bounding volume,
 		* previous position for damage calculation on impact and base damage specific
 		* to a weapon.
@@ -198,6 +190,19 @@ namespace ecs
 		COMP(InvincilibityTimer)
 		{
 			float mTime;
+		};
+
+		/*
+		* Holds the tile ID and tile Y-pos that the weapon should fall to.
+		*/
+		COMP(FallingWeaponComponent)
+		{
+			//I'm important! Please don't remove me Baka Master-senpai!
+			float mPosY;
+			float mPosYOffset;
+			ID mTileId;
+			XMFLOAT3 rotation;
+			ID mCarepackageId;
 		};
 	} // components
 } // ecs

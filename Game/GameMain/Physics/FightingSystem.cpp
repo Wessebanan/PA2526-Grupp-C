@@ -1,6 +1,7 @@
 #include "FightingSystem.h"
 #include "GridProp.h"
 #include "GridFunctions.h"
+#include "../MeshContainer/MeshContainer.h"
 
 #pragma region WeaponInitSystem
 ecs::systems::WeaponInitSystem::WeaponInitSystem()
@@ -26,28 +27,16 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		return;
 	}
 
-	Entity* entity = getEntity(create_component_event->entityID);
-
-	if (!entity->hasComponentOfType(MeshComponent::typeID))
-	{
-		return;
-	}
+	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(create_component_event->entityID);
+	
 	// Need transform component for scaling attack range.
-	if (!entity->hasComponentOfType(TransformComponent::typeID))
+	if (!transform_component)
 	{
 		return;
 	}
-
-	MeshComponent* mesh_component = getComponentFromKnownEntity<MeshComponent>(entity->getID());
-	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity->getID());
-	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(entity->getID());
+	
+	WeaponComponent* weapon_component = getComponent<WeaponComponent>(create_component_event->componentID);
 	std::vector<XMFLOAT3>* vertices = nullptr;
-
-	// Fist has no mesh.
-	if (weapon_component->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
-	{
-		vertices = mesh_component->mMesh->GetVertexPositionVector();
-	}
 
 	switch (weapon_component->mType)
 	{
@@ -56,6 +45,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	// outside of the OBB.
 	case GAME_OBJECT_TYPE_WEAPON_SWORD:
 	{
+		vertices = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPES::GAME_OBJECT_TYPE_WEAPON_SWORD)->GetVertexPositionVector();
 		weapon_component->mBoundingVolume = new OBB;
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
 		obb->CreateFromPoints(*(BoundingOrientedBox*)obb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
@@ -118,6 +108,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 	WeaponComponent* weapon_component = getComponentFromKnownEntity<WeaponComponent>(weapon->getID());
 	TransformComponent* weapon_transform_component = getComponentFromKnownEntity<TransformComponent>(weapon->getID());
+	
+	// If the owner unit does not have an attack state component, return.
 	Entity* unit_entity = ECSUser::getEntity(weapon_component->mOwnerEntity);
 	if (unit_entity != nullptr)
 	{
@@ -126,6 +118,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			return;
 		}
 	}
+	
 	
 
 	// FILL OUT WITH OTHER WEAPONS LATER
@@ -236,7 +229,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 	// If a unit collides with an unowned weapon, set colliding unit to weapon owner
 	// and colliding unit equipment to weapon.
-	if (weapon_component->mOwnerEntity == 0 && intersect)
+	if (unit_entity == nullptr && intersect)
 	{
 		EquipmentComponent *equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
 		if (equipment_component->mEquippedWeapon != 0)
@@ -257,7 +250,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		{
 			ecs::events::PlaySound sound;
-			sound.audioName = AudioName::ITEM_GET_SOUND;
+			sound.audioName = AudioName::SOUND_get_item;
 			sound.soundFlags = SF_NONE;
 			sound.invokerEntityId = 0;
 			createEvent(sound);
@@ -324,7 +317,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			ecs::ECSUser::createComponent(collided_constitution->getEntityID(), dead_comp);
 			ecs::events::PlaySound death_sound_event;
 			death_sound_event.soundFlags = SF_NONE;
-			death_sound_event.audioName = AudioName::SCREAM_SOUND;
+			death_sound_event.audioName = AudioName::SOUND_scream;
 			death_sound_event.invokerEntityId = collided_unit;
 			createEvent(death_sound_event); // Play death sound
 		}
@@ -334,9 +327,9 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 			damage_sound_event.soundFlags = SF_NONE;
 			float choose_hurt_sound = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 			if(choose_hurt_sound <= 0.4999999f)
-				damage_sound_event.audioName = AudioName::GRUNT_HURT_1_SOUND;
+				damage_sound_event.audioName = AudioName::SOUND_grunt1;
 			else
-				damage_sound_event.audioName = AudioName::GRUNT_HURT_2_SOUND;
+				damage_sound_event.audioName = AudioName::SOUND_grunt2;
 			damage_sound_event.invokerEntityId = collided_unit;
 			createEvent(damage_sound_event); // Play damage sound
 		}

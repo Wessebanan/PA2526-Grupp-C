@@ -36,6 +36,7 @@ namespace ecs
 		struct TriggerSpringTrapEvent : public ecs::ECSEvent<TriggerSpringTrapEvent>
 		{
 			TypeID unitID;
+			TypeID tileID;
 		};
 
 	}

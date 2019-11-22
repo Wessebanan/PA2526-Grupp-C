@@ -52,7 +52,6 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 	GridProp* g_prop = GridProp::GetInstance();
 	TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
 	TransformComponent* goal_transform = nullptr;
-	//start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
 	start_tile = this->GetClosestTile(*p_transfrom);
 	unsigned int start_tile_id = g_prop->mGrid[start_tile.y][start_tile.x].Id;
 	unsigned int goal_id = 0;
@@ -74,7 +73,6 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 		{
 			//Find the closest tile to the nearest enemy.
 			goal_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(goal_enemy_id);
-			//goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
 			goal_tile_index = this->GetClosestTile(*goal_transform);
 			//Check that the tile is traversable
 			if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
@@ -87,17 +85,17 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 	}
 	case STATE::LOOT:
 	{
+		
 		EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
 		WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
 		//Check if the unit have a weapon already. If so find a friendly unit without a weapon and follow that unit.
 		if (weapon_comp->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
 		{
-			goal_friend_id = this->FindClosestFriend(entity.entity);
+			goal_friend_id = this->FindClosestFriendWithoutWeapon(entity.entity);
 			if (goal_friend_id != 0)
 			{
-				//Find the closest tile to the nearest friend.
+				//Find the closest tile to the nearest friend without a weapon.
 				goal_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(goal_friend_id);
-				//goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
 				goal_tile_index = this->GetClosestTile(*goal_transform);
 				//Check that the tile is traversable
 				if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
@@ -125,6 +123,23 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 		//Find the safest tile in the arena
 		goal_id = FindSafeTile(entity.entity);
 		calc_path = true;
+		break;
+	}
+	case STATE::RALLY:
+	{
+		goal_friend_id = this->FindClosestFriend(entity.entity);
+		if (goal_friend_id != 0)
+		{
+			//Find the closest tile to the nearest friend.
+			goal_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(goal_friend_id);
+			goal_tile_index = this->GetClosestTile(*goal_transform);
+			//Check that the tile is traversable
+			if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
+			{
+				goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].Id;
+			}
+			calc_path = true;
+		}
 		break;
 	}
 	default:
@@ -159,6 +174,10 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 			FleeStateComponent flee_comp;
 			flee_comp.activeCommand = FLEE;
 			ECSUser::createComponent(entity.entity->getID(), flee_comp);
+		}
+		else if (move_comp.activeCommand == RALLY)
+		{
+			move_comp.goalID = goal_friend_id;
 		}
 		else
 		{
@@ -404,7 +423,7 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestEnemy(Entity* curr
 	return enemy_id;
 }
 
-unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(Entity* current_unit)
+unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriendWithoutWeapon(Entity* current_unit)
 {
 	//Initialize components and variables that we will need.
 	ComponentIterator ittr;
@@ -465,6 +484,61 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(Entity* cur
 	return friend_id;
 }
 
+unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(ecs::Entity* current_unit)
+{
+	//Initialize components and variables that we will need.
+	ComponentIterator ittr;
+	BaseComponent* p_base_component;
+	ArmyComponent* army_comp;
+	Entity* other_unit;
+	UnitComponent* curr_unit_comp = ECSUser::getComponentFromKnownEntity<UnitComponent>(current_unit->getID());
+	UnitComponent* other_unit_comp;
+	TransformComponent* curr_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(current_unit->getID());
+	TransformComponent* other_unit_transform;
+	float dist = 1000.0f;
+	float temp_dist = 0.0f;
+	unsigned int friend_id = 0;
+
+	//Fetch the army components of all the players
+	ittr = ECSUser::getComponentsOfType(ArmyComponent::typeID);
+	while (p_base_component = ittr.next())
+	{
+		army_comp = static_cast<ArmyComponent*>(p_base_component);
+		//Loop through every unit of the current army.
+		for (int i = 0; i < army_comp->unitIDs.size(); i++)
+		{
+			other_unit = ECSUser::getEntity(army_comp->unitIDs[i]);
+			//Check so that the unit still exists
+			if (other_unit != nullptr)
+			{
+				other_unit_comp = static_cast<UnitComponent*>(ECSUser::getComponentFromKnownEntity(UnitComponent::typeID, other_unit->getID()));
+				//Check so that the unit is part of the current units army.
+				if (other_unit_comp->playerID == curr_unit_comp->playerID)
+				{
+					if (other_unit->getID() != current_unit->getID())
+					{
+						other_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(other_unit->getID());
+						temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
+						//If the distance is smaller then the previously nearest friend we store the info of the new one.
+						if (temp_dist < dist && temp_dist)
+						{
+							dist = temp_dist;
+							friend_id = other_unit->getID();
+						}
+						
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+	//Return the nearest enemy units entity id.
+	return friend_id;
+}
+
 unsigned int ecs::systems::PathfindingStateSystem::FindSafeTile(Entity* current_unit)
 {
 	UnitComponent* p_current_unit_comp = ECSUser::getComponentFromKnownEntity<UnitComponent>(current_unit->getID());
@@ -483,20 +557,23 @@ unsigned int ecs::systems::PathfindingStateSystem::FindSafeTile(Entity* current_
 		if (p_current_tile->neighboursIDArray[i] != 0)
 		{
 			p_current_neighbour = ECSUser::getComponentFromKnownEntity<TileComponent>(p_current_tile->neighboursIDArray[i]);
-			for (int a = 0; a < 4; a++)
+			if (p_current_neighbour != nullptr) //Sanity Check
 			{
-				if (a != p_current_unit_comp->playerID)
+				for (int a = 0; a < 4; a++)
 				{
-					current_safe += p_current_neighbour->charges.armyCharges[a];
+					if (a != p_current_unit_comp->playerID)
+					{
+						current_safe += p_current_neighbour->charges.armyCharges[a];
+					}
 				}
+				//current_safe += p_current_neighbour->charges.hazardCharge;
+				if (current_safe < safest)
+				{
+					safest = current_safe;
+					goal_tile_id = p_current_tile->neighboursIDArray[i];
+				}
+				current_safe = 0.0f;
 			}
-			//current_safe += p_current_neighbour->charges.hazardCharge;
-			if (current_safe < safest)
-			{
-				safest = current_safe;
-				goal_tile_id = p_current_tile->neighboursIDArray[i];
-			}
-			current_safe = 0.0f;
 		}
 	}
 	return goal_tile_id;
@@ -513,16 +590,18 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestLootTile(Entity* c
 	float temp_dist = 0.0f;
 	unsigned int loot_id = 0;
 	GridProp* p_gp = GridProp::GetInstance();
-
-	for (int i = 0; i < p_gp->mLootTiles.size(); i++)
+	if (p_gp != nullptr) //Sanity check
 	{
-		loot_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mLootTiles[i]);
-		loot_tile = ECSUser::getComponentFromKnownEntity<TileComponent>(p_gp->mLootTiles[i]);
-		temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
-		if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
+		for (int i = 0; i < p_gp->mLootTiles.size(); i++)
 		{
-			dist = temp_dist;
-			loot_id = p_gp->mLootTiles[i];
+			loot_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mLootTiles[i]);
+			loot_tile = ECSUser::getComponentFromKnownEntity<TileComponent>(p_gp->mLootTiles[i]);
+			temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
+			if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
+			{
+				dist = temp_dist;
+				loot_id = p_gp->mLootTiles[i];
+			}
 		}
 	}
 
@@ -772,6 +851,10 @@ STATE ecs::systems::MoveStateSystem::CheckIfGoalIsMet(FilteredEntity& entity, fl
 		mMinimumDist = TILE_RADIUS / 2.0f;
 		returnState = STATE::LOOT;
 		break;
+	case STATE::RALLY:
+		mMinimumDist = TILE_RADIUS * 1.0f;
+		returnState = STATE::IDLE; 
+		break;
 	default:
 		mMinimumDist = TILE_RADIUS / 2.0f;
 		returnState = STATE::IDLE;
@@ -818,6 +901,7 @@ void ecs::systems::MoveStateSystem::SwitchState(FilteredEntity& entity, STATE ne
 		if (!entity.entity->hasComponentOfType(IdleStateComponent::typeID))
 		{
 			IdleStateComponent idle_state;
+			idle_state.activeCommand = IDLE;
 			ECSUser::createComponent(entity.entity->getID(), idle_state);
 		}
 	}
@@ -858,28 +942,34 @@ ID ecs::systems::MoveStateSystem::GetClosestTileId(TransformComponent& transform
 	ecs::Entity* p_curr_entity;
 	float dist = 1000.0f;
 	float temp_dist = 0.0f;
-	//Loop through every tile in the grid.
-	for (int x = 0; x < p_gp->GetSize().x; x++)
+	ID return_id = 0;
+	if (p_gp != nullptr) //Sanity Check
 	{
-		for (int y = 0; y < p_gp->GetSize().y; y++)
+		//Loop through every tile in the grid.
+		for (int x = 0; x < p_gp->GetSize().x; x++)
 		{
-			//Check if the tile is a tile we can walk on.
-			if (p_gp->mGrid[y][x].isPassable)
+			for (int y = 0; y < p_gp->GetSize().y; y++)
 			{
-				p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
-				temp_dist = PhysicsHelpers::CalculateDistance(transform.position, p_curr_tile_transform->position);
-				//If the tile is closer than the previously closest tile we've found we store the new info.
-				if (temp_dist < dist)
+				//Check if the tile is a tile we can walk on.
+				if (p_gp->mGrid[y][x].isPassable)
 				{
-					dist = temp_dist;
-					tile_index.x = x;
-					tile_index.y = y;
+					p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
+					temp_dist = PhysicsHelpers::CalculateDistance(transform.position, p_curr_tile_transform->position);
+					//If the tile is closer than the previously closest tile we've found we store the new info.
+					if (temp_dist < dist)
+					{
+						dist = temp_dist;
+						tile_index.x = x;
+						tile_index.y = y;
+					}
 				}
 			}
 		}
+		return_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
 	}
-	//Return the index position of the closest tile in mGrid in the GridProp class.
-	return p_gp->mGrid[tile_index.y][tile_index.x].Id;
+	
+	//Return the index position of the closest tile in mGrid in the GridProp class or 0 if something went wrong.
+	return return_id;
 }
 /************************************************/
 /**********  MOVESTATESYSTEM END  **************/
@@ -1065,28 +1155,6 @@ void ecs::systems::AttackStateSystem::updateEntity(FilteredEntity& entity, float
 	}
 }
 
-void ecs::systems::AttackStateSystem::SwitchState(FilteredEntity& entity, STATE newState)
-{
-	AttackStateComponent* atk_comp = entity.getComponent<AttackStateComponent>();
-	switch (newState)
-	{
-	case ATTACK: //If the cucrent command is Attack we want to find a new target to attack.
-	{
-		PathfindingStateComponent path_state;
-		path_state.activeCommand = atk_comp->activeCommand;
-		ECSUser::createComponent(entity.entity->getID(), path_state);
-		break;
-	}
-	default: //If there is no current command we want the unit to go idle.
-	{
-		IdleStateComponent idle_state;
-		ECSUser::createComponent(entity.entity->getID(), idle_state);
-		break;
-	}
-	}
-	ECSUser::removeComponent(entity.entity->getID(), AttackStateComponent::typeID);
-}
-
 /************************************************/
 /*********  ATTACKSTATESYSTEM END  *************/
 /**********************************************/
@@ -1099,6 +1167,7 @@ ecs::systems::RemoveDeadUnitsSystem::RemoveDeadUnitsSystem()
 {
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(DeadComponent::typeID);
+	typeFilter.addRequirement(UnitComponent::typeID);
 }
 
 ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
@@ -1209,7 +1278,7 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 		// Chagne the command on the UI
 		BaseComponent* p_base_comp = getComponentFromKnownEntity<UITextComponent>(p_army->getEntityID());
 
-		UITextComponent* p_text_comp = static_cast<UITextComponent*>(p_base_comp);
+		/*UITextComponent* p_text_comp = static_cast<UITextComponent*>(p_base_comp);
 
 		switch (state)
 		{
@@ -1229,7 +1298,7 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 			p_text_comp->mStrText = L"no case for state";
 			break;
 		}
-
+*/
 		//Loop through the players units and remove their old state component.
 		Entity* unit;
 		for (int u = 0; u < p_army->unitIDs.size(); u++)
@@ -1237,12 +1306,12 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 			ID entity_id = p_army->unitIDs[u];
 			unit = ECSUser::getEntity(entity_id);
 
-			ECSUser::removeComponent(entity_id, MoveStateComponent::typeID);
-			ECSUser::removeComponent(entity_id, IdleStateComponent::typeID);
 			ECSUser::removeComponent(entity_id, PathfindingStateComponent::typeID);
-			ECSUser::removeComponent(entity_id, AttackStateComponent::typeID);
-			ECSUser::removeComponent(entity_id, LootStateComponent::typeID);
+			ECSUser::removeComponent(entity_id, IdleStateComponent::typeID);
+			ECSUser::removeComponent(entity_id, MoveStateComponent::typeID);
 			ECSUser::removeComponent(entity_id, FleeStateComponent::typeID);
+			ECSUser::removeComponent(entity_id, LootStateComponent::typeID);
+			ECSUser::removeComponent(entity_id, AttackStateComponent::typeID);
 
 			// Fetch the skeleton ID to start animations based on state
 			ID skeleton_id = unit->getComponentID<SkeletonComponent>();

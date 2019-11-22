@@ -60,7 +60,7 @@ namespace ecs
 			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
 
 			static uint32_t GetPerInstanceSize();
-
+			UINT mRenderProgram;
 		private:
 
 			struct InputLayout
@@ -75,7 +75,7 @@ namespace ecs
 			int mFrameCounter;
 			int mAnimationFrameCounter;
 
-			UINT mRenderProgram;
+
 			graphics::RenderManager* mpRenderMgr;
 			graphics::ShaderModelLayout mInstanceLayout;
 
@@ -293,10 +293,8 @@ namespace ecs
 
 			struct InputLayout
 			{
-				float x, y, z;
-				uint32_t color;
+				DirectX::XMFLOAT4X4 world;
 			};
-
 
 			InputLayout* mpBuffer;
 
@@ -307,9 +305,24 @@ namespace ecs
 			graphics::RenderBuffer* mpRenderBuffer;
 
 			UINT mObjectCount;
-			graphics::MeshRegion mObjectMeshRegion[SCENE_OBJECT_TYPE_COUNT];
 
-			UINT mObjectTypeCount[SCENE_OBJECT_TYPE_COUNT];
+			graphics::MeshRegion mObjectMeshRegion[GAME_OBJECT_TYPE_MESH_COUNT];
+			UINT mInstancePerMesh[GAME_OBJECT_TYPE_MESH_COUNT];
+
+			struct SceneToMesh
+			{
+				UINT 
+					Start	= GAME_OBJECT_TYPE_MESH_ERROR, 
+					End		= GAME_OBJECT_TYPE_MESH_ERROR;
+			};
+
+			struct uint3
+			{
+				UINT Red = 0, Green = 0, Blue = 0;
+			};
+
+			SceneToMesh mMap[SCENE_OBJECT_TYPE_COUNT];
+			uint3 mColors[GAME_OBJECT_TYPE_MESH_COUNT];
 		};
 
 		class SSAORenderSystem : public ECSSystem<SSAORenderSystem>
@@ -341,6 +354,72 @@ namespace ecs
 
 			UINT mObjectCount;
 			graphics::MeshRegion mScreenSpaceTriangle;
+		};
+
+		class WorldSceneRenderSystem : public ECSSystem<WorldSceneRenderSystem>
+		{
+		public:
+
+			WorldSceneRenderSystem();
+			~WorldSceneRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				DirectX::XMFLOAT4X4 world;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mObjectCount;
+			graphics::MeshRegion mObjectMeshRegion[WORLD_SCENERY_TYPE_COUNT];
+
+			UINT mObjectTypeCount[WORLD_SCENERY_TYPE_COUNT];
+		};
+
+		class OutlineRenderSystem : public ECSSystem<OutlineRenderSystem>
+		{
+		public:
+
+			OutlineRenderSystem();
+			virtual ~OutlineRenderSystem();
+
+			void act(float _delta) override;
+
+			void Initialize(
+				const UINT clientWidth,
+				const UINT clientHeight,
+				const UINT unitRenderProgram,
+				graphics::RenderManager* unitRenderManager);
+
+			UINT mRenderProgram;
+
+		private:
+
+			UINT mPipelineFakeStencil,
+				mPipelineOutline;
+
+			UINT mShaderFakeStencil,
+				mShaderOutline;
+
+			graphics::RenderManager* mRenderMgr;
+
+			UINT unitRenderProgram;
+
+
 		};
 
 		class WeaponRenderSystem : public ECSSystem<WeaponRenderSystem>
@@ -411,6 +490,74 @@ namespace ecs
 			graphics::MeshRegion mObjectMeshRegion[TRAP_TYPE_COUNT];
 
 			UINT mObjectTypeCount[TRAP_TYPE_COUNT];
+		};
+
+		class PowerupLootRenderSystem : public ECSSystem<PowerupLootRenderSystem>
+		{
+		public:
+
+			PowerupLootRenderSystem();
+			~PowerupLootRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				DirectX::XMFLOAT4X4 world;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mObjectCount;
+			graphics::MeshRegion mObjectMeshRegion[POWERUP_TYPE_COUNT];
+
+			UINT mObjectTypeCount[POWERUP_TYPE_COUNT];
+		};
+
+		class DefaultRenderSystem : public ECSSystem<DefaultRenderSystem>
+		{
+		public:
+
+			DefaultRenderSystem();
+			~DefaultRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				DirectX::XMFLOAT4X4 world;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mObjectCount;
+
+			graphics::MeshRegion mObjectMeshRegion[GAME_OBJECT_TYPE_COUNT];
+			UINT mInstancePerMesh[GAME_OBJECT_TYPE_COUNT];
 		};
 	}
 }

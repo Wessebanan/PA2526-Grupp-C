@@ -4,6 +4,7 @@
 #include "GraphicsECSSystems.h"
 #include "../Renderers/Renderers.h"
 
+
 struct WorldMeshData
 {
 	void* pMesh;
@@ -80,9 +81,9 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::PipelineShadowMapComponent* p_psmComp = rEcs.getComponentFromEntity<components::PipelineShadowMapComponent>(graphics_entity_id);
 	components::PipelineForwardComponent* p_pfComp = rEcs.getComponentFromEntity<components::PipelineForwardComponent>(graphics_entity_id);
 
-	p_psmComp->pipelineDesc.PixelsWidth = 2048;
-	p_psmComp->pipelineDesc.Width = 30.0f;
-	p_psmComp->pipelineDesc.Height = 20.0f;
+	p_psmComp->pipelineDesc.PixelsWidth = 4096;
+	p_psmComp->pipelineDesc.Width = 90.0f;
+	p_psmComp->pipelineDesc.Height = 60.0f;
 	p_psmComp->pipelineDesc.NearPlane = 1.0f;
 	p_psmComp->pipelineDesc.FarPlane = 70.0f;
 	p_psmComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ShadowMapPipeline, &p_psmComp->pipelineDesc);
@@ -119,10 +120,14 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	graphics::StateManager& r_state_mgr = static_cast<components::StateManagerComponent*>(rEcs.getAllComponentsOfType(components::StateManagerComponent::typeID).next())->mgr;
 	graphics::MeshManager& r_mesh_mgr = static_cast<components::MeshManagerComponent*>(rEcs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
 	graphics::RenderBuffer& r_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next())->buffer;
-	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 
+	// Make sure no render system is created before UnitRenderSystem if they use the same constant buffer
+	// That will cause outlines to break suuuper hard
+	// No touch >:(
 	rEcs.createSystem<systems::UnitRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 
 	rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
@@ -135,6 +140,9 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 			rMapMeshData.pMesh, 
 			rMapMeshData.vertexCount);
 
+	rEcs.createSystem<DefaultRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
 	rEcs.createSystem<ParticleRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer, &r_state_mgr);
 
@@ -142,6 +150,12 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 		->Initialize(&r_render_mgr, &r_state_mgr, 
 			rOceanMeshData.pMesh,
 			rOceanMeshData.vertexCount);
+
+	rEcs.createSystem<PowerupLootRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	rEcs.createSystem<WorldSceneRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
 
 
 	/*
@@ -159,7 +173,12 @@ void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::PipelineShadowMapSystem>(9);
 	rEcs.createSystem<systems::PipelineForwardSystem>(9);
 	rEcs.createSystem<systems::ExecuteGPURenderSystem>(9);
-	rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(1920, 1080);
+	rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
+	
+	UnitRenderSystem* p_unit_system = (UnitRenderSystem*)rEcs.getSystem<UnitRenderSystem>();
+
+	rEcs.createSystem<systems::OutlineRenderSystem>(9)
+		->Initialize(graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y, p_unit_system->mRenderProgram, &static_cast<components::RenderManagerComponent*>(rEcs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr);
 }
 
 void InitMeshes(EntityComponentSystem& rEcs)
@@ -184,6 +203,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_GIANTSKULL, "../meshes/GiantSkull.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER, "../meshes/Tower.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WORLD_SCENE_SHARK, "../meshes/shark_fin.fbx");
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
 
@@ -233,4 +253,29 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FIRE, "../meshes/TrapPlate.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FREEZE, "../meshes/TrapPlate.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_SPRING, "../meshes/TrapPlate.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_POWERUP_HEALTH_PACK, "../meshes/hexagon_tile5.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BARREL_STONES, "../meshes/barrel_rock.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_BARREL_BARREL, "../meshes/Barrel.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TREE_LEAVES, "../meshes/tree_leaves.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TREE_TRUNK, "../meshes/tree_trunk.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TREE_ROCK, "../meshes/tree_rock.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_PINE_LEAVES, "../meshes/pine_tree_leaves.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_PINE_TRUNK, "../meshes/pine_tree_trunk.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_DESERT_CACTUS, "../meshes/desert_cactus.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_DESERT_BOX, "../meshes/desert_box.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_DESERT_SKULL, "../meshes/desert_skull.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER_TOWER, "../meshes/tower_tower.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER_CAGE, "../meshes/tower_cage.fbx");
+
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_GIANTSKULL, "../meshes/GiantSkull.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_CAGE, "../meshes/Cage.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_COWSKULL, "../meshes/CowSkull.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_BOX, "../meshes/Box.fbx");
+
 }

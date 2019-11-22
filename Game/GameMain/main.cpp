@@ -51,6 +51,10 @@
 #include "gameWeapons/InitWeapons.h"
 #include "gameTraps/TrapComponents.h"
 #include "gameTraps/TrapEvents.h"
+#include "gameWorld/InitWorldScenery.h"
+
+#include "gamePowerups/InitPowerups.h"
+#include "gamePowerups/PowerupEvents.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -164,24 +168,6 @@ int main()
 
 			if (GetAsyncKeyState(VK_SPACE) && start_once)
 			{
-				{
-					ecs::events::PlayMusic m_event;
-					m_event.audioName = AudioName::CC_TEST_SONG;
-					ecs.createEvent(m_event);
-				}
-				{
-					ecs::events::MusicSetVolume m_event;
-					m_event.volume = 0.0f;
-					ecs.createEvent(m_event);
-				}
-				{
-					ecs::events::FadeInMusic m_event;
-					m_event.fadeInTimeInSeconds = 2.0f;
-					ecs.createEvent(m_event);
-				}
-				
-				
-
 				start_once = false;
 			}
 
@@ -214,6 +200,25 @@ int main()
 
 	return 0;
 
+}
+void DebuggFunctions(EntityComponentSystem& rECS)
+{
+	// FOR DEBBUGING TRAPS: SPAWNS TRAPS OVER THE WHOLE MAP
+	//events::PlaceTrapEvent place_event;
+	//place_event.type = GAME_OBJECT_TYPE_TRAP_SPRING;
+	//components::TileComponent* p_tile;
+	//TypeFilter tile_filter;
+	//tile_filter.addRequirement(components::TileComponent::typeID);
+	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+	//for (FilteredEntity tile : tiles.entities)
+	//{
+	//	p_tile = tile.getComponent<components::TileComponent>();
+	//	if (p_tile->tileType != WATER)
+	//	{
+	//		place_event.tileID = p_tile->getEntityID();
+	//		rECS.createEvent(place_event);
+	//	}
+	//}
 }
 
 void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight)
@@ -251,7 +256,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitCamera(rECS);
 
 	InitAnimation(rECS);
-	InitPhysics(rECS, MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT));
+	InitPhysics(rECS);
 
 	InitGameLoop(rECS);
 
@@ -273,16 +278,20 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
-
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
 	InitWeapons(rECS);
 
 	InitTraps(rECS);
+	InitPowerups(rECS);
+
+	InitWorldScenery(rECS);
 
 	InitHttpServer(rECS);
 
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
+
+	DebuggFunctions(rECS);
 }

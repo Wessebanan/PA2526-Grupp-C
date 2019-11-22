@@ -50,5 +50,19 @@ namespace ecs
 			float TotalLifeDuration;
 			char MaxScale;
 		};
+
+		struct FireSpawnerComponent : public ECSComponent<FireSpawnerComponent>
+		{
+			float InitialVelocity;
+			float SpawnCount;
+		};
+
+		struct FireParticleComponent : public ECSComponent<FireParticleComponent>
+		{
+			DirectX::XMFLOAT3 Direction;
+			float CurrentLifeDuration;
+			float TotalLifeDuration;
+			char MaxScale;
+		};
 	}
 }

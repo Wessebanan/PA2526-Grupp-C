@@ -99,7 +99,7 @@ VSOUT main(uint VertexID : VertexStart)
 	output.color = Unpack(vertex.color) / 255.0f;
 	output.normal = vertex.normal.xyz;
 
-	output.normalViewSpace = mul(gView, float4(vertex.normal, 0.0f)).xyz;
+	output.normalViewSpace = mul((float3x3)gView, vertex.normal).xyz;
 	output.positionViewSpace = viewPos.xyz;
 
 	return output;
