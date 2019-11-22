@@ -51,7 +51,7 @@
 #include "gameWeapons/InitWeapons.h"
 #include "gameTraps/TrapComponents.h"
 #include "gameTraps/TrapEvents.h"
-#include "gameWorld/InitWorldScenary.h"
+#include "gameWorld/InitWorldScenery.h"
 
 #include "gamePowerups/InitPowerups.h"
 #include "gamePowerups/PowerupEvents.h"
@@ -286,7 +286,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitTraps(rECS);
 	InitPowerups(rECS);
 
-	InitWorldScenary(rECS);
+	InitWorldScenery(rECS);
 
 	InitHttpServer(rECS);
 

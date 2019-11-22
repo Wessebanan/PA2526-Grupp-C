@@ -1,4 +1,4 @@
-#include "InitWorldScenary.h"
+#include "InitWorldScenery.h"
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameWorld/WorldComponents.h"
 #include "../Physics/PhysicsComponents.h"
@@ -9,7 +9,7 @@
 using namespace ecs;
 using namespace DirectX;
 
-void InitWorldScenary(ecs::EntityComponentSystem& rECS)
+void InitWorldScenery(ecs::EntityComponentSystem& rECS)
 {
 	TypeFilter map_filter;
 	map_filter.addRequirement(components::TileComponent::typeID);

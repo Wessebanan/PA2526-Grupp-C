@@ -135,7 +135,7 @@
     <ClCompile Include="gameUtility\Timer.cpp" />
     <ClCompile Include="gameWeapons\InitWeapons.cpp" />
     <ClCompile Include="gameWeapons\WeaponSpawner.cpp" />
-    <ClCompile Include="gameWorld\InitWorldScenary.cpp" />
+    <ClCompile Include="gameWorld\InitWorldScenery.cpp" />
     <ClCompile Include="gameWorld\UpdateOceanSystem.cpp" />
     <ClCompile Include="gameWorld\WorldScenerySystems.cpp" />
     <ClCompile Include="Input\InitInputSystems.cpp" />
@@ -229,7 +229,7 @@
     <ClInclude Include="gameWeapons\WeaponEvents.h" />
     <ClInclude Include="gameWeapons\WeaponSpawner.h" />
     <ClInclude Include="gameWorld\InitWorld.h" />
-    <ClInclude Include="gameWorld\InitWorldScenary.h" />
+    <ClInclude Include="gameWorld\InitWorldScenery.h" />
     <ClInclude Include="gameWorld\WorldComponents.h" />
     <ClInclude Include="gameWorld\UpdateOceanSystem.h" />
     <ClInclude Include="gameWorld\WorldScenerySystems.h" />
