@@ -139,6 +139,9 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 			rMapMeshData.pMesh, 
 			rMapMeshData.vertexCount);
 
+	rEcs.createSystem<DefaultRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
 	rEcs.createSystem<ParticleRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer, &r_state_mgr);
 

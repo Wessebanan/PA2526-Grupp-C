@@ -20,5 +20,9 @@ namespace ecs
 			ColorComponent() : red(0), green(0), blue(0) {}
 			ColorComponent(uint8_t r, uint8_t g, uint8_t b) : red(r), green(g), blue(b) {}
 		};
+		struct DefaultRenderObjectComponent : public ECSComponent<DefaultRenderObjectComponent>
+		{
+			unsigned int type;
+		};
 	}
 }
