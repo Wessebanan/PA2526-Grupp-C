@@ -58,6 +58,13 @@ void BoundingCylinder::CreateFromPoints(BoundingCylinder& Out, size_t Count, con
 	mCenter = XMFLOAT3(0.0f, -(height / 2.0f), 0.0f);
 }
 
+void BoundingCylinder::CreateFromTile(XMFLOAT3 position, float radius)
+{
+	mExtentsY = 1.0f;
+	mRadius = radius * 0.95f;
+	mCenter = XMFLOAT3(0.0f,-mExtentsY,0.0f);
+}
+
 bool BoundingCylinder::Intersects(BoundingBox& rAabb)
 {
 	// Immediately return if rAabb is above or below cylinder.

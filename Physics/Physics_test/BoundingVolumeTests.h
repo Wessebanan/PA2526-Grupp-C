@@ -573,14 +573,6 @@ TEST(NormalAndOverlap, AABBCylinder)
 	// Checking that overlap now is (float) equal to 0.
 	EXPECT_FLOAT_EQ(info.mOverlap, 0.0f);
 
-	// SCENARIO 3: Something's fucky.
-	p_aabb->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	p_cylinder->mCenter = XMFLOAT3(0.8f, 0.0f, 0.8f);
-
-	info = p_bv1->GetCollisionInfo(p_bv2);
-	PrintVec(info.mNormal);
-	PrintNumber(info.mOverlap);
-
 	delete p_bv1;
 	delete p_bv2;
 }

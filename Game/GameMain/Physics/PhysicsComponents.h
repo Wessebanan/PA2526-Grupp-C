@@ -68,6 +68,8 @@ namespace ecs
 
 			// If object is on ground.
 			bool mOnGround = false;
+
+			float mLastTileY = -INFINITY;
 		};
 
 		/*

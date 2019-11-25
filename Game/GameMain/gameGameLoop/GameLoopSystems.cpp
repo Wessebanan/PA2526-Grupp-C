@@ -541,10 +541,10 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 			createComponent<ObjectCollisionComponent>(current->getID(), object_collision);
 		}
 
-		if (!current->hasComponentOfType<GroundCollisionComponent>())
-		{
-			createComponent<GroundCollisionComponent>(current->getID(), ground_collision);
-		}
+		//if (!current->hasComponentOfType<GroundCollisionComponent>())
+		//{
+		//	createComponent<GroundCollisionComponent>(current->getID(), ground_collision);
+		//}
 
 		if (!current->hasComponentOfType<DynamicMovementComponent>())
 		{

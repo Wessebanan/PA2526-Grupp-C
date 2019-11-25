@@ -44,12 +44,12 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 
 	// Movement
 	rEcs.createSystem<ecs::systems::DynamicMovementInitSystem>();
-	rEcs.createSystem<ecs::systems::DynamicMovementSystem>();
+	rEcs.createSystem<ecs::systems::DynamicMovementSystem>(3);
 
 	// Collision
 	rEcs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
 	//rEcs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
-	rEcs.createSystem<ecs::systems::ObjectCollisionSystem>();
+	rEcs.createSystem<ecs::systems::ObjectCollisionSystem>(4);
 	//rEcs.createSystem<ecs::systems::GroundCollisionSystem>();
 
 	// Fighting

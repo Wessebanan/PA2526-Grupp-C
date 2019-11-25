@@ -289,8 +289,11 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitHttpServer(rECS);
 
+	CreateCollisionForTiles(rECS);
+
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
 
 	DebuggFunctions(rECS);
+
 }

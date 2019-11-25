@@ -1,4 +1,5 @@
 #include "AISystems.h"
+#include "../gameUtility/UtilityEcsFunctions.h"
 
 using namespace ecs::components;
 using namespace ecs::events;
@@ -698,7 +699,7 @@ ecs::systems::MoveStateSystem::MoveStateSystem()
 	typeFilter.addRequirement(TransformComponent::typeID);
 	typeFilter.addRequirement(DynamicMovementComponent::typeID);
 	typeFilter.addRequirement(EquipmentComponent::typeID);
-	typeFilter.addRequirement(GroundCollisionComponent::typeID);
+	typeFilter.addRequirement(ObjectCollisionComponent::typeID);
 }
 
 ecs::systems::MoveStateSystem::~MoveStateSystem()
@@ -725,7 +726,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 	TransformComponent* p_transform = entity.getComponent<TransformComponent>();
 	DynamicMovementComponent* p_dyn_move = entity.getComponent<DynamicMovementComponent>();
 	MoveStateComponent* p_move_comp = entity.getComponent<MoveStateComponent>();
-	GroundCollisionComponent* p_ground_comp = entity.getComponent<GroundCollisionComponent>();
+	ObjectCollisionComponent* p_collision_comp = entity.getComponent<ObjectCollisionComponent>();
 	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
 	TransformComponent* p_goal = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_move_comp->goalID);
 	float distance = 1000.0f;
@@ -781,10 +782,12 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 			next_tile_x = p_next_goal->position.x - p_goal->position.x;
 			next_tile_z = p_next_goal->position.z - p_goal->position.z;
 		}
+		
+
 		jump_vector.x = curr_tile_x = p_goal->position.x - p_transform->position.x;
-		jump_vector.y = curr_tile_y = p_goal->position.y - p_ground_comp->mLastTileY;
+		jump_vector.y = curr_tile_y = p_goal->position.y - p_dyn_move->mLastTileY;
 		jump_vector.z = curr_tile_z = p_goal->position.z - p_transform->position.z;
-		y_distance = p_goal->position.y - (p_ground_comp->mLastTileY);
+		y_distance = p_goal->position.y - p_dyn_move->mLastTileY;
 		curr_tile_x = curr_tile_x + (next_tile_x * DEFAULT_USAGE_OF_TILE);//ad percentage of the direction from the tile next after "goal"
 		curr_tile_z = curr_tile_z + (next_tile_z * DEFAULT_USAGE_OF_TILE);
 		length = sqrt(curr_tile_x * curr_tile_x + curr_tile_z * curr_tile_z);

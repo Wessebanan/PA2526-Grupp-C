@@ -42,6 +42,7 @@ struct BoundingCylinder
 
 	// Radius is center to corner
 	void CreateFromPoints(BoundingCylinder &Out, size_t Count, const XMFLOAT3 *pPoints, size_t Stride);
+	void CreateFromTile(XMFLOAT3 position, float radius = 1.0f);
 
 	bool Intersects(BoundingBox& rAabb);
 	bool Intersects(BoundingSphere& rSphere);

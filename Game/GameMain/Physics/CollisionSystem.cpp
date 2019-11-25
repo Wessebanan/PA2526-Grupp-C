@@ -80,6 +80,9 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	quad_tree->RetrieveCollisions(collision_list, this_object);
 
 	bool intersect = false;
+	bool on_ground = false;
+
+	std::vector<CollisionInfo> collisions;
 
 	for (int i = 0; i < collision_list.size(); i++)
 	{
@@ -98,6 +101,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		// Grabbing copy of BV from current and transforming to world space.
 		// And checking intersection.
 		CollisionInfo info;
+
 
 		switch (p_current_collision->mBvType)
 		{
@@ -150,49 +154,63 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		// If the objects' bounding volumes intersect.
 		if(info.mOverlap > 0.0f)
 		{
-			// Set the intersection bool because it may be useful.
+			// Set the intersection bool because it may be useful. :)
 			intersect = true;
 
-			// If velocity is in the same general direction 
-			// as the collision normal, do nothing.
+			// If not moving in the same general direction as the collision normal, save info for later
+			// resolution.
 			XMVECTOR velocity_direction = XMVector3Normalize(XMLoadFloat3(&p_movement->mVelocity));
 			float dot = XMVectorGetX(XMVector3Dot(velocity_direction, XMLoadFloat3(&info.mNormal)));
 			if (dot < 0.0f)
 			{
-				TileComponent* p_tile_comp = nullptr;
-				// If the collided object is a tile and tile type is water, do not revert movement.
-				if (getEntity(current_entity_id)->hasComponentOfType<TileComponent>())
-				{
-					p_tile_comp = getComponentFromKnownEntity<TileComponent>(current_entity_id);
-				}
+				collisions.push_back(info);
+			}
+
+			// If the collided object is a tile.
+			if (getEntity(current_entity_id)->hasComponentOfType<TileComponent>())
+			{
+				TileComponent* p_tile_comp = getComponentFromKnownEntity<TileComponent>(current_entity_id);
+				
 				// If the unit hit water, he gonna die so no more collision haha.
-				if (p_tile_comp && p_tile_comp->tileType == WATER)
+				if (p_tile_comp->tileType == WATER)
 				{
 					return;
 				}
-				else
-				{
-					// Reverting movement.
-					XMFLOAT3& r_object_pos = p_transform->position;
-					r_object_pos.x += info.mNormal.x * info.mOverlap;
-					r_object_pos.y += info.mNormal.x * info.mOverlap;
-					r_object_pos.z += info.mNormal.x * info.mOverlap;
-				}
-
 				// If collided with a tile and collision normal is +y, the object is on ground.
-				if (p_tile_comp && info.mNormal.y > 0.99f)
+				if (info.mNormal.y > 0.99f)
 				{
-					p_movement->mOnGround = true;
+					p_movement->mLastTileY = p_current_transform->position.y;
 					p_movement->mVelocity.y = 0.0f;
-				}
-				// Otherwise flip velocity as usual.
-				else
-				{
-					XMStoreFloat3(&p_movement->mVelocity, -XMLoadFloat3(&p_movement->mVelocity));
-				}
+					on_ground = true;
+				}			
 			}
+			// If the collided object is another unit.
+			else if (getEntity(current_entity_id)->hasComponentOfType<UnitComponent>())
+			{
+				// Flip velocity.
+				XMStoreFloat3(&p_movement->mVelocity, -XMLoadFloat3(&p_movement->mVelocity));
+
+				// Shove.
+				ForceImpulseEvent shove;
+				shove.mDirection	= p_movement->mDirection;
+				shove.mDirection.y += 0.3f;
+				shove.mForce		= BASE_KNOCKBACK;
+				shove.mEntityID		= current_entity_id;
+				createEvent(shove);
+			}			
 		}
 	}
+
+
+	for (CollisionInfo info : collisions)
+	{
+		// Reverting movement.
+		p_transform->position.x += info.mNormal.x * info.mOverlap;
+		p_transform->position.y += info.mNormal.y * info.mOverlap;
+		p_transform->position.z += info.mNormal.z * info.mOverlap;
+	}
+
+	p_movement->mOnGround = on_ground;
 	p_collision->mIntersect = intersect;
 	delete p_bv_copy;
 }
@@ -449,7 +467,9 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 	{
 		object_collision_component->mBV = new Cylinder;
 		Cylinder* p_cylinder = static_cast<Cylinder*>(object_collision_component->mBV);
-		p_cylinder->CreateFromPoints(*p_cylinder, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
+		XMFLOAT3 position = getComponentFromKnownEntity<TransformComponent>(create_component_event->entityID)->position;
+		p_cylinder->CreateFromTile(position);
+		//p_cylinder->CreateFromPoints(*p_cylinder, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
 		break;
 	}
 	case COLLISION_OBB:

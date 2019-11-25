@@ -9,6 +9,7 @@
 #include "../gameSceneObjects/InitBiomes.h"
 #include <DirectXMath.h>
 
+void CreateCollisionForTiles(ecs::EntityComponentSystem& rECS);
 
 void InitGrid(ecs::EntityComponentSystem& rECS)
 {
@@ -56,4 +57,28 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 
 	GridEcsFunctions::CreateGrid(rECS, rows, columns, 1.0f, holmes);
 	InitBiomes(rECS, rows, columns);
+	//CreateCollisionForTiles(rECS);
+}
+
+void CreateCollisionForTiles(ecs::EntityComponentSystem& rECS)
+{
+	// Collision component.
+	ecs::components::ObjectCollisionComponent collision;
+	collision.mBvType = COLLISION_CYLINDER;
+	collision.mObjType = GAME_OBJECT_TYPE_TILE;
+
+	ecs::TypeFilter filter;
+	filter.addRequirement(ecs::components::TileComponent::typeID);
+	
+	// Grab all tiles.
+	ecs::EntityIterator it = rECS.getEntititesByFilter(filter);
+	for (ecs::FilteredEntity entity : it.entities)
+	{
+		// Don't if water.
+		if (rECS.getComponentFromEntity<ecs::components::TileComponent>(entity.entity->getID())->tileType != WATER)
+		{
+			
+			rECS.createComponent<ecs::components::ObjectCollisionComponent>(entity.entity->getID(), collision);
+		}
+	}
 }
