@@ -79,13 +79,22 @@ bool ecs::systems::SoundMessageSystem::Init()
 	{
 		using namespace ecs::events;
 		subscribeEventCreation(PlaySound::typeID);
+
 		subscribeEventCreation(PlayMusic::typeID);
-		subscribeEventCreation(MusicSetVolume::typeID);
-		subscribeEventCreation(SubMusicSetVolume::typeID);
-		subscribeEventCreation(FadeInMusic::typeID);
+		subscribeEventCreation(PlaySecondaryMusic::typeID);
 		subscribeEventCreation(PlaySubMusic::typeID);
+
+		subscribeEventCreation(FadeInMusic::typeID);
+		subscribeEventCreation(FadeInSecondaryMusic::typeID);
 		subscribeEventCreation(FadeInSubMusic::typeID);
+
+		subscribeEventCreation(FadeOutMusic::typeID);
+		subscribeEventCreation(FadeOutSecondaryMusic::typeID);
 		subscribeEventCreation(FadeOutSubMusic::typeID);
+
+		subscribeEventCreation(MusicSetVolume::typeID);
+		subscribeEventCreation(SecondaryMusicSetVolume::typeID);
+		subscribeEventCreation(SubMusicSetVolume::typeID);
 	}
 
 	return true;
@@ -99,18 +108,32 @@ void ecs::systems::SoundMessageSystem::onEvent(TypeID _eventType, BaseEvent* _ev
 
 		if (PlaySound::typeID == _eventType)
 			ProcessPlaySound(static_cast<PlaySound*>(_event));
+
 		else if (PlayMusic::typeID == _eventType)
 			ProcessPlayMusic(static_cast<PlayMusic*>(_event));
-		else if (FadeInMusic::typeID == _eventType)
-			ProcessFadeInMusic(static_cast<FadeInMusic*>(_event));
+		else if (PlaySecondaryMusic::typeID == _eventType)
+			ProcessPlaySecondaryMusic(static_cast<PlaySecondaryMusic*>(_event));
 		else if (PlaySubMusic::typeID == _eventType)
 			ProcessPlaySubMusic(static_cast<PlaySubMusic*>(_event));
+
+		else if (FadeInMusic::typeID == _eventType)
+			ProcessFadeInMusic(static_cast<FadeInMusic*>(_event));
+		else if (FadeInSecondaryMusic::typeID == _eventType)
+			ProcessFadeInSecondaryMusic(static_cast<FadeInSecondaryMusic*>(_event));
 		else if (FadeInSubMusic::typeID == _eventType)
 			ProcessFadeInSubMusic(static_cast<FadeInSubMusic*>(_event));
+
+		else if (FadeOutMusic::typeID == _eventType)
+			ProcessFadeOutMusic(static_cast<FadeOutMusic*>(_event));
+		else if (FadeOutSecondaryMusic::typeID == _eventType)
+			ProcessFadeOutSecondaryMusic(static_cast<FadeOutSecondaryMusic*>(_event));
 		else if (FadeOutSubMusic::typeID == _eventType)
 			ProcessFadeOutSubMusic(static_cast<FadeOutSubMusic*>(_event));
+
 		else if (MusicSetVolume::typeID == _eventType)
 			ProcessMusicSetVolume(static_cast<MusicSetVolume*>(_event));
+		else if (SecondaryMusicSetVolume::typeID == _eventType)
+			ProcessSecondaryMusicSetVolume(static_cast<SecondaryMusicSetVolume*>(_event));
 		else if (SubMusicSetVolume::typeID == _eventType)
 			ProcessSubMusicSetVolume(static_cast<SubMusicSetVolume*>(_event));
 	}
@@ -194,7 +217,29 @@ void ecs::systems::SoundMessageSystem::ProcessPlayMusic(ecs::events::PlayMusic* 
 		(*mSoundBank)[pEvent->audioName],
 		Audio::Music::M_DATA_AS_PARAMETER |
 		Audio::Music::M_FUNC_REPLACE_MUSIC |
-		Audio::Music::M_SYNC_THIS_WITH_OTHER
+		Audio::Music::M_SYNC_OTHER_WITH_THIS
+	});
+}
+
+void ecs::systems::SoundMessageSystem::ProcessPlaySecondaryMusic(ecs::events::PlaySecondaryMusic* pEvent)
+{
+	mSoundMixer->AddMusicMessage({
+		(*mSoundBank)[pEvent->audioName],
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_TARGET_SECONDARY |
+		Audio::Music::M_SYNC_OTHER_WITH_THIS
+	});
+}
+
+void ecs::systems::SoundMessageSystem::ProcessPlaySubMusic(ecs::events::PlaySubMusic* pEvent)
+{
+	mSoundMixer->AddMusicMessage({
+		(*mSoundBank)[pEvent->audioName],
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_TARGET_SUB |
+		Audio::Music::M_SYNC_OTHER_WITH_THIS
 	});
 }
 
@@ -207,14 +252,13 @@ void ecs::systems::SoundMessageSystem::ProcessFadeInMusic(ecs::events::FadeInMus
 	});
 }
 
-void ecs::systems::SoundMessageSystem::ProcessPlaySubMusic(ecs::events::PlaySubMusic* pEvent)
+void ecs::systems::SoundMessageSystem::ProcessFadeInSecondaryMusic(ecs::events::FadeInSecondaryMusic* pEvent)
 {
 	mSoundMixer->AddMusicMessage({
-		(*mSoundBank)[pEvent->audioName],
+		(unsigned long)(pEvent->fadeInTimeInSeconds * 44100.f),
 		Audio::Music::M_DATA_AS_PARAMETER |
-		Audio::Music::M_FUNC_REPLACE_MUSIC |
-		Audio::Music::M_TARGET_SUB |
-		Audio::Music::M_SYNC_THIS_WITH_OTHER
+		Audio::Music::M_FUNC_FADE_IN |
+		Audio::Music::M_TARGET_SECONDARY
 	});
 }
 
@@ -225,7 +269,26 @@ void ecs::systems::SoundMessageSystem::ProcessFadeInSubMusic(ecs::events::FadeIn
 		Audio::Music::M_DATA_AS_PARAMETER |
 		Audio::Music::M_FUNC_FADE_IN |
 		Audio::Music::M_TARGET_SUB
-		});
+	});
+}
+
+void ecs::systems::SoundMessageSystem::ProcessFadeOutMusic(ecs::events::FadeOutMusic* pEvent)
+{
+	mSoundMixer->AddMusicMessage({
+		(unsigned long)(pEvent->fadeOutTimeInSeconds * 44100.f),
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_FUNC_FADE_OUT
+	});
+}
+
+void ecs::systems::SoundMessageSystem::ProcessFadeOutSecondaryMusic(ecs::events::FadeOutSecondaryMusic* pEvent)
+{
+	mSoundMixer->AddMusicMessage({
+		(unsigned long)(pEvent->fadeOutTimeInSeconds * 44100.f),
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_FUNC_FADE_OUT |
+		Audio::Music::M_TARGET_SECONDARY
+	});
 }
 
 void ecs::systems::SoundMessageSystem::ProcessFadeOutSubMusic(ecs::events::FadeOutSubMusic* pEvent)
@@ -245,6 +308,16 @@ void ecs::systems::SoundMessageSystem::ProcessMusicSetVolume(ecs::events::MusicS
 		Audio::Music::M_DATA_AS_PARAMETER |
 		Audio::Music::M_FUNC_SET_GAIN
 		});
+}
+
+void ecs::systems::SoundMessageSystem::ProcessSecondaryMusicSetVolume(ecs::events::SecondaryMusicSetVolume* pEvent)
+{
+	mSoundMixer->AddMusicMessage({
+		pEvent->volume,
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_FUNC_SET_GAIN |
+		Audio::Music::M_TARGET_SECONDARY
+	});
 }
 
 void ecs::systems::SoundMessageSystem::ProcessSubMusicSetVolume(ecs::events::SubMusicSetVolume* pEvent)
