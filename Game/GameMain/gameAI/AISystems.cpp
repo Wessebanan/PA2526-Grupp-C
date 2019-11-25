@@ -1578,8 +1578,8 @@ void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float de
 	WeaponComponent* p_weapon;
 
 
-	/*if (p_aibrain->mTimer >= 4.0f)
-	{*/
+	if (p_aibrain->mTimer >= 1.5f)
+	{
 		number_of_units_left = p_army->unitIDs.size();
 		if (number_of_units_left > 0)
 		{
@@ -1644,11 +1644,11 @@ void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float de
 		e.newState = new_state;
 		ECSUser::createEvent(e);
 		p_aibrain->mTimer = 0.0f;
-	/*}
+	}
 	else
 	{
 		p_aibrain->mTimer += delta;
-	}*/
+	}
 }
 
 /************************************************/

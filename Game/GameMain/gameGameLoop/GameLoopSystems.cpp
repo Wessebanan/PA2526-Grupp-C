@@ -184,6 +184,7 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 			{
 				AiBrainComponent ai_brain;
 				ai_brain.mPlayer = p_army_comp->playerID;
+				ai_brain.mTimer = ai_brain.mPlayer;
 				ECSUser::createComponent(p_army_comp->getEntityID(), ai_brain);
 			}
 		}
