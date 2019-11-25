@@ -174,7 +174,7 @@ int main()
 			/*
 				Update all ECS systems, and give them the delta time.
 			*/
-			ecs.update(timer.GetFrameTime());
+			ecs.update(timer.GetFrameTime() * 2.f);
 
 			graphics::Present(0);
 		}
@@ -216,6 +216,12 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 		if (p_tile->tileType != WATER)
 		{
 			place_event.type = (GAME_OBJECT_TYPES)((rand() % TRAP_TYPE_COUNT) + (int)(GAME_OBJECT_TYPE_TRAP_OFFSET_TAG)+1);
+			
+			if (place_event.type != GAME_OBJECT_TYPE_TRAP_FREEZE)
+			{
+				continue;
+			}
+
 			place_event.tileID = p_tile->getEntityID();
 			rECS.createEvent(place_event);
 		}
@@ -241,8 +247,8 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitAI(rECS);
 
-	InitSound(rECS);
-	InitSong(rECS);
+	//InitSound(rECS);
+	//InitSong(rECS);
 
 	InitInput(rECS);
 	InitInterpreter(rECS);

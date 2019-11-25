@@ -24,6 +24,7 @@ ECSComponentPool::~ECSComponentPool()
 	}
 }
 
+#include <iostream>
 BaseComponent* ECSComponentPool::create(BaseComponent& _component)
 {
 	this->componentName = _component.getName(); // TODO: remove this

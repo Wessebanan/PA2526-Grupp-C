@@ -211,7 +211,6 @@ void EntityComponentSystem::update(float _delta)
 			/*
 			*	Fetch the system's update behaviour and act accordingly.
 			*/
-
 			
 			try
 			{
@@ -731,6 +730,19 @@ void EntityComponentSystem::fillEntityIteratorInternal(TypeFilter& _componentFil
 		{
 			
 			Entity* pEntity = entityMgr.getEntity(pComponent->getEntityID());
+
+			if (!pEntity)
+			{
+				std::cout << "Entity of component " << pComponent->getName() << " is null. Component data:" <<
+					"\n\tID\t\t= " << pComponent->getID() <<
+					"\n\tTypeID\t\t= " << pComponent->getTypeID() <<
+					"\n\tEntityID\t= " << pComponent->getEntityID() << 
+					"\n\tState\t\t= " << (pComponent->alive ? "alive" : "dead") << "\n";
+				std::cout << "There exist " << componentMgr.getComponentCountOfType(pComponent->getTypeID()) << " components of type " << pComponent->getName() << "\n";
+				
+				system("pause");
+				throw "Entity is null.";
+			}
 
 			FilteredEntity info;
 			bool entityIsValid = true;

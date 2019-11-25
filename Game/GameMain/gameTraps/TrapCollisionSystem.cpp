@@ -51,6 +51,12 @@ namespace ecs
 			XMVECTOR unit_position;
 			for (FilteredEntity& unit : units.entities)
 			{
+				// Don't check dead units
+				if (unit.entity->hasComponentOfType<DeadComponent>())
+				{
+					continue;
+				}
+
 				unit_position = XMLoadFloat3(&unit.getComponent<components::TransformComponent>()->position);
 
 				/*

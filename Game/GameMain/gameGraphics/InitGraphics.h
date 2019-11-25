@@ -129,8 +129,8 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 
 	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 
-	rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_render_buffer);
+	//rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_render_buffer);
 
 	rEcs.createSystem<systems::WeaponRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
