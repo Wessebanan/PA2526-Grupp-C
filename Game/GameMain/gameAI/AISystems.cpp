@@ -1546,3 +1546,111 @@ void ecs::systems::PotentialArmyHazardSystem::updateEntity(FilteredEntity& entit
 /************************************************/
 /*******  POTENTIALARMYHAZARDSYSTEM END  *******/
 /**********************************************/
+
+/************************************************/
+/************  AIPLAYERSYSTEM START  ***********/
+/**********************************************/
+
+ecs::systems::AIPlayerSystem::AIPlayerSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(components::AiBrainComponent::typeID);
+	typeFilter.addRequirement(components::ArmyComponent::typeID);
+}
+
+ecs::systems::AIPlayerSystem::~AIPlayerSystem()
+{
+
+}
+
+void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	AiBrainComponent* p_aibrain = ECSUser::getComponentFromKnownEntity<AiBrainComponent>(entity.entity->getID());
+	ArmyComponent* p_army = ECSUser::getComponentFromKnownEntity<ArmyComponent>(entity.entity->getID());
+	int number_of_weapons = 0;
+	bool loot_exists = false;
+	STATE new_state = ATTACK;
+	int number_of_units_left;
+	float distance = 0.0f;
+	int units_needs_to_rally = 0;
+
+	EquipmentComponent* p_equipment;
+	WeaponComponent* p_weapon;
+
+
+	if (p_aibrain->mTimer >= 1.5f)
+	{
+		number_of_units_left = p_army->unitIDs.size();
+		if (number_of_units_left > 0)
+		{
+			for (int i = 0; i < number_of_units_left; i++)
+			{
+				distance = PhysicsHelpers::CalculateDistance(ECSUser::getComponentFromKnownEntity<TransformComponent>(p_army->unitIDs[0])->position,
+					ECSUser::getComponentFromKnownEntity<TransformComponent>(p_army->unitIDs[i])->position);
+				if (distance > 8.0f)
+				{
+					units_needs_to_rally++;
+				}
+			}
+			if (units_needs_to_rally > 1)
+			{
+				new_state = RALLY;
+			}
+			else
+			{
+				for (int u = 0; u < number_of_units_left; u++)
+				{
+					p_equipment = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(p_army->unitIDs[u]);
+					if (p_equipment) //Sanity Check
+					{
+						p_weapon = ECSUser::getComponentFromKnownEntity<WeaponComponent>(p_equipment->mEquippedWeapon);
+						if (p_weapon) //Sanity
+						{
+							if (p_weapon->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
+							{
+								number_of_weapons++;
+							}
+						}
+					}
+				}
+			}
+		}
+		if (number_of_weapons < 2 && number_of_units_left > 1)
+		{
+			if (GridProp::GetInstance()->mLootTiles.size() > 0)
+			{
+				new_state = LOOT;
+			}
+		}
+
+		switch (new_state)
+		{
+		case ATTACK:
+			new_state = ATTACK;
+			break;
+		case LOOT:
+			new_state = LOOT;
+			break;
+		case RALLY:
+			new_state = RALLY;
+			break;
+		default:
+			break;
+		}
+		
+
+		ChangeUserStateEvent e;
+		e.playerId = p_aibrain->mPlayer;
+		e.newState = new_state;
+		ECSUser::createEvent(e);
+		p_aibrain->mTimer = 0.0f;
+	}
+	else
+	{
+		p_aibrain->mTimer += delta;
+	}
+}
+
+/************************************************/
+/*************  AIPLAYERSYSTEM END  ************/
+/**********************************************/
