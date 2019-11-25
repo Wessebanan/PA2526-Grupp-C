@@ -3,6 +3,8 @@
 #include "GridFunctions.h"
 #include "../MeshContainer/MeshContainer.h"
 
+#include "../gameGraphics/ParticleECSComponents.h"
+
 #pragma region WeaponInitSystem
 ecs::systems::WeaponInitSystem::WeaponInitSystem()
 {
@@ -45,7 +47,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 	// outside of the OBB.
 	case GAME_OBJECT_TYPE_WEAPON_SWORD:
 	{
-		vertices = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPES::GAME_OBJECT_TYPE_WEAPON_SWORD)->GetVertexPositionVector();
+		vertices = MeshContainer::GetMeshCPU(weapon_component->mType)->GetVertexPositionVector();
 		weapon_component->mBoundingVolume = new OBB;
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
 		obb->CreateFromPoints(*(BoundingOrientedBox*)obb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
@@ -65,6 +67,29 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		break;
 	}
 
+
+	case GAME_OBJECT_TYPE_WEAPON_HAMMER:
+	{
+		vertices = MeshContainer::GetMeshCPU(weapon_component->mType)->GetVertexPositionVector();
+		weapon_component->mBoundingVolume = new OBB;
+		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
+		obb->CreateFromPoints(*(BoundingOrientedBox*)obb, vertices->size(), vertices->data(), sizeof(XMFLOAT3));
+
+		OBB temp_obb = OBB(*obb);
+		// Applying scale to aabb to find actual range.
+		temp_obb.Transform(UtilityEcsFunctions::GetWorldMatrix(*transform_component));
+
+		// Finding greatest extent in obb and setting that (*2) to attack range (for now).
+		XMFLOAT3 extents = temp_obb.Extents;
+		weapon_component->mWeaponRange = extents.x > extents.y ? (extents.x > extents.z ? extents.x : extents.z) : (extents.y > extents.z ? extents.y : extents.z);
+		weapon_component->mWeaponRange *= 2;
+
+		weapon_component->mBaseDamage = BASE_HAMMER_DAMAGE;
+
+		weapon_component->mKnockback = HAMMER_KNOCKBACK;
+		break;
+	}
+
 	case GAME_OBJECT_TYPE_WEAPON_FIST:
 	{
 		// Fist is only a unit sphere, supposed to get hand transform.
@@ -79,6 +104,22 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 		weapon_component->mBaseDamage = BASE_FIST_DAMAGE;
 
 		weapon_component->mKnockback = FIST_KNOCKBACK;
+		break;
+	}
+	case GAME_OBJECT_TYPE_WEAPON_BOMB:
+	{
+		// Fist is only a unit sphere, supposed to get hand transform.
+		weapon_component->mBoundingVolume = new Sphere;
+		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
+		sphere->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+		sphere->Radius = BOMB_PICKUP_RADIUS;
+
+		// TODO: Get arm length and set to attack range.
+		weapon_component->mWeaponRange = BOMB_ATTACK_RANGE;
+
+		weapon_component->mBaseDamage = BASE_BOMB_DAMAGE;
+
+		weapon_component->mKnockback = BOMB_KNOCKBACK;
 		break;
 	}
 	default:
@@ -127,12 +168,14 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	switch (weapon_component->mType)
 	{
 	case GAME_OBJECT_TYPE_WEAPON_SWORD:
+	case GAME_OBJECT_TYPE_WEAPON_HAMMER:
 	{
 		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
 		weapon_bv = new OBB(*obb);
 		break;
 	}
 	case GAME_OBJECT_TYPE_WEAPON_FIST:
+	case GAME_OBJECT_TYPE_WEAPON_BOMB:
 	{
 		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
 		weapon_bv = new Sphere(*sphere);
@@ -222,6 +265,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		intersect = weapon_bv->Intersects(&current_aabb);
 		if (intersect)
 		{
+
 			collided_unit = current_unit;
 			break;
 		}
@@ -236,7 +280,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		{
 			WeaponComponent* current_weapon = getComponentFromKnownEntity<WeaponComponent>(equipment_component->mEquippedWeapon);
 			// If it's the same weapon type, don't do anything.
-			if (current_weapon->mType == weapon_component->mType)
+			if (!current_weapon || current_weapon->mType == weapon_component->mType)
 			{
 				return;
 			}
@@ -258,6 +302,11 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		equipment_component->mAttackRange = equipment_component->mMeleeRange + weapon_component->mWeaponRange;
 
+		if (weapon_component->mType == GAME_OBJECT_TYPE_WEAPON_BOMB)
+		{
+			static_cast<Sphere*>(weapon_component->mBoundingVolume)->Radius = TO_UNIT_SCALE(BOMB_ATTACK_RANGE);
+		}
+
 		equipment_component->mEquippedWeapon = weapon->getID();
 		weapon_component->mOwnerEntity = collided_unit;
 		GridProp* p_gp = GridProp::GetInstance();
@@ -271,6 +320,20 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 				break;
 			}
 		}
+	}
+	// If weapon is a bomb, create "OnHitEvent" with a bomb
+	else if (intersect && weapon_component->mType == GAME_OBJECT_TYPE_WEAPON_BOMB)
+	{
+		WeaponOnHitEvent hit_event;
+		hit_event.Type			= weapon_component->mType;
+		hit_event.Position		= weapon_transform_component->position;
+		hit_event.Range			= BOMB_BLAST_RADIUS;
+		hit_event.Damage		= weapon_component->mBaseDamage;
+		hit_event.Knockback		= weapon_component->mKnockback;
+		hit_event.WeaponID		= weapon_component->getEntityID();
+		hit_event.OwnerUnitID	= weapon_component->mOwnerEntity;
+
+		createEvent(hit_event);
 	}
 	else if (intersect)
 	{
@@ -449,4 +512,130 @@ void ecs::systems::UnitInvincibilityTimerSystem::updateEntity(FilteredEntity& _e
 		removeComponent(_entity.entity->getID(), InvincilibityTimer::typeID);
 	}
 }
+#pragma endregion
+
+#pragma region WeaponOnHitSystem
+
+ecs::systems::WeaponOnHitSystem::WeaponOnHitSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(WeaponOnHitEvent::typeID);
+}
+
+ecs::systems::WeaponOnHitSystem::~WeaponOnHitSystem()
+{
+
+}
+
+void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
+{
+	if (_event.getTypeID() != WeaponOnHitEvent::typeID)
+	{
+		return;
+	}
+
+	const WeaponOnHitEvent& hit_event = static_cast<WeaponOnHitEvent&>(_event);
+	const XMVECTOR weapon_position = XMLoadFloat3(&hit_event.Position);
+
+	// Grabbing and storing all ocean tiles.
+	TypeFilter unit_filter;
+	unit_filter.addRequirement(components::UnitComponent::typeID);
+	unit_filter.addRequirement(components::TransformComponent::typeID);
+	unit_filter.addRequirement(components::HealthComponent::typeID);
+
+	EntityIterator iter = getEntitiesByFilter(unit_filter);
+
+	// If type is a bomb
+	if (hit_event.Type == GAME_OBJECT_TYPE_WEAPON_BOMB)
+	{
+		for (FilteredEntity& unit : iter.entities)
+		{
+			const TransformComponent* p_unit_transform = unit.getComponent<TransformComponent>();
+			const XMVECTOR unit_position = XMLoadFloat3(&p_unit_transform->position);
+			const XMVECTOR unit_weapon_v = unit_position - weapon_position;
+			const float unit_weapon_dist = XMVectorGetX(XMVector3Length(unit_weapon_v));
+			
+			/*
+				Impact:
+					 = 1.0f : At Bomb
+					>= 0.0f : Within Range
+					<  0.0f : Not within range
+
+				Can be used to decrease dmg and knockback with distance
+			*/
+			const float impact = (hit_event.Range - unit_weapon_dist) / hit_event.Range;
+
+
+			// if unit will receive impact (Looks at all units)
+			if (impact >= 0.0f)
+			{
+				// Calculating damage by multiplying weapon velocity and the base damage.
+				const float damage = hit_event.Damage;
+				HealthComponent* p_collided_constitution = unit.getComponent<HealthComponent>();
+				p_collided_constitution->mHealth -= damage;
+
+				// KNOCKBACK
+				ForceImpulseEvent knockback;
+				XMStoreFloat3(&knockback.mDirection, unit_weapon_v);
+				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
+
+				// Small y boost in knockback to send units FLYING.
+				knockback.mDirection.y += 1.f;
+
+				// Normalize knockback direction so it's not CRAZY.
+				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
+
+				knockback.mForce = hit_event.Knockback;
+				knockback.mEntityID = unit.entity->getID();
+				createEvent(knockback);
+
+
+				// VISUAL
+				ColorSwitchEvent damage_flash;
+				damage_flash.mColor = WHITE;
+				damage_flash.mEntityID = unit.entity->getID();
+				damage_flash.mTime = 0.05f;
+				createEvent(damage_flash);
+			}
+		}
+
+		// Make Explosion!
+		ecs::components::ParticleSpawnerComponent particle_spawner;
+		ecs::components::BombSpawnerComponent bomb_spawner;
+
+		particle_spawner.StartPosition = hit_event.Position;
+		particle_spawner.SpawnFrequency = 0.1f;
+		particle_spawner.LifeDuration = 0.5f;
+
+		bomb_spawner.InitialVelocity = 16.0f;
+		bomb_spawner.SpawnCount = 2000.0f;
+
+		createEntity(particle_spawner, bomb_spawner);
+		// ---
+
+		components::EquipmentComponent* p_equipment = getComponentFromKnownEntity<components::EquipmentComponent>(hit_event.OwnerUnitID);
+
+		// Remove bomb after use
+		if (p_equipment)
+		{
+
+			removeEntity(hit_event.WeaponID);
+
+			/*
+				Create fist entity
+			*/
+
+			WeaponComponent fist_weapon;
+			TransformComponent fist_transform;
+			fist_weapon.mType = GAME_OBJECT_TYPE_WEAPON_FIST;
+			fist_weapon.mOwnerEntity = hit_event.OwnerUnitID;
+			fist_transform.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
+			Entity* p_fist = createEntity(fist_transform, fist_weapon);
+
+			p_equipment->mEquippedWeapon = p_fist->getID();
+			p_equipment->mAttackRange = p_equipment->mMeleeRange;
+		}
+	}
+}
+
 #pragma endregion
