@@ -86,12 +86,14 @@ namespace AIEcsFunctions
 				break;
 			}
 
-
+			AiBrainComponent brain;
+			brain.mPlayer = (PLAYER)i;
+			brain.mTimer = i * 1;
 
 			army.playerID = (PLAYER)i;
 
 			//Create the user entity
-			rEcs.createEntity(army, command_text_comp, text_pos_comp, text_color_comp);
+			rEcs.createEntity(army, command_text_comp, text_pos_comp, text_color_comp, brain);
 			rEcs.createEntity(text_pos_comp, gay_color_comp, yaaa);
 		}
 	}

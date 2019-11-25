@@ -161,6 +161,10 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 	int check_any_live = 0;
 	PLAYER alive_player;
 	ArmyComponent* p_army_comp;
+	ComponentIterator comp_it = ECSUser::getComponentsOfType<InputBackendComp>();
+	InputBackendComp* p_inputbackend;
+	p_inputbackend = static_cast<InputBackendComp*>(comp_it.next());
+	
 	for (FilteredEntity& army : _entities.entities)
 	{
 		p_army_comp = army.getComponent<ArmyComponent>();
@@ -169,6 +173,19 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 		{
 			check_any_live++;
 			alive_player = p_army_comp->playerID;
+		}
+		if (p_inputbackend->backend->mpPlayerIsConnected[p_army_comp->playerID] == true)
+		{
+			ECSUser::removeComponent(p_army_comp->getEntityID(), AiBrainComponent::typeID);
+		}	
+		else
+		{
+			if (!ECSUser::getEntity(p_army_comp->getEntityID())->hasComponentOfType<AiBrainComponent>())
+			{
+				AiBrainComponent ai_brain;
+				ai_brain.mPlayer = p_army_comp->playerID;
+				ECSUser::createComponent(p_army_comp->getEntityID(), ai_brain);
+			}
 		}
 	}
 

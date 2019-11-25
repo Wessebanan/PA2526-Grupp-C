@@ -104,5 +104,11 @@ namespace ecs
 		{
 			STATE mCurrentStates[4];
 		};
+
+		struct AiBrainComponent : public ECSComponent<AiBrainComponent>
+		{
+			PLAYER mPlayer;
+			float mTimer = 0.0f;
+		};
 	}
 }
