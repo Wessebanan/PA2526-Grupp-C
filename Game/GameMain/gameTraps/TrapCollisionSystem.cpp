@@ -94,6 +94,14 @@ namespace ecs
 					createEvent(spring_event);
 					break;
 				}
+
+				case GAME_OBJECT_TYPE_TRAP_SPIKES:
+				{
+					events::TriggerSpikeTrapEvent spike_event;
+					spike_event.unitID = unit.entity->getID();
+					createEvent(spike_event);
+					break;
+				}
 				}
 			}
 
@@ -101,10 +109,10 @@ namespace ecs
 				Remove trap if triggered
 			*/
 
-			if (has_been_triggered)
-			{
-				removeEntity(trap.entity->getID());
-			}
+			//if (has_been_triggered)
+			//{
+			//	removeEntity(trap.entity->getID());
+			//}
 		}
 	}
 }

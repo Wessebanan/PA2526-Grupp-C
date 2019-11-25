@@ -39,5 +39,10 @@ namespace ecs
 
 			float mElapsedTime = 0;
 		};
+
+		struct SpikeTrapComponent : public ecs::ECSComponent<SpikeTrapComponent>
+		{
+
+		};
 	}
 }

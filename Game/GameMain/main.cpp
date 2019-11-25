@@ -300,18 +300,22 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	DebuggFunctions(rECS);
 
-	//events::SpawnWeaponEvent spawn_event;
-	//spawn_event.weaponType = GAME_OBJECT_TYPE_WEAPON_BOMB;
-	//TypeFilter tile_filter;
-	//tile_filter.addRequirement(ecs::components::TileComponent::typeID);
-	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
-	//for (FilteredEntity tile : tiles.entities)
-	//{
-	//	components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
-	//	if (p_tile->tileType != WATER)
-	//	{
-	//		spawn_event.spawnTileId = p_tile->getEntityID();
-	//		rECS.createEvent(spawn_event);
-	//	}
-	//}
+	events::PlaceTrapEvent spawn_event;
+	TypeFilter tile_filter;
+	tile_filter.addRequirement(ecs::components::TileComponent::typeID);
+	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+
+	int count = 0;
+	for (FilteredEntity tile : tiles.entities)
+	{
+		components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
+		if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
+		{
+			spawn_event.type = GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
+			spawn_event.tileID = p_tile->getEntityID();
+			rECS.createEvent(spawn_event);
+		}
+
+		count++;
+	}
 }

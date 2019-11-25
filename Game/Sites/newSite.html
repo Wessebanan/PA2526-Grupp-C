@@ -403,6 +403,9 @@
                 case 2: // SPRING
                     trapText = "SPRING";
                 break;
+                case 3: // SPIKES
+                    trapText = "SPIKES";
+                break;
                 default:
                     trapText = "ERROR";
                 break;
@@ -426,7 +429,7 @@
             resetAreaColors();
             resetTrapColors();
 
-            var trapCount = 3;
+            var trapCount = 4;
 
             window.trap0 = Math.floor(Math.random() * trapCount);
             window.trap2 = Math.floor(Math.random() * trapCount);

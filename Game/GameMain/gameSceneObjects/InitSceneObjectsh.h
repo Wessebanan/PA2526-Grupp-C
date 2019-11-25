@@ -8,7 +8,7 @@
 
 void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 {
-	const unsigned int OBJECTCOUNT = 12;
+	const unsigned int OBJECTCOUNT = 16;
 	
 	ecs::components::SceneObjectComponent p_scene_obj;
 	ecs::components::TransformComponent transf_comp;

@@ -82,15 +82,19 @@ namespace ecs
 			switch (trap_comp.mObjectType)
 			{
 			case GAME_OBJECT_TYPE_TRAP_FIRE:
-				color_comp = components::ColorComponent(255, 0, 0);
+				color_comp = components::ColorComponent(40, 40, 40);
 				break;
 
 			case GAME_OBJECT_TYPE_TRAP_FREEZE:
-				color_comp = components::ColorComponent(120, 120, 222);
+				color_comp = components::ColorComponent(150, 150, 150);
 				break;
 
 			case GAME_OBJECT_TYPE_TRAP_SPRING:
 				color_comp = components::ColorComponent(191, 128, 64);
+				break;
+
+			case GAME_OBJECT_TYPE_TRAP_SPIKES:
+				color_comp = components::ColorComponent(50, 50, 50);
 				break;
 
 

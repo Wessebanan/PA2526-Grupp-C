@@ -38,6 +38,9 @@ namespace ecs
 			TypeID unitID;
 			TypeID tileID;
 		};
-
+		struct TriggerSpikeTrapEvent : public ecs::ECSEvent<TriggerSpikeTrapEvent>
+		{
+			TypeID unitID;
+		};
 	}
 }

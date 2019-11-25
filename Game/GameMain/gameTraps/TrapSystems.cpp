@@ -137,7 +137,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 			HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(id);
 			if (p_hp_comp)
 			{
-				p_hp_comp->mHealth -= mDamage;
+				p_hp_comp->mHealth -= mDamage * delta;
 
 				// Make the unit jump a litte, fire is hot and so am I
 				ForceImpulseEvent knockback;
@@ -322,4 +322,27 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 			createComponent(tileID,p_sr_comp);
 		}
 	}
+}
+
+ecs::systems::SpikeTrapEventSystem::SpikeTrapEventSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(ecs::events::TriggerSpikeTrapEvent::typeID);
+}
+
+ecs::systems::SpikeTrapEventSystem::~SpikeTrapEventSystem()
+{
+	//
+}
+
+void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta)
+{
+	if (event.getTypeID() != ecs::events::TriggerSpikeTrapEvent::typeID)
+	{
+		return;
+	}
+
+	ecs::events::TriggerSpikeTrapEvent& r_event = static_cast<ecs::events::TriggerSpikeTrapEvent&>(event);
+	
+	// Handle damage on unit
 }
