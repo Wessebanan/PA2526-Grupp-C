@@ -35,6 +35,26 @@ void Audio::Plugin::Sampler::SetReadPointer(Samples readPointer)
 	mReadPointer = readPointer;
 }
 
+Audio::Plugin::Status Audio::Plugin::Sampler::Progress(Samples start, Samples sampleCount, int channelCount)
+{
+	mReadPointer += sampleCount * channelCount;
+
+	Samples sample_count = mpFile->GetSampleCount();
+	if (mReadPointer >= sample_count)
+	{
+		// Go back to the start
+		mReadPointer %= sample_count;
+		// Signal to finish this voice if done
+		// repeating
+		if (mRepeatAmount == 1)
+		{
+			return Status::STATUS_FINISHED;
+		}
+		mRepeatAmount--;
+	}
+	return Status::STATUS_OK;
+}
+
 // TODO: This sampler does not support mono wav files!
 Audio::Plugin::Status Audio::Plugin::Sampler::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
 {
@@ -131,7 +151,7 @@ Audio::Plugin::Status Audio::Plugin::Gain::Process(Samples start, Samples sample
 	// If the gain is 0, just fill with 0, so sound will be playing
 	if (mGain == 0.0f)
 	{
-		status = Status::STATUS_OK;
+		status = mpNext->Progress(start, sampleCount, channelCount);
 		for (int i = 0; i < sampleCount; i++)
 		{
 			for (int j = 0; j < channelCount; j++)
@@ -171,4 +191,9 @@ void Audio::Plugin::Plugin::SetNextPointer(Plugin* pNext, bool NextIsOnStack)
 {
 	mpNext = pNext;
 	mNextIsOnStack = NextIsOnStack;
+}
+
+Audio::Plugin::Status Audio::Plugin::Plugin::Progress(Samples start, Samples sampleCount, int channelCount)
+{
+	return Status::STATUS_OK;
 }

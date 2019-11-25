@@ -96,9 +96,19 @@ void Audio::Music::Manager::ProcessMusicMessages()
 			case M_TARGET_MAIN:
 				mSubData.Sampler.SetReadPointer(
 					mMainData.Sampler.GetReadPointer());
+				mSecondaryData.Sampler.SetReadPointer(
+					mMainData.Sampler.GetReadPointer());
+				break;
+			case M_TARGET_SECONDARY:
+				mMainData.Sampler.SetReadPointer(
+					mSecondaryData.Sampler.GetReadPointer());
+				mSubData.Sampler.SetReadPointer(
+					mSecondaryData.Sampler.GetReadPointer());
 				break;
 			case M_TARGET_SUB:
 				mMainData.Sampler.SetReadPointer(
+					mSubData.Sampler.GetReadPointer());
+				mSecondaryData.Sampler.SetReadPointer(
 					mSubData.Sampler.GetReadPointer());
 				break;
 			}

@@ -217,7 +217,7 @@ void ecs::systems::SoundMessageSystem::ProcessPlayMusic(ecs::events::PlayMusic* 
 		(*mSoundBank)[pEvent->audioName],
 		Audio::Music::M_DATA_AS_PARAMETER |
 		Audio::Music::M_FUNC_REPLACE_MUSIC |
-		Audio::Music::M_SYNC_THIS_WITH_OTHER
+		Audio::Music::M_SYNC_OTHER_WITH_THIS
 	});
 }
 
@@ -228,7 +228,7 @@ void ecs::systems::SoundMessageSystem::ProcessPlaySecondaryMusic(ecs::events::Pl
 		Audio::Music::M_DATA_AS_PARAMETER |
 		Audio::Music::M_FUNC_REPLACE_MUSIC |
 		Audio::Music::M_TARGET_SECONDARY |
-		Audio::Music::M_SYNC_THIS_WITH_OTHER
+		Audio::Music::M_SYNC_OTHER_WITH_THIS
 	});
 }
 
@@ -239,7 +239,7 @@ void ecs::systems::SoundMessageSystem::ProcessPlaySubMusic(ecs::events::PlaySubM
 		Audio::Music::M_DATA_AS_PARAMETER |
 		Audio::Music::M_FUNC_REPLACE_MUSIC |
 		Audio::Music::M_TARGET_SUB |
-		Audio::Music::M_SYNC_THIS_WITH_OTHER
+		Audio::Music::M_SYNC_OTHER_WITH_THIS
 	});
 }
 
