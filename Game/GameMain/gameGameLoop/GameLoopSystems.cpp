@@ -266,16 +266,6 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		{
 			p_ib->backend->changeGamestate(WEBGAMESTATE::BATTLEPHASE);
 		}
-		//{
-		//	ecs::events::PlayMusic m_event;
-		//	m_event.audioName = AudioName::SOUND_cc_song;
-		//	createEvent(m_event);
-		//}
-		//{
-		//	ecs::events::MusicSetVolume m_event;
-		//	m_event.volume = 0.0f;
-		//	createEvent(m_event);
-		//}
 		{
 			ecs::events::FadeInMusic m_event;
 			m_event.fadeInTimeInSeconds = 2.0f;
