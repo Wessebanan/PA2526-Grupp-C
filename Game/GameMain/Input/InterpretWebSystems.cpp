@@ -194,6 +194,7 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 					InputBackendComp* p_backend = _entityInfo.getComponent<InputBackendComp>();
 
 					p_backend->backend->resetUserButtonAndTile(i);
+					p_backend->mPlacedTraps[i]++;
 				}
 			}
 		}
