@@ -200,7 +200,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_CAGE, "../meshes/Cage.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_COWSKULL, "../meshes/CowSkull.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_FRUITTREE, "../meshes/FruitTree.fbx");
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_GIANTSKULL, "../meshes/GiantSkull.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_GIANTSKULL, "../meshes/crystal_formation.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER, "../meshes/Tower.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WORLD_SCENE_SHARK, "../meshes/shark_fin.fbx");
@@ -275,7 +275,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER_TOWER, "../meshes/tower_tower.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER_CAGE, "../meshes/tower_cage.fbx");
 
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_GIANTSKULL, "../meshes/GiantSkull.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_CRYSTAL_FORMATION, "../meshes/crystal_formation.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_CAGE, "../meshes/Cage.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_COWSKULL, "../meshes/CowSkull.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_BOX, "../meshes/Box.fbx");
