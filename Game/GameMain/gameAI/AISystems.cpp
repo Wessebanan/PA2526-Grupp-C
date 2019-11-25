@@ -1153,8 +1153,6 @@ void ecs::systems::AttackStateSystem::updateEntity(FilteredEntity& entity, float
 		//Calculate distance to the enemy unit
 		XMFLOAT3 friendly_pos = p_current_unit_transform->position;
 		XMFLOAT3 enemy_pos = p_enemy_unit_transform->position;
-		friendly_pos.y = 0;
-		enemy_pos.y = 0;
 		distance = PhysicsHelpers::CalculateDistance(friendly_pos, enemy_pos);
 		//If the enemy is not within attack range remove attack component
 		if (distance > p_equipment_comp->mAttackRange * 1.5f)
@@ -1191,6 +1189,9 @@ ecs::systems::RemoveDeadUnitsSystem::RemoveDeadUnitsSystem()
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(DeadComponent::typeID);
 	typeFilter.addRequirement(UnitComponent::typeID);
+	typeFilter.addRequirement(DynamicMovementComponent::typeID);
+	typeFilter.addRequirement(TransformComponent::typeID);
+	typeFilter.addRequirement(ColorComponent::typeID);
 }
 
 ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
@@ -1201,7 +1202,7 @@ ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
 void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, float delta)
 {
 	DeadComponent* p_dead = entity.getComponent<DeadComponent>();
-	if(!p_dead->hasDiedBefore)
+	if(!p_dead->hasDiedBefore)// Check if the unit have been in this funtion before if it have then don't do certain things
 	{ 
 		// The killers ID
 		unsigned int killer_id = getComponentFromKnownEntity<HealthComponent>(entity.entity->getID())->mHitBy;
@@ -1231,6 +1232,24 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		// saved fo future use
 					//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
 		//UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
+		//Fetch the units weapon data.
+		EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
+		Entity* weapon_entity = ECSUser::getEntity(equipment_comp->mEquippedWeapon);
+		WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
+		//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
+
+		if (weapon_entity)
+		{
+			if (weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+			{
+				ECSUser::removeEntity(weapon_entity->getID());
+			}
+			else
+			{
+				ECSUser::removeEntity(weapon_entity->getID());
+				//weapon_comp->mOwnerEntity = 0;
+			}
+		}
 		UnitComponent* p_unit = entity.getComponent<UnitComponent>();
 		ComponentIterator itt = getComponentsOfType<ArmyComponent>();
 		ArmyComponent* p_army;
@@ -1279,13 +1298,15 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		p_dead->hasDiedBefore = true;
 	}
 
-	// Make them fly and turn white :)
-	DynamicMovementComponent* unit_dyn_move = getComponentFromKnownEntity<DynamicMovementComponent>(entity.entity->getID());
-	TransformComponent* unit_transform = getComponentFromKnownEntity<TransformComponent>(entity.entity->getID());
-	ColorComponent* unit_color = getComponentFromKnownEntity<ColorComponent>(entity.entity->getID());
+	//Make them fly and turn white :)
+	DynamicMovementComponent* unit_dyn_move = entity.getComponent<DynamicMovementComponent>();
+	TransformComponent* unit_transform = entity.getComponent<TransformComponent>();
+	ColorComponent* unit_color = entity.getComponent<ColorComponent>();
+	//White
 	unit_color->red		= 255;
 	unit_color->green	= 255;
 	unit_color->blue	= 255;
+	//Remove gravity and give them a constant up velocity
 	unit_dyn_move->mGravity = 0.f;
 	unit_dyn_move->mVelocity.y = 2.f;
 	unit_dyn_move->mVelocity.x = 0.f;
@@ -1293,24 +1314,6 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 	//Remove the dead unit
 	if(unit_transform->position.y >= 20.f)
 	{
-		//Fetch the units weapon data.
-		EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
-		Entity* weapon_entity = ECSUser::getEntity(equipment_comp->mEquippedWeapon);
-		WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
-		//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
-
-		if(weapon_entity)
-		{
-			if (weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
-			{
-				ECSUser::removeEntity(weapon_entity->getID());
-			}
-			else
-			{
-				ECSUser::removeEntity(weapon_entity->getID());
-				//weapon_comp->mOwnerEntity = 0;
-			}
-		}
 		ECSUser::removeEntity(entity.entity->getID());
 	}
 }
