@@ -108,8 +108,6 @@ namespace ModelLoader
 			// Initialize the animation flags with -1 for missing animation
 			std::fill(animationFlags, animationFlags + ANIMATION_COUNT, -1);
 		}
-		// DO NOT USE THIS FUNCTION, THIS IS KEPT PURELY FOR LEGACY PURPOSES
-		// INSTEAD USE UpdateAnimation in UNIQUESKELETONDATA TO FETCH AND CALCULATE ANIMATIONS
 		// Currently does not blend animations, simply updates the global animationData with info from the first enabled animation.
 		void UpdateAnimation(float dtInSeconds)
 		{
@@ -128,8 +126,6 @@ namespace ModelLoader
 				}
 			}
 		}
-		// DO NOT USE THIS FUNCTION, THIS IS KEPT PURELY FOR LEGACY PURPOSES
-		// INSTEAD USE UpdateAnimation in UNIQUESKELETONDATA TO FETCH AND CALCULATE ANIMATIONS
 		// Returns false if requested animation does not exist
 		bool StartAnimation(ANIMATION_TYPE anim_type)
 		{
@@ -144,8 +140,6 @@ namespace ModelLoader
 			}
 			return false;
 		}
-		// DO NOT USE THIS FUNCTION, THIS IS KEPT PURELY FOR LEGACY PURPOSES
-		// INSTEAD USE UpdateAnimation in UNIQUESKELETONDATA TO FETCH AND CALCULATE ANIMATIONS
 		// Returns false if requested animation does not exist
 		bool StopAnimation(ANIMATION_TYPE anim_type)
 		{
@@ -169,10 +163,7 @@ namespace ModelLoader
 		// Default to idle
 		int mActiveAnimation = (int)ModelLoader::ANIMATION_TYPE::IDLE; 
 		int mPrevAnimation = -1;
-		DirectX::XMFLOAT4X4 identity_xmfloat[64] = { DirectX::XMFLOAT4X4({ 1.0f, 0.0f, 0.0f, 0.0f,
-					   0.0f, 1.0f, 0.0f, 0.0f,
-					   0.0f, 0.0f, 1.0f, 0.0f,
-					   0.0f, 0.0f, 0.0f, 1.0f }) };
+
 		float mPrevAnimTransitionTime = -1.0f;
 	public:
 
@@ -268,16 +259,7 @@ namespace ModelLoader
 					delete[] prevFrameData;
 				}
 			}
-			else
-			{
-				// If animation is missing, apply t-pose
-				memcpy(&this->frameData[0],
-					identity_xmfloat,
-					this->parentSkeleton->jointCount * sizeof(DirectX::XMFLOAT4X4));
-				int debugIntPlsRemove = 0;
-				debugIntPlsRemove++;
 
-			}
 		}
 		// DO NOT USE THIS FUNCTION, THIS IS KEPT PURELY FOR LEGACY PURPOSES
 		// INSTEAD USE UpdateAnimation in UNIQUESKELETONDATA TO FETCH AND CALCULATE ANIMATIONS
