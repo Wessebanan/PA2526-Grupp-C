@@ -75,6 +75,7 @@ namespace ModelLoader
 		IDLE,
 		MOVE,
 		ATTACK,
+		ATTACK2,
 		ANIMATION_COUNT
 	};
 
@@ -107,6 +108,8 @@ namespace ModelLoader
 			// Initialize the animation flags with -1 for missing animation
 			std::fill(animationFlags, animationFlags + ANIMATION_COUNT, -1);
 		}
+		// DO NOT USE THIS FUNCTION, THIS IS KEPT PURELY FOR LEGACY PURPOSES
+		// INSTEAD USE UpdateAnimation in UNIQUESKELETONDATA TO FETCH AND CALCULATE ANIMATIONS
 		// Currently does not blend animations, simply updates the global animationData with info from the first enabled animation.
 		void UpdateAnimation(float dtInSeconds)
 		{
@@ -125,6 +128,8 @@ namespace ModelLoader
 				}
 			}
 		}
+		// DO NOT USE THIS FUNCTION, THIS IS KEPT PURELY FOR LEGACY PURPOSES
+		// INSTEAD USE UpdateAnimation in UNIQUESKELETONDATA TO FETCH AND CALCULATE ANIMATIONS
 		// Returns false if requested animation does not exist
 		bool StartAnimation(ANIMATION_TYPE anim_type)
 		{
@@ -139,6 +144,8 @@ namespace ModelLoader
 			}
 			return false;
 		}
+		// DO NOT USE THIS FUNCTION, THIS IS KEPT PURELY FOR LEGACY PURPOSES
+		// INSTEAD USE UpdateAnimation in UNIQUESKELETONDATA TO FETCH AND CALCULATE ANIMATIONS
 		// Returns false if requested animation does not exist
 		bool StopAnimation(ANIMATION_TYPE anim_type)
 		{
@@ -162,7 +169,10 @@ namespace ModelLoader
 		// Default to idle
 		int mActiveAnimation = (int)ModelLoader::ANIMATION_TYPE::IDLE; 
 		int mPrevAnimation = -1;
-
+		DirectX::XMFLOAT4X4 identity_xmfloat[64] = { DirectX::XMFLOAT4X4({ 1.0f, 0.0f, 0.0f, 0.0f,
+					   0.0f, 1.0f, 0.0f, 0.0f,
+					   0.0f, 0.0f, 1.0f, 0.0f,
+					   0.0f, 0.0f, 0.0f, 1.0f }) };
 		float mPrevAnimTransitionTime = -1.0f;
 	public:
 
@@ -175,7 +185,7 @@ namespace ModelLoader
 		}
 		void ResetFrameCount()
 		{
-			this->mCurrentTime = 0.0f + static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+			this->mCurrentTime = 0.0f + static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 0.3f);
 		}
 		void Init(Skeleton* parentSkeleton)
 		{
@@ -186,6 +196,7 @@ namespace ModelLoader
 				this->animationFlags[i] = parentSkeleton->animationFlags[i];
 			}
 		}
+		// This will update the frameData member variable, which contains the necessary skinning matrices
 		void UpdateAnimation(float dtInSeconds, ANIMATION_TYPE animType)
 		{
 			// If we are swapping animation
@@ -218,7 +229,6 @@ namespace ModelLoader
 				{
 					mPrevTime += dtInSeconds;
 					float prev_weight = mPrevAnimTransitionTime / ANIMATION_CROSSFADE_DURATION;
-					//float current_weight = 1.0f - prev_weight;
 					int prev_frame_count = this->parentSkeleton->animations[mPrevAnimation].frameCount;
 					DirectX::XMFLOAT4X4* prevFrameData = new DirectX::XMFLOAT4X4[parentSkeleton->jointCount];
 					int prev_frame_to_set = (int)std::round(fmod(this->mPrevTime * 60.0f, prev_frame_count)) % prev_frame_count;
@@ -258,7 +268,19 @@ namespace ModelLoader
 					delete[] prevFrameData;
 				}
 			}
+			else
+			{
+				// If animation is missing, apply t-pose
+				memcpy(&this->frameData[0],
+					identity_xmfloat,
+					this->parentSkeleton->jointCount * sizeof(DirectX::XMFLOAT4X4));
+				int debugIntPlsRemove = 0;
+				debugIntPlsRemove++;
+
+			}
 		}
+		// DO NOT USE THIS FUNCTION, THIS IS KEPT PURELY FOR LEGACY PURPOSES
+		// INSTEAD USE UpdateAnimation in UNIQUESKELETONDATA TO FETCH AND CALCULATE ANIMATIONS
 		// Returns false if requested animation does not exist
 		bool StartAnimation(ANIMATION_TYPE anim_type)
 		{
@@ -273,6 +295,8 @@ namespace ModelLoader
 			}
 			return false;
 		}
+		// DO NOT USE THIS FUNCTION, THIS IS KEPT PURELY FOR LEGACY PURPOSES
+		// INSTEAD USE UpdateAnimation in UNIQUESKELETONDATA TO FETCH AND CALCULATE ANIMATIONS
 		// Returns false if requested animation does not exist
 		bool StopAnimation(ANIMATION_TYPE anim_type)
 		{
@@ -339,7 +363,7 @@ namespace ModelLoader
 	// Input: std::string file name of FBX file, pointers to std::vectors to append the data to
 	// Output: Appends data to the provided vectors, returns HRESULT
 	HRESULT LoadFBX(const std::string& fileName, std::vector<DirectX::XMFLOAT3>* pOutVertexPosVector, std::vector<int>* pOutIndexVector,
-		std::vector<DirectX::XMFLOAT3>* pOutNormalVector, std::vector<DirectX::XMFLOAT2>* pOutUVVector, Skeleton* pOutSkeleton, std::vector<ModelLoader::ControlPointInfo>* pOutCPInfoVector);
+		std::vector<DirectX::XMFLOAT3>* pOutNormalVector, std::vector<DirectX::XMFLOAT2>* pOutUVVector, ModelLoader::Skeleton* pOutSkeleton, std::vector<ModelLoader::ControlPointInfo>* pOutCPInfoVector);
 
 
 
