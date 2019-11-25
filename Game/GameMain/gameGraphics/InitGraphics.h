@@ -81,7 +81,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::PipelineShadowMapComponent* p_psmComp = rEcs.getComponentFromEntity<components::PipelineShadowMapComponent>(graphics_entity_id);
 	components::PipelineForwardComponent* p_pfComp = rEcs.getComponentFromEntity<components::PipelineForwardComponent>(graphics_entity_id);
 
-	p_psmComp->pipelineDesc.PixelsWidth = 4096;
+	p_psmComp->pipelineDesc.PixelsWidth = 2048;
 	p_psmComp->pipelineDesc.Width = 90.0f;
 	p_psmComp->pipelineDesc.Height = 60.0f;
 	p_psmComp->pipelineDesc.NearPlane = 1.0f;
@@ -140,6 +140,9 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 			rMapMeshData.pMesh, 
 			rMapMeshData.vertexCount);
 
+	rEcs.createSystem<DefaultRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
 	rEcs.createSystem<ParticleRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer, &r_state_mgr);
 
@@ -149,6 +152,9 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 			rOceanMeshData.vertexCount);
 
 	rEcs.createSystem<PowerupLootRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
+	rEcs.createSystem<WorldSceneRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
 
 
@@ -197,10 +203,13 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_GIANTSKULL, "../meshes/GiantSkull.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER, "../meshes/Tower.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WORLD_SCENE_SHARK, "../meshes/shark_fin.fbx");
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_SWORD, "../meshes/sword.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_HAMMER, "../meshes/weapon_maul.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_BOMB, "../meshes/weapon_bomb.fbx");
 
 	// Create Quad For GPU
 	{

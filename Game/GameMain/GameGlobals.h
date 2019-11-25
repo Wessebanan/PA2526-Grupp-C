@@ -21,6 +21,7 @@ enum GAME_OBJECT_TYPES
 	GAME_OBJECT_TYPE_GIANTSKULL,
 	GAME_OBJECT_TYPE_TOWER,
 	GAME_OBJECT_TYPE_WINTERTREE,
+	
 
 	/*
 		Living things
@@ -34,6 +35,8 @@ enum GAME_OBJECT_TYPES
 
 	GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG,
 	GAME_OBJECT_TYPE_WEAPON_SWORD,			// All weapons with meshes first
+	GAME_OBJECT_TYPE_WEAPON_HAMMER,
+	GAME_OBJECT_TYPE_WEAPON_BOMB,
 
 	GAME_OBJECT_TYPE_WEAPON_PROJECTILE,
 	GAME_OBJECT_TYPE_WEAPON_FIST,
@@ -85,6 +88,13 @@ enum GAME_OBJECT_TYPES
 	GAME_OBJECT_TYPE_MESH_END,
 
 	/*
+		World scenery
+	*/
+
+	GAME_OBJECT_TYPE_WORLD_SCENE_OFFSET_TAG, // When adding more, add WORLD_SCENERY_TYPE_COUNT
+	GAME_OBJECT_TYPE_WORLD_SCENE_SHARK,
+
+	/*
 		Powerups
 	*/
 
@@ -95,7 +105,7 @@ enum GAME_OBJECT_TYPES
 		Misc
 	*/
 
-	GAME_OBJECT_TYPE_QUAD,
+	GAME_OBJECT_TYPE_QUAD, // !! Keep Last !!
 };
 
 constexpr int OFFSET_TRAP = 3;
@@ -103,11 +113,15 @@ constexpr int OFFSET_TRAP = 3;
 constexpr int MESH_TYPE_COUNT = 12;
 constexpr int SCENE_OBJECT_TYPE_COUNT = GAME_OBJECT_TYPE_WINTERTREE - GAME_OBJECT_TYPE_SCENE_OBJECT;
 constexpr int TRAP_TYPE_COUNT = 3; // Number of different trap types to be rendered
-constexpr int WEAPON_TYPE_COUNT = 1; // Number of different weapon types to be rendered
+constexpr int WEAPON_TYPE_COUNT = 3; // Number of different weapon types to be rendered
 constexpr int POWERUP_TYPE_COUNT = 1; // Number of different weapon types to be rendered
 
 constexpr int SCENE_OBJECT_ENUM_OFFSET = GAME_OBJECT_TYPE_SCENE_OBJECT + 1;
 
+constexpr int WORLD_SCENERY_TYPE_COUNT = 1;
+
 /* MESH QUICK VALUES */
 constexpr int GAME_OBJECT_TYPE_MESH_START = GAME_OBJECT_TYPE_BARREL_STONES;
 constexpr int GAME_OBJECT_TYPE_MESH_COUNT = GAME_OBJECT_TYPE_MESH_END - GAME_OBJECT_TYPE_BARREL_STONES;
+
+constexpr int GAME_OBJECT_TYPE_COUNT = GAME_OBJECT_TYPE_QUAD;

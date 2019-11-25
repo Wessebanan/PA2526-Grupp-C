@@ -161,6 +161,10 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 	int check_any_live = 0;
 	PLAYER alive_player;
 	ArmyComponent* p_army_comp;
+	ComponentIterator comp_it = ECSUser::getComponentsOfType<InputBackendComp>();
+	InputBackendComp* p_inputbackend;
+	p_inputbackend = static_cast<InputBackendComp*>(comp_it.next());
+	
 	for (FilteredEntity& army : _entities.entities)
 	{
 		p_army_comp = army.getComponent<ArmyComponent>();
@@ -169,6 +173,20 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 		{
 			check_any_live++;
 			alive_player = p_army_comp->playerID;
+		}
+		if (p_inputbackend->backend->mpPlayerIsConnected[p_army_comp->playerID] == true)
+		{
+			ECSUser::removeComponent(p_army_comp->getEntityID(), AiBrainComponent::typeID);
+		}	
+		else
+		{
+			if (!ECSUser::getEntity(p_army_comp->getEntityID())->hasComponentOfType<AiBrainComponent>())
+			{
+				AiBrainComponent ai_brain;
+				ai_brain.mPlayer = p_army_comp->playerID;
+				ai_brain.mTimer = ai_brain.mPlayer;
+				ECSUser::createComponent(p_army_comp->getEntityID(), ai_brain);
+			}
 		}
 	}
 
@@ -267,20 +285,16 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 			p_ib->backend->changeGamestate(WEBGAMESTATE::BATTLEPHASE);
 		}
 		{
-			ecs::events::PlayMusic m_event;
-			m_event.audioName = AudioName::SOUND_cc_song;
-			createEvent(m_event);
-		}
-		{
-			ecs::events::MusicSetVolume m_event;
-			m_event.volume = 0.0f;
-			createEvent(m_event);
-		}
-		{
 			ecs::events::FadeInMusic m_event;
 			m_event.fadeInTimeInSeconds = 2.0f;
 			createEvent(m_event);
 		}
+		{
+			ecs::events::FadeOutSecondaryMusic m_event;
+			m_event.fadeOutTimeInSeconds = 2.0f;
+			createEvent(m_event);
+		}
+
 
 		this->CreateUnits();
 		this->CreateUnitPhysics();
@@ -468,6 +482,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 
 			ecs::components::SkeletonComponent skele_comp;
 			ecs::components::AnimationSpeedComponent ani_speed_comp;
+			ecs::components::UnitScalePercent unit_scale_comp;
 			ani_speed_comp.factor = 1.0f;
 
 			//ModelLoader::UniqueSkeletonData* skeletonData = &s.getComponent<ecs::components::SkeletonComponent>()->skeletonData;
@@ -481,13 +496,14 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 				&idle_state, 
 				&color_comp, 
 				&skele_comp, 
-				&ani_speed_comp
+				&ani_speed_comp,
+				&unit_scale_comp
 			};
 
 			ecs::ComponentList list;
 
 			list.initialInfo = components;
-			list.componentCount = 6;
+			list.componentCount = 7;
 
 			//// ENTITIES
 			temp_entity = createEntity(list);
@@ -723,6 +739,24 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 			RemoveSystem(systems::MasterWeaponSpawner::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
+
+			// Change to calm music
+			{
+				ecs::events::FadeOutMusic m_event;
+				m_event.fadeOutTimeInSeconds = 2.0f;
+				createEvent(m_event);
+			}
+			{
+				ecs::events::FadeOutSubMusic m_event;
+				m_event.fadeOutTimeInSeconds = 2.0f;
+				createEvent(m_event);
+			}
+			{
+				ecs::events::FadeInSecondaryMusic m_event;
+				m_event.fadeInTimeInSeconds = 2.0f;
+				createEvent(m_event);
+			}
+
 
 			//Change to overlook camera for the prephase
 			itt = getComponentsOfType<CameraComponent>();

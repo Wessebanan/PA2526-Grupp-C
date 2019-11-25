@@ -283,7 +283,7 @@ namespace ecs
 			SceneObjectRenderSystem();
 			~SceneObjectRenderSystem();
 
-			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+			void act(float _delta) override;
 
 			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
 
@@ -323,6 +323,8 @@ namespace ecs
 
 			SceneToMesh mMap[SCENE_OBJECT_TYPE_COUNT];
 			uint3 mColors[GAME_OBJECT_TYPE_MESH_COUNT];
+
+			EntityIterator mSceneObjects;
 		};
 
 		class SSAORenderSystem : public ECSSystem<SSAORenderSystem>
@@ -354,6 +356,40 @@ namespace ecs
 
 			UINT mObjectCount;
 			graphics::MeshRegion mScreenSpaceTriangle;
+		};
+
+		class WorldSceneRenderSystem : public ECSSystem<WorldSceneRenderSystem>
+		{
+		public:
+
+			WorldSceneRenderSystem();
+			~WorldSceneRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				DirectX::XMFLOAT4X4 world;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mObjectCount;
+			graphics::MeshRegion mObjectMeshRegion[WORLD_SCENERY_TYPE_COUNT];
+
+			UINT mObjectTypeCount[WORLD_SCENERY_TYPE_COUNT];
 		};
 
 		class OutlineRenderSystem : public ECSSystem<OutlineRenderSystem>
@@ -490,6 +526,40 @@ namespace ecs
 			graphics::MeshRegion mObjectMeshRegion[POWERUP_TYPE_COUNT];
 
 			UINT mObjectTypeCount[POWERUP_TYPE_COUNT];
+		};
+
+		class DefaultRenderSystem : public ECSSystem<DefaultRenderSystem>
+		{
+		public:
+
+			DefaultRenderSystem();
+			~DefaultRenderSystem();
+
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
+
+			void Initialize(graphics::RenderManager* pRenderMgr, graphics::RenderBuffer* pRenderBuffer);
+
+			static uint32_t GetPerInstanceSize();
+
+		private:
+
+			struct InputLayout
+			{
+				DirectX::XMFLOAT4X4 world;
+			};
+
+			InputLayout* mpBuffer;
+
+			UINT mRenderProgram;
+			graphics::RenderManager* mpRenderMgr;
+			graphics::ShaderModelLayout mInstanceLayout;
+
+			graphics::RenderBuffer* mpRenderBuffer;
+
+			UINT mObjectCount;
+
+			graphics::MeshRegion mObjectMeshRegion[GAME_OBJECT_TYPE_COUNT];
+			UINT mInstancePerMesh[GAME_OBJECT_TYPE_COUNT];
 		};
 	}
 }

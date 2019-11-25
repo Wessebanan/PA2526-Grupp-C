@@ -51,6 +51,9 @@
 #include "gameWeapons/InitWeapons.h"
 #include "gameTraps/TrapComponents.h"
 #include "gameTraps/TrapEvents.h"
+#include "gameWorld/InitWorldScenery.h"
+
+#include "gameWeapons/WeaponEvents.h"
 
 #include "gamePowerups/InitPowerups.h"
 #include "gamePowerups/PowerupEvents.h"
@@ -104,13 +107,13 @@ int main()
 	ecs::EntityComponentSystem ecs;
 	TempUISystemPtrs my_UI_systems;
 
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::TrapComponent>(400);
-	ecs.reserveComponentCount<ecs::components::ObjectCollisionComponent>(500);
-
+	constexpr UINT RESERVED_COMPONENTS = 50000;
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::TrapComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::ObjectCollisionComponent>(RESERVED_COMPONENTS);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -125,6 +128,8 @@ int main()
 		#######################   From here on, all initialization is expected to be finished.   #######################
 		 #############################                                                    ############################# 
 	*/
+
+
 
 	/*
 		-- Show Window --
@@ -287,6 +292,8 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitTraps(rECS);
 	InitPowerups(rECS);
 
+	InitWorldScenery(rECS);
+
 	InitHttpServer(rECS);
 
 	CreateCollisionForTiles(rECS);
@@ -296,4 +303,18 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	DebuggFunctions(rECS);
 
+	//events::SpawnWeaponEvent spawn_event;
+	//spawn_event.weaponType = GAME_OBJECT_TYPE_WEAPON_BOMB;
+	//TypeFilter tile_filter;
+	//tile_filter.addRequirement(ecs::components::TileComponent::typeID);
+	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+	//for (FilteredEntity tile : tiles.entities)
+	//{
+	//	components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
+	//	if (p_tile->tileType != WATER)
+	//	{
+	//		spawn_event.spawnTileId = p_tile->getEntityID();
+	//		rECS.createEvent(spawn_event);
+	//	}
+	//}
 }

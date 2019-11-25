@@ -1,6 +1,8 @@
 #include "ParticleECSSystems.h"
 #include "ParticleECSComponents.h"
 
+#include <algorithm>
+
 namespace ecs
 {
 	namespace systems
@@ -326,6 +328,117 @@ namespace ecs
 			DirectX::XMStoreFloat3(&p_particle_component->Position, position);
 			DirectX::XMStoreFloat3(&p_splash_component->Direction, direction);
 		}
-#pragma endregion SplashParticleRegion
-}
+#pragma endregion FireParticleRegion
+
+#pragma region BombParticleRegion
+		BombSpawnerSystem::BombSpawnerSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::ParticleSpawnerComponent::typeID);
+			typeFilter.addRequirement(components::BombSpawnerComponent::typeID);
+		}
+
+		void BombSpawnerSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
+			components::ParticleSpawnerComponent* p_spawner_component =
+				entity.getComponent<components::ParticleSpawnerComponent>();
+
+			components::BombSpawnerComponent* p_bomb_component =
+				entity.getComponent<components::BombSpawnerComponent>();
+
+			p_spawner_component->TimerSinceLastSpawn += delta;
+
+			// As long as there are particles to spawn (lag can result in particles not being spawned)
+			for (int i = 0; i < p_bomb_component->SpawnCount; i++)
+			{
+				/* Set Initial Values For Particle */
+				components::ParticleComponent particle;
+				components::BombParticleComponent bomb;
+
+				// Set Position
+				particle.Position = p_spawner_component->StartPosition;
+
+				// Set Life Expectancy
+				bomb.TotalLifeDuration = p_spawner_component->LifeDuration;
+				bomb.CurrentLifeDuration = bomb.TotalLifeDuration;
+
+				// Set Color
+				bomb.MaxRed		= particle.Red		= 200;
+				bomb.MaxGreen	= particle.Green	= 180;
+				bomb.MaxBlue	= particle.Blue		= 0;
+
+				// Set Scale
+				bomb.MaxScale = particle.Scale = 40;
+
+				
+
+				// Randomize x and y direction and speed
+				const float x = ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
+				const float y = ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
+				const float z = ((float)rand() / (float)RAND_MAX) * 2.0f - 1.0f;
+				const float speed = p_bomb_component->InitialVelocity;
+
+				// Normalize direction and scale with speed
+				DirectX::XMVECTOR direction = DirectX::XMVectorSet(x, y, z, 0.0f);
+				direction = DirectX::XMVector3Normalize(direction);
+				direction = DirectX::XMVectorScale(direction, speed);
+
+				// Store direction
+				DirectX::XMStoreFloat3(&bomb.Direction, direction);
+
+				// Create Particle
+				createEntity(particle, bomb);
+			}
+
+			removeEntity(entity.entity->getID());
+		}
+
+		BombUpdateSystem::BombUpdateSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::ParticleComponent::typeID);
+			typeFilter.addRequirement(components::BombParticleComponent::typeID);
+		}
+
+		void BombUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
+			components::ParticleComponent* p_particle_component =
+				entity.getComponent<components::ParticleComponent>();
+
+			components::BombParticleComponent* p_bomb_component =
+				entity.getComponent<components::BombParticleComponent>();
+
+			// Decrease their life and terminate if life expectancy has reached
+			p_bomb_component->CurrentLifeDuration -= delta;
+			if (p_bomb_component->CurrentLifeDuration <= 0.0f)
+			{
+				removeEntity(entity.entity->getID());
+			}
+
+			// Life Left in Percentage
+			const float life_left_p = p_bomb_component->CurrentLifeDuration / p_bomb_component->TotalLifeDuration;
+
+			// Decrease scale with proptional to how long they have lived [1;0]
+			p_particle_component->Scale = p_bomb_component->MaxScale * life_left_p;
+
+			const float temp = life_left_p - 0.35f;
+			const float life_left_p_half = temp > 0.0f ? temp : 0.0f;
+
+			p_particle_component->Red	= (float)p_bomb_component->MaxRed * life_left_p;
+			p_particle_component->Green = (float)p_bomb_component->MaxGreen * life_left_p_half;
+
+			// Get position and direction
+			DirectX::XMVECTOR position = DirectX::XMLoadFloat3(&p_particle_component->Position);
+			DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&p_bomb_component->Direction);
+
+			// Transform particle
+			position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(direction, delta));
+
+			// Store position and direction
+			DirectX::XMStoreFloat3(&p_particle_component->Position, position);
+			DirectX::XMStoreFloat3(&p_bomb_component->Direction, direction);
+		}
+#pragma endregion BombParticleRegion
+
+	}
 }

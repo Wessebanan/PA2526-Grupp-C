@@ -30,6 +30,7 @@ namespace Audio
 				}
 			}
 			void SetNextPointer(Plugin* pNext, bool NextIsOnStack);
+			virtual Status Progress(Samples start, Samples sampleCount, int channelCount);
 			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount) = 0;
 		protected:
 			Plugin* mpNext;
@@ -39,16 +40,19 @@ namespace Audio
 		class Sampler : public Plugin
 		{
 		public:
-			Sampler(FileData* pFile, int repeatAmount);
+			Sampler(FileData* pFile, int repeatAmount, float playRate = 1.0f);
 			Sampler();
 			void SetFileAndReset(FileData* pFile);
 			Samples GetReadPointer();
 			void SetReadPointer(Samples readPointer);
+			virtual Status Progress(Samples start, Samples sampleCount, int channelCount);
 			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount);
 		private:
 			FileData* mpFile;
 			Samples mReadPointer;
+			float mReadFraction;
 			int mRepeatAmount;
+			float mPlayRate;
 		};
 
 		class Gain : public Plugin

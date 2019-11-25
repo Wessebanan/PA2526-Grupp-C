@@ -65,5 +65,13 @@ namespace ecs
 			~UnitInvincibilityTimerSystem();			
 			void updateEntity(FilteredEntity & _entity, float _delta) override;		
 		};
+
+		SYSTEM(WeaponOnHitSystem)
+		{
+			WeaponOnHitSystem();
+			~WeaponOnHitSystem();
+
+			void readEvent(BaseEvent & _event, float _delta) override;
+		};
 	} // systems
 } // ecs
