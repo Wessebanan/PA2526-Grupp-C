@@ -285,20 +285,16 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 			p_ib->backend->changeGamestate(WEBGAMESTATE::BATTLEPHASE);
 		}
 		{
-			ecs::events::PlayMusic m_event;
-			m_event.audioName = AudioName::SOUND_cc_song;
-			createEvent(m_event);
-		}
-		{
-			ecs::events::MusicSetVolume m_event;
-			m_event.volume = 0.0f;
-			createEvent(m_event);
-		}
-		{
 			ecs::events::FadeInMusic m_event;
 			m_event.fadeInTimeInSeconds = 2.0f;
 			createEvent(m_event);
 		}
+		{
+			ecs::events::FadeOutSecondaryMusic m_event;
+			m_event.fadeOutTimeInSeconds = 2.0f;
+			createEvent(m_event);
+		}
+
 
 		this->CreateUnits();
 		this->CreateUnitPhysics();
@@ -749,6 +745,24 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 			RemoveSystem(systems::MasterWeaponSpawner::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
+
+			// Change to calm music
+			{
+				ecs::events::FadeOutMusic m_event;
+				m_event.fadeOutTimeInSeconds = 2.0f;
+				createEvent(m_event);
+			}
+			{
+				ecs::events::FadeOutSubMusic m_event;
+				m_event.fadeOutTimeInSeconds = 2.0f;
+				createEvent(m_event);
+			}
+			{
+				ecs::events::FadeInSecondaryMusic m_event;
+				m_event.fadeInTimeInSeconds = 2.0f;
+				createEvent(m_event);
+			}
+
 
 			//Change to overlook camera for the prephase
 			itt = getComponentsOfType<CameraComponent>();
