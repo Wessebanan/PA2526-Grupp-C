@@ -316,6 +316,5 @@ static void GenerateTileMesh(EntityComponentSystem& rEcs, void** pVertexBuffer, 
 
 void InitOceanUpdateSystem(EntityComponentSystem& rEcs)
 {
-	systems::UpdateOceanSystem* p_update_system = rEcs.createSystem<systems::UpdateOceanSystem>(7);
-	p_update_system->Initialize(0.001f);
+	 rEcs.createSystem<systems::UpdateOceanSystem>(7)->Initialize(0.001f);
 }

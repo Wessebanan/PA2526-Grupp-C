@@ -23,7 +23,7 @@ void InitSong(ecs::EntityComponentSystem& rECS)
 {
 	{
 		ecs::events::PlayMusic m_event;
-		m_event.audioName = AudioName::SOUND_cc_chill;
+		m_event.audioName = AudioName::SOUND_cc_song;
 		rECS.createEvent(m_event);
 	}
 	{
@@ -31,9 +31,15 @@ void InitSong(ecs::EntityComponentSystem& rECS)
 		m_event.volume = 0.0f;
 		rECS.createEvent(m_event);
 	}
+
 	{
-		ecs::events::FadeInMusic m_event;
-		m_event.fadeInTimeInSeconds = 3.0f;
+		ecs::events::PlaySecondaryMusic m_event;
+		m_event.audioName = AudioName::SOUND_cc_chill;
+		rECS.createEvent(m_event);
+	}
+	{
+		ecs::events::SecondaryMusicSetVolume m_event;
+		m_event.volume = 0.0f;
 		rECS.createEvent(m_event);
 	}
 
@@ -42,10 +48,15 @@ void InitSong(ecs::EntityComponentSystem& rECS)
 		m_event.audioName = AudioName::SOUND_cc_drums;
 		rECS.createEvent(m_event);
 	}
-
 	{
 		ecs::events::SubMusicSetVolume m_event;
 		m_event.volume = 0.0f;
+		rECS.createEvent(m_event);
+	}
+
+	{
+		ecs::events::FadeInSecondaryMusic m_event;
+		m_event.fadeInTimeInSeconds = 3.0f;
 		rECS.createEvent(m_event);
 	}
 }

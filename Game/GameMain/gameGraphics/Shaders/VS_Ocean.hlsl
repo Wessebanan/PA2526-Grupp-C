@@ -82,7 +82,7 @@ VSOUT main(uint VertexID : VertexStart)
 	VSOUT output;
 	Vertex vertex = gVertices[VertexID];
 
-	uint tileIndex = floor(VertexID / 96.f);
+	uint tileIndex = floor(VertexID / 84.f);
 
 	// To understand indexing, please read description above.
 	vertex.position.y += (gHeight[floor(tileIndex / 4.f)])[tileIndex % 4];

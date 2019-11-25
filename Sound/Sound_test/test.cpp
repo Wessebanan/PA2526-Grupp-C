@@ -2,6 +2,7 @@
 #include "TestHelpers.hpp"
 #include "TestSuite1.hpp"
 #include "TestSuite2.hpp"
+#include "TestSuite3.hpp"
 
 int main(int argc, char** argv)
 {

@@ -70,7 +70,7 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				p_player_state_comp->mCurrentStates[i] = STATE::ATTACK;
 
-				// TEMP GROUND HIT SOUND
+				// Attack button sound
 				ecs::events::PlaySound sound_event;
 				sound_event.audioName = AudioName::SOUND_coin;
 				sound_event.soundFlags = SoundFlags::SF_NONE;

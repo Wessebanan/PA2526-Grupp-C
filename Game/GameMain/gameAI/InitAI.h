@@ -17,4 +17,5 @@ void InitAI(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::RemoveDeadUnitsSystem>(9);
 	rEcs.createSystem<systems::PotentialWaterHazardSystem>(3);
 	rEcs.createSystem<systems::PotentialArmyHazardSystem>(3);
+	rEcs.createSystem<systems::AIPlayerSystem>(3);
 }

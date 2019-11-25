@@ -8,6 +8,17 @@
 
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
+
+/*
+	TO_UNIT_SCALE (x)
+	
+	Unit applies 0.1 scale to weapon's bounding volume to fit in hand
+
+	'x' is defined in world space but will be projected onto unit scale
+	Does ONLY apply to weapon when hitting other units
+*/
+#define TO_UNIT_SCALE(x) (x / 0.1f)  
+
 // A bunch of default values.
 constexpr float DEFAULT_MOVEMENT_FORCE	= 300.0f;
 constexpr float DEFAULT_DECELERATION	= 200.0f;
@@ -17,13 +28,24 @@ constexpr float DEFAULT_GRAVITY			= 9.82f;
 constexpr float DEFAULT_HEALTH			= 100.0f;
 
 constexpr float BASE_SWORD_DAMAGE		= 5.0f;
+constexpr float BASE_HAMMER_DAMAGE		= 2.5f;
 constexpr float BASE_FIST_DAMAGE		= 1.0f;
+constexpr float BASE_BOMB_DAMAGE		= 1.0f;
 
 // Base knockback is a force in newtons while weapon
 // specific knockbacks are multipliers.
 constexpr float BASE_KNOCKBACK			= 30.0f;
-constexpr float SWORD_KNOCKBACK			= 2.0f;
+constexpr float HAMMER_KNOCKBACK		= 2.0f;
+constexpr float SWORD_KNOCKBACK			= 1.0f;
 constexpr float FIST_KNOCKBACK			= 0.5f;
+constexpr float BOMB_KNOCKBACK			= 200.0f;
+
+/* 
+	BOMB SPECIFIC CONSTANTS 
+*/
+constexpr float BOMB_ATTACK_RANGE	= 0.3f;	// Activation Range
+constexpr float BOMB_BLAST_RADIUS	= 8.0f;	// Blast Radius
+constexpr float BOMB_PICKUP_RADIUS	= 1.0f;	// Pick-up Radius
 
 constexpr float BASE_INVINCIBILITY_TIME = 0.2f;
 
@@ -162,6 +184,7 @@ namespace ecs
 		{
 			float mBaseHealth	= DEFAULT_HEALTH;
 			float mHealth		= DEFAULT_HEALTH;
+			unsigned int mHitBy = 0;
 		};
 
 		COMP(QuadTreeComponent)
@@ -182,6 +205,9 @@ namespace ecs
 
 			// Attack range is sum of weapon range and melee range.
 			float mAttackRange = 0.0f;
+
+			// How much damage the units attacks does 1 is normal.
+			float mAttackMultiplier = 1.0f;
 		};
 
 		/*
