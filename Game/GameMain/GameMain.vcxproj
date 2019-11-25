@@ -43,7 +43,6 @@
     <Import Project="..\..\PropertySheets\InputHandler_Debug.props" />
     <Import Project="..\..\PropertySheets\Physics_Debug.props" />
     <Import Project="..\..\PropertySheets\AI_Debug.props" />
-    <Import Project="..\..\PropertySheets\Utility_Debug.props" />
     <Import Project="..\..\PropertySheets\Sound_Debug.props" />
     <Import Project="..\..\PropertySheets\Graphics_Debug.props" />
     <Import Project="..\..\PropertySheets\UI_Debug.props" />
@@ -56,7 +55,6 @@
     <Import Project="..\..\PropertySheets\Physics_Release.props" />
     <Import Project="..\..\PropertySheets\InputHandler_Release.props" />
     <Import Project="..\..\PropertySheets\AI_Release.props" />
-    <Import Project="..\..\PropertySheets\Utility_Release.props" />
     <Import Project="..\..\PropertySheets\Sound_Release.props" />
     <Import Project="..\..\PropertySheets\Graphics_Release.props" />
     <Import Project="..\..\PropertySheets\UI_Release.props" />

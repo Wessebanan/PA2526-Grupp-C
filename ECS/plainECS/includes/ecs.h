@@ -181,6 +181,8 @@ namespace ecs
 
 	private:
 
+		void checkEntityValidity(BaseSystem* currentSystem);
+
 		ECSEventManager eventMgr;
 		ECSEntityManager entityMgr;
 		ECSComponentManager componentMgr;
@@ -235,7 +237,9 @@ namespace ecs
 		void fillEntityIteratorInternal(TypeFilter& _componentFilter, EntityIterator& _iterator);
 		void fillEventIteratorInternal(TypeFilter& _eventFilter, EventTypeIterator& _iterator);
 
-		//std::unordered_map<TypeID, > systemCreateFunctions;
+		void removeFlaggedSystems();
+
+		std::vector<BaseSystem*> systemsToRemove;
 	};
 
 	/*

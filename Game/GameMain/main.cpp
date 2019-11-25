@@ -180,7 +180,7 @@ int main()
 			/*
 				Update all ECS systems, and give them the delta time.
 			*/
-			ecs.update(timer.GetFrameTime());
+			ecs.update(timer.GetFrameTime() * 4.f);
 
 			graphics::Present(0);
 		}
@@ -246,8 +246,8 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitAI(rECS);
 
-	InitSound(rECS);
-	InitSong(rECS);
+	//InitSound(rECS);
+	//InitSong(rECS);
 
 	InitInput(rECS);
 	InitInterpreter(rECS);

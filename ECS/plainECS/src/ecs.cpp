@@ -259,6 +259,8 @@ void EntityComponentSystem::update(float _delta)
 
 			}
 
+			checkEntityValidity(s);
+
 			//#ifdef _DEBUG
 			//	debugPrint += ", ";
 			//#endif
@@ -284,6 +286,7 @@ void EntityComponentSystem::update(float _delta)
 	componentMgr.removeAllFlagged();
 	entityMgr.removeAllFlagged();
 	eventMgr.clearAllEvents();
+	removeFlaggedSystems();
 
 //#ifdef _DEBUG
 //	debugPrint += "\tComp. count:\t" + to_string(componentMgr.getTotalComponentCount()) + "\n";
@@ -390,6 +393,73 @@ ComponentIterator EntityComponentSystem::getAllComponentsOfType(TypeID _typeID)
 TypeFilter EntityComponentSystem::getInitializedComponentTypes()
 {
 	return componentMgr.getInitializedComponentTypes();
+}
+
+void ecs::EntityComponentSystem::checkEntityValidity(BaseSystem* currentSystem)
+{
+	bool faultyComponentFound = false;
+	TypeFilter componentTypes = componentMgr.getInitializedComponentTypes();
+
+	std::string faultyString = "";
+
+
+	BaseComponent* component;
+	ComponentIterator cit;
+	for (TypeID type : componentTypes.requirements)
+	{
+		if (getComponentCountOfType(type) > 200)
+		{
+			continue;
+		}
+
+		cit = componentMgr.getComponentIterator(type);
+
+		while (component = cit.next())
+		{
+			if (!entityMgr.getEntity(component->getEntityID()))
+			{
+				faultyString += "\t" + component->getName() + "\n";
+				faultyComponentFound = true;
+			}
+		}
+	}
+
+	if (!faultyComponentFound)
+	{
+		return;
+	}
+
+	{
+		std::cout << "\n\n\t\t ##### ERROR REPORT #####\n\n";
+
+		std::cout << "CAUSE:\n";
+		std::cout << "Components found with missing entities:\n" << faultyString << "\n";
+	}
+
+	{
+		std::cout << "\nSYSTEM LAYERS:\n\n";
+		for (size_t ii = 0; ii < layerCount; ii++)
+		{
+			SystemList& debug_layer = systemLayers[ii];
+
+			std::cout << "LAYER " << ii << "\n";
+			for (BaseSystem* s_print : debug_layer)
+			{
+				std::cout << "- " << s_print->getName();
+
+				if (s_print == currentSystem)
+				{
+					std::cout << " <-- Unvalid component(s) after this system's update";
+				}
+				std::cout << "\n";
+			}
+			std::cout << "\n";
+		}
+	}
+
+	std::cout << "\n\n";
+
+	system("pause");
 }
 
 
@@ -531,8 +601,9 @@ void ecs::EntityComponentSystem::onRemoveSystem(TypeID _typeID)
 		{
 
 			layer.erase(layer.begin() + i);	 // Remove system from layer
-			delete systemPtr;				 
 			typeIDToLayerMap.erase(_typeID); // Erase from hash map
+			//delete systemPtr;	
+			systemsToRemove.push_back(systemPtr); // Store for later destruction
 
 			return;
 		}
@@ -722,6 +793,11 @@ void EntityComponentSystem::fillEntityIteratorInternal(TypeFilter& _componentFil
 			
 			Entity* pEntity = entityMgr.getEntity(pComponent->getEntityID());
 
+			if (!pEntity)
+			{
+				std::cout << "Failed to fetch entity from " << pComponent->getName() << ": entity is nullptr.\n";
+			}
+
 			FilteredEntity info;
 			bool entityIsValid = true;
 
@@ -753,4 +829,13 @@ void EntityComponentSystem::fillEventIteratorInternal(TypeFilter& _eventFilter, 
 	{
 		_iterator.eventTypes[typeID] = eventMgr.getEventIterator(typeID);
 	}
+}
+
+void ecs::EntityComponentSystem::removeFlaggedSystems()
+{
+	for (BaseSystem* p_sys : systemsToRemove)
+	{
+		delete p_sys;
+	}
+	systemsToRemove.clear();
 }

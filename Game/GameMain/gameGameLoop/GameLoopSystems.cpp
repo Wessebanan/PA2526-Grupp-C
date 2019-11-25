@@ -634,6 +634,7 @@ ecs::systems::RoundOverSystem::~RoundOverSystem()
 {
 }
 
+#include <iostream>
 void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 {
 	if (event.getTypeID() == ecs::events::RoundEndEvent::typeID && !this->mRoundOver)
@@ -643,81 +644,110 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 		// Failsafe if the evetn wasnt created correct, -1 is also a draw
 		if (winner >= 0)
 		{
-			ComponentIterator itt = ecs::ECSUser::getComponentsOfType(ecs::components::GameLoopComponent::typeID);
-			GameLoopComponent* p_gl;
-			while (p_gl = (GameLoopComponent*)itt.next())
-			{
-				itt = ecs::ECSUser::getComponentsOfType(ecs::components::InputBackendComp::typeID);
-				ecs::components::InputBackendComp* p_ib;
-				if (p_ib = static_cast<InputBackendComp*>(itt.next()))
-				{
-					for (int i = 0; i < 4; i++)
-					{
-						p_ib->mPlacedTraps[i] = 0;
-					}
-				}
-				// Check if the winner will sin the game now or not
-				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN - 1)
-				{
-					p_gl->mPlayerPoints[winner]++;
+			GameLoopComponent* p_gl = (GameLoopComponent*)getComponentsOfType(ecs::components::GameLoopComponent::typeID).next();
 
-					cout << "The round winner is Player " << winner << endl;
-					// Can be reworked to start prep phase
-					this->mRoundOver = true;
-					itt = getComponentsOfType<UITextComponent>();
+			if (!p_gl)
+			{
+				std::cout << "ERROR: RoundOverSystem could not find GameLoopComponent.\n";
+				return;
+			}
+
+			TypeFilter input_filter;
+			input_filter.addRequirement(InputBackendComp::typeID);
+			EntityIterator backend_entities = getEntitiesByFilter(input_filter);
+			for (FilteredEntity backend_entity : backend_entities.entities)
+			{
+				InputBackendComp* p_backend_comp = backend_entity.getComponent<InputBackendComp>();
+				for (int i = 0; i < 4; i++)
+				{
+					p_backend_comp->mPlacedTraps[i] = 0;
+				}
+			}
+			//itt = ecs::ECSUser::getComponentsOfType(ecs::components::InputBackendComp::typeID);
+			//ecs::components::InputBackendComp* p_ib;
+			//if (p_ib = static_cast<InputBackendComp*>(itt.next()))
+			//{
+			//	for (int i = 0; i < 4; i++)
+			//	{
+			//		p_ib->mPlacedTraps[i] = 0;
+			//	}
+			//}
+
+			// Check if the winner will sin the game now or not
+			if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN - 1)
+			{
+				p_gl->mPlayerPoints[winner]++;
+
+				cout << "The round winner is Player " << winner << endl;
+				// Can be reworked to start prep phase
+				this->mRoundOver = true;
+				//itt = getComponentsOfType<UITextComponent>();
+
+				TypeFilter ui_filter;
+				ui_filter.addRequirement(UITextComponent::typeID);
+				EntityIterator ui_entities = getEntitiesByFilter(ui_filter);
 					
-					
-					UITextComponent* text_comp;
-					while (text_comp = (UITextComponent*)itt.next())
+				//UITextComponent* text_comp;
+				//while (text_comp = (UITextComponent*)itt.next())
+				for (FilteredEntity ui_entity : ui_entities.entities)
+				{
+					UITextComponent* p_ui_text_comp = ui_entity.getComponent<UITextComponent>();
+
+					//if (text_comp->tag == UITAG::STARTTEXT)
+					if (p_ui_text_comp->tag == UITAG::STARTTEXT)
 					{
-						if (text_comp->tag == UITAG::STARTTEXT)
+						switch (winner)
 						{
-							switch (winner)
-							{
-							case PLAYER1:
-								text_comp->mStrText = L"RED won the round!";
-								break;
-							case PLAYER2:
-								text_comp->mStrText = L"PURPLE won the round!";
-								break;
-							case PLAYER3:
-								text_comp->mStrText = L"BLUE won the round!";
-								break;
-							case PLAYER4:
-								text_comp->mStrText = L"GREEN won the round!";
-								break;
-							default:
-								break;
-							}
+						case PLAYER1:
+							p_ui_text_comp->mStrText = L"RED won the round!";
+							break;
+						case PLAYER2:
+							p_ui_text_comp->mStrText = L"PURPLE won the round!";
+							break;
+						case PLAYER3:
+							p_ui_text_comp->mStrText = L"BLUE won the round!";
+							break;
+						case PLAYER4:
+							p_ui_text_comp->mStrText = L"GREEN won the round!";
+							break;
+						default:
+							break;
 						}
 					}
 				}
-				else
+			}
+			else
+			{
+				// What to do when a player has won
+				//UITextComponent* text_comp;
+				//itt = getComponentsOfType<UITextComponent>();
+				TypeFilter ui_filter;
+				ui_filter.addRequirement(UITextComponent::typeID);
+				EntityIterator ui_entities = getEntitiesByFilter(ui_filter);
+				//while (text_comp = (UITextComponent*)itt.next())
+				for (FilteredEntity ui_entity : ui_entities.entities)
 				{
-					// What to do when a player has won
-					UITextComponent* text_comp;
-					itt = getComponentsOfType<UITextComponent>();
-					while (text_comp = (UITextComponent*)itt.next())
+					UITextComponent* p_ui_text_comp = ui_entity.getComponent<UITextComponent>();
+
+					//if (text_comp->tag == UITAG::STARTTEXT)
+					if (p_ui_text_comp->tag == UITAG::STARTTEXT)
 					{
-						if (text_comp->tag == UITAG::STARTTEXT)
+						switch (winner)
 						{
-							switch (winner)
-							{
-							case PLAYER1:
-								text_comp->mStrText = L"RED WON THE GAME!!!!";
-								break;
-							case PLAYER2:
-								text_comp->mStrText = L"PURPLE WON THE GAME!!!!";
-								break;
-							case PLAYER3:
-								text_comp->mStrText = L"BLUE WON THE GAME!!!!";
-								break;
-							case PLAYER4:
-								text_comp->mStrText = L"GREEN WON THE GAME!!!!";
-								break;
-							default:
-								break;
-							}
+						case PLAYER1:
+							p_ui_text_comp->mStrText = L"RED WON THE GAME!!!!";
+							break;
+						case PLAYER2:
+							p_ui_text_comp->mStrText = L"PURPLE WON THE GAME!!!!";
+							break;
+						case PLAYER3:
+							p_ui_text_comp->mStrText = L"BLUE WON THE GAME!!!!";
+							break;
+						case PLAYER4:
+							p_ui_text_comp->mStrText = L"GREEN WON THE GAME!!!!";
+							break;
+						default:
+							break;
 						}
 					}
 				}
@@ -731,13 +761,18 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 
 		if (this->mRoundOverDuration > 3.0f)
 		{
-			ComponentIterator itt;
-			// Puts the players into waiting phase
-			itt = getComponentsOfType<InputBackendComp>();
-			InputBackendComp* p_ib;
-			while (p_ib = (InputBackendComp*)itt.next())
+			//ComponentIterator itt;
+			//// Puts the players into waiting phase
+			//itt = getComponentsOfType<InputBackendComp>();
+			//InputBackendComp* p_ib;
+
+			TypeFilter input_filter;
+			input_filter.addRequirement(InputBackendComp::typeID);
+			EntityIterator backend_entities = getEntitiesByFilter(input_filter);
+			//while (p_ib = (InputBackendComp*)itt.next())
+			for (FilteredEntity backend_entity : backend_entities.entities)
 			{
-				p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
+				backend_entity.getComponent<InputBackendComp>()->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
 			}
 
 			// Remove battlephase and start prephase
@@ -765,12 +800,19 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 
 
 			//Change to overlook camera for the prephase
-			itt = getComponentsOfType<CameraComponent>();
-			CameraComponent* cam_comp = (CameraComponent*)itt.next();
-			if (cam_comp)
+			TypeFilter camera_filter;
+			camera_filter.addRequirement(CameraComponent::typeID);
+			EntityIterator cameras = getEntitiesByFilter(camera_filter);
+			for (FilteredEntity camera : cameras.entities)
 			{
-				removeEntity(cam_comp->getEntityID());
+				removeEntity(camera.entity->getID());
 			}
+			//itt = getComponentsOfType<CameraComponent>();
+			//CameraComponent* cam_comp = (CameraComponent*)itt.next();
+			//if (cam_comp)
+			//{
+			//	removeEntity(cam_comp->getEntityID());
+			//}
 
 			TransformComponent new_transf_comp;
 			CameraComponent new_cam_comp;
@@ -783,16 +825,22 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			this->mRoundOverDuration = 0.0f;
 
 			// Enlarge the overlay
-			itt = getComponentsOfType<components::UIBitmapComponent>();
-			UIBitmapComponent* bitmap_comp;
+			TypeFilter bitmap_filter;
+			bitmap_filter.addRequirement(UIBitmapComponent::typeID);
+			bitmap_filter.addRequirement(UIDrawPosComponent::typeID);
+			EntityIterator bitmaps = getEntitiesByFilter(bitmap_filter);
+			//itt = getComponentsOfType<components::UIBitmapComponent>();
+			//UIBitmapComponent* bitmap_comp;
 
-			while (bitmap_comp = (UIBitmapComponent*)itt.next())
+			//while (bitmap_comp = (UIBitmapComponent*)itt.next())
+			for (FilteredEntity bitmap : bitmaps.entities)
 			{
-				if (bitmap_comp->mName == "areaOverlay")
+				//if (p_bitmap_comp->mName == "areaOverlay")
+				if (bitmap.getComponent<UIBitmapComponent>()->mName == "areaOverlay")
 				{
-					ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-					bitmap_pos_comp->mDrawArea.bottom = 800;
+					/*ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+					bitmap_pos_comp->mDrawArea.bottom = 800;*/
+					bitmap.getComponent<UIDrawPosComponent>()->mDrawArea.bottom = 800;
 				}
 			}
 		}

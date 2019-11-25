@@ -1190,6 +1190,8 @@ ecs::systems::RemoveDeadUnitsSystem::RemoveDeadUnitsSystem()
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(DeadComponent::typeID);
 	typeFilter.addRequirement(UnitComponent::typeID);
+
+	typeFilter.addRequirement(HealthComponent::typeID);
 }
 
 ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
@@ -1200,9 +1202,10 @@ ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
 void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, float delta)
 {
 	// The killers ID
-	unsigned int killer_id = getComponentFromKnownEntity<HealthComponent>(entity.entity->getID())->mHitBy;
+	//unsigned int killer_id = getComponentFromKnownEntity<HealthComponent>(entity.entity->getID())->mHitBy;
+	unsigned int killer_id = entity.getComponent<HealthComponent>()->mHitBy;
 	// DEATH EFFECTS	
-	DeadComponent* p_dead = getComponentFromKnownEntity<DeadComponent>(entity.entity->getID());
+	DeadComponent* p_dead = entity.getComponent<DeadComponent>();
 	if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
 	{
 		// Splash Emitter - When drowned, spawn a water splash	
@@ -1227,8 +1230,9 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 	}
 	// saved fo future use
 				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
-	UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
+	UnitComponent* p_unit = entity.getComponent<UnitComponent>();
 	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
+
 	ArmyComponent* p_army;
 	while (p_army = (ArmyComponent*)itt.next())
 	{
@@ -1413,16 +1417,18 @@ ecs::systems::PotentialWaterHazardSystem::~PotentialWaterHazardSystem()
 
 void ecs::systems::PotentialWaterHazardSystem::updateMultipleEntities(EntityIterator& entities, float delta)
 {
+	ecs::TypeFilter tile_filter;
+	tile_filter.addRequirement(components::TileComponent::typeID);
+	tile_filter.addRequirement(components::TransformComponent::typeID);
+	ecs::EntityIterator e_it = ecs::ECSUser::getEntitiesByFilter(tile_filter);
+
 	for (FilteredEntity& entity : entities.entities)
 	{
 		//Fetch relevant components from the current tile.
 		components::TileComponent* current_tile_comp = entity.getComponent<components::TileComponent>();
 		components::TransformComponent* current_tile_transform = entity.getComponent<components::TransformComponent>();
 		//Filter out all of the tiles in the world.
-		ecs::TypeFilter tile_filter;
-		tile_filter.addRequirement(components::TileComponent::typeID);
-		tile_filter.addRequirement(components::TransformComponent::typeID);
-		ecs::EntityIterator e_it = ecs::ECSUser::getEntitiesByFilter(tile_filter);
+		
 		//Distance variable used to calculate the hazards charge of the current tile based on distance to other water tiles.
 		float distance;
 		//Check if the current tile is a water tile. If so we want to give it a very high hazards value.
