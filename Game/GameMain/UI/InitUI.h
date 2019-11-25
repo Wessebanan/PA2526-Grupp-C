@@ -19,7 +19,8 @@ struct TempUISystemPtrs
 };
 
 void BindTextureToBitmap(Direct2D* d2d,ID3D11Texture2D* texture);
-void initArmyText(ecs::EntityComponentSystem& rECS);
+void InitArmyText(ecs::EntityComponentSystem& rECS);
+void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d);
 
 
 void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
@@ -79,6 +80,8 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 
 	rECS.createEntity(bitmap_comp,bitmap_pos_comp);
 
+	InitGameOverlay(rECS, my_d2d);
+
 }
 void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)
 {
@@ -98,7 +101,51 @@ void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)
 	surface->Release();
 }
 
-void initArmyText(ecs::EntityComponentSystem& rECS)
+void InitArmyText(ecs::EntityComponentSystem& rECS)
 {
 	rECS.createSystem<ecs::systems::UIUpdateSystem>();
+}
+
+void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
+{
+	
+	ComponentIterator itt = rECS.getAllComponentsOfType(components::ArmyComponent::typeID);
+	while (BaseComponent* p_base = itt.next())
+	{
+		components::ArmyComponent* p_army = static_cast<ArmyComponent*>(p_base);
+		for (size_t i = 0; i < p_army->unitIDs.size(); i++)
+		{
+			components::UIBitmapComponent* p_bitmap_comp = rECS.getComponentFromEntity<components::UIBitmapComponent>(p_army->unitIDs[i]);
+			if (p_bitmap_comp->mName == "L")
+			{
+				if (!(p_bitmap_comp->mpBitmap = d2d->GetBitmap("LeftMan")))
+				{
+					p_bitmap_comp->mpBitmap = d2d->LoadImageToBitmap("../../UI/Resouce/LeftMan.png", "LeftMan");
+				}
+				p_bitmap_comp->mName = "LeftMan";
+				components::UIDrawPosComponent kek;
+				kek.mDrawArea.left = 0;
+				kek.mDrawArea.right = d2d->GetBackbufferBitmap()->GetSize().width;
+				kek.mDrawArea.top = 0;
+				kek.mDrawArea.bottom = d2d->GetBackbufferBitmap()->GetSize().height
+			}
+			else if (p_bitmap_comp->mName == "M")
+			{
+				if (!(p_bitmap_comp->mpBitmap = d2d->GetBitmap("MiddleMan")))
+				{
+					p_bitmap_comp->mpBitmap = d2d->LoadImageToBitmap("../../UI/Resouce/MiddleMan.png", "MiddleMan");
+				}
+				p_bitmap_comp->mName = "MiddleMan";
+			}
+			else if (p_bitmap_comp->mName == "R")
+			{
+				if (!(p_bitmap_comp->mpBitmap = d2d->GetBitmap("RightMan")))
+				{
+					p_bitmap_comp->mpBitmap = d2d->LoadImageToBitmap("../../UI/Resouce/RightMan.png", "RightMan");
+				}
+				p_bitmap_comp->mName = "RightMan";
+			}
+			
+		}
+	}
 }

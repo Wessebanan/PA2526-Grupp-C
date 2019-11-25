@@ -170,6 +170,7 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	for (size_t i = 0; i < p_army->unitIDs.size(); i++)
 	{
 		components::HealthComponent* p_unit_hp_comp = getComponentFromKnownEntity<components::HealthComponent>(p_army->unitIDs[i]);
+		components::UIBitmapComponent* p_bitmap_comp = getComponentFromKnownEntity<components::UIBitmapComponent>(p_army->unitIDs[i]);
 		
 		ss.append(std::to_wstring((int)p_unit_hp_comp->mHealth));
 		ss.append(L"\n");

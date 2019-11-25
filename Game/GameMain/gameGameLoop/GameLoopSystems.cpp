@@ -397,6 +397,8 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 	ecs::components::UnitComponent unit;
 	ecs::components::IdleStateComponent idle_state;
 	ecs::components::ColorComponent color_comp;
+	ecs::components::UIBitmapComponent bitmap_comp;
+	ecs::components::UIDrawPosComponent draw_pos_comp;
 	//Temporary entity pointer so that we can fetch the units IDs so that we can store
 	//them in the army component.
 	ecs::Entity* temp_entity;
@@ -439,18 +441,23 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 				transform.position.x = p_transform->position.x + (float(TILE_RADIUS) / divider);
 				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
+				bitmap_comp.mName = "l";
 			}
 			else if (u == 1)
 			{
 				transform.position.x = p_transform->position.x - (float(TILE_RADIUS) / divider);
 				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
+				bitmap_comp.mName = "m";
+
 			}
 			else
 			{
 				transform.position.x = p_transform->position.x;
 				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z - (float(TILE_RADIUS) / divider);
+				bitmap_comp.mName = "r";
+
 			}
 
 			// set scale to fit on tile
@@ -483,13 +490,14 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 				&color_comp, 
 				&skele_comp, 
 				&ani_speed_comp,
-				&unit_scale_comp
+				&unit_scale_comp,
+				&bitmap_comp
 			};
 
 			ecs::ComponentList list;
 
 			list.initialInfo = components;
-			list.componentCount = 7;
+			list.componentCount = 8;
 
 			//// ENTITIES
 			temp_entity = createEntity(list);
