@@ -98,7 +98,7 @@ namespace ecs
 
 			case GAME_OBJECT_TYPE_TRAP_SPIKES:
 				color_comp = components::ColorComponent(50, 50, 50);
-				transf_comp.position.y = -10.0f;
+				transf_comp.position.y -= 10.0f;
 				break;
 
 			default:
