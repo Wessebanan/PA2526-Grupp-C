@@ -69,6 +69,16 @@ namespace ecs
 		private:
 		};
 
+		// Starts the game, launches the correct phase after reading event
+		class GameReStartSystem : public ecs::ECSSystem<GameReStartSystem>
+		{
+		public:
+			GameReStartSystem();
+			~GameReStartSystem();
+			void readEvent(BaseEvent& event, float delta) override;
+		private:
+		};
+
 		// Starts the round and initalizes the units and its components for each army
 		class RoundStartSystem : public ecs::ECSSystem<RoundStartSystem>
 		{
