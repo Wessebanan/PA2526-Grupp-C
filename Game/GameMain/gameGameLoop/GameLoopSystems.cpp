@@ -301,8 +301,9 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		// remove units
 		itt = getComponentsOfType<UnitComponent>();
 		UnitComponent* p_unit;
+		DeadComponent dead;
 		while (p_unit = (UnitComponent*)itt.next())
-			createComponent(p_unit->getEntityID(), DeadComponent::typeID);
+			createComponent(p_unit->getEntityID(), dead);
 
 		// Switch to waiting for ready
 		RemoveSystem(BattlePhaseSystem::typeID);
