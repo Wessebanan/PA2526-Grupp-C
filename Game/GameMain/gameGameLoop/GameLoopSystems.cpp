@@ -298,12 +298,13 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		while (p_trap = (TrapComponent*)itt.next())
 			removeEntity(p_trap->getEntityID());
 
-		// remove units
-		itt = getComponentsOfType<UnitComponent>();
-		UnitComponent* p_unit;
-		DeadComponent dead;
-		while (p_unit = (UnitComponent*)itt.next())
-			createComponent(p_unit->getEntityID(), dead);
+		// Broken because we need a killer?
+		//// remove units
+		//itt = getComponentsOfType<UnitComponent>();
+		//UnitComponent* p_unit;
+		//DeadComponent dead;
+		//while (p_unit = (UnitComponent*)itt.next())
+		//	createComponent(p_unit->getEntityID(), dead);
 
 		// Switch to waiting for ready
 		RemoveSystem(BattlePhaseSystem::typeID);
