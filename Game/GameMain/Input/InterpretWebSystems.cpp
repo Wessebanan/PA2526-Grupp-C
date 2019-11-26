@@ -214,7 +214,6 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 					}
 
 					
-					cout << "L: " << loops << "	x: " << tile_index_x << "	y: " << tile_index_y << endl;
 					TypeID tile_ID = p_gp->mGrid[tile_index_y][tile_index_x].Id;
 					
 
