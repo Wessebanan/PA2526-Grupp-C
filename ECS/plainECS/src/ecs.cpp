@@ -803,39 +803,8 @@ void EntityComponentSystem::fillEntityIteratorInternal(TypeFilter& _componentFil
 
 			if (!pEntity)
 			{
-				std::cout << "Entity for component is null. ";
-
-				if (entityMgr.entities.count(pComponent->getEntityID()))
-				{
-					std::cout << "Entity exist in manager. ";
-
-					Entity* e = entityMgr.entities[pComponent->getEntityID()];
-
-					if (e->hasComponentOfType(pComponent->getTypeID()))
-					{
-						std::cout << "Entity do own a " << pComponent->getName() << ". ";
-
-						if (e->getComponentID(pComponent->getTypeID()) == pComponent->getID())
-						{
-							std::cout << "Entity's component ID is matching with current component.";
-						}
-						else
-						{
-							std::cout << "Entity's component ID do not match.";
-						}
-					}
-					else
-					{
-						std::cout << "Entity doesn't own a " << pComponent->getName();
-					}
-				}
-				else
-				{
-					std::cout << "Entity does not exist in manager.";
-				}
-				std::cout << "\n\n";
-
-				throw "Failed to fetch entity from " + pComponent->getName() + ": entity is nullptr.";
+				componentMgr.flagRemoval(pComponent->getTypeID(), pComponent->getID());
+				continue;
 			}
 
 			FilteredEntity info;
