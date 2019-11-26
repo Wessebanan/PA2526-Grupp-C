@@ -128,7 +128,7 @@ namespace ecs
 			p_trap_comp->CurrentTimeInSeconds += delta;
 			if (p_trap_comp->ActivationRateInSeconds <= p_trap_comp->CurrentTimeInSeconds)
 			{
-				p_trap_comp->CurrentTimeInSeconds = 0;
+				p_trap_comp->CurrentTimeInSeconds = 0.0f;
 
 				/*
 					Trigger event

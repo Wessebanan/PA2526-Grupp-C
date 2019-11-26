@@ -60,7 +60,7 @@ namespace ecs
 			trap_comp.mObjectType = r_trap_event.type;
 			trap_comp.mTileID = r_trap_event.tileID;
 
-			trap_comp.ActivationRateInSeconds = 4.0f + ((rand() % 16));
+			trap_comp.ActivationRateInSeconds = 4.0f + ((rand() % 2));
 			trap_comp.CurrentTimeInSeconds = 0.0f;
 
 			/*

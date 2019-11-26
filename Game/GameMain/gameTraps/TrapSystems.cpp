@@ -78,24 +78,42 @@ ecs::systems::SpringRetractionSystem::~SpringRetractionSystem()
 void ecs::systems::SpringRetractionSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	SpringRetractionComponent* p_sr_comp = _entityInfo.getComponent<components::SpringRetractionComponent>();
+	TransformComponent* p_transf_comp = _entityInfo.getComponent<components::TransformComponent>();
+
+	//if (p_sr_comp)
+	//{
+	//	p_sr_comp->mElapsedTime += _delta;
+
+	//	if (p_sr_comp->mElapsedTime >= p_sr_comp->mDuration)
+	//	{
+	//		removeComponent(p_sr_comp->getEntityID(), p_sr_comp->getTypeID());	
+	//	}
+	//	else
+	//	{
+	//		TransformComponent* p_transf_comp = _entityInfo.getComponent<components::TransformComponent>();
+
+	//		if (p_transf_comp)
+	//		{
+	//			float retraction_dist = (_delta / p_sr_comp->mDuration) * 3.0f;
+	//			p_transf_comp->position.y -= retraction_dist;
+	//		}
+	//	}
+	//}
 
 	if (p_sr_comp)
 	{
-		p_sr_comp->mElapsedTime += _delta;
-
-		if (p_sr_comp->mElapsedTime >= p_sr_comp->mDuration)
+		const float distance = p_sr_comp->TargetOffsetY - p_transf_comp->position.y;
+		if (abs(distance) < 0.05f)
 		{
-			removeComponent(p_sr_comp->getEntityID(), p_sr_comp->getTypeID());	
+			p_transf_comp->position.y = p_sr_comp->TargetOffsetY;
+			removeComponent(p_sr_comp->getEntityID(), p_sr_comp->getTypeID());
 		}
 		else
 		{
-			TransformComponent* p_transf_comp = _entityInfo.getComponent<components::TransformComponent>();
+			const float speed = distance / p_sr_comp->mDuration * _delta;
 
-			if (p_transf_comp)
-			{
-				float retraction_dist = (_delta / p_sr_comp->mDuration) * 3.0f;
-				p_transf_comp->position.y -= retraction_dist;
-			}
+			p_transf_comp->position.y	+= speed;
+			p_sr_comp->mDuration		-= _delta;
 		}
 	}
 }
@@ -210,7 +228,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 			spawner.LifeDuration = 0.4f;
 
 			smoke.InitialVelocity = 12.0f;
-			smoke.SpawnCount = 10;
+			smoke.SpawnCount = 20;
 
 			createEntity(spawner, smoke);
 		}
@@ -424,15 +442,15 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 
 		}
 
-		// Send the tile up
-
-		p_tile_transf->position.y += 2.95f;
-
 		// Create a component to have the tile get lowered to the original space
 		SpringRetractionComponent p_sr_comp;
-		p_sr_comp.mDuration = 3.0f;
+		p_sr_comp.mDuration = 2.0f;
+		p_sr_comp.TargetOffsetY = p_tile_transf->position.y;
 
 		createComponent(tile_id, p_sr_comp);
+
+		// Send the tile up
+		p_tile_transf->position.y += 2.95f;
 	}
 }
 
@@ -469,15 +487,16 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 	TransformComponent* p_tile_transf = getComponentFromKnownEntity<TransformComponent>(tile_id);
 	const XMVECTOR tile_position = XMLoadFloat3(&p_tile_transf->position);
 
-	p_trap_transf->position.y = p_tile_transf->position.y + trap_offset_y;
 
 	// Create a component to have the tile get lowered to the original space
 	SpringRetractionComponent sr_comp;
-	sr_comp.mDuration = 3.0f;
-
-	//std::cout << "Trap activated!" << std::endl;
-
+	sr_comp.TargetOffsetY	= p_trap_transf->position.y;
+	sr_comp.mDuration		= 2.0f;
 	createComponent(trap_id, sr_comp);
+
+	// Set new position
+	p_trap_transf->position.y = p_tile_transf->position.y + trap_offset_y;
+
 
 	TypeFilter unit_filter;
 	unit_filter.addRequirement(components::UnitComponent::typeID);

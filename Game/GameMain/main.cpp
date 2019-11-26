@@ -114,6 +114,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TileComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::TrapComponent>(1000);
+	ecs.reserveComponentCount<ecs::components::SpringRetractionComponent>(1000);
 
 	/*
 		InitAll is a list of ecs system Init-functions.

@@ -3,6 +3,7 @@
 #include "ecsComponentIncludes.h"
 #include "../GameGlobals.h"
 
+#include <DirectXMath.h>
 
 /*
 	-- HOW TO ADD A NEW TRAP --																						See file:
@@ -41,6 +42,8 @@ namespace ecs
 			float mDuration;
 
 			float mElapsedTime = 0;
+
+			float TargetOffsetY;
 		};
 
 		struct SpikeTrapComponent : public ecs::ECSComponent<SpikeTrapComponent>
