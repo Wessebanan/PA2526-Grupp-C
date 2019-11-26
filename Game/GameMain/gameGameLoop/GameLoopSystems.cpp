@@ -9,7 +9,7 @@
 
 #include "..//gameUtility/Timer.h"
 #include "..//Input/InterpretWebEvents.h"
-#include "..//Input/InterpretWebSystems.h"
+#include "..//gameAI/AISystems.h"
 
 #include "AIGlobals.h"
 #include "..//gameAnimation/AnimationComponents.h"
@@ -308,6 +308,23 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		RemoveSystem(BattlePhaseSystem::typeID);
 		RemoveSystem(PrepPhaseSystem::typeID);
 		CreateSystem<WaitForStartupSystem>(1);
+
+		//change  camera
+		RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
+
+		// Change to dynamic camera
+		itt = getComponentsOfType<CameraComponent>();
+		CameraComponent* cam_comp = (CameraComponent*)itt.next();
+
+		removeEntity(cam_comp->getEntityID());
+
+		TransformComponent new_transf_comp;
+		CameraComponent new_cam_comp;
+
+		CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
+
+		createEntity(new_transf_comp, new_cam_comp);
+		
 
 		// Puts the players into waiting phase
 		itt = getComponentsOfType<InputBackendComp>();
@@ -805,7 +822,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
 			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 			RemoveSystem(systems::MasterWeaponSpawner::typeID);
-			RemoveSystem(systems::ChangeFSMSystem::typeID);
+			RemoveSystem(systems::SwitchStateSystem::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
 
 			// Change to calm music

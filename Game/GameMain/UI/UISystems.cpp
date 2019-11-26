@@ -1,5 +1,5 @@
 #include "UISystems.h"
-#include "..//Input/InterpretWebSystems.h"
+#include "..//gameAI/AISystems.h"
 
 
 using namespace ecs;
@@ -216,7 +216,7 @@ void ecs::systems::UICountDownSystem::updateEntity(FilteredEntity& _entityInfo, 
 		this->mCounter = 3;
 		removeEntity(_entityInfo.entity->getID());
 
-		CreateSystem<systems::ChangeFSMSystem>(3);
+		CreateSystem<systems::SwitchStateSystem>(4);
 
 		return;
 	}
