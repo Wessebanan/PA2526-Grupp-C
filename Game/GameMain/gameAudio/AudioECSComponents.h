@@ -6,11 +6,6 @@ namespace ecs
 {
 	namespace components
 	{
-		struct SoundCooldownComponent : public ECSComponent<SoundCooldownComponent>
-		{
-			float timeElapsed;
-			AudioName audioName;
-		};
 		struct BattleMusicIntensityComponent : public ECSComponent<BattleMusicIntensityComponent>
 		{
 			float currentIntensity = 0.0f;
