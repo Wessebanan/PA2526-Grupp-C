@@ -585,10 +585,6 @@
     </script>
 </head>
 <body>
-
-    <a href="https://forms.gle/cDaJdJjoNug9kbEM9">FEEDBACK</a>
-    <h1 id="playerIndex">Welcome!</h1>
-    
     <div id="readyButton" onclick="ready()" style="display:none;">READY?<p id="readyText">NO</p></div>
 
     <div id='startfield' class='buttonField' style='display:block;'>
@@ -603,9 +599,14 @@
 
     </div>
 
-    
+
 
     <div id='prepField' class='buttonField' style='display:none;'>
+
+        <div id="sendButton" onclick="sendTrapAndTile()">SEND TRAP</div>
+
+        </br>
+
         <div id="trapContainer">
             <div id='b0' class='trapButton' onclick="setTrap(0)">0</div>
             <div id='b1' class='trapButton' onclick="setTrap(1)">1</div>
@@ -633,9 +634,6 @@
                 <div class="col" id="area10" onclick="setArea(1,0)">8</div>
                 <div class="col" id="area20" onclick="setArea(2,0)">9</div>
             </div>
-
-            </br>
-            <div id="sendButton" onclick="sendTrapAndTile()">SEND TRAP</div>
 
         </div>
 
@@ -669,6 +667,10 @@
         Connected to:
         <script>document.write(ip_address);</script>
     </p>
+
+    <a href="https://forms.gle/cDaJdJjoNug9kbEM9">FEEDBACK</a>
+    <h1 id="playerIndex">Welcome!</h1>
+
 </body>
 
 </html>
