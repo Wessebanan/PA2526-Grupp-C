@@ -77,7 +77,7 @@ namespace ecs
 				*/
 
 				//weapon_transform_comp.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
-				weapon_offset_y = 0.7f;
+				weapon_offset_y = 1.1f;
 
 				// Set Rotation when at pick-up stage
 				weapon_transform_comp.rotation.x -= 3.14f * 0.4f;
