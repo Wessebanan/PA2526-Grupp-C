@@ -6,6 +6,7 @@
 #include "../gameGraphics/ParticleECSComponents.h"
 
 #include "../gameAI/AIComponents.h" // TileComponent
+#include "../gameAudio/AudioECSEvents.h"
 
 #include "GridProp.h"
 
@@ -313,6 +314,10 @@ namespace ecs
 				smoke.SpawnCount = 100;
 
 				createEntity(spawner, smoke);
+
+				events::PlaySound m_event;
+				m_event.audioName = AudioName::SOUND_itemland;
+				createEvent(m_event);
 			}
 			else
 			{

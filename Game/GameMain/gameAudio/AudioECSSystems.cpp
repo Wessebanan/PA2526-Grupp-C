@@ -15,6 +15,10 @@ ecs::systems::SoundMessageSystem::SoundMessageSystem()
 	mSoundEngine = nullptr;
 	mSoundMixer = nullptr;
 	mSoundBank = nullptr;
+	for (int i = 0; i < AudioName::SOUND_COUNT; i++)
+	{
+		mSoundCooldownClock[i] = std::chrono::steady_clock::now();
+	}
 }
 
 ecs::systems::SoundMessageSystem::~SoundMessageSystem()
@@ -179,39 +183,27 @@ bool ecs::systems::SoundMessageSystem::SetupBank()
 
 void ecs::systems::SoundMessageSystem::ProcessPlaySound(ecs::events::PlaySound* pEvent)
 {
-	// Check if entity is already making a sound
-	// Always allow SCREAM_SOUND to play, even it the entity is already playing a sound.
-	if (pEvent->audioName != SOUND_scream && pEvent->invokerEntityId != 0)
-	{
-		Entity* p_entity = getEntity(pEvent->invokerEntityId);
+	const long long COOLDOWN = 400000000;
 
-		// Don't play sound if entity don't exist, or the entity already has
-		// a SoundCooldownComponent (== is already playing a sound within the last
-		// SOUND_COOLDOWN seconds).
-		if (!p_entity || (p_entity->hasComponentOfType<components::SoundCooldownComponent>()))
+	if ((std::chrono::steady_clock::now() - mSoundCooldownClock[pEvent->audioName]).count() >= COOLDOWN)
+	{
+		Audio::FileData* temp_data = (*mSoundBank)[pEvent->audioName];
+		if (temp_data == nullptr)
 		{
+			// No point in playing nothing
 			return;
 		}
+		bool temp_loop_bool = pEvent->soundFlags & SoundFlags::SF_REPEAT;
+		float pitch = 1.0f;
+		if (pEvent->soundFlags & SoundFlags::SF_RANDOM_PITCH)
+		{
+			pitch = (rand() % 1000) / 4000.f + 0.85f;
+		}
+		Audio::Plugin::Plugin* temp_plugin = new Audio::Plugin::Sampler(temp_data, (temp_loop_bool ? 0 : 1), pitch);
+		mSoundMixer->AddSoundMessage({ temp_plugin });
 
-		components::SoundCooldownComponent cooldown;
-		cooldown.timeElapsed = 0;
-		createComponent(p_entity->getID(), cooldown);
+		mSoundCooldownClock[pEvent->audioName] = std::chrono::steady_clock::now();
 	}
-
-	Audio::FileData* temp_data = (*mSoundBank)[pEvent->audioName];
-	if (temp_data == nullptr)
-	{
-		// No point in playing nothing
-		return;
-	}
-	bool temp_loop_bool = pEvent->soundFlags & SoundFlags::SF_REPEAT;
-	float pitch = 1.0f;
-	if (pEvent->soundFlags & SoundFlags::SF_RANDOM_PITCH)
-	{
-		pitch = (rand() % 1000) / 4000.f + 0.85f;
-	}
-	Audio::Plugin::Plugin* temp_plugin = new Audio::Plugin::Sampler(temp_data, (temp_loop_bool ? 0 : 1),pitch);
-	mSoundMixer->AddSoundMessage({ temp_plugin });
 }
 
 void ecs::systems::SoundMessageSystem::ProcessPlayMusic(ecs::events::PlayMusic* pEvent)
@@ -331,29 +323,6 @@ void ecs::systems::SoundMessageSystem::ProcessSubMusicSetVolume(ecs::events::Sub
 		Audio::Music::M_FUNC_SET_GAIN |
 		Audio::Music::M_TARGET_SUB
 		});
-}
-
-ecs::systems::SoundCooldownClearSystem::SoundCooldownClearSystem()
-{
-	updateType = EntityUpdate;
-	typeFilter.addRequirement(components::SoundCooldownComponent::typeID);
-}
-
-ecs::systems::SoundCooldownClearSystem::~SoundCooldownClearSystem()
-{
-	//
-}
-
-void ecs::systems::SoundCooldownClearSystem::updateEntity(FilteredEntity& rEntity, float delta)
-{
-	components::SoundCooldownComponent* p_cooldown = rEntity.getComponent<components::SoundCooldownComponent>();
-
-	p_cooldown->timeElapsed += delta;
-
-	if (p_cooldown->timeElapsed >= SOUND_COOLDOWN)
-	{
-		removeComponent(p_cooldown->getEntityID(), components::SoundCooldownComponent::typeID);
-	}
 }
 
 ecs::systems::BattleMusicIntensitySystem::BattleMusicIntensitySystem()

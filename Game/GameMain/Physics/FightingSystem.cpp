@@ -657,6 +657,12 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 		bomb_spawner.SpawnCount = 2000.0f;
 
 		createEntity(particle_spawner, bomb_spawner);
+
+		// Sound
+		events::PlaySound m_event;
+		m_event.audioName = AudioName::SOUND_kaboom;
+		createEvent(m_event);
+
 		// ---
 
 		components::EquipmentComponent* p_equipment = getComponentFromKnownEntity<components::EquipmentComponent>(hit_event.OwnerUnitID);

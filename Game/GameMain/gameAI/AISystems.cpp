@@ -1224,10 +1224,10 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		createEntity(spawner, smoke);
 
 		// Doesnt work atm	
-		/*PlaySound sound;
-		sound.audioName = SPLOOSH_SOUND;
+		PlaySound sound;
+		sound.audioName = SOUND_sploosh;
 		sound.soundFlags = SF_NONE;
-		ecs::ECSUser::createEvent(sound);*/
+		ecs::ECSUser::createEvent(sound);
 	}
 	// saved fo future use
 				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
