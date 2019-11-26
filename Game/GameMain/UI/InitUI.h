@@ -6,6 +6,7 @@
 #include "../../Graphics/includes/Window.h"
 #include "..//../Graphics/includes/GraphicsInterface.h"
 
+
 struct TempUISystemPtrs
 {
 	ecs::systems::UIPreRenderSystem* UIpreSys;
@@ -117,11 +118,13 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	pos_comp.mDrawArea.top		= 0;
 	pos_comp.mDrawArea.right	= 300;
 	pos_comp.mDrawArea.bottom	= 300;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap,255,0,0);
 	rECS.createEntity(bitmap_comp, pos_comp);//top left
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width;
 	pos_comp.mDrawArea.bottom = 300;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	rECS.createEntity(bitmap_comp, pos_comp); //top right
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = height - 300;
@@ -138,6 +141,7 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 300;
 	pos_comp.mDrawArea.bottom = 300;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 0, 0);
 	rECS.createEntity(bitmap_comp, pos_comp);//top left
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = 0;
@@ -159,6 +163,7 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 300;
 	pos_comp.mDrawArea.bottom = 300;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 0, 0);
 	rECS.createEntity(bitmap_comp, pos_comp);//top left
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = 0;
@@ -180,6 +185,7 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 300;
 	pos_comp.mDrawArea.bottom = 300;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 0, 0);
 	rECS.createEntity(bitmap_comp, pos_comp);//top left
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = 0;

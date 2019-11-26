@@ -11,8 +11,8 @@
 #pragma comment(lib, "Dwrite")
 #pragma comment(lib, "windowscodecs")
 #pragma comment(lib, "d2d1")
-#pragma comment (lib, "d3d11")
-
+#pragma comment(lib, "d3d11")
+#pragma comment(lib, "dxguid")
 
 #define BITMAP_NAME_LENGTH 16
 #define COLOR_BRUSHES 8
@@ -84,10 +84,12 @@ public:
 	ID2D1Bitmap1* GetBitmap(std::string bitmapName);//returns bitmap
 	//Returns the bitmap taken from the backbuffer which contains the resolution
 	ID2D1Bitmap1* GetBackbufferBitmap();
+	void SetBitmapTint(ID2D1Bitmap1* bitmap, int x, int y, int z, int w = 1);
 	void SetBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap);
 	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);
 	//ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS
 	bool DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect);
+	//bool DrawBitmapWithColor(ID2D1Bitmap* bitmap, D2D1_RECT_F rect, int x, int y, int z, int w = 1);
 
 	//ID2D1Bitmap* GetBitmapByName(std::string bitmapName); //used to draw all bitmaps, uses the BitmapInfo struct
 	//void DrawBitmap();
@@ -118,6 +120,7 @@ private:
 	ID2D1SolidColorBrush* mpColorDraw;
 	ID2D1Bitmap* mpFailBitmap;
 	ID2D1Bitmap1* mpBackbufferBitmap;
+	ID2D1Effect* mpTintEffect;
 	
 	IDWriteFactory7* mpTextFactory; //factory used for text
 	DWRITE_TRIMMING mTrimmer; //used for text format

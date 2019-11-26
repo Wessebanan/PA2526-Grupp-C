@@ -43,6 +43,7 @@ void UIBitmapSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 	components::UIDrawPosComponent* UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
 	components::UIBitmapComponent* p_UI_bitmap_comp = _entityInfo.getComponent<components::UIBitmapComponent>();
 
+	//mpD2D->SetBitmapTint(p_UI_bitmap_comp->mpBitmap);
 	mpD2D->DrawBitmap(p_UI_bitmap_comp->mpBitmap, UI_pos_comp->mDrawArea);
 }
 

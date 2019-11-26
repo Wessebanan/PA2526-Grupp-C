@@ -170,6 +170,7 @@ void Direct2D::InitDeviceAndContext(IDXGIDevice* dxgiDevice) //takes DXGIdevice 
 			hr = this->mCreateColorBrushes();
 			this->mCreateTextFormats();
 			this->LoadImageToBitmap("../../UI/Resource/fail.png");
+			this->mpContext->CreateEffect(CLSID_D2D1Tint, &this->mpTintEffect);
 		}
 }
 
@@ -261,6 +262,42 @@ ID2D1Bitmap1* Direct2D::GetBackbufferBitmap()
 	return this->mpBackbufferBitmap;
 }
 
+void Direct2D::SetBitmapTint(ID2D1Bitmap1* bitmap, int x, int y, int z, int w)
+{
+	D2D1_VECTOR_4F test;
+	test = { (float)x / 255.f, (float)y / 255.f, (float)z / 255.f, 1.f};
+	this->mpTintEffect->SetInput(0, bitmap);
+	this->mpTintEffect->SetValue(D2D1_TINT_PROP_COLOR, test);
+	ID2D1Bitmap1* target_bitmap = NULL;
+	ID2D1Image* old_target = NULL;
+	D2D1_BITMAP_PROPERTIES1 bitmapProperties =
+		D2D1::BitmapProperties1(
+			D2D1_BITMAP_OPTIONS_TARGET,
+			D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
+		);
+	this->mpContext->CreateBitmap(D2D1::SizeU(bitmap->GetSize().width, bitmap->GetSize().height), 0, 0, bitmapProperties, &target_bitmap);
+	this->mpContext->GetTarget(&old_target);
+	this->mpContext->SetTarget(target_bitmap);
+	this->mpContext->BeginDraw();
+	this->mpContext->DrawImage(this->mpTintEffect);
+	this->mpContext->SetTarget(old_target);
+	this->mpContext->EndDraw();
+	
+
+	D2D1_POINT_2U p;
+	p.x = 0;
+	p.y = 0;
+	D2D1_RECT_U not_p;
+	not_p.bottom = target_bitmap->GetSize().height;
+	not_p.left = 0;
+	not_p.right = target_bitmap->GetSize().width;
+	not_p.top = 0;
+
+	bitmap->CopyFromBitmap(&p, target_bitmap, &not_p);
+	target_bitmap->Release();
+	old_target->Release();
+}
+
 void Direct2D::SetBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap)
 {
 	this->mpBackbufferBitmap = backbuffer_bitmap;
@@ -294,6 +331,30 @@ bool Direct2D::DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect)
 	}
 	return canDraw;
 }
+
+//bool Direct2D::DrawBitmapWithColor(ID2D1Bitmap* bitmap, D2D1_RECT_F rect, int x, int y, int z, int w)
+//{
+//	//D2D1_VECTOR_4F test;
+//	//test = { x / 255.f, y / 255.f, z / 255.f, w};
+//	//this->mpTintEffect->SetInput(0, bitmap);
+//	//this->mpTintEffect->SetValue(D2D1_TINT_PROP_COLOR, test);
+//	////this->mpContext->SetTarget(bitmap);
+//	////this->mpContext->BeginDraw();
+//	////this->mpContext->DrawImage(this->mpTintEffect);
+//	////this->mpContext->EndDraw();
+//	////this->mpContext->SetTarget(this->mpBackbufferBitmap);
+//	//bool canDraw = false;
+//	//if (this->mDeviceContextCreated && bitmap != nullptr)
+//	//{
+//	//	canDraw = true;
+//	//	this->mpContext->DrawImage(this->mpTintEffect,, rect, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR);
+//	//}
+//	//else
+//	//{
+//	//	this->mpContext->DrawBitmap(this->mpFailBitmap, rect, 1, D2D1_BITMAP_INTERPOLATION_MODE_LINEAR, D2D1::RectF(0, 0, this->mpFailBitmap->GetSize().width, this->mpFailBitmap->GetSize().height));
+//	//}
+//	//return canDraw;
+//}
 
 //void Direct2D::DrawBitmap() //iterates through the bitmap vector and draws everything, if specific bitmap needs to be drawn an other draw function needs to be added
 //{
