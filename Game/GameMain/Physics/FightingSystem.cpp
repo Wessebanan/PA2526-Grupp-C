@@ -635,6 +635,32 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 				knockback.mEntityID = unit.entity->getID();
 				createEvent(knockback);
 
+				// SOUND
+				if (p_collided_constitution->mHealth <= 0.0f && !unit.entity->hasComponentOfType(DeadComponent::typeID))
+				{
+					ecs::components::DeadComponent dead_comp;
+					ecs::ECSUser::createComponent(p_collided_constitution->getEntityID(), dead_comp);
+					ecs::events::PlaySound death_sound_event;
+					death_sound_event.soundFlags = SF_RANDOM_PITCH;
+					death_sound_event.audioName = AudioName::SOUND_scream;
+					death_sound_event.invokerEntityId = unit.entity->getID();
+					createEvent(death_sound_event); // Play death sound
+
+					// If we only want to give kill reward on killing blows put that code here
+
+				}
+				else
+				{
+					ecs::events::PlaySound damage_sound_event;
+					damage_sound_event.soundFlags = SF_RANDOM_PITCH;
+					float choose_hurt_sound = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+					if (choose_hurt_sound <= 0.85f)
+						damage_sound_event.audioName = AudioName::SOUND_grunt1;
+					else
+						damage_sound_event.audioName = AudioName::SOUND_grunt2;
+					damage_sound_event.invokerEntityId = unit.entity->getID();
+					createEvent(damage_sound_event); // Play damage sound
+				}
 
 				// VISUAL
 				ColorSwitchEvent damage_flash;

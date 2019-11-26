@@ -722,6 +722,12 @@ void EntityComponentSystem::fillEntityIteratorInternal(TypeFilter& _componentFil
 			
 			Entity* pEntity = entityMgr.getEntity(pComponent->getEntityID());
 
+			if (!pEntity)
+			{
+				componentMgr.flagRemoval(pComponent->getTypeID(), pComponent->getID());
+				continue;
+			}
+
 			FilteredEntity info;
 			bool entityIsValid = true;
 
