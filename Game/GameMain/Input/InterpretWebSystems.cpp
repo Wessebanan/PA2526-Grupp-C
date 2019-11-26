@@ -77,11 +77,11 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				sound_event.invokerEntityId = _entityInfo.entity->getID();
 				createEvent(sound_event);
 
-				{
-					ecs::events::FadeInSubMusic m_event;
-					m_event.fadeInTimeInSeconds = 3.0f;
-					createEvent(m_event);
-				}
+				//{
+				//	ecs::events::FadeInSubMusic m_event;
+				//	m_event.fadeInTimeInSeconds = 3.0f;
+				//	createEvent(m_event);
+				//}
 
 				createEvent(cus_event);
 			}
