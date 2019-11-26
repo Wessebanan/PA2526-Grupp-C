@@ -397,14 +397,14 @@
                 case 0: // FIRE
                     trapText = "FIRE";
                 break;
-                case 1: // FREEZE
-                    trapText = "FREEZE";
+                case 1: // SPIKEs
+                    trapText = "SPIKES";
                 break;
                 case 2: // SPRING
                     trapText = "SPRING";
                 break;
-                case 3: // SPIKES
-                    trapText = "SPIKES";
+                case 3: // FREEZE
+                    trapText = "FREEZE";
                 break;
                 default:
                     trapText = "ERROR";
@@ -429,7 +429,7 @@
             resetAreaColors();
             resetTrapColors();
 
-            var trapCount = 4;
+            var trapCount = 3;
 
             window.trap0 = Math.floor(Math.random() * trapCount);
             window.trap2 = Math.floor(Math.random() * trapCount);
