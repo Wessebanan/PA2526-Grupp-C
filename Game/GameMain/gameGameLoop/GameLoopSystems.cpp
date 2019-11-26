@@ -9,6 +9,7 @@
 
 #include "..//gameUtility/Timer.h"
 #include "..//Input/InterpretWebEvents.h"
+#include "..//Input/InterpretWebSystems.h"
 
 #include "AIGlobals.h"
 #include "..//gameAnimation/AnimationComponents.h"
@@ -744,6 +745,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
 			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 			RemoveSystem(systems::MasterWeaponSpawner::typeID);
+			RemoveSystem(systems::ChangeFSMSystem::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
 
 			// Change to calm music
