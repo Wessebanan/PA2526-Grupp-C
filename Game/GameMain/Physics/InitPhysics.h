@@ -44,13 +44,13 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 
 	// Movement
 	rEcs.createSystem<ecs::systems::DynamicMovementInitSystem>();
-	rEcs.createSystem<ecs::systems::DynamicMovementSystem>();
+	rEcs.createSystem<ecs::systems::DynamicMovementSystem>(3);
 
 	// Collision
 	rEcs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
-	rEcs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
-	rEcs.createSystem<ecs::systems::ObjectCollisionSystem>();
-	rEcs.createSystem<ecs::systems::GroundCollisionSystem>();
+	//rEcs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
+	rEcs.createSystem<ecs::systems::ObjectCollisionSystem>(4);
+	//rEcs.createSystem<ecs::systems::GroundCollisionSystem>();
 
 	// Fighting
 	rEcs.createSystem<ecs::systems::WeaponInitSystem>();
@@ -73,22 +73,42 @@ inline void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs)
 {
 	TypeFilter filter;
 	filter.addRequirement(SceneObjectComponent::typeID);
+	filter.addRequirement(TransformComponent::typeID);
 
 	EntityIterator it = rEcs.getEntititesByFilter(filter);
+
+	ObjectCollisionComponent collision;
+	collision.mBvType = COLLISION_AABB;
+
+	// Creating a BV for each scene object and making the tile impassable.
 	for (int i = 0; i < it.entities.size(); i++)
 	{
 		ID current_id = it.entities.at(i).entity->getID();
-		TransformComponent* scene_transform = static_cast<TransformComponent*>(rEcs.getComponent(TransformComponent::typeID, current_id));
+		
+		TransformComponent* scene_transform = static_cast<TransformComponent*>(rEcs.getComponentFromEntity(TransformComponent::typeID, current_id));
 		int2 scene_tile_index = GridFunctions::GetTileFromWorldPos(scene_transform->position.x, scene_transform->position.z);
 
-		TileData tile_data = GridProp::GetInstance()->mGrid[scene_tile_index.y][scene_tile_index.x];
-		// If tile is made not passable by scene object, add collision to scene object.
-		if (!tile_data.isPassable)
+		TileData *tile_data = &GridProp::GetInstance()->mGrid[scene_tile_index.y][scene_tile_index.x];
+		
+		SceneObjectComponent* scene_component = static_cast<SceneObjectComponent*>(rEcs.getComponentFromEntity(SceneObjectComponent::typeID, current_id));
+		collision.mObjType = scene_component->mObject;
+
+		if (collision.mObjType == GAME_OBJECT_TYPE_FRUITTREE)
 		{
-			SceneObjectComponent* scene_component = static_cast<SceneObjectComponent*>(rEcs.getComponent(SceneObjectComponent::typeID, current_id));
+			collision.mObjType = GAME_OBJECT_TYPE_TREE_TRUNK;
 		}
+		rEcs.createComponent<ObjectCollisionComponent>(current_id, collision);
+		tile_data->isPassable = false;
+		static_cast<TileComponent*>(rEcs.getComponentFromEntity(TileComponent::typeID, tile_data->Id))->impassable = true;
+		
+		// Scaling BV of crystal since it's very big UwU.
+		if (collision.mObjType == GAME_OBJECT_TYPE_GIANTSKULL)
+		{
+			ObjectCollisionComponent* p_collision = static_cast<ObjectCollisionComponent*>(rEcs.getComponentFromEntity(ObjectCollisionComponent::typeID, current_id));
+			p_collision->mBV->Transform(XMMatrixScaling(0.5f, 1.0f, 0.5f));
+		}
+		
 	}
-	// TODO : Get scene objects and add object collision components to them.
 }
 
 ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, GAME_OBJECT_TYPE weaponType, ID ownerEntity)

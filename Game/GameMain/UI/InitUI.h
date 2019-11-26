@@ -65,8 +65,9 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 
 	// save this to switch between different opacities
 	//bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/areaGrid75.png", "areaOverlay");
-	bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/areaGrid50.png", "areaOverlay");
+	//bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/areaGrid50.png", "areaOverlay");
 	//bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/areaGrid30.png", "areaOverlay");
+	bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/newArea50.png", "areaOverlay");
 
 	bitmap_comp.mName = "areaOverlay";
 	bitmap_pos_comp.mDrawArea.top = 150;

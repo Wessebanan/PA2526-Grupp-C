@@ -24,6 +24,7 @@ namespace GridEcsFunctions
 		TransformComponent transform;
 		ColorComponent color;
 		TileComponent tile;
+		
 		ecs::Entity* current_tile;
 
 		const int mapsze = MAX_ARENA_ROWS*MAX_ARENA_ROWS; // Max size

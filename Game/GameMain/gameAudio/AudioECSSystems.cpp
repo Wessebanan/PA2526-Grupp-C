@@ -4,6 +4,9 @@
 
 #include "AudioECSComponents.h"
 
+#include "../gameAI/AIComponents.h"
+#include "../gameUtility/UtilityComponents.h"
+
 ecs::systems::SoundMessageSystem::SoundMessageSystem()
 {
 	updateType = EventListenerOnly;
@@ -351,4 +354,99 @@ void ecs::systems::SoundCooldownClearSystem::updateEntity(FilteredEntity& rEntit
 	{
 		removeComponent(p_cooldown->getEntityID(), components::SoundCooldownComponent::typeID);
 	}
+}
+
+ecs::systems::BattleMusicIntensitySystem::BattleMusicIntensitySystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(ecs::components::MoveStateComponent::typeID);
+	typeFilter.addRequirement(ecs::components::TransformComponent::typeID);
+}
+
+ecs::systems::BattleMusicIntensitySystem::~BattleMusicIntensitySystem()
+{
+}
+
+void ecs::systems::BattleMusicIntensitySystem::Init()
+{
+	components::BattleMusicIntensityComponent* p_comp = 
+		static_cast<components::BattleMusicIntensityComponent*>(
+			getComponentsOfType<components::BattleMusicIntensityComponent>().next());
+
+	mSoundMetaEntity = p_comp->getEntityID();
+}
+
+
+void ecs::systems::BattleMusicIntensitySystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	ecs::components::TransformComponent* p_transform =
+		entity.getComponent<ecs::components::TransformComponent>();
+	ecs::components::MoveStateComponent* p_move_state =
+		entity.getComponent<ecs::components::MoveStateComponent>();
+
+	components::BattleMusicIntensityComponent* p_comp = getComponentFromKnownEntity<components::BattleMusicIntensityComponent>(mSoundMetaEntity);
+
+	// Check if the entity is currently ordered to attack another unit
+	if (p_move_state->activeCommand == STATE::ATTACK)
+	{
+		Entity* enemy_entity;
+		// Check if the enemy target is a valid entity
+		if (enemy_entity = getEntity(p_move_state->goalID))
+		{
+			components::TransformComponent* p_enemy_transform =
+				getComponentFromKnownEntity<components::TransformComponent>(enemy_entity->getID());
+			// Add the distance towards the target
+			p_comp->totalDistance += hypotf(
+				p_transform->position.x - p_enemy_transform->position.x,
+				p_transform->position.z - p_enemy_transform->position.z);
+			// Count how many is in attack state
+			p_comp->totalCount++;
+		}
+	}
+}
+
+ecs::systems::SubTrackUpdateSystem::SubTrackUpdateSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(components::BattleMusicIntensityComponent::typeID);
+}
+
+ecs::systems::SubTrackUpdateSystem::~SubTrackUpdateSystem()
+{
+}
+
+void ecs::systems::SubTrackUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	// How fast the drumtrack should transition between 
+	// intense or calm
+	const float SMOOTH_FACTOR = 0.99f;
+
+	components::BattleMusicIntensityComponent* p_comp =
+		entity.getComponent<ecs::components::BattleMusicIntensityComponent>();
+
+	events::SubMusicSetVolume m_event;
+
+	// If at least someone is in attack mode
+	if (p_comp->totalCount != 0)
+	{
+		// The previous intensity gets blended by how close
+		// attacking units are to each other this frame,
+		// scaled within a certain radius
+		p_comp->currentIntensity = p_comp->currentIntensity * SMOOTH_FACTOR + (1.0f - SMOOTH_FACTOR) *
+			(1.0f - (fminf(fmaxf(p_comp->totalDistance / (float)p_comp->totalCount, 2.0f), 8.0f) - 2.0f) / 6.0f);
+		// Send current intensity as volume
+		m_event.volume = p_comp->currentIntensity;
+		createEvent(m_event);
+	}
+	else
+	{
+		// If no one is attacking, start silencing
+		// the drumtrack
+		p_comp->currentIntensity *= SMOOTH_FACTOR;
+		m_event.volume = p_comp->currentIntensity;
+		createEvent(m_event);
+	}
+	// Set the distance calculation to 0 for next frame
+	p_comp->totalDistance = 0.0f;
+	p_comp->totalCount = 0;
 }

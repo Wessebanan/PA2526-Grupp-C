@@ -9,6 +9,7 @@
 
 #include "..//gameUtility/Timer.h"
 #include "..//Input/InterpretWebEvents.h"
+#include "..//gameAI/AISystems.h"
 
 #include "AIGlobals.h"
 #include "..//gameAnimation/AnimationComponents.h"
@@ -25,6 +26,7 @@
 #include "..//gameAudio/AudioECSEvents.h"
 
 #include "../gameWeapons/WeaponSpawner.h"
+#include "../gameTraps/TrapComponents.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -247,6 +249,86 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		QuadTreeComponent quad_tree;
 		int2 grid_size = GridProp::GetInstance()->GetSize();
 		createEntity(quad_tree);
+
+		// Puts the players into waiting phase
+		itt = getComponentsOfType<InputBackendComp>();
+		InputBackendComp* p_ib;
+		while (p_ib = (InputBackendComp*)itt.next())
+		{
+			// Sets the users layout on join
+			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
+		}
+
+	}
+}
+
+///////////////////
+
+ecs::systems::GameReStartSystem::GameReStartSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(ecs::events::GameReStartEvent::typeID);
+}
+
+ecs::systems::GameReStartSystem::~GameReStartSystem()
+{
+}
+
+void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
+{
+	if (event.getTypeID() == ecs::events::GameReStartEvent::typeID)
+	{
+		ComponentIterator itt;
+
+		// reset stats
+		itt = getComponentsOfType<GameLoopComponent>();
+		GameLoopComponent* p_gl;
+		while (p_gl = (GameLoopComponent*)itt.next())
+		{
+			p_gl->mRoundTime.StartGame();
+
+			p_gl->mPlayerPoints[0] = 0;
+			p_gl->mPlayerPoints[1] = 0;
+			p_gl->mPlayerPoints[2] = 0;
+			p_gl->mPlayerPoints[3] = 0;
+		}
+
+		// remove traps
+		itt = getComponentsOfType<TrapComponent>();
+		TrapComponent* p_trap;
+		while (p_trap = (TrapComponent*)itt.next())
+			removeEntity(p_trap->getEntityID());
+
+		// Broken because we need a killer?
+		//// remove units
+		//itt = getComponentsOfType<UnitComponent>();
+		//UnitComponent* p_unit;
+		//DeadComponent dead;
+		//while (p_unit = (UnitComponent*)itt.next())
+		//	createComponent(p_unit->getEntityID(), dead);
+
+		// Switch to waiting for ready
+		RemoveSystem(SwitchStateSystem::typeID);
+		RemoveSystem(BattlePhaseSystem::typeID);
+		RemoveSystem(PrepPhaseSystem::typeID);
+		CreateSystem<WaitForStartupSystem>(1);
+
+		//change  camera
+		RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
+
+		// Change to dynamic camera
+		itt = getComponentsOfType<CameraComponent>();
+		CameraComponent* cam_comp = (CameraComponent*)itt.next();
+
+		removeEntity(cam_comp->getEntityID());
+
+		TransformComponent new_transf_comp;
+		CameraComponent new_cam_comp;
+
+		CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
+
+		createEntity(new_transf_comp, new_cam_comp);
+		
 
 		// Puts the players into waiting phase
 		itt = getComponentsOfType<InputBackendComp>();
@@ -540,7 +622,9 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	ecs::EntityIterator it = getEntitiesByFilter(filter);
 	
 	ObjectCollisionComponent object_collision;
-	GroundCollisionComponent ground_collision;
+	object_collision.mBvType = COLLISION_AABB;
+	object_collision.mObjType = GAME_OBJECT_TYPE_UNIT;
+	//GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
 	HealthComponent health_component;
 	EquipmentComponent equipment_component;
@@ -555,10 +639,10 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 			createComponent<ObjectCollisionComponent>(current->getID(), object_collision);
 		}
 
-		if (!current->hasComponentOfType<GroundCollisionComponent>())
-		{
-			createComponent<GroundCollisionComponent>(current->getID(), ground_collision);
-		}
+		//if (!current->hasComponentOfType<GroundCollisionComponent>())
+		//{
+		//	createComponent<GroundCollisionComponent>(current->getID(), ground_collision);
+		//}
 
 		if (!current->hasComponentOfType<DynamicMovementComponent>())
 		{
@@ -575,7 +659,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 		{
 			// Setting melee range here (arm length) hoping that any unit mesh is either facing x or z on load.
 			ObjectCollisionComponent* p_object_collision = dynamic_cast<ObjectCollisionComponent*>(getComponent(ObjectCollisionComponent::typeID, current->getComponentID(ObjectCollisionComponent::typeID)));
-			XMFLOAT3 extents = p_object_collision->mAABB.Extents;
+			XMFLOAT3 extents = static_cast<AABB*>(p_object_collision->mBV)->Extents;
 
 			// TEMP multiplying extents by inverse of scale given in init system for object
 			// collision component for a more snug hitbox.
@@ -744,6 +828,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
 			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 			RemoveSystem(systems::MasterWeaponSpawner::typeID);
+			RemoveSystem(systems::SwitchStateSystem::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
 
 			// Change to calm music

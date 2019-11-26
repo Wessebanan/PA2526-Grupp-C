@@ -9,6 +9,7 @@
 #include "InitInputBackendComponent.h"
 
 #include "..//gameTraps/TrapEvents.h"
+#include "..//gameTraps/TrapComponents.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -76,12 +77,6 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				sound_event.soundFlags = SoundFlags::SF_NONE;
 				sound_event.invokerEntityId = _entityInfo.entity->getID();
 				createEvent(sound_event);
-
-				{
-					ecs::events::FadeInSubMusic m_event;
-					m_event.fadeInTimeInSeconds = 3.0f;
-					createEvent(m_event);
-				}
 
 				createEvent(cus_event);
 			}
@@ -164,22 +159,57 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 					int tile_index_y = ((p_tile_comp->userTiles[i].mCordY * partion_y) + (rand() % partion_y));
 					tile_index_x += 3;
 					tile_index_y += 3;
-
-					TypeID tile_ID;
 					
+					ComponentIterator itt;
+					
+					// Takes the tilecomponent to make sure it isnt water
+					TileComponent* p_map_tile = getComponentFromKnownEntity<TileComponent>(p_gp->mGrid[tile_index_y][tile_index_x].Id);
+					
+					/// Loops over existing traps so they dont stack
+					bool not_traped = true;
+					itt = getComponentsOfType<TrapComponent>();
+					TrapComponent* p_trap;
+					while (p_trap = (TrapComponent*)itt.next())
+					{
+						if (p_trap->mTileID == p_gp->mGrid[tile_index_y][tile_index_x].Id)
+						{
+							not_traped = false;
+							break;
+						}
+					}
+
 					int loops = 0;
 					// Loop until we its a tile the units can go on
-					while (!p_gp->mGrid[tile_index_x][tile_index_y].isPassable)
+					while ((p_map_tile->tileType == TileTypes::WATER || !not_traped) && loops < 256)
 					{
+						// Roll new tile
 						tile_index_x = (p_tile_comp->userTiles[i].mCordX * partion_x) + (rand() % partion_x);
 						tile_index_y = (p_tile_comp->userTiles[i].mCordY * partion_y) + (rand() % partion_y);
 						tile_index_x += 3;
 						tile_index_y += 3;
 
+						p_map_tile = getComponentFromKnownEntity<TileComponent>(p_gp->mGrid[tile_index_y][tile_index_x].Id);
+
+
+						// Check for existing traps
+						not_traped = true;
+						itt = getComponentsOfType<TrapComponent>();
+						p_trap;
+						while (p_trap = (TrapComponent*)itt.next())
+						{
+							if (p_trap->mTileID == p_gp->mGrid[tile_index_y][tile_index_x].Id)
+							{
+								not_traped = false;
+								break;
+							}
+						}
+
 						loops++;
 					}
-					tile_ID = p_gp->mGrid[tile_index_y][tile_index_x].Id;
 
+					
+					TypeID tile_ID = p_gp->mGrid[tile_index_y][tile_index_x].Id;
+					
 
 					ecs::events::PlaceTrapEvent eve;
 						
