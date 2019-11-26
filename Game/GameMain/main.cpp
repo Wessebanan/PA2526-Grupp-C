@@ -257,6 +257,9 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitArmy(rECS);
 	InitSceneObjects(rECS);
 
+	CreateCollisionForTiles(rECS);
+	CreateCollisionForSceneObjects(rECS);
+
 	InitOceanEntities(rECS);
 	InitOceanUpdateSystem(rECS);
 
@@ -296,7 +299,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitHttpServer(rECS);
 
-	CreateCollisionForTiles(rECS);
 
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);

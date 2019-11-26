@@ -119,7 +119,7 @@ namespace ecs
 		{
 			BoundingVolume * mBV		= nullptr;
 			BV_TYPE mBvType				= COLLISION_ERROR;
-			GAME_OBJECT_TYPES mObjType	= GAME_OBJECT_TYPE_MESH_ERROR;
+			GAME_OBJECT_TYPE mObjType	= GAME_OBJECT_TYPE_MESH_ERROR;
 
 			// States if the last movement resulted in collision
 			// and needs to be reverted.

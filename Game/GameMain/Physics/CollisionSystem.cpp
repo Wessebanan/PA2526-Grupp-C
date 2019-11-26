@@ -102,7 +102,6 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		// And checking intersection.
 		CollisionInfo info;
 
-
 		switch (p_current_collision->mBvType)
 		{
 		case COLLISION_AABB:
@@ -180,20 +179,23 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 				if (info.mNormal.y > 0.99f)
 				{
 					p_movement->mLastTileY = p_current_transform->position.y;
-					p_movement->mVelocity.y = 0.0f;
 					on_ground = true;
-				}			
+				}
+				// If normal is not +y, but velocity is -y, set normal 
+				// to +y to avoid getting buried.
+				else if(p_movement->mVelocity.y < 0.0f)
+				{
+					info.mNormal = XMFLOAT3(0.0f, 1.0f, 0.0f);
+				}
 			}
 			// If the collided object is another unit.
 			else if (getEntity(current_entity_id)->hasComponentOfType<UnitComponent>())
 			{
-				// Flip velocity.
-				XMStoreFloat3(&p_movement->mVelocity, -XMLoadFloat3(&p_movement->mVelocity));
-
-				// Shove.
+				// Shove the unit collided into.
 				ForceImpulseEvent shove;
 				shove.mDirection	= p_movement->mDirection;
 				shove.mDirection.y += 0.3f;
+				shove.mDirection.y = (std::max)(shove.mDirection.y, 0.0f);
 				shove.mForce		= BASE_KNOCKBACK;
 				shove.mEntityID		= current_entity_id;
 				createEvent(shove);
@@ -201,13 +203,31 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		}
 	}
 
-
+	// Resolve collisions.
 	for (CollisionInfo info : collisions)
 	{
 		// Reverting movement.
 		p_transform->position.x += info.mNormal.x * info.mOverlap;
 		p_transform->position.y += info.mNormal.y * info.mOverlap;
 		p_transform->position.z += info.mNormal.z * info.mOverlap;
+
+		// Find largest component of collision normal and set velocity in that direction to 0.
+
+		XMFLOAT3 abs_normal;
+		XMStoreFloat3(&abs_normal, XMVectorAbs(XMLoadFloat3(&info.mNormal)));
+
+		if (abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z)
+		{
+			p_movement->mVelocity.x = 0.0f;
+		}
+		else if (abs_normal.y > abs_normal.z)
+		{
+			p_movement->mVelocity.y = 0.0f;
+		}
+		else
+		{
+			p_movement->mVelocity.z = 0.0f;
+		}
 	}
 
 	p_movement->mOnGround = on_ground;

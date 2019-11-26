@@ -61,7 +61,7 @@ void BoundingCylinder::CreateFromPoints(BoundingCylinder& Out, size_t Count, con
 void BoundingCylinder::CreateFromTile(XMFLOAT3 position, float radius)
 {
 	mExtentsY = 1.0f;
-	mRadius = radius * 0.95f;
+	mRadius = radius * 1.0f;
 	mCenter = XMFLOAT3(0.0f,-mExtentsY,0.0f);
 }
 

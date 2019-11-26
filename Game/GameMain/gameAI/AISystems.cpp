@@ -242,7 +242,8 @@ std::vector<unsigned int> ecs::systems::PathfindingStateSystem::GetPath(unsigned
 			for (int i = 0; i < 6; i++) // put new neighbours in open list or maybe update old neighbour move cost
 			{
 				if (current_tile->neighboursIDArray[i] != 0 &&
-					!closed_list.count(current_tile->neighboursIDArray[i])) //check so that the neightbour is valid and not in the closed list
+					!closed_list.count(current_tile->neighboursIDArray[i]) &&
+					!ECSUser::getComponentFromKnownEntity<TileComponent>(current_tile->neighboursIDArray[i])->impassable) //check so that the neightbour is valid and not in the closed list and is passable
 				{
 					pos_in_open_list = 0;
 					in_open_list = false;
@@ -801,7 +802,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 		if (y_distance > 0.3f && p_dyn_move->mOnGround)
 		{
-			length = PhysicsHelpers::CalculateDistance(p_goal->position, p_transform->position);//Length from unit to goal center
+			length = PhysicsHelpers::CalculateDistance(XMFLOAT3(p_goal->position.x, 0.0f, p_goal->position.z), XMFLOAT3(p_transform->position.x, 0.0f, p_transform->position.z));//Length from unit to goal center
 			length_of_vector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
 			angle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
 			(XMLoadFloat3(&p_dyn_move->mVelocity)), XMVector3Normalize(XMLoadFloat3(&p_dyn_move->mDirection))));//Get angle between velocity and direction vector

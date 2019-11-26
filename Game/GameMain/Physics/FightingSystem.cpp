@@ -411,6 +411,9 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		// Small y boost in knockback to send units FLYING.
 		knockback.mDirection.y += 0.3f;
 
+		// Avoiding downward knockback so units do not get BURIED.
+		knockback.mDirection.y = (std::max)(knockback.mDirection.y, 0.0f);
+
 		// Normalize knockback direction so it's not CRAZY.
 		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 		
@@ -619,6 +622,7 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 				// KNOCKBACK
 				ForceImpulseEvent knockback;
 				XMStoreFloat3(&knockback.mDirection, unit_weapon_v);
+				knockback.mDirection.y = (std::max)(knockback.mDirection.y, 0.0f);
 				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 
 				// Small y boost in knockback to send units FLYING.
