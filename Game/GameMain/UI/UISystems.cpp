@@ -179,7 +179,7 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	p_text->mStrText = ss;
 
 }
-
+#include "../gameAudio/AudioECSEvents.h"
 ecs::systems::UICountDownSystem::UICountDownSystem()
 {
 	updateType = SystemUpdateType::EntityUpdate;
@@ -189,11 +189,14 @@ ecs::systems::UICountDownSystem::UICountDownSystem()
 	subscribeEventCreation(events::CountdownStartEvent::typeID);
 }
 
+void ecs::systems::UICountDownSystem::Init()
+{
+}
+
 ecs::systems::UICountDownSystem::~UICountDownSystem()
 {
 	//
 }
-
 void ecs::systems::UICountDownSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	bool one_sec_has_passed = false;
@@ -217,6 +220,16 @@ void ecs::systems::UICountDownSystem::updateEntity(FilteredEntity& _entityInfo, 
 	}
 	if (one_sec_has_passed)
 	{
+		{
+			events::PlaySound m_event;
+			if(mCounter == 3)
+				m_event.audioName = AudioName::SOUND_two;
+			else if(mCounter == 2)
+				m_event.audioName = AudioName::SOUND_one;
+			else
+				m_event.audioName = AudioName::SOUND_go;
+			createEvent(m_event);
+		}
 		this->mCounter--;
 		p_UI_pos_comp->mDrawArea.bottom		-= this->mExpand_size;
 		p_UI_pos_comp->mDrawArea.left		+= this->mExpand_size;
@@ -265,5 +278,10 @@ void ecs::systems::UICountDownSystem::onEvent(TypeID _eventType, BaseEvent* _eve
 		m_pos.mDrawArea.top = height / 2;
 
 		createEntity(m_bitmap, m_pos, m_time);
+		{
+			events::PlaySound m_event;
+			m_event.audioName = AudioName::SOUND_three;
+			createEvent(m_event);
+		}
 	}
 }
