@@ -112,7 +112,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(RESERVED_COMPONENTS);
-	ecs.reserveComponentCount<ecs::components::TrapComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::TrapComponent>(1000);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -305,13 +305,20 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	tile_filter.addRequirement(ecs::components::TileComponent::typeID);
 	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
 
+	GAME_OBJECT_TYPES traps[] =
+	{
+		GAME_OBJECT_TYPE_TRAP_SPIKES,
+		GAME_OBJECT_TYPE_TRAP_FIRE,
+		GAME_OBJECT_TYPE_TRAP_SPRING,
+	};
+
 	int count = 0;
 	for (FilteredEntity tile : tiles.entities)
 	{
 		components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
 		if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
 		{
-			spawn_event.type = GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
+			spawn_event.type = traps[rand() % 3];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
 			spawn_event.tileID = p_tile->getEntityID();
 			rECS.createEvent(spawn_event);
 		}

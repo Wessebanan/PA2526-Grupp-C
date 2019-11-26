@@ -28,19 +28,26 @@ namespace ecs
 		struct TriggerFireTrapEvent : public ecs::ECSEvent<TriggerFireTrapEvent>
 		{
 			TypeID unitID;
+			TypeID tileID;
+			TypeID trapID;
 		};
 		struct TriggerFreezeTrapEvent : public ecs::ECSEvent<TriggerFreezeTrapEvent>
 		{
 			TypeID unitID;
+			TypeID tileID;
+			TypeID trapID;
 		};
 		struct TriggerSpringTrapEvent : public ecs::ECSEvent<TriggerSpringTrapEvent>
 		{
 			TypeID unitID;
 			TypeID tileID;
+			TypeID trapID;
 		};
 		struct TriggerSpikeTrapEvent : public ecs::ECSEvent<TriggerSpikeTrapEvent>
 		{
 			TypeID unitID;
+			TypeID tileID;
+			TypeID trapID;
 		};
 	}
 }

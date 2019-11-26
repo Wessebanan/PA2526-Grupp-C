@@ -21,6 +21,9 @@ namespace ecs
 	{
 		struct TrapComponent : public ECSComponent<TrapComponent>
 		{
+			float ActivationRateInSeconds;
+			float CurrentTimeInSeconds;
+
 			GAME_OBJECT_TYPE mObjectType;
 			TypeID mTileID;
 		};
