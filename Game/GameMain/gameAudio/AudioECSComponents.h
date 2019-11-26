@@ -9,6 +9,7 @@ namespace ecs
 		struct SoundCooldownComponent : public ECSComponent<SoundCooldownComponent>
 		{
 			float timeElapsed;
+			AudioName audioName;
 		};
 	}
 }

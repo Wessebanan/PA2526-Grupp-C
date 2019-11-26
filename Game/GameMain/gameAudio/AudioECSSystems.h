@@ -42,15 +42,17 @@ namespace ecs
 			Audio::Mixer* mSoundMixer;
 			Audio::Bank* mSoundBank;
 			bool mEngineInit;
+			std::chrono::time_point<std::chrono::steady_clock>
+				mSoundCooldownClock[AudioName::SOUND_COUNT];
 		};
 
-		class SoundCooldownClearSystem : public ECSSystem<SoundCooldownClearSystem>
-		{
-		public:
-			SoundCooldownClearSystem();
-			virtual ~SoundCooldownClearSystem();
+		//class SoundCooldownClearSystem : public ECSSystem<SoundCooldownClearSystem>
+		//{
+		//public:
+		//	SoundCooldownClearSystem();
+		//	virtual ~SoundCooldownClearSystem();
 
-			void updateEntity(FilteredEntity& rEntity, float delta) override;
-		};
+		//	void updateEntity(FilteredEntity& rEntity, float delta) override;
+		//};
 	}
 }
