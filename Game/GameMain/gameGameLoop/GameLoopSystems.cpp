@@ -307,6 +307,7 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		//	createComponent(p_unit->getEntityID(), dead);
 
 		// Switch to waiting for ready
+		RemoveSystem(SwitchStateSystem::typeID);
 		RemoveSystem(BattlePhaseSystem::typeID);
 		RemoveSystem(PrepPhaseSystem::typeID);
 		CreateSystem<WaitForStartupSystem>(1);
