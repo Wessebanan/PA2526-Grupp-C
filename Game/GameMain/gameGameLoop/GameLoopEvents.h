@@ -19,5 +19,9 @@ namespace ecs
 		// The game should start, timers and such
 		struct GameStartEvent : public ecs::ECSEvent<GameStartEvent>
 		{};
+
+		// The game should start, timers and such
+		struct GameReStartEvent : public ecs::ECSEvent<GameReStartEvent>
+		{};
 	}
 }

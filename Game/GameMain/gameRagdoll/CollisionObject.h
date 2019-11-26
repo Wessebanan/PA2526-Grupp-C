@@ -5,15 +5,6 @@
 #include "PhysicsHelperFunctions.h"
 using namespace PhysicsHelpers;
 
-enum BV_TYPE
-{
-	COLLISION_SPHERE,
-	COLLISION_OBB,
-	COLLISION_AABB,
-	COLLISION_CYLINDER,
-	COLLISION_ERROR
-};
-
 class CollisionObject
 {
 public:

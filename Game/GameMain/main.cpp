@@ -114,6 +114,7 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TileComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::TrapComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::ObjectCollisionComponent>(RESERVED_COMPONENTS);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -170,6 +171,12 @@ int main()
 			{
 				ecs.removeSystem<ecs::systems::UpdateCameraSystem>();
 				ecs.createSystem<ecs::systems::UpdateDynamicCameraSystem>(0);
+			}
+			// RESTART THE GAME WITH O
+			if (GetAsyncKeyState('C'))
+			{
+				events::GameReStartEvent eve;
+				ecs.createEvent(eve);
 			}
 
 			if (GetAsyncKeyState(VK_SPACE) && start_once)
@@ -252,9 +259,13 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitInput(rECS);
 	InitInterpreter(rECS);
 
+	InitPhysics(rECS);
 	InitGrid(rECS);
 	InitArmy(rECS);
 	InitSceneObjects(rECS);
+
+	CreateCollisionForTiles(rECS);
+	CreateCollisionForSceneObjects(rECS);
 
 	InitIslands(rECS);
 
@@ -264,7 +275,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitCamera(rECS);
 
 	InitAnimation(rECS);
-	InitPhysics(rECS);
 
 	InitGameLoop(rECS);
 
@@ -297,6 +307,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitWorldScenery(rECS);
 
 	InitHttpServer(rECS);
+
 
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);

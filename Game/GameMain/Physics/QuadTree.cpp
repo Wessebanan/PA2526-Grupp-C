@@ -5,8 +5,8 @@
 
 QuadTree::QuadTree(int level, float xMin, float xMax, float zMin, float zMax, QuadTree* pParent)
 {
-	mMaxLevel = 5;
-	mMaxObjects = 2;
+	mMaxLevel = 10;
+	mMaxObjects = 40;
 	mLevel = level;
 	mXBounds[0] = xMin;
 	mXBounds[1] = xMax;
@@ -60,9 +60,9 @@ int QuadTree::GetIndex(QuadTreeObject obj)
 	//If the function returns -1 the object belongs in the parent.
 	int index = -1;
 	//Fetch the objects max and min position in model space.
-	DirectX::XMVECTOR min_position = DirectX::XMLoadFloat3(&obj.pBoundingBox->mAABB.Center);
-	DirectX::XMVECTOR max_position = DirectX::XMLoadFloat3(&obj.pBoundingBox->mAABB.Center);
-	DirectX::XMVECTOR extents = DirectX::XMLoadFloat3(&obj.pBoundingBox->mAABB.Extents);
+	DirectX::XMVECTOR min_position = DirectX::XMLoadFloat3(&obj.pBoundingBox->mBV->GetCenter());
+	DirectX::XMVECTOR max_position = DirectX::XMLoadFloat3(&obj.pBoundingBox->mBV->GetCenter());
+	DirectX::XMVECTOR extents = DirectX::XMLoadFloat3(&obj.pBoundingBox->mBV->GetExtents());
 	min_position = DirectX::XMVectorSubtract(min_position, extents);
 	max_position = DirectX::XMVectorAdd(max_position, extents);
 	DirectX::XMMATRIX world_matrix = UtilityEcsFunctions::GetWorldMatrix(*obj.pTransform);

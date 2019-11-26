@@ -1,11 +1,35 @@
 #pragma once
 #include "ecsSystemIncludes.h"
+#include "AudioECSComponents.h"
 #include "AudioECSEvents.h"
 
 namespace ecs
 {
 	namespace systems
 	{
+		class BattleMusicIntensitySystem : public ECSSystem<BattleMusicIntensitySystem>
+		{
+		public:
+			BattleMusicIntensitySystem();
+			virtual ~BattleMusicIntensitySystem();
+
+			void Init();
+
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		private:
+			//components::BattleMusicIntensityComponent m_comp;
+			ID mSoundMetaEntity;
+		};
+
+		class SubTrackUpdateSystem : public ECSSystem<SubTrackUpdateSystem>
+		{
+		public:
+			SubTrackUpdateSystem();
+			virtual ~SubTrackUpdateSystem();
+
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
+
 		class SoundMessageSystem : public ECSSystem<SoundMessageSystem>
 		{
 		public:

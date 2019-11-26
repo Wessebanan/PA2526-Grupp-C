@@ -6,6 +6,11 @@
 // Creates the sound message system and init it
 bool InitSound(ecs::EntityComponentSystem& rECS)
 {
+	rECS.reserveComponentCount<ecs::components::BattleMusicIntensityComponent>(1);
+	ecs::components::BattleMusicIntensityComponent sound_dummy;
+	rECS.createEntity(sound_dummy);
+
+
 	ecs::systems::SoundMessageSystem* system_handler =
 		rECS.createSystem<ecs::systems::SoundMessageSystem>(9);
 
@@ -16,6 +21,9 @@ bool InitSound(ecs::EntityComponentSystem& rECS)
 	}
 
 	//rECS.createSystem<ecs::systems::SoundCooldownClearSystem>(9);
+
+	rECS.createSystem<ecs::systems::BattleMusicIntensitySystem>()->Init();
+	rECS.createSystem<ecs::systems::SubTrackUpdateSystem>();
 	return true;
 }
 
