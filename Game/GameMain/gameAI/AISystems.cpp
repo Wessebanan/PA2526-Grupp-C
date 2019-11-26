@@ -1626,23 +1626,7 @@ void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float de
 				new_state = LOOT;
 			}
 		}
-
-		switch (new_state)
-		{
-		case ATTACK:
-			new_state = ATTACK;
-			break;
-		case LOOT:
-			new_state = LOOT;
-			break;
-		case RALLY:
-			new_state = RALLY;
-			break;
-		default:
-			break;
-		}
 		
-
 		ChangeUserStateEvent e;
 		e.playerId = p_aibrain->mPlayer;
 		e.newState = new_state;
