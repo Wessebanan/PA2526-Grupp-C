@@ -541,7 +541,9 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	ecs::EntityIterator it = getEntitiesByFilter(filter);
 	
 	ObjectCollisionComponent object_collision;
-	GroundCollisionComponent ground_collision;
+	object_collision.mBvType = COLLISION_AABB;
+	object_collision.mObjType = GAME_OBJECT_TYPE_UNIT;
+	//GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
 	HealthComponent health_component;
 	EquipmentComponent equipment_component;
@@ -556,10 +558,10 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 			createComponent<ObjectCollisionComponent>(current->getID(), object_collision);
 		}
 
-		if (!current->hasComponentOfType<GroundCollisionComponent>())
-		{
-			createComponent<GroundCollisionComponent>(current->getID(), ground_collision);
-		}
+		//if (!current->hasComponentOfType<GroundCollisionComponent>())
+		//{
+		//	createComponent<GroundCollisionComponent>(current->getID(), ground_collision);
+		//}
 
 		if (!current->hasComponentOfType<DynamicMovementComponent>())
 		{
@@ -576,7 +578,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 		{
 			// Setting melee range here (arm length) hoping that any unit mesh is either facing x or z on load.
 			ObjectCollisionComponent* p_object_collision = dynamic_cast<ObjectCollisionComponent*>(getComponent(ObjectCollisionComponent::typeID, current->getComponentID(ObjectCollisionComponent::typeID)));
-			XMFLOAT3 extents = p_object_collision->mAABB.Extents;
+			XMFLOAT3 extents = static_cast<AABB*>(p_object_collision->mBV)->Extents;
 
 			// TEMP multiplying extents by inverse of scale given in init system for object
 			// collision component for a more snug hitbox.
