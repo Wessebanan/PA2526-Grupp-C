@@ -159,6 +159,16 @@ namespace ecs
 			int mExpand_size = 500;
 		};
 
+		/*class UIOverlayInitSystem : public ECSSystem<UIOverlayInitSystem>
+		{
+		public:
+			UIOverlayInitSystem();
+			virtual ~UIOverlayInitSystem();
+			void readEvent(BaseEvent& _event, float _delta) override;
+
+			Direct2D* mpD2D;
+		};*/
+		
 	}
 
 }

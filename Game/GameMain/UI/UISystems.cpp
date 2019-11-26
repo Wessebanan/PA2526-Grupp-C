@@ -268,3 +268,49 @@ void ecs::systems::UICountDownSystem::onEvent(TypeID _eventType, BaseEvent* _eve
 		createEntity(m_bitmap, m_pos, m_time);
 	}
 }
+
+//ecs::systems::UIOverlayInitSystem::UIOverlayInitSystem()
+//{
+//}
+//
+//ecs::systems::UIOverlayInitSystem::~UIOverlayInitSystem()
+//{
+//	//
+//}
+
+//void ecs::systems::UIOverlayInitSystem::readEvent(BaseEvent& _event, float _delta)
+//{
+//	if (_event.getTypeID != 0) //change 0 to my event id
+//	{
+//		return;
+//	}
+//
+//	TypeFilter army_filter;
+//	army_filter.addRequirement(ArmyComponent::typeID);
+//	EntityIterator armies = getEntitiesByFilter(army_filter);
+//
+//	TypeFilter ui_filter;
+//	ui_filter.addRequirement(UIBitmapComponent::typeID);
+//	ui_filter.addRequirement(UIDrawPosComponent::typeID);
+//	ui_filter.addRequirement(UIUnit::typeID);
+//	EntityIterator ui_units = getEntitiesByFilter(ui_filter);
+//
+//	UIUnit* p_unit_comp;
+//	ArmyComponent* p_army_comp;
+//	for (FilteredEntity ui_unit : ui_units.entities)
+//	{
+//		p_unit_comp = ui_unit.getComponent<UIUnit>();
+//		for (FilteredEntity army : armies.entities)
+//		{
+//			if (army.entity->getID() == p_unit_comp->armyID)
+//			{
+//				p_army_comp = army.getComponent<ArmyComponent>();
+//				break;
+//			}
+//		}
+//
+//
+//		
+//		
+//	}
+//}

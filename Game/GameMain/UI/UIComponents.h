@@ -43,7 +43,8 @@ namespace ecs
 		struct UIBitmapComponent : public ECSComponent<UIBitmapComponent>
 		{
 			ID2D1Bitmap1* mpBitmap;
-			std::string mName;
+			std::string mName = "";
+			unsigned int mID;
 		};
 
 		struct UIThicknessComponent : public ECSComponent<UIThicknessComponent>
@@ -54,6 +55,18 @@ namespace ecs
 		struct UIIWant : public ECSComponent<UIIWant> //a pretty all around component used for extra stuff for special systems
 		{
 			float elapsedTime = 0.f;
+		};
+
+		struct UIUnit : public ECSComponent<UIUnit>
+		{
+			enum UI_UNIT_PLACEMENT
+			{
+				UI_UNIT_LEFT,
+				UI_UNIT_MIDDLE,
+				UI_UNIT_RIGHT,
+			} unitPlacement;
+
+			ID armyID;
 		};
 	}
 }

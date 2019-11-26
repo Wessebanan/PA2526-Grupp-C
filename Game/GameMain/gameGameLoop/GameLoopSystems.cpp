@@ -441,14 +441,12 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 				transform.position.x = p_transform->position.x + (float(TILE_RADIUS) / divider);
 				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
-				bitmap_comp.mName = "l";
 			}
 			else if (u == 1)
 			{
 				transform.position.x = p_transform->position.x - (float(TILE_RADIUS) / divider);
 				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
-				bitmap_comp.mName = "m";
 
 			}
 			else
@@ -456,8 +454,6 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 				transform.position.x = p_transform->position.x;
 				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z - (float(TILE_RADIUS) / divider);
-				bitmap_comp.mName = "r";
-
 			}
 
 			// set scale to fit on tile
@@ -490,14 +486,13 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 				&color_comp, 
 				&skele_comp, 
 				&ani_speed_comp,
-				&unit_scale_comp,
-				&bitmap_comp
+				&unit_scale_comp
 			};
 
 			ecs::ComponentList list;
 
 			list.initialInfo = components;
-			list.componentCount = 8;
+			list.componentCount = 7;
 
 			//// ENTITIES
 			temp_entity = createEntity(list);
