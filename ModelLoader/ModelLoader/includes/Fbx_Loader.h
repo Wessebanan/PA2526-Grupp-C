@@ -271,12 +271,12 @@ namespace ModelLoader
 			else
 			{
 				// If animation is missing, apply t-pose
-				memcpy(&this->frameData[0],
-					identity_xmfloat,
-					this->parentSkeleton->jointCount * sizeof(DirectX::XMFLOAT4X4));
-				int debugIntPlsRemove = 0;
-				debugIntPlsRemove++;
-
+				for (int i = 0; i < this->parentSkeleton->jointCount; ++i)
+				{
+					memcpy(&this->frameData[i],
+						identity_xmfloat,
+						sizeof(DirectX::XMFLOAT4X4));
+				}
 			}
 		}
 		// DO NOT USE THIS FUNCTION, THIS IS KEPT PURELY FOR LEGACY PURPOSES
