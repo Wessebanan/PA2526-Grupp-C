@@ -35,7 +35,7 @@ namespace ecs
 			XMVECTOR center = { 0.f, 0.f, 0.f, 0.f };
 			for (FilteredEntity tile : tiles.entities)
 			{
-				if (tile.getComponent<components::TileComponent>()->tileType != WATER)
+				if (tile.getComponent<components::TileComponent>()->tileType == GAME_FIELD)
 				{
 					center += XMLoadFloat3(&tile.getComponent<components::TransformComponent>()->position);
 					valid_tiles++;
