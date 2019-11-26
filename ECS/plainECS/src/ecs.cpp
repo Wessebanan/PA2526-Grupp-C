@@ -210,61 +210,69 @@ void EntityComponentSystem::update(float _delta)
 			*	Fetch the system's update behaviour and act accordingly.
 			*/
 
-			switch (s->updateType)
+			try
 			{
-			case EntityUpdate:
-				// Fill list with entities that own all of the system's
-				// required component types.
-				fillEntityIteratorInternal(s->typeFilter, entities);
 
-				// Iterate through all the entites of interest and update the system.
-				for (FilteredEntity e : entities.entities)
+				switch (s->updateType)
 				{
-					s->updateEntity(e, _delta);
-				}
-				break;
+				case EntityUpdate:
+					// Fill list with entities that own all of the system's
+					// required component types.
+					fillEntityIteratorInternal(s->typeFilter, entities);
 
-			case MultiEntityUpdate:
-				// Fill list with entities that own all of the system's
-				// required component types.
-				fillEntityIteratorInternal(s->typeFilter, entities);
-
-				// Update the system with the list of all entities of interest.
-				s->updateMultipleEntities(entities, _delta);
-				break;
-
-			case EventReader:
-				// Fill list with events of the system's interest
-				fillEventIteratorInternal(s->typeFilter, events);
-
-				// Iterator through all event types
-				for (EventTypeIterator::TypePair list : events.eventTypes)
-				{
-					// Iterates through all events of current type
-					for (BaseEvent* e : list.second)
+					// Iterate through all the entites of interest and update the system.
+					for (FilteredEntity e : entities.entities)
 					{
-						s->readEvent(*e, _delta);
+						s->updateEntity(e, _delta);
 					}
-				}
-				break;
-			case Actor:
-				s->act(_delta);
-				break;
+					break;
 
-		//#ifdef _DEBUG
-		//	case Undefined:
-		//		debugPrint += "(Undefined update type)";
-		//		break;
-		//#endif
+				case MultiEntityUpdate:
+					// Fill list with entities that own all of the system's
+					// required component types.
+					fillEntityIteratorInternal(s->typeFilter, entities);
+
+					// Update the system with the list of all entities of interest.
+					s->updateMultipleEntities(entities, _delta);
+					break;
+
+				case EventReader:
+					// Fill list with events of the system's interest
+					fillEventIteratorInternal(s->typeFilter, events);
+
+					// Iterator through all event types
+					for (EventTypeIterator::TypePair list : events.eventTypes)
+					{
+						// Iterates through all events of current type
+						for (BaseEvent* e : list.second)
+						{
+							s->readEvent(*e, _delta);
+						}
+					}
+					break;
+				case Actor:
+					s->act(_delta);
+					break;
+
+					//#ifdef _DEBUG
+					//	case Undefined:
+					//		debugPrint += "(Undefined update type)";
+					//		break;
+					//#endif
+
+				}
 
 			}
-
-			checkEntityValidity(s);
+			catch (...)
+			{
+				checkEntityValidity(s);
+			}
 
 			//#ifdef _DEBUG
 			//	debugPrint += ", ";
 			//#endif
 		}
+		
 
 		//#ifdef _DEBUG
 		//	if ((unsigned int)layer.size())
@@ -449,7 +457,7 @@ void ecs::EntityComponentSystem::checkEntityValidity(BaseSystem* currentSystem)
 
 				if (s_print == currentSystem)
 				{
-					std::cout << " <-- Unvalid component(s) after this system's update";
+					std::cout << " <-- Crashed detected when trying to update this system, or fetch entities for it.";
 				}
 				std::cout << "\n";
 			}
@@ -795,7 +803,39 @@ void EntityComponentSystem::fillEntityIteratorInternal(TypeFilter& _componentFil
 
 			if (!pEntity)
 			{
-				std::cout << "Failed to fetch entity from " << pComponent->getName() << ": entity is nullptr.\n";
+				std::cout << "Entity for component is null. ";
+
+				if (entityMgr.entities.count(pComponent->getEntityID()))
+				{
+					std::cout << "Entity exist in manager. ";
+
+					Entity* e = entityMgr.entities[pComponent->getEntityID()];
+
+					if (e->hasComponentOfType(pComponent->getTypeID()))
+					{
+						std::cout << "Entity do own a " << pComponent->getName() << ". ";
+
+						if (e->getComponentID(pComponent->getTypeID()) == pComponent->getID())
+						{
+							std::cout << "Entity's component ID is matching with current component.";
+						}
+						else
+						{
+							std::cout << "Entity's component ID do not match.";
+						}
+					}
+					else
+					{
+						std::cout << "Entity doesn't own a " << pComponent->getName();
+					}
+				}
+				else
+				{
+					std::cout << "Entity does not exist in manager.";
+				}
+				std::cout << "\n\n";
+
+				throw "Failed to fetch entity from " + pComponent->getName() + ": entity is nullptr.";
 			}
 
 			FilteredEntity info;

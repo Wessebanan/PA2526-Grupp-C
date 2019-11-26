@@ -50,8 +50,6 @@ namespace ecs
 
 		Entity* createEntityInternal();
 
-#ifdef _DEBUG
 		friend class EntityComponentSystem;
-#endif
 	};
 }

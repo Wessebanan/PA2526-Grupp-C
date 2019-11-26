@@ -73,10 +73,16 @@ ComponentIterator ecs::ECSComponentManager::getComponentIterator(TypeID _typeID)
 	return componentPools[_typeID]->getIterator();
 }
 
+#include <iostream>
 void ECSComponentManager::flagRemoval(TypeID _typeID, ID _componentID)
 {
 	if (!componentPools.count(_typeID))
 	{
+		std::cout << "ERROR: Tried to remove component where component pool doesn't exist.\n";
+		system("pause");
+
+		//throw "ERROR: Tried to remove component where component pool doesn't exist.";
+
 		return;
 	}
 

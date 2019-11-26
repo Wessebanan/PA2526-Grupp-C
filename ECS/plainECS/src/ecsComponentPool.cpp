@@ -95,8 +95,17 @@ void ECSComponentPool::initialize(size_t _startCap, size_t _componentSize)
 	initialized = true;
 }
 
+#include <iostream>
 void ecs::ECSComponentPool::flagRemoval(ID _componentID)
 {
+	if (!lookUpList.count(_componentID))
+	{
+		std::cout << "ERROR: Non-existent component (" << this->componentName << ") is flagged for removal.\n";
+		system("pause");
+
+		throw "ERROR: Non-existent component is flagged for removal.";
+	}
+
 	lookUpList[_componentID]->alive = false;
 	toRemove.push_back(_componentID);
 }

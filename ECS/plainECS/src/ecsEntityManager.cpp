@@ -31,8 +31,17 @@ Entity* ECSEntityManager::getEntity(ID _entityID)
 	return entities[_entityID];
 }
 
+#include <iostream>
 void ECSEntityManager::flagRemoval(ID _entityID)
 {
+	if (!getEntity(_entityID))
+	{
+		std::cout << "ERROR: Non-existent entity is flagged for removal.\n";
+		system("pause");
+
+		throw "ERROR: Non-existent entity is flagged for removal.";
+	}
+
 	toRemove.push_back(_entityID);
 }
 

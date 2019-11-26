@@ -54,9 +54,8 @@ void ecs::systems::FreezingDurationSystem::updateEntity(FilteredEntity& _entityI
 					p_ani_speed_comp->factor *= 2.0f;
 				}
 
-				removeComponent(p_ftimer_comp->getEntityID(), p_ftimer_comp->getTypeID());
+				removeComponent(_entityInfo.entity->getID(), FreezingTimerComponent::typeID);
 			}
-
 		}
 	}
 	
