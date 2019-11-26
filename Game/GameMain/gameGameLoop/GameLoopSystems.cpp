@@ -731,15 +731,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			GameLoopComponent* p_gl;
 			while (p_gl = (GameLoopComponent*)itt.next())
 			{
-				itt = ecs::ECSUser::getComponentsOfType(ecs::components::InputBackendComp::typeID);
-				ecs::components::InputBackendComp* p_ib;
-				if (p_ib = static_cast<InputBackendComp*>(itt.next()))
-				{
-					for (int i = 0; i < 4; i++)
-					{
-						p_ib->mPlacedTraps[i] = 0;
-					}
-				}
+				
 				// Check if the winner will sin the game now or not
 				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN - 1)
 				{
@@ -773,6 +765,16 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 							default:
 								break;
 							}
+						}
+					}
+
+					itt = ecs::ECSUser::getComponentsOfType(ecs::components::InputBackendComp::typeID);
+					ecs::components::InputBackendComp* p_ib;
+					if (p_ib = static_cast<InputBackendComp*>(itt.next()))
+					{
+						for (int i = 0; i < 4; i++)
+						{
+							p_ib->mPlacedTraps[i] = 0;
 						}
 					}
 				}
@@ -879,6 +881,23 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 
 					bitmap_pos_comp->mDrawArea.bottom = 800;
 				}
+			}
+			//Loop for every player.
+			itt = getComponentsOfType(ecs::components::ArmyComponent::typeID);
+			ecs::components::ArmyComponent* p_army;
+			int i = 0;
+			while (p_army = (ecs::components::ArmyComponent*)itt.next())
+			{
+				// Clear it out if there was an
+				for (size_t kk = 0; kk < p_army->unitIDs.size(); kk++)
+				{
+
+					ecs::components::EquipmentComponent* p_eq = getComponentFromKnownEntity<ecs::components::EquipmentComponent>(p_army->unitIDs[kk]);
+
+					removeEntity(p_eq->mEquippedWeapon);
+					removeEntity(p_army->unitIDs[kk]);
+				}
+				p_army->unitIDs.clear();
 			}
 		}
 	}

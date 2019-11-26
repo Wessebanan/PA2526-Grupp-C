@@ -1,7 +1,7 @@
 #pragma once
 
-#define MAX_ARENA_ROWS 30
-#define MAX_ARENA_COLUMNS 30
+#define MAX_ARENA_ROWS 18
+#define MAX_ARENA_COLUMNS 18
 #define TILE_RADIUS 1
 
 using TileType = unsigned int;
