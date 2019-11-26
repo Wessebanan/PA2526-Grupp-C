@@ -181,25 +181,9 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 					p_movement->mLastTileY = p_current_transform->position.y;
 					on_ground = true;
 				}
-				// If normal is not +y, but velocity is -y, set normal 
-				// to +y to avoid getting buried.
-				else if(p_movement->mVelocity.y < 0.0f)
-				{
-					info.mNormal = XMFLOAT3(0.0f, 1.0f, 0.0f);
-				}
+			
 			}
-			// If the collided object is another unit.
-			else if (getEntity(current_entity_id)->hasComponentOfType<UnitComponent>())
-			{
-				// Shove the unit collided into.
-				ForceImpulseEvent shove;
-				shove.mDirection	= p_movement->mDirection;
-				shove.mDirection.y += 0.3f;
-				shove.mDirection.y = (std::max)(shove.mDirection.y, 0.0f);
-				shove.mForce		= BASE_KNOCKBACK;
-				shove.mEntityID		= current_entity_id;
-				createEvent(shove);
-			}			
+					
 		}
 	}
 

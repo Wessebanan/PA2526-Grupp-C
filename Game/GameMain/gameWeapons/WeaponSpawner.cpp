@@ -221,8 +221,8 @@ namespace ecs
 				/*
 					Skip water tiles
 				*/
-
-				if (p_tile_comp->tileType == WATER)
+			
+				if (p_tile_comp->tileType == WATER || p_tile_comp->impassable)
 				{
 					continue;
 				}
