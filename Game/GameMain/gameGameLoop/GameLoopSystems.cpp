@@ -297,7 +297,13 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		TrapComponent* p_trap;
 		while (p_trap = (TrapComponent*)itt.next())
 			removeEntity(p_trap->getEntityID());
-		
+
+		// remove units
+		itt = getComponentsOfType<UnitComponent>();
+		UnitComponent* p_unit;
+		while (p_unit = (UnitComponent*)itt.next())
+			createComponent(p_unit->getEntityID(), DeadComponent::typeID);
+
 		// Switch to waiting for ready
 		RemoveSystem(BattlePhaseSystem::typeID);
 		RemoveSystem(PrepPhaseSystem::typeID);
