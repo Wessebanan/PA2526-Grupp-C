@@ -26,6 +26,7 @@
 #include "..//gameAudio/AudioECSEvents.h"
 
 #include "../gameWeapons/WeaponSpawner.h"
+#include "../gameTraps/TrapComponents.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -248,6 +249,59 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		QuadTreeComponent quad_tree;
 		int2 grid_size = GridProp::GetInstance()->GetSize();
 		createEntity(quad_tree);
+
+		// Puts the players into waiting phase
+		itt = getComponentsOfType<InputBackendComp>();
+		InputBackendComp* p_ib;
+		while (p_ib = (InputBackendComp*)itt.next())
+		{
+			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
+		}
+
+	}
+}
+
+///////////////////
+
+ecs::systems::GameReStartSystem::GameReStartSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(ecs::events::GameReStartEvent::typeID);
+}
+
+ecs::systems::GameReStartSystem::~GameReStartSystem()
+{
+}
+
+void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
+{
+	if (event.getTypeID() == ecs::events::GameReStartEvent::typeID)
+	{
+		ComponentIterator itt;
+
+		// reset stats
+		itt = getComponentsOfType<GameLoopComponent>();
+		GameLoopComponent* p_gl;
+		while (p_gl = (GameLoopComponent*)itt.next())
+		{
+			p_gl->mRoundTime.StartGame();
+
+			p_gl->mPlayerPoints[0] = 0;
+			p_gl->mPlayerPoints[1] = 0;
+			p_gl->mPlayerPoints[2] = 0;
+			p_gl->mPlayerPoints[3] = 0;
+		}
+
+		// remove traps
+		itt = getComponentsOfType<TrapComponent>();
+		TrapComponent* p_trap;
+		while (p_trap = (TrapComponent*)itt.next())
+			removeEntity(p_trap->getEntityID());
+		
+		// Switch to waiting for ready
+		RemoveSystem(BattlePhaseSystem::typeID);
+		RemoveSystem(PrepPhaseSystem::typeID);
+		CreateSystem<WaitForStartupSystem>(1);
 
 		// Puts the players into waiting phase
 		itt = getComponentsOfType<InputBackendComp>();
