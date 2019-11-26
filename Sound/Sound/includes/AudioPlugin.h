@@ -30,6 +30,7 @@ namespace Audio
 				}
 			}
 			void SetNextPointer(Plugin* pNext, bool NextIsOnStack);
+			virtual Status Progress(Samples start, Samples sampleCount, int channelCount);
 			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount) = 0;
 		protected:
 			Plugin* mpNext;
@@ -44,6 +45,7 @@ namespace Audio
 			void SetFileAndReset(FileData* pFile);
 			Samples GetReadPointer();
 			void SetReadPointer(Samples readPointer);
+			virtual Status Progress(Samples start, Samples sampleCount, int channelCount);
 			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount);
 		private:
 			FileData* mpFile;
