@@ -1224,10 +1224,10 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		createEntity(spawner, smoke);
 
 		// Doesnt work atm	
-		/*PlaySound sound;
-		sound.audioName = SPLOOSH_SOUND;
+		PlaySound sound;
+		sound.audioName = SOUND_sploosh;
 		sound.soundFlags = SF_NONE;
-		ecs::ECSUser::createEvent(sound);*/
+		ecs::ECSUser::createEvent(sound);
 	}
 	// saved fo future use
 				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
@@ -1626,23 +1626,7 @@ void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float de
 				new_state = LOOT;
 			}
 		}
-
-		switch (new_state)
-		{
-		case ATTACK:
-			new_state = ATTACK;
-			break;
-		case LOOT:
-			new_state = LOOT;
-			break;
-		case RALLY:
-			new_state = RALLY;
-			break;
-		default:
-			break;
-		}
 		
-
 		ChangeUserStateEvent e;
 		e.playerId = p_aibrain->mPlayer;
 		e.newState = new_state;
