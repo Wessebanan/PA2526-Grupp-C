@@ -102,7 +102,7 @@ inline void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs)
 		static_cast<TileComponent*>(rEcs.getComponentFromEntity(TileComponent::typeID, tile_data->Id))->impassable = true;
 		
 		// Scaling BV of crystal since it's very big UwU.
-		if (collision.mObjType == GAME_OBJECT_TYPE_MESH_CRYSTAL_FORMATION)
+		if (collision.mObjType == GAME_OBJECT_TYPE_GIANTSKULL)
 		{
 			ObjectCollisionComponent* p_collision = static_cast<ObjectCollisionComponent*>(rEcs.getComponentFromEntity(ObjectCollisionComponent::typeID, current_id));
 			p_collision->mBV->Transform(XMMatrixScaling(0.5f, 1.0f, 0.5f));
