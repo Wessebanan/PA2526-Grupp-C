@@ -586,6 +586,10 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestLootTile(Entity* c
 	//Initialize components and variables that we will need.
 				//ecs::Entity* loot_tile;
 	TransformComponent* unit_transform = static_cast<TransformComponent*>(ECSUser::getComponentFromKnownEntity(TransformComponent::typeID, current_unit->getID()));
+	/*if (!unit_transform)
+	{
+		return 0;
+	}*/
 	TransformComponent* loot_transform;
 	TileComponent* loot_tile;
 	float dist = 1000.0f;
@@ -598,12 +602,14 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestLootTile(Entity* c
 		{
 			loot_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mLootTiles[i]);
 			loot_tile = ECSUser::getComponentFromKnownEntity<TileComponent>(p_gp->mLootTiles[i]);
-			temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
-			if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
-			{
-				dist = temp_dist;
-				loot_id = p_gp->mLootTiles[i];
-			}
+							
+				temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
+				if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
+				{
+					dist = temp_dist;
+					loot_id = p_gp->mLootTiles[i];
+				}
+			
 		}
 	}
 

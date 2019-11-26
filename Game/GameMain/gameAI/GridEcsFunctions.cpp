@@ -30,10 +30,10 @@ namespace GridEcsFunctions
 		const int mapsze = MAX_ARENA_ROWS*MAX_ARENA_ROWS; // Max size
 		float height_map[mapsze];
 		std::vector<IsletTileCoordinate> islet_coordinates;
+
 		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.0f, Rows*Columns / 60, holmes, islet_coordinates);
-
-
- 		GridProp* p_gp = GridProp::GetInstance();
+	
+		GridProp* p_gp = GridProp::GetInstance();
 
 		p_gp->SetSize(Rows,Columns);
 

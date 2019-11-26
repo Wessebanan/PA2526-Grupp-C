@@ -223,7 +223,7 @@ namespace ecs
 					Skip water tiles
 				*/
 			
-				if (p_tile_comp->tileType == WATER || p_tile_comp->impassable)
+				if (p_tile_comp->tileType == WATER || p_tile_comp->impassable || p_tile_comp->tileType == UNDEFINED)
 				{
 					continue;
 				}
@@ -243,23 +243,23 @@ namespace ecs
 		ID MasterWeaponSpawner::FindSpawnTile()
 		{
 			bool tile_found = false;
-			int random_index;
+			int random_index = rand() % (int)mPossibleTileIds.size();
 			GridProp* p_gp = GridProp::GetInstance();
 			int tries = 0;
-			while (!tile_found && tries < 20)
-			{
-				random_index = rand() % (int)mPossibleTileIds.size();
-				tile_found = true;
-				for (int i = 0; i < p_gp->mLootTiles.size(); i++)
-				{
-					if (p_gp->mLootTiles[i] == mPossibleTileIds[random_index])
-					{
-						tile_found = false;
-						tries++;
-					}
-				}
-			}
-			p_gp->mLootTiles.push_back(random_index);
+			//while (!tile_found && tries < 20)
+			//{
+			//	random_index = rand() % (int)mPossibleTileIds.size();
+			//	tile_found = true;
+			//	for (int i = 0; i < p_gp->mLootTiles.size(); i++)
+			//	{
+			//		if (p_gp->mLootTiles[i] == mPossibleTileIds[random_index])
+			//		{
+			//			tile_found = false;
+			//			tries++;
+			//		}
+			//	}
+			//}
+			//p_gp->mLootTiles.push_back(random_index);
 			return mPossibleTileIds[random_index];
 		}
 
@@ -306,7 +306,7 @@ namespace ecs
 			if (p_weapon_transform->position.y < p_falling_weapon->mPosY + p_falling_weapon->mPosYOffset)
 			{
 				//Set the tile to a loot tile so that units can loot the weapon
-				//GridProp::GetInstance()->mLootTiles.push_back(p_falling_weapon->mTileId);
+				GridProp::GetInstance()->mLootTiles.push_back(p_falling_weapon->mTileId);
 				//Set the y-position and the rotation of the weapon so that it sticks to the ground.
 				p_weapon_transform->position.y = p_falling_weapon->mPosY + p_falling_weapon->mPosYOffset;
 				p_weapon_transform->rotation = p_falling_weapon->rotation;
