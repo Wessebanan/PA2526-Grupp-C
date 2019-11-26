@@ -244,7 +244,8 @@ namespace ecs
 			bool tile_found = false;
 			int random_index;
 			GridProp* p_gp = GridProp::GetInstance();
-			while (!tile_found)
+			int tries = 0;
+			while (!tile_found && tries < 20)
 			{
 				random_index = rand() % (int)mPossibleTileIds.size();
 				tile_found = true;
@@ -253,6 +254,7 @@ namespace ecs
 					if (p_gp->mLootTiles[i] == mPossibleTileIds[random_index])
 					{
 						tile_found = false;
+						tries++;
 					}
 				}
 			}
