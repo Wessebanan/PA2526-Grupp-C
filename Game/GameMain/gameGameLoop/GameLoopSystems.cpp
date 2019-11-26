@@ -542,7 +542,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	ObjectCollisionComponent object_collision;
 	object_collision.mBvType = COLLISION_AABB;
 	object_collision.mObjType = GAME_OBJECT_TYPE_UNIT;
-	GroundCollisionComponent ground_collision;
+	//GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
 	HealthComponent health_component;
 	EquipmentComponent equipment_component;

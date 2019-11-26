@@ -57,7 +57,6 @@ void InitGrid(ecs::EntityComponentSystem& rECS)
 
 	GridEcsFunctions::CreateGrid(rECS, rows, columns, 1.0f, holmes);
 	InitBiomes(rECS, rows, columns);
-	//CreateCollisionForTiles(rECS);
 }
 
 void CreateCollisionForTiles(ecs::EntityComponentSystem& rECS)
