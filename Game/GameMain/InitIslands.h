@@ -4,12 +4,12 @@
 #include "gameUtility/UtilityComponents.h"
 #include "gameAI/AIComponents.h"
 
-#define ISLAND_TILE_COUNT 16
+#define ISLAND_TILE_COUNT 6
 
 struct IslandTiles
 {
 	TransformComponent center;
-	TransformComponent transform[ISLAND_TILE_COUNT];
+	TransformComponent transform[16];
 };
 
 void InitIslands(ecs::EntityComponentSystem& rECS)
@@ -31,39 +31,40 @@ void InitIslands(ecs::EntityComponentSystem& rECS)
 	tile.impassable = true;
 	tile.goal = false;
 
-	for (size_t i = 0; i < 10; i++)
+	for (size_t i = 0; i < 22; i++)
 	{
 		/*
-			1
-		0		2
 			3
+		0		2
+			1
 		*/
 
 		for (size_t i = 0; i < ISLAND_TILE_COUNT; i++)
-			island.transform[i].position = island.center.position;
+			island.transform[i].scale.y = 5.0f;
 
-		XMFLOAT3 start_pos = {-19.5f, -0.3f, -20.0f};
 
-		int rand_side = rand() % 6;
+		XMFLOAT3 start_pos = {-19.5f, 3.0f + (float)((rand() % 10) / 5), -20.0f};
+
+		int rand_side = rand() % 2;
 		switch (rand_side)
 		{
 		case 0:
 		case 5:
-			start_pos.z = (-19.0f) + (TILE_RADIUS * (int)(rand() % 30));
+			start_pos.z = (-19.0f) + (TILE_RADIUS * (int)(rand() % 60));
 			start_pos.x = (-19.5f) - (TILE_RADIUS * (int)(rand() % 30));
 			break;
-		case 1:
-			start_pos.z = (29.5f) + (TILE_RADIUS * (int)(rand() % 30));
-			start_pos.x = (29.5f) - (TILE_RADIUS * (int)(rand() % 30));
+		case 3:
+			start_pos.z = (39.5f) + (TILE_RADIUS * (int)(rand() % 20));
+			start_pos.x = (39.5f) - (TILE_RADIUS * (int)(rand() % 20));
 			break;
 		case 2:
-			start_pos.z = (29.0f) - (TILE_RADIUS * (int)(rand() % 30));
-			start_pos.x = (29.5f) + (TILE_RADIUS * (int)(rand() % 30));
+			start_pos.z = (39.0f) - (TILE_RADIUS * (int)(rand() % 20));
+			start_pos.x = (39.5f) + (TILE_RADIUS * (int)(rand() % 20));
 			break;
-		case 3:
+		case 1:
 		case 4:
-			start_pos.z = (-9.5f) - (TILE_RADIUS * (int)(rand() % 30));
-			start_pos.x = (-19.0f) + (TILE_RADIUS * (int)(rand() % 30));
+			start_pos.z = (-19.5f) - (TILE_RADIUS * (int)(rand() % 30));
+			start_pos.x = (-19.0f) + (TILE_RADIUS * (int)(rand() % 60));
 			break;
 		default:
 			break;

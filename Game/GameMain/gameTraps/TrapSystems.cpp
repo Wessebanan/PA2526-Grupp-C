@@ -464,7 +464,7 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 		createComponent(tile_id, p_sr_comp);
 
 		// Send the tile up
-		p_tile_transf->position.y += 2.95f;
+		p_tile_transf->position.y += 1.0f;
 	}
 }
 

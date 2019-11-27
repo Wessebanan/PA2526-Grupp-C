@@ -188,7 +188,7 @@ int main()
 			/*
 				Update all ECS systems, and give them the delta time.
 			*/
-			ecs.update(timer.GetFrameTime() * 1.0f);
+			ecs.update(timer.GetFrameTime());
 
 			graphics::Present(0);
 		}
@@ -346,5 +346,5 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
 
-	DebuggFunctions(rECS);
+	//DebuggFunctions(rECS);
 }
