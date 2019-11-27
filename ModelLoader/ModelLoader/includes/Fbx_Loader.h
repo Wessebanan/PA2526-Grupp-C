@@ -175,7 +175,7 @@ namespace ModelLoader
 		}
 		void ResetFrameCount()
 		{
-			this->mCurrentTime = 0.0f + static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+			this->mCurrentTime = 0.0f + static_cast <float> (rand()) / static_cast <float> (RAND_MAX / 0.2f);
 		}
 		void Init(Skeleton* parentSkeleton)
 		{

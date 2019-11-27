@@ -54,35 +54,35 @@ ecs::systems::GameLoopSystem::~GameLoopSystem()
 // Runs neccesary gameloops, timers etc
 void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
-
-	static float total_time;
-	static int total_frames;
-
-	total_time += _delta;
-	total_frames++;
-	static float framerate_to_print = 0.0f;
-	static float frametime_to_print = 0.0f;
-	if (total_frames % 100 == 0)
-	{
-		framerate_to_print = (float)total_frames / total_time;
-		frametime_to_print = total_time / (float)total_frames;
-		total_frames = 0;
-		total_time = 0.0f;
-	}
-
-	if (p_text->tag != UITAG::STARTTEXT)
-	{
-		// To be sent to the UI
-		wstring ss = L"";
-	
-		ss.append(L"\nFRAMERATE: ");
-		ss.append(to_wstring(framerate_to_print));
-		ss.append(L"\nFRAMETIME: ");
-		ss.append(to_wstring(frametime_to_print));
-	
-		p_text->mStrText = ss;
-	}
+	//UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
+	//
+	//static float total_time;
+	//static int total_frames;
+	//
+	//total_time += _delta;
+	//total_frames++;
+	//static float framerate_to_print = 0.0f;
+	//static float frametime_to_print = 0.0f;
+	//if (total_frames % 100 == 0)
+	//{
+	//	framerate_to_print = (float)total_frames / total_time;
+	//	frametime_to_print = total_time / (float)total_frames;
+	//	total_frames = 0;
+	//	total_time = 0.0f;
+	//}
+	//
+	//if (p_text->tag != UITAG::STARTTEXT)
+	//{
+	//	// To be sent to the UI
+	//	wstring ss = L"";
+	//
+	//	ss.append(L"\nFRAMERATE: ");
+	//	ss.append(to_wstring(framerate_to_print));
+	//	ss.append(L"\nFRAMETIME: ");
+	//	ss.append(to_wstring(frametime_to_print));
+	//
+	//	p_text->mStrText = ss;
+	//}
 }
 
 ///////////////////
@@ -297,7 +297,24 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		itt = getComponentsOfType<TrapComponent>();
 		TrapComponent* p_trap;
 		while (p_trap = (TrapComponent*)itt.next())
+		{
 			removeEntity(p_trap->getEntityID());
+		}
+
+
+		// remove loot weapons.
+		itt = getComponentsOfType<WeaponComponent>();
+		WeaponComponent* p_weapon;
+		while (p_weapon = (WeaponComponent*)itt.next())
+		{
+			if (p_weapon->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
+			{
+				removeEntity(p_weapon->getEntityID());
+			}
+		}
+
+		// remove loot tiles
+		GridProp::GetInstance()->mLootTiles.clear();
 
 		// Broken because we need a killer?
 		//// remove units
@@ -338,6 +355,25 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
 		}
 
+
+		itt = getComponentsOfType<components::UIBitmapComponent>();
+		UIBitmapComponent* bitmap_comp;
+
+		while (bitmap_comp = (UIBitmapComponent*)itt.next())
+		{
+			if (bitmap_comp->mName == "guide1")
+			{
+				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+				bitmap_pos_comp->mDrawArea.bottom = 1000;
+			}
+			if (bitmap_comp->mName == "guide2")
+			{
+				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+				bitmap_pos_comp->mDrawArea.bottom = 1000;
+			}
+		}
 	}
 }
 
@@ -402,10 +438,16 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 		itt = getComponentsOfType<UITextComponent>();
 		UITextComponent* text_comp;
+		UIDrawPosComponent* draw_pos_comp;
 		while (text_comp = (UITextComponent*)itt.next())
 		{
 			if (text_comp->tag == UITAG::STARTTEXT)
 			{
+				draw_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(text_comp->getEntityID());
+				draw_pos_comp->mDrawArea.bottom = 0;
+				draw_pos_comp->mDrawArea.left = 0;
+				draw_pos_comp->mDrawArea.right = 0;
+				draw_pos_comp->mDrawArea.top = 0;
 				text_comp->mStrText = L"";
 			}
 		}
@@ -442,6 +484,18 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
 
 				bitmap_pos_comp->mDrawArea.bottom = 150;
+			}
+			if (bitmap_comp->mName == "guide1")
+			{
+				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+				bitmap_pos_comp->mDrawArea.bottom = 200;
+			}
+			if (bitmap_comp->mName == "guide2")
+			{
+				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+				bitmap_pos_comp->mDrawArea.bottom = 200;
 			}
 		}
 
