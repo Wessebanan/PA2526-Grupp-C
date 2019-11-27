@@ -239,7 +239,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 			spawner.LifeDuration = 0.4f;
 
 			smoke.InitialVelocity = 12.0f;
-			smoke.SpawnCount = 150;
+			smoke.SpawnCount = 500;
 
 			createEntity(spawner, smoke);
 		}
