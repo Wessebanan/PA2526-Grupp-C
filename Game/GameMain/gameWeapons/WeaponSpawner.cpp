@@ -243,23 +243,22 @@ namespace ecs
 		ID MasterWeaponSpawner::FindSpawnTile()
 		{
 			bool tile_found = false;
-			int random_index = rand() % (int)mPossibleTileIds.size();
+			int random_index;
 			GridProp* p_gp = GridProp::GetInstance();
 			int tries = 0;
-			//while (!tile_found && tries < 20)
-			//{
-			//	random_index = rand() % (int)mPossibleTileIds.size();
-			//	tile_found = true;
-			//	for (int i = 0; i < p_gp->mLootTiles.size(); i++)
-			//	{
-			//		if (p_gp->mLootTiles[i] == mPossibleTileIds[random_index])
-			//		{
-			//			tile_found = false;
-			//			tries++;
-			//		}
-			//	}
-			//}
-			//p_gp->mLootTiles.push_back(random_index);
+			while (!tile_found && tries < 20)
+			{
+				random_index = rand() % (int)mPossibleTileIds.size();
+				tile_found = true;
+				for (int i = 0; i < p_gp->mLootTiles.size(); i++)
+				{
+					if (p_gp->mLootTiles[i] == mPossibleTileIds[random_index])
+					{
+						tile_found = false;
+						tries++;
+					}
+				}
+			}
 			return mPossibleTileIds[random_index];
 		}
 
