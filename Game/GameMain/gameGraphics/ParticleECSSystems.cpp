@@ -302,31 +302,31 @@ namespace ecs
 			components::ParticleComponent* p_particle_component =
 				entity.getComponent<components::ParticleComponent>();
 
-			components::FireParticleComponent* p_splash_component =
+			components::FireParticleComponent* p_fire_component =
 				entity.getComponent<components::FireParticleComponent>();
 
 			// Decrease their life and terminate if life expectancy has reached
-			p_splash_component->CurrentLifeDuration -= delta;
-			if (p_splash_component->CurrentLifeDuration <= 0.0f)
+			p_fire_component->CurrentLifeDuration -= delta;
+			if (p_fire_component->CurrentLifeDuration <= 0.0f)
 			{
 				removeEntity(entity.entity->getID());
 			}
 
 			// Decrease scale with proptional to how long they have lived [1;0]
-			const int scale = p_splash_component->MaxScale * p_splash_component->CurrentLifeDuration / p_splash_component->TotalLifeDuration;
+			const int scale = p_fire_component->MaxScale * p_fire_component->CurrentLifeDuration / p_fire_component->TotalLifeDuration;
 			p_particle_component->Scale = scale >= 0 ? scale : 0;
 
 			// Get position and direction
 			DirectX::XMVECTOR position = DirectX::XMLoadFloat3(&p_particle_component->Position);
-			DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&p_splash_component->Direction);
+			DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&p_fire_component->Direction);
 
 			// Transform particle
-			position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(direction, delta * p_splash_component->CurrentLifeDuration / p_splash_component->TotalLifeDuration));
+			position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(direction, delta * p_fire_component->CurrentLifeDuration / p_fire_component->TotalLifeDuration));
 			direction = DirectX::XMVectorAdd(direction, DirectX::XMVectorSet(0.0f, -gravity * delta, 0.0f, 0.0f));
 
 			// Store position and direction
 			DirectX::XMStoreFloat3(&p_particle_component->Position, position);
-			DirectX::XMStoreFloat3(&p_splash_component->Direction, direction);
+			DirectX::XMStoreFloat3(&p_fire_component->Direction, direction);
 		}
 #pragma endregion FireParticleRegion
 

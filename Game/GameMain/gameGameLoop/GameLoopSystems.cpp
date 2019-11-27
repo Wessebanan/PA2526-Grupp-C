@@ -55,10 +55,10 @@ ecs::systems::GameLoopSystem::~GameLoopSystem()
 void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
-
+	
 	static float total_time;
 	static int total_frames;
-
+	
 	total_time += _delta;
 	total_frames++;
 	static float framerate_to_print = 0.0f;
@@ -70,7 +70,7 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 		total_frames = 0;
 		total_time = 0.0f;
 	}
-
+	
 	if (p_text->tag != UITAG::STARTTEXT)
 	{
 		// To be sent to the UI
@@ -297,7 +297,24 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		itt = getComponentsOfType<TrapComponent>();
 		TrapComponent* p_trap;
 		while (p_trap = (TrapComponent*)itt.next())
+		{
 			removeEntity(p_trap->getEntityID());
+		}
+
+
+		// remove loot weapons.
+		itt = getComponentsOfType<WeaponComponent>();
+		WeaponComponent* p_weapon;
+		while (p_weapon = (WeaponComponent*)itt.next())
+		{
+			if (p_weapon->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
+			{
+				removeEntity(p_weapon->getEntityID());
+			}
+		}
+
+		// remove loot tiles
+		GridProp::GetInstance()->mLootTiles.clear();
 
 		// Broken because we need a killer?
 		//// remove units

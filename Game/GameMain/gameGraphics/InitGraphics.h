@@ -252,9 +252,10 @@ void InitMeshes(EntityComponentSystem& rEcs)
 		MeshContainer::CreateGPUMesh(GAME_OBJECT_TYPE_QUAD, 6, 0, data, NULL);
 	}
 
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FIRE, "../meshes/TrapPlate.fbx");
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FREEZE, "../meshes/TrapPlate.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FIRE, "../meshes/trap_fire.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FREEZE, "../meshes/trap_freeze.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_SPRING, "../meshes/TrapPlate.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_SPIKES, "../meshes/trap_spikes.fbx");
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_POWERUP_HEALTH_PACK, "../meshes/hexagon_tile5.fbx");
 
@@ -278,6 +279,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_CRYSTAL_FORMATION, "../meshes/crystal_formation.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_CAGE, "../meshes/Cage.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_COWSKULL, "../meshes/CowSkull.fbx");
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_BOX, "../meshes/Box.fbx");
 
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_BOX_BOXES, "../meshes/box_box.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_BOX_PLANKS, "../meshes/box_planks.fbx");
 }
