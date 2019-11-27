@@ -15,8 +15,11 @@ using namespace DirectX;
 namespace GridEcsFunctions
 {
 	//Calculates the centerposition of all the tiles in the grid.
-	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int Rows, const int Columns, const float Radius, bool holmes)
+	void CreateGrid(ecs::EntityComponentSystem& rEcs, const int _Rows, const int _Columns, const float Radius, bool holmes)
 	{
+		const int Rows = 18;
+		const int Columns = 18;
+
 		float pi = 3.1415f;
 		XMFLOAT3 starting_pos = { 0.0f, 0.0f, 0.0f };
 		XMFLOAT3 current_pos = { 0.0f, 0.0f, 0.0f };

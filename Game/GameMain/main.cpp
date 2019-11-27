@@ -153,7 +153,7 @@ int main()
 	int kill_me = 0;
 	while (wnd.IsOpen())
 	{
-		if (!wnd.Update())
+		if (!wnd.Update()/* && graphics::HasFocus(wnd)*/)
 		{ 
 			// Close window when user press Esc
 			if (GetAsyncKeyState(VK_ESCAPE))
@@ -188,7 +188,7 @@ int main()
 			/*
 				Update all ECS systems, and give them the delta time.
 			*/
-			ecs.update(timer.GetFrameTime() * 4.f);
+			ecs.update(timer.GetFrameTime());
 
 			graphics::Present(0);
 		}
@@ -218,38 +218,38 @@ int main()
 void DebuggFunctions(EntityComponentSystem& rECS)
 {
 	// FOR DEBBUGING TRAPS: SPAWNS TRAPS OVER THE WHOLE MAP
-	events::PlaceTrapEvent place_event;
-	place_event.type = GAME_OBJECT_TYPE_TRAP_SPRING;
-	components::TileComponent* p_tile;
-	TypeFilter tile_filter;
-	tile_filter.addRequirement(components::TileComponent::typeID);
-	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
-	for (FilteredEntity tile : tiles.entities)
-	{
-		p_tile = tile.getComponent<components::TileComponent>();
-		if (p_tile->tileType != WATER)
-		{
-			place_event.tileID = p_tile->getEntityID();
-			place_event.type = (GAME_OBJECT_TYPES)((GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1) + rand() % TRAP_TYPE_COUNT);
+	//events::PlaceTrapEvent place_event;
+	//place_event.type = GAME_OBJECT_TYPE_TRAP_SPRING;
+	//components::TileComponent* p_tile;
+	//TypeFilter tile_filter;
+	//tile_filter.addRequirement(components::TileComponent::typeID);
+	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+	//for (FilteredEntity tile : tiles.entities)
+	//{
+	//	p_tile = tile.getComponent<components::TileComponent>();
+	//	if (p_tile->tileType != WATER)
+	//	{
+	//		place_event.tileID = p_tile->getEntityID();
+	//		place_event.type = (GAME_OBJECT_TYPES)((GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1) + rand() % TRAP_TYPE_COUNT);
+	//
+	//		//if (place_event.type != GAME_OBJECT_TYPE_TRAP_FIRE)
+	//		//{
+	//		//	continue;
+	//		//}
+	//
+	//		rECS.createEvent(place_event);
+	//	}
+	//}
 
-			//if (place_event.type != GAME_OBJECT_TYPE_TRAP_FIRE)
-			//{
-			//	continue;
-			//}
-
-			rECS.createEvent(place_event);
-		}
-	}
-
-		//events::PlaceTrapEvent spawn_event;
+	//	events::PlaceTrapEvent spawn_event;
 	//TypeFilter tile_filter;
 	//tile_filter.addRequirement(ecs::components::TileComponent::typeID);
 	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
 
 	//GAME_OBJECT_TYPES traps[] =
 	//{
-	//	GAME_OBJECT_TYPE_TRAP_SPIKES,
-	//	GAME_OBJECT_TYPE_TRAP_FIRE,
+	//	/*GAME_OBJECT_TYPE_TRAP_SPIKES,
+	//	GAME_OBJECT_TYPE_TRAP_FIRE,*/
 	//	GAME_OBJECT_TYPE_TRAP_SPRING,
 	//};
 
@@ -346,5 +346,5 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
 
-	DebuggFunctions(rECS);
+	//DebuggFunctions(rECS);
 }

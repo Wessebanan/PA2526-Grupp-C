@@ -93,9 +93,14 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	p_pfComp->pipelineDesc.Fov = 3.14f / 2.0f;
 	p_pfComp->pipelineDesc.NearPlane = 1.0f;
 	p_pfComp->pipelineDesc.FarPlane = 100.0f;
-	p_pfComp->pipelineDesc.ClearColor[0] = 0.25f;
-	p_pfComp->pipelineDesc.ClearColor[1] = 0.25f;
+	p_pfComp->pipelineDesc.ClearColor[0] = 0.45f;
+	p_pfComp->pipelineDesc.ClearColor[1] = 0.35f;
 	p_pfComp->pipelineDesc.ClearColor[2] = 1.00f;
+
+	//p_pfComp->pipelineDesc.ClearColor[0] = 255.f / 255.f;
+	//p_pfComp->pipelineDesc.ClearColor[1] = 127.f / 255.f;
+	//p_pfComp->pipelineDesc.ClearColor[2] = 80.f / 255.f;
+
 	p_pfComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ForwardRenderingPipeline, &p_pfComp->pipelineDesc);
 
 	components::RenderBufferComponent* p_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next());

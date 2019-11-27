@@ -2,7 +2,7 @@
 
 using namespace ecs;
 
-ECSEntityManager::ECSEntityManager() : idGenerator(1)
+ECSEntityManager::ECSEntityManager() : idCounter(1)/*idGenerator(1)*/
 {
 	//
 }
@@ -56,13 +56,29 @@ unsigned int ecs::ECSEntityManager::getCurrentRemoveFlagCount()
 	return (unsigned int)toRemove.size();
 }
 
+#include <iostream>
 Entity* ECSEntityManager::createEntityInternal()
 {
 
 	// idGenerator is working like a counter, making sure that
 	// all IDs it generate is unique.
-	ID newID = idGenerator.generateID();
+	//ID newID = idGenerator.generateID();
+	Entity* entity = new Entity;
+	try
+	{
+		ID newID = idCounter++;
+		entity->id = newID;
+		return entities[newID] = entity;
+	}
+	catch (...)
+	{
+		std::cout << "Failed to initialize entity in ECSEntityManager::createEntityInternal(). Should have ID = " << idCounter - 1 << "\n";
+	}
+	return entity;
+
+
+	/*ID newID = idCounter++;
 	Entity* entity = new Entity;
 	entity->id = newID;
-	return entities[newID] = entity;
+	return entities[newID] = entity;*/
 }

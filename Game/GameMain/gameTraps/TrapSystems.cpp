@@ -102,27 +102,27 @@ void ecs::systems::SpringRetractionSystem::updateEntity(FilteredEntity& _entityI
 
 	if (p_sr_comp)
 	{
-		/*const float distance = p_sr_comp->TargetOffsetY - p_transf_comp->position.y;
-		if (abs(distance) < 0.05f)
+		const float distance = p_transf_comp->position.y - p_sr_comp->TargetOffsetY;
+		if (distance <= 0.0f)
 		{
 			p_transf_comp->position.y = p_sr_comp->TargetOffsetY;
 			removeComponent(p_sr_comp->getEntityID(), p_sr_comp->getTypeID());
 		}
 		else
 		{
-			const float speed = distance / p_sr_comp->mDuration * _delta;
+			const float speed = _delta * distance / max(p_sr_comp->mDuration, 0.01f);
 
-			p_transf_comp->position.y	+= speed;
+			p_transf_comp->position.y	-= speed;
 			p_sr_comp->mDuration		-= _delta;
-		}*/
+		}
 
-		p_transf_comp->position.y -= 1.f * _delta;
+		/*p_transf_comp->position.y -= 1.f * _delta;
 
 		if (p_transf_comp->position.y < p_sr_comp->TargetOffsetY)
 		{
 			p_transf_comp->position.y = p_sr_comp->TargetOffsetY;
 			removeComponent(_entityInfo.entity->getID(), SpringRetractionComponent::typeID);
-		}
+		}*/
 	}
 }
 
@@ -186,6 +186,9 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 		if (tile_id > 0)
 		{
 			TransformComponent* p_transf_comp = getComponentFromKnownEntity<TransformComponent>(tile_id);
+
+			if (!p_transf_comp) return;
+
 			const XMVECTOR tile_position = XMLoadFloat3(&p_transf_comp->position);
 
 			TypeFilter unit_filter;
@@ -236,7 +239,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 			spawner.LifeDuration = 0.4f;
 
 			smoke.InitialVelocity = 12.0f;
-			smoke.SpawnCount = 100;
+			smoke.SpawnCount = 150;
 
 			createEntity(spawner, smoke);
 		}
@@ -393,6 +396,9 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 	if (event.getTypeID() == ecs::events::TriggerSpringTrapEvent::typeID)
 	{
 		TypeID tile_id = static_cast<TriggerSpringTrapEvent&>(event).tileID;
+
+		if (tile_id < 1) return;
+
 		TransformComponent* p_tile_transf = getComponentFromKnownEntity<TransformComponent>(tile_id);
 		const XMVECTOR tile_position = XMLoadFloat3(&p_tile_transf->position);
 
@@ -458,7 +464,7 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 		createComponent(tile_id, p_sr_comp);
 
 		// Send the tile up
-		p_tile_transf->position.y += 2.95f;
+		p_tile_transf->position.y += 1.0f;
 	}
 }
 
@@ -490,6 +496,8 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 
 	TypeID trap_id = r_event.trapID;
 	TypeID tile_id = r_event.tileID;
+
+	if (trap_id < 1 || tile_id < 1) return;
 
 	TransformComponent* p_trap_transf = getComponentFromKnownEntity<TransformComponent>(trap_id);
 	TransformComponent* p_tile_transf = getComponentFromKnownEntity<TransformComponent>(tile_id);

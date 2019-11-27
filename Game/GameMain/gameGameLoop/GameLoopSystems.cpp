@@ -313,6 +313,9 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 			}
 		}
 
+		// remove loot tiles
+		GridProp::GetInstance()->mLootTiles.clear();
+
 		// Broken because we need a killer?
 		//// remove units
 		//itt = getComponentsOfType<UnitComponent>();
