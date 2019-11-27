@@ -153,7 +153,7 @@ int main()
 	int kill_me = 0;
 	while (wnd.IsOpen())
 	{
-		if (!wnd.Update())
+		if (!wnd.Update() && graphics::HasFocus(wnd))
 		{ 
 			// Close window when user press Esc
 			if (GetAsyncKeyState(VK_ESCAPE))

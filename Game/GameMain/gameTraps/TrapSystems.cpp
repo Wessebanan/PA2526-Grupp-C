@@ -178,6 +178,9 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 		if (tile_id > 0)
 		{
 			TransformComponent* p_transf_comp = getComponentFromKnownEntity<TransformComponent>(tile_id);
+
+			if (!p_transf_comp) return;
+
 			const XMVECTOR tile_position = XMLoadFloat3(&p_transf_comp->position);
 
 			TypeFilter unit_filter;
@@ -228,7 +231,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 			spawner.LifeDuration = 0.4f;
 
 			smoke.InitialVelocity = 12.0f;
-			smoke.SpawnCount = 100;
+			smoke.SpawnCount = 150;
 
 			createEntity(spawner, smoke);
 		}
@@ -385,6 +388,9 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 	if (event.getTypeID() == ecs::events::TriggerSpringTrapEvent::typeID)
 	{
 		TypeID tile_id = static_cast<TriggerSpringTrapEvent&>(event).tileID;
+
+		if (tile_id < 1) return;
+
 		TransformComponent* p_tile_transf = getComponentFromKnownEntity<TransformComponent>(tile_id);
 		const XMVECTOR tile_position = XMLoadFloat3(&p_tile_transf->position);
 
@@ -482,6 +488,8 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 
 	TypeID trap_id = r_event.trapID;
 	TypeID tile_id = r_event.tileID;
+
+	if (trap_id < 1 || tile_id < 1) return;
 
 	TransformComponent* p_trap_transf = getComponentFromKnownEntity<TransformComponent>(trap_id);
 	TransformComponent* p_tile_transf = getComponentFromKnownEntity<TransformComponent>(tile_id);
