@@ -443,11 +443,6 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		{
 			if (text_comp->tag == UITAG::STARTTEXT)
 			{
-				draw_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(text_comp->getEntityID());
-				draw_pos_comp->mDrawArea.bottom = 0;
-				draw_pos_comp->mDrawArea.left = 0;
-				draw_pos_comp->mDrawArea.right = 0;
-				draw_pos_comp->mDrawArea.top = 0;
 				text_comp->mStrText = L"";
 			}
 		}
