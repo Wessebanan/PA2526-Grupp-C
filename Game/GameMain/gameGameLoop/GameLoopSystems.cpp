@@ -338,6 +338,25 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
 		}
 
+
+		itt = getComponentsOfType<components::UIBitmapComponent>();
+		UIBitmapComponent* bitmap_comp;
+
+		while (bitmap_comp = (UIBitmapComponent*)itt.next())
+		{
+			if (bitmap_comp->mName == "guide1")
+			{
+				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+				bitmap_pos_comp->mDrawArea.bottom = 1000;
+			}
+			if (bitmap_comp->mName == "guide2")
+			{
+				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+				bitmap_pos_comp->mDrawArea.bottom = 1000;
+			}
+		}
 	}
 }
 
@@ -442,6 +461,18 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
 
 				bitmap_pos_comp->mDrawArea.bottom = 150;
+			}
+			if (bitmap_comp->mName == "guide1")
+			{
+				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+				bitmap_pos_comp->mDrawArea.bottom = 200;
+			}
+			if (bitmap_comp->mName == "guide2")
+			{
+				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+
+				bitmap_pos_comp->mDrawArea.bottom = 200;
 			}
 		}
 
