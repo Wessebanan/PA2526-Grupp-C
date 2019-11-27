@@ -328,6 +328,7 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		RemoveSystem(SwitchStateSystem::typeID);
 		RemoveSystem(BattlePhaseSystem::typeID);
 		RemoveSystem(PrepPhaseSystem::typeID);
+		RemoveSystem(MasterWeaponSpawner::typeID);
 		CreateSystem<WaitForStartupSystem>(1);
 
 		//change  camera
