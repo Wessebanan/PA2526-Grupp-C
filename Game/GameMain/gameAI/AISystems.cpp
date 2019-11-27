@@ -561,20 +561,23 @@ unsigned int ecs::systems::PathfindingStateSystem::FindSafeTile(Entity* current_
 			p_current_neighbour = ECSUser::getComponentFromKnownEntity<TileComponent>(p_current_tile->neighboursIDArray[i]);
 			if (p_current_neighbour != nullptr) //Sanity Check
 			{
-				for (int a = 0; a < 4; a++)
+				if (!p_current_tile->impassable)
 				{
-					if (a != p_current_unit_comp->playerID)
+					for (int a = 0; a < 4; a++)
 					{
-						current_safe += p_current_neighbour->charges.armyCharges[a];
+						if (a != p_current_unit_comp->playerID)
+						{
+							current_safe += p_current_neighbour->charges.armyCharges[a];
+						}
 					}
+					//current_safe += p_current_neighbour->charges.hazardCharge;
+					if (current_safe < safest)
+					{
+						safest = current_safe;
+						goal_tile_id = p_current_tile->neighboursIDArray[i];
+					}
+					current_safe = 0.0f;
 				}
-				//current_safe += p_current_neighbour->charges.hazardCharge;
-				if (current_safe < safest)
-				{
-					safest = current_safe;
-					goal_tile_id = p_current_tile->neighboursIDArray[i];
-				}
-				current_safe = 0.0f;
 			}
 		}
 	}
