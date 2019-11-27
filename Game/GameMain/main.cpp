@@ -153,7 +153,7 @@ int main()
 	int kill_me = 0;
 	while (wnd.IsOpen())
 	{
-		if (!wnd.Update())
+		if (!wnd.Update() && graphics::HasFocus(wnd))
 		{ 
 			// Close window when user press Esc
 			if (GetAsyncKeyState(VK_ESCAPE))
@@ -188,7 +188,7 @@ int main()
 			/*
 				Update all ECS systems, and give them the delta time.
 			*/
-			ecs.update(timer.GetFrameTime());
+			ecs.update(timer.GetFrameTime() * 4.0f);
 
 			graphics::Present(0);
 		}
@@ -241,31 +241,31 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 	//	}
 	//}
 
-		//events::PlaceTrapEvent spawn_event;
-	//TypeFilter tile_filter;
-	//tile_filter.addRequirement(ecs::components::TileComponent::typeID);
-	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+		events::PlaceTrapEvent spawn_event;
+	TypeFilter tile_filter;
+	tile_filter.addRequirement(ecs::components::TileComponent::typeID);
+	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
 
-	//GAME_OBJECT_TYPES traps[] =
-	//{
-	//	GAME_OBJECT_TYPE_TRAP_SPIKES,
-	//	GAME_OBJECT_TYPE_TRAP_FIRE,
-	//	GAME_OBJECT_TYPE_TRAP_SPRING,
-	//};
+	GAME_OBJECT_TYPES traps[] =
+	{
+		/*GAME_OBJECT_TYPE_TRAP_SPIKES,
+		GAME_OBJECT_TYPE_TRAP_FIRE,*/
+		GAME_OBJECT_TYPE_TRAP_SPRING,
+	};
 
-	//int count = 0;
-	//for (FilteredEntity tile : tiles.entities)
-	//{
-	//	components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
-	//	if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
-	//	{
-	//		spawn_event.type = traps[rand() % 3];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
-	//		spawn_event.tileID = p_tile->getEntityID();
-	//		rECS.createEvent(spawn_event);
-	//	}
+	int count = 0;
+	for (FilteredEntity tile : tiles.entities)
+	{
+		components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
+		if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
+		{
+			spawn_event.type = traps[rand() % 3];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
+			spawn_event.tileID = p_tile->getEntityID();
+			rECS.createEvent(spawn_event);
+		}
 
-	//	count++;
-	//}
+		count++;
+	}
 }
 
 void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight)
