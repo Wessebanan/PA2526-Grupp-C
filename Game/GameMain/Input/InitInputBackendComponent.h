@@ -20,6 +20,7 @@ namespace ecs
 		{
 			// The input system that holds all input to be set into components
 			InputBackend* backend = nullptr;
+			int mPlacedTraps[4] = {4, 4, 4, 4};
 		};
 	}
 }

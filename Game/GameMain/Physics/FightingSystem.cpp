@@ -229,7 +229,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	bool intersect = false;
 	ID collided_unit = 0;
 	
-	for (int i = 0; i < units.entities.size(); i++)
+	for (int i = 0; i < units.entities.size() && collided_unit == 0; i++)
 	{
 		ID current_unit = units.entities.at(i).entity->getID();
 		// Skip weapon owner.
@@ -255,19 +255,61 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(current_unit);
 		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(current_unit);
-
-		// Grabbing copy of AABB from current and transforming to world space.
-		AABB current_aabb = p_current_collision->mAABB;
+		
 		XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
-		current_aabb.Transform(current_world_transform);		
 
-		// Checking intersection and breaks if intersection.
-		intersect = weapon_bv->Intersects(&current_aabb);
-		if (intersect)
+		switch (p_current_collision->mBvType)
 		{
-
-			collided_unit = current_unit;
+		case COLLISION_AABB:
+		{
+			AABB aabb;
+			aabb.Center = p_current_collision->mBV->GetCenter();
+			aabb.Extents = p_current_collision->mBV->GetExtents();// *static_cast<AABB*>(p_current_collision->mBV);
+			aabb.Transform(current_world_transform);
+			// Testing intersection and saving collision info if collision.
+			intersect = weapon_bv->Intersects(&aabb);
+			if (intersect)
+			{
+				collided_unit = current_unit;
+			}
 			break;
+		}
+		case COLLISION_OBB:
+		{
+			OBB obb = *static_cast<OBB*>(p_current_collision->mBV);
+			obb.Transform(current_world_transform);
+			// Testing intersection and saving collision info if collision.
+			intersect = weapon_bv->Intersects(&obb);
+			if (intersect)
+			{
+				collided_unit = current_unit;
+			}
+			break;
+		}
+		case COLLISION_SPHERE:
+		{
+			Sphere sphere = *static_cast<Sphere*>(p_current_collision->mBV);
+			sphere.Transform(current_world_transform);
+			// Testing intersection and saving collision info if collision.
+			intersect = weapon_bv->Intersects(&sphere);
+			if (intersect)
+			{
+				collided_unit = current_unit;
+			}
+			break;
+		}
+		case COLLISION_CYLINDER:
+		{
+			Cylinder cylinder = *static_cast<Cylinder*>(p_current_collision->mBV);
+			cylinder.Transform(current_world_transform);
+			// Testing intersection and saving collision info if collision.
+			intersect = weapon_bv->Intersects(&cylinder);
+			if (intersect)
+			{
+				collided_unit = current_unit;
+			}
+			break;
+		}
 		}
 	}
 
@@ -368,6 +410,9 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		// Small y boost in knockback to send units FLYING.
 		knockback.mDirection.y += 0.3f;
+
+		// Avoiding downward knockback so units do not get BURIED.
+		knockback.mDirection.y = (std::max)(knockback.mDirection.y, 0.0f);
 
 		// Normalize knockback direction so it's not CRAZY.
 		XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
@@ -577,6 +622,7 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 				// KNOCKBACK
 				ForceImpulseEvent knockback;
 				XMStoreFloat3(&knockback.mDirection, unit_weapon_v);
+				knockback.mDirection.y = (std::max)(knockback.mDirection.y, 0.0f);
 				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 
 				// Small y boost in knockback to send units FLYING.
@@ -611,6 +657,12 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 		bomb_spawner.SpawnCount = 2000.0f;
 
 		createEntity(particle_spawner, bomb_spawner);
+
+		// Sound
+		events::PlaySound m_event;
+		m_event.audioName = AudioName::SOUND_kaboom;
+		createEvent(m_event);
+
 		// ---
 
 		components::EquipmentComponent* p_equipment = getComponentFromKnownEntity<components::EquipmentComponent>(hit_event.OwnerUnitID);

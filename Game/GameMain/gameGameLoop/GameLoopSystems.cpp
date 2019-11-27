@@ -9,6 +9,7 @@
 
 #include "..//gameUtility/Timer.h"
 #include "..//Input/InterpretWebEvents.h"
+#include "..//gameAI/AISystems.h"
 
 #include "AIGlobals.h"
 #include "..//gameAnimation/AnimationComponents.h"
@@ -25,6 +26,7 @@
 #include "..//gameAudio/AudioECSEvents.h"
 
 #include "../gameWeapons/WeaponSpawner.h"
+#include "../gameTraps/TrapComponents.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -161,6 +163,10 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 	int check_any_live = 0;
 	PLAYER alive_player;
 	ArmyComponent* p_army_comp;
+	ComponentIterator comp_it = ECSUser::getComponentsOfType<InputBackendComp>();
+	InputBackendComp* p_inputbackend;
+	p_inputbackend = static_cast<InputBackendComp*>(comp_it.next());
+	
 	for (FilteredEntity& army : _entities.entities)
 	{
 		p_army_comp = army.getComponent<ArmyComponent>();
@@ -169,6 +175,20 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 		{
 			check_any_live++;
 			alive_player = p_army_comp->playerID;
+		}
+		if (p_inputbackend->backend->mpPlayerIsConnected[p_army_comp->playerID] == true)
+		{
+			ECSUser::removeComponent(p_army_comp->getEntityID(), AiBrainComponent::typeID);
+		}	
+		else
+		{
+			if (!ECSUser::getEntity(p_army_comp->getEntityID())->hasComponentOfType<AiBrainComponent>())
+			{
+				AiBrainComponent ai_brain;
+				ai_brain.mPlayer = p_army_comp->playerID;
+				ai_brain.mTimer = ai_brain.mPlayer;
+				ECSUser::createComponent(p_army_comp->getEntityID(), ai_brain);
+			}
 		}
 	}
 
@@ -235,6 +255,86 @@ void ecs::systems::GameStartSystem::readEvent(BaseEvent& event, float delta)
 		InputBackendComp* p_ib;
 		while (p_ib = (InputBackendComp*)itt.next())
 		{
+			// Sets the users layout on join
+			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
+		}
+
+	}
+}
+
+///////////////////
+
+ecs::systems::GameReStartSystem::GameReStartSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(ecs::events::GameReStartEvent::typeID);
+}
+
+ecs::systems::GameReStartSystem::~GameReStartSystem()
+{
+}
+
+void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
+{
+	if (event.getTypeID() == ecs::events::GameReStartEvent::typeID)
+	{
+		ComponentIterator itt;
+
+		// reset stats
+		itt = getComponentsOfType<GameLoopComponent>();
+		GameLoopComponent* p_gl;
+		while (p_gl = (GameLoopComponent*)itt.next())
+		{
+			p_gl->mRoundTime.StartGame();
+
+			p_gl->mPlayerPoints[0] = 0;
+			p_gl->mPlayerPoints[1] = 0;
+			p_gl->mPlayerPoints[2] = 0;
+			p_gl->mPlayerPoints[3] = 0;
+		}
+
+		// remove traps
+		itt = getComponentsOfType<TrapComponent>();
+		TrapComponent* p_trap;
+		while (p_trap = (TrapComponent*)itt.next())
+			removeEntity(p_trap->getEntityID());
+
+		// Broken because we need a killer?
+		//// remove units
+		//itt = getComponentsOfType<UnitComponent>();
+		//UnitComponent* p_unit;
+		//DeadComponent dead;
+		//while (p_unit = (UnitComponent*)itt.next())
+		//	createComponent(p_unit->getEntityID(), dead);
+
+		// Switch to waiting for ready
+		RemoveSystem(SwitchStateSystem::typeID);
+		RemoveSystem(BattlePhaseSystem::typeID);
+		RemoveSystem(PrepPhaseSystem::typeID);
+		CreateSystem<WaitForStartupSystem>(1);
+
+		//change  camera
+		RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
+
+		// Change to dynamic camera
+		itt = getComponentsOfType<CameraComponent>();
+		CameraComponent* cam_comp = (CameraComponent*)itt.next();
+
+		removeEntity(cam_comp->getEntityID());
+
+		TransformComponent new_transf_comp;
+		CameraComponent new_cam_comp;
+
+		CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
+
+		createEntity(new_transf_comp, new_cam_comp);
+		
+
+		// Puts the players into waiting phase
+		itt = getComponentsOfType<InputBackendComp>();
+		InputBackendComp* p_ib;
+		while (p_ib = (InputBackendComp*)itt.next())
+		{
 			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
 		}
 
@@ -267,20 +367,16 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 			p_ib->backend->changeGamestate(WEBGAMESTATE::BATTLEPHASE);
 		}
 		{
-			ecs::events::PlayMusic m_event;
-			m_event.audioName = AudioName::SOUND_cc_song;
-			createEvent(m_event);
-		}
-		{
-			ecs::events::MusicSetVolume m_event;
-			m_event.volume = 0.0f;
-			createEvent(m_event);
-		}
-		{
 			ecs::events::FadeInMusic m_event;
 			m_event.fadeInTimeInSeconds = 2.0f;
 			createEvent(m_event);
 		}
+		{
+			ecs::events::FadeOutSecondaryMusic m_event;
+			m_event.fadeOutTimeInSeconds = 2.0f;
+			createEvent(m_event);
+		}
+
 
 		this->CreateUnits();
 		this->CreateUnitPhysics();
@@ -526,7 +622,9 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	ecs::EntityIterator it = getEntitiesByFilter(filter);
 	
 	ObjectCollisionComponent object_collision;
-	GroundCollisionComponent ground_collision;
+	object_collision.mBvType = COLLISION_AABB;
+	object_collision.mObjType = GAME_OBJECT_TYPE_UNIT;
+	//GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
 	HealthComponent health_component;
 	EquipmentComponent equipment_component;
@@ -541,10 +639,10 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 			createComponent<ObjectCollisionComponent>(current->getID(), object_collision);
 		}
 
-		if (!current->hasComponentOfType<GroundCollisionComponent>())
-		{
-			createComponent<GroundCollisionComponent>(current->getID(), ground_collision);
-		}
+		//if (!current->hasComponentOfType<GroundCollisionComponent>())
+		//{
+		//	createComponent<GroundCollisionComponent>(current->getID(), ground_collision);
+		//}
 
 		if (!current->hasComponentOfType<DynamicMovementComponent>())
 		{
@@ -561,7 +659,7 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 		{
 			// Setting melee range here (arm length) hoping that any unit mesh is either facing x or z on load.
 			ObjectCollisionComponent* p_object_collision = dynamic_cast<ObjectCollisionComponent*>(getComponent(ObjectCollisionComponent::typeID, current->getComponentID(ObjectCollisionComponent::typeID)));
-			XMFLOAT3 extents = p_object_collision->mAABB.Extents;
+			XMFLOAT3 extents = static_cast<AABB*>(p_object_collision->mBV)->Extents;
 
 			// TEMP multiplying extents by inverse of scale given in init system for object
 			// collision component for a more snug hitbox.
@@ -633,7 +731,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			GameLoopComponent* p_gl;
 			while (p_gl = (GameLoopComponent*)itt.next())
 			{
-
+				
 				// Check if the winner will sin the game now or not
 				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN - 1)
 				{
@@ -667,6 +765,16 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 							default:
 								break;
 							}
+						}
+					}
+
+					itt = ecs::ECSUser::getComponentsOfType(ecs::components::InputBackendComp::typeID);
+					ecs::components::InputBackendComp* p_ib;
+					if (p_ib = static_cast<InputBackendComp*>(itt.next()))
+					{
+						for (int i = 0; i < 4; i++)
+						{
+							p_ib->mPlacedTraps[i] = 0;
 						}
 					}
 				}
@@ -722,7 +830,26 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
 			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 			RemoveSystem(systems::MasterWeaponSpawner::typeID);
+			RemoveSystem(systems::SwitchStateSystem::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
+
+			// Change to calm music
+			{
+				ecs::events::FadeOutMusic m_event;
+				m_event.fadeOutTimeInSeconds = 2.0f;
+				createEvent(m_event);
+			}
+			{
+				ecs::events::FadeOutSubMusic m_event;
+				m_event.fadeOutTimeInSeconds = 2.0f;
+				createEvent(m_event);
+			}
+			{
+				ecs::events::FadeInSecondaryMusic m_event;
+				m_event.fadeInTimeInSeconds = 2.0f;
+				createEvent(m_event);
+			}
+
 
 			//Change to overlook camera for the prephase
 			itt = getComponentsOfType<CameraComponent>();
@@ -754,6 +881,23 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 
 					bitmap_pos_comp->mDrawArea.bottom = 800;
 				}
+			}
+			//Loop for every player.
+			itt = getComponentsOfType(ecs::components::ArmyComponent::typeID);
+			ecs::components::ArmyComponent* p_army;
+			int i = 0;
+			while (p_army = (ecs::components::ArmyComponent*)itt.next())
+			{
+				// Clear it out if there was an
+				for (size_t kk = 0; kk < p_army->unitIDs.size(); kk++)
+				{
+
+					ecs::components::EquipmentComponent* p_eq = getComponentFromKnownEntity<ecs::components::EquipmentComponent>(p_army->unitIDs[kk]);
+
+					removeEntity(p_eq->mEquippedWeapon);
+					removeEntity(p_army->unitIDs[kk]);
+				}
+				p_army->unitIDs.clear();
 			}
 		}
 	}
