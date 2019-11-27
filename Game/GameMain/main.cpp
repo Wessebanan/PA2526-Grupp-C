@@ -230,6 +230,13 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 	//	if (p_tile->tileType != WATER)
 	//	{
 	//		place_event.tileID = p_tile->getEntityID();
+	//		place_event.type = (GAME_OBJECT_TYPES)((GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1) + rand() % TRAP_TYPE_COUNT);
+	//
+	//		//if (place_event.type != GAME_OBJECT_TYPE_TRAP_FIRE)
+	//		//{
+	//		//	continue;
+	//		//}
+	//
 	//		rECS.createEvent(place_event);
 	//	}
 	//}

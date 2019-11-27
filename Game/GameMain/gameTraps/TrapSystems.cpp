@@ -102,7 +102,7 @@ void ecs::systems::SpringRetractionSystem::updateEntity(FilteredEntity& _entityI
 
 	if (p_sr_comp)
 	{
-		const float distance = p_sr_comp->TargetOffsetY - p_transf_comp->position.y;
+		/*const float distance = p_sr_comp->TargetOffsetY - p_transf_comp->position.y;
 		if (abs(distance) < 0.05f)
 		{
 			p_transf_comp->position.y = p_sr_comp->TargetOffsetY;
@@ -114,6 +114,14 @@ void ecs::systems::SpringRetractionSystem::updateEntity(FilteredEntity& _entityI
 
 			p_transf_comp->position.y	+= speed;
 			p_sr_comp->mDuration		-= _delta;
+		}*/
+
+		p_transf_comp->position.y -= 1.f * _delta;
+
+		if (p_transf_comp->position.y < p_sr_comp->TargetOffsetY)
+		{
+			p_transf_comp->position.y = p_sr_comp->TargetOffsetY;
+			removeComponent(_entityInfo.entity->getID(), SpringRetractionComponent::typeID);
 		}
 	}
 }
@@ -428,7 +436,7 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 			// units transformcomponent
 			start_trans_comp = getComponentFromKnownEntity<TransformComponent>(unit_id);
 
-			start_trans_comp->position.y += 3.0f;
+			start_trans_comp->position.y += 1.5f;
 
 			XMFLOAT2 flight_direction;
 			flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;

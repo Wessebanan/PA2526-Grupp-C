@@ -173,17 +173,17 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 				// If the unit hit water, he gonna die so no more collision haha.
 				if (p_tile_comp->tileType == WATER)
 				{
+					delete p_bv_copy;
 					return;
-				}
-				// If collided with a tile and collision normal is +y, the object is on ground.
-				if (info.mNormal.y > 0.99f)
-				{
-					p_movement->mLastTileY = p_current_transform->position.y;
-					on_ground = true;
-				}
-			
+				}			
 			}
-					
+
+			// If collided with a tile and collision normal is +y, the object is on ground.
+			if (info.mNormal.y > 0.99f)
+			{
+				p_movement->mLastTileY = p_current_transform->position.y;
+				on_ground = true;
+			}
 		}
 	}
 

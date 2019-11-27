@@ -317,49 +317,52 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	// and colliding unit equipment to weapon.
 	if (unit_entity == nullptr && intersect)
 	{
-		EquipmentComponent *equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
-		if (equipment_component->mEquippedWeapon != 0)
+		if (!weapon->hasComponentOfType(FallingWeaponComponent::typeID))
 		{
-			WeaponComponent* current_weapon = getComponentFromKnownEntity<WeaponComponent>(equipment_component->mEquippedWeapon);
-			// If it's the same weapon type, don't do anything.
-			if (!current_weapon || current_weapon->mType == weapon_component->mType)
+			EquipmentComponent* equipment_component = getComponentFromKnownEntity<EquipmentComponent>(collided_unit);
+			if (equipment_component->mEquippedWeapon != 0)
 			{
-				return;
+				WeaponComponent* current_weapon = getComponentFromKnownEntity<WeaponComponent>(equipment_component->mEquippedWeapon);
+				// If it's the same weapon type, don't do anything.
+				if (!current_weapon || current_weapon->mType == weapon_component->mType)
+				{
+					return;
+				}
+				// Remove current weapon.
+				removeEntity(equipment_component->mEquippedWeapon);
 			}
-			// Remove current weapon.
-			removeEntity(equipment_component->mEquippedWeapon);
-		}	
 
-		///////////////////////////////////////////////
-		///////////////SOUND HERE//////////////////////
-		///////////////////////////////////////////////
+			///////////////////////////////////////////////
+			///////////////SOUND HERE//////////////////////
+			///////////////////////////////////////////////
 
-		{
-			ecs::events::PlaySound sound;
-			sound.audioName = AudioName::SOUND_get_item;
-			sound.soundFlags = SF_NONE;
-			sound.invokerEntityId = 0;
-			createEvent(sound);
-		}
-
-		equipment_component->mAttackRange = equipment_component->mMeleeRange + weapon_component->mWeaponRange;
-
-		if (weapon_component->mType == GAME_OBJECT_TYPE_WEAPON_BOMB)
-		{
-			static_cast<Sphere*>(weapon_component->mBoundingVolume)->Radius = TO_UNIT_SCALE(BOMB_ATTACK_RANGE);
-		}
-
-		equipment_component->mEquippedWeapon = weapon->getID();
-		weapon_component->mOwnerEntity = collided_unit;
-		GridProp* p_gp = GridProp::GetInstance();
-		int2 tile_index = GridFunctions::GetTileFromWorldPos(weapon_transform_component->position.x, weapon_transform_component->position.z);
-		unsigned int tile_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
-		for (int l = 0; l < p_gp->mLootTiles.size(); l++)
-		{
-			if (tile_id == p_gp->mLootTiles[l])
 			{
-				p_gp->mLootTiles.erase(p_gp->mLootTiles.begin() + l);
-				break;
+				ecs::events::PlaySound sound;
+				sound.audioName = AudioName::SOUND_get_item;
+				sound.soundFlags = SF_NONE;
+				sound.invokerEntityId = 0;
+				createEvent(sound);
+			}
+
+			equipment_component->mAttackRange = equipment_component->mMeleeRange + weapon_component->mWeaponRange;
+
+			if (weapon_component->mType == GAME_OBJECT_TYPE_WEAPON_BOMB)
+			{
+				static_cast<Sphere*>(weapon_component->mBoundingVolume)->Radius = TO_UNIT_SCALE(BOMB_ATTACK_RANGE);
+			}
+
+			equipment_component->mEquippedWeapon = weapon->getID();
+			weapon_component->mOwnerEntity = collided_unit;
+			GridProp* p_gp = GridProp::GetInstance();
+			int2 tile_index = GridFunctions::GetTileFromWorldPos(weapon_transform_component->position.x, weapon_transform_component->position.z);
+			unsigned int tile_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
+			for (int l = 0; l < p_gp->mLootTiles.size(); l++)
+			{
+				if (tile_id == p_gp->mLootTiles[l])
+				{
+					p_gp->mLootTiles.erase(p_gp->mLootTiles.begin() + l);
+					break;
+				}
 			}
 		}
 	}
@@ -626,7 +629,7 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 
 				// Small y boost in knockback to send units FLYING.
-				knockback.mDirection.y += 1.f;
+				knockback.mDirection.y += 2.f;
 
 				// Normalize knockback direction so it's not CRAZY.
 				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
