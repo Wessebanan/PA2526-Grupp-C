@@ -497,6 +497,7 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 	TypeID trap_id = r_event.trapID;
 	TypeID tile_id = r_event.tileID;
 
+
 	if (trap_id < 1 || tile_id < 1) return;
 
 	TransformComponent* p_trap_transf = getComponentFromKnownEntity<TransformComponent>(trap_id);
@@ -507,7 +508,7 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 	// Create a component to have the tile get lowered to the original space
 	SpringRetractionComponent sr_comp;
 	sr_comp.TargetOffsetY	= p_trap_transf->position.y;
-	sr_comp.mDuration		= 12.0f;
+	sr_comp.mDuration		= 10.0f;
 	createComponent(trap_id, sr_comp);
 
 	// Set new position
