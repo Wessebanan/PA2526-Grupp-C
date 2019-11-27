@@ -102,27 +102,27 @@ void ecs::systems::SpringRetractionSystem::updateEntity(FilteredEntity& _entityI
 
 	if (p_sr_comp)
 	{
-		/*const float distance = p_sr_comp->TargetOffsetY - p_transf_comp->position.y;
-		if (abs(distance) < 0.05f)
+		const float distance = p_transf_comp->position.y - p_sr_comp->TargetOffsetY;
+		if (distance <= 0.0f)
 		{
 			p_transf_comp->position.y = p_sr_comp->TargetOffsetY;
 			removeComponent(p_sr_comp->getEntityID(), p_sr_comp->getTypeID());
 		}
 		else
 		{
-			const float speed = distance / p_sr_comp->mDuration * _delta;
+			const float speed = _delta * distance / max(p_sr_comp->mDuration, 0.01f);
 
-			p_transf_comp->position.y	+= speed;
+			p_transf_comp->position.y	-= speed;
 			p_sr_comp->mDuration		-= _delta;
-		}*/
+		}
 
-		p_transf_comp->position.y -= 1.f * _delta;
+		/*p_transf_comp->position.y -= 1.f * _delta;
 
 		if (p_transf_comp->position.y < p_sr_comp->TargetOffsetY)
 		{
 			p_transf_comp->position.y = p_sr_comp->TargetOffsetY;
 			removeComponent(_entityInfo.entity->getID(), SpringRetractionComponent::typeID);
-		}
+		}*/
 	}
 }
 
