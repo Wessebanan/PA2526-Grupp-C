@@ -80,6 +80,33 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 
 	rECS.createEntity(bitmap_comp,bitmap_pos_comp);
 
+
+	// GUIDE
+
+	// save this to switch between different opacities
+	bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/GUIDE1.1.png", "guide1");
+
+	bitmap_comp.mName = "guide1";
+	bitmap_pos_comp.mDrawArea.top = 200;
+	bitmap_pos_comp.mDrawArea.left = 300;
+	bitmap_pos_comp.mDrawArea.right = 850;
+
+	// Save these if you want to srtart with the overlay open or not
+	bitmap_pos_comp.mDrawArea.bottom = 1000;
+
+	rECS.createEntity(bitmap_comp,bitmap_pos_comp);
+
+	// save this to switch between different opacities
+	bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/GUIDE2.1.png", "guide2");
+
+	bitmap_comp.mName = "guide2";
+	bitmap_pos_comp.mDrawArea.left = 1050;
+	bitmap_pos_comp.mDrawArea.right = 1600;
+
+
+	rECS.createEntity(bitmap_comp,bitmap_pos_comp);
+
+
 }
 void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)
 {
