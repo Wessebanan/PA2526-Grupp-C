@@ -178,12 +178,22 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 				}			
 			}
 
-			// If collided with a tile and collision normal is +y, the object is on ground.
+			// If normal is +y, the object is on ground, unless it is a unit.
 			if (info.mNormal.y > 0.99f)
 			{
-				p_movement->mLastTileY = p_current_transform->position.y;
-				on_ground = true;
+				// If on top of unit, move away from unit instead.
+				if (getEntity(current_entity_id)->hasComponentOfType<UnitComponent>())
+				{
+					info.mNormal.y = 0.0f;
+					info.mNormal.z = 1.0f;
+				}
+				else
+				{
+					p_movement->mLastTileY = p_current_transform->position.y;
+					on_ground = true;
+				}
 			}
+			
 		}
 	}
 

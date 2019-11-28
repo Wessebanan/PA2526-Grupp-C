@@ -28,6 +28,8 @@
 #include "../gameWeapons/WeaponSpawner.h"
 #include "../gameTraps/TrapComponents.h"
 
+#include "HttpServer.h"
+
 using namespace ecs;
 using namespace ecs::components;
 
@@ -328,6 +330,7 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		RemoveSystem(SwitchStateSystem::typeID);
 		RemoveSystem(BattlePhaseSystem::typeID);
 		RemoveSystem(PrepPhaseSystem::typeID);
+		RemoveSystem(MasterWeaponSpawner::typeID);
 		CreateSystem<WaitForStartupSystem>(1);
 
 		//change  camera
@@ -372,6 +375,26 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
 
 				bitmap_pos_comp->mDrawArea.bottom = 1000;
+			}
+		}
+
+
+
+		itt = getComponentsOfType<UITextComponent>();
+		UITextComponent* text_comp;
+		UIDrawPosComponent* draw_pos_comp;
+		while (text_comp = (UITextComponent*)itt.next())
+		{
+			if (text_comp->tag == UITAG::STARTTEXT)
+			{
+				std::string text_str;
+				HttpServer::GetLocalIp4(text_str);
+
+				std::wstring_convert<std::codecvt<wchar_t, char, std::mbstate_t>> convert;
+				std::wstring text_wstr = convert.from_bytes(text_str);
+
+				text_wstr.insert(0, L"Join at adress: ");
+				text_comp->mStrText = text_wstr;
 			}
 		}
 	}
@@ -443,11 +466,6 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		{
 			if (text_comp->tag == UITAG::STARTTEXT)
 			{
-				draw_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(text_comp->getEntityID());
-				draw_pos_comp->mDrawArea.bottom = 0;
-				draw_pos_comp->mDrawArea.left = 0;
-				draw_pos_comp->mDrawArea.right = 0;
-				draw_pos_comp->mDrawArea.top = 0;
 				text_comp->mStrText = L"";
 			}
 		}

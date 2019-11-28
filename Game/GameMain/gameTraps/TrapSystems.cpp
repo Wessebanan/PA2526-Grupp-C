@@ -182,6 +182,8 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 		//	}
 		//}
 
+		const float trap_damage = 20.0f;
+
 		const ID tile_id = static_cast<TriggerFireTrapEvent&>(event).tileID;
 		if (tile_id > 0)
 		{
@@ -207,7 +209,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 					HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(unit_id);
 					if (p_hp_comp)
 					{
-						p_hp_comp->mHealth -= mDamage * delta;
+						p_hp_comp->mHealth -= trap_damage;// mDamage* delta;
 
 						// Make the unit jump a litte, fire is hot and so am I
 						ForceImpulseEvent knockback;
@@ -239,7 +241,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 			spawner.LifeDuration = 0.4f;
 
 			smoke.InitialVelocity = 12.0f;
-			smoke.SpawnCount = 150;
+			smoke.SpawnCount = 500;
 
 			createEntity(spawner, smoke);
 		}
@@ -395,6 +397,8 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 
 	if (event.getTypeID() == ecs::events::TriggerSpringTrapEvent::typeID)
 	{
+		const float knockback_force = 100.0f;
+
 		TypeID tile_id = static_cast<TriggerSpringTrapEvent&>(event).tileID;
 
 		if (tile_id < 1) return;
@@ -450,7 +454,7 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 			// Make the unit jump a litte, fire is hot and so am I
 			ForceImpulseEvent knockback;
 			knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
-			knockback.mForce = 150;
+			knockback.mForce = knockback_force;
 			knockback.mEntityID = unit_id;
 			createEvent(knockback);
 
@@ -486,7 +490,7 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 		return;
 	}
 
-	constexpr float trap_damage		= 10.0f;
+	constexpr float trap_damage		= 20.0f;
 	constexpr float trap_offset_y	= 0.25f;
 	constexpr float trap_force		= 50.0f;
 
@@ -539,14 +543,24 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 					ecs::components::DeadComponent dead_comp;
 					ecs::ECSUser::createComponent(unit_id, dead_comp);
 				}
-			}
+				else
+				{
+					// VISUAL
+					ColorSwitchEvent damage_flash;
+					damage_flash.mColor = WHITE;
+					damage_flash.mEntityID = unit_id;
+					damage_flash.mTime = 0.05f;
+					createEvent(damage_flash);
 
-			// Make the unit jump a litte because of sharp 
-			ForceImpulseEvent knockback;
-			knockback.mDirection	= DirectX::XMFLOAT3(0, 1.0f, 0);
-			knockback.mForce		= trap_force;
-			knockback.mEntityID		= unit_id;
-			createEvent(knockback);
+
+					// Make the unit jump a litte because of sharp 
+					ForceImpulseEvent knockback;
+					knockback.mDirection = DirectX::XMFLOAT3(0, 1.0f, 0);
+					knockback.mForce = trap_force;
+					knockback.mEntityID = unit_id;
+					createEvent(knockback);
+				}
+			}
 		}
 	}
 }

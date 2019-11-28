@@ -561,20 +561,23 @@ unsigned int ecs::systems::PathfindingStateSystem::FindSafeTile(Entity* current_
 			p_current_neighbour = ECSUser::getComponentFromKnownEntity<TileComponent>(p_current_tile->neighboursIDArray[i]);
 			if (p_current_neighbour != nullptr) //Sanity Check
 			{
-				for (int a = 0; a < 4; a++)
+				if (!p_current_tile->impassable)
 				{
-					if (a != p_current_unit_comp->playerID)
+					for (int a = 0; a < 4; a++)
 					{
-						current_safe += p_current_neighbour->charges.armyCharges[a];
+						if (a != p_current_unit_comp->playerID)
+						{
+							current_safe += p_current_neighbour->charges.armyCharges[a];
+						}
 					}
+					//current_safe += p_current_neighbour->charges.hazardCharge;
+					if (current_safe < safest)
+					{
+						safest = current_safe;
+						goal_tile_id = p_current_tile->neighboursIDArray[i];
+					}
+					current_safe = 0.0f;
 				}
-				//current_safe += p_current_neighbour->charges.hazardCharge;
-				if (current_safe < safest)
-				{
-					safest = current_safe;
-					goal_tile_id = p_current_tile->neighboursIDArray[i];
-				}
-				current_safe = 0.0f;
 			}
 		}
 	}
@@ -823,7 +826,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 				ForceImpulseEvent jump;
 				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&jump_vector)));//normalize the jump vector so that we just get direction
-				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.2f;
+				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.5f;
 				jump.mEntityID = entity.entity->getID();
 				if (length_of_vector < 0.25f)//if they are very slow and need to jump they get a boost
 				{

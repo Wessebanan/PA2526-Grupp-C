@@ -44,7 +44,7 @@ constexpr float BOMB_KNOCKBACK			= 200.0f;
 /* 
 	BOMB SPECIFIC CONSTANTS 
 */
-constexpr float BOMB_ATTACK_RANGE	= 0.3f;	// Activation Range
+constexpr float BOMB_ATTACK_RANGE	= 1.0f;	// Activation Range
 constexpr float BOMB_BLAST_RADIUS	= 8.0f;	// Blast Radius
 constexpr float BOMB_PICKUP_RADIUS	= 1.0f;	// Pick-up Radius
 
