@@ -86,7 +86,9 @@ namespace AIEcsFunctions
 				break;
 			}
 
-
+			//AiBrainComponent brain;
+			//brain.mPlayer = (PLAYER)i;
+			//brain.mTimer = i * 1;
 
 			army.playerID = (PLAYER)i;
 

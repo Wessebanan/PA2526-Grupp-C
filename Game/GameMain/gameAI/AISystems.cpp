@@ -1,4 +1,5 @@
 #include "AISystems.h"
+#include "../gameUtility/UtilityEcsFunctions.h"
 #include "../gameUtility/CameraComponents.h"
 
 using namespace ecs::components;
@@ -242,7 +243,8 @@ std::vector<unsigned int> ecs::systems::PathfindingStateSystem::GetPath(unsigned
 			for (int i = 0; i < 6; i++) // put new neighbours in open list or maybe update old neighbour move cost
 			{
 				if (current_tile->neighboursIDArray[i] != 0 &&
-					!closed_list.count(current_tile->neighboursIDArray[i])) //check so that the neightbour is valid and not in the closed list
+					!closed_list.count(current_tile->neighboursIDArray[i]) &&
+					!ECSUser::getComponentFromKnownEntity<TileComponent>(current_tile->neighboursIDArray[i])->impassable) //check so that the neightbour is valid and not in the closed list and is passable
 				{
 					pos_in_open_list = 0;
 					in_open_list = false;
@@ -585,6 +587,10 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestLootTile(Entity* c
 	//Initialize components and variables that we will need.
 				//ecs::Entity* loot_tile;
 	TransformComponent* unit_transform = static_cast<TransformComponent*>(ECSUser::getComponentFromKnownEntity(TransformComponent::typeID, current_unit->getID()));
+	/*if (!unit_transform)
+	{
+		return 0;
+	}*/
 	TransformComponent* loot_transform;
 	TileComponent* loot_tile;
 	float dist = 1000.0f;
@@ -597,12 +603,14 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestLootTile(Entity* c
 		{
 			loot_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mLootTiles[i]);
 			loot_tile = ECSUser::getComponentFromKnownEntity<TileComponent>(p_gp->mLootTiles[i]);
-			temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
-			if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
-			{
-				dist = temp_dist;
-				loot_id = p_gp->mLootTiles[i];
-			}
+							
+				temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
+				if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
+				{
+					dist = temp_dist;
+					loot_id = p_gp->mLootTiles[i];
+				}
+			
 		}
 	}
 
@@ -699,7 +707,7 @@ ecs::systems::MoveStateSystem::MoveStateSystem()
 	typeFilter.addRequirement(TransformComponent::typeID);
 	typeFilter.addRequirement(DynamicMovementComponent::typeID);
 	typeFilter.addRequirement(EquipmentComponent::typeID);
-	typeFilter.addRequirement(GroundCollisionComponent::typeID);
+	typeFilter.addRequirement(ObjectCollisionComponent::typeID);
 }
 
 ecs::systems::MoveStateSystem::~MoveStateSystem()
@@ -726,7 +734,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 	TransformComponent* p_transform = entity.getComponent<TransformComponent>();
 	DynamicMovementComponent* p_dyn_move = entity.getComponent<DynamicMovementComponent>();
 	MoveStateComponent* p_move_comp = entity.getComponent<MoveStateComponent>();
-	GroundCollisionComponent* p_ground_comp = entity.getComponent<GroundCollisionComponent>();
+	ObjectCollisionComponent* p_collision_comp = entity.getComponent<ObjectCollisionComponent>();
 	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
 	TransformComponent* p_goal = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_move_comp->goalID);
 	float distance = 1000.0f;
@@ -782,10 +790,12 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 			next_tile_x = p_next_goal->position.x - p_goal->position.x;
 			next_tile_z = p_next_goal->position.z - p_goal->position.z;
 		}
+		
+
 		jump_vector.x = curr_tile_x = p_goal->position.x - p_transform->position.x;
-		jump_vector.y = curr_tile_y = p_goal->position.y - p_ground_comp->mLastTileY;
+		jump_vector.y = curr_tile_y = p_goal->position.y - p_dyn_move->mLastTileY;
 		jump_vector.z = curr_tile_z = p_goal->position.z - p_transform->position.z;
-		y_distance = p_goal->position.y - (p_ground_comp->mLastTileY);
+		y_distance = p_goal->position.y - p_dyn_move->mLastTileY;
 		curr_tile_x = curr_tile_x + (next_tile_x * DEFAULT_USAGE_OF_TILE);//ad percentage of the direction from the tile next after "goal"
 		curr_tile_z = curr_tile_z + (next_tile_z * DEFAULT_USAGE_OF_TILE);
 		length = sqrt(curr_tile_x * curr_tile_x + curr_tile_z * curr_tile_z);
@@ -799,7 +809,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 		if (y_distance > 0.3f && p_dyn_move->mOnGround)
 		{
-			length = PhysicsHelpers::CalculateDistance(p_goal->position, p_transform->position);//Length from unit to goal center
+			length = PhysicsHelpers::CalculateDistance(XMFLOAT3(p_goal->position.x, 0.0f, p_goal->position.z), XMFLOAT3(p_transform->position.x, 0.0f, p_transform->position.z));//Length from unit to goal center
 			length_of_vector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
 			angle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
 			(XMLoadFloat3(&p_dyn_move->mVelocity)), XMVector3Normalize(XMLoadFloat3(&p_dyn_move->mDirection))));//Get angle between velocity and direction vector
@@ -1576,4 +1586,96 @@ void ecs::systems::PotentialArmyHazardSystem::updateEntity(FilteredEntity& entit
 
 /************************************************/
 /*******  POTENTIALARMYHAZARDSYSTEM END  *******/
+/**********************************************/
+
+/************************************************/
+/************  AIPLAYERSYSTEM START  ***********/
+/**********************************************/
+
+ecs::systems::AIPlayerSystem::AIPlayerSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(components::AiBrainComponent::typeID);
+	typeFilter.addRequirement(components::ArmyComponent::typeID);
+}
+
+ecs::systems::AIPlayerSystem::~AIPlayerSystem()
+{
+
+}
+
+void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	AiBrainComponent* p_aibrain = ECSUser::getComponentFromKnownEntity<AiBrainComponent>(entity.entity->getID());
+	ArmyComponent* p_army = ECSUser::getComponentFromKnownEntity<ArmyComponent>(entity.entity->getID());
+	int number_of_weapons = 0;
+	bool loot_exists = false;
+	STATE new_state = ATTACK;
+	int number_of_units_left;
+	float distance = 0.0f;
+	int units_needs_to_rally = 0;
+
+	EquipmentComponent* p_equipment;
+	WeaponComponent* p_weapon;
+
+
+	if (p_aibrain->mTimer >= 1.5f)
+	{
+		number_of_units_left = p_army->unitIDs.size();
+		if (number_of_units_left > 0)
+		{
+			for (int i = 0; i < number_of_units_left; i++)
+			{
+				distance = PhysicsHelpers::CalculateDistance(ECSUser::getComponentFromKnownEntity<TransformComponent>(p_army->unitIDs[0])->position,
+					ECSUser::getComponentFromKnownEntity<TransformComponent>(p_army->unitIDs[i])->position);
+				if (distance > 8.0f)
+				{
+					units_needs_to_rally++;
+				}
+			}
+			if (units_needs_to_rally > 1)
+			{
+				new_state = RALLY;
+			}
+			else
+			{
+				for (int u = 0; u < number_of_units_left; u++)
+				{
+					p_equipment = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(p_army->unitIDs[u]);
+					if (p_equipment) //Sanity Check
+					{
+						p_weapon = ECSUser::getComponentFromKnownEntity<WeaponComponent>(p_equipment->mEquippedWeapon);
+						if (p_weapon) //Sanity
+						{
+							if (p_weapon->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
+							{
+								number_of_weapons++;
+							}
+						}
+					}
+				}
+			}
+		}
+		if (number_of_weapons < 2 && number_of_units_left > 1)
+		{
+			if (GridProp::GetInstance()->mLootTiles.size() > 0)
+			{
+				new_state = LOOT;
+			}
+		}
+		
+		ChangeUserStateEvent e;
+		e.playerId = p_aibrain->mPlayer;
+		e.newState = new_state;
+		ECSUser::createEvent(e);
+		p_aibrain->mTimer = 0.0f;
+	}
+	else
+	{
+		p_aibrain->mTimer += delta;
+	}
+}
+
+/************************************************/
+/*************  AIPLAYERSYSTEM END  ************/
 /**********************************************/

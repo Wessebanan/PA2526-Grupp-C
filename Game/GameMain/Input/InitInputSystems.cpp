@@ -100,6 +100,13 @@ void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, fl
 		{
 			// Updates the ECS buttons
 			p_button_comp->userButtons[i].mButton = p_backend_comp->backend->mpUserButton[i]->mButton;
+
+
+			if (!p_backend_comp->backend->mpPlayerIsConnected[i] && p_backend_comp->mPlacedTraps[i] < 4)
+			{
+				// Updates the ECS buttons
+				p_button_comp->userButtons[i].mButton = rand() % 3;
+			}
 		}
 
 		// Sanity check
@@ -108,6 +115,13 @@ void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, fl
 			// Updates the ECS tiles
 			p_tile_comp->userTiles[i].mCordX = p_backend_comp->backend->mpUserTile[i]->mCordX;
 			p_tile_comp->userTiles[i].mCordY = p_backend_comp->backend->mpUserTile[i]->mCordY;
+
+			if (!p_backend_comp->backend->mpPlayerIsConnected[i] && p_backend_comp->mPlacedTraps[i] < 4)
+			{
+				// Updates the ECS tiles
+				p_tile_comp->userTiles[i].mCordX = rand() % 3;
+				p_tile_comp->userTiles[i].mCordY = rand() % 3;	
+			}
 
 		}
 
