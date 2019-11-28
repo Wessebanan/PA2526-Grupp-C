@@ -109,181 +109,308 @@ void InitArmyText(ecs::EntityComponentSystem& rECS)
 
 void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 {
-	int width = d2d->GetBackbufferBitmap()->GetSize().width;
-	int height = d2d->GetBackbufferBitmap()->GetSize().height;
 	ecs::components::UIBitmapComponent bitmap_comp;
 	ecs::components::UIDrawPosComponent pos_comp;
+	ecs::components::UIUnitReader unit_reader_comp;
+	ecs::components::UIArmyReader army_reader_comp;
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Background.png", "Background");
+	//ID2D1Bitmap1* temp_bitmap;
+	//D2D1_BITMAP_PROPERTIES1 bitmapProperties =
+	//	D2D1::BitmapProperties1(
+	//		D2D1_BITMAP_OPTIONS_TARGET,
+	//		D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
+	//	);
+	//D2D1_POINT_2U start_point;
+	//start_point.x = 0;
+	//start_point.y = 0;
+	//D2D1_RECT_U bitmap_size;
+	//bitmap_size.bottom = bitmap_comp.mpBitmap->GetSize().height;
+	//bitmap_size.left = 0;
+	//bitmap_size.right = bitmap_comp.mpBitmap->GetSize().width;
+	//bitmap_size.top = 0;
+	int width = d2d->GetBackbufferBitmap()->GetSize().width;
+	int height = d2d->GetBackbufferBitmap()->GetSize().height;
 	pos_comp.mDrawArea.left		= 0;
 	pos_comp.mDrawArea.top		= 0;
 	pos_comp.mDrawArea.right	= 300;
 	pos_comp.mDrawArea.bottom	= 300;
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap,255,0,0);
-	rECS.createEntity(bitmap_comp, pos_comp);//top left
-	pos_comp.mDrawArea.left = width - 300;
-	pos_comp.mDrawArea.top = 0;
-	pos_comp.mDrawArea.right = width;
-	pos_comp.mDrawArea.bottom = 300;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 0, 0);
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Background.png", "Background");
 	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
-	rECS.createEntity(bitmap_comp, pos_comp); //top right
+	//d2d->GetpContext()->CreateBitmap(D2D1::SizeU(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height), 0, 0, bitmapProperties, &temp_bitmap);
+	//temp_bitmap->CopyFromBitmap(&start_point, bitmap_comp.mpBitmap, &bitmap_size);
+	pos_comp.mDrawArea.left = width - 300;
+	pos_comp.mDrawArea.top = 0;
+	pos_comp.mDrawArea.right = width;
+	pos_comp.mDrawArea.bottom = 300;
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp); //top right
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Background.png", "Background");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 300;
 	pos_comp.mDrawArea.bottom = height;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom left
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Background.png", "Background");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width;
 	pos_comp.mDrawArea.bottom = height;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom right
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom right
+
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftMan.png", "LeftMan");
-	pos_comp.mDrawArea.left = 0;
-	pos_comp.mDrawArea.top = 0;
-	pos_comp.mDrawArea.right = 300;
-	pos_comp.mDrawArea.bottom = 300;
 	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 0, 0);
-	rECS.createEntity(bitmap_comp, pos_comp);//top left
+	pos_comp.mDrawArea.left = 0;
+	pos_comp.mDrawArea.top = 0;
+	pos_comp.mDrawArea.right = 300;
+	pos_comp.mDrawArea.bottom = 300;
+	unit_reader_comp.playerID = 0;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_LEFT;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//top left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftMan.png", "LeftMan");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width;
 	pos_comp.mDrawArea.bottom = 300;
-	rECS.createEntity(bitmap_comp, pos_comp); //top right
+	unit_reader_comp.playerID = 1;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_LEFT;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp); //top right
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftMan.png", "LeftMan");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 300;
 	pos_comp.mDrawArea.bottom = height;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom left
+	unit_reader_comp.playerID = 2;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_LEFT;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftMan.png", "LeftMan");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width;
 	pos_comp.mDrawArea.bottom = height;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom right
+	unit_reader_comp.playerID = 3;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_LEFT;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom right
+
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
-	pos_comp.mDrawArea.left = 0;
-	pos_comp.mDrawArea.top = 0;
-	pos_comp.mDrawArea.right = 300;
-	pos_comp.mDrawArea.bottom = 300;
 	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 0, 0);
-	rECS.createEntity(bitmap_comp, pos_comp);//top left
+	pos_comp.mDrawArea.left = 0;
+	pos_comp.mDrawArea.top = 0;
+	pos_comp.mDrawArea.right = 300;
+	pos_comp.mDrawArea.bottom = 300;
+	unit_reader_comp.playerID = 0;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_RIGHT;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//top left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width;
 	pos_comp.mDrawArea.bottom = 300;
-	rECS.createEntity(bitmap_comp, pos_comp); //top right
+	unit_reader_comp.playerID = 1;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_RIGHT;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp); //top right
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 300;
 	pos_comp.mDrawArea.bottom = height;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom left
+	unit_reader_comp.playerID = 2;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_RIGHT;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width;
 	pos_comp.mDrawArea.bottom = height;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom right
+	unit_reader_comp.playerID = 3;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_RIGHT;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom right
+
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleMan.png", "MiddleMan");
-	pos_comp.mDrawArea.left = 0;
-	pos_comp.mDrawArea.top = 0;
-	pos_comp.mDrawArea.right = 300;
-	pos_comp.mDrawArea.bottom = 300;
 	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 0, 0);
-	rECS.createEntity(bitmap_comp, pos_comp);//top left
+	pos_comp.mDrawArea.left = 0;
+	pos_comp.mDrawArea.top = 0;
+	pos_comp.mDrawArea.right = 300;
+	pos_comp.mDrawArea.bottom = 300;
+	unit_reader_comp.playerID = 0;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_MIDDLE;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//top left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleMan.png", "MiddleMan");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width;
 	pos_comp.mDrawArea.bottom = 300;
-	rECS.createEntity(bitmap_comp, pos_comp); //top right
+	unit_reader_comp.playerID = 1;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_MIDDLE;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp); //top right
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleMan.png", "MiddleMan");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 300;
 	pos_comp.mDrawArea.bottom = height;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom left
+	unit_reader_comp.playerID = 2;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_MIDDLE;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleMan.png", "MiddleMan");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width;
 	pos_comp.mDrawArea.bottom = height;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom right
+	unit_reader_comp.playerID = 3;
+	unit_reader_comp.unitPlacement = UIUnitReader::UI_UNIT_MIDDLE;
+	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom right
+
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Nametag.png", "Nametag");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 200, 200, 200);
 	pos_comp.mDrawArea.left = 20;
 	pos_comp.mDrawArea.top = 230;
 	pos_comp.mDrawArea.right = 280;
 	pos_comp.mDrawArea.bottom = 300;
-	rECS.createEntity(bitmap_comp, pos_comp);//top left
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Nametag.png", "Nametag");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 200, 200, 200);
 	pos_comp.mDrawArea.left = width - 280;
 	pos_comp.mDrawArea.top = 230;
 	pos_comp.mDrawArea.right = width - 20;
 	pos_comp.mDrawArea.bottom = 300;
-	rECS.createEntity(bitmap_comp, pos_comp);//top right
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top right
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Nametag.png", "Nametag");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 200, 200, 200);
 	pos_comp.mDrawArea.left = 20;
 	pos_comp.mDrawArea.top = height - 70;
 	pos_comp.mDrawArea.right = 280;
 	pos_comp.mDrawArea.bottom = height;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom left
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Nametag.png", "Nametag");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 200, 200, 200);
 	pos_comp.mDrawArea.left = width - 280;
 	pos_comp.mDrawArea.top = height - 70;
 	pos_comp.mDrawArea.right = width - 20;
 	pos_comp.mDrawArea.bottom = height;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom right
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom right
+
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 250;
 	pos_comp.mDrawArea.bottom = 100;
-	rECS.createEntity(bitmap_comp, pos_comp);//top left
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width - 40;
 	pos_comp.mDrawArea.bottom = 100;
-	rECS.createEntity(bitmap_comp, pos_comp);//top right
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top right
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 250;
 	pos_comp.mDrawArea.bottom = height-200;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom left
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width - 40;
 	pos_comp.mDrawArea.bottom = height - 200;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom right
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom right
+
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleStar.png", "MiddleStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 250;
 	pos_comp.mDrawArea.bottom = 100;
-	rECS.createEntity(bitmap_comp, pos_comp);//top left
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleStar.png", "MiddleStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width - 40;
 	pos_comp.mDrawArea.bottom = 100;
-	rECS.createEntity(bitmap_comp, pos_comp);//top right
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top right
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleStar.png", "MiddleStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 250;
 	pos_comp.mDrawArea.bottom = height - 200;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom left
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleStar.png", "MiddleStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width - 40;
 	pos_comp.mDrawArea.bottom = height - 200;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom right
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom right
+
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightStar.png", "RightStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 250;
 	pos_comp.mDrawArea.bottom = 100;
-	rECS.createEntity(bitmap_comp, pos_comp);//top left
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightStar.png", "RightStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width - 40;
 	pos_comp.mDrawArea.bottom = 100;
-	rECS.createEntity(bitmap_comp, pos_comp);//top right
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top right
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightStar.png", "RightStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 250;
 	pos_comp.mDrawArea.bottom = height - 200;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom left
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom left
+
+	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightStar.png", "RightStar");
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width - 40;
 	pos_comp.mDrawArea.bottom = height - 200;
-	rECS.createEntity(bitmap_comp, pos_comp);//bottom right
+	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom right
+
+	rECS.createSystem<ecs::systems::UIOverlayInitSystem>(4)->mpD2D = d2d;
+	rECS.createSystem<ecs::systems::UIUnitColorUpdateSystem>(7)->mpD2D = d2d;
 }

@@ -1,4 +1,5 @@
 #include "UISystems.h"
+#include "../gameUtility/UtilityComponents.h"
 
 using namespace ecs;
 using namespace ecs::systems;
@@ -270,48 +271,85 @@ void ecs::systems::UICountDownSystem::onEvent(TypeID _eventType, BaseEvent* _eve
 	}
 }
 
-//ecs::systems::UIOverlayInitSystem::UIOverlayInitSystem()
-//{
-//}
-//
-//ecs::systems::UIOverlayInitSystem::~UIOverlayInitSystem()
-//{
-//	//
-//}
+ecs::systems::UIOverlayInitSystem::UIOverlayInitSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(events::ResetUIComponents::typeID);
+}
 
-//void ecs::systems::UIOverlayInitSystem::readEvent(BaseEvent& _event, float _delta)
-//{
-//	if (_event.getTypeID != 0) //change 0 to my event id
-//	{
-//		return;
-//	}
-//
-//	TypeFilter army_filter;
-//	army_filter.addRequirement(ArmyComponent::typeID);
-//	EntityIterator armies = getEntitiesByFilter(army_filter);
-//
-//	TypeFilter ui_filter;
-//	ui_filter.addRequirement(UIBitmapComponent::typeID);
-//	ui_filter.addRequirement(UIDrawPosComponent::typeID);
-//	ui_filter.addRequirement(UIUnit::typeID);
-//	EntityIterator ui_units = getEntitiesByFilter(ui_filter);
-//
-//	UIUnit* p_unit_comp;
-//	ArmyComponent* p_army_comp;
-//	for (FilteredEntity ui_unit : ui_units.entities)
-//	{
-//		p_unit_comp = ui_unit.getComponent<UIUnit>();
-//		for (FilteredEntity army : armies.entities)
-//		{
-//			if (army.entity->getID() == p_unit_comp->armyID)
-//			{
-//				p_army_comp = army.getComponent<ArmyComponent>();
-//				break;
-//			}
-//		}
-//
-//
-//		
-//		
-//	}
-//}
+ecs::systems::UIOverlayInitSystem::~UIOverlayInitSystem()
+{
+	//
+}
+
+void ecs::systems::UIOverlayInitSystem::readEvent(BaseEvent& _event, float _delta)
+{
+	if (_event.getTypeID() != events::ResetUIComponents::typeID) //change 0 to my event id
+	{
+		return;
+	}
+
+	TypeFilter army_filter;
+	army_filter.addRequirement(ArmyComponent::typeID);
+	EntityIterator armies = getEntitiesByFilter(army_filter);
+
+	TypeFilter ui_filter;
+	ui_filter.addRequirement(UIBitmapComponent::typeID);
+	ui_filter.addRequirement(UIDrawPosComponent::typeID);
+	ui_filter.addRequirement(UIUnitReader::typeID);
+	EntityIterator ui_units = getEntitiesByFilter(ui_filter);
+
+	UIUnitReader* p_unit_reader_comp;
+	ArmyComponent* p_army_comp;
+	for (FilteredEntity ui_unit : ui_units.entities)
+	{
+		p_army_comp = nullptr;
+		p_unit_reader_comp = ui_unit.getComponent<UIUnitReader>();
+
+		// Find correct army
+		for (FilteredEntity army : armies.entities)
+		{
+			ArmyComponent* p_army = army.getComponent<ArmyComponent>();
+			if (p_unit_reader_comp->playerID == p_army->playerID)
+			{
+				p_army_comp = p_army;
+				break;
+			}
+		}
+
+		p_unit_reader_comp->armyID = p_army_comp->getEntityID();
+		p_unit_reader_comp->unitID = p_army_comp->unitIDs.at((int)p_unit_reader_comp->unitPlacement);
+	}
+}
+
+ecs::systems::UIUnitColorUpdateSystem::UIUnitColorUpdateSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(UIUnitReader::typeID);
+	typeFilter.addRequirement(UIBitmapComponent::typeID);
+}
+
+ecs::systems::UIUnitColorUpdateSystem::~UIUnitColorUpdateSystem()
+{
+	//
+}
+
+void ecs::systems::UIUnitColorUpdateSystem::updateEntity(FilteredEntity& uiUnit, float delta)
+{
+	UIUnitReader* p_unit_reader_comp = uiUnit.getComponent<UIUnitReader>();
+	UIBitmapComponent* p_bitmap_comp = uiUnit.getComponent<UIBitmapComponent>();
+	ColorComponent* p_color_comp = getComponentFromKnownEntity<ColorComponent>(p_unit_reader_comp->unitID);
+	
+	/*
+		Check if unit exist, else set default color.
+	*/
+
+	if (p_color_comp)
+	{
+		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_color_comp->red, p_color_comp->green, p_color_comp->blue);
+	}
+	else
+	{
+		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, 255, 0, 0);
+	}
+}

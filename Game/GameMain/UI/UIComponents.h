@@ -57,7 +57,7 @@ namespace ecs
 			float elapsedTime = 0.f;
 		};
 
-		struct UIUnit : public ECSComponent<UIUnit>
+		struct UIUnitReader : public ECSComponent<UIUnitReader>
 		{
 			enum UI_UNIT_PLACEMENT
 			{
@@ -66,7 +66,14 @@ namespace ecs
 				UI_UNIT_RIGHT,
 			} unitPlacement;
 
+			ID unitID;
 			ID armyID;
+			ID playerID;
+		};
+
+		struct UIArmyReader : public ECSComponent<UIArmyReader>
+		{
+			ID playerID;
 		};
 	}
 }

@@ -506,6 +506,8 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 
 	}
 
+	ecs::events::ResetUIComponents reset_ui_event;
+	createEvent(reset_ui_event);
 
 	// INIT ANIMATIONS
 

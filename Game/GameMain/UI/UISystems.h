@@ -159,7 +159,7 @@ namespace ecs
 			int mExpand_size = 500;
 		};
 
-		/*class UIOverlayInitSystem : public ECSSystem<UIOverlayInitSystem>
+		class UIOverlayInitSystem : public ECSSystem<UIOverlayInitSystem>
 		{
 		public:
 			UIOverlayInitSystem();
@@ -167,8 +167,18 @@ namespace ecs
 			void readEvent(BaseEvent& _event, float _delta) override;
 
 			Direct2D* mpD2D;
-		};*/
+		};
 		
+		class UIUnitColorUpdateSystem : public ECSSystem<UIUnitColorUpdateSystem>
+		{
+		public:
+			UIUnitColorUpdateSystem();
+			virtual ~UIUnitColorUpdateSystem();
+
+			void updateEntity(FilteredEntity& uiUnit, float delta) override;
+
+			Direct2D* mpD2D;
+		};
 	}
 
 }
