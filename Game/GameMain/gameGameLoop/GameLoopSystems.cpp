@@ -387,13 +387,6 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		{
 			if (text_comp->tag == UITAG::STARTTEXT)
 			{
-
-				//draw_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(text_comp->getEntityID());
-				//
-				//draw_pos_comp->mDrawArea.top = 50.f;
-				//draw_pos_comp->mDrawArea.left = 700.f;
-				//draw_pos_comp->mDrawArea.bottom = 300.f;
-				//draw_pos_comp->mDrawArea.right = 1400.f;
 				std::string text_str;
 				HttpServer::GetLocalIp4(text_str);
 

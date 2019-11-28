@@ -37,7 +37,7 @@ namespace GridEcsFunctions
 		GridFunctions::CreateHeightmap(height_map, Rows, Columns, 1.0f, Rows*Columns / 60, holmes, islet_coordinates);
 	
 		GridProp* p_gp = GridProp::GetInstance();
-		//
+		
 		p_gp->SetSize(Rows,Columns);
 
 		// The default color, this will be applied to tiles without any biome
