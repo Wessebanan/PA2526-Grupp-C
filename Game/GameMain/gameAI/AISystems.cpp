@@ -1296,6 +1296,7 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		}
 		ECSUser::removeComponent(entity.entity->getID(), PoiComponent::typeID);
 		ECSUser::removeComponent(entity.entity->getID(), MoveStateComponent::typeID);
+		ECSUser::removeComponent(entity.entity->getID(), ObjectCollisionComponent::typeID);
 		p_dead->hasDiedBefore = true;
 	}
 
