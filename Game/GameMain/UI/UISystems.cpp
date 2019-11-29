@@ -45,7 +45,15 @@ void UIBitmapSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 	components::UIBitmapComponent* p_UI_bitmap_comp = _entityInfo.getComponent<components::UIBitmapComponent>();
 
 	//mpD2D->SetBitmapTint(p_UI_bitmap_comp->mpBitmap);
-	mpD2D->DrawBitmap(p_UI_bitmap_comp->mpBitmap, UI_pos_comp->mDrawArea);
+
+	if (p_UI_bitmap_comp->mpTintedBitmap)
+	{
+		mpD2D->DrawBitmap(p_UI_bitmap_comp->mpTintedBitmap, UI_pos_comp->mDrawArea);
+	}
+	else
+	{
+		mpD2D->DrawBitmap(p_UI_bitmap_comp->mpBitmap, UI_pos_comp->mDrawArea);
+	}
 }
 
 ecs::systems::UIRectSystem::UIRectSystem()
@@ -346,10 +354,10 @@ void ecs::systems::UIUnitColorUpdateSystem::updateEntity(FilteredEntity& uiUnit,
 
 	if (p_color_comp)
 	{
-		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_color_comp->red, p_color_comp->green, p_color_comp->blue);
+		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap, p_color_comp->red, p_color_comp->green, p_color_comp->blue);
 	}
 	else
 	{
-		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, 255, 0, 0);
+		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap, 0, 0, 1);
 	}
 }

@@ -19,7 +19,7 @@ struct TempUISystemPtrs
 	ecs::systems::UICountDownSystem* UICountDown;
 };
 
-void BindTextureToBitmap(Direct2D* d2d,ID3D11Texture2D* texture);
+void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture);
 void InitArmyText(ecs::EntityComponentSystem& rECS);
 void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d);
 
@@ -50,14 +50,14 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	p_swapchain->Release();
 	BindTextureToBitmap(my_d2d, p_backbuffer);//Turn the texture to a surface then bind that surface to a Direct2D bitmap then draw things on that bitmap which is the backbuffer
 	p_backbuffer->Release();
-	rSystemPointers.UIpreSys->mpD2D			=
-		rSystemPointers.UISolid->mpD2D		=
-		rSystemPointers.UITextSys->mpD2D	=
-		rSystemPointers.UIpostSys->mpD2D	=
-		rSystemPointers.UIrectSys->mpD2D	=
-		rSystemPointers.UIDebugSys->mpD2D	= 
-		rSystemPointers.UICountDown->mpD2D	=
-		rSystemPointers.UIBitmapSys->mpD2D	= my_d2d;
+	rSystemPointers.UIpreSys->mpD2D =
+		rSystemPointers.UISolid->mpD2D =
+		rSystemPointers.UITextSys->mpD2D =
+		rSystemPointers.UIpostSys->mpD2D =
+		rSystemPointers.UIrectSys->mpD2D =
+		rSystemPointers.UIDebugSys->mpD2D =
+		rSystemPointers.UICountDown->mpD2D =
+		rSystemPointers.UIBitmapSys->mpD2D = my_d2d;
 
 
 
@@ -79,7 +79,7 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	bitmap_pos_comp.mDrawArea.bottom = 150;
 	//bitmap_pos_comp.mDrawArea.bottom = 800;
 
-	rECS.createEntity(bitmap_comp,bitmap_pos_comp);
+	rECS.createEntity(bitmap_comp, bitmap_pos_comp);
 
 	InitGameOverlay(rECS, my_d2d);
 
@@ -114,6 +114,7 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	ecs::components::UIUnitReader unit_reader_comp;
 	ecs::components::UIArmyReader army_reader_comp;
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Background.png", "Background");
+	bitmap_comp.mpTintedBitmap = nullptr;
 	//ID2D1Bitmap1* temp_bitmap;
 	//D2D1_BITMAP_PROPERTIES1 bitmapProperties =
 	//	D2D1::BitmapProperties1(
@@ -130,15 +131,16 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	//bitmap_size.top = 0;
 	int width = d2d->GetBackbufferBitmap()->GetSize().width;
 	int height = d2d->GetBackbufferBitmap()->GetSize().height;
-	pos_comp.mDrawArea.left		= 0;
-	pos_comp.mDrawArea.top		= 0;
-	pos_comp.mDrawArea.right	= 300;
-	pos_comp.mDrawArea.bottom	= 300;
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 0, 0);
+	pos_comp.mDrawArea.left = 0;
+	pos_comp.mDrawArea.top = 0;
+	pos_comp.mDrawArea.right = 300;
+	pos_comp.mDrawArea.bottom = 300;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 255, 0, 0);
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Background.png", "Background");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	bitmap_comp.mpTintedBitmap = nullptr;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 0, 255, 0);
 	//d2d->GetpContext()->CreateBitmap(D2D1::SizeU(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height), 0, 0, bitmapProperties, &temp_bitmap);
 	//temp_bitmap->CopyFromBitmap(&start_point, bitmap_comp.mpBitmap, &bitmap_size);
 	pos_comp.mDrawArea.left = width - 300;
@@ -148,7 +150,8 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp); //top right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Background.png", "Background");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	bitmap_comp.mpTintedBitmap = nullptr;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 0, 255, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 300;
@@ -156,7 +159,8 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Background.png", "Background");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	bitmap_comp.mpTintedBitmap = nullptr;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 0, 255, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width;
@@ -164,7 +168,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftMan.png", "LeftMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 0, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "LeftMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 0, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 300;
@@ -174,7 +180,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//top left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftMan.png", "LeftMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "LeftMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width;
@@ -184,7 +192,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp); //top right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftMan.png", "LeftMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "LeftMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 300;
@@ -194,7 +204,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftMan.png", "LeftMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "LeftMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 0, 255, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width;
@@ -204,7 +216,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 0, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 0, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 300;
@@ -214,7 +228,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//top left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 0, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width;
@@ -224,7 +240,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp); //top right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 0, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 300;
@@ -234,7 +252,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "RightMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 0, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width;
@@ -244,7 +264,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleMan.png", "MiddleMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 0, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "MiddleMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 0, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 300;
@@ -254,7 +276,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//top left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleMan.png", "MiddleMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "MiddleMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 0, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width;
@@ -264,7 +288,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp); //top right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleMan.png", "MiddleMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "MiddleMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 0, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 300;
@@ -274,7 +300,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleMan.png", "MiddleMan");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 0, 255, 0);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightMan.png", "MiddleMan");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 0, 0);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width;
@@ -284,7 +312,8 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Nametag.png", "Nametag");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 200, 200, 200);
+	bitmap_comp.mpTintedBitmap = nullptr;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 200, 200, 200);
 	pos_comp.mDrawArea.left = 20;
 	pos_comp.mDrawArea.top = 230;
 	pos_comp.mDrawArea.right = 280;
@@ -292,7 +321,8 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Nametag.png", "Nametag");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 200, 200, 200);
+	bitmap_comp.mpTintedBitmap = nullptr;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 200, 200, 200);
 	pos_comp.mDrawArea.left = width - 280;
 	pos_comp.mDrawArea.top = 230;
 	pos_comp.mDrawArea.right = width - 20;
@@ -300,7 +330,8 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Nametag.png", "Nametag");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 200, 200, 200);
+	bitmap_comp.mpTintedBitmap = nullptr;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 200, 200, 200);
 	pos_comp.mDrawArea.left = 20;
 	pos_comp.mDrawArea.top = height - 70;
 	pos_comp.mDrawArea.right = 280;
@@ -308,7 +339,8 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Nametag.png", "Nametag");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 200, 200, 200);
+	bitmap_comp.mpTintedBitmap = nullptr;
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 200, 200, 200);
 	pos_comp.mDrawArea.left = width - 280;
 	pos_comp.mDrawArea.top = height - 70;
 	pos_comp.mDrawArea.right = width - 20;
@@ -316,7 +348,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 250;
@@ -324,7 +358,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width - 40;
@@ -332,15 +368,19 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 250;
-	pos_comp.mDrawArea.bottom = height-200;
+	pos_comp.mDrawArea.bottom = height - 200;
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "LeftStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width - 40;
@@ -348,7 +388,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleStar.png", "MiddleStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "MiddleStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 250;
@@ -356,7 +398,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleStar.png", "MiddleStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "MiddleStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width - 40;
@@ -364,7 +408,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleStar.png", "MiddleStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "MiddleStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 250;
@@ -372,7 +418,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/MiddleStar.png", "MiddleStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "MiddleStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width - 40;
@@ -380,7 +428,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightStar.png", "RightStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "RightStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 250;
@@ -388,7 +438,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightStar.png", "RightStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "RightStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width - 40;
@@ -396,7 +448,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//top right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightStar.png", "RightStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "RightStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = 40;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 250;
@@ -404,7 +458,9 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, army_reader_comp);//bottom left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/RightStar.png", "RightStar");
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, 255, 255, 255);
+	//bitmap_comp.mpTintedBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftStar.png", "RightStar");
+	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 255, 255);
 	pos_comp.mDrawArea.left = width - 250;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width - 40;

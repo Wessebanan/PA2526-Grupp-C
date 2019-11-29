@@ -235,6 +235,20 @@ ID2D1Bitmap1* Direct2D::LoadImageToBitmap(std::string imageFilePath, std::string
 	return nullptr;
 }
 
+ID2D1Bitmap1* Direct2D::CreateBitmapTarget(float width, float height)
+{
+	ID2D1Bitmap1* p_target = nullptr;
+
+	D2D1_BITMAP_PROPERTIES1 bitmapProperties =
+		D2D1::BitmapProperties1(
+			D2D1_BITMAP_OPTIONS_TARGET,
+			D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
+		);
+	this->mpContext->CreateBitmap(D2D1::SizeU(width, height), 0, 0, bitmapProperties, &p_target);
+
+	return p_target;
+}
+
 ID2D1Bitmap1* Direct2D::GetBitmap(char* bitmapName)
 {
 	ID2D1Bitmap1* to_return = nullptr;
@@ -262,39 +276,100 @@ ID2D1Bitmap1* Direct2D::GetBackbufferBitmap()
 	return this->mpBackbufferBitmap;
 }
 
-void Direct2D::SetBitmapTint(ID2D1Bitmap1* bitmap, int x, int y, int z, int w)
+void Direct2D::SetBitmapTint(ID2D1Bitmap1* bitmapInput, ID2D1Bitmap1* bitmapOutput, int x, int y, int z, int w)
 {
-	D2D1_VECTOR_4F test;
-	test = { (float)x / 255.f, (float)y / 255.f, (float)z / 255.f, 1.f};
-	this->mpTintEffect->SetInput(0, bitmap);
-	this->mpTintEffect->SetValue(D2D1_TINT_PROP_COLOR, test);
-	ID2D1Bitmap1* target_bitmap = NULL;
+	/*D2D1_VECTOR_4F color;
+	color = { (float)x / 255.f, (float)y / 255.f, (float)z / 255.f, (float)w / 255.f };
+	this->mpTintEffect->SetInput(0, bitmapInput);
+	this->mpTintEffect->SetValue(D2D1_TINT_PROP_COLOR, color);
 	ID2D1Image* old_target = NULL;
+	ID2D1Bitmap1* p_target = NULL;
+
 	D2D1_BITMAP_PROPERTIES1 bitmapProperties =
 		D2D1::BitmapProperties1(
 			D2D1_BITMAP_OPTIONS_TARGET,
 			D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
 		);
-	this->mpContext->CreateBitmap(D2D1::SizeU(bitmap->GetSize().width, bitmap->GetSize().height), 0, 0, bitmapProperties, &target_bitmap);
+	this->mpContext->CreateBitmap(D2D1::SizeU(bitmapInput->GetSize().width, bitmapInput->GetSize().height), 0, 0, bitmapProperties, &p_target);
+	
+
+
 	this->mpContext->GetTarget(&old_target);
-	this->mpContext->SetTarget(target_bitmap);
+	this->mpContext->SetTarget(p_target);
 	this->mpContext->BeginDraw();
 	this->mpContext->DrawImage(this->mpTintEffect);
 	this->mpContext->SetTarget(old_target);
 	this->mpContext->EndDraw();
 	
+	D2D1_POINT_2U p;
+	p.x = 0;
+	p.y = 0;
+	D2D1_RECT_U not_p;
+	not_p.bottom = p_target->GetSize().height;
+	not_p.left = 0;
+	not_p.right = p_target->GetSize().width;
+	not_p.top = 0;
+
+	if (bitmapOutput)
+	{
+		bitmapOutput->CopyFromBitmap(&p, p_target, &not_p);
+	}
+	else
+	{
+		bitmapInput->CopyFromBitmap(&p, p_target, &not_p);
+	}
+
+	p_target->Release();
+	old_target->Release();*/
+
+
+	// ----------------------
+
+	D2D1_VECTOR_4F color;
+	color = { (float)x / 255.f, (float)y / 255.f, (float)z / 255.f, (float)w / 255.f };
+	this->mpTintEffect->SetInput(0, bitmapInput);
+	this->mpTintEffect->SetValue(D2D1_TINT_PROP_COLOR, color);
+	ID2D1Image* old_target = NULL;
+	ID2D1Bitmap1* p_target = NULL;
+
+	if (!bitmapOutput)
+	{
+		D2D1_BITMAP_PROPERTIES1 bitmapProperties =
+			D2D1::BitmapProperties1(
+				D2D1_BITMAP_OPTIONS_TARGET,
+				D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
+			);
+		this->mpContext->CreateBitmap(D2D1::SizeU(bitmapInput->GetSize().width, bitmapInput->GetSize().height), 0, 0, bitmapProperties, &p_target);
+	}
+	else
+	{
+		p_target = bitmapOutput;
+	}
+
+
+
+	this->mpContext->GetTarget(&old_target);
+	this->mpContext->SetTarget(p_target);
+	this->mpContext->BeginDraw();
+	this->mpContext->DrawImage(this->mpTintEffect);
+	this->mpContext->SetTarget(old_target);
+	this->mpContext->EndDraw();
 
 	D2D1_POINT_2U p;
 	p.x = 0;
 	p.y = 0;
 	D2D1_RECT_U not_p;
-	not_p.bottom = target_bitmap->GetSize().height;
+	not_p.bottom = p_target->GetSize().height;
 	not_p.left = 0;
-	not_p.right = target_bitmap->GetSize().width;
+	not_p.right = p_target->GetSize().width;
 	not_p.top = 0;
 
-	bitmap->CopyFromBitmap(&p, target_bitmap, &not_p);
-	target_bitmap->Release();
+	if (!bitmapOutput)
+	{
+		bitmapInput->CopyFromBitmap(&p, p_target, &not_p);
+		p_target->Release();
+	}
+
 	old_target->Release();
 }
 

@@ -78,13 +78,14 @@ public:
 	//Loads an image from a filepath into a bitmap and returns that bitmap, if fail return nullptr
 	ID2D1Bitmap1* LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
 	ID2D1Bitmap1* LoadImageToBitmap(std::string imageFilePath, std::string bitmapName);
+	ID2D1Bitmap1* CreateBitmapTarget(float width, float height);
 	//Returns a bitmap that has the same char name
 	ID2D1Bitmap1* GetBitmap(char* bitmapName);//returns bitmap
 	//Returns a bitmap that has the same string name
 	ID2D1Bitmap1* GetBitmap(std::string bitmapName);//returns bitmap
 	//Returns the bitmap taken from the backbuffer which contains the resolution
 	ID2D1Bitmap1* GetBackbufferBitmap();
-	void SetBitmapTint(ID2D1Bitmap1* bitmap, int x, int y, int z, int w = 1);
+	void SetBitmapTint(ID2D1Bitmap1* bitmapInput, ID2D1Bitmap1* bitmapOutput, int x, int y, int z, int w = 255);
 	void SetBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap);
 	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);
 	//ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS

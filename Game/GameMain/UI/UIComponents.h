@@ -42,9 +42,9 @@ namespace ecs
 
 		struct UIBitmapComponent : public ECSComponent<UIBitmapComponent>
 		{
-			ID2D1Bitmap1* mpBitmap;
+			ID2D1Bitmap1* mpBitmap = nullptr;
+			ID2D1Bitmap1* mpTintedBitmap = nullptr;
 			std::string mName = "";
-			unsigned int mID;
 		};
 
 		struct UIThicknessComponent : public ECSComponent<UIThicknessComponent>
