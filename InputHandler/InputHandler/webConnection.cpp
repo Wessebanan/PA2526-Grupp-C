@@ -501,7 +501,12 @@ bool WebConnection::ReadyCheck()
 			if (mPlayerSockets[i] != -1)
 				this->SendMsg(mUserSockets[mPlayerSockets[i]], (char*)"r0", iSendResult);
 		}
-
+	// DO NOT PUSH THIS TO MASTER
+	// SIMPLY TO HELP RAGDOLL DEBUGGING
+	if (GetAsyncKeyState(VK_SPACE))
+	{
+		return true;
+	}
 	return ret_val;
 }
 

@@ -150,12 +150,14 @@ void Ragdoll::BuildBoneData(DWORD boneNum, RagdollBone* pParentBone)
 		// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
 
 		// Set the bone's center position based on transformed joint offset coordinates
+		//XMStoreFloat3(&bone->mState.mVecPosition,
+		//	XMVector3TransformCoord(-1.0f * XMLoadFloat3(&bone->mVecJointOffset), XMLoadFloat4x4(&this->mpUniqueSkeletonData->frameData[boneNum])));
 		XMStoreFloat3(&bone->mState.mVecPosition,
-			XMVector3TransformCoord(-1.0f * XMLoadFloat3(&bone->mVecJointOffset), XMLoadFloat4x4(&this->mpUniqueSkeletonData->frameData[boneNum])));
-
+			XMVector3TransformCoord(-1.0f * XMLoadFloat3(&bone->mVecJointOffset), XMMatrixIdentity()));
 		// Store state matrix-based orientation. Be sure
 		// to remove translation values.
-		bone->mState.mMatOrientation = this->mpUniqueSkeletonData->frameData[boneNum];
+		/*bone->mState.mMatOrientation = this->mpUniqueSkeletonData->frameData[boneNum];*/
+		XMStoreFloat4x4(&bone->mState.mMatOrientation, XMMatrixIdentity());
 		bone->mState.mMatOrientation._41 = 0.0f;
 		bone->mState.mMatOrientation._42 = 0.0f;
 		bone->mState.mMatOrientation._43 = 0.0f;
