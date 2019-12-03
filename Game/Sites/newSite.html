@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no">
-    <title>TEST</title>
+    <title>Couch Commanders</title>
 
 
 
@@ -391,6 +391,13 @@
                 {
                     document.getElementById("readyButton").style.background = "red";
                     document.getElementById("readyText").innerHTML = "YOU ARE NOT READY";
+                }
+            }
+            else if(msg[0] == 1)
+            {
+                if (msg == "1. User tried to join full game")
+                {
+                    document.body.innerHTML = "<h1>GAME IS FULL</h1>";
                 }
             }
             else if(msg[0] == 3)
