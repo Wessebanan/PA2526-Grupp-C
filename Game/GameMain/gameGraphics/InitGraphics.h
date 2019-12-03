@@ -93,9 +93,14 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	p_pfComp->pipelineDesc.Fov = 3.14f / 2.0f;
 	p_pfComp->pipelineDesc.NearPlane = 1.0f;
 	p_pfComp->pipelineDesc.FarPlane = 100.0f;
-	p_pfComp->pipelineDesc.ClearColor[0] = 0.25f;
-	p_pfComp->pipelineDesc.ClearColor[1] = 0.25f;
+	p_pfComp->pipelineDesc.ClearColor[0] = 0.45f;
+	p_pfComp->pipelineDesc.ClearColor[1] = 0.35f;
 	p_pfComp->pipelineDesc.ClearColor[2] = 1.00f;
+
+	//p_pfComp->pipelineDesc.ClearColor[0] = 255.f / 255.f;
+	//p_pfComp->pipelineDesc.ClearColor[1] = 127.f / 255.f;
+	//p_pfComp->pipelineDesc.ClearColor[2] = 80.f / 255.f;
+
 	p_pfComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ForwardRenderingPipeline, &p_pfComp->pipelineDesc);
 
 	components::RenderBufferComponent* p_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next());
@@ -200,7 +205,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_CAGE, "../meshes/Cage.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_COWSKULL, "../meshes/CowSkull.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_FRUITTREE, "../meshes/FruitTree.fbx");
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_GIANTSKULL, "../meshes/GiantSkull.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_GIANTSKULL, "../meshes/crystal_formation.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER, "../meshes/Tower.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WORLD_SCENE_SHARK, "../meshes/shark_fin.fbx");
@@ -252,9 +257,10 @@ void InitMeshes(EntityComponentSystem& rEcs)
 		MeshContainer::CreateGPUMesh(GAME_OBJECT_TYPE_QUAD, 6, 0, data, NULL);
 	}
 
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FIRE, "../meshes/TrapPlate.fbx");
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FREEZE, "../meshes/TrapPlate.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FIRE, "../meshes/trap_fire.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_FREEZE, "../meshes/trap_freeze.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_SPRING, "../meshes/TrapPlate.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TRAP_SPIKES, "../meshes/trap_spikes.fbx");
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_POWERUP_HEALTH_PACK, "../meshes/hexagon_tile5.fbx");
 
@@ -275,9 +281,10 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER_TOWER, "../meshes/tower_tower.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_TOWER_CAGE, "../meshes/tower_cage.fbx");
 
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_GIANTSKULL, "../meshes/GiantSkull.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_CRYSTAL_FORMATION, "../meshes/crystal_formation.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_CAGE, "../meshes/Cage.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_COWSKULL, "../meshes/CowSkull.fbx");
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_BOX, "../meshes/Box.fbx");
 
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_BOX_BOXES, "../meshes/box_box.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_MESH_BOX_PLANKS, "../meshes/box_planks.fbx");
 }

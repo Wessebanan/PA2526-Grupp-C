@@ -150,6 +150,7 @@ namespace ecs
 		{
 		public:
 			UICountDownSystem();
+			void Init();
 			virtual ~UICountDownSystem();
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 			void onEvent(TypeID _eventType, BaseEvent* _event) override;

@@ -5,6 +5,7 @@
 #include <DirectXCollision.h>
 #include "BoundingVolume.h"
 #include "../GameGlobals.h"
+#include "..//MeshContainer/MeshContainer.h"
 
 #define COMP(name) struct name : public ecs::ECSComponent<name>
 
@@ -43,7 +44,7 @@ constexpr float BOMB_KNOCKBACK			= 200.0f;
 /* 
 	BOMB SPECIFIC CONSTANTS 
 */
-constexpr float BOMB_ATTACK_RANGE	= 0.3f;	// Activation Range
+constexpr float BOMB_ATTACK_RANGE	= 1.0f;	// Activation Range
 constexpr float BOMB_BLAST_RADIUS	= 8.0f;	// Blast Radius
 constexpr float BOMB_PICKUP_RADIUS	= 1.0f;	// Pick-up Radius
 
@@ -89,18 +90,8 @@ namespace ecs
 
 			// If object is on ground.
 			bool mOnGround = false;
-		};
 
-		/*
-		* BoundingSphereComponent holds a description
-		* of a bounding sphere, which is necessary
-		* to calculate collision. Any entity that
-		* should check collision needs this.
-		*/
-		COMP(BoundingSphereComponent)
-		{
-			DirectX::XMFLOAT3 mCenter;
-			float mRadius;
+			float mLastTileY = -INFINITY;
 		};
 
 		/*
@@ -126,10 +117,9 @@ namespace ecs
 		*/
 		COMP(ObjectCollisionComponent)
 		{
-			AABB mAABB;
-
-			Sphere *mSpheres = nullptr;
-			unsigned int mSphereCount = 0;
+			BoundingVolume * mBV		= nullptr;
+			BV_TYPE mBvType				= COLLISION_ERROR;
+			GAME_OBJECT_TYPE mObjType	= GAME_OBJECT_TYPE_MESH_ERROR;
 
 			// States if the last movement resulted in collision
 			// and needs to be reverted.
@@ -137,9 +127,9 @@ namespace ecs
 
 			~ObjectCollisionComponent()
 			{
-				if (mSpheres)
+				if (mBV)
 				{
-					delete[] mSpheres;
+					delete mBV;
 				}
 			}
 		};

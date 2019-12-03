@@ -79,5 +79,16 @@ namespace ecs
 
 			const float mKnockback = 10.0f;
 		};
+
+		class SpikeTrapEventSystem : public ecs::ECSSystem<SpikeTrapEventSystem>
+		{
+		public:
+			SpikeTrapEventSystem();
+			~SpikeTrapEventSystem();
+			void readEvent(BaseEvent& event, float delta) override;
+		private:
+
+			const float mDamage = 40.0f;
+		};
 	}
 }

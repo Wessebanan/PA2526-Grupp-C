@@ -1,83 +1,6 @@
 #include "MovementSystem.h"
 #include "..//gameAI/AIComponents.h"
 
-#pragma region StaticMovementSystem
-ecs::systems::StaticMovementSystem::StaticMovementSystem()
-{
-	updateType = ecs::EntityUpdate;
-	typeFilter.addRequirement(StaticMovementComponent::typeID);
-	typeFilter.addRequirement(TransformComponent::typeID);
-}
-
-ecs::systems::StaticMovementSystem::~StaticMovementSystem()
-{
-}
-
-void ecs::systems::StaticMovementSystem::updateEntity(ecs::FilteredEntity& _entityInfo, float _delta)
-{
-	// If an entity is movable and moving, move it and reduce velocity on update. 
-	StaticMovementComponent* movement = _entityInfo.getComponent<StaticMovementComponent>();
-	if (movement->mVelocity > 0.0f)
-	{
-		// Grabbing the transform component in order to modify the position of the entity.
-		TransformComponent* transform = _entityInfo.getComponent<TransformComponent>();
-
-		StaticMove(transform->position, movement->mDirection, movement->mVelocity, _delta);
-
-		// If the moved entity has a bounding sphere, the 
-		// collision system is notified with a potential
-		// collision event.
-		if (_entityInfo.components.find(BoundingSphereComponent::typeID) != _entityInfo.components.end())
-		{
-			PotentialCollisionEvent potential_collision;
-			potential_collision.mEntityID = _entityInfo.entity->getID();
-			createEvent(potential_collision);
-		}
-
-		// Removing the velocity, as there should be none unless there
-		// is input saying otherwise.
-		movement->mVelocity = 0;
-	}
-}
-#pragma endregion
-#pragma region StaticMovementUpdateSystem
-ecs::systems::StaticMovementUpdateSystem::StaticMovementUpdateSystem()
-{
-	updateType = ecs::EventReader;
-	typeFilter.addRequirement(MovementInputEvent::typeID);
-}
-
-ecs::systems::StaticMovementUpdateSystem::~StaticMovementUpdateSystem()
-{
-}
-
-
-
-void ecs::systems::StaticMovementUpdateSystem::readEvent(ecs::BaseEvent& _event, float _delta)
-{
-	// Receiving a direction and entity ID from the event.
-	MovementInputEvent input_event = dynamic_cast<MovementInputEvent&>(_event);
-
-	// Checking that the entity should move statically.
-	Entity* entity = getEntity(input_event.mEntityID);
-	if (!entity->hasComponentOfType(StaticMovementComponent::typeID))
-	{
-		return;
-	}
-
-	// Finding the entity that should move and grabbing its movement component.
-	Entity* entity_to_move = getEntity(input_event.mEntityID);
-	ID movement_component_ID = entity_to_move->getComponentID(StaticMovementComponent::typeID);
-	StaticMovementComponent* movement_component = dynamic_cast<StaticMovementComponent*>(getComponent(StaticMovementComponent::typeID, movement_component_ID));
-
-	// Rotating its direction of movement based on current 
-	// direction and input direction.
-	SetDirection(movement_component->mDirection, movement_component->mForward, input_event.mInput);
-
-	// Setting velocity to the max velocity.
-	movement_component->mVelocity = movement_component->mMaxVelocity;
-}
-#pragma endregion
 #pragma region DynamicMovementSystem
 ecs::systems::DynamicMovementSystem::DynamicMovementSystem()
 {
@@ -109,11 +32,11 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 		movement_component->mAcceleration.z = movement_component->mInputForce.z / movement_component->mWeight;
 
 		// Applying deceleration if velocity is greater than 0 and acceleration works opposite or not at all, or if not on ground.
-		if (fabs(movement_component->mVelocity.x) > 0.001f && movement_component->mAcceleration.x / movement_component->mVelocity.x <= 0.0f && movement_component->mOnGround)
+		if (fabs(movement_component->mVelocity.x) > 0.001f && movement_component->mAcceleration.x / movement_component->mVelocity.x <= 0.0f)
 		{
 			movement_component->mAcceleration.x -= Sign(movement_component->mVelocity.x) * movement_component->mDeceleration;
 		}
-		if (fabs(movement_component->mVelocity.z) > 0.001f && movement_component->mAcceleration.z / movement_component->mVelocity.z <= 0.0f && movement_component->mOnGround)
+		if (fabs(movement_component->mVelocity.z) > 0.001f && movement_component->mAcceleration.z / movement_component->mVelocity.z <= 0.0f)
 		{
 			movement_component->mAcceleration.z -= Sign(movement_component->mVelocity.z) * movement_component->mDeceleration;
 		}
@@ -192,6 +115,12 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	
 	// Potential collision if object moved.
 	const float ABS_ERROR = (float)pow(10.0, -10.0);
+	
+	// If movement happened in y, no longer on ground.
+	if (fabs(movement_component->mPreviousPos.y - transform_component->position.y) > ABS_ERROR)
+	{
+		movement_component->mOnGround = false;
+	}
 
 	// If the difference after movement is more than negligible...
 	if (CalculateDistance(transform_component->position, movement_component->mPreviousPos) > ABS_ERROR &&
@@ -204,6 +133,7 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 		createEvent(potential_collision);
 	}
 	
+
 	// Reset forces to 0 after since it should be 0 if no further input.
 	movement_component->mInputForce = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	movement_component->mForce		= DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);

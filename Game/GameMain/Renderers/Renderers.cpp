@@ -739,35 +739,47 @@ namespace ecs
 
 			/* -- Giant Skull --- */
 			mMap[TO_SCENE(GAME_OBJECT_TYPE_GIANTSKULL)] = {
-				GAME_OBJECT_TYPE_MESH_GIANTSKULL,
-				GAME_OBJECT_TYPE_MESH_GIANTSKULL
+				GAME_OBJECT_TYPE_MESH_CRYSTAL_FORMATION,
+				GAME_OBJECT_TYPE_MESH_CRYSTAL_FORMATION
 			};
 
-			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_GIANTSKULL)] = { 160, 150, 140 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_CRYSTAL_FORMATION)] = { 225, 64, 144 };
 
 			/* -- Box --- */
 			mMap[TO_SCENE(GAME_OBJECT_TYPE_BOX)] = {
-				GAME_OBJECT_TYPE_MESH_BOX,
-				GAME_OBJECT_TYPE_MESH_BOX
+				GAME_OBJECT_TYPE_MESH_BOX_BOXES,
+				GAME_OBJECT_TYPE_MESH_BOX_PLANKS
 			};
 
-			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_BOX)] = { 104, 72, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_BOX_BOXES)] = { 104, 72, 59 };
+			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_BOX_PLANKS)] = { 154, 122, 109 };
 
 			/* -- Cow Skull --- */
-			mMap[TO_SCENE(GAME_OBJECT_TYPE_COWSKULL)] = {
+			/*mMap[TO_SCENE(GAME_OBJECT_TYPE_COWSKULL)] = {
 				GAME_OBJECT_TYPE_MESH_COWSKULL,
 				GAME_OBJECT_TYPE_MESH_COWSKULL
+			};*/
+
+
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_COWSKULL)] = {
+				GAME_OBJECT_TYPE_DESERT_CACTUS,
+				GAME_OBJECT_TYPE_DESERT_SKULL
 			};
 
-			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_COWSKULL)] = { 160, 150, 140 };
+			//mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_COWSKULL)] = { 160, 150, 140 };
 
 			/* -- Cage --- */
-			mMap[TO_SCENE(GAME_OBJECT_TYPE_CAGE)] = {
+			/*mMap[TO_SCENE(GAME_OBJECT_TYPE_CAGE)] = {
 				GAME_OBJECT_TYPE_MESH_CAGE,
 				GAME_OBJECT_TYPE_MESH_CAGE
+			};*/
+
+			mMap[TO_SCENE(GAME_OBJECT_TYPE_CAGE)] = {
+				GAME_OBJECT_TYPE_TOWER_TOWER,
+				GAME_OBJECT_TYPE_TOWER_CAGE
 			};
 
-			mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_CAGE)] = { 60,  60, 60 };
+			//mColors[TO_MESH(GAME_OBJECT_TYPE_MESH_CAGE)] = { 60,  60, 60 };
 
 			// End
 
@@ -1222,7 +1234,7 @@ namespace ecs
 				gives a simple mesh "outline" for viewing meshes during development.
 			*/
 
-			mObjectCount = _entities.entities.size() * 2;
+			mObjectCount = _entities.entities.size();
 
 			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mObjectCount * systems::TrapRenderSystem::GetPerInstanceSize());
@@ -1232,7 +1244,6 @@ namespace ecs
 			for (FilteredEntity object : _entities.entities)
 			{
 				components::TrapComponent* p_obj_comp = object.getComponent<components::TrapComponent>();
-				mObjectTypeCount[p_obj_comp->mObjectType - (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1)]++;
 				mObjectTypeCount[p_obj_comp->mObjectType - (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1)]++;
 			}
 
@@ -1260,13 +1271,13 @@ namespace ecs
 					matrix. Color will be extracted in the shader.
 				*/
 
-				components::TransformComponent outline_transform = *p_transform_comp;
-				outline_transform.position.y -= 0.002f;
-				outline_transform.scale = { 1.f, 1.f, 1.f };
+				//components::TransformComponent outline_transform = *p_transform_comp;
+				//outline_transform.position.y -= 0.002f;
+				//outline_transform.scale = { 1.f, 1.f, 1.f };
 
-				// Set "outline" mesh
-				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(outline_transform));
-				mpBuffer[index++].world._44 = PACK(0, 0, 0, 255);
+				//// Set "outline" mesh
+				//XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(outline_transform));
+				//mpBuffer[index++].world._44 = PACK(0, 0, 0, 255);
 
 				// Set trap mesh
 				XMStoreFloat4x4(&mpBuffer[index].world, UtilityEcsFunctions::GetWorldMatrix(*p_transform_comp));
@@ -1294,7 +1305,7 @@ namespace ecs
 			mInstanceLayout.pInstanceCountPerMesh = &mObjectCount;
 
 			const std::string vs = GetShaderFilepath("VS_Trap.cso");
-			const std::string ps = GetShaderFilepath("PS_Ocean.cso");
+			const std::string ps = GetShaderFilepath("PS_Default.cso");
 
 			mRenderProgram = mpRenderMgr->CreateShaderProgram(
 				vs.c_str(),

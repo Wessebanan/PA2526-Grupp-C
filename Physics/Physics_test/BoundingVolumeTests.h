@@ -7,6 +7,11 @@ inline void PrintVec(const XMFLOAT3 &rVec)
 	std::cout << "( " << rVec.x << ", " << rVec.y << ", " << rVec.z << " )" << std::endl;
 }
 
+inline void PrintNumber(const float& num)
+{
+	std::cout << num << std::endl;
+}
+
 #pragma region Intersection
 
 /*

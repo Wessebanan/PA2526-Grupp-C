@@ -191,5 +191,18 @@ namespace ecs
 			//Update function that calculates the armies hazard influence on each tile.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
+
+		/*
+			A system that creates a random command for a CPU player in a given time interval.
+		*/
+		class AIPlayerSystem : public ECSSystem<AIPlayerSystem>
+		{
+		public:
+			AIPlayerSystem();
+			virtual ~AIPlayerSystem();
+
+			//Update function that calculates the armies hazard influence on each tile.
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
 	}
 }

@@ -44,6 +44,9 @@ void Audio::Music::Manager::ProcessMusicMessages()
 		case M_TARGET_MAIN:
 			target_data = &mMainData;
 			break;
+		case M_TARGET_SECONDARY:
+			target_data = &mSecondaryData;
+			break;
 		case M_TARGET_SUB:
 			target_data = &mSubData;
 			break;
@@ -75,6 +78,10 @@ void Audio::Music::Manager::ProcessMusicMessages()
 				mMainData.Sampler.SetReadPointer(
 					mSubData.Sampler.GetReadPointer());
 				break;
+			case M_TARGET_SECONDARY:
+				mSecondaryData.Sampler.SetReadPointer(
+					mMainData.Sampler.GetReadPointer());
+				break;
 			case M_TARGET_SUB:
 				mSubData.Sampler.SetReadPointer(
 					mMainData.Sampler.GetReadPointer());
@@ -89,9 +96,19 @@ void Audio::Music::Manager::ProcessMusicMessages()
 			case M_TARGET_MAIN:
 				mSubData.Sampler.SetReadPointer(
 					mMainData.Sampler.GetReadPointer());
+				mSecondaryData.Sampler.SetReadPointer(
+					mMainData.Sampler.GetReadPointer());
+				break;
+			case M_TARGET_SECONDARY:
+				mMainData.Sampler.SetReadPointer(
+					mSecondaryData.Sampler.GetReadPointer());
+				mSubData.Sampler.SetReadPointer(
+					mSecondaryData.Sampler.GetReadPointer());
 				break;
 			case M_TARGET_SUB:
 				mMainData.Sampler.SetReadPointer(
+					mSubData.Sampler.GetReadPointer());
+				mSecondaryData.Sampler.SetReadPointer(
 					mSubData.Sampler.GetReadPointer());
 				break;
 			}
@@ -115,6 +132,12 @@ void Audio::Music::Manager::Fill(Samples start, Samples sampleCount, float* pDat
 		pData[j] += pVoiceData[j];
 	}
 
+	mSecondaryData.Entry->Process(start, sampleCount, pVoiceData, channelCount);
+	for (j = 0; j < sampleCount * 2; j++)
+	{
+		pData[j] += pVoiceData[j];
+	}
+
 	mSubData.Entry->Process(start, sampleCount, pVoiceData, channelCount);
 	for (j = 0; j < sampleCount * 2; j++)
 	{
@@ -126,6 +149,9 @@ Audio::Music::Manager::Manager()
 {
 	mMainData.Gain.SetNextPointer(&mMainData.Sampler, true);
 	mMainData.Entry = &mMainData.Gain;
+
+	mSecondaryData.Gain.SetNextPointer(&mSecondaryData.Sampler, true);
+	mSecondaryData.Entry = &mSecondaryData.Gain;
 	
 	mSubData.Gain.SetNextPointer(&mSubData.Sampler, true);
 	mSubData.Entry = &mSubData.Gain;

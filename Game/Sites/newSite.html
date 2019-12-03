@@ -350,6 +350,10 @@
             {
                 document.getElementById('readyButton').style.display = "block";
                 //document.getElementById('startfield').innerHTML = "waiting";
+
+        
+                document.getElementById('prepField').style.display = "none";
+                document.getElementById('commandField').style.display = "none";
             }
             else if(msg[0] == 'r')
             {
@@ -367,7 +371,7 @@
             }
             else if(msg[0] == 3)
             {
-                document.getElementById("playerIndex").innerHTML = msg.charAt(msg.length - 1);
+                //document.getElementById("playerIndex").innerHTML = msg.charAt(msg.length - 1);
                 if (msg.charAt(msg.length - 1) == '1')
                 {
                     document.body.style.backgroundColor = "#b30707";
@@ -397,11 +401,14 @@
                 case 0: // FIRE
                     trapText = "FIRE";
                 break;
-                case 1: // FREEZE
-                    trapText = "FREEZE";
+                case 1: // SPIKEs
+                    trapText = "SPIKES";
                 break;
                 case 2: // SPRING
                     trapText = "SPRING";
+                break;
+                case 3: // FREEZE
+                    trapText = "FREEZE";
                 break;
                 default:
                     trapText = "ERROR";
@@ -585,10 +592,7 @@
     </script>
 </head>
 <body>
-
-    <a href="https://forms.gle/cDaJdJjoNug9kbEM9">FEEDBACK</a>
-    <h1 id="playerIndex">Welcome!</h1>
-    
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSd1FcrnfWOdsHlIJ2326xD5PgXb1QFcMp1iJklbZsUrAfLDDw/viewform?usp=sf_link">FEEDBACK</a>
     <div id="readyButton" onclick="ready()" style="display:none;">READY?<p id="readyText">NO</p></div>
 
     <div id='startfield' class='buttonField' style='display:block;'>
@@ -603,9 +607,14 @@
 
     </div>
 
-    
+
 
     <div id='prepField' class='buttonField' style='display:none;'>
+
+        <div id="sendButton" onclick="sendTrapAndTile()">SEND TRAP</div>
+
+        </br>
+
         <div id="trapContainer">
             <div id='b0' class='trapButton' onclick="setTrap(0)">0</div>
             <div id='b1' class='trapButton' onclick="setTrap(1)">1</div>
@@ -617,25 +626,22 @@
 
         <div id="mapAreaContainer">
             <div class="col2">
-                <div class="col" id="area02" onclick="setArea(0,2)">0,2</div>
-                <div class="col" id="area12" onclick="setArea(1,2)">1,2</div>
-                <div class="col" id="area22" onclick="setArea(2,2)">2,2</div>
+                <div class="col" id="area02" onclick="setArea(0,2)">1</div>
+                <div class="col" id="area12" onclick="setArea(1,2)">2</div>
+                <div class="col" id="area22" onclick="setArea(2,2)">3</div>
             </div>
 
             <div class="col1">
-                <div class="col" id="area01" onclick="setArea(0,1)">0,1</div>
-                <div class="col" id="area11" onclick="setArea(1,1)">1,1</div>
-                <div class="col" id="area21" onclick="setArea(2,1)">2,1</div>
+                <div class="col" id="area01" onclick="setArea(0,1)">4</div>
+                <div class="col" id="area11" onclick="setArea(1,1)">5</div>
+                <div class="col" id="area21" onclick="setArea(2,1)">6</div>
             </div>
 
             <div class="col0">
-                <div class="col" id="area00" onclick="setArea(0,0)">0,0</div>
-                <div class="col" id="area10" onclick="setArea(1,0)">1,0</div>
-                <div class="col" id="area20" onclick="setArea(2,0)">2,0</div>
+                <div class="col" id="area00" onclick="setArea(0,0)">7</div>
+                <div class="col" id="area10" onclick="setArea(1,0)">8</div>
+                <div class="col" id="area20" onclick="setArea(2,0)">9</div>
             </div>
-
-            </br>
-            <div id="sendButton" onclick="sendTrapAndTile()">SEND TRAP</div>
 
         </div>
 
@@ -664,11 +670,20 @@
     <button onclick="openCommand()">DEV: show Commands</button>-->
     <!--------------------------------------------------------->
     </br>
+    </br>
+    </br>
+    </br>
+    </br>
+    </br>
+    </br>
+    </br>
 
-    <p>
+    <!--<p>
         Connected to:
         <script>document.write(ip_address);</script>
-    </p>
+    </p>-->
+    <!--<h1 id="playerIndex">Welcome!</h1>-->
+
 </body>
 
 </html>

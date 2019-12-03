@@ -52,6 +52,7 @@
 #include "gameTraps/TrapComponents.h"
 #include "gameTraps/TrapEvents.h"
 #include "gameWorld/InitWorldScenery.h"
+#include "InitIslands.h"
 
 #include "gameWeapons/WeaponEvents.h"
 
@@ -113,6 +114,8 @@ int main()
 	ecs.reserveComponentCount<ecs::components::TileComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::TrapComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::ObjectCollisionComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::SpringRetractionComponent>(RESERVED_COMPONENTS);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -150,7 +153,7 @@ int main()
 	int kill_me = 0;
 	while (wnd.IsOpen())
 	{
-		if (!wnd.Update())
+		if (!wnd.Update()/* && graphics::HasFocus(wnd)*/)
 		{ 
 			// Close window when user press Esc
 			if (GetAsyncKeyState(VK_ESCAPE))
@@ -169,6 +172,12 @@ int main()
 			{
 				ecs.removeSystem<ecs::systems::UpdateCameraSystem>();
 				ecs.createSystem<ecs::systems::UpdateDynamicCameraSystem>(0);
+			}
+			// RESTART THE GAME WITH O
+			if (GetAsyncKeyState('C'))
+			{
+				events::GameReStartEvent eve;
+				ecs.createEvent(eve);
 			}
 
 			if (GetAsyncKeyState(VK_SPACE) && start_once)
@@ -221,9 +230,42 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 	//	if (p_tile->tileType != WATER)
 	//	{
 	//		place_event.tileID = p_tile->getEntityID();
+	//		place_event.type = (GAME_OBJECT_TYPES)((GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1) + rand() % TRAP_TYPE_COUNT);
+	//
+	//		//if (place_event.type != GAME_OBJECT_TYPE_TRAP_FIRE)
+	//		//{
+	//		//	continue;
+	//		//}
+	//
 	//		rECS.createEvent(place_event);
 	//	}
 	//}
+
+	events::PlaceTrapEvent spawn_event;
+	TypeFilter tile_filter;
+	tile_filter.addRequirement(ecs::components::TileComponent::typeID);
+	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+
+	GAME_OBJECT_TYPES traps[] =
+	{
+		//GAME_OBJECT_TYPE_TRAP_SPIKES,
+		//GAME_OBJECT_TYPE_TRAP_FIRE,
+		GAME_OBJECT_TYPE_TRAP_SPRING,
+	};
+
+	int count = 0;
+	for (FilteredEntity tile : tiles.entities)
+	{
+		components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
+		if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
+		{
+			spawn_event.type = traps[rand() % (sizeof(traps) / sizeof(GAME_OBJECT_TYPES))];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
+			spawn_event.tileID = p_tile->getEntityID();
+			rECS.createEvent(spawn_event);
+		}
+
+		count++;
+	}
 }
 
 void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight)
@@ -251,9 +293,15 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitInput(rECS);
 	InitInterpreter(rECS);
 
+	InitPhysics(rECS);
 	InitGrid(rECS);
 	InitArmy(rECS);
 	InitSceneObjects(rECS);
+
+	CreateCollisionForTiles(rECS);
+	CreateCollisionForSceneObjects(rECS);
+
+	InitIslands(rECS);
 
 	InitOceanEntities(rECS);
 	InitOceanUpdateSystem(rECS);
@@ -261,7 +309,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitCamera(rECS);
 
 	InitAnimation(rECS);
-	InitPhysics(rECS);
 
 	InitGameLoop(rECS);
 
@@ -295,23 +342,9 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitHttpServer(rECS);
 
+
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
 
-	DebuggFunctions(rECS);
-
-	//events::SpawnWeaponEvent spawn_event;
-	//spawn_event.weaponType = GAME_OBJECT_TYPE_WEAPON_BOMB;
-	//TypeFilter tile_filter;
-	//tile_filter.addRequirement(ecs::components::TileComponent::typeID);
-	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
-	//for (FilteredEntity tile : tiles.entities)
-	//{
-	//	components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
-	//	if (p_tile->tileType != WATER)
-	//	{
-	//		spawn_event.spawnTileId = p_tile->getEntityID();
-	//		rECS.createEvent(spawn_event);
-	//	}
-	//}
+	//DebuggFunctions(rECS);
 }
