@@ -10,6 +10,7 @@
 
 #include "..//gameTraps/TrapEvents.h"
 #include "..//gameTraps/TrapComponents.h"
+#include "..//gameAI/AIComponents.h	"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -18,6 +19,7 @@ ecs::systems::ChangeFSMSystem::ChangeFSMSystem()
 {
 	updateType = ecs::EntityUpdate;
 	typeFilter.addRequirement(ecs::components::UserCommandComponent::typeID);
+	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
 }
 
 ecs::systems::ChangeFSMSystem::~ChangeFSMSystem()
@@ -27,6 +29,7 @@ ecs::systems::ChangeFSMSystem::~ChangeFSMSystem()
 void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	UserCommandComponent* ucComp = _entityInfo.getComponent<UserCommandComponent>();
+	InputBackendComp* ib_comp = _entityInfo.getComponent<InputBackendComp>();
 	ComponentIterator it = ecs::ECSUser::getComponentsOfType(PlayerStateComponent::typeID);
 	PlayerStateComponent* p_player_state_comp = static_cast<PlayerStateComponent*>(it.next());
 
@@ -61,6 +64,7 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				}
 
 				createEvent(cus_event);
+				ib_comp->backend->SendVibrate(i);
 			}
 			else if (ucComp->userCommands[i].mCommand == "attack")
 			{
@@ -79,6 +83,7 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				//createEvent(sound_event);
 
 				createEvent(cus_event);
+				ib_comp->backend->SendVibrate(i);
 			}
 			else if (ucComp->userCommands[i].mCommand == "loot" )
 			{
@@ -90,6 +95,9 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				p_player_state_comp->mCurrentStates[i] = STATE::LOOT;
 
 				createEvent(cus_event);
+
+				// Here should a check to see if there is any loot
+				ib_comp->backend->SendVibrate(i);
 			}
 			else if (ucComp->userCommands[i].mCommand == "flee" )//&& p_player_state_comp->mCurrentStates[i] != STATE::FLEE)
 			{
@@ -101,6 +109,7 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				p_player_state_comp->mCurrentStates[i] = STATE::FLEE;
 
 				createEvent(cus_event);
+				ib_comp->backend->SendVibrate(i);
 
 				// USED FOR TESTING DEBUGGING
 				//events::TriggerFireTrapEvent trap_event;
@@ -113,9 +122,6 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				//createEvent(trap_event);
 				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
 				//createEvent(trap_event);
-
-
-
 			}
 		}
 	}

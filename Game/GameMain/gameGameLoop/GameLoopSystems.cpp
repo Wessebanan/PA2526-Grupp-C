@@ -424,6 +424,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		while (p_ib = (InputBackendComp*)itt.next())
 		{
 			p_ib->backend->changeGamestate(WEBGAMESTATE::BATTLEPHASE);
+			p_ib->backend->SendVibrateAll();
 		}
 		{
 			ecs::events::FadeInMusic m_event;
