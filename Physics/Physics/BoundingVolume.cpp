@@ -333,6 +333,11 @@ CollisionInfo Sphere::GetCollisionInfo(BoundingCylinder& rCylinder)
 	return return_info;
 }
 
+BoundingVolume* Sphere::Copy()
+{
+	return new Sphere(*this);
+}
+
 bool OBB::Intersects(BoundingVolume* pOther)
 {
 	// Check which bounding volume 'pOther' is and test.
@@ -551,6 +556,11 @@ CollisionInfo OBB::GetCollisionInfo(BoundingCylinder& rCylinder)
 		return_info.mOverlap = rCylinder.mRadius - length;
 	}
 	return return_info;
+}
+
+BoundingVolume* OBB::Copy()
+{
+	return new OBB(*this);
 }
 
 XMFLOAT3 OBB::GetCenter()
@@ -773,6 +783,11 @@ CollisionInfo AABB::GetCollisionInfo(BoundingCylinder& rCylinder)
 	return return_info;
 }
 
+BoundingVolume* AABB::Copy()
+{
+	return new AABB(*this);
+}
+
 bool Cylinder::Intersects(BoundingVolume* pOther)
 {
 	// Check which bounding volume 'pOther' is and test.
@@ -985,4 +1000,9 @@ CollisionInfo Cylinder::GetCollisionInfo(BoundingCylinder& rCylinder)
 	}
 
 	return return_info;
+}
+
+BoundingVolume* Cylinder::Copy()
+{
+	return new Cylinder(*this);
 }
