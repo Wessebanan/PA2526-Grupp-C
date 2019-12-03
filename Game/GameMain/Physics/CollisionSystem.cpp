@@ -36,38 +36,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	// Grabbing a copy of moving object's bounding volume.
 	
-	BoundingVolume* p_bv_copy;
-
-	switch (p_collision->mBvType)
-	{
-	case COLLISION_AABB:
-	{
-		AABB* p_object_aabb = static_cast<AABB*>(p_collision->mBV);
-		p_bv_copy = new AABB(*p_object_aabb);
-		break;
-	}
-	case COLLISION_CYLINDER:
-	{
-		Cylinder* p_object_cylinder = static_cast<Cylinder*>(p_collision->mBV);
-		p_bv_copy = new Cylinder(*p_object_cylinder);
-		break;
-	}
-	case COLLISION_OBB:
-	{
-		OBB* p_object_obb = static_cast<OBB*>(p_collision->mBV);
-		p_bv_copy = new OBB(*p_object_obb);
-		break;
-	}
-	case COLLISION_SPHERE:
-	{
-		Sphere* p_object_sphere = static_cast<Sphere*>(p_collision->mBV);
-		p_bv_copy = new Sphere(*p_object_sphere);
-		break;
-	}
-	// No BV? Get outta here.
-	default:
-		return;
-	}
+	BoundingVolume* p_bv_copy = p_collision->mBV->Copy();
 
 	XMMATRIX world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
 	p_bv_copy->Transform(world_transform);
@@ -102,54 +71,14 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		// And checking intersection.
 		CollisionInfo info;
 
-		switch (p_current_collision->mBvType)
+		BoundingVolume* p_current_copy = p_current_collision->mBV->Copy();
+		p_current_copy->Transform(current_world_transform);
+		if (p_bv_copy->Intersects(p_current_copy))
 		{
-		case COLLISION_AABB:
-		{
-			AABB aabb = *static_cast<AABB*>(p_current_collision->mBV);
-			aabb.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			if (p_bv_copy->Intersects(&aabb))
-			{
-				info = p_bv_copy->GetCollisionInfo(&aabb);
-			}
-			break;
+			info = p_bv_copy->GetCollisionInfo(p_current_copy);
 		}
-		case COLLISION_OBB:
-		{
-			OBB obb = *static_cast<OBB*>(p_current_collision->mBV);
-			obb.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			if (p_bv_copy->Intersects(&obb))
-			{
-				info = p_bv_copy->GetCollisionInfo(&obb);
-			}
-			break;
-		}
-		case COLLISION_SPHERE:
-		{
-			Sphere sphere = *static_cast<Sphere*>(p_current_collision->mBV);
-			sphere.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			if (p_bv_copy->Intersects(&sphere))
-			{
-				info = p_bv_copy->GetCollisionInfo(&sphere);
-			}
-			break;
-		}
-		case COLLISION_CYLINDER:
-		{
-			Cylinder cylinder = *static_cast<Cylinder*>(p_current_collision->mBV);
-			cylinder.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			if (p_bv_copy->Intersects(&cylinder))
-			{
-				info = p_bv_copy->GetCollisionInfo(&cylinder);
-			}
-			break;
-		}
-		}
-
+		delete p_current_copy;
+	
 		// If the objects' bounding volumes intersect.
 		if(info.mOverlap > 0.0f)
 		{

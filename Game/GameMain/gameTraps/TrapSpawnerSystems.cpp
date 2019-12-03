@@ -106,6 +106,20 @@ namespace ecs
 				break;
 			}
 
+
+			/*
+				-- Create trap BV
+				Creates an AABB around the trap mesh for collision.
+			*/
+			std::vector<XMFLOAT3>* p_vertices = MeshContainer::GetMeshCPU(trap_comp.mObjectType)->GetVertexPositionVector();
+			trap_comp.mAABB.CreateFromPoints(trap_comp.mAABB, p_vertices->size(), p_vertices->data(), sizeof(XMFLOAT3));
+
+			// Boost height of spring BV slightly since it's a circle.
+			if (trap_comp.mObjectType == GAME_OBJECT_TYPE_TRAP_SPRING)
+			{
+				trap_comp.mAABB.Extents.y += 0.1f;
+			}
+
 			createEntity(trap_comp, transf_comp, color_comp);
 		}
 	}
