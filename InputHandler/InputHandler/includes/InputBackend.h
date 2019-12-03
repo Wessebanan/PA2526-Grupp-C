@@ -93,6 +93,11 @@ public:
 
 	// Sends out a new gamestate to the users, returns false if hte state was set to hte same
 	bool changeGamestate(WEBGAMESTATE gamestate);
+	// Sends out for phone to vibrate, not working on safari
+	void SendVibrate(int playerIndex);
+	// SendVibrate to all players
+	void SendVibrateAll();
+
 	bool checkReadyCheck();
 
 	// returns true if there was a change to any of the allocated keys

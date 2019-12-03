@@ -514,6 +514,17 @@ bool WebConnection::ReadyCheck()
 	return ret_val;
 }
 
+void WebConnection::SendVibration(int playerIndex)
+{
+	this->SendMsg(mUserSockets[mPlayerSockets[playerIndex]], (char*)"vib", iSendResult);
+
+}
+
+void WebConnection::SendVibrationAll()
+{
+	BroadcastMsg("vib");
+}
+
 void WebConnection::InitThread(void)
 {
 
