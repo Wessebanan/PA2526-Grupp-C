@@ -18,8 +18,8 @@ DirectX::XMVECTOR Ragdoll::Transform(DirectX::XMVECTOR* vecSrc, DirectX::XMMATRI
 
 void Ragdoll::GetBoundingBoxSize(ModelLoader::Joint* pJoint, DirectX::XMFLOAT3* pVecSize, DirectX::XMFLOAT3* pVecJointOffset)
 {
-	XMFLOAT3 vec_min = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	XMFLOAT3 vec_max = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	XMFLOAT3 vec_min = XMFLOAT3(FLT_MAX, FLT_MAX, FLT_MAX);
+	XMFLOAT3 vec_max = XMFLOAT3(FLT_MIN, FLT_MIN, FLT_MIN);
 	if (pJoint)
 	{
 		std::vector<unsigned int>* connected_vertex_indices = &pJoint->mConnectedVertexIndices;
@@ -57,10 +57,21 @@ void Ragdoll::GetBoundingBoxSize(ModelLoader::Joint* pJoint, DirectX::XMFLOAT3* 
 			}		
 			delete[] vertices;
 		}	
+		else // Bone has no connected vertices, create minimum bone and return
+		{
+			pVecSize->x = MINIMUM_BONE_SIZE;
+			vec_max.x = MINIMUM_BONE_SIZE * 0.5f;
+			pVecSize->y = MINIMUM_BONE_SIZE;
+			vec_max.y = MINIMUM_BONE_SIZE * 0.5f;
+			pVecSize->z = MINIMUM_BONE_SIZE;
+			vec_max.z = MINIMUM_BONE_SIZE * 0.5f;
+			return;
+		}
 		
 		// Factor in child bone connections to size
 
-		// CODE HERE
+		// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
+		// Might not be needed with the way meshes are handled currently, since connections are already "attached" ?
 
 		  // Set the bounding box size
 		pVecSize->x = (float)fabs(vec_max.x - vec_min.x);
@@ -532,7 +543,7 @@ void Ragdoll::Resolve(float dt, float linearDamping, float angularDamping, Direc
 			// Waiting on ProcessCollisions function to be done
 			// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
 			// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
-			//ProcessCollisions()
+			ProcessCollisions(i, pCollision);
 
 			// Transform points
 			TransformPoints(i);
