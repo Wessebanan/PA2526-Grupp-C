@@ -43,8 +43,6 @@ namespace GridFunctions
 
 		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
-			//int top_x = 9;
-			//int top_y = 9;
 			int top_x = rand() % (columns - 5 - 3);
 			int top_y = rand() % (rows - 5 - 3);
 			top_x += 4;
@@ -126,10 +124,7 @@ namespace GridFunctions
 		holme_space = layers * 2;
 		// Removes chunks from each side of the map
 		int chunk_size = rows / 4;
-		//int side1 = 4;
-		//int side0 = 4;
-		//int side3 = 10;
-		//int side2 = 10;
+
 		int side1 = rand() % (rows - chunk_size - holme_space);
 		int side0 = rand() % (columns - chunk_size - holme_space);
 		int side3 = rand() % (rows - chunk_size - holme_space);
@@ -164,8 +159,7 @@ namespace GridFunctions
 			{
 				// lake things
 				//int random_lakeside = 3;
-				int random_lakeside = 1;
-				//int random_lakeside = rand() % 4;
+				int random_lakeside = rand() % 4;
 
 				int depth = columns / 6;
 				int starting_width = rows / 3;
@@ -183,7 +177,6 @@ namespace GridFunctions
 				case 3:
 					depth = rows / 6;
 					starting_width = columns / 3;
-					//starting_tile = 8;
 					starting_tile = (rand() % columns) - (starting_width);
 					break;
 				default:
@@ -273,10 +266,6 @@ namespace GridFunctions
 
 
 			// More chunks
-			//side0 = 7;
-			//side1 = 7;
-			//side2 = 7;
-			//side3 = 7;
 			side0 = rand() % (rows - chunk_size - 1);
 			side1 = rand() % (columns - chunk_size - 1);
 			side2 = rand() % (rows - chunk_size - 1);
