@@ -1,5 +1,7 @@
+#include "..//Input/InitInputBackendComponent.h"
 #include "AISystems.h"
 #include "../gameUtility/UtilityEcsFunctions.h"
+
 
 using namespace ecs::components;
 using namespace ecs::events;
@@ -1368,6 +1370,16 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 			break;
 		}
 */
+
+
+		it = getComponentsOfType<components::InputBackendComp>();
+		InputBackendComp* ib_comp = (InputBackendComp*)(it.next());
+		if (ib_comp)
+		{
+			// here a ceck if the state is loot and there is loot
+			ib_comp->backend->SendVibrate(player);
+		}
+
 		//Loop through the players units and remove their old state component.
 		Entity* unit;
 		for (int u = 0; u < p_army->unitIDs.size(); u++)
