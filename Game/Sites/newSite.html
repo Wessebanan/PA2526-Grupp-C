@@ -413,6 +413,36 @@
                     document.body.style.backgroundColor = "#01a12c";
                 }
             }
+            else if(msg[0] == 5)
+            {
+                //document.getElementById("playerIndex").innerHTML = msg.charAt(msg.length - 1);
+                var color;
+                if (msg.charAt(msg.length - 2) == 'j')
+                { 
+                    color = "#3f3";
+                }
+                else if (msg.charAt(msg.length - 2) == 'd')
+                {
+                    color = "#f33";
+                }
+
+                if (msg.charAt(msg.length - 1) == '0')
+                {
+                    document.getElementById("player1").style.background = color;
+                }
+                else if (msg.charAt(msg.length - 1) == '1')
+                {
+                    document.getElementById("player2").style.background = color;
+                }
+                else if (msg.charAt(msg.length - 1) == '2')
+                {
+                    document.getElementById("player3").style.background = color;
+                }
+                else if (msg.charAt(msg.length - 1) == '3')
+                {
+                    document.getElementById("player4").style.background = color;
+                }
+            }
         }
 
 
