@@ -58,6 +58,11 @@ bool InputBackend::checkReadyCheck()
 	return this->mpWebConn->ReadyCheck();
 }
 
+void InputBackend::sendCommand(int player, int comm)
+{
+	this->mpWebConn->SendUserCommand(player,comm);
+}
+
 bool InputBackend::updateKeyboard()
 {
 	bool ret_val = false;

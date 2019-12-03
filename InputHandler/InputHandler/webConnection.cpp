@@ -486,7 +486,7 @@ void WebConnection::SendUserCommand(int player, int comm)
 		break;
 	}
 
-	this->SendMsg(mUserSockets[mPlayerSockets[player]], (char*)comm.c_str(), iSendResult);
+	this->SendMsg(mUserSockets[mPlayerSockets[player]], (char*)ss.c_str(), iSendResult);
 }
 
 bool WebConnection::GetUserPing(int player)
