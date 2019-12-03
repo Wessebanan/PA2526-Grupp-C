@@ -110,6 +110,18 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 
 	rECS.createEntity(bitmap_comp,bitmap_pos_comp);
 
+	ecs::components::UIDrawColorComponent text_color;
+	ecs::components::UITextComponent text;
+	ecs::components::UIDrawPosComponent text_pos;
+	text_color.mColor = brushColors::White;
+	text.text_size = 3;
+	text.tag = DEBUGUI;
+	text_pos.mDrawArea.left = graphics::GetDisplayResolution().x / 2 - 150;
+	text_pos.mDrawArea.top = 10;
+	text_pos.mDrawArea.right = graphics::GetDisplayResolution().x / 2 + 150;
+	text_pos.mDrawArea.bottom = 210;
+	rECS.createEntity(text, text_pos, text_color);
+
 
 }
 void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)
