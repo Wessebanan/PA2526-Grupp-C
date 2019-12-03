@@ -27,7 +27,7 @@
 #define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
 #define TO_SCENE(x) (x - SCENE_OBJECT_ENUM_OFFSET) 
 
-#define RUN_SSAO	// Comment this out if performance is unbearable
+//#define RUN_SSAO	// Comment this out if performance is unbearable
 
 #include "../gamePowerups/PowerupComponents.h"
 

@@ -789,9 +789,6 @@ bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 
 		// Send out to all users the new discornected player
 		BroadcastMsgJoined();
-		//string ss = "5.d";
-		//ss += to_string(player_id);
-		//BroadcastMsg(ss);
 
 		if (error == 0)
 		{
@@ -902,9 +899,6 @@ bool WebConnection::AddPlayerSocket(SOCKET sock)
 
 	// Send out to all users the new connected player
 	BroadcastMsgJoined();
-	//string ss = "5.j";
-	//ss += to_string(first_empty);
-	//BroadcastMsg(ss);
 
 	return true;
 }
