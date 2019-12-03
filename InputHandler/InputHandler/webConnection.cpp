@@ -760,6 +760,13 @@ bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 		this->mPlayerSockets[player_id] = -1;
 		this->mUsers[player_id].connected = false;
 
+
+
+		// Send out to all users the new connected players
+		string ss = "5.d";
+		ss += player_id;
+		BroadcastMsg(ss);
+
 		if (error == 0)
 		{
 			printf("Connection closing...\n");
@@ -866,6 +873,11 @@ bool WebConnection::AddPlayerSocket(SOCKET sock)
 	mPlayerSockets[first_empty] = IdUserSocket(sock);
 	mUsers[first_empty].connected = true;
 	this->nrOfPlayers++;
+
+	// Send out to all users the new connected players
+	string ss = "5.j";
+	ss += first_empty;
+	BroadcastMsg(ss);
 
 	return true;
 }
