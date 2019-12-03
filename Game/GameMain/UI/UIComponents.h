@@ -45,6 +45,7 @@ namespace ecs
 			ID2D1Bitmap1* mpBitmap = nullptr;
 			ID2D1Bitmap1* mpTintedBitmap = nullptr;
 			std::string mName = "";
+			unsigned int mBitmapID;
 		};
 
 		struct UIThicknessComponent : public ECSComponent<UIThicknessComponent>

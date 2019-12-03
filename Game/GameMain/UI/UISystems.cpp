@@ -1,5 +1,7 @@
 #include "UISystems.h"
 #include "../gameUtility/UtilityComponents.h"
+#include "../gameGameLoop/GameLoopEvents.h"
+#include "../gameGameLoop/GameLoopComponents.h"
 
 using namespace ecs;
 using namespace ecs::systems;
@@ -359,5 +361,43 @@ void ecs::systems::UIUnitColorUpdateSystem::updateEntity(FilteredEntity& uiUnit,
 	else
 	{
 		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap, 0, 0, 1);
+	}
+}
+
+ecs::systems::UIEndOfRoundSystem::UIEndOfRoundSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(events::ResetUIComponents::typeID);
+}
+
+ecs::systems::UIEndOfRoundSystem::~UIEndOfRoundSystem()
+{
+	//
+}
+
+void ecs::systems::UIEndOfRoundSystem::readEvent(BaseEvent& _event, float _delta)
+{
+	if (_event.getTypeID() != events::RoundEndEvent::typeID) //change 0 to my event id
+	{
+		return;
+	}
+	int winner = dynamic_cast<ecs::events::RoundEndEvent*>(&_event)->winner;
+	ComponentIterator itt = ecs::ECSUser::getComponentsOfType(ecs::components::GameLoopComponent::typeID);
+	GameLoopComponent* p_gl = (GameLoopComponent*)itt.next();
+	TypeFilter ui_army_filter;
+	ui_army_filter.addRequirement(UIBitmapComponent::typeID);
+	ui_army_filter.addRequirement(UIDrawPosComponent::typeID);
+	ui_army_filter.addRequirement(UIArmyReader::typeID);
+	EntityIterator ui_armies = getEntitiesByFilter(ui_army_filter);
+
+	for (FilteredEntity ui_armies : ui_armies.entities)
+	{
+		UIArmyReader* p_army = ui_armies.getComponent<UIArmyReader>();
+		UIBitmapComponent* army_bitmaps = ui_armies.getComponent<UIBitmapComponent>();
+		//First find the right army then the right bitmap in the army by taking the winners point -1 because a system before this one adds one to the score
+		if (p_army->playerID == winner && army_bitmaps->mBitmapID == p_gl->mPlayerPoints[winner]-1)
+		{
+			this->mpD2D->SetBitmapTint(army_bitmaps->mpBitmap, army_bitmaps->mpTintedBitmap, 255, 255, 0);//change the bitmap color to yellow 
+		}
 	}
 }

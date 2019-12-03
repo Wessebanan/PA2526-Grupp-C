@@ -179,6 +179,16 @@ namespace ecs
 
 			Direct2D* mpD2D;
 		};
+
+		class UIEndOfRoundSystem : public ECSSystem<UIEndOfRoundSystem>
+		{
+		public:
+			UIEndOfRoundSystem();
+			virtual ~UIEndOfRoundSystem();
+			void readEvent(BaseEvent& _event, float _delta) override;
+
+			Direct2D* mpD2D;
+		};
 	}
 
 }
