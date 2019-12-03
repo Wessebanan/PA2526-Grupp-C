@@ -230,6 +230,29 @@
             border-color: #fff;
         }
 
+        /* JOINED PLAYERS*/
+        #joinedplayers{
+            
+            width: 25%;
+            height: 50px;
+            float: right;
+            background-color:red;
+            margin-left:30%;
+        }
+        .playerindicator{
+            width: 20%;
+            height: 100%;
+            float: left;
+            margin-left:2%;
+            border-radius:1000%;
+
+            
+            background-color: #f33;
+            border-style: solid;
+            border-width: 2px;
+            border-color: #fff;
+        }
+
         /*  OTHER THINGS    */
         h1 {
             font-size: 150%;
@@ -471,7 +494,7 @@
             document.getElementById('readyButton').style.display = "block";
             document.getElementById('waitField').style.display = "block";
             socket.send("join");
-        
+        window.navigator.vibrate(200);
         }
         
 
@@ -593,6 +616,14 @@
 </head>
 <body>
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSd1FcrnfWOdsHlIJ2326xD5PgXb1QFcMp1iJklbZsUrAfLDDw/viewform?usp=sf_link">FEEDBACK</a>
+
+    <div id="joinedplayers">
+        <div class="playerindicator" id="player1">player1</div>
+        <div class="playerindicator" id="player2">player2</div>
+        <div class="playerindicator" id="player3">player3</div>
+        <div class="playerindicator" id="player4">player4</div>
+    </div>
+
     <div id="readyButton" onclick="ready()" style="display:none;">READY?<p id="readyText">NO</p></div>
 
     <div id='startfield' class='buttonField' style='display:block;'>

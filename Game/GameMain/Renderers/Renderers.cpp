@@ -27,7 +27,7 @@
 #define TO_MESH(x) (x - GAME_OBJECT_TYPE_MESH_START)
 #define TO_SCENE(x) (x - SCENE_OBJECT_ENUM_OFFSET) 
 
-//#define RUN_SSAO	// Comment this out if performance is unbearable
+#define RUN_SSAO	// Comment this out if performance is unbearable
 
 #include "../gamePowerups/PowerupComponents.h"
 
@@ -848,8 +848,8 @@ namespace ecs
 			mScreenSpaceTriangle = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
 			mRenderMgr.Initialize(0);
 
-			const UINT width = clientWidth;
-			const UINT height = clientHeight;
+			const UINT width = clientWidth / 2.0f;
+			const UINT height = clientHeight / 2.0f;
 
 			{
 				graphics::SSAO_PIPELINE_DESC desc = { };
