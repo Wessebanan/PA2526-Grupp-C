@@ -463,6 +463,32 @@ string WebConnection::GetUserCommand(int player)
 	return str;
 }
 
+void WebConnection::SendUserCommand(int player, int comm)
+{
+	string ss = "6.";
+
+	switch (comm)
+	{
+	case 0: // ATTACK
+		ss += "0";
+		break;
+	case 1: // LOOT
+		ss += "1";
+		break;
+	case 2: // REGROUP
+		ss += "2";
+		break;
+	case 3: // FLEE
+		ss += "3";
+		break;
+	default: // ERROR
+		ss += "error";
+		break;
+	}
+
+	this->SendMsg(mUserSockets[mPlayerSockets[player]], (char*)comm.c_str(), iSendResult);
+}
+
 bool WebConnection::GetUserPing(int player)
 {
 	bool ret_val = mUsers[player].pinged;
