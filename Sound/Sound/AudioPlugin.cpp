@@ -1,11 +1,13 @@
 #include "AudioPlugin.h"
 #include <cmath>
 
-Audio::Plugin::Sampler::Sampler(FileData* pFile, int repeatAmount)
+Audio::Plugin::Sampler::Sampler(FileData* pFile, int repeatAmount, float rateModifier)
 {
 	mpFile = pFile;
 	mRepeatAmount = repeatAmount;
 	mReadPointer = 0;
+	mReadFraction = 0.0f;
+	mPlayRate = rateModifier;
 }
 
 Audio::Plugin::Sampler::Sampler()
@@ -13,6 +15,8 @@ Audio::Plugin::Sampler::Sampler()
 	mpFile = nullptr;
 	mRepeatAmount = 0;
 	mReadPointer = 0;
+	mReadFraction = 0.0f;
+	mPlayRate = 1.0f;
 }
 
 void Audio::Plugin::Sampler::SetFileAndReset(FileData* pFile)
@@ -29,6 +33,26 @@ Audio::Samples Audio::Plugin::Sampler::GetReadPointer()
 void Audio::Plugin::Sampler::SetReadPointer(Samples readPointer)
 {
 	mReadPointer = readPointer;
+}
+
+Audio::Plugin::Status Audio::Plugin::Sampler::Progress(Samples start, Samples sampleCount, int channelCount)
+{
+	mReadPointer += sampleCount * channelCount;
+
+	Samples sample_count = mpFile->GetSampleCount();
+	if (mReadPointer >= sample_count)
+	{
+		// Go back to the start
+		mReadPointer %= sample_count;
+		// Signal to finish this voice if done
+		// repeating
+		if (mRepeatAmount == 1)
+		{
+			return Status::STATUS_FINISHED;
+		}
+		mRepeatAmount--;
+	}
+	return Status::STATUS_OK;
 }
 
 // TODO: This sampler does not support mono wav files!
@@ -64,9 +88,23 @@ Audio::Plugin::Status Audio::Plugin::Sampler::Process(Samples start, Samples sam
 					}
 					mRepeatAmount--;
 				}
-				// Read the data from the file
-				*(pData++) = data_pointer[mReadPointer++];
+				// ---  Interpolation  ---
+				// Get the next sample to interpolate towards
+				// and wrap if outside the file
+				Samples next_sample =
+					(mReadPointer + j + channelCount) % sample_count;
+
+				// Read the data from the file and interpolate
+				*(pData++) =
+					data_pointer[mReadPointer + j] * (1.0f - mReadFraction)
+					+ data_pointer[next_sample] * mReadFraction;
 			}
+			// Progress the sound with the play rate
+			float temp_float;
+			mReadFraction = modf(
+				mReadFraction + mPlayRate,
+				&temp_float);
+			mReadPointer += (Samples)temp_float * channelCount;
 		}
 	}
 	return STATUS_OK;
@@ -109,14 +147,32 @@ void Audio::Plugin::Gain::FadeToEmpty(unsigned long sampleDuration)
 
 Audio::Plugin::Status Audio::Plugin::Gain::Process(Samples start, Samples sampleCount, float* pData, int channelCount)
 {
-	Status status = mpNext->Process(start, sampleCount, pData, channelCount);
-	for (int i = 0; i < sampleCount; i++)
+	Status status;
+	// If the gain is 0, just fill with 0, so sound will be playing
+	if (mGain == 0.0f)
 	{
-		for (int j = 0; j < channelCount; j++)
+		status = mpNext->Progress(start, sampleCount, channelCount);
+		for (int i = 0; i < sampleCount; i++)
 		{
-			pData[i*2+j] *= mGain + mGainSpeed * i;
+			for (int j = 0; j < channelCount; j++)
+			{
+				pData[i * 2 + j] = 0.0f;
+			}
 		}
 	}
+	// Else, process and adjust gain
+	else
+	{
+		status = mpNext->Process(start, sampleCount, pData, channelCount);
+		for (int i = 0; i < sampleCount; i++)
+		{
+			for (int j = 0; j < channelCount; j++)
+			{
+				pData[i*2+j] *= mGain + mGainSpeed * i;
+			}
+		}
+	}
+	// Interpolate the gain and clamp if necessary
 	mGain += mGainSpeed * sampleCount;
 	if (mGain > 1.0f)
 	{
@@ -135,4 +191,9 @@ void Audio::Plugin::Plugin::SetNextPointer(Plugin* pNext, bool NextIsOnStack)
 {
 	mpNext = pNext;
 	mNextIsOnStack = NextIsOnStack;
+}
+
+Audio::Plugin::Status Audio::Plugin::Plugin::Progress(Samples start, Samples sampleCount, int channelCount)
+{
+	return Status::STATUS_OK;
 }

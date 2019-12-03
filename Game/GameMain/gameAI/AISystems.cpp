@@ -1,4 +1,5 @@
 #include "AISystems.h"
+#include "../gameUtility/UtilityEcsFunctions.h"
 
 using namespace ecs::components;
 using namespace ecs::events;
@@ -52,7 +53,6 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 	GridProp* g_prop = GridProp::GetInstance();
 	TransformComponent* p_transfrom = entity.getComponent<TransformComponent>();
 	TransformComponent* goal_transform = nullptr;
-	//start_tile = GridFunctions::GetTileFromWorldPos(p_transfrom->position.x, p_transfrom->position.z);
 	start_tile = this->GetClosestTile(*p_transfrom);
 	unsigned int start_tile_id = g_prop->mGrid[start_tile.y][start_tile.x].Id;
 	unsigned int goal_id = 0;
@@ -74,7 +74,6 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 		{
 			//Find the closest tile to the nearest enemy.
 			goal_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(goal_enemy_id);
-			//goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
 			goal_tile_index = this->GetClosestTile(*goal_transform);
 			//Check that the tile is traversable
 			if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
@@ -87,17 +86,17 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 	}
 	case STATE::LOOT:
 	{
+		
 		EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
 		WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
 		//Check if the unit have a weapon already. If so find a friendly unit without a weapon and follow that unit.
 		if (weapon_comp->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
 		{
-			goal_friend_id = this->FindClosestFriend(entity.entity);
+			goal_friend_id = this->FindClosestFriendWithoutWeapon(entity.entity);
 			if (goal_friend_id != 0)
 			{
-				//Find the closest tile to the nearest friend.
+				//Find the closest tile to the nearest friend without a weapon.
 				goal_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(goal_friend_id);
-				//goal_tile_index = GridFunctions::GetTileFromWorldPos(goal_transform->position.x, goal_transform->position.z);
 				goal_tile_index = this->GetClosestTile(*goal_transform);
 				//Check that the tile is traversable
 				if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
@@ -125,6 +124,23 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 		//Find the safest tile in the arena
 		goal_id = FindSafeTile(entity.entity);
 		calc_path = true;
+		break;
+	}
+	case STATE::RALLY:
+	{
+		goal_friend_id = this->FindClosestFriend(entity.entity);
+		if (goal_friend_id != 0)
+		{
+			//Find the closest tile to the nearest friend.
+			goal_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(goal_friend_id);
+			goal_tile_index = this->GetClosestTile(*goal_transform);
+			//Check that the tile is traversable
+			if (goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].isPassable)
+			{
+				goal_id = g_prop->mGrid[goal_tile_index.y][goal_tile_index.x].Id;
+			}
+			calc_path = true;
+		}
 		break;
 	}
 	default:
@@ -159,6 +175,10 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 			FleeStateComponent flee_comp;
 			flee_comp.activeCommand = FLEE;
 			ECSUser::createComponent(entity.entity->getID(), flee_comp);
+		}
+		else if (move_comp.activeCommand == RALLY)
+		{
+			move_comp.goalID = goal_friend_id;
 		}
 		else
 		{
@@ -222,7 +242,8 @@ std::vector<unsigned int> ecs::systems::PathfindingStateSystem::GetPath(unsigned
 			for (int i = 0; i < 6; i++) // put new neighbours in open list or maybe update old neighbour move cost
 			{
 				if (current_tile->neighboursIDArray[i] != 0 &&
-					!closed_list.count(current_tile->neighboursIDArray[i])) //check so that the neightbour is valid and not in the closed list
+					!closed_list.count(current_tile->neighboursIDArray[i]) &&
+					!ECSUser::getComponentFromKnownEntity<TileComponent>(current_tile->neighboursIDArray[i])->impassable) //check so that the neightbour is valid and not in the closed list and is passable
 				{
 					pos_in_open_list = 0;
 					in_open_list = false;
@@ -404,7 +425,7 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestEnemy(Entity* curr
 	return enemy_id;
 }
 
-unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(Entity* current_unit)
+unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriendWithoutWeapon(Entity* current_unit)
 {
 	//Initialize components and variables that we will need.
 	ComponentIterator ittr;
@@ -465,6 +486,61 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(Entity* cur
 	return friend_id;
 }
 
+unsigned int ecs::systems::PathfindingStateSystem::FindClosestFriend(ecs::Entity* current_unit)
+{
+	//Initialize components and variables that we will need.
+	ComponentIterator ittr;
+	BaseComponent* p_base_component;
+	ArmyComponent* army_comp;
+	Entity* other_unit;
+	UnitComponent* curr_unit_comp = ECSUser::getComponentFromKnownEntity<UnitComponent>(current_unit->getID());
+	UnitComponent* other_unit_comp;
+	TransformComponent* curr_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(current_unit->getID());
+	TransformComponent* other_unit_transform;
+	float dist = 1000.0f;
+	float temp_dist = 0.0f;
+	unsigned int friend_id = 0;
+
+	//Fetch the army components of all the players
+	ittr = ECSUser::getComponentsOfType(ArmyComponent::typeID);
+	while (p_base_component = ittr.next())
+	{
+		army_comp = static_cast<ArmyComponent*>(p_base_component);
+		//Loop through every unit of the current army.
+		for (int i = 0; i < army_comp->unitIDs.size(); i++)
+		{
+			other_unit = ECSUser::getEntity(army_comp->unitIDs[i]);
+			//Check so that the unit still exists
+			if (other_unit != nullptr)
+			{
+				other_unit_comp = static_cast<UnitComponent*>(ECSUser::getComponentFromKnownEntity(UnitComponent::typeID, other_unit->getID()));
+				//Check so that the unit is part of the current units army.
+				if (other_unit_comp->playerID == curr_unit_comp->playerID)
+				{
+					if (other_unit->getID() != current_unit->getID())
+					{
+						other_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(other_unit->getID());
+						temp_dist = PhysicsHelpers::CalculateDistance(curr_unit_transform->position, other_unit_transform->position);
+						//If the distance is smaller then the previously nearest friend we store the info of the new one.
+						if (temp_dist < dist && temp_dist)
+						{
+							dist = temp_dist;
+							friend_id = other_unit->getID();
+						}
+						
+					}
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+	//Return the nearest enemy units entity id.
+	return friend_id;
+}
+
 unsigned int ecs::systems::PathfindingStateSystem::FindSafeTile(Entity* current_unit)
 {
 	UnitComponent* p_current_unit_comp = ECSUser::getComponentFromKnownEntity<UnitComponent>(current_unit->getID());
@@ -483,20 +559,26 @@ unsigned int ecs::systems::PathfindingStateSystem::FindSafeTile(Entity* current_
 		if (p_current_tile->neighboursIDArray[i] != 0)
 		{
 			p_current_neighbour = ECSUser::getComponentFromKnownEntity<TileComponent>(p_current_tile->neighboursIDArray[i]);
-			for (int a = 0; a < 4; a++)
+			if (p_current_neighbour != nullptr) //Sanity Check
 			{
-				if (a != p_current_unit_comp->playerID)
+				if (!p_current_tile->impassable)
 				{
-					current_safe += p_current_neighbour->charges.armyCharges[a];
+					for (int a = 0; a < 4; a++)
+					{
+						if (a != p_current_unit_comp->playerID)
+						{
+							current_safe += p_current_neighbour->charges.armyCharges[a];
+						}
+					}
+					//current_safe += p_current_neighbour->charges.hazardCharge;
+					if (current_safe < safest)
+					{
+						safest = current_safe;
+						goal_tile_id = p_current_tile->neighboursIDArray[i];
+					}
+					current_safe = 0.0f;
 				}
 			}
-			//current_safe += p_current_neighbour->charges.hazardCharge;
-			if (current_safe < safest)
-			{
-				safest = current_safe;
-				goal_tile_id = p_current_tile->neighboursIDArray[i];
-			}
-			current_safe = 0.0f;
 		}
 	}
 	return goal_tile_id;
@@ -507,22 +589,30 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestLootTile(Entity* c
 	//Initialize components and variables that we will need.
 				//ecs::Entity* loot_tile;
 	TransformComponent* unit_transform = static_cast<TransformComponent*>(ECSUser::getComponentFromKnownEntity(TransformComponent::typeID, current_unit->getID()));
+	/*if (!unit_transform)
+	{
+		return 0;
+	}*/
 	TransformComponent* loot_transform;
 	TileComponent* loot_tile;
 	float dist = 1000.0f;
 	float temp_dist = 0.0f;
 	unsigned int loot_id = 0;
 	GridProp* p_gp = GridProp::GetInstance();
-
-	for (int i = 0; i < p_gp->mLootTiles.size(); i++)
+	if (p_gp != nullptr) //Sanity check
 	{
-		loot_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mLootTiles[i]);
-		loot_tile = ECSUser::getComponentFromKnownEntity<TileComponent>(p_gp->mLootTiles[i]);
-		temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
-		if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
+		for (int i = 0; i < p_gp->mLootTiles.size(); i++)
 		{
-			dist = temp_dist;
-			loot_id = p_gp->mLootTiles[i];
+			loot_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mLootTiles[i]);
+			loot_tile = ECSUser::getComponentFromKnownEntity<TileComponent>(p_gp->mLootTiles[i]);
+							
+				temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
+				if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
+				{
+					dist = temp_dist;
+					loot_id = p_gp->mLootTiles[i];
+				}
+			
 		}
 	}
 
@@ -619,7 +709,7 @@ ecs::systems::MoveStateSystem::MoveStateSystem()
 	typeFilter.addRequirement(TransformComponent::typeID);
 	typeFilter.addRequirement(DynamicMovementComponent::typeID);
 	typeFilter.addRequirement(EquipmentComponent::typeID);
-	typeFilter.addRequirement(GroundCollisionComponent::typeID);
+	typeFilter.addRequirement(ObjectCollisionComponent::typeID);
 }
 
 ecs::systems::MoveStateSystem::~MoveStateSystem()
@@ -646,7 +736,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 	TransformComponent* p_transform = entity.getComponent<TransformComponent>();
 	DynamicMovementComponent* p_dyn_move = entity.getComponent<DynamicMovementComponent>();
 	MoveStateComponent* p_move_comp = entity.getComponent<MoveStateComponent>();
-	GroundCollisionComponent* p_ground_comp = entity.getComponent<GroundCollisionComponent>();
+	ObjectCollisionComponent* p_collision_comp = entity.getComponent<ObjectCollisionComponent>();
 	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
 	TransformComponent* p_goal = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_move_comp->goalID);
 	float distance = 1000.0f;
@@ -702,10 +792,12 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 			next_tile_x = p_next_goal->position.x - p_goal->position.x;
 			next_tile_z = p_next_goal->position.z - p_goal->position.z;
 		}
+		
+
 		jump_vector.x = curr_tile_x = p_goal->position.x - p_transform->position.x;
-		jump_vector.y = curr_tile_y = p_goal->position.y - p_ground_comp->mLastTileY;
+		jump_vector.y = curr_tile_y = p_goal->position.y - p_dyn_move->mLastTileY;
 		jump_vector.z = curr_tile_z = p_goal->position.z - p_transform->position.z;
-		y_distance = p_goal->position.y - (p_ground_comp->mLastTileY);
+		y_distance = p_goal->position.y - p_dyn_move->mLastTileY;
 		curr_tile_x = curr_tile_x + (next_tile_x * DEFAULT_USAGE_OF_TILE);//ad percentage of the direction from the tile next after "goal"
 		curr_tile_z = curr_tile_z + (next_tile_z * DEFAULT_USAGE_OF_TILE);
 		length = sqrt(curr_tile_x * curr_tile_x + curr_tile_z * curr_tile_z);
@@ -719,7 +811,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 		if (y_distance > 0.3f && p_dyn_move->mOnGround)
 		{
-			length = PhysicsHelpers::CalculateDistance(p_goal->position, p_transform->position);//Length from unit to goal center
+			length = PhysicsHelpers::CalculateDistance(XMFLOAT3(p_goal->position.x, 0.0f, p_goal->position.z), XMFLOAT3(p_transform->position.x, 0.0f, p_transform->position.z));//Length from unit to goal center
 			length_of_vector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
 			angle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
 			(XMLoadFloat3(&p_dyn_move->mVelocity)), XMVector3Normalize(XMLoadFloat3(&p_dyn_move->mDirection))));//Get angle between velocity and direction vector
@@ -734,7 +826,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 				ForceImpulseEvent jump;
 				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&jump_vector)));//normalize the jump vector so that we just get direction
-				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.2f;
+				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.5f;
 				jump.mEntityID = entity.entity->getID();
 				if (length_of_vector < 0.25f)//if they are very slow and need to jump they get a boost
 				{
@@ -771,6 +863,10 @@ STATE ecs::systems::MoveStateSystem::CheckIfGoalIsMet(FilteredEntity& entity, fl
 	case STATE::LOOT:
 		mMinimumDist = TILE_RADIUS / 2.0f;
 		returnState = STATE::LOOT;
+		break;
+	case STATE::RALLY:
+		mMinimumDist = TILE_RADIUS * 1.0f;
+		returnState = STATE::IDLE; 
 		break;
 	default:
 		mMinimumDist = TILE_RADIUS / 2.0f;
@@ -818,6 +914,7 @@ void ecs::systems::MoveStateSystem::SwitchState(FilteredEntity& entity, STATE ne
 		if (!entity.entity->hasComponentOfType(IdleStateComponent::typeID))
 		{
 			IdleStateComponent idle_state;
+			idle_state.activeCommand = IDLE;
 			ECSUser::createComponent(entity.entity->getID(), idle_state);
 		}
 	}
@@ -858,28 +955,34 @@ ID ecs::systems::MoveStateSystem::GetClosestTileId(TransformComponent& transform
 	ecs::Entity* p_curr_entity;
 	float dist = 1000.0f;
 	float temp_dist = 0.0f;
-	//Loop through every tile in the grid.
-	for (int x = 0; x < p_gp->GetSize().x; x++)
+	ID return_id = 0;
+	if (p_gp != nullptr) //Sanity Check
 	{
-		for (int y = 0; y < p_gp->GetSize().y; y++)
+		//Loop through every tile in the grid.
+		for (int x = 0; x < p_gp->GetSize().x; x++)
 		{
-			//Check if the tile is a tile we can walk on.
-			if (p_gp->mGrid[y][x].isPassable)
+			for (int y = 0; y < p_gp->GetSize().y; y++)
 			{
-				p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
-				temp_dist = PhysicsHelpers::CalculateDistance(transform.position, p_curr_tile_transform->position);
-				//If the tile is closer than the previously closest tile we've found we store the new info.
-				if (temp_dist < dist)
+				//Check if the tile is a tile we can walk on.
+				if (p_gp->mGrid[y][x].isPassable)
 				{
-					dist = temp_dist;
-					tile_index.x = x;
-					tile_index.y = y;
+					p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
+					temp_dist = PhysicsHelpers::CalculateDistance(transform.position, p_curr_tile_transform->position);
+					//If the tile is closer than the previously closest tile we've found we store the new info.
+					if (temp_dist < dist)
+					{
+						dist = temp_dist;
+						tile_index.x = x;
+						tile_index.y = y;
+					}
 				}
 			}
 		}
+		return_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
 	}
-	//Return the index position of the closest tile in mGrid in the GridProp class.
-	return p_gp->mGrid[tile_index.y][tile_index.x].Id;
+	
+	//Return the index position of the closest tile in mGrid in the GridProp class or 0 if something went wrong.
+	return return_id;
 }
 /************************************************/
 /**********  MOVESTATESYSTEM END  **************/
@@ -1039,10 +1142,32 @@ void ecs::systems::AttackStateSystem::updateEntity(FilteredEntity& entity, float
 	//Check if the enemy unit still exists
 	if (p_enemy_entity)
 	{
+		float y_distance = 0;
 		//Fetch the enemy units data
 		p_enemy_unit_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_enemy_entity->getID());
+		XMFLOAT3 direction;
+		direction.x = p_enemy_unit_transform->position.x - p_current_unit_transform->position.x;
+		direction.y = p_enemy_unit_transform->position.y - p_current_unit_transform->position.y;
+		direction.z = p_enemy_unit_transform->position.z - p_current_unit_transform->position.z;
+		XMVECTOR dir_vec = XMLoadFloat3(&direction);
+		dir_vec = XMVector3Normalize(dir_vec);
+		XMStoreFloat3(&direction, dir_vec);
+		// NOTE: No way of finding default direction of mesh so it's hard coded.
+		XMFLOAT3 dude_default_forward = XMFLOAT3(0.0f, 0.0f, -1.0f);
+		XMFLOAT3* movement_forward = &direction;
+
+		// Finding the angle between default forward and enemy direction.
+		XMVECTOR cos_angle = DirectX::XMVector3Dot(XMLoadFloat3(&dude_default_forward), XMLoadFloat3(movement_forward));
+
+		// Using Sign to find if the angle is negative or positive relative to default forward.
+		p_current_unit_transform->rotation.y = -Sign(movement_forward->x) * acos(XMVectorGetX(cos_angle));
+
 		//Calculate distance to the enemy unit
-		distance = PhysicsHelpers::CalculateDistance(p_current_unit_transform->position, p_enemy_unit_transform->position);
+		XMFLOAT3 friendly_pos = p_current_unit_transform->position;
+		XMFLOAT3 enemy_pos = p_enemy_unit_transform->position;
+		friendly_pos.y = 0;
+		enemy_pos.y = 0;
+		distance = PhysicsHelpers::CalculateDistance(friendly_pos, enemy_pos);
 		//If the enemy is not within attack range remove attack component
 		if (distance > p_equipment_comp->mAttackRange * 1.5f)
 		{
@@ -1065,28 +1190,6 @@ void ecs::systems::AttackStateSystem::updateEntity(FilteredEntity& entity, float
 	}
 }
 
-void ecs::systems::AttackStateSystem::SwitchState(FilteredEntity& entity, STATE newState)
-{
-	AttackStateComponent* atk_comp = entity.getComponent<AttackStateComponent>();
-	switch (newState)
-	{
-	case ATTACK: //If the cucrent command is Attack we want to find a new target to attack.
-	{
-		PathfindingStateComponent path_state;
-		path_state.activeCommand = atk_comp->activeCommand;
-		ECSUser::createComponent(entity.entity->getID(), path_state);
-		break;
-	}
-	default: //If there is no current command we want the unit to go idle.
-	{
-		IdleStateComponent idle_state;
-		ECSUser::createComponent(entity.entity->getID(), idle_state);
-		break;
-	}
-	}
-	ECSUser::removeComponent(entity.entity->getID(), AttackStateComponent::typeID);
-}
-
 /************************************************/
 /*********  ATTACKSTATESYSTEM END  *************/
 /**********************************************/
@@ -1099,6 +1202,7 @@ ecs::systems::RemoveDeadUnitsSystem::RemoveDeadUnitsSystem()
 {
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(DeadComponent::typeID);
+	typeFilter.addRequirement(UnitComponent::typeID);
 }
 
 ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
@@ -1108,6 +1212,8 @@ ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
 
 void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, float delta)
 {
+	// The killers ID
+	unsigned int killer_id = getComponentFromKnownEntity<HealthComponent>(entity.entity->getID())->mHitBy;
 	// DEATH EFFECTS	
 	DeadComponent* p_dead = getComponentFromKnownEntity<DeadComponent>(entity.entity->getID());
 	if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
@@ -1127,10 +1233,10 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		createEntity(spawner, smoke);
 
 		// Doesnt work atm	
-		/*PlaySound sound;
-		sound.audioName = SPLOOSH_SOUND;
+		PlaySound sound;
+		sound.audioName = SOUND_sploosh;
 		sound.soundFlags = SF_NONE;
-		ecs::ECSUser::createEvent(sound);*/
+		ecs::ECSUser::createEvent(sound);
 	}
 	// saved fo future use
 				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
@@ -1166,6 +1272,38 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		ECSUser::removeEntity(weapon_entity->getID());
 		//weapon_comp->mOwnerEntity = 0;
 	}
+	// Check if the killer is legal and exists 
+	if (getEntity(killer_id))
+	{
+		HealthComponent* killer_health = getComponentFromKnownEntity<HealthComponent>(killer_id);
+		EquipmentComponent* killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
+		UnitScalePercent* killer_add_scale = getComponentFromKnownEntity<UnitScalePercent>(killer_id);
+		if (killer_health && killer_equipment && killer_add_scale)
+		{
+			killer_health->mHealth += killer_health->mBaseHealth * HEALTH_REWARD;
+			if (killer_health->mHealth > 100.f)
+				killer_health->mHealth = 100.f;
+			killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
+			killer_equipment->mAttackRange		*= SIZE_REWARD;
+			killer_equipment->mMeleeRange		*= SIZE_REWARD;
+			TransformComponent* killer_scale = getComponentFromKnownEntity<TransformComponent>(killer_id);
+			if (killer_scale)
+			{
+				float scale_offset_y = killer_scale->scale.y;
+
+				killer_scale->scale.x		*= SIZE_REWARD;
+				killer_scale->scale.y		*= SIZE_REWARD;
+				killer_scale->scale.z		*= SIZE_REWARD;
+				killer_add_scale->UnitScale *= SIZE_REWARD;
+
+				scale_offset_y = fabsf(killer_scale->scale.y - killer_add_scale->UnitScale);
+
+				killer_scale->position.y += killer_scale->scale.y * scale_offset_y;
+			}
+		}
+	}
+	
+
 	//Remove the dead unit
 	ECSUser::removeEntity(entity.entity->getID());
 }
@@ -1209,7 +1347,7 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 		// Chagne the command on the UI
 		BaseComponent* p_base_comp = getComponentFromKnownEntity<UITextComponent>(p_army->getEntityID());
 
-		UITextComponent* p_text_comp = static_cast<UITextComponent*>(p_base_comp);
+		/*UITextComponent* p_text_comp = static_cast<UITextComponent*>(p_base_comp);
 
 		switch (state)
 		{
@@ -1229,7 +1367,7 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 			p_text_comp->mStrText = L"no case for state";
 			break;
 		}
-
+*/
 		//Loop through the players units and remove their old state component.
 		Entity* unit;
 		for (int u = 0; u < p_army->unitIDs.size(); u++)
@@ -1237,12 +1375,12 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 			ID entity_id = p_army->unitIDs[u];
 			unit = ECSUser::getEntity(entity_id);
 
-			ECSUser::removeComponent(entity_id, MoveStateComponent::typeID);
-			ECSUser::removeComponent(entity_id, IdleStateComponent::typeID);
 			ECSUser::removeComponent(entity_id, PathfindingStateComponent::typeID);
-			ECSUser::removeComponent(entity_id, AttackStateComponent::typeID);
-			ECSUser::removeComponent(entity_id, LootStateComponent::typeID);
+			ECSUser::removeComponent(entity_id, IdleStateComponent::typeID);
+			ECSUser::removeComponent(entity_id, MoveStateComponent::typeID);
 			ECSUser::removeComponent(entity_id, FleeStateComponent::typeID);
+			ECSUser::removeComponent(entity_id, LootStateComponent::typeID);
+			ECSUser::removeComponent(entity_id, AttackStateComponent::typeID);
 
 			// Fetch the skeleton ID to start animations based on state
 			ID skeleton_id = unit->getComponentID<SkeletonComponent>();
@@ -1425,4 +1563,96 @@ void ecs::systems::PotentialArmyHazardSystem::updateEntity(FilteredEntity& entit
 
 /************************************************/
 /*******  POTENTIALARMYHAZARDSYSTEM END  *******/
+/**********************************************/
+
+/************************************************/
+/************  AIPLAYERSYSTEM START  ***********/
+/**********************************************/
+
+ecs::systems::AIPlayerSystem::AIPlayerSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(components::AiBrainComponent::typeID);
+	typeFilter.addRequirement(components::ArmyComponent::typeID);
+}
+
+ecs::systems::AIPlayerSystem::~AIPlayerSystem()
+{
+
+}
+
+void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	AiBrainComponent* p_aibrain = ECSUser::getComponentFromKnownEntity<AiBrainComponent>(entity.entity->getID());
+	ArmyComponent* p_army = ECSUser::getComponentFromKnownEntity<ArmyComponent>(entity.entity->getID());
+	int number_of_weapons = 0;
+	bool loot_exists = false;
+	STATE new_state = ATTACK;
+	int number_of_units_left;
+	float distance = 0.0f;
+	int units_needs_to_rally = 0;
+
+	EquipmentComponent* p_equipment;
+	WeaponComponent* p_weapon;
+
+
+	if (p_aibrain->mTimer >= 1.5f)
+	{
+		number_of_units_left = p_army->unitIDs.size();
+		if (number_of_units_left > 0)
+		{
+			for (int i = 0; i < number_of_units_left; i++)
+			{
+				distance = PhysicsHelpers::CalculateDistance(ECSUser::getComponentFromKnownEntity<TransformComponent>(p_army->unitIDs[0])->position,
+					ECSUser::getComponentFromKnownEntity<TransformComponent>(p_army->unitIDs[i])->position);
+				if (distance > 8.0f)
+				{
+					units_needs_to_rally++;
+				}
+			}
+			if (units_needs_to_rally > 1)
+			{
+				new_state = RALLY;
+			}
+			else
+			{
+				for (int u = 0; u < number_of_units_left; u++)
+				{
+					p_equipment = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(p_army->unitIDs[u]);
+					if (p_equipment) //Sanity Check
+					{
+						p_weapon = ECSUser::getComponentFromKnownEntity<WeaponComponent>(p_equipment->mEquippedWeapon);
+						if (p_weapon) //Sanity
+						{
+							if (p_weapon->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
+							{
+								number_of_weapons++;
+							}
+						}
+					}
+				}
+			}
+		}
+		if (number_of_weapons < 2 && number_of_units_left > 1)
+		{
+			if (GridProp::GetInstance()->mLootTiles.size() > 0)
+			{
+				new_state = LOOT;
+			}
+		}
+		
+		ChangeUserStateEvent e;
+		e.playerId = p_aibrain->mPlayer;
+		e.newState = new_state;
+		ECSUser::createEvent(e);
+		p_aibrain->mTimer = 0.0f;
+	}
+	else
+	{
+		p_aibrain->mTimer += delta;
+	}
+}
+
+/************************************************/
+/*************  AIPLAYERSYSTEM END  ************/
 /**********************************************/

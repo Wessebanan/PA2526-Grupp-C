@@ -1,5 +1,6 @@
 #include "CollisionSystem.h"
 #include "..//gameAudio/AudioECSEvents.h"
+
 #pragma region ObjectCollisionSystem
 ecs::systems::ObjectCollisionSystem::ObjectCollisionSystem()
 {
@@ -15,21 +16,61 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 {
 	PotentialCollisionEvent* p_event = dynamic_cast<PotentialCollisionEvent*>(_event);
 	
-	// Grabbing the entity that moved.
-	Entity* p_entity = getEntity(p_event->mEntityID);
-	ID entity_id = p_entity->getID();
+	// Grabbing the entity that moved.	
+	ID entity_id = p_event->mEntityID;
+	Entity* p_entity = getEntity(entity_id);
+	// Any entity creating a potential collision event should have these three components, 
+	// if not it would break in this function, so return.
+	if (!p_entity->hasComponentOfType<ObjectCollisionComponent>() || 
+		!p_entity->hasComponentOfType<TransformComponent>() || 
+		!p_entity->hasComponentOfType<DynamicMovementComponent>())
+	{
+		return;
+	}
 
 	// Grabbing the entity's object collision component 
 	// and transform component.
-	ObjectCollisionComponent* p_collision	= getComponentFromKnownEntity<ObjectCollisionComponent>(entity_id);
-	TransformComponent* p_transform			= getComponentFromKnownEntity<TransformComponent>(entity_id);
-	DynamicMovementComponent* p_movement	= getComponentFromKnownEntity<DynamicMovementComponent>(entity_id);
+	ObjectCollisionComponent*	p_collision	= getComponentFromKnownEntity<ObjectCollisionComponent>(entity_id);
+	TransformComponent*			p_transform	= getComponentFromKnownEntity<TransformComponent>(entity_id);
+	DynamicMovementComponent*	p_movement	= getComponentFromKnownEntity<DynamicMovementComponent>(entity_id);
 
-	// Grabbing a copy of AABB and transforming to world space.
-	AABB aabb = p_collision->mAABB;
+	// Grabbing a copy of moving object's bounding volume.
+	
+	BoundingVolume* p_bv_copy;
+
+	switch (p_collision->mBvType)
+	{
+	case COLLISION_AABB:
+	{
+		AABB* p_object_aabb = static_cast<AABB*>(p_collision->mBV);
+		p_bv_copy = new AABB(*p_object_aabb);
+		break;
+	}
+	case COLLISION_CYLINDER:
+	{
+		Cylinder* p_object_cylinder = static_cast<Cylinder*>(p_collision->mBV);
+		p_bv_copy = new Cylinder(*p_object_cylinder);
+		break;
+	}
+	case COLLISION_OBB:
+	{
+		OBB* p_object_obb = static_cast<OBB*>(p_collision->mBV);
+		p_bv_copy = new OBB(*p_object_obb);
+		break;
+	}
+	case COLLISION_SPHERE:
+	{
+		Sphere* p_object_sphere = static_cast<Sphere*>(p_collision->mBV);
+		p_bv_copy = new Sphere(*p_object_sphere);
+		break;
+	}
+	// No BV? Get outta here.
+	default:
+		return;
+	}
+
 	XMMATRIX world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
-	aabb.Transform(world_transform);
-	XMVECTOR center = XMLoadFloat3(&aabb.Center);
+	p_bv_copy->Transform(world_transform);
 
 	QuadTreeObject this_object(p_transform, p_collision);
 	std::vector<QuadTreeObject> collision_list;
@@ -39,42 +80,153 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	quad_tree->RetrieveCollisions(collision_list, this_object);
 
 	bool intersect = false;
+	bool on_ground = false;
+
+	std::vector<CollisionInfo> collisions;
 
 	for (int i = 0; i < collision_list.size(); i++)
 	{
 		ID current_entity_id = collision_list.at(i).pTransform->getEntityID();
+		QuadTreeObject current_qt_object = collision_list.at(i);
 		// Skip yourself.
 		if (current_entity_id == entity_id)
 		{
 			continue;
 		}
 		// Grabbing the collision and transform component from the current entity.
-		ObjectCollisionComponent* p_current_collision = getComponentFromKnownEntity<ObjectCollisionComponent>(current_entity_id);
-		TransformComponent* p_current_transform = getComponentFromKnownEntity<TransformComponent>(current_entity_id);
-		
-		// Grabbing copy of AABB from current and transforming to world space.
-		AABB current_aabb = p_current_collision->mAABB;
+		ObjectCollisionComponent* p_current_collision	= current_qt_object.pBoundingBox;
+		TransformComponent* p_current_transform			= current_qt_object.pTransform;
 		XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
-		current_aabb.Transform(current_world_transform);
+		
+		// Grabbing copy of BV from current and transforming to world space.
+		// And checking intersection.
+		CollisionInfo info;
+
+		switch (p_current_collision->mBvType)
+		{
+		case COLLISION_AABB:
+		{
+			AABB aabb = *static_cast<AABB*>(p_current_collision->mBV);
+			aabb.Transform(current_world_transform);
+			// Testing intersection and saving collision info if collision.
+			if (p_bv_copy->Intersects(&aabb))
+			{
+				info = p_bv_copy->GetCollisionInfo(&aabb);
+			}
+			break;
+		}
+		case COLLISION_OBB:
+		{
+			OBB obb = *static_cast<OBB*>(p_current_collision->mBV);
+			obb.Transform(current_world_transform);
+			// Testing intersection and saving collision info if collision.
+			if (p_bv_copy->Intersects(&obb))
+			{
+				info = p_bv_copy->GetCollisionInfo(&obb);
+			}
+			break;
+		}
+		case COLLISION_SPHERE:
+		{
+			Sphere sphere = *static_cast<Sphere*>(p_current_collision->mBV);
+			sphere.Transform(current_world_transform);
+			// Testing intersection and saving collision info if collision.
+			if (p_bv_copy->Intersects(&sphere))
+			{
+				info = p_bv_copy->GetCollisionInfo(&sphere);
+			}
+			break;
+		}
+		case COLLISION_CYLINDER:
+		{
+			Cylinder cylinder = *static_cast<Cylinder*>(p_current_collision->mBV);
+			cylinder.Transform(current_world_transform);
+			// Testing intersection and saving collision info if collision.
+			if (p_bv_copy->Intersects(&cylinder))
+			{
+				info = p_bv_copy->GetCollisionInfo(&cylinder);
+			}
+			break;
+		}
+		}
 
 		// If the objects' bounding volumes intersect.
-		if(aabb.BoundingBox::Intersects(current_aabb))
+		if(info.mOverlap > 0.0f)
 		{
-			// Set the intersection bool because it may be useful.
+			// Set the intersection bool because it may be useful. :)
 			intersect = true;
 
-			XMFLOAT3 velocity_pre_revert = p_movement->mVelocity;
+			// If not moving in the same general direction as the collision normal, save info for later
+			// resolution.
+			XMVECTOR velocity_direction = XMVector3Normalize(XMLoadFloat3(&p_movement->mVelocity));
+			float dot = XMVectorGetX(XMVector3Dot(velocity_direction, XMLoadFloat3(&info.mNormal)));
+			if (dot < 0.0f)
+			{
+				collisions.push_back(info);
+			}
 
-			XMVECTOR colliding_center = XMLoadFloat3(&current_aabb.Center);
-			RevertMovement(p_transform->position, p_movement->mVelocity, &aabb, &current_aabb, p_event->mDelta);
+			// If the collided object is a tile.
+			if (getEntity(current_entity_id)->hasComponentOfType<TileComponent>())
+			{
+				TileComponent* p_tile_comp = getComponentFromKnownEntity<TileComponent>(current_entity_id);
+				
+				// If the unit hit water, he gonna die so no more collision haha.
+				if (p_tile_comp->tileType == WATER)
+				{
+					delete p_bv_copy;
+					return;
+				}			
+			}
 
-			// Transforming the aabb again since the position has changed.
-			world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
-			aabb.Transform(world_transform);
-			center = XMLoadFloat3(&aabb.Center);
+			// If normal is +y, the object is on ground, unless it is a unit.
+			if (info.mNormal.y > 0.99f)
+			{
+				// If on top of unit, move away from unit instead.
+				if (getEntity(current_entity_id)->hasComponentOfType<UnitComponent>())
+				{
+					info.mNormal.y = 0.0f;
+					info.mNormal.z = 1.0f;
+				}
+				else
+				{
+					p_movement->mLastTileY = p_current_transform->position.y;
+					on_ground = true;
+				}
+			}
+			
 		}
 	}
+
+	// Resolve collisions.
+	for (CollisionInfo info : collisions)
+	{
+		// Reverting movement.
+		p_transform->position.x += info.mNormal.x * info.mOverlap;
+		p_transform->position.y += info.mNormal.y * info.mOverlap;
+		p_transform->position.z += info.mNormal.z * info.mOverlap;
+
+		// Find largest component of collision normal and set velocity in that direction to 0.
+
+		XMFLOAT3 abs_normal;
+		XMStoreFloat3(&abs_normal, XMVectorAbs(XMLoadFloat3(&info.mNormal)));
+
+		if (abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z)
+		{
+			p_movement->mVelocity.x = 0.0f;
+		}
+		else if (abs_normal.y > abs_normal.z)
+		{
+			p_movement->mVelocity.y = 0.0f;
+		}
+		else
+		{
+			p_movement->mVelocity.z = 0.0f;
+		}
+	}
+
+	p_movement->mOnGround = on_ground;
 	p_collision->mIntersect = intersect;
+	delete p_bv_copy;
 }
 #pragma endregion
 #pragma region GroundCollisionComponentInitSystem
@@ -105,15 +257,9 @@ void ecs::systems::GroundCollisionComponentInitSystem::onEvent(TypeID _typeID, e
 	// Check for ground collision component is already made.
 	Entity* entity = getEntity(create_component_event->entityID);
 
-	if (!entity->hasComponentOfType(MeshComponent::typeID))
-	{
-		return;
-	}
+	GroundCollisionComponent* ground_collision_component = getComponentFromKnownEntity<GroundCollisionComponent>(create_component_event->entityID);
 
-	MeshComponent* mesh_component = dynamic_cast<MeshComponent*>(getComponentFromKnownEntity(MeshComponent::typeID, entity->getID()));
-	GroundCollisionComponent* ground_collision_component = dynamic_cast<GroundCollisionComponent*>(getComponentFromKnownEntity(GroundCollisionComponent::typeID, entity->getID()));
-
-	std::vector<DirectX::XMFLOAT3> *vertex_vector = mesh_component->mMesh->GetVertexPositionVector();
+	std::vector<DirectX::XMFLOAT3> *vertex_vector = MeshContainer::GetMeshCPU(GAME_OBJECT_TYPES::GAME_OBJECT_TYPE_UNIT)->GetVertexPositionVector();
 
 	ground_collision_component->mOBB.CreateFromPoints(ground_collision_component->mOBB, vertex_vector->size(), vertex_vector->data(), sizeof(XMFLOAT3));
 }
@@ -203,23 +349,27 @@ void ecs::systems::GroundCollisionSystem::updateEntity(FilteredEntity& _entityIn
 		}
 	}
 	
+	// Grabbing the height of the closest tile (y value).
 	TransformComponent* closest_tile = getComponentFromKnownEntity<TransformComponent>(closest_tile_id);
 
-	// Getting closest tile to unit.
-	//XMFLOAT3 unit_position = p_transform_component->position;
-	//int2 closest_tile_index = GridFunctions::GetTileFromWorldPos(unit_position.x, unit_position.z);
-	//
-	//GridProp* grid_prop = GridProp::GetInstance();
-	//TileData tile_data = grid_prop->mGrid[closest_tile_index.y][closest_tile_index.x];
-	//
-	//// Grabbing the closest tile.
-	//TransformComponent* closest_tile = getComponentFromKnownEntity<TransformComponent>(tile_data.Id);
-	
-	// Grabbing the height (y value).
-	float tile_height = closest_tile->position.y;
+	// Sanity check in case the id did not correspond to a valid tile.
+	float tile_height = 0.0f;
+	if (closest_tile)
+	{
+		tile_height = closest_tile->position.y;
+	}
+
 	TileComponent* closest_tile_comp = getComponentFromKnownEntity<TileComponent>(closest_tile_id);
+	
+	// Sanity check in case there was no tile component. Default to water.
+	TileType type = WATER;
+	if (closest_tile_comp)
+	{
+		type = closest_tile_comp->tileType;
+	}
+
 	//Check if units is to far away from the map. If so we set the y they will fall to to -2.0f.
-	if (closest_distance > 1.5f || closest_tile_comp->tileType == WATER)
+	if (closest_distance > 1.5f || type == WATER)
 	{
 		tile_height = -2.0f;
 	}
@@ -304,34 +454,63 @@ void ecs::systems::ObjectBoundingVolumeInitSystem::onEvent(TypeID _typeID, ecs::
 		return;
 	}
 
-	Entity* entity = getEntity(create_component_event->entityID);
-	
-	// Checking that there is a mesh to compute a bounding volume from.
-	if (!entity->hasComponentOfType(MeshComponent::typeID))
+	// Grabbing the object collision component to fill it up.
+	ObjectCollisionComponent* object_collision_component = getComponent<ObjectCollisionComponent>(create_component_event->componentID);
+
+	ModelLoader::Mesh* p_mesh = MeshContainer::GetMeshCPU(object_collision_component->mObjType);
+
+	if (!p_mesh)
 	{
+		MessageBoxA(nullptr, "No mesh for BV init.", "STOOPID", MB_YESNO);
 		return;
 	}
+
+	std::vector<DirectX::XMFLOAT3> *vertex_list = p_mesh->GetVertexPositionVector();
 	
+	// Creating boundingvolume for object with given type around given mesh.
+	switch (object_collision_component->mBvType)
+	{
+	case COLLISION_AABB:
+	{
+		object_collision_component->mBV = new AABB;
+		AABB* p_aabb = static_cast<AABB*>(object_collision_component->mBV);
+		p_aabb->CreateFromPoints(*p_aabb, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
+		break;
+	}
+	case COLLISION_CYLINDER:
+	{
+		object_collision_component->mBV = new Cylinder;
+		Cylinder* p_cylinder = static_cast<Cylinder*>(object_collision_component->mBV);
+		XMFLOAT3 position = getComponentFromKnownEntity<TransformComponent>(create_component_event->entityID)->position;
+		p_cylinder->CreateFromTile(position);
+		//p_cylinder->CreateFromPoints(*p_cylinder, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
+		break;
+	}
+	case COLLISION_OBB:
+	{
+		object_collision_component->mBV = new OBB;
+		OBB* p_obb = static_cast<OBB*>(object_collision_component->mBV);
+		p_obb->CreateFromPoints(*p_obb, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
+		break;
+	}
+	case COLLISION_SPHERE:
+	{
+		object_collision_component->mBV = new Sphere;
+		Sphere* p_sphere = static_cast<Sphere*>(object_collision_component->mBV);
+		p_sphere->CreateFromPoints(*p_sphere, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
+		break;
+	}
+	// No BV? Get outta here.
+	default:
+		MessageBoxA(nullptr, "Tried to init a BV without type.", "STOOPID", MB_YESNO);
+		return;
+	}
 
-	// Grabbing the mesh component and in turn the vertex list.
-	MeshComponent* mesh_component = getComponentFromKnownEntity<MeshComponent>(entity->getID());
-	std::vector<DirectX::XMFLOAT3> *vertex_list = mesh_component->mMesh->GetVertexPositionVector();
-
-	// Grabbing the object collision component to fill it up.
-	ObjectCollisionComponent* object_collision_component = getComponentFromKnownEntity<ObjectCollisionComponent>(entity->getID());
-	
-
-	object_collision_component->mAABB.CreateFromPoints(object_collision_component->mAABB, vertex_list->size(), vertex_list->data(), sizeof(XMFLOAT3));
-
-	// Scaling bv for tighter collision.
-	object_collision_component->mAABB.Transform(XMMatrixScaling(0.3f, 1.0f, 0.9f));
-
-	/** TODO:
-	* Set ObjectCollisionComponent::mSphereCount to number of bones.
-	* Allocate memory for mSphereCount number of DirectX::BoundingSphere(s).
-	* For each bone, grab vertex cluster and create spheres from clusters.
-	*/
-
+	// Unit special case since they need to be able to fight.
+	if (object_collision_component->mObjType == GAME_OBJECT_TYPE_UNIT)
+	{
+		object_collision_component->mBV->Transform(XMMatrixScaling(0.3f, 1.0f, 0.9f));
+	}
 }
 #pragma endregion
 #pragma region FillQuadTreeSystem
@@ -349,13 +528,19 @@ ecs::systems::FillQuadTreeSystem::~FillQuadTreeSystem()
 
 void ecs::systems::FillQuadTreeSystem::updateEntity(FilteredEntity& entity, float delta)
 {
-	ecs::ComponentIterator it = ecs::ECSUser::getComponentsOfType(ecs::components::QuadTreeComponent::typeID);
-	ecs::components::QuadTreeComponent* p_tree = static_cast<ecs::components::QuadTreeComponent*>(it.next());
+	ecs::components::QuadTreeComponent* p_tree = static_cast<ecs::components::QuadTreeComponent*>
+		(ecs::ECSUser::getComponentsOfType(ecs::components::QuadTreeComponent::typeID).next());
+	if (!p_tree)
+	{
+		return;
+	}
 	ecs::components::TransformComponent* p_transform = entity.getComponent<ecs::components::TransformComponent>();
 	ecs::components::ObjectCollisionComponent* p_collision = entity.getComponent<ecs::components::ObjectCollisionComponent>();
-	QuadTree* quad_tree = static_cast<QuadTree*>(p_tree->pTree);
-	quad_tree->Insert(QuadTreeObject(p_transform, p_collision));
-
+	if (p_collision->mBV)
+	{
+		QuadTree* quad_tree = static_cast<QuadTree*>(p_tree->pTree);
+		quad_tree->Insert(QuadTreeObject(p_transform, p_collision));
+	}
 }
 #pragma endregion
 #pragma region EmptyQuadTreeSystem

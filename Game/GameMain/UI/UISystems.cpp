@@ -1,4 +1,6 @@
 #include "UISystems.h"
+#include "..//gameAI/AISystems.h"
+
 
 using namespace ecs;
 using namespace ecs::systems;
@@ -147,14 +149,24 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 
 	itt = getComponentsOfType(components::GameLoopComponent::typeID);
 	components::GameLoopComponent* p_gl = (components::GameLoopComponent*)itt.next();
-	itt = getComponentsOfType(components::UserCommandComponent::typeID);
-	components::UserCommandComponent* p_cmd_comp = (components::UserCommandComponent*)itt.next();
+	itt = getComponentsOfType(components::UserNameComponent::typeID);
+	components::UserNameComponent* p_name_comp = (components::UserNameComponent*)itt.next();
 
+
+	/*
+		Here we update the information in the players corner UI
+
+		We can update the name of all the playesr when the UI has bitmais instead of hwo it is now
+	*/
 	ss.append(L"Score: ");
-	ss.append(std::to_wstring(p_gl->mPlayerPoints[(int)p_army->playerID]));
+	if (p_gl != nullptr)
+	{
+		ss.append(std::to_wstring(p_gl->mPlayerPoints[(int)p_army->playerID]));
+	}
 	ss.append(L"\n");
-	//ss.append("Command: ");
-	//ss.append((p_cmd_comp->userCommands[(int)p_army->playerID].mCommand));
+	ss.append(L"Name: ");
+	std::string player_name = p_name_comp->names[(int)p_army->playerID];
+	ss.append(std::wstring(player_name.begin(),player_name.end()));
 	ss.append(L"\n");
 	ss.append(L"Health:\n");
 	for (size_t i = 0; i < p_army->unitIDs.size(); i++)
@@ -169,7 +181,7 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	p_text->mStrText = ss;
 
 }
-
+#include "../gameAudio/AudioECSEvents.h"
 ecs::systems::UICountDownSystem::UICountDownSystem()
 {
 	updateType = SystemUpdateType::EntityUpdate;
@@ -179,11 +191,14 @@ ecs::systems::UICountDownSystem::UICountDownSystem()
 	subscribeEventCreation(events::CountdownStartEvent::typeID);
 }
 
+void ecs::systems::UICountDownSystem::Init()
+{
+}
+
 ecs::systems::UICountDownSystem::~UICountDownSystem()
 {
 	//
 }
-
 void ecs::systems::UICountDownSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	bool one_sec_has_passed = false;
@@ -203,10 +218,23 @@ void ecs::systems::UICountDownSystem::updateEntity(FilteredEntity& _entityInfo, 
 	{
 		this->mCounter = 3;
 		removeEntity(_entityInfo.entity->getID());
+
+		CreateSystem<systems::SwitchStateSystem>(4);
+
 		return;
 	}
 	if (one_sec_has_passed)
 	{
+		{
+			events::PlaySound m_event;
+			if(mCounter == 3)
+				m_event.audioName = AudioName::SOUND_two;
+			else if(mCounter == 2)
+				m_event.audioName = AudioName::SOUND_one;
+			else
+				m_event.audioName = AudioName::SOUND_go;
+			createEvent(m_event);
+		}
 		this->mCounter--;
 		p_UI_pos_comp->mDrawArea.bottom		-= this->mExpand_size;
 		p_UI_pos_comp->mDrawArea.left		+= this->mExpand_size;
@@ -255,5 +283,10 @@ void ecs::systems::UICountDownSystem::onEvent(TypeID _eventType, BaseEvent* _eve
 		m_pos.mDrawArea.top = height / 2;
 
 		createEntity(m_bitmap, m_pos, m_time);
+		{
+			events::PlaySound m_event;
+			m_event.audioName = AudioName::SOUND_three;
+			createEvent(m_event);
+		}
 	}
 }

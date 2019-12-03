@@ -5,8 +5,20 @@
 #include <DirectXCollision.h>
 #include "BoundingVolume.h"
 #include "../GameGlobals.h"
+#include "..//MeshContainer/MeshContainer.h"
 
 #define COMP(name) struct name : public ecs::ECSComponent<name>
+
+
+/*
+	TO_UNIT_SCALE (x)
+	
+	Unit applies 0.1 scale to weapon's bounding volume to fit in hand
+
+	'x' is defined in world space but will be projected onto unit scale
+	Does ONLY apply to weapon when hitting other units
+*/
+#define TO_UNIT_SCALE(x) (x / 0.1f)  
 
 // A bunch of default values.
 constexpr float DEFAULT_MOVEMENT_FORCE	= 300.0f;
@@ -17,13 +29,24 @@ constexpr float DEFAULT_GRAVITY			= 9.82f;
 constexpr float DEFAULT_HEALTH			= 100.0f;
 
 constexpr float BASE_SWORD_DAMAGE		= 5.0f;
+constexpr float BASE_HAMMER_DAMAGE		= 2.5f;
 constexpr float BASE_FIST_DAMAGE		= 1.0f;
+constexpr float BASE_BOMB_DAMAGE		= 1.0f;
 
 // Base knockback is a force in newtons while weapon
 // specific knockbacks are multipliers.
 constexpr float BASE_KNOCKBACK			= 30.0f;
-constexpr float SWORD_KNOCKBACK			= 2.0f;
+constexpr float HAMMER_KNOCKBACK		= 2.0f;
+constexpr float SWORD_KNOCKBACK			= 1.0f;
 constexpr float FIST_KNOCKBACK			= 0.5f;
+constexpr float BOMB_KNOCKBACK			= 200.0f;
+
+/* 
+	BOMB SPECIFIC CONSTANTS 
+*/
+constexpr float BOMB_ATTACK_RANGE	= 1.0f;	// Activation Range
+constexpr float BOMB_BLAST_RADIUS	= 8.0f;	// Blast Radius
+constexpr float BOMB_PICKUP_RADIUS	= 1.0f;	// Pick-up Radius
 
 constexpr float BASE_INVINCIBILITY_TIME = 0.2f;
 
@@ -67,18 +90,8 @@ namespace ecs
 
 			// If object is on ground.
 			bool mOnGround = false;
-		};
 
-		/*
-		* BoundingSphereComponent holds a description
-		* of a bounding sphere, which is necessary
-		* to calculate collision. Any entity that
-		* should check collision needs this.
-		*/
-		COMP(BoundingSphereComponent)
-		{
-			DirectX::XMFLOAT3 mCenter;
-			float mRadius;
+			float mLastTileY = -INFINITY;
 		};
 
 		/*
@@ -104,10 +117,9 @@ namespace ecs
 		*/
 		COMP(ObjectCollisionComponent)
 		{
-			AABB mAABB;
-
-			Sphere *mSpheres = nullptr;
-			unsigned int mSphereCount = 0;
+			BoundingVolume * mBV		= nullptr;
+			BV_TYPE mBvType				= COLLISION_ERROR;
+			GAME_OBJECT_TYPE mObjType	= GAME_OBJECT_TYPE_MESH_ERROR;
 
 			// States if the last movement resulted in collision
 			// and needs to be reverted.
@@ -115,21 +127,13 @@ namespace ecs
 
 			~ObjectCollisionComponent()
 			{
-				if (mSpheres)
+				if (mBV)
 				{
-					delete[] mSpheres;
+					delete mBV;
 				}
 			}
 		};
 
-		/*
-		* Temporary mesh component to test with ECS.
-		*/
-		COMP(MeshComponent)
-		{
-			ModelLoader::Mesh *mMesh;
-		};
-		
 		/*
 		* Holds weapon type (SWORD, PROJECTILE etc.), unspecified bounding volume,
 		* previous position for damage calculation on impact and base damage specific
@@ -170,6 +174,7 @@ namespace ecs
 		{
 			float mBaseHealth	= DEFAULT_HEALTH;
 			float mHealth		= DEFAULT_HEALTH;
+			unsigned int mHitBy = 0;
 		};
 
 		COMP(QuadTreeComponent)
@@ -190,6 +195,9 @@ namespace ecs
 
 			// Attack range is sum of weapon range and melee range.
 			float mAttackRange = 0.0f;
+
+			// How much damage the units attacks does 1 is normal.
+			float mAttackMultiplier = 1.0f;
 		};
 
 		/*
@@ -198,6 +206,19 @@ namespace ecs
 		COMP(InvincilibityTimer)
 		{
 			float mTime;
+		};
+
+		/*
+		* Holds the tile ID and tile Y-pos that the weapon should fall to.
+		*/
+		COMP(FallingWeaponComponent)
+		{
+			//I'm important! Please don't remove me Baka Master-senpai!
+			float mPosY;
+			float mPosYOffset;
+			ID mTileId;
+			XMFLOAT3 rotation;
+			ID mCarepackageId;
 		};
 	} // components
 } // ecs

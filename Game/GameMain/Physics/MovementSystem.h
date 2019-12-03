@@ -23,24 +23,6 @@ namespace ecs
 		* the z-axis being side-effects of moving in the x-y plane.
 		*/
 
-		// Applies movement changes to moving entities, and assumes
-		// no further input.
-		SYSTEM(StaticMovementSystem)
-		{
-			StaticMovementSystem();
-			virtual ~StaticMovementSystem();
-			void updateEntity(ecs::FilteredEntity & _entityInfo, float _delta) override;
-		};
-		
-		// Applies direction and velocity to entities affected by
-		// input events related to movement.
-		SYSTEM(StaticMovementUpdateSystem)
-		{
-			StaticMovementUpdateSystem();
-			virtual ~StaticMovementUpdateSystem();
-			void readEvent(ecs::BaseEvent& _event, float _delta) override;
-		};
-
 		SYSTEM(DynamicMovementSystem)
 		{
 			DynamicMovementSystem();

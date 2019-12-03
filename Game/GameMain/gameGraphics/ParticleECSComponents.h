@@ -10,7 +10,7 @@ namespace ecs
 		struct ParticleComponent : public ECSComponent<ParticleComponent>
 		{
 			DirectX::XMFLOAT3 Position;
-			char Red, Green, Blue, Scale;
+			uint8_t Red, Green, Blue, Scale;
 		};
 
 		struct ParticleSpawnerComponent : public ECSComponent<ParticleSpawnerComponent>
@@ -19,7 +19,7 @@ namespace ecs
 			float SpawnFrequency;
 			float LifeDuration;
 
-			float TimerSinceLastSpawn;
+			float TimerSinceLastSpawn = 0.0f;
 		};
 
 		// --- Specific Particle Data ---
@@ -34,7 +34,7 @@ namespace ecs
 			DirectX::XMFLOAT3 Direction;
 			float CurrentLifeDuration;
 			float TotalLifeDuration;
-			char MaxScale;
+			uint8_t MaxScale;
 		};
 
 		struct SplashSpawnerComponent : public ECSComponent<SplashSpawnerComponent>
@@ -48,7 +48,39 @@ namespace ecs
 			DirectX::XMFLOAT3 Direction;
 			float CurrentLifeDuration;
 			float TotalLifeDuration;
-			char MaxScale;
+			uint8_t MaxScale;
+		};
+
+		struct FireSpawnerComponent : public ECSComponent<FireSpawnerComponent>
+		{
+			float InitialVelocity;
+			float SpawnCount;
+		};
+
+		struct FireParticleComponent : public ECSComponent<FireParticleComponent>
+		{
+			DirectX::XMFLOAT3 Direction;
+			float CurrentLifeDuration;
+			float TotalLifeDuration;
+			uint8_t MaxScale;
+		};
+
+		struct BombSpawnerComponent : public ECSComponent<BombSpawnerComponent>
+		{
+			float InitialVelocity;
+			float SpawnCount;
+		};
+
+		struct BombParticleComponent : public ECSComponent<BombParticleComponent>
+		{
+			DirectX::XMFLOAT3 Direction;
+			float CurrentLifeDuration;
+			float TotalLifeDuration;
+			uint8_t MaxScale;
+
+			uint8_t MaxRed;
+			uint8_t MaxGreen;
+			uint8_t MaxBlue;
 		};
 	}
 }

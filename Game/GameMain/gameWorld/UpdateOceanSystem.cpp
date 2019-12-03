@@ -11,10 +11,7 @@ namespace ecs
 	{
 		UpdateOceanSystem::UpdateOceanSystem()
 		{
-			updateType = MultiEntityUpdate;
-			typeFilter.addRequirement(components::TransformComponent::typeID);
-			typeFilter.addRequirement(components::OceanTileComponent::typeID);
-			typeFilter.addRequirement(components::ColorComponent::typeID);
+			updateType = Actor;
 
 			mOceanCenter = { 0.f, 0.f, 0.f };
 			mCycleDuration = 0.f;
@@ -25,9 +22,37 @@ namespace ecs
 			//
 		}
 
-		void UpdateOceanSystem::updateMultipleEntities(EntityIterator& rEntities, float delta)
+		bool UpdateOceanSystem::Initialize(float cycleDuration)
 		{
-			mTimeElapsed += delta;
+			typeFilter.addRequirement(components::TransformComponent::typeID);
+			typeFilter.addRequirement(components::OceanTileComponent::typeID);
+			typeFilter.addRequirement(components::ColorComponent::typeID);
+
+			mOceanTiles = getEntitiesByFilter(typeFilter);
+
+			if (!mOceanTiles.entities.size())
+			{
+				return false;
+			}
+
+			XMVECTOR center = { 0.f, 0.f, 0.f };
+			XMFLOAT3 position;
+			for (FilteredEntity& tile : mOceanTiles.entities)
+			{
+				position = tile.getComponent<components::TransformComponent>()->position;
+				position.y = 0.f;
+				center += XMLoadFloat3(&position);
+			}
+			center /= (float)mOceanTiles.entities.size();
+
+			XMStoreFloat3(&mOceanCenter, center);
+			mCycleDuration = cycleDuration;
+			return true;
+		}
+
+		void UpdateOceanSystem::act(float _delta)
+		{
+			mTimeElapsed += _delta;
 
 			//while (mTimeElapsed > mCycleDuration)
 			//{
@@ -37,7 +62,7 @@ namespace ecs
 			XMFLOAT3 position;
 			float distance_to_center;
 			components::TransformComponent* p_transform;
-			for (FilteredEntity& tile : rEntities.entities)
+			for (FilteredEntity& tile : mOceanTiles.entities)
 			{
 				//components::ColorComponent* p_color = tile.getComponent<
 
@@ -50,32 +75,6 @@ namespace ecs
 
 				p_transform->position.y = sin(mTimeElapsed * distance_to_center * 0.2f) * 0.1f - 0.8f;
 			}
-		}
-
-		bool UpdateOceanSystem::Initialize(float cycleDuration)
-		{
-			typeFilter.addRequirement(components::ColorComponent::typeID);
-			EntityIterator ocean_tiles = getEntitiesByFilter(typeFilter);
-			typeFilter.removeRequirement(components::ColorComponent::typeID);
-
-			if (!ocean_tiles.entities.size())
-			{
-				return false;
-			}
-
-			XMVECTOR center = { 0.f, 0.f, 0.f };
-			XMFLOAT3 position;
-			for (FilteredEntity& tile : ocean_tiles.entities)
-			{
-				position = tile.getComponent<components::TransformComponent>()->position;
-				position.y = 0.f;
-				center += XMLoadFloat3(&position);
-			}
-			center /= (float)ocean_tiles.entities.size();
-
-			XMStoreFloat3(&mOceanCenter, center);
-			mCycleDuration = cycleDuration;
-			return true;
 		}
 	}
 }

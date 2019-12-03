@@ -6,6 +6,8 @@
 
 #include "..//gameUtility/UtilityComponents.h"
 
+#include "../gameWorld/WorldComponents.h"
+
 void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 {
 	const unsigned int OBJECTCOUNT = 12;
@@ -13,6 +15,7 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 	ecs::components::SceneObjectComponent p_scene_obj;
 	ecs::components::TransformComponent transf_comp;
 	ecs::components::ColorComponent	color_comp;
+	
 	for (size_t i = 0; i < OBJECTCOUNT; i++)
 	{
 		p_scene_obj.mObjectType = (OBJECT_TYPE)(i%3);
@@ -57,8 +60,10 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 			}
 		}
 
-		// Check occupied flag or if the tile is water
-		if (occupied || map_tile_iterator.entities[rand_index].getComponent<TileComponent>()->tileType == WATER)
+		// Check occupied flag or if the tile is water or if the tile is part of an islet.
+		if (occupied ||
+			map_tile_iterator.entities[rand_index].getComponent<TileComponent>()->tileType == WATER || 
+			map_tile_iterator.entities[rand_index].entity->hasComponentOfType<IsletComponent>())
 		{
 			continue;
 		}
@@ -76,15 +81,19 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 
 	for (FilteredEntity& r_obj : scene_obj_iterator.entities)
 	{
+		float r = rand();
+
 		p_scene_comp = r_obj.getComponent<SceneObjectComponent>();
 		p_obj_transform_comp = r_obj.getComponent<TransformComponent>();
 		p_obj_color_cmp = r_obj.getComponent<ColorComponent>();
 
 		p_tile_comp = map_tile_iterator.entities[random_tile_indicess[index]].getComponent<TileComponent>();
+		p_tile_comp->impassable = true;
 		p_tile_transform_comp = map_tile_iterator.entities[random_tile_indicess[index]].getComponent<TransformComponent>();
 
 		p_scene_comp->ChangeModelByBiome(p_tile_comp->biome);
 		p_obj_transform_comp->position = p_tile_transform_comp->position;
+		p_obj_transform_comp->rotation.y = (r / (float)RAND_MAX) * 3.14f * 2.0f;
 
 		p_obj_color_cmp->red = rand() % 130 + 50;
 		p_obj_color_cmp->green = rand() % 130 + 50;

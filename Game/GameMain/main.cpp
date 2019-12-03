@@ -51,6 +51,13 @@
 #include "gameWeapons/InitWeapons.h"
 #include "gameTraps/TrapComponents.h"
 #include "gameTraps/TrapEvents.h"
+#include "gameWorld/InitWorldScenery.h"
+#include "InitIslands.h"
+
+#include "gameWeapons/WeaponEvents.h"
+
+#include "gamePowerups/InitPowerups.h"
+#include "gamePowerups/PowerupEvents.h"
 
 #define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
@@ -101,11 +108,14 @@ int main()
 	ecs::EntityComponentSystem ecs;
 	TempUISystemPtrs my_UI_systems;
 
-	ecs.reserveComponentCount<ecs::components::TransformComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::ColorComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::TileComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(5000);
-	ecs.reserveComponentCount<ecs::components::TrapComponent>(400);
+	constexpr UINT RESERVED_COMPONENTS = 50000;
+	ecs.reserveComponentCount<ecs::components::TransformComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::ColorComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::TileComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::TrapComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::ObjectCollisionComponent>(RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::SpringRetractionComponent>(RESERVED_COMPONENTS);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -120,6 +130,8 @@ int main()
 		#######################   From here on, all initialization is expected to be finished.   #######################
 		 #############################                                                    ############################# 
 	*/
+
+
 
 	/*
 		-- Show Window --
@@ -141,7 +153,7 @@ int main()
 	int kill_me = 0;
 	while (wnd.IsOpen())
 	{
-		if (!wnd.Update())
+		if (!wnd.Update()/* && graphics::HasFocus(wnd)*/)
 		{ 
 			// Close window when user press Esc
 			if (GetAsyncKeyState(VK_ESCAPE))
@@ -161,27 +173,15 @@ int main()
 				ecs.removeSystem<ecs::systems::UpdateCameraSystem>();
 				ecs.createSystem<ecs::systems::UpdateDynamicCameraSystem>(0);
 			}
+			// RESTART THE GAME WITH O
+			if (GetAsyncKeyState('C'))
+			{
+				events::GameReStartEvent eve;
+				ecs.createEvent(eve);
+			}
 
 			if (GetAsyncKeyState(VK_SPACE) && start_once)
 			{
-				{
-					ecs::events::PlayMusic m_event;
-					m_event.audioName = AudioName::CC_TEST_SONG;
-					ecs.createEvent(m_event);
-				}
-				{
-					ecs::events::MusicSetVolume m_event;
-					m_event.volume = 0.0f;
-					ecs.createEvent(m_event);
-				}
-				{
-					ecs::events::FadeInMusic m_event;
-					m_event.fadeInTimeInSeconds = 2.0f;
-					ecs.createEvent(m_event);
-				}
-				
-				
-
 				start_once = false;
 			}
 
@@ -215,6 +215,58 @@ int main()
 	return 0;
 
 }
+void DebuggFunctions(EntityComponentSystem& rECS)
+{
+	// FOR DEBBUGING TRAPS: SPAWNS TRAPS OVER THE WHOLE MAP
+	//events::PlaceTrapEvent place_event;
+	//place_event.type = GAME_OBJECT_TYPE_TRAP_SPRING;
+	//components::TileComponent* p_tile;
+	//TypeFilter tile_filter;
+	//tile_filter.addRequirement(components::TileComponent::typeID);
+	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+	//for (FilteredEntity tile : tiles.entities)
+	//{
+	//	p_tile = tile.getComponent<components::TileComponent>();
+	//	if (p_tile->tileType != WATER)
+	//	{
+	//		place_event.tileID = p_tile->getEntityID();
+	//		place_event.type = (GAME_OBJECT_TYPES)((GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1) + rand() % TRAP_TYPE_COUNT);
+	//
+	//		//if (place_event.type != GAME_OBJECT_TYPE_TRAP_FIRE)
+	//		//{
+	//		//	continue;
+	//		//}
+	//
+	//		rECS.createEvent(place_event);
+	//	}
+	//}
+
+	events::PlaceTrapEvent spawn_event;
+	TypeFilter tile_filter;
+	tile_filter.addRequirement(ecs::components::TileComponent::typeID);
+	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+
+	GAME_OBJECT_TYPES traps[] =
+	{
+		//GAME_OBJECT_TYPE_TRAP_SPIKES,
+		//GAME_OBJECT_TYPE_TRAP_FIRE,
+		GAME_OBJECT_TYPE_TRAP_SPRING,
+	};
+
+	int count = 0;
+	for (FilteredEntity tile : tiles.entities)
+	{
+		components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
+		if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
+		{
+			spawn_event.type = traps[rand() % (sizeof(traps) / sizeof(GAME_OBJECT_TYPES))];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
+			spawn_event.tileID = p_tile->getEntityID();
+			rECS.createEvent(spawn_event);
+		}
+
+		count++;
+	}
+}
 
 void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight)
 {
@@ -241,9 +293,15 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitInput(rECS);
 	InitInterpreter(rECS);
 
+	InitPhysics(rECS);
 	InitGrid(rECS);
 	InitArmy(rECS);
 	InitSceneObjects(rECS);
+
+	CreateCollisionForTiles(rECS);
+	CreateCollisionForSceneObjects(rECS);
+
+	InitIslands(rECS);
 
 	InitOceanEntities(rECS);
 	InitOceanUpdateSystem(rECS);
@@ -251,7 +309,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitCamera(rECS);
 
 	InitAnimation(rECS);
-	InitPhysics(rECS, MeshContainer::GetMeshCPU(GAME_OBJECT_TYPE_UNIT));
 
 	InitGameLoop(rECS);
 
@@ -273,16 +330,21 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
-
 	InitUI(rECS, ui_systems);
 	initArmyText(rECS);
 
 	InitWeapons(rECS);
 
 	InitTraps(rECS);
+	InitPowerups(rECS);
+
+	InitWorldScenery(rECS);
 
 	InitHttpServer(rECS);
 
+
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
+
+	//DebuggFunctions(rECS);
 }

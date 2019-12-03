@@ -69,6 +69,16 @@ namespace ecs
 		private:
 		};
 
+		// Starts the game, launches the correct phase after reading event
+		class GameReStartSystem : public ecs::ECSSystem<GameReStartSystem>
+		{
+		public:
+			GameReStartSystem();
+			~GameReStartSystem();
+			void readEvent(BaseEvent& event, float delta) override;
+		private:
+		};
+
 		// Starts the round and initalizes the units and its components for each army
 		class RoundStartSystem : public ecs::ECSSystem<RoundStartSystem>
 		{
@@ -81,7 +91,7 @@ namespace ecs
 			void CreateUnitPhysics();
 
 			// Creates a weapon out of a mesh and weapon type. (weapon, transform and mesh components)
-			ecs::Entity* CreateWeaponEntity(ModelLoader::Mesh* pMesh, GAME_OBJECT_TYPE weaponType, ID ownerEntity = 0);
+			ecs::Entity* CreateWeaponEntity(GAME_OBJECT_TYPE weaponType, ID ownerEntity = 0);
 		};
 
 		// Ends the round and sets a winner, also cheks if someone has won

@@ -9,19 +9,19 @@
 #include "PhysicsEvents.h"
 
 // Must be called after InitMesh and InitArmy.
-void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh *ppMmeshes);
+void InitPhysics(ecs::EntityComponentSystem& rEcs);
 
 // Create every system needed for physics.
 void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs);
 
 // Create every necessary component for entities with unit components.
-void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh *pMesh);
+void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs);
 
 // LEAVING THIS FOR NOW, MAY BE UNNECCESARY.
-void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh);
+void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs);
 
 // Creates a weapon out of a mesh and weapon type. (weapon, transform and mesh components)
-ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, GAME_OBJECT_TYPE weaponType, ID ownerEntity = 0);
+ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, GAME_OBJECT_TYPE weaponType, ID ownerEntity = 0);
 
 // Set parameter direction to movement component forward and move forward.
 void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, XMFLOAT3 direction);
@@ -29,10 +29,10 @@ void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, XMFLOAT3 directio
 // Move in direction of parameter input while keeping forward.
 void MoveEntity(ecs::EntityComponentSystem& rEcs, ID entityID, MovementInputs input);
 
-inline void InitPhysics(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* ppMeshes)
+inline void InitPhysics(ecs::EntityComponentSystem& rEcs)
 {
 	CreatePhysicsSystems(rEcs);
-	CreatePhysicsComponentsForUnits(rEcs, ppMeshes);
+	CreatePhysicsComponentsForUnits(rEcs);
 }
 
 inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
@@ -44,13 +44,13 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 
 	// Movement
 	rEcs.createSystem<ecs::systems::DynamicMovementInitSystem>();
-	rEcs.createSystem<ecs::systems::DynamicMovementSystem>();
+	rEcs.createSystem<ecs::systems::DynamicMovementSystem>(3);
 
 	// Collision
 	rEcs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
-	rEcs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
-	rEcs.createSystem<ecs::systems::ObjectCollisionSystem>();
-	rEcs.createSystem<ecs::systems::GroundCollisionSystem>();
+	//rEcs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
+	rEcs.createSystem<ecs::systems::ObjectCollisionSystem>(4);
+	//rEcs.createSystem<ecs::systems::GroundCollisionSystem>();
 
 	// Fighting
 	rEcs.createSystem<ecs::systems::WeaponInitSystem>();
@@ -59,44 +59,65 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 
 	// Color
 	rEcs.createSystem<ecs::systems::UnitColorSwitchSystem>();
+
+	// OnHit
+	rEcs.createSystem<ecs::systems::WeaponOnHitSystem>();
 }
 
-inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh * pMesh)
+inline void CreatePhysicsComponentsForUnits(ecs::EntityComponentSystem& rEcs)
 {
 	
 }
 
-inline void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh)
+inline void CreateCollisionForSceneObjects(ecs::EntityComponentSystem& rEcs)
 {
 	TypeFilter filter;
 	filter.addRequirement(SceneObjectComponent::typeID);
+	filter.addRequirement(TransformComponent::typeID);
 
 	EntityIterator it = rEcs.getEntititesByFilter(filter);
+
+	ObjectCollisionComponent collision;
+	collision.mBvType = COLLISION_AABB;
+
+	// Creating a BV for each scene object and making the tile impassable.
 	for (int i = 0; i < it.entities.size(); i++)
 	{
 		ID current_id = it.entities.at(i).entity->getID();
-		TransformComponent* scene_transform = static_cast<TransformComponent*>(rEcs.getComponent(TransformComponent::typeID, current_id));
+		
+		TransformComponent* scene_transform = static_cast<TransformComponent*>(rEcs.getComponentFromEntity(TransformComponent::typeID, current_id));
 		int2 scene_tile_index = GridFunctions::GetTileFromWorldPos(scene_transform->position.x, scene_transform->position.z);
 
-		TileData tile_data = GridProp::GetInstance()->mGrid[scene_tile_index.y][scene_tile_index.x];
-		// If tile is made not passable by scene object, add collision to scene object.
-		if (!tile_data.isPassable)
+		TileData *tile_data = &GridProp::GetInstance()->mGrid[scene_tile_index.y][scene_tile_index.x];
+		
+		SceneObjectComponent* scene_component = static_cast<SceneObjectComponent*>(rEcs.getComponentFromEntity(SceneObjectComponent::typeID, current_id));
+		collision.mObjType = scene_component->mObject;
+
+		if (collision.mObjType == GAME_OBJECT_TYPE_FRUITTREE)
 		{
-			SceneObjectComponent* scene_component = static_cast<SceneObjectComponent*>(rEcs.getComponent(SceneObjectComponent::typeID, current_id));
+			collision.mObjType = GAME_OBJECT_TYPE_TREE_TRUNK;
 		}
+		rEcs.createComponent<ObjectCollisionComponent>(current_id, collision);
+		tile_data->isPassable = false;
+		static_cast<TileComponent*>(rEcs.getComponentFromEntity(TileComponent::typeID, tile_data->Id))->impassable = true;
+		
+		// Scaling BV of crystal since it's very big UwU.
+		if (collision.mObjType == GAME_OBJECT_TYPE_GIANTSKULL)
+		{
+			ObjectCollisionComponent* p_collision = static_cast<ObjectCollisionComponent*>(rEcs.getComponentFromEntity(ObjectCollisionComponent::typeID, current_id));
+			p_collision->mBV->Transform(XMMatrixScaling(0.5f, 1.0f, 0.5f));
+		}
+		
 	}
-	// TODO : Get scene objects and add object collision components to them.
 }
 
-ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::Mesh* pMesh, GAME_OBJECT_TYPE weaponType, ID ownerEntity)
+ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, GAME_OBJECT_TYPE weaponType, ID ownerEntity)
 {
 	WeaponComponent		weapon_component;
 	TransformComponent	weapon_transform_component;
-	MeshComponent		weapon_mesh_component;
 
 	weapon_component.mType = weaponType;
-	weapon_component.mOwnerEntity = ownerEntity;
-	weapon_mesh_component.mMesh = pMesh;
+	weapon_component.mOwnerEntity = ownerEntity;	
 
 	switch (weaponType)
 	{
@@ -111,7 +132,7 @@ ecs::Entity* CreateWeaponEntity(ecs::EntityComponentSystem& rEcs, ModelLoader::M
 		break;
 	}
 	 
-	return rEcs.createEntity(weapon_mesh_component, weapon_transform_component, weapon_component);
+	return rEcs.createEntity(weapon_transform_component, weapon_component);
 }
 
 inline void MoveEntity(ecs::EntityComponentSystem &rEcs, ID entityID, XMFLOAT3 direction)

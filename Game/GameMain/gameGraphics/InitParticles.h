@@ -4,26 +4,52 @@
 #include "ParticleECSComponents.h"
 #include "ParticleECSSystems.h"
 
-#define ECS_MAXIMUM_SMOKE_PARTICLES		(2000)
-#define ECS_MAXIMUM_SPLASH_PARTICLES	(2000)
+/*
+	!!!	IMPORTANT : READ BEFORE ADDING PARTICLE SYSTEM !!!
 
-#define ECS_MAXIMUM_PARTICLES			(ECS_MAXIMUM_SMOKE_PARTICLES + ECS_MAXIMUM_SPLASH_PARTICLES)
+	Make sure 'ECS_MAXIMUM_PARTICLE_SYSTEMS_PER_TYPE' has the correct value
+
+	Add new particle type to the list below
+*/
+constexpr uint32_t ECS_MAXIMUM_PARTICLE_SYSTEMS_PER_TYPE = 4; // Change this if adding or removing system
+
+constexpr uint32_t ECS_MAXIMUM_PARTICLES_PER_TYPE = 4000;
+constexpr uint32_t ECS_MAXIMUM_PARTICLES = ECS_MAXIMUM_PARTICLES_PER_TYPE * ECS_MAXIMUM_PARTICLE_SYSTEMS_PER_TYPE;
+
+
+template<class SpawnerSystem, class UpdateSystem, class ParticleComponent>
+void CreateParticleType(ecs::EntityComponentSystem& rECS)
+{
+	rECS.reserveComponentCount<ParticleComponent>(ECS_MAXIMUM_PARTICLES_PER_TYPE);
+	rECS.createSystem<SpawnerSystem>(7);
+	rECS.createSystem<UpdateSystem>(8);
+}
 
 void InitParticles(ecs::EntityComponentSystem& rECS)
 {
+	// !! DO NOT TOUCH !!
 	rECS.reserveComponentCount<ecs::components::ParticleComponent>(ECS_MAXIMUM_PARTICLES);
-	rECS.reserveComponentCount<ecs::components::SmokeParticleComponent>(ECS_MAXIMUM_SMOKE_PARTICLES);
-	rECS.reserveComponentCount<ecs::components::SplashParticleComponent>(ECS_MAXIMUM_SPLASH_PARTICLES);
-
-	/*
-		Create Particle Emitter Systems (Layer 7)
-	*/
-	rECS.createSystem<ecs::systems::SmokeSpawnerSystem>(7);
-	rECS.createSystem<ecs::systems::SplashSpawnerSystem>(7);
-
+	
 	/* 
-		Create Particle Update Systems (Layer 8)
+		THIS IS THE !! LIST !! 
+
+		Here you can simply just add a new line for the desired particle system
+
+		! REMINDER ! 
+		Create your own:
+			- Spawner System
+			- Update System
+			- Type Specific Particle and Spawner (Components)
+
+		Files can be found in Graphics -> ECS
+
+			'ParticleECSComponents.h'
+			'ParticleECSSystems.h'
+			'ParticleECSSystems.cpp'
 	*/
-	rECS.createSystem<ecs::systems::SmokeUpdateSystem>(8);
-	rECS.createSystem<ecs::systems::SplashUpdateSystem>(8);
+
+	CreateParticleType<SmokeSpawnerSystem, SmokeUpdateSystem, SmokeParticleComponent>(rECS);
+	CreateParticleType<SplashSpawnerSystem, SplashUpdateSystem, SplashParticleComponent>(rECS);
+	CreateParticleType<FireSpawnerSystem, FireUpdateSystem, FireParticleComponent>(rECS);
+	CreateParticleType<BombSpawnerSystem, BombUpdateSystem, BombParticleComponent>(rECS);
 }

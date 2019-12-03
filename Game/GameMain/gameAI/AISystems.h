@@ -12,18 +12,18 @@
 #include <iostream>
 #include "../../Physics/includes/PhysicsHelperFunctions.h"
 #include "../gameAnimation/AnimationComponents.h"
-
 #include "../UI/UIComponents.h"
-
 #include "../../AI/includes/AIGlobals.h"
 #include "../GameGlobals.h"
-
-#include "../gameGraphics/ParticleECSComponents.h"
+#include "../gameGraphics/ParticleECSComponents.h"	
 #include "../gameAudio/AudioECSEvents.h"
 
 
 constexpr float DEFAULT_USAGE_OF_TILE = 0.2; //20%
 constexpr float DEFAULT_TILE_SIDE_LENGTH = 0.866025403784438646763723170752f;//this value is sqrt(3)/2 that is the length to one side if the tile if radius is 1
+constexpr float SIZE_REWARD		= 1.1f;
+constexpr float HEALTH_REWARD	= 0.2f;
+constexpr float ATTACK_REWARD	= 1.1f;
 namespace ecs
 {
 	namespace systems
@@ -58,6 +58,7 @@ namespace ecs
 			int2 GetClosestTile(TransformComponent& transform);
 		private:
 			unsigned int FindClosestEnemy(ecs::Entity* current_unit);
+			unsigned int FindClosestFriendWithoutWeapon(ecs::Entity* current_unit);
 			unsigned int FindClosestFriend(ecs::Entity* current_unit);
 			unsigned int FindSafeTile(ecs::Entity* current_unit);
 			unsigned int FindClosestLootTile(ecs::Entity* current_unit);
@@ -135,9 +136,6 @@ namespace ecs
 			//Update function that checks so that the units target is still alive and within attack range otherwise
 			//it makes the unit path to a new enemy target.
 			void updateEntity(FilteredEntity& entity, float delta) override;
-		private:
-			//Switch to the next units next state
-			void SwitchState(FilteredEntity& entity, STATE newState);	
 		};
 
 		/*
@@ -189,6 +187,19 @@ namespace ecs
 		public:
 			PotentialArmyHazardSystem();
 			virtual ~PotentialArmyHazardSystem();
+
+			//Update function that calculates the armies hazard influence on each tile.
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
+
+		/*
+			A system that creates a random command for a CPU player in a given time interval.
+		*/
+		class AIPlayerSystem : public ECSSystem<AIPlayerSystem>
+		{
+		public:
+			AIPlayerSystem();
+			virtual ~AIPlayerSystem();
 
 			//Update function that calculates the armies hazard influence on each tile.
 			void updateEntity(FilteredEntity& entity, float delta) override;

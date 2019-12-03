@@ -35,6 +35,7 @@
     <ClInclude Include="TestPlugins.h" />
     <ClInclude Include="TestSuite1.hpp" />
     <ClInclude Include="TestSuite2.hpp" />
+    <ClInclude Include="TestSuite3.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp" />
