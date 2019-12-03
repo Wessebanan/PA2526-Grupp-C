@@ -4,7 +4,7 @@
 #include "../../../ModelLoader/ModelLoader/includes/Mesh.h"
 
 // Minimum size of bone
-#define MINIMUM_BONE_SIZE  1.0f
+#define MINIMUM_BONE_SIZE  0.1f
 
 // Maximum time slice to use for processing (10ms)
 #define MAXIMUM_TIME_SLICE 0.01f

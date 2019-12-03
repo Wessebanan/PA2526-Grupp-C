@@ -42,7 +42,9 @@ void Ragdoll::GetBoundingBoxSize(ModelLoader::Joint* pJoint, DirectX::XMFLOAT3* 
 				// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
 				// ¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&-¤%&
 				// Transform vertex by bone offset transformation
-				XMStoreFloat3(&vertices[i], XMVector3TransformCoord(XMLoadFloat3(&vertices[i]), mat_inv_bone));
+
+				// Since the mesh is loaded in tpose, is this even needed? Currently experimenting, may be wrong in case anyone reads this in the future
+				//XMStoreFloat3(&vertices[i], XMVector3TransformCoord(XMLoadFloat3(&vertices[i]), mat_inv_bone));
 
 				// Get min/max values
 				vec_min.x = min(vec_min.x, vertices[i].x);
@@ -165,7 +167,8 @@ void Ragdoll::BuildBoneData(DWORD boneNum, RagdollBone* pParentBone)
 		// Store state quaternion-based orientation
 		// We need to inverse it the quaternion due to the fact 
 		// that we're using a left-handed coordinate system
-		XMStoreFloat4(&bone->mState.mQuatOrientation, XMQuaternionInverse(XMQuaternionRotationMatrix(XMLoadFloat4x4(&this->mpUniqueSkeletonData->frameData[boneNum]))));
+		/*XMStoreFloat4(&bone->mState.mQuatOrientation, XMQuaternionInverse(XMQuaternionRotationMatrix(XMLoadFloat4x4(&this->mpUniqueSkeletonData->frameData[boneNum]))));*/
+		XMStoreFloat4(&bone->mState.mQuatOrientation, XMQuaternionInverse(XMQuaternionRotationMatrix(XMMatrixIdentity())));
 
 		// Clear angular momentum
 		bone->mState.mVecAngularMomentum = XMFLOAT3(0.0f, 0.0f, 0.0f);
