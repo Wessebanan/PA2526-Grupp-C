@@ -721,6 +721,17 @@ HRESULT Direct2D::mCreateTextFormats()
 			40,
 			L"en-US",
 			&this->mpTextFormats[2]);
+
+		this->mpTextFactory->CreateTextFormat(
+			this->mfont.c_str(),
+			NULL,
+			DWRITE_FONT_WEIGHT_NORMAL,
+			DWRITE_FONT_STYLE_NORMAL,
+			DWRITE_FONT_STRETCH_NORMAL,
+			40,
+			L"en-US",
+			&this->mpTextFormats[3]);
+		this->mpTextFormats[3]->SetTextAlignment(DWRITE_TEXT_ALIGNMENT_CENTER);
 	}
 	return hr;
 }

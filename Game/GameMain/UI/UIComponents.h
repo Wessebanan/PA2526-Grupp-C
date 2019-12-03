@@ -22,6 +22,7 @@ namespace ecs
 			std::wstring mStrText; 
 
 			UITAG tag = UITAG::NOTAG;
+			unsigned int text_size = 2;
 		};
 
 		struct UIDrawPosComponent : public ECSComponent<UIDrawPosComponent>
@@ -46,6 +47,7 @@ namespace ecs
 			ID2D1Bitmap1* mpTintedBitmap = nullptr;
 			std::string mName = "";
 			unsigned int mBitmapID;
+			bool to_draw = true;
 		};
 
 		struct UIThicknessComponent : public ECSComponent<UIThicknessComponent>

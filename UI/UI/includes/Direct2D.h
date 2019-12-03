@@ -36,9 +36,10 @@ enum brushColors
 };
 enum text_sizes
 {
-	small_text	= 0,
-	medium_text = 1,
-	large_text	= 2
+	small_text			= 0,
+	medium_text			= 1,
+	large_text			= 2,
+	large_text_center	= 3
 };
 
 struct cmp_str

@@ -20,7 +20,6 @@ struct TempUISystemPtrs
 };
 
 void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture);
-void InitArmyText(ecs::EntityComponentSystem& rECS);
 void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d);
 
 
@@ -30,9 +29,9 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	//my_d2d = new Direct2D;
 	rSystemPointers.UIpreSys = rECS.createSystem<ecs::systems::UIPreRenderSystem>(8);
 	rSystemPointers.UISolid = rECS.createSystem<ecs::systems::UISolidRectSystem>(9);
+	rSystemPointers.UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>(9);
 	rSystemPointers.UITextSys = rECS.createSystem<ecs::systems::UITextSystem>(9);
 	rSystemPointers.UIrectSys = rECS.createSystem<ecs::systems::UIRectSystem>(9);
-	rSystemPointers.UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>(9);
 	rSystemPointers.UIDebugSys = rECS.createSystem<ecs::systems::UIDebugSystem>(9);
 	rSystemPointers.UICountDown = rECS.createSystem<ecs::systems::UICountDownSystem>(9);
 	rSystemPointers.UIpostSys = rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
@@ -131,11 +130,6 @@ void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)
 	surface->Release();
 }
 
-void InitArmyText(ecs::EntityComponentSystem& rECS)
-{
-	rECS.createSystem<ecs::systems::UIUpdateSystem>();
-}
-
 void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 {
 	ecs::components::UIBitmapComponent bitmap_comp;
@@ -152,12 +146,14 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = 300;
 	pos_comp.mDrawArea.bottom = 300;
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 117, 1, 1);
+	//d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 117, 1, 1);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 157, 2, 2);
 	rECS.createEntity(bitmap_comp, pos_comp);//top left
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Background.png", "Background");
 	bitmap_comp.mpTintedBitmap = nullptr;
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 74, 1, 117);
+	//d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 74, 1, 117);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 117, 4, 177);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = 0;
 	pos_comp.mDrawArea.right = width;
@@ -166,7 +162,8 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Background.png", "Background");
 	bitmap_comp.mpTintedBitmap = nullptr;
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 47, 62, 236);
+	//d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 47, 62, 236);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 60, 72, 260);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = 300;
@@ -175,7 +172,8 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Background.png", "Background");
 	bitmap_comp.mpTintedBitmap = nullptr;
-	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 0, 93, 5);
+	//d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 0, 93, 5);
+	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 0, 153, 10);
 	pos_comp.mDrawArea.left = width - 300;
 	pos_comp.mDrawArea.top = height - 300;
 	pos_comp.mDrawArea.right = width;

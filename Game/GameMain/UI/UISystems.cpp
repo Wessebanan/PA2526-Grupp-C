@@ -3,6 +3,8 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameGameLoop/GameLoopEvents.h"
 #include "../gameGameLoop/GameLoopComponents.h"
+#include "AIGlobals.h"
+
 
 
 using namespace ecs;
@@ -28,7 +30,7 @@ void UITextSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 	components::UIDrawPosComponent* UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
 	components::UIDrawColorComponent* UI_color_comp = _entityInfo.getComponent<components::UIDrawColorComponent>();
 	
-	mpD2D->PrintText(UITextComp->mStrText, UI_pos_comp->mDrawArea, UI_color_comp->mColor);
+	mpD2D->PrintText(UITextComp->mStrText, UI_pos_comp->mDrawArea, UI_color_comp->mColor, UITextComp->text_size);
 }
 
 UIBitmapSystem::UIBitmapSystem()
@@ -49,14 +51,16 @@ void UIBitmapSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 	components::UIBitmapComponent* p_UI_bitmap_comp = _entityInfo.getComponent<components::UIBitmapComponent>();
 
 	//mpD2D->SetBitmapTint(p_UI_bitmap_comp->mpBitmap);
-
-	if (p_UI_bitmap_comp->mpTintedBitmap)
+	if(p_UI_bitmap_comp->to_draw)
 	{
-		mpD2D->DrawBitmap(p_UI_bitmap_comp->mpTintedBitmap, UI_pos_comp->mDrawArea);
-	}
-	else
-	{
-		mpD2D->DrawBitmap(p_UI_bitmap_comp->mpBitmap, UI_pos_comp->mDrawArea);
+		if (p_UI_bitmap_comp->mpTintedBitmap)
+		{
+			mpD2D->DrawBitmap(p_UI_bitmap_comp->mpTintedBitmap, UI_pos_comp->mDrawArea);
+		}
+		else
+		{
+			mpD2D->DrawBitmap(p_UI_bitmap_comp->mpBitmap, UI_pos_comp->mDrawArea);
+		}
 	}
 }
 
@@ -159,8 +163,8 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 
 	std::wstring ss = L"";
 
-	itt = getComponentsOfType(components::GameLoopComponent::typeID);
-	components::GameLoopComponent* p_gl = (components::GameLoopComponent*)itt.next();
+	//itt = getComponentsOfType(components::GameLoopComponent::typeID);
+	//components::GameLoopComponent* p_gl = (components::GameLoopComponent*)itt.next();
 	itt = getComponentsOfType(components::UserNameComponent::typeID);
 	components::UserNameComponent* p_name_comp = (components::UserNameComponent*)itt.next();
 
@@ -170,25 +174,25 @@ void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, flo
 
 		We can update the name of all the playesr when the UI has bitmais instead of hwo it is now
 	*/
-	ss.append(L"Score: ");
-	if (p_gl != nullptr)
-	{
-		ss.append(std::to_wstring(p_gl->mPlayerPoints[(int)p_army->playerID]));
-	}
-	ss.append(L"\n");
-	ss.append(L"Name: ");
+	//ss.append(L"Score: ");
+	//if (p_gl != nullptr)
+	//{
+	//	ss.append(std::to_wstring(p_gl->mPlayerPoints[(int)p_army->playerID]));
+	//}
+	//ss.append(L"\n");
+	//ss.append(L"Name: ");
 	std::string player_name = p_name_comp->names[(int)p_army->playerID];
 	ss.append(std::wstring(player_name.begin(),player_name.end()));
-	ss.append(L"\n");
-	ss.append(L"Health:\n");
-	for (size_t i = 0; i < p_army->unitIDs.size(); i++)
-	{
-		components::HealthComponent* p_unit_hp_comp = getComponentFromKnownEntity<components::HealthComponent>(p_army->unitIDs[i]);
-		components::UIBitmapComponent* p_bitmap_comp = getComponentFromKnownEntity<components::UIBitmapComponent>(p_army->unitIDs[i]);
-		
-		ss.append(std::to_wstring((int)p_unit_hp_comp->mHealth));
-		ss.append(L"\n");
-	}
+	//ss.append(L"\n");
+	//ss.append(L"Health:\n");
+	//for (size_t i = 0; i < p_army->unitIDs.size(); i++)
+	//{
+	//	components::HealthComponent* p_unit_hp_comp = getComponentFromKnownEntity<components::HealthComponent>(p_army->unitIDs[i]);
+	//	components::UIBitmapComponent* p_bitmap_comp = getComponentFromKnownEntity<components::UIBitmapComponent>(p_army->unitIDs[i]);
+	//	
+	//	ss.append(std::to_wstring((int)p_unit_hp_comp->mHealth));
+	//	ss.append(L"\n");
+	//}
 
 
 	p_text->mStrText = ss;
@@ -334,6 +338,8 @@ void ecs::systems::UIOverlayInitSystem::readEvent(BaseEvent& _event, float _delt
 
 	UIUnitReader* p_unit_reader_comp;
 	ArmyComponent* p_army_comp;
+	ComponentIterator itt = getComponentsOfType(components::UserNameComponent::typeID);
+	components::UserNameComponent* p_name_comp = (components::UserNameComponent*)itt.next();
 	for (FilteredEntity ui_unit : ui_units.entities)
 	{
 		p_army_comp = nullptr;
@@ -345,6 +351,9 @@ void ecs::systems::UIOverlayInitSystem::readEvent(BaseEvent& _event, float _delt
 			ArmyComponent* p_army = army.getComponent<ArmyComponent>();
 			if (p_unit_reader_comp->playerID == p_army->playerID)
 			{
+				std::string player_name = p_name_comp->names[(int)p_army->playerID];
+				//ss.append(std::wstring(player_name.begin(), player_name.end()));
+				getComponentFromKnownEntity<UITextComponent>(p_army->getEntityID())->mStrText = std::wstring(player_name.begin(), player_name.begin()+10);
 				p_army_comp = p_army;
 				break;
 			}
@@ -372,18 +381,33 @@ void ecs::systems::UIUnitColorUpdateSystem::updateEntity(FilteredEntity& uiUnit,
 	UIUnitReader* p_unit_reader_comp = uiUnit.getComponent<UIUnitReader>();
 	UIBitmapComponent* p_bitmap_comp = uiUnit.getComponent<UIBitmapComponent>();
 	ColorComponent* p_color_comp = getComponentFromKnownEntity<ColorComponent>(p_unit_reader_comp->unitID);
-	
+	HealthComponent* p_health_comp = getComponentFromKnownEntity<HealthComponent>(p_unit_reader_comp->unitID);
+	//ArmyComponent* p_army_comp = getComponentFromKnownEntity<ArmyComponent>(p_unit_reader_comp->playerID);
+	int player_ID = p_unit_reader_comp->playerID;
 	/*
 		Check if unit exist, else set default color.
 	*/
-
+	Color army_colors[] =
+	{
+		PLAYER1_COLOR,
+		PLAYER2_COLOR,
+		PLAYER3_COLOR,
+		PLAYER4_COLOR
+	};
 	if (p_color_comp)
 	{
-		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap, p_color_comp->red, p_color_comp->green, p_color_comp->blue);
+		p_bitmap_comp->to_draw = true;
+		/*mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap,
+			std::floorf((float)army_colors[player_ID].r * p_health_comp->mHealth / p_health_comp->mBaseHealth),
+			std::floorf((float)army_colors[player_ID].g * p_health_comp->mHealth / p_health_comp->mBaseHealth),
+			std::floorf((float)army_colors[player_ID].b * p_health_comp->mHealth / p_health_comp->mBaseHealth));*/
+
+		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap, p_color_comp->red, p_color_comp->green, p_color_comp->blue); //with flashes
 	}
 	else
 	{
-		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap, 0, 0, 1);
+		//mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap, 255, 255, 255, 0);
+		p_bitmap_comp->to_draw = false;
 	}
 }
 

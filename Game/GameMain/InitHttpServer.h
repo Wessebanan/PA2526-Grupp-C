@@ -9,7 +9,7 @@ void InitHttpServer(ecs::EntityComponentSystem& rECS)
 {
 	HttpServer::RunHttpServer("../Sites/newSite.html", "../Sites/favicon.ico");
 	UITextComponent text;
-	UIIWant box_i_want;
+	//UIIWant box_i_want;
 	std::string text_str;
 	HttpServer::GetLocalIp4(text_str);
 
