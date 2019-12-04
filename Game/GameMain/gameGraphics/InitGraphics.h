@@ -3,6 +3,7 @@
 #include "ecs.h"
 #include "GraphicsECSSystems.h"
 #include "../Renderers/Renderers.h"
+#include "..//gameUtility/GlobalsCamera.h"
 
 
 struct WorldMeshData
@@ -90,9 +91,9 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 
 	p_pfComp->pipelineDesc.ClientWidth = clientWidth;
 	p_pfComp->pipelineDesc.ClientHeight = clientHeight;
-	p_pfComp->pipelineDesc.Fov = 3.14f / 2.0f;
-	p_pfComp->pipelineDesc.NearPlane = 1.0f;
-	p_pfComp->pipelineDesc.FarPlane = 100.0f;
+	p_pfComp->pipelineDesc.Fov = CameraDefines::fovAngle;
+	p_pfComp->pipelineDesc.NearPlane = CameraDefines::nearPlane;
+	p_pfComp->pipelineDesc.FarPlane = CameraDefines::farPlane;
 	p_pfComp->pipelineDesc.ClearColor[0] = 0.45f;
 	p_pfComp->pipelineDesc.ClearColor[1] = 0.35f;
 	p_pfComp->pipelineDesc.ClearColor[2] = 1.00f;
