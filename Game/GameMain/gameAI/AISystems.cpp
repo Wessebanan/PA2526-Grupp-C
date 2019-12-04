@@ -712,6 +712,7 @@ ecs::systems::MoveStateSystem::MoveStateSystem()
 	typeFilter.addRequirement(DynamicMovementComponent::typeID);
 	typeFilter.addRequirement(EquipmentComponent::typeID);
 	typeFilter.addRequirement(ObjectCollisionComponent::typeID);
+	typeFilter.addRequirement(UnitComponent::typeID);
 }
 
 ecs::systems::MoveStateSystem::~MoveStateSystem()
@@ -741,6 +742,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 	ObjectCollisionComponent* p_collision_comp = entity.getComponent<ObjectCollisionComponent>();
 	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
 	TransformComponent* p_goal = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_move_comp->goalID);
+	UnitComponent* p_unit = entity.getComponent<UnitComponent>();
 	float distance = 1000.0f;
 	if (p_goal != nullptr)
 	{
@@ -806,10 +808,10 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 		p_dyn_move->mForward.x = curr_tile_x / length;
 		p_dyn_move->mForward.z = curr_tile_z / length;
 		length_of_vector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
-		if (XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_move_comp->lastPos) - XMLoadFloat3(&p_transform->position))) > 0.1f)
-		{
-			p_move_comp->timeSinceStuck = 0.f;
-		}
+		//if (XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_move_comp->lastPos) - XMLoadFloat3(&p_transform->position))) > 3.0f)
+		//{
+		//	p_move_comp->timeSinceStuck = 0.f;
+		//}
 
 		if (ECSUser::getComponentFromKnownEntity<UnitComponent>(p_goal->getEntityID()))//if the target is a unit we check y-value from same origin
 		{
@@ -845,34 +847,44 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 				createEvent(jump);
 			}
 		}
-
-		if(p_move_comp->timeSinceStuck >= 2.0f)
+		if(p_unit->timeSinceStuck >= 1.0f)
 		{
-			std::cout << "JUMP BECAUSE STUCK \n";
-			jump_vector.x = p_goal->position.x - p_transform->position.x;
-			jump_vector.y = p_goal->position.y - p_dyn_move->mLastTileY;
-			jump_vector.z = p_goal->position.z - p_transform->position.z;
+			p_unit->timeSinceStuck = 0.f;
+			if(p_unit->length < 0.1f && p_dyn_move->mOnGround)
+			{
+				std::cout << "JUMP BECAUSE STUCK " << rand() << "\n";
+				
+				jump_vector.x = p_goal->position.x - p_transform->position.x;
+				jump_vector.y = p_goal->position.y - p_dyn_move->mLastTileY;
+				jump_vector.z = p_goal->position.z - p_transform->position.z;
 
-			jump_vector.x /= 7.f;
-			jump_vector.y *= 8.f;
-			jump_vector.z /= 7.f;
+				jump_vector.x *= -1.f / 4.f;
+				//jump_vector.x = 0.f;
+				//jump_vector.y = 1.f;
+				jump_vector.y *= 3.f;
+				//jump_vector.z = 0.f;
+				jump_vector.z *= -1.f / 4.f;
 
-			ForceImpulseEvent jump;
-			XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&jump_vector)));//normalize the jump vector so that we just get direction
-			jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.2f;
-			jump.mEntityID = entity.entity->getID();
+				ForceImpulseEvent jump;
+				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&jump_vector)));//normalize the jump vector so that we just get direction
+				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 0.9f;
+				jump.mEntityID = entity.entity->getID();
 
-			createEvent(jump);
+				createEvent(jump);
+				
+			}
+			p_unit->length = 0.f;
 		}
 
 		MovementInputEvent move;
 		move.mInput = FORWARD;
 		move.mEntityID = entity.entity->getID();
 		createEvent(move);//creates an event to physics to move character
-		p_move_comp->lastPos = p_transform->position;
+		p_unit->length += XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_unit->lastPos) - XMLoadFloat3(&p_transform->position)));
+		p_unit->lastPos = p_transform->position;
 	}
-	p_move_comp->timeSinceStuck += delta;
 	
+	p_unit->timeSinceStuck += delta;
 }
 
 STATE ecs::systems::MoveStateSystem::CheckIfGoalIsMet(FilteredEntity& entity, float delta)

@@ -47,10 +47,8 @@ namespace ecs
 			STATE activeCommand = STATE::IDLE;
 			unsigned int goalID;
 			float time = 0.0f;
-			float timeSinceStuck = 0.0f;
-			//DirectX::XMFLOAT3 posSinceJump;
-			DirectX::XMFLOAT3 lastPos;
 			std::vector<unsigned int> path;
+			
 		};
 
 		struct FleeStateComponent : public ECSComponent<FleeStateComponent>
@@ -77,6 +75,9 @@ namespace ecs
 		struct UnitComponent : public ECSComponent<UnitComponent>
 		{
 			PLAYER playerID; //Holds an enum to know which player the unit belongs to.
+			float length = 0;
+			float timeSinceStuck = 0.0f;
+			DirectX::XMFLOAT3 lastPos;
 		};
 
 		struct ArmyComponent : public ECSComponent<ArmyComponent>
