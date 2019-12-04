@@ -48,7 +48,7 @@ namespace GridFunctions
 			top_x += 2 + holme_space;
 			top_y += 2 + holme_space;
 			float top_height = 1.2f * height_power;
-			float slope = 0.7f;
+			float slope = 0.85f;
 
 			// top
 			height_values[top_y][top_x] = top_height;
