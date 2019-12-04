@@ -308,7 +308,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		hit_event.Position		= weapon_transform_component->position;
 		hit_event.Range			= BOMB_BLAST_RADIUS;
 		hit_event.Damage		= weapon_component->mBaseDamage;
-		hit_event.Knockback		= weapon_component->mKnockback;
+		hit_event.Knockback		= weapon_component->mKnockback * BASE_KNOCKBACK;
 		hit_event.WeaponID		= weapon_component->getEntityID();
 		hit_event.OwnerUnitID	= weapon_component->mOwnerEntity;
 
@@ -559,11 +559,10 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 				// KNOCKBACK
 				ForceImpulseEvent knockback;
 				XMStoreFloat3(&knockback.mDirection, unit_weapon_v);
-				knockback.mDirection.y = (std::max)(knockback.mDirection.y, 0.0f);
-				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 
 				// Small y boost in knockback to send units FLYING.
-				knockback.mDirection.y += 2.f;
+				knockback.mDirection.y += 0.5f;
+				knockback.mDirection.y = (std::max)(knockback.mDirection.y, 0.0f);
 
 				// Normalize knockback direction so it's not CRAZY.
 				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));

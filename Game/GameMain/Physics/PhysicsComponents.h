@@ -21,10 +21,10 @@
 #define TO_UNIT_SCALE(x) (x / 0.1f)  
 
 // A bunch of default values.
-constexpr float DEFAULT_MOVEMENT_FORCE	= 300.0f;
-constexpr float DEFAULT_DECELERATION	= 200.0f;
-constexpr float DEFAULT_MAX_VELOCITY	= 20.0f;
-constexpr float DEFAULT_WEIGHT			= 250.0f;
+constexpr float DEFAULT_MOVEMENT_FORCE	= 150.0f;
+constexpr float DEFAULT_DECELERATION	= 10.0f;
+constexpr float DEFAULT_MAX_VELOCITY	= 3.0f;
+constexpr float DEFAULT_WEIGHT			= 50.0f;
 constexpr float DEFAULT_GRAVITY			= 9.82f;
 constexpr float DEFAULT_HEALTH			= 100.0f;
 
@@ -35,11 +35,12 @@ constexpr float BASE_BOMB_DAMAGE		= 1.0f;
 
 // Base knockback is a force in newtons while weapon
 // specific knockbacks are multipliers.
-constexpr float BASE_KNOCKBACK			= 30.0f;
+constexpr float BASE_KNOCKBACK			= 50.0f;
+
 constexpr float HAMMER_KNOCKBACK		= 2.0f;
 constexpr float SWORD_KNOCKBACK			= 1.0f;
 constexpr float FIST_KNOCKBACK			= 0.5f;
-constexpr float BOMB_KNOCKBACK			= 200.0f;
+constexpr float BOMB_KNOCKBACK			= 10.0f;
 
 /* 
 	BOMB SPECIFIC CONSTANTS 

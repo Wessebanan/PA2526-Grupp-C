@@ -1205,6 +1205,8 @@ ecs::systems::RemoveDeadUnitsSystem::RemoveDeadUnitsSystem()
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(DeadComponent::typeID);
 	typeFilter.addRequirement(UnitComponent::typeID);
+	typeFilter.addRequirement(HealthComponent::typeID);
+	typeFilter.addRequirement(EquipmentComponent::typeID);
 }
 
 ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
@@ -1215,9 +1217,14 @@ ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
 void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, float delta)
 {
 	// The killers ID
-	unsigned int killer_id = getComponentFromKnownEntity<HealthComponent>(entity.entity->getID())->mHitBy;
-	// DEATH EFFECTS	
-	DeadComponent* p_dead = getComponentFromKnownEntity<DeadComponent>(entity.entity->getID());
+	unsigned int killer_id = 0;
+	HealthComponent* unit_health = entity.getComponent<HealthComponent>();
+	if (unit_health)
+	{
+		killer_id = unit_health->mHitBy;
+	}
+	// DEATH EFFECTS
+	DeadComponent* p_dead = entity.getComponent<DeadComponent>();
 	if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
 	{
 		// Splash Emitter - When drowned, spawn a water splash	
@@ -1242,7 +1249,7 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 	}
 	// saved fo future use
 				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
-	UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
+	UnitComponent* p_unit = entity.getComponent<UnitComponent>();
 	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
 	ArmyComponent* p_army;
 	while (p_army = (ArmyComponent*)itt.next())
@@ -1261,7 +1268,7 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		}
 	}
 	//Fetch the units weapon data.
-	EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
+	EquipmentComponent* equipment_comp = entity.getComponent<EquipmentComponent>();
 	Entity* weapon_entity = ECSUser::getEntity(equipment_comp->mEquippedWeapon);
 	WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
 	//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
