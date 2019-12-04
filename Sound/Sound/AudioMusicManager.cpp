@@ -32,11 +32,30 @@ void Audio::Music::Manager::FadeOut(Message& rMessage, MusicVoiceData* pTarget)
 	}
 }
 
+void Audio::Music::Manager::SetSpeed(Message& rMessage, MusicVoiceData* pTarget)
+{
+	if ((rMessage.flags & M_DATA_MASK) == M_DATA_AS_PARAMETER)
+	{
+		pTarget->Sampler.SetPlayRate(rMessage.data._float);
+	}
+}
+
 void Audio::Music::Manager::ProcessMusicMessages()
 {
 	Music::Message temp_message;
 	while (mMusicMessageBuffer.remove(&temp_message))
 	{
+		// If the message is to change the tempo,
+		// we'd like to set it to all music voices at
+		// the same time
+		if ((temp_message.flags & M_FUNC_MASK) == M_FUNC_SET_SPEED)
+		{
+			SetSpeed(temp_message, &mMainData);
+			SetSpeed(temp_message, &mSecondaryData);
+			SetSpeed(temp_message, &mSubData);
+			continue;
+		}
+
 		// Select target
 		Manager::MusicVoiceData* target_data = nullptr;
 		switch (temp_message.flags & M_TARGET_MASK)

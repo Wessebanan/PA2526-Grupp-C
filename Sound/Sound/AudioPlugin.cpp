@@ -35,6 +35,11 @@ void Audio::Plugin::Sampler::SetReadPointer(Samples readPointer)
 	mReadPointer = readPointer;
 }
 
+void Audio::Plugin::Sampler::SetPlayRate(float playRate)
+{
+	mPlayRate = playRate;
+}
+
 Audio::Plugin::Status Audio::Plugin::Sampler::Progress(Samples start, Samples sampleCount, int channelCount)
 {
 	mReadPointer += sampleCount * channelCount;
