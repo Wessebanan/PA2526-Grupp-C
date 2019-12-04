@@ -60,9 +60,10 @@ struct BoundingVolume
 	virtual CollisionInfo GetCollisionInfo(BoundingVolume* bv)	= 0;
 	virtual XMFLOAT3 GetCenter()								= 0;
 	virtual XMFLOAT3 GetExtents()								= 0;
+	virtual BoundingVolume* Copy()								= 0;
 };
 
-//Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingSphere.
+// Struct inheriting from BoundingVolume (base class) and DirectX::BoundingSphere.
 struct Sphere : public BoundingVolume, BoundingSphere 
 {
 	bool Intersects(BoundingVolume* pOther);
@@ -76,8 +77,10 @@ struct Sphere : public BoundingVolume, BoundingSphere
 	CollisionInfo GetCollisionInfo(BoundingBox& rAabb);
 	CollisionInfo GetCollisionInfo(BoundingOrientedBox& rObb);
 	CollisionInfo GetCollisionInfo(BoundingCylinder& rCylinder);
+
+	BoundingVolume* Copy();
 };
-//Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingOrientedBox.
+// Struct inheriting from BoundingVolume (base class) and DirectX::BoundingOrientedBox.
 struct OBB : public BoundingVolume, BoundingOrientedBox 
 {
 	bool Intersects(BoundingVolume* pOther);
@@ -91,8 +94,10 @@ struct OBB : public BoundingVolume, BoundingOrientedBox
 	CollisionInfo GetCollisionInfo(BoundingBox& rAabb);
 	CollisionInfo GetCollisionInfo(BoundingOrientedBox& rObb);
 	CollisionInfo GetCollisionInfo(BoundingCylinder& rCylinder);
+	
+	BoundingVolume* Copy();
 };
-//Empty struct inheriting from BoundingVolume (base class) and DirectX::BoundingBox.
+// Struct inheriting from BoundingVolume (base class) and DirectX::BoundingBox.
 struct AABB : public BoundingVolume, BoundingBox 
 {
 	bool Intersects(BoundingVolume* pOther);
@@ -106,6 +111,8 @@ struct AABB : public BoundingVolume, BoundingBox
 	CollisionInfo GetCollisionInfo(BoundingBox& rAabb);
 	CollisionInfo GetCollisionInfo(BoundingOrientedBox& rObb);
 	CollisionInfo GetCollisionInfo(BoundingCylinder& rCylinder);
+
+	BoundingVolume* Copy();
 };
 
 //Axis aligned so that y is height, DO NOT ROTATE, specifically designed for tiles. 
@@ -122,4 +129,6 @@ struct Cylinder : public BoundingVolume, BoundingCylinder
 	CollisionInfo GetCollisionInfo(BoundingBox& rAabb);
 	CollisionInfo GetCollisionInfo(BoundingOrientedBox& rObb);
 	CollisionInfo GetCollisionInfo(BoundingCylinder& rCylinder);
+
+	BoundingVolume* Copy();
 };

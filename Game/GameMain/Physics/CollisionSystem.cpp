@@ -36,38 +36,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 
 	// Grabbing a copy of moving object's bounding volume.
 	
-	BoundingVolume* p_bv_copy;
-
-	switch (p_collision->mBvType)
-	{
-	case COLLISION_AABB:
-	{
-		AABB* p_object_aabb = static_cast<AABB*>(p_collision->mBV);
-		p_bv_copy = new AABB(*p_object_aabb);
-		break;
-	}
-	case COLLISION_CYLINDER:
-	{
-		Cylinder* p_object_cylinder = static_cast<Cylinder*>(p_collision->mBV);
-		p_bv_copy = new Cylinder(*p_object_cylinder);
-		break;
-	}
-	case COLLISION_OBB:
-	{
-		OBB* p_object_obb = static_cast<OBB*>(p_collision->mBV);
-		p_bv_copy = new OBB(*p_object_obb);
-		break;
-	}
-	case COLLISION_SPHERE:
-	{
-		Sphere* p_object_sphere = static_cast<Sphere*>(p_collision->mBV);
-		p_bv_copy = new Sphere(*p_object_sphere);
-		break;
-	}
-	// No BV? Get outta here.
-	default:
-		return;
-	}
+	BoundingVolume* p_bv_copy = p_collision->mBV->Copy();
 
 	XMMATRIX world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
 	p_bv_copy->Transform(world_transform);
@@ -102,71 +71,27 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		// And checking intersection.
 		CollisionInfo info;
 
-		switch (p_current_collision->mBvType)
+		BoundingVolume* p_current_copy = p_current_collision->mBV->Copy();
+		p_current_copy->Transform(current_world_transform);
+		if (p_bv_copy->Intersects(p_current_copy))
 		{
-		case COLLISION_AABB:
-		{
-			AABB aabb = *static_cast<AABB*>(p_current_collision->mBV);
-			aabb.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			if (p_bv_copy->Intersects(&aabb))
-			{
-				info = p_bv_copy->GetCollisionInfo(&aabb);
-			}
-			break;
+			info = p_bv_copy->GetCollisionInfo(p_current_copy);
 		}
-		case COLLISION_OBB:
-		{
-			OBB obb = *static_cast<OBB*>(p_current_collision->mBV);
-			obb.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			if (p_bv_copy->Intersects(&obb))
-			{
-				info = p_bv_copy->GetCollisionInfo(&obb);
-			}
-			break;
-		}
-		case COLLISION_SPHERE:
-		{
-			Sphere sphere = *static_cast<Sphere*>(p_current_collision->mBV);
-			sphere.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			if (p_bv_copy->Intersects(&sphere))
-			{
-				info = p_bv_copy->GetCollisionInfo(&sphere);
-			}
-			break;
-		}
-		case COLLISION_CYLINDER:
-		{
-			Cylinder cylinder = *static_cast<Cylinder*>(p_current_collision->mBV);
-			cylinder.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			if (p_bv_copy->Intersects(&cylinder))
-			{
-				info = p_bv_copy->GetCollisionInfo(&cylinder);
-			}
-			break;
-		}
-		}
-
+		delete p_current_copy;
+	
 		// If the objects' bounding volumes intersect.
 		if(info.mOverlap > 0.0f)
 		{
 			// Set the intersection bool because it may be useful. :)
 			intersect = true;
-
-			// If not moving in the same general direction as the collision normal, save info for later
-			// resolution.
+			
+			// Dot < 0.0f means moving towards collided object.
 			XMVECTOR velocity_direction = XMVector3Normalize(XMLoadFloat3(&p_movement->mVelocity));
 			float dot = XMVectorGetX(XMVector3Dot(velocity_direction, XMLoadFloat3(&info.mNormal)));
-			if (dot < 0.0f)
-			{
-				collisions.push_back(info);
-			}
 
 			// If the collided object is a tile.
-			if (getEntity(current_entity_id)->hasComponentOfType<TileComponent>())
+			bool is_tile = getEntity(current_entity_id)->hasComponentOfType<TileComponent>();
+			if (is_tile)
 			{
 				TileComponent* p_tile_comp = getComponentFromKnownEntity<TileComponent>(current_entity_id);
 				
@@ -176,6 +101,43 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 					delete p_bv_copy;
 					return;
 				}			
+			}
+
+			// If tile, always resolve, otherwise resolve if moving towards object.
+			if (dot < 0.0f || is_tile)
+			{
+				XMFLOAT3 resolution_movement = XMFLOAT3
+				(
+					info.mNormal.x * info.mOverlap,
+					info.mNormal.y * info.mOverlap,
+					info.mNormal.z * info.mOverlap
+				);
+
+				// Reverting movement.
+				p_transform->position.x += resolution_movement.x;
+				p_transform->position.y += resolution_movement.y;
+				p_transform->position.z += resolution_movement.z;
+
+				// Translating moving BV to new position.
+				XMMATRIX resolution_translation = XMMatrixTranslation(resolution_movement.x, resolution_movement.y, resolution_movement.z);
+				p_bv_copy->Transform(resolution_translation);
+
+				// Find largest component of collision normal and set velocity in that direction to 0.
+				XMFLOAT3 abs_normal;
+				XMStoreFloat3(&abs_normal, XMVectorAbs(XMLoadFloat3(&info.mNormal)));
+
+				if (abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z)
+				{
+					p_movement->mVelocity.x = 0.0f;
+				}
+				else if (abs_normal.y > abs_normal.z)
+				{
+					p_movement->mVelocity.y = 0.0f;
+				}
+				else
+				{
+					p_movement->mVelocity.z = 0.0f;
+				}
 			}
 
 			// If normal is +y, the object is on ground, unless it is a unit.
@@ -196,34 +158,6 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			
 		}
 	}
-
-	// Resolve collisions.
-	for (CollisionInfo info : collisions)
-	{
-		// Reverting movement.
-		p_transform->position.x += info.mNormal.x * info.mOverlap;
-		p_transform->position.y += info.mNormal.y * info.mOverlap;
-		p_transform->position.z += info.mNormal.z * info.mOverlap;
-
-		// Find largest component of collision normal and set velocity in that direction to 0.
-
-		XMFLOAT3 abs_normal;
-		XMStoreFloat3(&abs_normal, XMVectorAbs(XMLoadFloat3(&info.mNormal)));
-
-		if (abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z)
-		{
-			p_movement->mVelocity.x = 0.0f;
-		}
-		else if (abs_normal.y > abs_normal.z)
-		{
-			p_movement->mVelocity.y = 0.0f;
-		}
-		else
-		{
-			p_movement->mVelocity.z = 0.0f;
-		}
-	}
-
 	p_movement->mOnGround = on_ground;
 	p_collision->mIntersect = intersect;
 	delete p_bv_copy;

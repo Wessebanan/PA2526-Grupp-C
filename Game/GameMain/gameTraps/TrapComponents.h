@@ -4,6 +4,7 @@
 #include "../GameGlobals.h"
 #include "../gameUtility/UtilityComponents.h"
 
+#include "../Physics/PhysicsComponents.h"
 #include <DirectXMath.h>
 
 /*
@@ -26,8 +27,9 @@ namespace ecs
 			float ActivationRateInSeconds;
 			float CurrentTimeInSeconds;
 
+			AABB mAABB;
 			GAME_OBJECT_TYPE mObjectType;
-			TypeID mTileID;
+			ID mTileID;
 		};
 
 		// The component pool for this component type will act as a queue for spawning

@@ -1,5 +1,7 @@
+#include "..//Input/InitInputBackendComponent.h"
 #include "AISystems.h"
 #include "../gameUtility/UtilityEcsFunctions.h"
+
 
 using namespace ecs::components;
 using namespace ecs::events;
@@ -345,37 +347,63 @@ std::vector<unsigned int> ecs::systems::PathfindingStateSystem::GetPath(unsigned
 int2 ecs::systems::PathfindingStateSystem::GetClosestTile(TransformComponent& transform)
 {
 	//Initialize components and variables that we will need.
-	int2 return_value;
+	int2 tile_index;
+	int2 return_index;
 	GridProp* p_gp = GridProp::GetInstance();
-	unsigned int tile_index = 0;
-	BaseComponent* p_base_component;
-	TransformComponent* p_curr_tile_transform;
-	TileComponent* p_curr_tile;
-	Entity* p_curr_entity;
-	float dist = 1000.0f;
-	float temp_dist = 0.0f;
-	//Loop through every tile in the grid.
-	for (int x = 0; x < p_gp->GetSize().x; x++)
+	ecs::BaseComponent* p_base_component;
+	ecs::components::TransformComponent* p_curr_tile_transform;
+	ecs::components::TileComponent* p_curr_tile;
+	ecs::Entity* p_curr_entity;
+	float world_pos_x = transform.position.x;
+	float world_pos_z = transform.position.z;
+	float z_tile_size_length = cos(30 * 3.1415 / 180) * TILE_RADIUS;
+	float distance;
+	float best_distance = 1000.0f;
+
+	//Calculate x index
+	tile_index.x = world_pos_x / (TILE_RADIUS * 1.5f);
+	if (tile_index.x >= p_gp->GetSize().x)
 	{
-		for (int y = 0; y < p_gp->GetSize().y; y++)
+		tile_index.x = p_gp->GetSize().x - 1;
+	}
+	else if (tile_index.x < 0)
+	{
+		tile_index.x = 0;
+	}
+	//Calculate y index
+	tile_index.y = world_pos_z / (z_tile_size_length * 2.0f);
+	if (tile_index.y >= p_gp->GetSize().y)
+	{
+		tile_index.y = p_gp->GetSize().y - 1;
+	}
+	else if (tile_index.y < 0)
+	{
+		tile_index.y = 0;
+	}
+
+	if (p_gp != nullptr) //Sanity Check
+	{
+		for (int i = tile_index.x - 1; i <= tile_index.x + 1; i++)
 		{
-			//Check if the tile is a tile we can walk on.
-			if (p_gp->mGrid[y][x].isPassable)
+			for (int j = tile_index.y - 1; j <= tile_index.y + 1; j++)
 			{
-				p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[y][x].Id);
-				temp_dist = PhysicsHelpers::CalculateDistance(transform.position, p_curr_tile_transform->position);
-				//If the tile is closer than the previously closest tile we've found we store the new info.
-				if (temp_dist < dist)
+				if (i >= 0 && i < p_gp->GetSize().y && j >= 0 && j < p_gp->GetSize().x)
 				{
-					dist = temp_dist;
-					return_value.x = x;
-					return_value.y = y;
+					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[tile_index.y][tile_index.x].Id);
+					distance = PhysicsHelpers::CalculateDistance(p_curr_tile_transform->position, transform.position);
+					if (distance < best_distance)
+					{
+						best_distance = distance;
+						return_index.x = tile_index.x;
+						return_index.y = tile_index.y;
+					}
 				}
 			}
 		}
 	}
-	//Return the index position of the closest tile in mGrid in the GridProp class.
-	return return_value;
+
+	//Return the index position of the closest tile in mGrid in the GridProp class or 0 if something went wrong.
+	return return_index;
 }
 
 unsigned int ecs::systems::PathfindingStateSystem::FindClosestEnemy(Entity* current_unit)
@@ -953,32 +981,52 @@ ID ecs::systems::MoveStateSystem::GetClosestTileId(TransformComponent& transform
 	ecs::components::TransformComponent* p_curr_tile_transform;
 	ecs::components::TileComponent* p_curr_tile;
 	ecs::Entity* p_curr_entity;
-	float dist = 1000.0f;
-	float temp_dist = 0.0f;
 	ID return_id = 0;
+	float world_pos_x = transform.position.x;
+	float world_pos_z = transform.position.z;
+	float z_tile_size_length = cos(30 * 3.1415 / 180) * TILE_RADIUS;
+	float distance;
+	float best_distance = 1000.0f;
+
+	//Calculate x index
+	tile_index.x = world_pos_x / (TILE_RADIUS * 1.5f);
+	if (tile_index.x >= p_gp->GetSize().x)
+	{
+		tile_index.x = p_gp->GetSize().x - 1;
+	}
+	else if (tile_index.x < 0)
+	{
+		tile_index.x = 0;
+	}
+	//Calculate y index
+	tile_index.y = world_pos_z / (z_tile_size_length * 2.0f);
+	if (tile_index.y >= p_gp->GetSize().y)
+	{
+		tile_index.y = p_gp->GetSize().y - 1;
+	}
+	else if (tile_index.y < 0)
+	{
+		tile_index.y = 0;
+	}
+
 	if (p_gp != nullptr) //Sanity Check
 	{
-		//Loop through every tile in the grid.
-		for (int x = 0; x < p_gp->GetSize().x; x++)
+		for (int i = tile_index.x - 1; i <= tile_index.x + 1; i++)
 		{
-			for (int y = 0; y < p_gp->GetSize().y; y++)
+			for (int j = tile_index.y - 1; j <= tile_index.y + 1; j++)
 			{
-				//Check if the tile is a tile we can walk on.
-				if (p_gp->mGrid[y][x].isPassable)
+				if (i >= 0 && i < p_gp->GetSize().y && j >= 0 && j < p_gp->GetSize().x)
 				{
-					p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
-					temp_dist = PhysicsHelpers::CalculateDistance(transform.position, p_curr_tile_transform->position);
-					//If the tile is closer than the previously closest tile we've found we store the new info.
-					if (temp_dist < dist)
+					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[tile_index.y][tile_index.x].Id);
+					distance = PhysicsHelpers::CalculateDistance(p_curr_tile_transform->position, transform.position);
+					if (distance < best_distance)
 					{
-						dist = temp_dist;
-						tile_index.x = x;
-						tile_index.y = y;
+						best_distance = distance;
+						return_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
 					}
 				}
 			}
 		}
-		return_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
 	}
 	
 	//Return the index position of the closest tile in mGrid in the GridProp class or 0 if something went wrong.
@@ -1368,6 +1416,38 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 			break;
 		}
 */
+
+
+		it = getComponentsOfType<components::InputBackendComp>();
+		InputBackendComp* ib_comp = (InputBackendComp*)(it.next());
+		if (ib_comp)
+		{
+			// here a ceck if the state is loot and there is loot
+			ib_comp->backend->SendVibrate(player);
+			int command = -1;
+			switch (state)
+			{
+			case ATTACK:
+				command = 0;
+				break;
+			case LOOT:
+				command = 1;
+				break;
+			case RALLY:
+				command = 2;
+				break;
+			case FLEE:
+				command = 3;
+				break;
+			default:
+				command = -1;
+				break;
+			}
+			// If it was one of the button commands send it to be highlighted
+			if (command >= 0) 
+				ib_comp->backend->sendCommand(player, command);
+		}
+
 		//Loop through the players units and remove their old state component.
 		Entity* unit;
 		for (int u = 0; u < p_army->unitIDs.size(); u++)
