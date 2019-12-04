@@ -2,7 +2,7 @@
 
 #include "ecsComponentIncludes.h"
 #include "../GameGlobals.h"
-
+#include "../Physics/PhysicsComponents.h"
 #include <DirectXMath.h>
 
 /*
@@ -25,8 +25,9 @@ namespace ecs
 			float ActivationRateInSeconds;
 			float CurrentTimeInSeconds;
 
+			AABB mAABB;
 			GAME_OBJECT_TYPE mObjectType;
-			TypeID mTileID;
+			ID mTileID;
 		};
 
 		// Holds the time of how long the unit has been frozzen and the max time

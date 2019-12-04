@@ -194,6 +194,7 @@ private:
 	// FUNCTIONS FOR INTERACTIONS
 	//Send out msg to all players
 	void BroadcastMsg(string msg);
+	void BroadcastMsgJoined();
 	// Identifies what player the current socket is
 	int IdPlayerSocket(SOCKET sock);
 	int IdUserSocket(SOCKET sock);

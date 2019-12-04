@@ -286,6 +286,9 @@ void WebConnection::PlayersJoin()
 						string ss;
 						ss += "2. USER " + to_string(IdUserSocket(sock));
 						this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
+
+
+						BroadcastMsgJoined();
 					}
 					// if the socket is the listener in the array
 					else
@@ -398,6 +401,28 @@ void WebConnection::BroadcastMsg(string msg)
 		}
 		//this->SendMsg(sock, (char*)string(to_string(p)).c_str(), iSendResult);
 		
+		p++;
+	}
+}
+
+void WebConnection::BroadcastMsgJoined()
+{
+	int p = 0;
+	while (p < 4)
+	{
+		// Broadcast channel in the futore
+		string ss = "5.";
+		if (this->mPlayerSockets[p] == -1)
+		{
+			ss += "d";
+		}
+		else
+		{
+			ss += "j";
+		}
+		
+		ss += to_string(p);
+		BroadcastMsg(ss);
 		p++;
 	}
 }
@@ -771,6 +796,11 @@ bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 		this->mPlayerSockets[player_id] = -1;
 		this->mUsers[player_id].connected = false;
 
+
+
+		// Send out to all users the new discornected player
+		BroadcastMsgJoined();
+
 		if (error == 0)
 		{
 			printf("Connection closing...\n");
@@ -877,6 +907,9 @@ bool WebConnection::AddPlayerSocket(SOCKET sock)
 	mPlayerSockets[first_empty] = IdUserSocket(sock);
 	mUsers[first_empty].connected = true;
 	this->nrOfPlayers++;
+
+	// Send out to all users the new connected player
+	BroadcastMsgJoined();
 
 	return true;
 }

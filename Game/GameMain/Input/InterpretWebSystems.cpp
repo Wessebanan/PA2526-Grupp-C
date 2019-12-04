@@ -10,6 +10,7 @@
 
 #include "..//gameTraps/TrapEvents.h"
 #include "..//gameTraps/TrapComponents.h"
+#include "..\gameTraps\TrapSystems.h"
 
 using namespace ecs;
 using namespace ecs::components;

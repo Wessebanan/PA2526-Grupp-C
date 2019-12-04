@@ -160,29 +160,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		}
 	}
 	
-	
-
-	// FILL OUT WITH OTHER WEAPONS LATER
 	// Making a copy of the bounding volume for weapon.
-	BoundingVolume* weapon_bv = nullptr;
-	switch (weapon_component->mType)
-	{
-	case GAME_OBJECT_TYPE_WEAPON_SWORD:
-	case GAME_OBJECT_TYPE_WEAPON_HAMMER:
-	{
-		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
-		weapon_bv = new OBB(*obb);
-		break;
-	}
-	case GAME_OBJECT_TYPE_WEAPON_FIST:
-	case GAME_OBJECT_TYPE_WEAPON_BOMB:
-	{
-		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
-		weapon_bv = new Sphere(*sphere);
-	}
-	default:
-		break;
-	}
+	BoundingVolume* weapon_bv = weapon_component->mBoundingVolume->Copy();
 
 	// Army component for checking friendly fire.
 	UnitComponent* owner_unit_component = nullptr;
@@ -258,59 +237,14 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		
 		XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
 
-		switch (p_current_collision->mBvType)
+		BoundingVolume* p_current_copy = p_current_collision->mBV->Copy();
+		p_current_copy->Transform(current_world_transform);
+		intersect = weapon_bv->Intersects(p_current_copy);
+		if (intersect)
 		{
-		case COLLISION_AABB:
-		{
-			AABB aabb;
-			aabb.Center = p_current_collision->mBV->GetCenter();
-			aabb.Extents = p_current_collision->mBV->GetExtents();// *static_cast<AABB*>(p_current_collision->mBV);
-			aabb.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			intersect = weapon_bv->Intersects(&aabb);
-			if (intersect)
-			{
-				collided_unit = current_unit;
-			}
-			break;
+			collided_unit = current_unit;
 		}
-		case COLLISION_OBB:
-		{
-			OBB obb = *static_cast<OBB*>(p_current_collision->mBV);
-			obb.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			intersect = weapon_bv->Intersects(&obb);
-			if (intersect)
-			{
-				collided_unit = current_unit;
-			}
-			break;
-		}
-		case COLLISION_SPHERE:
-		{
-			Sphere sphere = *static_cast<Sphere*>(p_current_collision->mBV);
-			sphere.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			intersect = weapon_bv->Intersects(&sphere);
-			if (intersect)
-			{
-				collided_unit = current_unit;
-			}
-			break;
-		}
-		case COLLISION_CYLINDER:
-		{
-			Cylinder cylinder = *static_cast<Cylinder*>(p_current_collision->mBV);
-			cylinder.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			intersect = weapon_bv->Intersects(&cylinder);
-			if (intersect)
-			{
-				collided_unit = current_unit;
-			}
-			break;
-		}
-		}
+		delete p_current_copy;
 	}
 
 	// If a unit collides with an unowned weapon, set colliding unit to weapon owner
