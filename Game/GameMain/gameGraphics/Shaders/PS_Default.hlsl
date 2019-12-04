@@ -23,7 +23,7 @@ float shadow(const float2 pos, const float depth)
 	float offset = 1.0f / (1024.0f * 2.0f);
 	float illumination = 0.0f;
 
-	const float shadow_bias = 0.0045f;
+	const float shadow_bias = 0.0028f;
 
 	const float middle_weight = 0.6f;
 	const float side_weight_total = 1.0f - middle_weight;
