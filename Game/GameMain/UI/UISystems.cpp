@@ -318,7 +318,7 @@ void ecs::systems::UIGuideSystem::updateEntity(FilteredEntity& _entityInfo, floa
 	}
 
 	// This function runs 8 times
-	mElapsedTime += _delta/8.0f;
+	mElapsedTime += _delta / 8.0f;
 
 	float per_image_time = 3.0f;
 

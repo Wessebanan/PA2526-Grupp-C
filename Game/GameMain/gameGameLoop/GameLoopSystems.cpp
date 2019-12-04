@@ -137,7 +137,7 @@ void ecs::systems::PrepPhaseSystem::updateEntity(FilteredEntity& _entityInfo, fl
 	InputBackendComp* p_ib = _entityInfo.getComponent<InputBackendComp>();
 	if(p_ib)
 	{
-		if (p_ib->backend->checkReadyCheck())
+		if (p_ib->backend->checkReadyCheck() && !GetSystem<systems::UIGuideSystem>())
 		{
 			// Starts the first round, should be removed when prepphase is implemented
 			ecs::events::RoundStartEvent eve;
@@ -478,7 +478,6 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		if (!GetSystem<systems::UpdateCameraSystem>())
 		{
 			CreateSystem<systems::UpdateDynamicCameraSystem>(1);
-			CreateSystem<systems::UIGuideSystem>(1);
 
 
 			// Change to dynamic camera
@@ -505,18 +504,6 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
 
 				bitmap_pos_comp->mDrawArea.bottom = 150;
-			}
-			if (bitmap_comp->mName == "guide1")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 200;
-			}
-			if (bitmap_comp->mName == "guide2")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 200;
 			}
 		}
 
