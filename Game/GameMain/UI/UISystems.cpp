@@ -1,5 +1,10 @@
 #include "UISystems.h"
 #include "..//gameAI/AISystems.h"
+#include "../gameUtility/UtilityComponents.h"
+#include "../gameGameLoop/GameLoopEvents.h"
+#include "../gameGameLoop/GameLoopComponents.h"
+#include "AIGlobals.h"
+
 
 
 using namespace ecs;
@@ -25,7 +30,7 @@ void UITextSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 	components::UIDrawPosComponent* UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
 	components::UIDrawColorComponent* UI_color_comp = _entityInfo.getComponent<components::UIDrawColorComponent>();
 	
-	mpD2D->PrintText(UITextComp->mStrText, UI_pos_comp->mDrawArea, UI_color_comp->mColor);
+	mpD2D->PrintText(UITextComp->mStrText, UI_pos_comp->mDrawArea, UI_color_comp->mColor, UITextComp->text_size);
 }
 
 UIBitmapSystem::UIBitmapSystem()
@@ -45,7 +50,17 @@ void UIBitmapSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 	components::UIDrawPosComponent* UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
 	components::UIBitmapComponent* p_UI_bitmap_comp = _entityInfo.getComponent<components::UIBitmapComponent>();
 
-	mpD2D->DrawBitmap(p_UI_bitmap_comp->mpBitmap, UI_pos_comp->mDrawArea);
+	if(p_UI_bitmap_comp->to_draw)
+	{
+		if (p_UI_bitmap_comp->mpTintedBitmap)
+		{
+			mpD2D->DrawBitmap(p_UI_bitmap_comp->mpTintedBitmap, UI_pos_comp->mDrawArea);
+		}
+		else
+		{
+			mpD2D->DrawBitmap(p_UI_bitmap_comp->mpBitmap, UI_pos_comp->mDrawArea);
+		}
+	}
 }
 
 ecs::systems::UIRectSystem::UIRectSystem()
@@ -128,59 +143,6 @@ void ecs::systems::UIDebugSystem::updateEntity(FilteredEntity& _entityInfo, floa
 	}
 }
 
-ecs::systems::UIUpdateSystem::UIUpdateSystem()
-{
-	updateType = SystemUpdateType::EntityUpdate;
-	typeFilter.addRequirement(components::ArmyComponent::typeID);
-	typeFilter.addRequirement(components::UITextComponent::typeID);
-}
-
-ecs::systems::UIUpdateSystem::~UIUpdateSystem()
-{
-}
-
-void ecs::systems::UIUpdateSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
-{
-	components::UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
-	components::ArmyComponent* p_army = _entityInfo.getComponent<components::ArmyComponent>();
-	ComponentIterator itt;
-
-	std::wstring ss = L"";
-
-	itt = getComponentsOfType(components::GameLoopComponent::typeID);
-	components::GameLoopComponent* p_gl = (components::GameLoopComponent*)itt.next();
-	itt = getComponentsOfType(components::UserNameComponent::typeID);
-	components::UserNameComponent* p_name_comp = (components::UserNameComponent*)itt.next();
-
-
-	/*
-		Here we update the information in the players corner UI
-
-		We can update the name of all the playesr when the UI has bitmais instead of hwo it is now
-	*/
-	ss.append(L"Score: ");
-	if (p_gl != nullptr)
-	{
-		ss.append(std::to_wstring(p_gl->mPlayerPoints[(int)p_army->playerID]));
-	}
-	ss.append(L"\n");
-	ss.append(L"Name: ");
-	std::string player_name = p_name_comp->names[(int)p_army->playerID];
-	ss.append(std::wstring(player_name.begin(),player_name.end()));
-	ss.append(L"\n");
-	ss.append(L"Health:\n");
-	for (size_t i = 0; i < p_army->unitIDs.size(); i++)
-	{
-		components::HealthComponent* p_unit_hp_comp = getComponentFromKnownEntity<components::HealthComponent>(p_army->unitIDs[i]);
-		
-		ss.append(std::to_wstring((int)p_unit_hp_comp->mHealth));
-		ss.append(L"\n");
-	}
-
-
-	p_text->mStrText = ss;
-
-}
 #include "../gameAudio/AudioECSEvents.h"
 ecs::systems::UICountDownSystem::UICountDownSystem()
 {
@@ -341,6 +303,145 @@ void ecs::systems::UIGuideSystem::updateEntity(FilteredEntity& _entityInfo, floa
 		{
 			p_UI_pos_comp->mDrawArea.bottom = 200;
 			RemoveSystem<UIGuideSystem>();
+		}
+	}
+}
+
+ecs::systems::UIOverlayInitSystem::UIOverlayInitSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(events::ResetUIComponents::typeID);
+}
+
+ecs::systems::UIOverlayInitSystem::~UIOverlayInitSystem()
+{
+	//
+}
+
+void ecs::systems::UIOverlayInitSystem::readEvent(BaseEvent& _event, float _delta)
+{
+	if (_event.getTypeID() != events::ResetUIComponents::typeID) //change 0 to my event id
+	{
+		return;
+	}
+
+	TypeFilter army_filter;
+	army_filter.addRequirement(ArmyComponent::typeID);
+	EntityIterator armies = getEntitiesByFilter(army_filter);
+
+	TypeFilter ui_filter;
+	ui_filter.addRequirement(UIBitmapComponent::typeID);
+	ui_filter.addRequirement(UIDrawPosComponent::typeID);
+	ui_filter.addRequirement(UIUnitReader::typeID);
+	EntityIterator ui_units = getEntitiesByFilter(ui_filter);
+
+	UIUnitReader* p_unit_reader_comp;
+	ArmyComponent* p_army_comp;
+	ComponentIterator itt = getComponentsOfType(components::UserNameComponent::typeID);
+	components::UserNameComponent* p_name_comp = (components::UserNameComponent*)itt.next();
+	for (FilteredEntity ui_unit : ui_units.entities)
+	{
+		p_army_comp = nullptr;
+		p_unit_reader_comp = ui_unit.getComponent<UIUnitReader>();
+
+		// Find correct army
+		for (FilteredEntity army : armies.entities)
+		{
+			ArmyComponent* p_army = army.getComponent<ArmyComponent>();
+			if (p_unit_reader_comp->playerID == p_army->playerID)
+			{
+				std::string player_name = p_name_comp->names[(int)p_army->playerID];
+				getComponentFromKnownEntity<UITextComponent>(p_army->getEntityID())->mStrText = std::wstring(player_name.begin(), player_name.begin()+10);
+				p_army_comp = p_army;
+				break;
+			}
+		}
+
+		p_unit_reader_comp->armyID = p_army_comp->getEntityID();
+		p_unit_reader_comp->unitID = p_army_comp->unitIDs.at((int)p_unit_reader_comp->unitPlacement);
+	}
+}
+
+ecs::systems::UIUnitColorUpdateSystem::UIUnitColorUpdateSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(UIUnitReader::typeID);
+	typeFilter.addRequirement(UIBitmapComponent::typeID);
+}
+
+ecs::systems::UIUnitColorUpdateSystem::~UIUnitColorUpdateSystem()
+{
+	//
+}
+
+void ecs::systems::UIUnitColorUpdateSystem::updateEntity(FilteredEntity& uiUnit, float delta)
+{
+	UIUnitReader* p_unit_reader_comp = uiUnit.getComponent<UIUnitReader>();
+	UIBitmapComponent* p_bitmap_comp = uiUnit.getComponent<UIBitmapComponent>();
+	ColorComponent* p_color_comp = getComponentFromKnownEntity<ColorComponent>(p_unit_reader_comp->unitID);
+	HealthComponent* p_health_comp = getComponentFromKnownEntity<HealthComponent>(p_unit_reader_comp->unitID);
+	int player_ID = p_unit_reader_comp->playerID;
+	/*
+		Check if unit exist, else set default color.
+	*/
+	Color army_colors[] =
+	{
+		PLAYER1_COLOR,
+		PLAYER2_COLOR,
+		PLAYER3_COLOR,
+		PLAYER4_COLOR
+	};
+	if (p_color_comp)
+	{
+		p_bitmap_comp->to_draw = true;
+		//without flashes
+		/*mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap,
+			std::floorf((float)army_colors[player_ID].r * p_health_comp->mHealth / p_health_comp->mBaseHealth),
+			std::floorf((float)army_colors[player_ID].g * p_health_comp->mHealth / p_health_comp->mBaseHealth),
+			std::floorf((float)army_colors[player_ID].b * p_health_comp->mHealth / p_health_comp->mBaseHealth));*/
+
+		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap, p_color_comp->red, p_color_comp->green, p_color_comp->blue); //with flashes
+	}
+	else
+	{
+		p_bitmap_comp->to_draw = false;
+	}
+}
+
+ecs::systems::UIEndOfRoundSystem::UIEndOfRoundSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(events::ResetUIComponents::typeID);
+}
+
+ecs::systems::UIEndOfRoundSystem::~UIEndOfRoundSystem()
+{
+	//
+}
+
+void ecs::systems::UIEndOfRoundSystem::readEvent(BaseEvent& _event, float _delta)
+{
+	if (_event.getTypeID() != events::RoundEndEvent::typeID) //change 0 to my event id
+	{
+		return;
+	}
+	int winner = dynamic_cast<ecs::events::RoundEndEvent*>(&_event)->winner;
+	ComponentIterator itt = ecs::ECSUser::getComponentsOfType(ecs::components::GameLoopComponent::typeID);
+	GameLoopComponent* p_gl = (GameLoopComponent*)itt.next();
+	TypeFilter ui_army_filter;
+	ui_army_filter.addRequirement(UIBitmapComponent::typeID);
+	ui_army_filter.addRequirement(UIDrawPosComponent::typeID);
+	ui_army_filter.addRequirement(UIArmyReader::typeID);
+	EntityIterator ui_armies = getEntitiesByFilter(ui_army_filter);
+
+	for (FilteredEntity ui_armies : ui_armies.entities)
+	{
+		UIArmyReader* p_army = ui_armies.getComponent<UIArmyReader>();
+		UIBitmapComponent* army_bitmaps = ui_armies.getComponent<UIBitmapComponent>();
+		//First find the right army then the right bitmap in the army by taking the winners point -1 because a system before this one adds one to the score
+		if (p_army->playerID == winner && army_bitmaps->mBitmapID == p_gl->mPlayerPoints[winner]-1)
+		{
+			this->mpD2D->SetBitmapTint(army_bitmaps->mpBitmap, army_bitmaps->mpTintedBitmap, 255, 255, 0);//change the bitmap color to yellow 
 		}
 	}
 }

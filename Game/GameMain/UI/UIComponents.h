@@ -22,6 +22,7 @@ namespace ecs
 			std::wstring mStrText; 
 
 			UITAG tag = UITAG::NOTAG;
+			unsigned int text_size = 2;
 		};
 
 		struct UIDrawPosComponent : public ECSComponent<UIDrawPosComponent>
@@ -42,8 +43,11 @@ namespace ecs
 
 		struct UIBitmapComponent : public ECSComponent<UIBitmapComponent>
 		{
-			ID2D1Bitmap1* mpBitmap;
-			std::string mName;
+			ID2D1Bitmap1* mpBitmap = nullptr;
+			ID2D1Bitmap1* mpTintedBitmap = nullptr;
+			std::string mName = "";
+			unsigned int mBitmapID;
+			bool to_draw = true;
 		};
 
 		struct UIThicknessComponent : public ECSComponent<UIThicknessComponent>
@@ -60,6 +64,25 @@ namespace ecs
 		{
 			ID mPrev;
 			//ID mNext;
+		};
+
+		struct UIUnitReader : public ECSComponent<UIUnitReader>
+		{
+			enum UI_UNIT_PLACEMENT
+			{
+				UI_UNIT_LEFT,
+				UI_UNIT_MIDDLE,
+				UI_UNIT_RIGHT,
+			} unitPlacement;
+
+			ID unitID;
+			ID armyID;
+			ID playerID;
+		};
+
+		struct UIArmyReader : public ECSComponent<UIArmyReader>
+		{
+			ID playerID;
 		};
 	}
 }
