@@ -1,9 +1,9 @@
 #include "TrapSpawnerSystems.h"
 #include "TrapComponents.h"
-#include "TrapEvents.h"
 
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameUtility/UtilityGraphics.h"
+#include "../gameGameLoop/GameLoopEvents.h"
 
 using namespace DirectX;
 
@@ -13,10 +13,9 @@ namespace ecs
 {
 	namespace systems
 	{
-		TrapSpawnerSystem::TrapSpawnerSystem()
+		TrapSpawnerSystem::TrapSpawnerSystem() : mDurationSinceLastSpawn(0)
 		{
-			updateType = EventReader;
-			typeFilter.addRequirement(events::PlaceTrapEvent::typeID);
+			updateType = Actor;
 		}
 
 		TrapSpawnerSystem::~TrapSpawnerSystem()
@@ -24,44 +23,153 @@ namespace ecs
 			//
 		}
 
-		void TrapSpawnerSystem::readEvent(BaseEvent& _event, float _delta)
+		void TrapSpawnerSystem::act(float delta)
 		{
-			if (_event.getTypeID() != events::PlaceTrapEvent::typeID)
+			mDurationSinceLastSpawn += delta;
+			if (mDurationSinceLastSpawn < mDurationBetweenSpawns)
 			{
 				return;
 			}
 
-			events::PlaceTrapEvent& r_trap_event = static_cast<events::PlaceTrapEvent&>(_event);
-			components::TransformComponent* p_tile_transf = getComponentFromKnownEntity<components::TransformComponent>(r_trap_event.tileID);
+			/*
+				Reset counter in order to time for next spawn
+			*/
 
+			mDurationSinceLastSpawn -= mDurationBetweenSpawns;
+
+			/*
+				Randomize a trap in queue to spawn
+			*/
+
+			const int rand_index = rand() % (int)mQueue.size();
+
+			components::TrapQueueInfoComponent* p_info =
+				getComponent<components::TrapQueueInfoComponent>(mQueue[rand_index]);
+
+			// Sanity check
+			if (!p_info)
+			{
+				return;
+			}
+
+			createEntity(p_info->trapCompInfo, p_info->colorCompInfo, p_info->transfCompInfo);
+
+			/*
+				Remove queue info entity
+			*/
+
+			removeEntity(p_info->getEntityID());
+			mQueue.erase(mQueue.begin() + rand_index);
+
+			/*
+				Check if there are any more queued trap spawns.
+				If not, create event that starts the battle and
+				remove this system.
+			*/
+
+			if (!mQueue.size())
+			{
+				std::cout << "All traps has been spawned. Creating RoundStartEvent." << std::endl;
+
+				ecs::events::RoundStartEvent eve;
+				createEvent(eve);
+
+				RemoveSystem<TrapSpawnerSystem>();
+			}
+		}
+
+		void TrapSpawnerSystem::Initialize(float totalSpawnDuration)
+		{
+			/*
+				Take snapshot of all currently existing trap spawn queue components.
+				If there aren't any, remove this system as there are no traps to
+				spawn.
+			*/
+
+			ComponentIterator queue_components =
+				getComponentsOfType(components::TrapQueueInfoComponent::typeID);
+
+			BaseComponent* p_base = nullptr;
+			while (p_base = queue_components.next())
+			{
+				mQueue.push_back(p_base->getID());
+			}
+
+			if (!mQueue.size())
+			{
+				ecs::events::RoundStartEvent eve;
+				createEvent(eve);
+
+				RemoveSystem<TrapSpawnerSystem>();
+				return;
+			}
+
+			mDurationBetweenSpawns = totalSpawnDuration / (float)mQueue.size();
+
+			std::cout << "[" << this->getName() << "] Initialized:\n"
+				<< "\tQueue size:\t" << mQueue.size()
+				<< "\n\tTotal dir:\t" << totalSpawnDuration
+				<< "\n\tWait dir:\t" << mDurationBetweenSpawns << std::endl;
+		}
+
+
+
+		TrapQueueSystem::TrapQueueSystem()
+		{
+			updateType = EventReader;
+			typeFilter.addRequirement(events::PlaceTrapEvent::typeID);
+			typeFilter.addRequirement(events::StartTrapSpawnSequenceEvent::typeID);
+		}
+
+		TrapQueueSystem::~TrapQueueSystem()
+		{
+			//
+		}
+
+		void TrapQueueSystem::readEvent(BaseEvent& _event, float _delta)
+		{
+			if (_event.getTypeID() == events::PlaceTrapEvent::typeID)
+			{
+				HandleQueueUp(static_cast<events::PlaceTrapEvent&>(_event));
+			}
+
+			else if (_event.getTypeID() == events::StartTrapSpawnSequenceEvent::typeID)
+			{
+				HandleSpawnSequence(static_cast<events::StartTrapSpawnSequenceEvent&>(_event));
+			}
+		}
+
+		void TrapQueueSystem::HandleQueueUp(events::PlaceTrapEvent& queue_event)
+		{
 			/*
 				-- Sanity check the event's trap type input
 				Never create a trap that isn't defined.
 			*/
 
-			if (r_trap_event.type <= GAME_OBJECT_TYPE_TRAP_OFFSET_TAG || r_trap_event.type > GAME_OBJECT_TYPE(GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + TRAP_TYPE_COUNT))
+			if (queue_event.type <= GAME_OBJECT_TYPE_TRAP_OFFSET_TAG || queue_event.type > GAME_OBJECT_TYPE(GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + TRAP_TYPE_COUNT))
 			{
 				return;
 			}
 
+			components::TransformComponent* p_tile_transf = getComponentFromKnownEntity<components::TransformComponent>(queue_event.tileID);
+
 			/*
-				-- Create dummy components
-				Used to initialize trap entity components.
+				-- Create queue component
+				Entities with a TrapQueueInfoComponents is storing
+				information about later trap entity spawning.
 			*/
 
-			components::TrapComponent trap_comp;
-			components::ColorComponent color_comp;
-			components::TransformComponent transf_comp;
+			components::TrapQueueInfoComponent queue_info;
 
 			/*
 				-- Set trap type and tileID
 			*/
 
-			trap_comp.mObjectType = r_trap_event.type;
-			trap_comp.mTileID = r_trap_event.tileID;
+			queue_info.trapCompInfo.mObjectType = queue_event.type;
+			queue_info.trapCompInfo.mTileID = queue_event.tileID;
 
-			trap_comp.ActivationRateInSeconds = 4.0f + ((rand() % 2));
-			trap_comp.CurrentTimeInSeconds = 0.0f;
+			queue_info.trapCompInfo.ActivationRateInSeconds = 4.0f + ((rand() % 2));
+			queue_info.trapCompInfo.CurrentTimeInSeconds = 0.0f;
 
 			/*
 				-- Set trap position
@@ -69,44 +177,64 @@ namespace ecs
 				offset to be placed above it.
 			*/
 
-			transf_comp.position = p_tile_transf->position;
-			transf_comp.position.y += 0.01f;
+			queue_info.transfCompInfo.position = p_tile_transf->position;
+			queue_info.transfCompInfo.position.y += 0.01f;
 
-			transf_comp.scale.x = 0.9;
-			transf_comp.scale.y = 0.9;
-			transf_comp.scale.z = 0.9;
+			queue_info.transfCompInfo.scale.x = 0.9;
+			queue_info.transfCompInfo.scale.y = 0.9;
+			queue_info.transfCompInfo.scale.z = 0.9;
 
 			/*
 				-- Set trap color
 				For now, all traps use the same mesh. Only difference
 				is the color of the trap.
-			*/	
+			*/
 
-			switch (trap_comp.mObjectType)
+			switch (queue_info.trapCompInfo.mObjectType)
 			{
 			case GAME_OBJECT_TYPE_TRAP_FIRE:
-				color_comp = components::ColorComponent(40, 40, 40);
+				queue_info.colorCompInfo = components::ColorComponent(40, 40, 40);
 				break;
 
 			case GAME_OBJECT_TYPE_TRAP_FREEZE:
-				color_comp = components::ColorComponent(150, 150, 150);
+				queue_info.colorCompInfo = components::ColorComponent(150, 150, 150);
 				break;
 
 			case GAME_OBJECT_TYPE_TRAP_SPRING:
-				color_comp = components::ColorComponent(191, 128, 64);
+				queue_info.colorCompInfo = components::ColorComponent(191, 128, 64);
 				break;
 
 			case GAME_OBJECT_TYPE_TRAP_SPIKES:
-				color_comp = components::ColorComponent(50, 50, 50);
-				transf_comp.position.y -= 10.0f;
+				queue_info.colorCompInfo = components::ColorComponent(50, 50, 50);
+				queue_info.transfCompInfo.position.y -= 10.0f;
 				break;
 
 			default:
-				color_comp = components::ColorComponent(); // Default constructor sets color to black.
+				queue_info.colorCompInfo = components::ColorComponent(); // Default constructor sets color to black.
 				break;
 			}
 
-			createEntity(trap_comp, transf_comp, color_comp);
+			/*
+				Queue up trap info. Spawning will be handled by TrapSpawnerSystem
+			*/
+
+			createEntity(queue_info);
+		}
+
+		void TrapQueueSystem::HandleSpawnSequence(events::StartTrapSpawnSequenceEvent& start_event)
+		{
+			TrapSpawnerSystem* p_system = (TrapSpawnerSystem*)CreateSystem<TrapSpawnerSystem>(0);
+
+			/*
+				Sanity check system creation.
+				If the system already exist, CreateSystem() will return nullptr
+			*/
+
+			if (p_system)
+			{
+				std::cout << "[" << this->getName() << "] Created Trap Spawner. " << std::endl;
+				p_system->Initialize(start_event.totalSpawnDuration);
+			}
 		}
 	}
 }

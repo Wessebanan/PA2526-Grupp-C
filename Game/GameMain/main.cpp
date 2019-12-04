@@ -109,13 +109,16 @@ int main()
 	TempUISystemPtrs my_UI_systems;
 
 	constexpr UINT RESERVED_COMPONENTS = 50000;
+	constexpr UINT LES_RESERVED_COMPONENTS = 500;
 	ecs.reserveComponentCount<ecs::components::TransformComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(RESERVED_COMPONENTS);
-	ecs.reserveComponentCount<ecs::components::TrapComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::ObjectCollisionComponent>(RESERVED_COMPONENTS);
-	ecs.reserveComponentCount<ecs::components::SpringRetractionComponent>(RESERVED_COMPONENTS);
+
+	ecs.reserveComponentCount<ecs::components::TrapComponent>(LES_RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::SpringRetractionComponent>(LES_RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::TrapQueueInfoComponent>(LES_RESERVED_COMPONENTS);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -248,8 +251,8 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 
 	GAME_OBJECT_TYPES traps[] =
 	{
-		//GAME_OBJECT_TYPE_TRAP_SPIKES,
-		//GAME_OBJECT_TYPE_TRAP_FIRE,
+		GAME_OBJECT_TYPE_TRAP_SPIKES,
+		GAME_OBJECT_TYPE_TRAP_FIRE,
 		GAME_OBJECT_TYPE_TRAP_SPRING,
 	};
 
@@ -266,6 +269,10 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 
 		count++;
 	}
+
+	events::StartTrapSpawnSequenceEvent start_trap_seq_event;
+	start_trap_seq_event.totalSpawnDuration = 10.f;
+	//rECS.createEvent(start_trap_seq_event);
 }
 
 void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight)

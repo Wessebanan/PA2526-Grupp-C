@@ -1,6 +1,12 @@
 #pragma once
 #include "ecsEventIncludes.h"
 
+enum GAME_UI_TYPE
+{
+	GAME_UI_TYPE_UNDEFINED,
+	GAME_UI_TYPE_OVERLAY,
+	GAME_UI_TYPE_GUIDES
+};
 
 namespace ecs
 {
@@ -23,5 +29,17 @@ namespace ecs
 		// The game should start, timers and such
 		struct GameReStartEvent : public ecs::ECSEvent<GameReStartEvent>
 		{};
+
+		// Enables or disables ui elements to be visible or not
+		struct SetUIVisibilityEvent : public ECSEvent<SetUIVisibilityEvent>
+		{
+			GAME_UI_TYPE uiType;
+			bool visible;
+
+			SetUIVisibilityEvent(GAME_UI_TYPE type, bool visibility) :
+				uiType(type), visible(visibility) {}
+			SetUIVisibilityEvent() :
+				uiType(GAME_UI_TYPE_UNDEFINED), visible(false) {}
+		};
 	}
 }

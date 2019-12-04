@@ -1,6 +1,5 @@
 #pragma once
 #include "ecsSystemIncludes.h"
-#include "GameLoopComponents.h"
 #include "..//Input/InitInputBackendComponent.h"
 #include "Mesh.h"
 #include "..//Physics/PhysicsComponents.h"
@@ -104,6 +103,16 @@ namespace ecs
 		private:
 			bool mRoundOver;
 			float mRoundOverDuration;
+		};
+
+		// Handles enableing and disabling ui elements (currently map overlay and guides)
+		class UIVisibilitySystem : public ECSSystem<UIVisibilitySystem>
+		{
+		public:
+
+			UIVisibilitySystem();
+			~UIVisibilitySystem();
+			void readEvent(BaseEvent& event, float delta) override;
 		};
 	}
 }

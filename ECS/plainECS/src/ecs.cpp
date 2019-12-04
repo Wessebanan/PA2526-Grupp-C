@@ -539,6 +539,11 @@ void ecs::EntityComponentSystem::onRemoveSystem(TypeID _typeID)
 	}
 }
 
+int ecs::EntityComponentSystem::onGetComponentCountOfType(TypeID _typeID)
+{
+	return componentMgr.getComponentCountOfType(_typeID);
+}
+
 void EntityComponentSystem::onAddSubscription(TypeID _eventTypeID, ECSEventListener* _listener)
 {
 	eventMgr.addEventSubscriber(_eventTypeID, _listener);

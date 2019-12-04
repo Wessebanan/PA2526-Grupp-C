@@ -24,6 +24,11 @@ namespace ecs
 			GAME_OBJECT_TYPES type; // The winner of the round 
 		};
 
+		struct StartTrapSpawnSequenceEvent : public ECSEvent<StartTrapSpawnSequenceEvent>
+		{
+			float totalSpawnDuration;
+		};
+
 		// Trigger event for traps
 		struct TriggerFireTrapEvent : public ecs::ECSEvent<TriggerFireTrapEvent>
 		{
