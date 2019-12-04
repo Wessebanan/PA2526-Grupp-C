@@ -46,7 +46,10 @@ namespace ecs
 		{
 			STATE activeCommand = STATE::IDLE;
 			unsigned int goalID;
-			float time = 0.0f; 
+			float time = 0.0f;
+			float timeSinceStuck = 0.0f;
+			//DirectX::XMFLOAT3 posSinceJump;
+			DirectX::XMFLOAT3 lastPos;
 			std::vector<unsigned int> path;
 		};
 
