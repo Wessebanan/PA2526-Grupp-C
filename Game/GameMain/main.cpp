@@ -215,8 +215,10 @@ int main()
 	return 0;
 
 }
+
 void DebuggFunctions(EntityComponentSystem& rECS)
 {
+#pragma region FOR_DEBUGGING_DO_NOT_REMOVE
 	// FOR DEBBUGING TRAPS: SPAWNS TRAPS OVER THE WHOLE MAP
 	//events::PlaceTrapEvent place_event;
 	//place_event.type = GAME_OBJECT_TYPE_TRAP_SPRING;
@@ -292,7 +294,7 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 
 		count++;
 	}
-
+#pragma endregion
 }
 
 void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight)

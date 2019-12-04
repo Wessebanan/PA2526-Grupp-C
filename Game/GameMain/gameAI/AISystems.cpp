@@ -1264,10 +1264,10 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 {
 	// The killers ID
 	unsigned int killer_id = 0;
-	HealthComponent* unit_health = entity.getComponent<HealthComponent>();
-	if (unit_health)
+	HealthComponent* p_unit_health = entity.getComponent<HealthComponent>();
+	if (p_unit_health)
 	{
-		killer_id = unit_health->mHitBy;
+		killer_id = p_unit_health->mHitBy;
 	}
 	// DEATH EFFECTS
 	DeadComponent* p_dead = entity.getComponent<DeadComponent>();
@@ -1314,46 +1314,46 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		}
 	}
 	//Fetch the units weapon data.
-	EquipmentComponent* equipment_comp = entity.getComponent<EquipmentComponent>();
-	Entity* weapon_entity = ECSUser::getEntity(equipment_comp->mEquippedWeapon);
-	WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
+	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
+	Entity* p_weapon_entity = ECSUser::getEntity(p_equipment_comp->mEquippedWeapon);
+	WeaponComponent* p_weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(p_equipment_comp->mEquippedWeapon);
 	//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
-	if (weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+	if (p_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
 	{
-		ECSUser::removeEntity(weapon_entity->getID());
+		ECSUser::removeEntity(p_weapon_entity->getID());
 	}
 	else
 	{
-		ECSUser::removeEntity(weapon_entity->getID());
+		ECSUser::removeEntity(p_weapon_entity->getID());
 		//weapon_comp->mOwnerEntity = 0;
 	}
 	// Check if the killer is legal and exists 
 	if (getEntity(killer_id))
 	{
-		HealthComponent* killer_health = getComponentFromKnownEntity<HealthComponent>(killer_id);
-		EquipmentComponent* killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
-		UnitScalePercent* killer_add_scale = getComponentFromKnownEntity<UnitScalePercent>(killer_id);
-		if (killer_health && killer_equipment && killer_add_scale)
+		HealthComponent* p_killer_health = getComponentFromKnownEntity<HealthComponent>(killer_id);
+		EquipmentComponent* p_killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
+		UnitScalePercent* p_killer_add_scale = getComponentFromKnownEntity<UnitScalePercent>(killer_id);
+		if (p_killer_health && p_killer_equipment && p_killer_add_scale)
 		{
-			killer_health->mHealth += killer_health->mBaseHealth * HEALTH_REWARD;
-			if (killer_health->mHealth > 100.f)
-				killer_health->mHealth = 100.f;
-			killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
-			killer_equipment->mAttackRange		*= SIZE_REWARD;
-			killer_equipment->mMeleeRange		*= SIZE_REWARD;
-			TransformComponent* killer_scale = getComponentFromKnownEntity<TransformComponent>(killer_id);
-			if (killer_scale)
+			p_killer_health->mHealth += p_killer_health->mBaseHealth * HEALTH_REWARD;
+			if (p_killer_health->mHealth > 100.f)
+				p_killer_health->mHealth = 100.f;
+			p_killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
+			p_killer_equipment->mAttackRange		*= SIZE_REWARD;
+			p_killer_equipment->mMeleeRange		*= SIZE_REWARD;
+			TransformComponent* p_killer_scale = getComponentFromKnownEntity<TransformComponent>(killer_id);
+			if (p_killer_scale)
 			{
-				float scale_offset_y = killer_scale->scale.y;
+				float scale_offset_y = p_killer_scale->scale.y;
 
-				killer_scale->scale.x		*= SIZE_REWARD;
-				killer_scale->scale.y		*= SIZE_REWARD;
-				killer_scale->scale.z		*= SIZE_REWARD;
-				killer_add_scale->UnitScale *= SIZE_REWARD;
+				p_killer_scale->scale.x		*= SIZE_REWARD;
+				p_killer_scale->scale.y		*= SIZE_REWARD;
+				p_killer_scale->scale.z		*= SIZE_REWARD;
+				p_killer_add_scale->UnitScale *= SIZE_REWARD;
 
-				scale_offset_y = fabsf(killer_scale->scale.y - killer_add_scale->UnitScale);
+				scale_offset_y = fabsf(p_killer_scale->scale.y - p_killer_add_scale->UnitScale);
 
-				killer_scale->position.y += killer_scale->scale.y * scale_offset_y;
+				p_killer_scale->position.y += p_killer_scale->scale.y * scale_offset_y;
 			}
 		}
 	}
