@@ -47,10 +47,10 @@ TEST(SoundAPI, MusicSpeedUp)
 	// Read song into bank
 	std::string file_paths[] =
 	{
-		"cc_song.wav"//,
-		//"cc_drums.wav"
+		"cc_song.wav",
+		"cc_drums.wav"
 	};
-	ASSERT_TRUE(bank.LoadMultipleFiles(file_paths, 1));
+	ASSERT_TRUE(bank.LoadMultipleFiles(file_paths, 2));
 
 	// Start engine
 	SetupEngine(engine, mixer, pa_init);
@@ -62,10 +62,52 @@ TEST(SoundAPI, MusicSpeedUp)
 		Audio::Music::M_FUNC_REPLACE_MUSIC |
 		Audio::Music::M_DATA_AS_PARAMETER
 		});
+	mixer.AddMusicMessage({
+		bank[1],
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_TARGET_SUB |
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_SYNC_OTHER_WITH_THIS
+		});
 	Pa_Sleep(1000);
 	
+	float speed;
 	std::cout << "SPEED UP!!!" << std::endl;
-	for (float speed = 1.0f; speed < 1.3f; speed += 0.005f)
+	for (speed = 1.0f; speed < 1.1f; speed += 0.005f)
+	{
+		mixer.AddMusicMessage({
+			speed,
+			Audio::Music::M_FUNC_SET_SPEED |
+			Audio::Music::M_DATA_AS_PARAMETER
+			});
+		Pa_Sleep(100);
+	}
+	
+	mixer.AddMusicMessage({
+		0.0f,
+		Audio::Music::M_FUNC_SET_GAIN |
+		Audio::Music::M_TARGET_SUB |
+		Audio::Music::M_DATA_AS_PARAMETER
+		});
+	std::cout << "Mute drums" << std::endl;
+	for (; speed < 1.2f; speed += 0.005f)
+	{
+		mixer.AddMusicMessage({
+			speed,
+			Audio::Music::M_FUNC_SET_SPEED |
+			Audio::Music::M_DATA_AS_PARAMETER
+			});
+		Pa_Sleep(100);
+	}
+
+	mixer.AddMusicMessage({
+	1.0f,
+	Audio::Music::M_FUNC_SET_GAIN |
+	Audio::Music::M_TARGET_SUB |
+	Audio::Music::M_DATA_AS_PARAMETER
+		});
+	std::cout << "Unmute drums" << std::endl;
+	for (; speed < 1.3f; speed += 0.005f)
 	{
 		mixer.AddMusicMessage({
 			speed,
