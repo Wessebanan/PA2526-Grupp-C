@@ -1377,7 +1377,6 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 		if (ib_comp)
 		{
 			// here a ceck if the state is loot and there is loot
-			ib_comp->backend->SendVibrate(player);
 			int command = -1;
 			switch (state)
 			{
@@ -1398,8 +1397,22 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 				break;
 			}
 			// If it was one of the button commands send it to be highlighted
-			if (command >= 0) 
-				ib_comp->backend->sendCommand(player, command);
+			if (command >= 0)
+			{
+				if (state == LOOT)
+				{
+					GridProp* p_gp = GridProp::GetInstance();
+
+					if (p_gp->mLootTiles.size() != 0)
+					{
+						ib_comp->backend->sendCommand(player, command);
+						ib_comp->backend->SendVibrate(player);
+					}
+				}
+				else
+					ib_comp->backend->sendCommand(player, command);
+					ib_comp->backend->SendVibrate(player);
+			}
 		}
 
 		//Loop through the players units and remove their old state component.
