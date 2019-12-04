@@ -44,6 +44,14 @@ namespace ecs
 
 		// ----------- EVENTREADERS -----------------
 
+		class GenericTrapEventSystem : public ecs::ECSSystem<GenericTrapEventSystem>
+		{
+		public:
+			GenericTrapEventSystem();
+			~GenericTrapEventSystem();
+			void readEvent(BaseEvent& event, float delta) override;
+		};
+
 		class FireTrapEventSystem : public ecs::ECSSystem<FireTrapEventSystem>
 		{
 		public:

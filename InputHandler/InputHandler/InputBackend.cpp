@@ -53,6 +53,16 @@ bool InputBackend::changeGamestate(WEBGAMESTATE gamestate)
 	return this->mpWebConn->SetGamestate(gamestate);
 }
 
+void InputBackend::SendVibrate(int playerIndex)
+{
+	mpWebConn->SendVibration(playerIndex);
+}
+
+void InputBackend::SendVibrateAll()
+{
+	mpWebConn->SendVibrationAll();
+}
+
 bool InputBackend::checkReadyCheck()
 {
 	return this->mpWebConn->ReadyCheck();

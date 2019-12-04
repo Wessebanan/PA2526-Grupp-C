@@ -10,6 +10,7 @@
 
 #include "..//gameTraps/TrapEvents.h"
 #include "..//gameTraps/TrapComponents.h"
+#include "..\gameTraps\TrapSystems.h"
 
 using namespace ecs;
 using namespace ecs::components;
@@ -18,6 +19,7 @@ ecs::systems::ChangeFSMSystem::ChangeFSMSystem()
 {
 	updateType = ecs::EntityUpdate;
 	typeFilter.addRequirement(ecs::components::UserCommandComponent::typeID);
+	typeFilter.addRequirement(ecs::components::InputBackendComp::typeID);
 }
 
 ecs::systems::ChangeFSMSystem::~ChangeFSMSystem()
@@ -27,6 +29,7 @@ ecs::systems::ChangeFSMSystem::~ChangeFSMSystem()
 void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	UserCommandComponent* ucComp = _entityInfo.getComponent<UserCommandComponent>();
+	InputBackendComp* ib_comp = _entityInfo.getComponent<InputBackendComp>();
 	ComponentIterator it = ecs::ECSUser::getComponentsOfType(PlayerStateComponent::typeID);
 	PlayerStateComponent* p_player_state_comp = static_cast<PlayerStateComponent*>(it.next());
 
@@ -113,9 +116,6 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				//createEvent(trap_event);
 				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
 				//createEvent(trap_event);
-
-
-
 			}
 		}
 	}
@@ -225,6 +225,7 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 					p_backend->backend->resetUserButtonAndTile(i);
 					p_backend->mPlacedTraps[i]++;
+					p_backend->backend->SendVibrate(i);
 				}
 			}
 		}
