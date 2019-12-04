@@ -52,6 +52,19 @@ namespace ecs
 				return;
 			}
 
+			/*
+				-- Create trap BV
+				Creates an AABB around the trap mesh for collision.
+			*/
+			std::vector<XMFLOAT3>* p_vertices = MeshContainer::GetMeshCPU(p_info->trapCompInfo.mObjectType)->GetVertexPositionVector();
+			p_info->trapCompInfo.mAABB.CreateFromPoints(p_info->trapCompInfo.mAABB, p_vertices->size(), p_vertices->data(), sizeof(XMFLOAT3));
+
+			// Boost height of spring BV slightly since it's a circle.
+			if (p_info->trapCompInfo.mObjectType == GAME_OBJECT_TYPE_TRAP_SPRING)
+			{
+				p_info->trapCompInfo.mAABB.Extents.y += 0.1f;
+			}
+
 			createEntity(p_info->trapCompInfo, p_info->colorCompInfo, p_info->transfCompInfo);
 
 			/*
@@ -69,8 +82,6 @@ namespace ecs
 
 			if (!mQueue.size())
 			{
-				std::cout << "All traps has been spawned. Creating RoundStartEvent." << std::endl;
-
 				ecs::events::RoundStartEvent eve;
 				createEvent(eve);
 
@@ -105,11 +116,6 @@ namespace ecs
 			}
 
 			mDurationBetweenSpawns = totalSpawnDuration / (float)mQueue.size();
-
-			std::cout << "[" << this->getName() << "] Initialized:\n"
-				<< "\tQueue size:\t" << mQueue.size()
-				<< "\n\tTotal dir:\t" << totalSpawnDuration
-				<< "\n\tWait dir:\t" << mDurationBetweenSpawns << std::endl;
 		}
 
 
@@ -222,20 +228,20 @@ namespace ecs
 		}
 
 
-			/*
-				-- Create trap BV
-				Creates an AABB around the trap mesh for collision.
-			*/
-			std::vector<XMFLOAT3>* p_vertices = MeshContainer::GetMeshCPU(trap_comp.mObjectType)->GetVertexPositionVector();
-			trap_comp.mAABB.CreateFromPoints(trap_comp.mAABB, p_vertices->size(), p_vertices->data(), sizeof(XMFLOAT3));
+			///*
+			//	-- Create trap BV
+			//	Creates an AABB around the trap mesh for collision.
+			//*/
+			//std::vector<XMFLOAT3>* p_vertices = MeshContainer::GetMeshCPU(trap_comp.mObjectType)->GetVertexPositionVector();
+			//trap_comp.mAABB.CreateFromPoints(trap_comp.mAABB, p_vertices->size(), p_vertices->data(), sizeof(XMFLOAT3));
 
-			// Boost height of spring BV slightly since it's a circle.
-			if (trap_comp.mObjectType == GAME_OBJECT_TYPE_TRAP_SPRING)
-			{
-				trap_comp.mAABB.Extents.y += 0.1f;
-			}
+			//// Boost height of spring BV slightly since it's a circle.
+			//if (trap_comp.mObjectType == GAME_OBJECT_TYPE_TRAP_SPRING)
+			//{
+			//	trap_comp.mAABB.Extents.y += 0.1f;
+			//}
 
-			createEntity(trap_comp, transf_comp, color_comp);
+			//createEntity(trap_comp, transf_comp, color_comp);
 		void TrapQueueSystem::HandleSpawnSequence(events::StartTrapSpawnSequenceEvent& start_event)
 		{
 			TrapSpawnerSystem* p_system = (TrapSpawnerSystem*)CreateSystem<TrapSpawnerSystem>(0);
@@ -247,7 +253,6 @@ namespace ecs
 
 			if (p_system)
 			{
-				std::cout << "[" << this->getName() << "] Created Trap Spawner. " << std::endl;
 				p_system->Initialize(start_event.totalSpawnDuration);
 			}
 		}
