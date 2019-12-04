@@ -418,9 +418,9 @@ void ecs::systems::UnitColorSwitchSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	ColorComponent* p_unit_color = getComponentFromKnownEntity<ColorComponent>(p_color_switch->mEntityID);
 	
 	Color color = p_color_switch->mColor;
-	p_unit_color->red	= color.r;
-	p_unit_color->green = color.g;
-	p_unit_color->blue	= color.b;
+	p_unit_color->red	= (std::min)(255, p_unit_color->red + BRIGHT_FACTOR);
+	p_unit_color->green = (std::min)(255, p_unit_color->green + BRIGHT_FACTOR);
+	p_unit_color->blue	= (std::min)(255, p_unit_color->blue + BRIGHT_FACTOR);
 
 	// Inserting given time by event into [ID] in unordered_map.
 	mTimers[p_color_switch->mEntityID] = p_color_switch->mTime;

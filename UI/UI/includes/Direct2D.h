@@ -11,8 +11,8 @@
 #pragma comment(lib, "Dwrite")
 #pragma comment(lib, "windowscodecs")
 #pragma comment(lib, "d2d1")
-#pragma comment (lib, "d3d11")
-
+#pragma comment(lib, "d3d11")
+#pragma comment(lib, "dxguid")
 
 #define BITMAP_NAME_LENGTH 16
 #define COLOR_BRUSHES 8
@@ -36,9 +36,10 @@ enum brushColors
 };
 enum text_sizes
 {
-	small_text	= 0,
-	medium_text = 1,
-	large_text	= 2
+	small_text			= 0,
+	medium_text			= 1,
+	large_text			= 2,
+	large_text_center	= 3
 };
 
 struct cmp_str
@@ -78,19 +79,19 @@ public:
 	//Loads an image from a filepath into a bitmap and returns that bitmap, if fail return nullptr
 	ID2D1Bitmap1* LoadImageToBitmap(std::string imageFilePath, char bitmapName[BITMAP_NAME_LENGTH]);
 	ID2D1Bitmap1* LoadImageToBitmap(std::string imageFilePath, std::string bitmapName);
+	ID2D1Bitmap1* CreateBitmapTarget(float width, float height);
 	//Returns a bitmap that has the same char name
 	ID2D1Bitmap1* GetBitmap(char* bitmapName);//returns bitmap
 	//Returns a bitmap that has the same string name
 	ID2D1Bitmap1* GetBitmap(std::string bitmapName);//returns bitmap
 	//Returns the bitmap taken from the backbuffer which contains the resolution
 	ID2D1Bitmap1* GetBackbufferBitmap();
+	void SetBitmapTint(ID2D1Bitmap1* bitmapInput, ID2D1Bitmap1* bitmapOutput, int x, int y, int z, int w = 255);
 	void SetBackbufferBitmap(ID2D1Bitmap1* backbuffer_bitmap);
 	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);
 	//ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS
 	bool DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect);
 
-	//ID2D1Bitmap* GetBitmapByName(std::string bitmapName); //used to draw all bitmaps, uses the BitmapInfo struct
-	//void DrawBitmap();
 
 	bool PrintText(std::wstring text, RECT rect);
 	bool PrintDebug(std::wstring text); // debug printer thing
@@ -118,6 +119,7 @@ private:
 	ID2D1SolidColorBrush* mpColorDraw;
 	ID2D1Bitmap* mpFailBitmap;
 	ID2D1Bitmap1* mpBackbufferBitmap;
+	ID2D1Effect* mpTintEffect;
 	
 	IDWriteFactory7* mpTextFactory; //factory used for text
 	DWRITE_TRIMMING mTrimmer; //used for text format
