@@ -1398,7 +1398,7 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 				break;
 			}
 			// If it was one of the button commands send it to be highlighted
-			if (command > 0) 
+			if (command >= 0) 
 				ib_comp->backend->sendCommand(player, command);
 		}
 
