@@ -518,20 +518,28 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 
 	const WeaponOnHitEvent& hit_event = static_cast<WeaponOnHitEvent&>(_event);
 	const XMVECTOR weapon_position = XMLoadFloat3(&hit_event.Position);
-
-	// Grabbing and storing all ocean tiles.
-	TypeFilter unit_filter;
-	unit_filter.addRequirement(components::UnitComponent::typeID);
-	unit_filter.addRequirement(components::TransformComponent::typeID);
-	unit_filter.addRequirement(components::HealthComponent::typeID);
-
-	EntityIterator iter = getEntitiesByFilter(unit_filter);
-
+	
 	// If type is a bomb
 	if (hit_event.Type == GAME_OBJECT_TYPE_WEAPON_BOMB)
 	{
+		// Grabbing and storing all units.
+		TypeFilter unit_filter;
+		unit_filter.addRequirement(components::UnitComponent::typeID);
+		unit_filter.addRequirement(components::TransformComponent::typeID);
+		unit_filter.addRequirement(components::HealthComponent::typeID);
+
+		EntityIterator iter = getEntitiesByFilter(unit_filter);
+		const ID hitter_id = hit_event.OwnerUnitID;
+		const ID hitter_team = getComponentFromKnownEntity<UnitComponent>(hitter_id)->playerID;
+
 		for (FilteredEntity& unit : iter.entities)
 		{
+			// No friendly hits on bomb.
+			if (unit.getComponent<UnitComponent>()->playerID == hitter_team)
+			{
+				continue;
+			}
+
 			const TransformComponent* p_unit_transform = unit.getComponent<TransformComponent>();
 			const XMVECTOR unit_position = XMLoadFloat3(&p_unit_transform->position);
 			const XMVECTOR unit_weapon_v = unit_position - weapon_position;
@@ -552,7 +560,7 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 			if (impact >= 0.0f)
 			{
 				// Calculating damage by multiplying weapon velocity and the base damage.
-				const float damage = hit_event.Damage;
+				const float damage = hit_event.Damage * impact;
 				HealthComponent* p_collided_constitution = unit.getComponent<HealthComponent>();
 				p_collided_constitution->mHealth -= damage;
 
