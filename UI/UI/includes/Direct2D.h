@@ -91,10 +91,7 @@ public:
 	ID2D1SolidColorBrush* GetBrushFromName(char* brushName);
 	//ID GetBrushIDFromName(char* bitmapName); //not in use right now by ECS
 	bool DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect);
-	//bool DrawBitmapWithColor(ID2D1Bitmap* bitmap, D2D1_RECT_F rect, int x, int y, int z, int w = 1);
 
-	//ID2D1Bitmap* GetBitmapByName(std::string bitmapName); //used to draw all bitmaps, uses the BitmapInfo struct
-	//void DrawBitmap();
 
 	bool PrintText(std::wstring text, RECT rect);
 	bool PrintDebug(std::wstring text); // debug printer thing

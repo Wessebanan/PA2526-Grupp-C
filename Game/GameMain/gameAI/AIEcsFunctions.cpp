@@ -29,9 +29,6 @@ namespace AIEcsFunctions
 
 		
 		FLOAT ui_padding = 5;
-	/*	ecs::components::UIDrawColorComponent gay_color_comp;
-		ecs::components::UIIWant yaaa;
-		gay_color_comp.mColor = brushColors::Gray;*/
 
 		for (size_t i = 0; i < 4; i++)
 		{
@@ -46,11 +43,6 @@ namespace AIEcsFunctions
 			switch (i)
 			{
 			case 0:
-				//text_pos_comp.mDrawArea.top = ui_padding;
-				//text_pos_comp.mDrawArea.bottom = text_height + ui_padding;
-				//text_pos_comp.mDrawArea.left = 0 + ui_padding;
-				//text_pos_comp.mDrawArea.right = text_width + ui_padding;
-
 				text_pos_comp.mDrawArea.left = 20;
 				text_pos_comp.mDrawArea.top = 230+ ui_padding;
 				text_pos_comp.mDrawArea.right = 280;
@@ -59,11 +51,6 @@ namespace AIEcsFunctions
 				text_color_comp.mColor = brushColors::Red;
 				break;
 			case 1:
-				//text_pos_comp.mDrawArea.top = 0 + ui_padding;
-				//text_pos_comp.mDrawArea.bottom = text_height + ui_padding;
-				//text_pos_comp.mDrawArea.left = client_width - text_width - ui_padding;
-				//text_pos_comp.mDrawArea.right = client_width - ui_padding;
-
 				text_pos_comp.mDrawArea.left = client_width - 280;
 				text_pos_comp.mDrawArea.top = 230+ ui_padding;
 				text_pos_comp.mDrawArea.right = client_width - 20;
@@ -71,11 +58,6 @@ namespace AIEcsFunctions
 				text_color_comp.mColor = brushColors::Purple;
 				break;
 			case 2:
-				//text_pos_comp.mDrawArea.top = client_height - text_height - ui_padding;
-				//text_pos_comp.mDrawArea.bottom = client_height - ui_padding;
-				//text_pos_comp.mDrawArea.left = 0 + ui_padding;
-				//text_pos_comp.mDrawArea.right = text_width + ui_padding;
-
 				text_pos_comp.mDrawArea.left = 20;
 				text_pos_comp.mDrawArea.top = client_height - 70+ ui_padding;
 				text_pos_comp.mDrawArea.right = 280;
@@ -84,11 +66,6 @@ namespace AIEcsFunctions
 				text_color_comp.mColor = brushColors::Blue;
 				break;
 			case 3:
-				//text_pos_comp.mDrawArea.top = client_height - text_height - ui_padding;
-				//text_pos_comp.mDrawArea.bottom = client_height - ui_padding;
-				//text_pos_comp.mDrawArea.left = client_width - text_width - ui_padding;
-				//text_pos_comp.mDrawArea.right = client_width - ui_padding;
-
 				text_pos_comp.mDrawArea.left = client_width - 280;
 				text_pos_comp.mDrawArea.top = client_height - 70+ ui_padding;
 				text_pos_comp.mDrawArea.right = client_width - 20;
@@ -114,7 +91,6 @@ namespace AIEcsFunctions
 			command_text_comp.text_size = 3;
 			//Create the user entity
 			rEcs.createEntity(army, command_text_comp, text_pos_comp, text_color_comp);
-			//rEcs.createEntity(text_pos_comp, gay_color_comp, yaaa);
 		}
 	}
 
