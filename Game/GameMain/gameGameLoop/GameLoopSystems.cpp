@@ -107,7 +107,7 @@ void ecs::systems::WaitForStartupSystem::updateEntity(FilteredEntity& _entityInf
 	InputBackendComp* p_ib = _entityInfo.getComponent<InputBackendComp>();
 	if (p_ib)
 	{
-		if (p_ib->backend->checkReadyCheck())
+		if (p_ib->backend->checkReadyCheck() && !GetSystem<systems::UIGuideSystem>())
 		{
 			// Starts the first round, should be removed when prepphase is implemented
 			ecs::events::RoundStartEvent eve;
@@ -137,7 +137,7 @@ void ecs::systems::PrepPhaseSystem::updateEntity(FilteredEntity& _entityInfo, fl
 	InputBackendComp* p_ib = _entityInfo.getComponent<InputBackendComp>();
 	if(p_ib)
 	{
-		if (p_ib->backend->checkReadyCheck() && !GetSystem<systems::UIGuideSystem>())
+		if (p_ib->backend->checkReadyCheck())
 		{
 			// Starts the first round, should be removed when prepphase is implemented
 			ecs::events::RoundStartEvent eve;
