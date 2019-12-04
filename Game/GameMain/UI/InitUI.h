@@ -98,7 +98,7 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	// Save these if you want to srtart with the overlay open or not
 	bitmap_pos_comp.mDrawArea.bottom = 1000;
 
-	rECS.createEntity(bitmap_comp,bitmap_pos_comp);
+	//rECS.createEntity(bitmap_comp,bitmap_pos_comp);
 
 	// save this to switch between different opacities
 	bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/GUIDE2.1.png", "guide2");
@@ -108,7 +108,7 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	bitmap_pos_comp.mDrawArea.right = 1600;
 
 
-	rECS.createEntity(bitmap_comp,bitmap_pos_comp);
+	//rECS.createEntity(bitmap_comp,bitmap_pos_comp);
 
 	ecs::components::UIDrawColorComponent text_color;
 	ecs::components::UITextComponent text;

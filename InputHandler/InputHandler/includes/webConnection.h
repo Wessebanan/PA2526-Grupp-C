@@ -125,6 +125,7 @@ public:
 
 	// Returns the command of the player
 	string GetUserCommand(int player);
+	void SendUserCommand(int player, int comm);
 
 	// Returns the command of the player
 	bool GetUserPing(int player);
@@ -148,6 +149,10 @@ public:
 
 	// Loops thourgh and sees if all players are ready, if all are returns true and resets
 	bool ReadyCheck();
+
+	// Sends a vibration to player with index
+	void SendVibration(int playerIndex);
+	void SendVibrationAll();
 private:
 	// Array of information to be sent to frontend
 	playerInfo mUsers[4];

@@ -353,6 +353,10 @@
             {
                 console.log("We are wating for the client to start");
             }
+            else if(msg == "vib")
+            {
+                window.navigator.vibrate(200);
+            }
             else if(msg == "perror")
             {
                 console.log("There was a error with sending the state");
@@ -449,6 +453,15 @@
                 {
                     document.getElementById("player4").style.background = color;
                 }
+            }
+            else if(msg[0] == 6)
+            {
+        
+                var id = "CommandButton" + (msg.charAt(msg.length - 1)).toString();
+
+                resetCommandColors();
+                document.getElementById(id).style.backgroundColor = "#DDD";
+                document.getElementById(id).style.color = "#000";
             }
         }
 
@@ -607,7 +620,7 @@
         }
 
 
-        function setCommand(buttonCommand, buttonIndex)
+        function setCommand(buttonCommand)
         {
             var player = "0";
             var action = "003";
@@ -616,11 +629,6 @@
 
             var msg = player.concat(action.concat(Button));
         
-            var id = "CommandButton" + buttonIndex.toString();
-
-            resetCommandColors();
-            document.getElementById(id).style.backgroundColor = "#DDD";
-            document.getElementById(id).style.color = "#000";
 
             console.log(msg);
             socket.send(msg);
@@ -722,10 +730,10 @@
 
             </br>
 
-            <div id='CommandButton0' class='CommButton' onclick="setCommand('regroup', 0)"><h3>REGROUP</h3></div>
-            <div id='CommandButton1' class='CommButton' onclick="setCommand('loot', 1)"><h3>LOOT   </h3></div>
-            <div id='CommandButton2' class='CommButton' onclick="setCommand('attack', 2)"><h3>ATTACK </h3></div>
-            <div id='CommandButton3' class='CommButton' onclick="setCommand('flee', 3)"><h3>FLEE   </h3></div>
+            <div id='CommandButton0' class='CommButton' onclick="setCommand('attack')"><h3>ATTACK </h3></div>
+            <div id='CommandButton1' class='CommButton' onclick="setCommand('loot')"><h3>LOOT   </h3></div>
+            <div id='CommandButton2' class='CommButton' onclick="setCommand('regroup')"><h3>REGROUP</h3></div>
+            <div id='CommandButton3' class='CommButton' onclick="setCommand('flee')"><h3>FLEE   </h3></div>
 
 
         </div>

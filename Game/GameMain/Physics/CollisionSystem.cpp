@@ -84,18 +84,14 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		{
 			// Set the intersection bool because it may be useful. :)
 			intersect = true;
-
-			// If not moving in the same general direction as the collision normal, save info for later
-			// resolution.
+			
+			// Dot < 0.0f means moving towards collided object.
 			XMVECTOR velocity_direction = XMVector3Normalize(XMLoadFloat3(&p_movement->mVelocity));
 			float dot = XMVectorGetX(XMVector3Dot(velocity_direction, XMLoadFloat3(&info.mNormal)));
-			if (dot < 0.0f)
-			{
-				collisions.push_back(info);
-			}
 
 			// If the collided object is a tile.
-			if (getEntity(current_entity_id)->hasComponentOfType<TileComponent>())
+			bool is_tile = getEntity(current_entity_id)->hasComponentOfType<TileComponent>();
+			if (is_tile)
 			{
 				TileComponent* p_tile_comp = getComponentFromKnownEntity<TileComponent>(current_entity_id);
 				
@@ -105,6 +101,43 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 					delete p_bv_copy;
 					return;
 				}			
+			}
+
+			// If tile, always resolve, otherwise resolve if moving towards object.
+			if (dot < 0.0f || is_tile)
+			{
+				XMFLOAT3 resolution_movement = XMFLOAT3
+				(
+					info.mNormal.x * info.mOverlap,
+					info.mNormal.y * info.mOverlap,
+					info.mNormal.z * info.mOverlap
+				);
+
+				// Reverting movement.
+				p_transform->position.x += resolution_movement.x;
+				p_transform->position.y += resolution_movement.y;
+				p_transform->position.z += resolution_movement.z;
+
+				// Translating moving BV to new position.
+				XMMATRIX resolution_translation = XMMatrixTranslation(resolution_movement.x, resolution_movement.y, resolution_movement.z);
+				p_bv_copy->Transform(resolution_translation);
+
+				// Find largest component of collision normal and set velocity in that direction to 0.
+				XMFLOAT3 abs_normal;
+				XMStoreFloat3(&abs_normal, XMVectorAbs(XMLoadFloat3(&info.mNormal)));
+
+				if (abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z)
+				{
+					p_movement->mVelocity.x = 0.0f;
+				}
+				else if (abs_normal.y > abs_normal.z)
+				{
+					p_movement->mVelocity.y = 0.0f;
+				}
+				else
+				{
+					p_movement->mVelocity.z = 0.0f;
+				}
 			}
 
 			// If normal is +y, the object is on ground, unless it is a unit.
@@ -125,34 +158,6 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 			
 		}
 	}
-
-	// Resolve collisions.
-	for (CollisionInfo info : collisions)
-	{
-		// Reverting movement.
-		p_transform->position.x += info.mNormal.x * info.mOverlap;
-		p_transform->position.y += info.mNormal.y * info.mOverlap;
-		p_transform->position.z += info.mNormal.z * info.mOverlap;
-
-		// Find largest component of collision normal and set velocity in that direction to 0.
-
-		XMFLOAT3 abs_normal;
-		XMStoreFloat3(&abs_normal, XMVectorAbs(XMLoadFloat3(&info.mNormal)));
-
-		if (abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z)
-		{
-			p_movement->mVelocity.x = 0.0f;
-		}
-		else if (abs_normal.y > abs_normal.z)
-		{
-			p_movement->mVelocity.y = 0.0f;
-		}
-		else
-		{
-			p_movement->mVelocity.z = 0.0f;
-		}
-	}
-
 	p_movement->mOnGround = on_ground;
 	p_collision->mIntersect = intersect;
 	delete p_bv_copy;
