@@ -18,6 +18,7 @@
 
 #include "..//gameAnimation/AnimationEvents.h"
 #include "..//UI/UIComponents.h"
+#include "..//UI/UISystems.h"
 
 #include "..//gameUtility/CameraComponents.h"
 
@@ -477,6 +478,7 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		if (!GetSystem<systems::UpdateCameraSystem>())
 		{
 			CreateSystem<systems::UpdateDynamicCameraSystem>(1);
+			CreateSystem<systems::UIGuideSystem>(1);
 
 
 			// Change to dynamic camera

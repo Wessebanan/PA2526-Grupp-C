@@ -55,5 +55,11 @@ namespace ecs
 		{
 			float elapsedTime = 0.f;
 		};
+
+		struct GuideLinkerComponent : public ECSComponent<GuideLinkerComponent>
+		{
+			ID mPrev;
+			//ID mNext;
+		};
 	}
 }

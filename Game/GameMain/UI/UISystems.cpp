@@ -290,3 +290,54 @@ void ecs::systems::UICountDownSystem::onEvent(TypeID _eventType, BaseEvent* _eve
 		}
 	}
 }
+
+ecs::systems::UIGuideSystem::UIGuideSystem()
+{
+	updateType = SystemUpdateType::EntityUpdate;
+	typeFilter.addRequirement(components::UIBitmapComponent::typeID);
+	typeFilter.addRequirement(components::UIDrawPosComponent::typeID);
+	typeFilter.addRequirement(components::GuideLinkerComponent::typeID);
+
+	mElapsedTime = 0.0f;
+}
+
+ecs::systems::UIGuideSystem::~UIGuideSystem()
+{
+}
+
+void ecs::systems::UIGuideSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	components::UIBitmapComponent* p_UI_bitmap_comp = _entityInfo.getComponent<components::UIBitmapComponent>();
+	components::UIDrawPosComponent* p_UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
+	components::GuideLinkerComponent* p_guide_linker = _entityInfo.getComponent<components::GuideLinkerComponent>();
+
+
+	if (!p_UI_bitmap_comp || !p_guide_linker || !p_UI_pos_comp)
+	{
+		return;
+	}
+
+	mElapsedTime += _delta/8;
+
+	float per_image_time = 3.0f;
+
+	int curr_guide = ((int)(mElapsedTime / per_image_time));
+	
+	if (curr_guide > 7)
+		curr_guide = 7;
+
+	if (p_UI_bitmap_comp->mName == string("guide" + to_string(curr_guide)))
+	{
+		p_UI_pos_comp->mDrawArea.bottom = 1000;
+
+		UIDrawPosComponent* p_prev_pos = getComponentFromKnownEntity<UIDrawPosComponent>(p_guide_linker->mPrev);
+		if (p_prev_pos)
+			p_prev_pos->mDrawArea.bottom = 200;
+
+		if (mElapsedTime > per_image_time * 8)
+		{
+			p_UI_pos_comp->mDrawArea.bottom = 200;
+			RemoveSystem<UIGuideSystem>();
+		}
+	}
+}
