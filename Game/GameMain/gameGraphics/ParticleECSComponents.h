@@ -82,5 +82,19 @@ namespace ecs
 			uint8_t MaxGreen;
 			uint8_t MaxBlue;
 		};
+
+		struct TrapParticleSpawnComponent : public ECSComponent<TrapParticleSpawnComponent>
+		{
+			float InitialVelocity;
+			float SpawnCount;
+			char red, green, blue;
+		};
+
+		struct TrapParticleComponent : public ECSComponent<TrapParticleComponent>
+		{
+			float CurrentLifeDuration;
+			float TotalLifeDuration;
+			float Velocity;
+		};
 	}
 }

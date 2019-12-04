@@ -4,6 +4,7 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameUtility/UtilityGraphics.h"
 #include "../gameGameLoop/GameLoopEvents.h"
+#include "../gameGraphics/ParticleECSComponents.h"
 
 using namespace DirectX;
 
@@ -66,6 +67,27 @@ namespace ecs
 			}
 
 			createEntity(p_info->trapCompInfo, p_info->colorCompInfo, p_info->transfCompInfo);
+
+
+			/*
+				Spawn particles where the trap spawns, to make the spawn more visible for the player
+			*/
+
+			ParticleSpawnerComponent particle_spawner_comp;
+			TrapParticleSpawnComponent trap_particle_spawner_comp;
+
+			particle_spawner_comp.StartPosition = p_info->transfCompInfo.position;
+			particle_spawner_comp.SpawnFrequency = 0.005f;
+			particle_spawner_comp.TimerSinceLastSpawn = 0.0f;
+			particle_spawner_comp.LifeDuration = 1.0f;
+
+			trap_particle_spawner_comp.InitialVelocity = 10.f;
+			trap_particle_spawner_comp.SpawnCount = 100.f;
+			trap_particle_spawner_comp.red = 255;
+			trap_particle_spawner_comp.green = 255;
+			trap_particle_spawner_comp.blue = 255;
+
+			createEntity(particle_spawner_comp, trap_particle_spawner_comp);
 
 			/*
 				Remove queue info entity

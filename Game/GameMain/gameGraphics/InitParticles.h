@@ -52,4 +52,5 @@ void InitParticles(ecs::EntityComponentSystem& rECS)
 	CreateParticleType<SplashSpawnerSystem, SplashUpdateSystem, SplashParticleComponent>(rECS);
 	CreateParticleType<FireSpawnerSystem, FireUpdateSystem, FireParticleComponent>(rECS);
 	CreateParticleType<BombSpawnerSystem, BombUpdateSystem, BombParticleComponent>(rECS);
+	CreateParticleType<ParticleTrapSpawnerSystem, ParticleTrapUpdateSystem, TrapParticleComponent>(rECS);
 }
