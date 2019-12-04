@@ -99,6 +99,7 @@ public:
 	void SendVibrateAll();
 
 	bool checkReadyCheck();
+	void sendCommand(int player, int comm);
 
 	// returns true if there was a change to any of the allocated keys
 	bool updateKeyboard();

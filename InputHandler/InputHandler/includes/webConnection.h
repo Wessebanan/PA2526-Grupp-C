@@ -125,6 +125,7 @@ public:
 
 	// Returns the command of the player
 	string GetUserCommand(int player);
+	void SendUserCommand(int player, int comm);
 
 	// Returns the command of the player
 	bool GetUserPing(int player);
