@@ -70,6 +70,7 @@ const UINT g_RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
 #define MAPSIZETEST true
 
+#include "gameWeapons/WeaponSpawner.h"
 
 int main()
 {
@@ -268,59 +269,79 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 	//	count++;
 	//}
 
-	//events::SpawnWeaponEvent spawn_event;
-	//TypeFilter tile_filter;
-	//tile_filter.addRequirement(ecs::components::TileComponent::typeID);
-	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+	events::SpawnWeaponEvent spawn_event;
+	TypeFilter tile_filter;
+	tile_filter.addRequirement(ecs::components::TileComponent::typeID);
+	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
 
-	//GAME_OBJECT_TYPES traps[] =
+	GAME_OBJECT_TYPES traps[] =
+	{
+		GAME_OBJECT_TYPE_WEAPON_BOMB,
+		//GAME_OBJECT_TYPE_WEAPON_SWORD,
+		//GAME_OBJECT_TYPE_WEAPON_HAMMER,
+	};
+
+	int count = 0;
+	for (FilteredEntity tile : tiles.entities)
+	{
+		components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
+		if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
+		{
+			spawn_event.weaponType = traps[rand() % (sizeof(traps) / sizeof(GAME_OBJECT_TYPES))];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
+			spawn_event.spawnTileId = p_tile->getEntityID();
+			rECS.createEvent(spawn_event);
+		}
+
+		count++;
+	}
+
+	//// FOR WEAPON BALANCING, GIVES A FULL SET OF EACH WEAPON TO EACH PLAYER.
+	//SpawnWeaponEvent spawn;
+	//TypeFilter islet_tile_filter;
+	//islet_tile_filter.addRequirement(IsletComponent::typeID);
+	//islet_tile_filter.addRequirement(TileComponent::typeID);
+	//EntityIterator islet_tiles = rECS.getEntititesByFilter(islet_tile_filter);
+
+	//std::vector<GAME_OBJECT_TYPE> types;
+	//types.push_back(GAME_OBJECT_TYPE_WEAPON_SWORD);
+	//types.push_back(GAME_OBJECT_TYPE_WEAPON_HAMMER);
+	//types.push_back(GAME_OBJECT_TYPE_WEAPON_BOMB);
+	//types.push_back(GAME_OBJECT_TYPE_WEAPON_FIST);
+
+	//GAME_OBJECT_TYPE assigned[4] = { 0 };
+
+	//// Assign weapon type randomly to teams.
+	//int initial_size = types.size();
+	//for (int i = 0; i < initial_size; i++)
 	//{
-	//	GAME_OBJECT_TYPE_WEAPON_BOMB,
-	//	GAME_OBJECT_TYPE_WEAPON_SWORD,
-	//	GAME_OBJECT_TYPE_WEAPON_HAMMER,
-	//};
-
-	//int count = 0;
-	//for (FilteredEntity tile : tiles.entities)
-	//{
-	//	components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
-	//	if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
-	//	{
-	//		spawn_event.weaponType = traps[rand() % (sizeof(traps) / sizeof(GAME_OBJECT_TYPES))];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
-	//		spawn_event.spawnTileId = p_tile->getEntityID();
-	//		rECS.createEvent(spawn_event);
-	//	}
-
-	//	count++;
+	//	int index = rand() % types.size();
+	//	assigned[i] = types[index];
+	//	types.erase(types.begin() + index);
 	//}
 
-	// FOR WEAPON BALANCING, GIVES A FULL SET OF EACH WEAPON TO EACH PLAYER.
-	SpawnWeaponEvent spawn;
-	TypeFilter islet_tile_filter;
-	islet_tile_filter.addRequirement(IsletComponent::typeID);
-	islet_tile_filter.addRequirement(TileComponent::typeID);
-	EntityIterator islet_tiles = rECS.getEntititesByFilter(islet_tile_filter);
+	//unordered_map<GAME_OBJECT_TYPE, int> weapon_counts; 
+	//weapon_counts[GAME_OBJECT_TYPE_WEAPON_SWORD]	= 0;
+	//weapon_counts[GAME_OBJECT_TYPE_WEAPON_FIST]		= 0;
+	//weapon_counts[GAME_OBJECT_TYPE_WEAPON_HAMMER]	= 0;
+	//weapon_counts[GAME_OBJECT_TYPE_WEAPON_BOMB]		= 0;
 
-	for (FilteredEntity islet_tile : islet_tiles.entities)
-	{
-		IsletComponent* p_islet = islet_tile.getComponent<IsletComponent>();
-		TileComponent* p_tile = islet_tile.getComponent<TileComponent>();
-		spawn.spawnTileId = islet_tile.entity->getID();
+	//int2 grid_size = GridProp::GetInstance()->GetSize();
 
-		switch (p_islet->playerId)
-		{
-		case PLAYER1:
-			spawn.weaponType = GAME_OBJECT_TYPE_WEAPON_SWORD;
-			break;
-		case PLAYER2:
-			spawn.weaponType = GAME_OBJECT_TYPE_WEAPON_HAMMER;
-			break;
-		case PLAYER3:
-			spawn.weaponType = GAME_OBJECT_TYPE_WEAPON_BOMB;
-			break;
-		}
-		rECS.createEvent(spawn);
-	}	
+	//for (FilteredEntity islet_tile : islet_tiles.entities)
+	//{
+	//	IsletComponent* p_islet = islet_tile.getComponent<IsletComponent>();
+	//	TileComponent* p_tile = islet_tile.getComponent<TileComponent>();
+	//	int2 starting_tile_index = GridFunctions::FindStartingTile((PLAYER)p_islet->playerId, grid_size.x, grid_size.y, MAPINITSETTING::HOLMES);
+	//	TileData starting_tile_data = GridProp::GetInstance()->mGrid[starting_tile_index.y][starting_tile_index.x];
+	//	
+	//	spawn.spawnTileId = p_islet->getEntityID();
+	//	spawn.weaponType = assigned[p_islet->playerId];
+	//	if (weapon_counts[spawn.weaponType] < 3)
+	//	{
+	//		weapon_counts[spawn.weaponType]++;
+	//		rECS.createEvent(spawn);		
+	//	}
+	//}	
 
 #pragma endregion
 }

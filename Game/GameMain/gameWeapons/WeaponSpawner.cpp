@@ -118,8 +118,7 @@ namespace ecs
 
 			default:
 			{
-				weapon_color_comp.red = weapon_color_comp.green = weapon_color_comp.blue = 0;
-				break;
+				return;
 			}
 			}
 

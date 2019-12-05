@@ -41,9 +41,9 @@ namespace GridEcsFunctions
 		p_gp->SetSize(Rows,Columns);
 
 		// The default color, this will be applied to tiles without any biome
-		color.red = 0;
-		color.green = 0;
-		color.blue = 0;
+		color.red	= 184;
+		color.green = 134;
+		color.blue	= 11;
 
 		//Calculate the position and create every tile.
 		for (int i = 0; i < Rows; i++)
@@ -56,7 +56,7 @@ namespace GridEcsFunctions
 				
 				//Save the calculated values into the PositionComponent.
 				transform.position.x = current_pos.x;
-				transform.position.y = height_map[(i*MAX_ARENA_ROWS)+j];
+				transform.position.y = height_map[(i * MAX_ARENA_ROWS) + j];
 				transform.position.z = current_pos.z;
 				if (transform.position.y <= -0.9f)
 				{
@@ -66,7 +66,7 @@ namespace GridEcsFunctions
 					p_gp->mGrid[i][j].isPassable = false;
 					p_gp->mGrid[i][j].biome = -1;
 				}
-				else if (transform.position.y >= 3)
+				/*else if (transform.position.y >= 3)
 				{
 					tile.tileType = GAME_FIELD;
 					tile.impassable = false;
@@ -81,7 +81,7 @@ namespace GridEcsFunctions
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = false;
 					p_gp->mGrid[i][j].biome = -1;
-				}
+				}*/
 				else
 				{
 					tile.tileType = GAME_FIELD;
@@ -89,6 +89,7 @@ namespace GridEcsFunctions
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = true;
 					p_gp->mGrid[i][j].biome = -1;
+					transform.position.y = 1.0f;
 				}
 
 
@@ -98,7 +99,7 @@ namespace GridEcsFunctions
 				*/
 
 				components::IsletComponent islet_comp_info;
-
+				
 				current_tile = rEcs.createEntity(transform, color, tile);
 
 				// Check if islet

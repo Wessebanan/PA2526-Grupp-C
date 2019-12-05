@@ -569,7 +569,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 		p_army->unitIDs.clear();
 
 
-		////Fetch the index of the starting tile for this player.
+		//Fetch the index of the starting tile for this player.
 		starting_tile_index = GridFunctions::FindStartingTile(p_army->playerID, size.x, size.y, MAPINITSETTING::HOLMES);
 		temp_id = p_gp->mGrid[starting_tile_index.x][starting_tile_index.y].Id;
 		p_transform = getComponentFromKnownEntity<ecs::components::TransformComponent>(temp_id);

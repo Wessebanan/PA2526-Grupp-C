@@ -88,7 +88,7 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 		p_obj_color_cmp = r_obj.getComponent<ColorComponent>();
 
 		p_tile_comp = map_tile_iterator.entities[random_tile_indicess[index]].getComponent<TileComponent>();
-		p_tile_comp->impassable = true;
+		p_tile_comp->impassable = true;		
 		p_tile_transform_comp = map_tile_iterator.entities[random_tile_indicess[index]].getComponent<TransformComponent>();
 
 		p_scene_comp->ChangeModelByBiome(p_tile_comp->biome);
@@ -102,5 +102,5 @@ void InitSceneObjects(ecs::EntityComponentSystem& rECS)
 		index++;
 	}
 
-	delete random_tile_indicess;
+	delete[] random_tile_indicess;
 }
