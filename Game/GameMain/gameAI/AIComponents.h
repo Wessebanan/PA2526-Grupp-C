@@ -74,6 +74,7 @@ namespace ecs
 		struct UnitComponent : public ECSComponent<UnitComponent>
 		{
 			PLAYER playerID; //Holds an enum to know which player the unit belongs to.
+			bool hasDiedBefore = false;
 		};
 
 		struct ArmyComponent : public ECSComponent<ArmyComponent>
@@ -93,7 +94,6 @@ namespace ecs
 			};
 			CauseOfDeath cause;			// Kind of death
 			DirectX::XMFLOAT3 position;	// Save position of where the dead happened
-			bool hasDiedBefore = false;
 		};
 
 		struct UnitScalePercent : public ECSComponent<UnitScalePercent>

@@ -227,7 +227,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		}
 
 		// Don't do anything with a unit that is invincible.
-		if (units.entities.at(i).entity->hasComponentOfType<InvincilibityTimer>())
+		if (units.entities.at(i).entity->hasComponentOfType<InvincilibityTimer>() || units.entities.at(i).entity->hasComponentOfType<DeadComponent>())
 		{
 			continue;
 		}

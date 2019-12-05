@@ -838,7 +838,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 			y_distance = p_goal->position.y - p_transform->position.y;
 		}
 
-		if (y_distance > 0.3f && p_dyn_move->mOnGround)
+		if (y_distance > 0.3f && p_dyn_move->mOnGround && y_distance < 5.f)
 		{
 			length = PhysicsHelpers::CalculateDistance(XMFLOAT3(p_goal->position.x, 0.0f, p_goal->position.z), XMFLOAT3(p_transform->position.x, 0.0f, p_transform->position.z));//Length from unit to goal center
 			length_of_vector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
@@ -1252,7 +1252,7 @@ ecs::systems::RemoveDeadUnitsSystem::RemoveDeadUnitsSystem()
 	typeFilter.addRequirement(UnitComponent::typeID);
 	typeFilter.addRequirement(HealthComponent::typeID);
 	typeFilter.addRequirement(EquipmentComponent::typeID);
-	typeFilter.addRequirement(DynamicMovementComponent::typeID);
+	//typeFilter.addRequirement(DynamicMovementComponent::typeID);
 	typeFilter.addRequirement(TransformComponent::typeID);
 	typeFilter.addRequirement(ColorComponent::typeID);
 }
@@ -1264,8 +1264,8 @@ ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
 
 void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, float delta)
 {
-	DeadComponent* p_dead = entity.getComponent<DeadComponent>();
-	if (!p_dead->hasDiedBefore)// Check if the unit have been in this funtion before if it have then don't do certain things
+	UnitComponent* p_unit = entity.getComponent<UnitComponent>();
+	if (!p_unit->hasDiedBefore)// Check if the unit have been in this funtion before if it have then don't do certain things
 	{
 		// The killers ID
 		unsigned int killer_id = 0;
@@ -1297,10 +1297,11 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 			sound.audioName = SOUND_sploosh;
 			sound.soundFlags = SF_NONE;
 			ecs::ECSUser::createEvent(sound);
+			ECSUser::removeEntity(entity.entity->getID());
 		}
 		// saved fo future use
 					//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
-		UnitComponent* p_unit = entity.getComponent<UnitComponent>();
+		
 		ComponentIterator itt = getComponentsOfType<ArmyComponent>();
 		ArmyComponent* p_army;
 		while (p_army = (ArmyComponent*)itt.next())
@@ -1347,17 +1348,17 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 					scale_offset_y = fabsf(p_killer_scale->scale.y - p_killer_add_scale->UnitScale);
 
 					p_killer_scale->position.y += p_killer_scale->scale.y * scale_offset_y;
-					ECSUser::removeComponent(entity.entity->getID(), PoiComponent::typeID);
-					ECSUser::removeComponent(entity.entity->getID(), MoveStateComponent::typeID);
-					ECSUser::removeComponent(entity.entity->getID(), ObjectCollisionComponent::typeID);
-					p_dead->hasDiedBefore = true;
 				}
 			}
 		}
+					ECSUser::removeComponent(entity.entity->getID(), PoiComponent::typeID);
+					ECSUser::removeComponent(entity.entity->getID(), DynamicMovementComponent::typeID);
+					ECSUser::removeComponent(entity.entity->getID(), MoveStateComponent::typeID);
+					ECSUser::removeComponent(entity.entity->getID(), ObjectCollisionComponent::typeID);
+					p_unit->hasDiedBefore = true;
 	}
 
 	//Make them fly and turn white :)
-	DynamicMovementComponent* unit_dyn_move = entity.getComponent<DynamicMovementComponent>();
 	TransformComponent* unit_transform = entity.getComponent<TransformComponent>();
 	ColorComponent* unit_color = entity.getComponent<ColorComponent>();
 
@@ -1366,13 +1367,10 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 	unit_color->green = 255;
 	unit_color->blue = 255;
 	//Remove gravity and give them a constant up velocity
-	unit_dyn_move->mGravity = 0.f;
-	unit_dyn_move->mVelocity.y = 2.f;
-	unit_dyn_move->mVelocity.x = 0.f;
-	unit_dyn_move->mVelocity.z = 0.f;
+	unit_transform->position.y += 3.f * delta;
 
 	//Remove the dead unit
-	if(unit_transform->position.y >= 20.f)
+	if (unit_transform->position.y >= 20.f)
 	{
 		EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
 		Entity* p_weapon_entity = ECSUser::getEntity(p_equipment_comp->mEquippedWeapon);
