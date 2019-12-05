@@ -310,7 +310,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 		after all ecs systems has been updated.
 	*/
 	
-	TempUISystemPtrs ui_systems;
 	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, clientWidth, clientHeight);
 	InitMeshes(rECS);
 	InitGraphicsPreRenderSystems(rECS);
@@ -361,7 +360,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
-	InitUI(rECS, ui_systems);
+	InitUI(rECS);
 
 	InitWeapons(rECS);
 
