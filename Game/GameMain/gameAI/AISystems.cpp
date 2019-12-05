@@ -1347,6 +1347,9 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 					scale_offset_y = fabsf(p_killer_scale->scale.y - p_killer_add_scale->UnitScale);
 
 					p_killer_scale->position.y += p_killer_scale->scale.y * scale_offset_y;
+					ECSUser::removeComponent(entity.entity->getID(), PoiComponent::typeID);
+					ECSUser::removeComponent(entity.entity->getID(), MoveStateComponent::typeID);
+					ECSUser::removeComponent(entity.entity->getID(), ObjectCollisionComponent::typeID);
 					p_dead->hasDiedBefore = true;
 				}
 			}
@@ -1357,6 +1360,7 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 	DynamicMovementComponent* unit_dyn_move = entity.getComponent<DynamicMovementComponent>();
 	TransformComponent* unit_transform = entity.getComponent<TransformComponent>();
 	ColorComponent* unit_color = entity.getComponent<ColorComponent>();
+
 	//White
 	unit_color->red = 255;
 	unit_color->green = 255;
