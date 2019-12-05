@@ -19,8 +19,9 @@ bool InitSound(ecs::EntityComponentSystem& rECS)
 		rECS.removeSystem<ecs::systems::SoundMessageSystem>();
 		return false;
 	}
-
-	//rECS.createSystem<ecs::systems::SoundCooldownClearSystem>(9);
+	
+	rECS.createSystem<ecs::systems::MusicSpeedSystem>(8);
+	rECS.createSystem<ecs::systems::SpeedUpOnRoundEnd>();
 
 	rECS.createSystem<ecs::systems::BattleMusicIntensitySystem>()->Init();
 	rECS.createSystem<ecs::systems::SubTrackUpdateSystem>();
