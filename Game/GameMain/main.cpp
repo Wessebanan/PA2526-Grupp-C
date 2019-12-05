@@ -215,6 +215,7 @@ int main()
 	return 0;
 
 }
+
 void DebuggFunctions(EntityComponentSystem& rECS)
 {
 #pragma region FOR_DEBUGGING_DO_NOT_REMOVE
