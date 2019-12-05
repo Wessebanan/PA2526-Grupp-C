@@ -53,7 +53,13 @@ namespace ecs
 
 			float mElapsedTime = 0;
 
+			// The damage affected by delta
 			float mDamagePerSecond;
+
+			// how often the particles should pulse
+			float mPulseInterval;
+			// Holds the time between pulses
+			float mPulseCounter;
 		};
 
 		struct SpikeTrapComponent : public ecs::ECSComponent<SpikeTrapComponent>
