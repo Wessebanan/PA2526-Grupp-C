@@ -188,7 +188,7 @@ int main()
 			/*
 				Update all ECS systems, and give them the delta time.
 			*/
-			ecs.update(timer.GetFrameTime());
+			ecs.update(timer.GetFrameTime()*3);
 
 			graphics::Present(0);
 		}

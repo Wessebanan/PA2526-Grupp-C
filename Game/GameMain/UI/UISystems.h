@@ -178,6 +178,16 @@ namespace ecs
 
 			Direct2D* mpD2D;
 		};
+
+		class UIGameRestartSystem : public ECSSystem<UIGameRestartSystem>
+		{
+		public:
+			UIGameRestartSystem();
+			virtual ~UIGameRestartSystem();
+			void readEvent(BaseEvent& _event, float _delta) override;
+
+			Direct2D* mpD2D;
+		};
 	}
 
 }
