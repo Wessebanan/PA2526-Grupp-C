@@ -363,27 +363,6 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		}
 
 
-		itt = getComponentsOfType<components::UIBitmapComponent>();
-		UIBitmapComponent* bitmap_comp;
-
-		while (bitmap_comp = (UIBitmapComponent*)itt.next())
-		{
-			if (bitmap_comp->mName == "guide1")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 1000;
-			}
-			if (bitmap_comp->mName == "guide2")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 1000;
-			}
-		}
-
-
-
 		itt = getComponentsOfType<UITextComponent>();
 		UITextComponent* text_comp;
 		UIDrawPosComponent* draw_pos_comp;

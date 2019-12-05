@@ -274,21 +274,41 @@ void ecs::systems::UIGuideSystem::updateEntity(FilteredEntity& _entityInfo, floa
 	components::GuideLinkerComponent* p_guide_linker = _entityInfo.getComponent<components::GuideLinkerComponent>();
 
 	// Sanity check
-	if (!p_UI_bitmap_comp || !p_guide_linker || !p_UI_pos_comp)
-	{
-		return;
-	}
+	if (!p_UI_bitmap_comp || !p_guide_linker || !p_UI_pos_comp) return;
 
 	// This function runs 8 times
 	mElapsedTime += _delta / 8.0f;
 
-	float per_image_time = 3.0f;
+	float per_image_time[8] = 
+	{
+		3.0f,
+		5.0f,
+		6.0f,
+		8.0f,
 
-	int curr_guide = ((int)(mElapsedTime / per_image_time));
+		6.0f,
+		7.0f,
+		5.0f,
+		3.0f,
+	};
+
+	float time_sum = 0.0f;
+	for (size_t i = 0; i < 8; i++) 
+		time_sum += per_image_time[i];
+
+	//int curr_guide = ((int)(mElapsedTime / per_image_time));
+
+	float passed_image = 0.0f;
+	int i;
+	for (i = 0; passed_image < mElapsedTime && i < 8; i++)
+	{
+		passed_image += per_image_time[i];
+	}
+	int curr_guide = i - 1;
 	
 	// Safty check
-	if (curr_guide > 7)
-		curr_guide = 7;
+	if (curr_guide < 0)
+		curr_guide = 0;
 
 	if (p_UI_bitmap_comp->mName == string("guide" + to_string(curr_guide)))
 	{
@@ -299,7 +319,7 @@ void ecs::systems::UIGuideSystem::updateEntity(FilteredEntity& _entityInfo, floa
 			p_prev_pos->mDrawArea.bottom = 200;
 
 		// When all images are done, remove the system
-		if (mElapsedTime > per_image_time * 8)
+		if (mElapsedTime > time_sum)
 		{
 			p_UI_pos_comp->mDrawArea.bottom = 200;
 			RemoveSystem<UIGuideSystem>();
