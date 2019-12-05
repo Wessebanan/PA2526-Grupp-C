@@ -47,6 +47,15 @@ namespace ecs
 			float TargetOffsetY;
 		};
 
+		struct BurningComponent : public ecs::ECSComponent<BurningComponent>
+		{
+			float mDuration;
+
+			float mElapsedTime = 0;
+
+			float mDamagePerSecond;
+		};
+
 		struct SpikeTrapComponent : public ecs::ECSComponent<SpikeTrapComponent>
 		{
 

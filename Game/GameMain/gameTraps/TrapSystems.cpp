@@ -278,7 +278,13 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 					HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(unit_id);
 					if (p_hp_comp)
 					{
-						p_hp_comp->mHealth -= trap_damage;// mDamage* delta;
+						ecs::components::BurningComponent burning_comp;
+						burning_comp.mDamagePerSecond = 10.0f;
+						burning_comp.mDuration = 4.0f;
+						burning_comp.mElapsedTime = 0.0f;
+						
+						ecs::ECSUser::createComponent(unit_id, burning_comp);
+						
 
 						// Make the unit jump a litte, fire is hot and so am I
 						ForceImpulseEvent knockback;
@@ -286,14 +292,6 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 						knockback.mForce = mKnockback;
 						knockback.mEntityID = unit_id;
 						createEvent(knockback);
-
-
-						// Check if the unit died
-						if (p_hp_comp->mHealth <= 0.0f)
-						{
-							ecs::components::DeadComponent dead_comp;
-							ecs::ECSUser::createComponent(unit_id, dead_comp);
-						}
 					}
 				}
 				delete p_bv_copy;
@@ -585,9 +583,10 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 
 	ID trap_id = r_event.trapID;
 	ID tile_id = r_event.tileID;
+	ID unit_id = r_event.unitID;
 
 
-	if (trap_id < 1 || tile_id < 1) return;
+	if (trap_id < 1 || tile_id < 1 || unit_id < 1) return;
 
 	TransformComponent* p_tile_transform = getComponentFromKnownEntity<TransformComponent>(tile_id);
 	TransformComponent* p_trap_transform = getComponentFromKnownEntity<TransformComponent>(trap_id);
@@ -651,12 +650,10 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 					damage_flash.mTime = 0.05f;
 					createEvent(damage_flash);
 
-					// Make the unit jump a litte because of sharp 
-					ForceImpulseEvent knockback;
-					knockback.mDirection = DirectX::XMFLOAT3(0, 1.0f, 0);
-					knockback.mForce = trap_force;
-					knockback.mEntityID = unit.entity->getID();
-					createEvent(knockback);
+					ecs::components::SpikeTrapComponent burning_comp;
+
+					ecs::ECSUser::createComponent(unit.entity->getID(), burning_comp);
+
 				}
 			}
 		}
