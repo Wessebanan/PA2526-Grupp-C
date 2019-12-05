@@ -184,11 +184,15 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 		if (p_inputbackend->backend->mpPlayerIsConnected[p_army_comp->playerID] == true)
 		{
 			ECSUser::removeComponent(p_army_comp->getEntityID(), AiBrainComponent::typeID);
+			getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = wstring(p_inputbackend->backend->mpUserNames[p_army_comp->playerID].begin(), p_inputbackend->backend->mpUserNames[p_army_comp->playerID].end());
 		}	
 		else
 		{
 			if (!ECSUser::getEntity(p_army_comp->getEntityID())->hasComponentOfType<AiBrainComponent>())
 			{
+				getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = L"CPU";
+
+
 				AiBrainComponent ai_brain;
 				ai_brain.mPlayer = p_army_comp->playerID;
 				ai_brain.mTimer = ai_brain.mPlayer;
