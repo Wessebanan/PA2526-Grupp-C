@@ -75,6 +75,7 @@ namespace ModelLoader
 		IDLE,
 		MOVE,
 		ATTACK,
+		HAMMERATTACK,
 		ANIMATION_COUNT
 	};
 
