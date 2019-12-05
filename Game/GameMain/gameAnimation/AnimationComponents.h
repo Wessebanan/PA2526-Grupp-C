@@ -1,7 +1,6 @@
 #pragma once
 #include "ecsComponentIncludes.h"
 #include "Fbx_Loader.h"
-#include "../gameRagdoll/Ragdoll.h"
 
 namespace ecs {
 
@@ -10,7 +9,6 @@ namespace ecs {
 		struct SkeletonComponent : public ECSComponent<SkeletonComponent>
 		{
 			ModelLoader::UniqueSkeletonData skeletonData;
-			Ragdoll ragdoll;
 			float pingTimeElapsed = -1;
 		};
 

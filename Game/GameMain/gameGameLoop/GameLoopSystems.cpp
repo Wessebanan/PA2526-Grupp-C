@@ -31,6 +31,8 @@
 
 #include "HttpServer.h"
 
+#include "../gameRagdoll/Ragdoll.h"
+
 using namespace ecs;
 using namespace ecs::components;
 
