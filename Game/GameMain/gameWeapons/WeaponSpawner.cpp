@@ -70,6 +70,18 @@ namespace ecs
 			switch (r_spawn_event.weaponType)
 			{
 			case GAME_OBJECT_TYPE_WEAPON_SWORD:
+			{
+				weapon_offset_y = 1.1f;
+
+				// Set Rotation when at pick-up stage
+				weapon_transform_comp.rotation.x -= 3.14f * 0.4f;
+				weapon_transform_comp.rotation.y += 3.14f * 0.3f;
+
+				weapon_color_comp.red	= 150;
+				weapon_color_comp.green = 150;
+				weapon_color_comp.blue	= 150;
+				break;
+			}
 			case GAME_OBJECT_TYPE_WEAPON_HAMMER:
 			{
 				/*
@@ -85,9 +97,9 @@ namespace ecs
 				weapon_transform_comp.rotation.y += 3.14f * 0.3f;
 				
 
-				weapon_color_comp.red = 200;
-				weapon_color_comp.green = 130;
-				weapon_color_comp.blue = 20;
+				weapon_color_comp.red	= 184;
+				weapon_color_comp.green = 134;
+				weapon_color_comp.blue	= 11;
 
 				break;
 			}
@@ -96,9 +108,9 @@ namespace ecs
 			{
 				weapon_offset_y = 0.05f;
 
-				weapon_color_comp.red = 200;
-				weapon_color_comp.green = 130;
-				weapon_color_comp.blue = 20;
+				weapon_color_comp.red	= 40;
+				weapon_color_comp.green = 40;
+				weapon_color_comp.blue	= 40;
 
 				break;
 			}

@@ -18,6 +18,7 @@
 
 #include "..//gameAnimation/AnimationEvents.h"
 #include "..//UI/UIComponents.h"
+#include "..//UI/UISystems.h"
 
 #include "..//gameUtility/CameraComponents.h"
 
@@ -78,7 +79,7 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 		if (p_text->tag != UITAG::STARTTEXT)
 		{
 			// To be sent to the UI
-			wstring ss = L"";
+			wstring ss = L"\n";
 		
 			ss.append(L"\nFRAMERATE: ");
 			ss.append(to_wstring(framerate_to_print));
@@ -109,7 +110,7 @@ void ecs::systems::WaitForStartupSystem::updateEntity(FilteredEntity& _entityInf
 	InputBackendComp* p_ib = _entityInfo.getComponent<InputBackendComp>();
 	if (p_ib)
 	{
-		if (p_ib->backend->checkReadyCheck())
+		if (p_ib->backend->checkReadyCheck() && !GetSystem<systems::UIGuideSystem>())
 		{
 			// Starts the first round, should be removed when prepphase is implemented
 			ecs::events::RoundStartEvent eve;
@@ -184,11 +185,15 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 		if (p_inputbackend->backend->mpPlayerIsConnected[p_army_comp->playerID] == true)
 		{
 			ECSUser::removeComponent(p_army_comp->getEntityID(), AiBrainComponent::typeID);
+			getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = wstring(p_inputbackend->backend->mpUserNames[p_army_comp->playerID].begin(), p_inputbackend->backend->mpUserNames[p_army_comp->playerID].end());
 		}	
 		else
 		{
 			if (!ECSUser::getEntity(p_army_comp->getEntityID())->hasComponentOfType<AiBrainComponent>())
 			{
+				getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = L"CPU";
+
+
 				AiBrainComponent ai_brain;
 				ai_brain.mPlayer = p_army_comp->playerID;
 				ai_brain.mTimer = ai_brain.mPlayer;
@@ -362,27 +367,6 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		}
 
 
-		itt = getComponentsOfType<components::UIBitmapComponent>();
-		UIBitmapComponent* bitmap_comp;
-
-		while (bitmap_comp = (UIBitmapComponent*)itt.next())
-		{
-			if (bitmap_comp->mName == "guide1")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 1000;
-			}
-			if (bitmap_comp->mName == "guide2")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 1000;
-			}
-		}
-
-
-
 		itt = getComponentsOfType<UITextComponent>();
 		UITextComponent* text_comp;
 		UIDrawPosComponent* draw_pos_comp;
@@ -506,18 +490,6 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
 
 				bitmap_pos_comp->mDrawArea.bottom = 150;
-			}
-			if (bitmap_comp->mName == "guide1")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 200;
-			}
-			if (bitmap_comp->mName == "guide2")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 200;
 			}
 		}
 

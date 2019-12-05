@@ -12,6 +12,8 @@
 #include "..//gameTraps/TrapComponents.h"
 #include "..\gameTraps\TrapSystems.h"
 
+#include "..//UI/UISystems.h"
+
 using namespace ecs;
 using namespace ecs::components;
 
@@ -116,6 +118,12 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 				//createEvent(trap_event);
 				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
 				//createEvent(trap_event);
+			}
+			else if (ucComp->userCommands[i].mCommand == "tutorial")//&& p_player_state_comp->mCurrentStates[i] != STATE::FLEE)
+			{
+				// Hax to have the player beeing able to send a command to start  the tutorial
+
+				CreateSystem<UIGuideSystem>(1);
 			}
 		}
 	}

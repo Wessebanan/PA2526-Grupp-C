@@ -86,29 +86,32 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 
 
 	// GUIDE
-
-	// save this to switch between different opacities
-	bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/GUIDE1.1.png", "guide1");
-
-	bitmap_comp.mName = "guide1";
 	bitmap_pos_comp.mDrawArea.top = 200;
 	bitmap_pos_comp.mDrawArea.left = 300;
-	bitmap_pos_comp.mDrawArea.right = 850;
-
-	// Save these if you want to srtart with the overlay open or not
-	bitmap_pos_comp.mDrawArea.bottom = 1000;
-
-	//rECS.createEntity(bitmap_comp,bitmap_pos_comp);
-
-	// save this to switch between different opacities
-	bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap("../../UI/Resource/GUIDE2.1.png", "guide2");
-
-	bitmap_comp.mName = "guide2";
-	bitmap_pos_comp.mDrawArea.left = 1050;
 	bitmap_pos_comp.mDrawArea.right = 1600;
 
+	// Save these if you want to srtart with the overlay open or not
+	bitmap_pos_comp.mDrawArea.bottom = 200;
+	//bitmap_pos_comp.mDrawArea.bottom = 1000;
+	ID prev = -1;
 
-	//rECS.createEntity(bitmap_comp,bitmap_pos_comp);
+	for (size_t i = 0; i < 8; i++)
+	{
+		//int i = 1;
+		string name = "guide";
+		name += to_string(i);
+		string file_name = "../../UI/Resource/GAMEGUIDE (" + to_string(i) + ").png";
+
+		// save this to switch between different opacities
+		bitmap_comp.mpBitmap = my_d2d->LoadImageToBitmap(file_name, name);
+
+		bitmap_comp.mName = name;
+
+		GuideLinkerComponent link;
+		link.mPrev = prev;
+	
+		prev = rECS.createEntity(bitmap_comp,bitmap_pos_comp, link)->getID();
+	}
 
 	ecs::components::UIDrawColorComponent text_color;
 	ecs::components::UITextComponent text;
