@@ -17,28 +17,30 @@ namespace Audio
 		{
 			// Choose what this will modify
 			M_TARGET_MAIN =				0,
-			M_TARGET_SUB =				1,
-			M_TARGET_MASK =				0b1,
+			M_TARGET_SECONDARY =		1,
+			M_TARGET_SUB =				2,
+			M_TARGET_MASK =				0b11,
 			// What to do with the data pointer
 			M_DATA_NO_DATA =			0,
-			M_DATA_AS_PARAMETER =		(1 << 1),
-			M_DATA_MASK =				(0b1 << 1),
+			M_DATA_AS_PARAMETER =		(1 << 2),
+			M_DATA_MASK =				(0b1 << 2),
 			// If the data was a pointer, it may have to be deleted
 			M_DATA_TEARDOWN_NOTHING =	0,
-			M_DATA_TEARDOWN_DELETE =	(1 << 2),
-			M_DATA_TEARDOWN_MASK =		(0b1 << 2),
+			M_DATA_TEARDOWN_DELETE =	(1 << 3),
+			M_DATA_TEARDOWN_MASK =		(0b1 << 3),
 			// Syncs
 			M_SYNC_NO_SYNC =			0,
-			M_SYNC_THIS_WITH_OTHER =	(1 << 3),
-			M_SYNC_OTHER_WITH_THIS =	(2 << 3),
-			M_SYNC_MASK =				(0b11 << 3),
+			M_SYNC_THIS_WITH_OTHER =	(1 << 4),
+			M_SYNC_OTHER_WITH_THIS =	(2 << 4),
+			M_SYNC_MASK =				(0b11 << 4),
 			// Functions
 			M_FUNC_NOTHING =			0,
-			M_FUNC_REPLACE_MUSIC =		(1 << 5),
-			M_FUNC_SET_GAIN =			(2 << 5),
-			M_FUNC_FADE_IN =			(3 << 5),
-			M_FUNC_FADE_OUT =			(4 << 5),
-			M_FUNC_MASK =				(0b111 << 5)
+			M_FUNC_REPLACE_MUSIC =		(1 << 6),
+			M_FUNC_SET_GAIN =			(2 << 6),
+			M_FUNC_FADE_IN =			(3 << 6),
+			M_FUNC_FADE_OUT =			(4 << 6),
+			M_FUNC_SET_SPEED =			(5 << 6),
+			M_FUNC_MASK =				(0b111 << 6)
 
 		};
 		union MessageDataUnion
@@ -90,10 +92,12 @@ namespace Audio
 			void SetGain(Message& rMessage, MusicVoiceData* pTarget);
 			void FadeIn(Message& rMessage, MusicVoiceData* pTarget);
 			void FadeOut(Message& rMessage, MusicVoiceData* pTarget);
+			void SetSpeed(Message& rMessage, MusicVoiceData* pTarget);
 
 			Ringbuffer<Music::Message, SOUND_MAX_MUSIC_MESSAGES> mMusicMessageBuffer;
 			//Voice mMusicVoices[SOUND_MAX_MUSIC_VOICES];
 			MusicVoiceData mMainData;
+			MusicVoiceData mSecondaryData;
 			MusicVoiceData mSubData;
 		};
 	}

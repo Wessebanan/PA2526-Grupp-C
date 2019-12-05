@@ -286,6 +286,9 @@ void WebConnection::PlayersJoin()
 						string ss;
 						ss += "2. USER " + to_string(IdUserSocket(sock));
 						this->SendMsg(sock, (char*)ss.c_str(), iSendResult);
+
+
+						BroadcastMsgJoined();
 					}
 					// if the socket is the listener in the array
 					else
@@ -402,6 +405,28 @@ void WebConnection::BroadcastMsg(string msg)
 	}
 }
 
+void WebConnection::BroadcastMsgJoined()
+{
+	int p = 0;
+	while (p < 4)
+	{
+		// Broadcast channel in the futore
+		string ss = "5.";
+		if (this->mPlayerSockets[p] == -1)
+		{
+			ss += "d";
+		}
+		else
+		{
+			ss += "j";
+		}
+		
+		ss += to_string(p);
+		BroadcastMsg(ss);
+		p++;
+	}
+}
+
 int WebConnection::GetUserButton(int player)
 {
 	return mUsers[player].button;
@@ -436,6 +461,32 @@ string WebConnection::GetUserCommand(int player)
 	string str = mUsers[player].command;
 	mUsers[player].command = "";
 	return str;
+}
+
+void WebConnection::SendUserCommand(int player, int comm)
+{
+	string ss = "6.";
+
+	switch (comm)
+	{
+	case 0: // ATTACK
+		ss += "0";
+		break;
+	case 1: // LOOT
+		ss += "1";
+		break;
+	case 2: // REGROUP
+		ss += "2";
+		break;
+	case 3: // FLEE
+		ss += "3";
+		break;
+	default: // ERROR
+		ss += "error";
+		break;
+	}
+
+	this->SendMsg(mUserSockets[mPlayerSockets[player]], (char*)ss.c_str(), iSendResult);
 }
 
 bool WebConnection::GetUserPing(int player)
@@ -512,6 +563,17 @@ bool WebConnection::ReadyCheck()
 		}
 
 	return ret_val;
+}
+
+void WebConnection::SendVibration(int playerIndex)
+{
+	this->SendMsg(mUserSockets[mPlayerSockets[playerIndex]], (char*)"vib", iSendResult);
+
+}
+
+void WebConnection::SendVibrationAll()
+{
+	BroadcastMsg("vib");
 }
 
 void WebConnection::InitThread(void)
@@ -760,6 +822,11 @@ bool WebConnection::RemoveUserSocket(SOCKET sock, int error)
 		this->mPlayerSockets[player_id] = -1;
 		this->mUsers[player_id].connected = false;
 
+
+
+		// Send out to all users the new discornected player
+		BroadcastMsgJoined();
+
 		if (error == 0)
 		{
 			printf("Connection closing...\n");
@@ -866,6 +933,9 @@ bool WebConnection::AddPlayerSocket(SOCKET sock)
 	mPlayerSockets[first_empty] = IdUserSocket(sock);
 	mUsers[first_empty].connected = true;
 	this->nrOfPlayers++;
+
+	// Send out to all users the new connected player
+	BroadcastMsgJoined();
 
 	return true;
 }

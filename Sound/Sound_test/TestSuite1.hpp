@@ -395,9 +395,10 @@ TEST(SoundAPI, MusicMixing)
 	std::string file_paths[] =
 	{
 		"cc_song.wav",
+		"cc_chill.wav",
 		"cc_drums.wav"
 	};
-	ASSERT_TRUE(bank.LoadMultipleFiles(file_paths, 2));
+	ASSERT_TRUE(bank.LoadMultipleFiles(file_paths, 3));
 
 	// Setup engine
 	SetupEngine(engine, mixer, pa_init);
@@ -420,7 +421,7 @@ TEST(SoundAPI, MusicMixing)
 	Pa_Sleep(4000);
 
 	mixer.AddMusicMessage({
-		bank[1],
+		bank[2],
 		Audio::Music::M_FUNC_REPLACE_MUSIC |
 		Audio::Music::M_DATA_AS_PARAMETER |
 		Audio::Music::M_TARGET_SUB |
@@ -443,10 +444,45 @@ TEST(SoundAPI, MusicMixing)
 
 	Pa_Sleep(4000);
 
+	// --- NEW NEW NEW ---
+
+	mixer.AddMusicMessage({
+		bank[1],
+		Audio::Music::M_FUNC_REPLACE_MUSIC |
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_TARGET_SECONDARY |
+		Audio::Music::M_SYNC_THIS_WITH_OTHER
+		});
+
+	mixer.AddMusicMessage({
+		0.0f,
+		Audio::Music::M_FUNC_SET_GAIN |
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_TARGET_SECONDARY
+		});
+
+	mixer.AddMusicMessage({
+		(unsigned long)80000,
+		Audio::Music::M_FUNC_FADE_IN |
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_TARGET_SECONDARY
+		});
+
+	mixer.AddMusicMessage({
+		(unsigned long)80000,
+		Audio::Music::M_FUNC_FADE_OUT |
+		Audio::Music::M_DATA_AS_PARAMETER
+		});
+
+	Pa_Sleep(2000);
+
+	// ----- END NEW -----
+
 	mixer.AddMusicMessage({
 		(unsigned long)120000,
 		Audio::Music::M_FUNC_FADE_OUT |
-		Audio::Music::M_DATA_AS_PARAMETER
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_TARGET_SECONDARY
 		});
 
 	mixer.AddMusicMessage({

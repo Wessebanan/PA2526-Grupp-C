@@ -1,5 +1,8 @@
+#include "..//Input/InitInputBackendComponent.h"
 #include "AISystems.h"
+#include "../gameUtility/UtilityEcsFunctions.h"
 #include "../gameUtility/CameraComponents.h"
+
 
 using namespace ecs::components;
 using namespace ecs::events;
@@ -242,7 +245,8 @@ std::vector<unsigned int> ecs::systems::PathfindingStateSystem::GetPath(unsigned
 			for (int i = 0; i < 6; i++) // put new neighbours in open list or maybe update old neighbour move cost
 			{
 				if (current_tile->neighboursIDArray[i] != 0 &&
-					!closed_list.count(current_tile->neighboursIDArray[i])) //check so that the neightbour is valid and not in the closed list
+					!closed_list.count(current_tile->neighboursIDArray[i]) &&
+					!ECSUser::getComponentFromKnownEntity<TileComponent>(current_tile->neighboursIDArray[i])->impassable) //check so that the neightbour is valid and not in the closed list and is passable
 				{
 					pos_in_open_list = 0;
 					in_open_list = false;
@@ -344,37 +348,63 @@ std::vector<unsigned int> ecs::systems::PathfindingStateSystem::GetPath(unsigned
 int2 ecs::systems::PathfindingStateSystem::GetClosestTile(TransformComponent& transform)
 {
 	//Initialize components and variables that we will need.
-	int2 return_value;
+	int2 tile_index;
+	int2 return_index;
 	GridProp* p_gp = GridProp::GetInstance();
-	unsigned int tile_index = 0;
-	BaseComponent* p_base_component;
-	TransformComponent* p_curr_tile_transform;
-	TileComponent* p_curr_tile;
-	Entity* p_curr_entity;
-	float dist = 1000.0f;
-	float temp_dist = 0.0f;
-	//Loop through every tile in the grid.
-	for (int x = 0; x < p_gp->GetSize().x; x++)
+	ecs::BaseComponent* p_base_component;
+	ecs::components::TransformComponent* p_curr_tile_transform;
+	ecs::components::TileComponent* p_curr_tile;
+	ecs::Entity* p_curr_entity;
+	float world_pos_x = transform.position.x;
+	float world_pos_z = transform.position.z;
+	float z_tile_size_length = cos(30 * 3.1415 / 180) * TILE_RADIUS;
+	float distance;
+	float best_distance = 1000.0f;
+
+	//Calculate x index
+	tile_index.x = world_pos_x / (TILE_RADIUS * 1.5f);
+	if (tile_index.x >= p_gp->GetSize().x)
 	{
-		for (int y = 0; y < p_gp->GetSize().y; y++)
+		tile_index.x = p_gp->GetSize().x - 1;
+	}
+	else if (tile_index.x < 0)
+	{
+		tile_index.x = 0;
+	}
+	//Calculate y index
+	tile_index.y = world_pos_z / (z_tile_size_length * 2.0f);
+	if (tile_index.y >= p_gp->GetSize().y)
+	{
+		tile_index.y = p_gp->GetSize().y - 1;
+	}
+	else if (tile_index.y < 0)
+	{
+		tile_index.y = 0;
+	}
+
+	if (p_gp != nullptr) //Sanity Check
+	{
+		for (int i = tile_index.x - 1; i <= tile_index.x + 1; i++)
 		{
-			//Check if the tile is a tile we can walk on.
-			if (p_gp->mGrid[y][x].isPassable)
+			for (int j = tile_index.y - 1; j <= tile_index.y + 1; j++)
 			{
-				p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[y][x].Id);
-				temp_dist = PhysicsHelpers::CalculateDistance(transform.position, p_curr_tile_transform->position);
-				//If the tile is closer than the previously closest tile we've found we store the new info.
-				if (temp_dist < dist)
+				if (i >= 0 && i < p_gp->GetSize().y && j >= 0 && j < p_gp->GetSize().x)
 				{
-					dist = temp_dist;
-					return_value.x = x;
-					return_value.y = y;
+					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[tile_index.y][tile_index.x].Id);
+					distance = PhysicsHelpers::CalculateDistance(p_curr_tile_transform->position, transform.position);
+					if (distance < best_distance)
+					{
+						best_distance = distance;
+						return_index.x = tile_index.x;
+						return_index.y = tile_index.y;
+					}
 				}
 			}
 		}
 	}
-	//Return the index position of the closest tile in mGrid in the GridProp class.
-	return return_value;
+
+	//Return the index position of the closest tile in mGrid in the GridProp class or 0 if something went wrong.
+	return return_index;
 }
 
 unsigned int ecs::systems::PathfindingStateSystem::FindClosestEnemy(Entity* current_unit)
@@ -560,20 +590,23 @@ unsigned int ecs::systems::PathfindingStateSystem::FindSafeTile(Entity* current_
 			p_current_neighbour = ECSUser::getComponentFromKnownEntity<TileComponent>(p_current_tile->neighboursIDArray[i]);
 			if (p_current_neighbour != nullptr) //Sanity Check
 			{
-				for (int a = 0; a < 4; a++)
+				if (!p_current_tile->impassable)
 				{
-					if (a != p_current_unit_comp->playerID)
+					for (int a = 0; a < 4; a++)
 					{
-						current_safe += p_current_neighbour->charges.armyCharges[a];
+						if (a != p_current_unit_comp->playerID)
+						{
+							current_safe += p_current_neighbour->charges.armyCharges[a];
+						}
 					}
+					//current_safe += p_current_neighbour->charges.hazardCharge;
+					if (current_safe < safest)
+					{
+						safest = current_safe;
+						goal_tile_id = p_current_tile->neighboursIDArray[i];
+					}
+					current_safe = 0.0f;
 				}
-				//current_safe += p_current_neighbour->charges.hazardCharge;
-				if (current_safe < safest)
-				{
-					safest = current_safe;
-					goal_tile_id = p_current_tile->neighboursIDArray[i];
-				}
-				current_safe = 0.0f;
 			}
 		}
 	}
@@ -585,6 +618,10 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestLootTile(Entity* c
 	//Initialize components and variables that we will need.
 				//ecs::Entity* loot_tile;
 	TransformComponent* unit_transform = static_cast<TransformComponent*>(ECSUser::getComponentFromKnownEntity(TransformComponent::typeID, current_unit->getID()));
+	/*if (!unit_transform)
+	{
+		return 0;
+	}*/
 	TransformComponent* loot_transform;
 	TileComponent* loot_tile;
 	float dist = 1000.0f;
@@ -597,12 +634,14 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestLootTile(Entity* c
 		{
 			loot_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mLootTiles[i]);
 			loot_tile = ECSUser::getComponentFromKnownEntity<TileComponent>(p_gp->mLootTiles[i]);
-			temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
-			if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
-			{
-				dist = temp_dist;
-				loot_id = p_gp->mLootTiles[i];
-			}
+							
+				temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
+				if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
+				{
+					dist = temp_dist;
+					loot_id = p_gp->mLootTiles[i];
+				}
+			
 		}
 	}
 
@@ -699,7 +738,7 @@ ecs::systems::MoveStateSystem::MoveStateSystem()
 	typeFilter.addRequirement(TransformComponent::typeID);
 	typeFilter.addRequirement(DynamicMovementComponent::typeID);
 	typeFilter.addRequirement(EquipmentComponent::typeID);
-	typeFilter.addRequirement(GroundCollisionComponent::typeID);
+	typeFilter.addRequirement(ObjectCollisionComponent::typeID);
 }
 
 ecs::systems::MoveStateSystem::~MoveStateSystem()
@@ -726,7 +765,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 	TransformComponent* p_transform = entity.getComponent<TransformComponent>();
 	DynamicMovementComponent* p_dyn_move = entity.getComponent<DynamicMovementComponent>();
 	MoveStateComponent* p_move_comp = entity.getComponent<MoveStateComponent>();
-	GroundCollisionComponent* p_ground_comp = entity.getComponent<GroundCollisionComponent>();
+	ObjectCollisionComponent* p_collision_comp = entity.getComponent<ObjectCollisionComponent>();
 	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
 	TransformComponent* p_goal = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_move_comp->goalID);
 	float distance = 1000.0f;
@@ -782,10 +821,12 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 			next_tile_x = p_next_goal->position.x - p_goal->position.x;
 			next_tile_z = p_next_goal->position.z - p_goal->position.z;
 		}
+		
+
 		jump_vector.x = curr_tile_x = p_goal->position.x - p_transform->position.x;
-		jump_vector.y = curr_tile_y = p_goal->position.y - p_ground_comp->mLastTileY;
+		jump_vector.y = curr_tile_y = p_goal->position.y - p_dyn_move->mLastTileY;
 		jump_vector.z = curr_tile_z = p_goal->position.z - p_transform->position.z;
-		y_distance = p_goal->position.y - (p_ground_comp->mLastTileY);
+		y_distance = p_goal->position.y - p_dyn_move->mLastTileY;
 		curr_tile_x = curr_tile_x + (next_tile_x * DEFAULT_USAGE_OF_TILE);//ad percentage of the direction from the tile next after "goal"
 		curr_tile_z = curr_tile_z + (next_tile_z * DEFAULT_USAGE_OF_TILE);
 		length = sqrt(curr_tile_x * curr_tile_x + curr_tile_z * curr_tile_z);
@@ -799,7 +840,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 		if (y_distance > 0.3f && p_dyn_move->mOnGround)
 		{
-			length = PhysicsHelpers::CalculateDistance(p_goal->position, p_transform->position);//Length from unit to goal center
+			length = PhysicsHelpers::CalculateDistance(XMFLOAT3(p_goal->position.x, 0.0f, p_goal->position.z), XMFLOAT3(p_transform->position.x, 0.0f, p_transform->position.z));//Length from unit to goal center
 			length_of_vector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
 			angle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
 			(XMLoadFloat3(&p_dyn_move->mVelocity)), XMVector3Normalize(XMLoadFloat3(&p_dyn_move->mDirection))));//Get angle between velocity and direction vector
@@ -814,7 +855,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 				ForceImpulseEvent jump;
 				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&jump_vector)));//normalize the jump vector so that we just get direction
-				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.2f;
+				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.5f;
 				jump.mEntityID = entity.entity->getID();
 				if (length_of_vector < 0.25f)//if they are very slow and need to jump they get a boost
 				{
@@ -941,32 +982,52 @@ ID ecs::systems::MoveStateSystem::GetClosestTileId(TransformComponent& transform
 	ecs::components::TransformComponent* p_curr_tile_transform;
 	ecs::components::TileComponent* p_curr_tile;
 	ecs::Entity* p_curr_entity;
-	float dist = 1000.0f;
-	float temp_dist = 0.0f;
 	ID return_id = 0;
+	float world_pos_x = transform.position.x;
+	float world_pos_z = transform.position.z;
+	float z_tile_size_length = cos(30 * 3.1415 / 180) * TILE_RADIUS;
+	float distance;
+	float best_distance = 1000.0f;
+
+	//Calculate x index
+	tile_index.x = world_pos_x / (TILE_RADIUS * 1.5f);
+	if (tile_index.x >= p_gp->GetSize().x)
+	{
+		tile_index.x = p_gp->GetSize().x - 1;
+	}
+	else if (tile_index.x < 0)
+	{
+		tile_index.x = 0;
+	}
+	//Calculate y index
+	tile_index.y = world_pos_z / (z_tile_size_length * 2.0f);
+	if (tile_index.y >= p_gp->GetSize().y)
+	{
+		tile_index.y = p_gp->GetSize().y - 1;
+	}
+	else if (tile_index.y < 0)
+	{
+		tile_index.y = 0;
+	}
+
 	if (p_gp != nullptr) //Sanity Check
 	{
-		//Loop through every tile in the grid.
-		for (int x = 0; x < p_gp->GetSize().x; x++)
+		for (int i = tile_index.x - 1; i <= tile_index.x + 1; i++)
 		{
-			for (int y = 0; y < p_gp->GetSize().y; y++)
+			for (int j = tile_index.y - 1; j <= tile_index.y + 1; j++)
 			{
-				//Check if the tile is a tile we can walk on.
-				if (p_gp->mGrid[y][x].isPassable)
+				if (i >= 0 && i < p_gp->GetSize().y && j >= 0 && j < p_gp->GetSize().x)
 				{
-					p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
-					temp_dist = PhysicsHelpers::CalculateDistance(transform.position, p_curr_tile_transform->position);
-					//If the tile is closer than the previously closest tile we've found we store the new info.
-					if (temp_dist < dist)
+					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[tile_index.y][tile_index.x].Id);
+					distance = PhysicsHelpers::CalculateDistance(p_curr_tile_transform->position, transform.position);
+					if (distance < best_distance)
 					{
-						dist = temp_dist;
-						tile_index.x = x;
-						tile_index.y = y;
+						best_distance = distance;
+						return_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
 					}
 				}
 			}
 		}
-		return_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
 	}
 	
 	//Return the index position of the closest tile in mGrid in the GridProp class or 0 if something went wrong.
@@ -1189,6 +1250,8 @@ ecs::systems::RemoveDeadUnitsSystem::RemoveDeadUnitsSystem()
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(DeadComponent::typeID);
 	typeFilter.addRequirement(UnitComponent::typeID);
+	typeFilter.addRequirement(HealthComponent::typeID);
+	typeFilter.addRequirement(EquipmentComponent::typeID);
 	typeFilter.addRequirement(DynamicMovementComponent::typeID);
 	typeFilter.addRequirement(TransformComponent::typeID);
 	typeFilter.addRequirement(ColorComponent::typeID);
@@ -1202,16 +1265,22 @@ ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
 void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, float delta)
 {
 	DeadComponent* p_dead = entity.getComponent<DeadComponent>();
-	if(!p_dead->hasDiedBefore)// Check if the unit have been in this funtion before if it have then don't do certain things
-	{ 
-		// The killers ID
-		unsigned int killer_id = getComponentFromKnownEntity<HealthComponent>(entity.entity->getID())->mHitBy;
-		// DEATH EFFECTS	
-		if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
-		{
-			// Splash Emitter - When drowned, spawn a water splash	
-			components::ParticleSpawnerComponent spawner;
-			components::SplashSpawnerComponent smoke;
+	if (!p_dead->hasDiedBefore)// Check if the unit have been in this funtion before if it have then don't do certain things
+	{
+	// The killers ID
+	unsigned int killer_id = 0;
+	HealthComponent* p_unit_health = entity.getComponent<HealthComponent>();
+	if (p_unit_health)
+	{
+		killer_id = p_unit_health->mHitBy;
+	}
+	// DEATH EFFECTS
+	DeadComponent* p_dead = entity.getComponent<DeadComponent>();
+	if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
+	{
+		// Splash Emitter - When drowned, spawn a water splash	
+		components::ParticleSpawnerComponent spawner;
+		components::SplashSpawnerComponent smoke;
 
 			spawner.StartPosition = p_dead->position;
 			spawner.SpawnFrequency = 0.005f;
@@ -1223,79 +1292,77 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 
 			createEntity(spawner, smoke);
 
-			// Doesnt work atm	
-			/*PlaySound sound;
-			sound.audioName = SPLOOSH_SOUND;
-			sound.soundFlags = SF_NONE;
-			ecs::ECSUser::createEvent(sound);*/
-		}
-		// saved fo future use
-					//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
-		//UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
-		//Fetch the units weapon data.
-		EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
-		Entity* weapon_entity = ECSUser::getEntity(equipment_comp->mEquippedWeapon);
-		WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
-		//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
-
-		if (weapon_entity)
+		// Doesnt work atm	
+		PlaySound sound;
+		sound.audioName = SOUND_sploosh;
+		sound.soundFlags = SF_NONE;
+		ecs::ECSUser::createEvent(sound);
+	}
+	// saved fo future use
+				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
+	UnitComponent* p_unit = entity.getComponent<UnitComponent>();
+	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
+	ArmyComponent* p_army;
+	while (p_army = (ArmyComponent*)itt.next())
+	{
+		//Check if it is the right player.
+		if (p_army->playerID == p_unit->playerID)
 		{
-			if (weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+			//Loop through the players army and remove the id of the dead unit.
+			for (int i = 0; i < p_army->unitIDs.size(); i++)
 			{
-				ECSUser::removeEntity(weapon_entity->getID());
-			}
-			else
-			{
-				ECSUser::removeEntity(weapon_entity->getID());
-				//weapon_comp->mOwnerEntity = 0;
-			}
-		}
-		UnitComponent* p_unit = entity.getComponent<UnitComponent>();
-		ComponentIterator itt = getComponentsOfType<ArmyComponent>();
-		ArmyComponent* p_army;
-		while (p_army = (ArmyComponent*)itt.next())
-		{
-			//Check if it is the right player.
-			if (p_army->playerID == p_unit->playerID)
-			{
-				//Loop through the players army and remove the id of the dead unit.
-				for (int i = 0; i < p_army->unitIDs.size(); i++)
+				if (p_army->unitIDs[i] == entity.entity->getID())
 				{
-					if (p_army->unitIDs[i] == entity.entity->getID())
-					{
-						p_army->unitIDs.erase(p_army->unitIDs.begin() + i);
-					}
+					p_army->unitIDs.erase(p_army->unitIDs.begin() + i);
 				}
 			}
 		}
-		
-		// Check if the killer is legal and exists 
-		if (getEntity(killer_id))
+	}
+	//Fetch the units weapon data.
+	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
+	Entity* p_weapon_entity = ECSUser::getEntity(p_equipment_comp->mEquippedWeapon);
+	WeaponComponent* p_weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(p_equipment_comp->mEquippedWeapon);
+	//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
+	if (p_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+	{
+		ECSUser::removeEntity(p_weapon_entity->getID());
+	}
+	else
+	{
+		ECSUser::removeEntity(p_weapon_entity->getID());
+		//weapon_comp->mOwnerEntity = 0;
+	}
+	// Check if the killer is legal and exists 
+	if (getEntity(killer_id))
+	{
+		HealthComponent* p_killer_health = getComponentFromKnownEntity<HealthComponent>(killer_id);
+		EquipmentComponent* p_killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
+		UnitScalePercent* p_killer_add_scale = getComponentFromKnownEntity<UnitScalePercent>(killer_id);
+		if (p_killer_health && p_killer_equipment && p_killer_add_scale)
 		{
-			HealthComponent* killer_health = getComponentFromKnownEntity<HealthComponent>(killer_id);
-			EquipmentComponent* killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
-			UnitScalePercent* killer_add_scale = getComponentFromKnownEntity<UnitScalePercent>(killer_id);
-			killer_health->mHealth += killer_health->mBaseHealth * HEALTH_REWARD;
-			if (killer_health->mHealth > 100.f)
-				killer_health->mHealth = 100.f;
-			killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
-			killer_equipment->mAttackRange		*= SIZE_REWARD;
-			killer_equipment->mMeleeRange		*= SIZE_REWARD;
-			TransformComponent* killer_scale = getComponentFromKnownEntity<TransformComponent>(killer_id);
+			p_killer_health->mHealth += p_killer_health->mBaseHealth * HEALTH_REWARD;
+			if (p_killer_health->mHealth > 100.f)
+				p_killer_health->mHealth = 100.f;
+			p_killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
+			p_killer_equipment->mAttackRange *= SIZE_REWARD;
+			p_killer_equipment->mMeleeRange *= SIZE_REWARD;
+			TransformComponent* p_killer_scale = getComponentFromKnownEntity<TransformComponent>(killer_id);
+			if (p_killer_scale)
+			{
+				float scale_offset_y = p_killer_scale->scale.y;
 
-			float scale_offset_y = killer_scale->scale.y;
+				p_killer_scale->scale.x *= SIZE_REWARD;
+				p_killer_scale->scale.y *= SIZE_REWARD;
+				p_killer_scale->scale.z *= SIZE_REWARD;
+				p_killer_add_scale->UnitScale *= SIZE_REWARD;
 
-			killer_scale->scale.x		*= SIZE_REWARD;
-			killer_scale->scale.y		*= SIZE_REWARD;
-			killer_scale->scale.z		*= SIZE_REWARD;
-			killer_add_scale->UnitScale *= SIZE_REWARD;
+				scale_offset_y = fabsf(p_killer_scale->scale.y - p_killer_add_scale->UnitScale);
 
-			scale_offset_y = fabsf(killer_scale->scale.y - killer_add_scale->UnitScale);
-
-			killer_scale->position.y += killer_scale->scale.y * scale_offset_y;
+				p_killer_scale->position.y += p_killer_scale->scale.y * scale_offset_y;
+			}
 		}
-		ECSUser::removeComponent(entity.entity->getID(), PoiComponent::typeID);
-		p_dead->hasDiedBefore = true;
+	}
+	p_dead->hasDiedBefore = true;
 	}
 
 	//Make them fly and turn white :)
@@ -1303,14 +1370,15 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 	TransformComponent* unit_transform = entity.getComponent<TransformComponent>();
 	ColorComponent* unit_color = entity.getComponent<ColorComponent>();
 	//White
-	unit_color->red		= 255;
-	unit_color->green	= 255;
-	unit_color->blue	= 255;
+	unit_color->red = 255;
+	unit_color->green = 255;
+	unit_color->blue = 255;
 	//Remove gravity and give them a constant up velocity
 	unit_dyn_move->mGravity = 0.f;
 	unit_dyn_move->mVelocity.y = 2.f;
 	unit_dyn_move->mVelocity.x = 0.f;
 	unit_dyn_move->mVelocity.z = 0.f;
+
 	//Remove the dead unit
 	if(unit_transform->position.y >= 20.f)
 	{
@@ -1378,6 +1446,53 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 			break;
 		}
 */
+
+
+		it = getComponentsOfType<components::InputBackendComp>();
+		InputBackendComp* ib_comp = (InputBackendComp*)(it.next());
+		if (ib_comp)
+		{
+			// here a ceck if the state is loot and there is loot
+			int command = -1;
+			switch (state)
+			{
+			case ATTACK:
+				command = 0;
+				break;
+			case LOOT:
+				command = 1;
+				break;
+			case RALLY:
+				command = 2;
+				break;
+			case FLEE:
+				command = 3;
+				break;
+			default:
+				command = -1;
+				break;
+			}
+			// If it was one of the button commands send it to be highlighted
+			if (command >= 0)
+			{
+				if (command == 1)
+				{
+					GridProp* p_gp = GridProp::GetInstance();
+
+					if (p_gp->mLootTiles.size() > 0)
+					{
+						ib_comp->backend->sendCommand(player, command);
+						ib_comp->backend->SendVibrate(player);
+					}
+				}
+				else
+				{
+					ib_comp->backend->sendCommand(player, command);
+					ib_comp->backend->SendVibrate(player);
+				}
+			}
+		}
+
 		//Loop through the players units and remove their old state component.
 		Entity* unit;
 		for (int u = 0; u < p_army->unitIDs.size(); u++)
@@ -1573,4 +1688,96 @@ void ecs::systems::PotentialArmyHazardSystem::updateEntity(FilteredEntity& entit
 
 /************************************************/
 /*******  POTENTIALARMYHAZARDSYSTEM END  *******/
+/**********************************************/
+
+/************************************************/
+/************  AIPLAYERSYSTEM START  ***********/
+/**********************************************/
+
+ecs::systems::AIPlayerSystem::AIPlayerSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(components::AiBrainComponent::typeID);
+	typeFilter.addRequirement(components::ArmyComponent::typeID);
+}
+
+ecs::systems::AIPlayerSystem::~AIPlayerSystem()
+{
+
+}
+
+void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	AiBrainComponent* p_aibrain = ECSUser::getComponentFromKnownEntity<AiBrainComponent>(entity.entity->getID());
+	ArmyComponent* p_army = ECSUser::getComponentFromKnownEntity<ArmyComponent>(entity.entity->getID());
+	int number_of_weapons = 0;
+	bool loot_exists = false;
+	STATE new_state = ATTACK;
+	int number_of_units_left;
+	float distance = 0.0f;
+	int units_needs_to_rally = 0;
+
+	EquipmentComponent* p_equipment;
+	WeaponComponent* p_weapon;
+
+
+	if (p_aibrain->mTimer >= 1.5f)
+	{
+		number_of_units_left = p_army->unitIDs.size();
+		if (number_of_units_left > 0)
+		{
+			for (int i = 0; i < number_of_units_left; i++)
+			{
+				distance = PhysicsHelpers::CalculateDistance(ECSUser::getComponentFromKnownEntity<TransformComponent>(p_army->unitIDs[0])->position,
+					ECSUser::getComponentFromKnownEntity<TransformComponent>(p_army->unitIDs[i])->position);
+				if (distance > 8.0f)
+				{
+					units_needs_to_rally++;
+				}
+			}
+			if (units_needs_to_rally > 1)
+			{
+				new_state = RALLY;
+			}
+			else
+			{
+				for (int u = 0; u < number_of_units_left; u++)
+				{
+					p_equipment = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(p_army->unitIDs[u]);
+					if (p_equipment) //Sanity Check
+					{
+						p_weapon = ECSUser::getComponentFromKnownEntity<WeaponComponent>(p_equipment->mEquippedWeapon);
+						if (p_weapon) //Sanity
+						{
+							if (p_weapon->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
+							{
+								number_of_weapons++;
+							}
+						}
+					}
+				}
+			}
+		}
+		if (number_of_weapons < 2 && number_of_units_left > 1)
+		{
+			if (GridProp::GetInstance()->mLootTiles.size() > 0)
+			{
+				new_state = LOOT;
+			}
+		}
+		
+		ChangeUserStateEvent e;
+		e.playerId = p_aibrain->mPlayer;
+		e.newState = new_state;
+		ECSUser::createEvent(e);
+		p_aibrain->mTimer = 0.0f;
+	}
+	else
+	{
+		p_aibrain->mTimer += delta;
+	}
+}
+
+/************************************************/
+/*************  AIPLAYERSYSTEM END  ************/
 /**********************************************/

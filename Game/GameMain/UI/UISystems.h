@@ -34,18 +34,6 @@ namespace ecs
 			ALL UI SYSTEMS NEEDS A DIRECT2D THAT HAS A HWND RENDER TARGET INITIALIZED
 		*/
 
-		class UIUpdateSystem : public ECSSystem<UIUpdateSystem> //system for drawing text
-			//it needs 3 components text, drawColor, and drawPos then the system draws
-			//that text with that color at that position
-		{
-		public:
-			UIUpdateSystem();
-			virtual ~UIUpdateSystem();
-
-			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
-		};
-
-
 		class UITextSystem : public ECSSystem<UITextSystem> //system for drawing text
 			//it needs 3 components text, drawColor, and drawPos then the system draws
 			//that text with that color at that position
@@ -146,12 +134,11 @@ namespace ecs
 			Direct2D* mpD2D;
 		};
 
-		class UICountDownSystem : public ECSSystem<UICountDownSystem> //system for drawing filled rects
-			//it needs 2 components Drawcolor and drawPos then the system draws
-			//that filled rect with that color at that position
+		class UICountDownSystem : public ECSSystem<UICountDownSystem>
 		{
 		public:
 			UICountDownSystem();
+			void Init();
 			virtual ~UICountDownSystem();
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 			void onEvent(TypeID _eventType, BaseEvent* _event) override;
@@ -161,6 +148,50 @@ namespace ecs
 			int mExpand_size = 500;
 		};
 
+		class UIGuideSystem : public ECSSystem<UIGuideSystem> //system for drawing filled rects
+			//it needs 2 components Drawcolor and drawPos then the system draws
+			//that filled rect with that color at that position
+		{
+		public:
+			UIGuideSystem();
+			virtual ~UIGuideSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+			Direct2D* mpD2D;
+		private:
+			int mCounter = 7;
+			float mElapsedTime;
+		};
+
+		class UIOverlayInitSystem : public ECSSystem<UIOverlayInitSystem>
+		{
+		public:
+			UIOverlayInitSystem();
+			virtual ~UIOverlayInitSystem();
+			void readEvent(BaseEvent& _event, float _delta) override;
+
+			Direct2D* mpD2D;
+		};
+		
+		class UIUnitColorUpdateSystem : public ECSSystem<UIUnitColorUpdateSystem>
+		{
+		public:
+			UIUnitColorUpdateSystem();
+			virtual ~UIUnitColorUpdateSystem();
+
+			void updateEntity(FilteredEntity& uiUnit, float delta) override;
+
+			Direct2D* mpD2D;
+		};
+
+		class UIEndOfRoundSystem : public ECSSystem<UIEndOfRoundSystem>
+		{
+		public:
+			UIEndOfRoundSystem();
+			virtual ~UIEndOfRoundSystem();
+			void readEvent(BaseEvent& _event, float _delta) override;
+
+			Direct2D* mpD2D;
+		};
 	}
 
 }

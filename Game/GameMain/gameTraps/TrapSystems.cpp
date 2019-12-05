@@ -6,7 +6,7 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "GridProp.h"
 #include "../gameGraphics/ParticleECSComponents.h"
-
+#include "..//gameUtility/UtilityEcsFunctions.h"
 
 /*
 ------------------------------------------------------------
@@ -78,25 +78,51 @@ ecs::systems::SpringRetractionSystem::~SpringRetractionSystem()
 void ecs::systems::SpringRetractionSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
 	SpringRetractionComponent* p_sr_comp = _entityInfo.getComponent<components::SpringRetractionComponent>();
+	TransformComponent* p_transf_comp = _entityInfo.getComponent<components::TransformComponent>();
+
+	//if (p_sr_comp)
+	//{
+	//	p_sr_comp->mElapsedTime += _delta;
+
+	//	if (p_sr_comp->mElapsedTime >= p_sr_comp->mDuration)
+	//	{
+	//		removeComponent(p_sr_comp->getEntityID(), p_sr_comp->getTypeID());	
+	//	}
+	//	else
+	//	{
+	//		TransformComponent* p_transf_comp = _entityInfo.getComponent<components::TransformComponent>();
+
+	//		if (p_transf_comp)
+	//		{
+	//			float retraction_dist = (_delta / p_sr_comp->mDuration) * 3.0f;
+	//			p_transf_comp->position.y -= retraction_dist;
+	//		}
+	//	}
+	//}
 
 	if (p_sr_comp)
 	{
-		p_sr_comp->mElapsedTime += _delta;
-
-		if (p_sr_comp->mElapsedTime >= p_sr_comp->mDuration)
+		const float distance = p_transf_comp->position.y - p_sr_comp->TargetOffsetY;
+		if (distance <= 0.0f)
 		{
-			removeComponent(p_sr_comp->getEntityID(), p_sr_comp->getTypeID());	
+			p_transf_comp->position.y = p_sr_comp->TargetOffsetY;
+			removeComponent(p_sr_comp->getEntityID(), p_sr_comp->getTypeID());
 		}
 		else
 		{
-			TransformComponent* p_transf_comp = _entityInfo.getComponent<components::TransformComponent>();
+			const float speed = _delta * distance / max(p_sr_comp->mDuration, 0.01f);
 
-			if (p_transf_comp)
-			{
-				float retraction_dist = (_delta / p_sr_comp->mDuration) * 3.0f;
-				p_transf_comp->position.y -= retraction_dist;
-			}
+			p_transf_comp->position.y	-= speed;
+			p_sr_comp->mDuration		-= _delta;
 		}
+
+		/*p_transf_comp->position.y -= 1.f * _delta;
+
+		if (p_transf_comp->position.y < p_sr_comp->TargetOffsetY)
+		{
+			p_transf_comp->position.y = p_sr_comp->TargetOffsetY;
+			removeComponent(_entityInfo.entity->getID(), SpringRetractionComponent::typeID);
+		}*/
 	}
 }
 
@@ -110,9 +136,62 @@ void ecs::systems::SpringRetractionSystem::updateEntity(FilteredEntity& _entityI
 ------------------------------------------------------------
 ------------------------------------------------------------
 */
+ecs::systems::GenericTrapEventSystem::GenericTrapEventSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(ecs::events::TriggerTrapEvent::typeID);
+}
 
+ecs::systems::GenericTrapEventSystem::~GenericTrapEventSystem()
+{
 
+}
 
+void ecs::systems::GenericTrapEventSystem::readEvent(BaseEvent& event, float delta)
+{
+	TriggerTrapEvent* p_event = static_cast<TriggerTrapEvent*>(&event);
+	GAME_OBJECT_TYPE type = p_event->trapType;
+
+	switch (type)
+	{
+	case GAME_OBJECT_TYPE_TRAP_FIRE:
+	{
+		TriggerFireTrapEvent fire_event;
+		fire_event.trapID = p_event->trapID;
+		fire_event.tileID = p_event->tileID;
+		fire_event.unitID = p_event->unitID;
+		createEvent(fire_event);
+		break;
+	}
+	case GAME_OBJECT_TYPE_TRAP_SPIKES:
+	{
+		TriggerSpikeTrapEvent spike_event;
+		spike_event.trapID = p_event->trapID;
+		spike_event.tileID = p_event->tileID;
+		spike_event.unitID = p_event->unitID;
+		createEvent(spike_event);
+		break;
+	}
+	case GAME_OBJECT_TYPE_TRAP_SPRING:
+	{
+		TriggerSpringTrapEvent spring_event;
+		spring_event.trapID = p_event->trapID;
+		spring_event.tileID = p_event->tileID;
+		spring_event.unitID = p_event->unitID;
+		createEvent(spring_event);
+		break;
+	}
+	case GAME_OBJECT_TYPE_TRAP_FREEZE:
+	{
+		TriggerFreezeTrapEvent freeze_event;
+		freeze_event.trapID = p_event->trapID;
+		freeze_event.tileID = p_event->tileID;
+		freeze_event.unitID = p_event->unitID;
+		createEvent(freeze_event);
+		break;
+	}
+	}
+}
 
 ecs::systems::FireTrapEventSystem::FireTrapEventSystem()
 {
@@ -128,50 +207,111 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 {
 	if (event.getTypeID() == ecs::events::TriggerFireTrapEvent::typeID)
 	{
-		TypeID id = dynamic_cast<TriggerFireTrapEvent*>(&event)->unitID;
+#pragma region old_shit
+		//TypeID id = dynamic_cast<TriggerFireTrapEvent*>(&event)->unitID;
 
-		if (id > 0)
+		//if (id > 0)
+		//{
+
+		//	// Make the unit take damage
+		//	HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(id);
+		//	if (p_hp_comp)
+		//	{
+		//		p_hp_comp->mHealth -= mDamage * delta;
+
+		//		// Make the unit jump a litte, fire is hot and so am I
+		//		ForceImpulseEvent knockback;
+		//		knockback.mDirection = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
+		//		knockback.mForce = mKnockback;
+		//		knockback.mEntityID = id;
+		//		createEvent(knockback);
+
+
+		//		// Check if the unit died
+		//		if (p_hp_comp->mHealth <= 0.0f)
+		//		{
+		//			ecs::components::DeadComponent dead_comp;
+		//			ecs::ECSUser::createComponent(id, dead_comp);
+		//		}
+		//	}
+		//}
+#pragma endregion
+		TriggerFireTrapEvent& fire_trap_event = static_cast<TriggerFireTrapEvent&>(event);
+		
+		if (fire_trap_event.tileID > 0)
 		{
+			TransformComponent* p_trap_transform = getComponentFromKnownEntity<TransformComponent>(fire_trap_event.trapID);
+			TrapComponent* p_trap_component = getComponentFromKnownEntity<TrapComponent>(fire_trap_event.trapID);
 
-			// Make the unit take damage
-			HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(id);
-			if (p_hp_comp)
-			{
-				p_hp_comp->mHealth -= mDamage;
+			if (!p_trap_transform) return;
+			if (!p_trap_component) return;
 
-				// Make the unit jump a litte, fire is hot and so am I
-				ForceImpulseEvent knockback;
-				knockback.mDirection = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
-				knockback.mForce = mKnockback;
-				knockback.mEntityID = id;
-				createEvent(knockback);
+			// Transforming a copy of the trap aabb to world space.
+			XMMATRIX trap_world = UtilityEcsFunctions::GetWorldMatrix(*p_trap_transform);
+			AABB trap_aabb_copy = AABB(p_trap_component->mAABB);
 
-				/* Spawn Smoke Emitter At Sword Spawn */
-				components::ParticleSpawnerComponent spawner;
-				components::FireSpawnerComponent smoke;
+			trap_aabb_copy.Transform(trap_world);
 
+			TypeFilter unit_filter;
+			unit_filter.addRequirement(components::UnitComponent::typeID);
+			unit_filter.addRequirement(components::TransformComponent::typeID);
+			unit_filter.addRequirement(components::ObjectCollisionComponent::typeID);
+			unit_filter.addRequirement(components::DynamicMovementComponent::typeID);
+			EntityIterator units = getEntitiesByFilter(unit_filter);
+			for (FilteredEntity& unit : units.entities)
+			{				
+				const ID unit_id = unit.entity->getID();
 
-				TransformComponent* p_transf_comp = getComponentFromKnownEntity<TransformComponent>(id);
+				// Transforming a copy of the unit bv to world space.
+				ObjectCollisionComponent* p_collision = unit.getComponent<ObjectCollisionComponent>();
+				TransformComponent* p_transform = unit.getComponent<TransformComponent>();
+				XMMATRIX unit_world = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
 
-				spawner.StartPosition = p_transf_comp->position;
-				spawner.StartPosition.y -=  1.0f;
-				spawner.SpawnFrequency = 0.005f;
-				spawner.TimerSinceLastSpawn = 0.0f;
-				spawner.LifeDuration = 0.4f;
+				BoundingVolume* p_bv_copy = p_collision->mBV->Copy();
+				p_bv_copy->Transform(unit_world);
 
-				smoke.InitialVelocity = 12.0f;
-				smoke.SpawnCount = 150;
-
-				createEntity(spawner, smoke);
-
-
-				// Check if the unit died
-				if (p_hp_comp->mHealth <= 0.0f)
+				// Hit if unit collides with trap.
+				if (p_bv_copy->Intersects(&trap_aabb_copy))
 				{
-					ecs::components::DeadComponent dead_comp;
-					ecs::ECSUser::createComponent(id, dead_comp);
+					// Make the unit take damage
+					HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(unit_id);
+					if (p_hp_comp)
+					{
+						p_hp_comp->mHealth -= mDamage;
+
+						// Make the unit jump a litte, fire is hot and so am I
+						ForceImpulseEvent knockback;
+						knockback.mDirection = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
+						knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit_id)->mWeight;
+						knockback.mEntityID = unit_id;
+						createEvent(knockback);
+
+
+						// Check if the unit died
+						if (p_hp_comp->mHealth <= 0.0f)
+						{
+							ecs::components::DeadComponent dead_comp;
+							ecs::ECSUser::createComponent(unit_id, dead_comp);
+						}
+					}
 				}
+				delete p_bv_copy;
 			}
+
+			/* Spawn Smoke Emitter At Sword Spawn */
+			components::ParticleSpawnerComponent spawner;
+			components::FireSpawnerComponent smoke;
+
+			spawner.StartPosition = p_trap_transform->position;
+			spawner.StartPosition.y -= 1.0f;
+			spawner.SpawnFrequency = 0.005f;
+			spawner.TimerSinceLastSpawn = 0.0f;
+			spawner.LifeDuration = 0.4f;
+
+			smoke.InitialVelocity = 12.0f;
+			smoke.SpawnCount = 100;
+
+			createEntity(spawner, smoke);
 		}
 	}
 }
@@ -262,64 +402,260 @@ ecs::systems::SpringTrapEventSystem::~SpringTrapEventSystem()
 
 void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delta)
 {
+#pragma region old_shit
+	//if (event.getTypeID() == ecs::events::TriggerSpringTrapEvent::typeID)
+	//{
+	//	TypeID id = dynamic_cast<TriggerSpringTrapEvent*>(&event)->unitID;
+
+	//	if (id > 0)
+	//	{
+	//		GridProp* p_gp = GridProp::GetInstance();
+
+	//		// Loop over random tiles until a valid spot is found
+	//		TransformComponent* start_trans_comp;
+	//		TransformComponent* target_trans_comp;
+	//		int2 area_size = p_gp->GetSize();
+
+	//		int rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
+	//		int rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
+	//		while (!p_gp->mGrid[rand_x][rand_y].isPassable)
+	//		{
+	//			rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
+	//			rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
+	//		}
+
+	//		target_trans_comp = getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[rand_x][rand_y].Id);
+
+	//		// units transformcomponent
+	//		start_trans_comp = getComponentFromKnownEntity<TransformComponent>(id);
+
+	//		start_trans_comp->position.y += 3.0f;
+
+	//		XMFLOAT2 flight_direction;
+	//		flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
+	//		flight_direction.y = target_trans_comp->position.z - start_trans_comp->position.z;
+
+	//		float dist = sqrtf(flight_direction.x * flight_direction.x + flight_direction.y * flight_direction.y);
+
+	//		flight_direction.x /= dist;
+	//		flight_direction.y /= dist;
+
+	//		// Make the unit jump a litte, fire is hot and so am I
+	//		ForceImpulseEvent knockback;
+	//		knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
+	//		knockback.mForce = 150;
+	//		knockback.mEntityID = id;
+	//		createEvent(knockback);
+
+
+	//		// Send the tile up
+
+	//		TypeID tileID = dynamic_cast<TriggerSpringTrapEvent*>(&event)->tileID;
+	//			
+	//		TransformComponent* p_tile_transf = getComponentFromKnownEntity<TransformComponent>(tileID);
+
+	//		p_tile_transf->position.y += 2.95f;
+
+	//		// Create a component to have the tile get lowered to the original space
+	//		SpringRetractionComponent p_sr_comp;
+	//		p_sr_comp.mDuration = 3.0f;
+
+	//		createComponent(tileID,p_sr_comp);
+	//	}
+	//}
+#pragma endregion
 	if (event.getTypeID() == ecs::events::TriggerSpringTrapEvent::typeID)
 	{
-		TypeID id = dynamic_cast<TriggerSpringTrapEvent*>(&event)->unitID;
+		
 
-		if (id > 0)
+		TriggerSpringTrapEvent& r_event = static_cast<TriggerSpringTrapEvent&>(event);
+
+		if (r_event.tileID < 1) return;
+
+		TransformComponent* p_tile_transform = getComponentFromKnownEntity<TransformComponent>(r_event.tileID);
+		TransformComponent* p_trap_transform = getComponentFromKnownEntity<TransformComponent>(r_event.trapID);
+		TrapComponent* p_trap_component = getComponentFromKnownEntity<TrapComponent>(r_event.trapID);
+
+		if (!p_trap_transform) return;
+		if (!p_trap_component) return;
+
+		// Transforming a copy of the trap aabb to world space.
+		XMMATRIX trap_world = UtilityEcsFunctions::GetWorldMatrix(*p_trap_transform);
+		AABB trap_aabb_copy = AABB(p_trap_component->mAABB);
+
+		trap_aabb_copy.Transform(trap_world);
+
+		TypeFilter unit_filter;
+		unit_filter.addRequirement(components::UnitComponent::typeID);
+		unit_filter.addRequirement(components::TransformComponent::typeID);
+		unit_filter.addRequirement(components::ObjectCollisionComponent::typeID);
+		unit_filter.addRequirement(components::DynamicMovementComponent::typeID);
+		EntityIterator units = getEntitiesByFilter(unit_filter);
+		for (FilteredEntity& unit : units.entities)
 		{
-			GridProp* p_gp = GridProp::GetInstance();
+			// Transforming a copy of the unit bv to world space.
+			ObjectCollisionComponent* p_collision = unit.getComponent<ObjectCollisionComponent>();
+			TransformComponent* p_transform = unit.getComponent<TransformComponent>();
+			XMMATRIX unit_world = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
 
-			// Loop over random tiles until a valid spot is found
-			TransformComponent* start_trans_comp;
-			TransformComponent* target_trans_comp;
-			int2 area_size = p_gp->GetSize();
+			BoundingVolume* p_bv_copy = p_collision->mBV->Copy();
+			p_bv_copy->Transform(unit_world);
 
-			int rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
-			int rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
-			while (!p_gp->mGrid[rand_x][rand_y].isPassable)
+			// Hit if unit collides with trap.
+			if (p_bv_copy->Intersects(&trap_aabb_copy))
 			{
-				rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
-				rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
+				GridProp* p_gp = GridProp::GetInstance();
+
+				// Loop over random tiles until a valid spot is found
+				TransformComponent* start_trans_comp;
+				TransformComponent* target_trans_comp;
+				int2 area_size = p_gp->GetSize();
+
+				int rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
+				int rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
+				while (!p_gp->mGrid[rand_x][rand_y].isPassable)
+				{
+					rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
+					rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
+				}
+
+				target_trans_comp = getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[rand_x][rand_y].Id);
+
+				// units transformcomponent
+				start_trans_comp = unit.getComponent<TransformComponent>();
+
+				start_trans_comp->position.y += 1.5f;
+
+				XMFLOAT3 flight_direction;
+				flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
+				flight_direction.y = 3.0f;
+				flight_direction.z = target_trans_comp->position.z - start_trans_comp->position.z;
+
+				XMStoreFloat3(&flight_direction, XMVector3Normalize(XMLoadFloat3(&flight_direction)));
+
+				// Make the unit jump a litte, fire is hot and so am I
+				ForceImpulseEvent knockback;
+				knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
+				knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit.entity->getID())->mWeight;
+				knockback.mEntityID = unit.entity->getID();
+				createEvent(knockback);
 			}
-
-			target_trans_comp = getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[rand_x][rand_y].Id);
-
-			// units transformcomponent
-			start_trans_comp = getComponentFromKnownEntity<TransformComponent>(id);
-
-			start_trans_comp->position.y += 3.0f;
-
-			XMFLOAT2 flight_direction;
-			flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
-			flight_direction.y = target_trans_comp->position.z - start_trans_comp->position.z;
-
-			float dist = sqrtf(flight_direction.x * flight_direction.x + flight_direction.y * flight_direction.y);
-
-			flight_direction.x /= dist;
-			flight_direction.y /= dist;
-
-			// Make the unit jump a litte, fire is hot and so am I
-			ForceImpulseEvent knockback;
-			knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
-			knockback.mForce = 150;
-			knockback.mEntityID = id;
-			createEvent(knockback);
-
-
-			// Send the tile up
-
-			TypeID tileID = dynamic_cast<TriggerSpringTrapEvent*>(&event)->tileID;
-				
-			TransformComponent* p_tile_transf = getComponentFromKnownEntity<TransformComponent>(tileID);
-
-			p_tile_transf->position.y += 2.95f;
-
-			// Create a component to have the tile get lowered to the original space
-			SpringRetractionComponent p_sr_comp;
-			p_sr_comp.mDuration = 3.0f;
-
-			createComponent(tileID,p_sr_comp);
+			delete p_bv_copy;
 		}
+
+		// Create a component to have the tile get lowered to the original space
+		SpringRetractionComponent p_sr_comp;
+		p_sr_comp.mDuration = 2.0f;
+		p_sr_comp.TargetOffsetY = p_tile_transform->position.y;
+
+		createComponent(r_event.tileID, p_sr_comp);
+
+		// Send the tile up
+		p_tile_transform->position.y += 1.0f;
+	}
+}
+
+ecs::systems::SpikeTrapEventSystem::SpikeTrapEventSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(ecs::events::TriggerSpikeTrapEvent::typeID);
+}
+
+ecs::systems::SpikeTrapEventSystem::~SpikeTrapEventSystem()
+{
+	//
+}
+
+void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta)
+{
+	if (event.getTypeID() != ecs::events::TriggerSpikeTrapEvent::typeID)
+	{
+		return;
+	}
+
+	constexpr float trap_offset_y	= 0.25f;
+
+	ecs::events::TriggerSpikeTrapEvent& r_event = static_cast<ecs::events::TriggerSpikeTrapEvent&>(event);
+	
+	// Handle damage on unit
+
+	ID trap_id = r_event.trapID;
+	ID tile_id = r_event.tileID;
+
+
+	if (trap_id < 1 || tile_id < 1) return;
+
+	TransformComponent* p_tile_transform = getComponentFromKnownEntity<TransformComponent>(tile_id);
+	TransformComponent* p_trap_transform = getComponentFromKnownEntity<TransformComponent>(trap_id);
+	TrapComponent* p_trap_component = getComponentFromKnownEntity<TrapComponent>(trap_id);
+	
+	if (!p_tile_transform) return;
+	if (!p_trap_transform) return;
+	if (!p_trap_component) return;
+
+	// Create a component to have the tile get lowered to the original space
+	SpringRetractionComponent sr_comp;
+	sr_comp.TargetOffsetY	= p_trap_transform->position.y;
+	sr_comp.mDuration		= 10.0f;
+	createComponent(trap_id, sr_comp);
+
+	// Set new position
+	p_trap_transform->position.y = p_tile_transform->position.y + trap_offset_y;
+
+	// Transforming a copy of the trap aabb to world space.
+	XMMATRIX trap_world = UtilityEcsFunctions::GetWorldMatrix(*p_trap_transform);
+	AABB trap_aabb_copy = AABB(p_trap_component->mAABB);
+
+	trap_aabb_copy.Transform(trap_world);
+
+	TypeFilter unit_filter;
+	unit_filter.addRequirement(components::UnitComponent::typeID);
+	unit_filter.addRequirement(components::TransformComponent::typeID);
+	unit_filter.addRequirement(components::ObjectCollisionComponent::typeID);
+	EntityIterator units = getEntitiesByFilter(unit_filter);
+	for (FilteredEntity& unit : units.entities)
+	{
+		// Transforming a copy of the unit bv to world space.
+		ObjectCollisionComponent* p_collision = unit.getComponent<ObjectCollisionComponent>();
+		TransformComponent* p_transform = unit.getComponent<TransformComponent>();
+		XMMATRIX unit_world = UtilityEcsFunctions::GetWorldMatrix(*p_transform);
+
+		BoundingVolume* p_bv_copy = p_collision->mBV->Copy();
+		p_bv_copy->Transform(unit_world);
+
+		// Hit if unit collides with trap.
+		if (p_bv_copy->Intersects(&trap_aabb_copy))
+		{
+			// Make the unit take damage
+			HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(unit.entity->getID());
+			if (p_hp_comp)
+			{
+				p_hp_comp->mHealth -= mDamage;
+
+				// Check if the unit died
+				if (p_hp_comp->mHealth <= 0.0f)
+				{
+					ecs::components::DeadComponent dead_comp;
+					ecs::ECSUser::createComponent(unit.entity->getID(), dead_comp);
+				}
+				else
+				{
+					// VISUAL
+					ColorSwitchEvent damage_flash;
+					damage_flash.mColor = WHITE;
+					damage_flash.mEntityID = unit.entity->getID();
+					damage_flash.mTime = 0.05f;
+					createEvent(damage_flash);
+
+					// Make the unit jump a litte because of sharp 
+					ForceImpulseEvent knockback;
+					knockback.mDirection = DirectX::XMFLOAT3(0, 1.0f, 0);
+					knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit.entity->getID())->mWeight;
+					knockback.mEntityID = unit.entity->getID();
+					createEvent(knockback);
+				}
+			}
+		}
+		delete p_bv_copy;
 	}
 }

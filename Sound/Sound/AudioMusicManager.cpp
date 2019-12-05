@@ -32,17 +32,39 @@ void Audio::Music::Manager::FadeOut(Message& rMessage, MusicVoiceData* pTarget)
 	}
 }
 
+void Audio::Music::Manager::SetSpeed(Message& rMessage, MusicVoiceData* pTarget)
+{
+	if ((rMessage.flags & M_DATA_MASK) == M_DATA_AS_PARAMETER)
+	{
+		pTarget->Sampler.SetPlayRate(rMessage.data._float);
+	}
+}
+
 void Audio::Music::Manager::ProcessMusicMessages()
 {
 	Music::Message temp_message;
 	while (mMusicMessageBuffer.remove(&temp_message))
 	{
+		// If the message is to change the tempo,
+		// we'd like to set it to all music voices at
+		// the same time
+		if ((temp_message.flags & M_FUNC_MASK) == M_FUNC_SET_SPEED)
+		{
+			SetSpeed(temp_message, &mMainData);
+			SetSpeed(temp_message, &mSecondaryData);
+			SetSpeed(temp_message, &mSubData);
+			continue;
+		}
+
 		// Select target
 		Manager::MusicVoiceData* target_data = nullptr;
 		switch (temp_message.flags & M_TARGET_MASK)
 		{
 		case M_TARGET_MAIN:
 			target_data = &mMainData;
+			break;
+		case M_TARGET_SECONDARY:
+			target_data = &mSecondaryData;
 			break;
 		case M_TARGET_SUB:
 			target_data = &mSubData;
@@ -75,6 +97,10 @@ void Audio::Music::Manager::ProcessMusicMessages()
 				mMainData.Sampler.SetReadPointer(
 					mSubData.Sampler.GetReadPointer());
 				break;
+			case M_TARGET_SECONDARY:
+				mSecondaryData.Sampler.SetReadPointer(
+					mMainData.Sampler.GetReadPointer());
+				break;
 			case M_TARGET_SUB:
 				mSubData.Sampler.SetReadPointer(
 					mMainData.Sampler.GetReadPointer());
@@ -89,9 +115,19 @@ void Audio::Music::Manager::ProcessMusicMessages()
 			case M_TARGET_MAIN:
 				mSubData.Sampler.SetReadPointer(
 					mMainData.Sampler.GetReadPointer());
+				mSecondaryData.Sampler.SetReadPointer(
+					mMainData.Sampler.GetReadPointer());
+				break;
+			case M_TARGET_SECONDARY:
+				mMainData.Sampler.SetReadPointer(
+					mSecondaryData.Sampler.GetReadPointer());
+				mSubData.Sampler.SetReadPointer(
+					mSecondaryData.Sampler.GetReadPointer());
 				break;
 			case M_TARGET_SUB:
 				mMainData.Sampler.SetReadPointer(
+					mSubData.Sampler.GetReadPointer());
+				mSecondaryData.Sampler.SetReadPointer(
 					mSubData.Sampler.GetReadPointer());
 				break;
 			}
@@ -115,6 +151,12 @@ void Audio::Music::Manager::Fill(Samples start, Samples sampleCount, float* pDat
 		pData[j] += pVoiceData[j];
 	}
 
+	mSecondaryData.Entry->Process(start, sampleCount, pVoiceData, channelCount);
+	for (j = 0; j < sampleCount * 2; j++)
+	{
+		pData[j] += pVoiceData[j];
+	}
+
 	mSubData.Entry->Process(start, sampleCount, pVoiceData, channelCount);
 	for (j = 0; j < sampleCount * 2; j++)
 	{
@@ -126,6 +168,9 @@ Audio::Music::Manager::Manager()
 {
 	mMainData.Gain.SetNextPointer(&mMainData.Sampler, true);
 	mMainData.Entry = &mMainData.Gain;
+
+	mSecondaryData.Gain.SetNextPointer(&mSecondaryData.Sampler, true);
+	mSecondaryData.Entry = &mSecondaryData.Gain;
 	
 	mSubData.Gain.SetNextPointer(&mSubData.Sampler, true);
 	mSubData.Entry = &mSubData.Gain;

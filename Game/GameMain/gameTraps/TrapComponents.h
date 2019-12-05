@@ -2,7 +2,8 @@
 
 #include "ecsComponentIncludes.h"
 #include "../GameGlobals.h"
-
+#include "../Physics/PhysicsComponents.h"
+#include <DirectXMath.h>
 
 /*
 	-- HOW TO ADD A NEW TRAP --																						See file:
@@ -21,8 +22,12 @@ namespace ecs
 	{
 		struct TrapComponent : public ECSComponent<TrapComponent>
 		{
+			float ActivationRateInSeconds;
+			float CurrentTimeInSeconds;
+
+			AABB mAABB;
 			GAME_OBJECT_TYPE mObjectType;
-			TypeID mTileID;
+			ID mTileID;
 		};
 
 		// Holds the time of how long the unit has been frozzen and the max time
@@ -38,6 +43,13 @@ namespace ecs
 			float mDuration;
 
 			float mElapsedTime = 0;
+
+			float TargetOffsetY;
+		};
+
+		struct SpikeTrapComponent : public ecs::ECSComponent<SpikeTrapComponent>
+		{
+
 		};
 	}
 }

@@ -6,6 +6,7 @@
 #include "../gameGraphics/ParticleECSComponents.h"
 
 #include "../gameAI/AIComponents.h" // TileComponent
+#include "../gameAudio/AudioECSEvents.h"
 
 #include "GridProp.h"
 
@@ -69,6 +70,18 @@ namespace ecs
 			switch (r_spawn_event.weaponType)
 			{
 			case GAME_OBJECT_TYPE_WEAPON_SWORD:
+			{
+				weapon_offset_y = 1.1f;
+
+				// Set Rotation when at pick-up stage
+				weapon_transform_comp.rotation.x -= 3.14f * 0.4f;
+				weapon_transform_comp.rotation.y += 3.14f * 0.3f;
+
+				weapon_color_comp.red	= 150;
+				weapon_color_comp.green = 150;
+				weapon_color_comp.blue	= 150;
+				break;
+			}
 			case GAME_OBJECT_TYPE_WEAPON_HAMMER:
 			{
 				/*
@@ -77,16 +90,16 @@ namespace ecs
 				*/
 
 				//weapon_transform_comp.scale = XMFLOAT3(0.1f, 0.1f, 0.1f);
-				weapon_offset_y = 0.7f;
+				weapon_offset_y = 1.1f;
 
 				// Set Rotation when at pick-up stage
 				weapon_transform_comp.rotation.x -= 3.14f * 0.4f;
 				weapon_transform_comp.rotation.y += 3.14f * 0.3f;
 				
 
-				weapon_color_comp.red = 200;
-				weapon_color_comp.green = 130;
-				weapon_color_comp.blue = 20;
+				weapon_color_comp.red	= 184;
+				weapon_color_comp.green = 134;
+				weapon_color_comp.blue	= 11;
 
 				break;
 			}
@@ -95,9 +108,9 @@ namespace ecs
 			{
 				weapon_offset_y = 0.05f;
 
-				weapon_color_comp.red = 200;
-				weapon_color_comp.green = 130;
-				weapon_color_comp.blue = 20;
+				weapon_color_comp.red	= 40;
+				weapon_color_comp.green = 40;
+				weapon_color_comp.blue	= 40;
 
 				break;
 			}
@@ -221,8 +234,8 @@ namespace ecs
 				/*
 					Skip water tiles
 				*/
-
-				if (p_tile_comp->tileType == WATER)
+			
+				if (p_tile_comp->tileType == WATER || p_tile_comp->impassable || p_tile_comp->tileType == UNDEFINED)
 				{
 					continue;
 				}
@@ -241,8 +254,23 @@ namespace ecs
 
 		ID MasterWeaponSpawner::FindSpawnTile()
 		{
-			int random_index = rand() % (int)mPossibleTileIds.size();
-			
+			bool tile_found = false;
+			int random_index;
+			GridProp* p_gp = GridProp::GetInstance();
+			int tries = 0;
+			while (!tile_found && tries < 20)
+			{
+				random_index = rand() % (int)mPossibleTileIds.size();
+				tile_found = true;
+				for (int i = 0; i < p_gp->mLootTiles.size(); i++)
+				{
+					if (p_gp->mLootTiles[i] == mPossibleTileIds[random_index])
+					{
+						tile_found = false;
+						tries++;
+					}
+				}
+			}
 			return mPossibleTileIds[random_index];
 		}
 
@@ -313,6 +341,10 @@ namespace ecs
 				smoke.SpawnCount = 100;
 
 				createEntity(spawner, smoke);
+
+				events::PlaySound m_event;
+				m_event.audioName = AudioName::SOUND_itemland;
+				createEvent(m_event);
 			}
 			else
 			{

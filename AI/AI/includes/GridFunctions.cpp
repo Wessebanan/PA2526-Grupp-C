@@ -43,12 +43,13 @@ namespace GridFunctions
 
 		for (size_t mountain = 0; mountain < mountains; mountain++)
 		{
-			int top_x = rand() % (columns - 3 - holme_space);
-			int top_y = rand() % (rows - 3 - holme_space);
-			top_x += 2 + holme_space;
-			top_y += 2 + holme_space;
+			int top_x = rand() % (columns - 5 - 3);
+			int top_y = rand() % (rows - 5 - 3);
+			top_x += 4;
+			top_y += 4;
 			float top_height = 1.2f * height_power;
 			float slope = 0.7f;
+
 
 			// top
 			height_values[top_y][top_x] = top_height;
@@ -123,6 +124,7 @@ namespace GridFunctions
 		holme_space = layers * 2;
 		// Removes chunks from each side of the map
 		int chunk_size = rows / 4;
+
 		int side1 = rand() % (rows - chunk_size - holme_space);
 		int side0 = rand() % (columns - chunk_size - holme_space);
 		int side3 = rand() % (rows - chunk_size - holme_space);
@@ -181,6 +183,9 @@ namespace GridFunctions
 					break;
 				}
 
+				starting_tile += layers;
+				if (starting_tile < 0)
+					starting_tile = 0;
 
 				// How Deep
 				for (size_t k = 0; k < depth; k++)
@@ -261,10 +266,10 @@ namespace GridFunctions
 
 
 			// More chunks
-			side0 = rand() % (rows - chunk_size);
-			side1 = rand() % (columns - chunk_size);
-			side2 = rand() % (rows - chunk_size);
-			side3 = rand() % (columns - chunk_size);
+			side0 = rand() % (rows - chunk_size - 1);
+			side1 = rand() % (columns - chunk_size - 1);
+			side2 = rand() % (rows - chunk_size - 1);
+			side3 = rand() % (columns - chunk_size - 1);
 
 			// removed 3 on each side
 			for (size_t i = 0; i < chunk_size; i++)
@@ -313,7 +318,7 @@ namespace GridFunctions
 
 
 			size_t i = 0;
-			int start = 0;
+			int start;
 
 			// first side
 			start = start0;

@@ -7,7 +7,7 @@
 #include "..//GameGlobals.h"
 #include "..//UI/UIEvents.h"
 
-#define ROUNDS_TO_WIN 2
+#define ROUNDS_TO_WIN 3
 
 namespace ecs
 {
@@ -65,6 +65,16 @@ namespace ecs
 		public:
 			GameStartSystem();
 			~GameStartSystem();
+			void readEvent(BaseEvent& event, float delta) override;
+		private:
+		};
+
+		// Starts the game, launches the correct phase after reading event
+		class GameReStartSystem : public ecs::ECSSystem<GameReStartSystem>
+		{
+		public:
+			GameReStartSystem();
+			~GameReStartSystem();
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
 		};

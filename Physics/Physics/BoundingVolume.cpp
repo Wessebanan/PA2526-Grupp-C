@@ -1,10 +1,68 @@
 #include "includes\BoundingVolume.h"
 
-void BoundingCylinder::CreateFromTile(XMFLOAT3 position, float height, float radius)
+void BoundingCylinder::CreateFromPoints(BoundingCylinder& Out, size_t Count, const XMFLOAT3* pPoints, size_t Stride)
 {
+	// Creating min and max points to make a box.
+	XMFLOAT3 min = XMFLOAT3(INFINITY, INFINITY, INFINITY);
+	XMFLOAT3 max = XMFLOAT3(-INFINITY, -INFINITY, -INFINITY);
+
+	// Looping over each vertex to see if they contain
+	// the lowest or highest value in each axis.
+	for (int i = 0; i < Count; i++)
+	{
+		XMFLOAT3 current = pPoints[i];
+		if (current.x < min.x)
+		{
+			min.x = current.x;
+		}
+		else if (current.x > max.x)
+		{
+			max.x = current.x;
+		}
+		if (current.y < min.y)
+		{
+			min.y = current.y;
+		}
+		else if (current.y > max.y)
+		{
+			max.y = current.y;
+		}
+		if (current.z < min.z)
+		{
+			min.z = current.z;
+		}
+		else if (current.z > max.z)
+		{
+			max.z = current.z;
+		}
+	}
+	
+	// Calculating the height and radius of the cylinder.
+	float height = max.y - min.y;
+	float radius = 0.0f;
+
+	float extents_x = max.x - min.x;
+	float extents_z = max.z - min.z;
+
+	if (extents_x > extents_z)
+	{
+		radius = extents_x / 2.0f;
+	}
+	else
+	{
+		radius = extents_z / 2.0f;
+	}
+	
 	mExtentsY = height / 2.0f;
 	mRadius = radius * HALF_SQRT_3;
-	mCenter = XMFLOAT3(position.x, position.y - (height / 2.0f), position.z);
+	mCenter = XMFLOAT3(0.0f, -(height / 2.0f), 0.0f);
+}
+
+void BoundingCylinder::CreateFromTile(XMFLOAT3 position, float radius)
+{
+	mExtentsY = 1.0f;
+	mRadius = radius * 1.0f;
+	mCenter = XMFLOAT3(0.0f,-mExtentsY,0.0f);
 }
 
 bool BoundingCylinder::Intersects(BoundingBox& rAabb)
@@ -124,6 +182,11 @@ void Sphere::Transform(XMMATRIX transform)
 XMFLOAT3 Sphere::GetCenter()
 {
 	return Center;
+}
+
+XMFLOAT3 Sphere::GetExtents()
+{
+	return XMFLOAT3(Radius, Radius, Radius);
 }
 
 CollisionInfo Sphere::GetCollisionInfo(BoundingVolume* pOther)
@@ -268,6 +331,11 @@ CollisionInfo Sphere::GetCollisionInfo(BoundingCylinder& rCylinder)
 	}
 	
 	return return_info;
+}
+
+BoundingVolume* Sphere::Copy()
+{
+	return new Sphere(*this);
 }
 
 bool OBB::Intersects(BoundingVolume* pOther)
@@ -490,9 +558,19 @@ CollisionInfo OBB::GetCollisionInfo(BoundingCylinder& rCylinder)
 	return return_info;
 }
 
+BoundingVolume* OBB::Copy()
+{
+	return new OBB(*this);
+}
+
 XMFLOAT3 OBB::GetCenter()
 {
 	return Center;
+}
+
+XMFLOAT3 OBB::GetExtents()
+{
+	return Extents;
 }
 
 bool AABB::Intersects(BoundingVolume* pOther)
@@ -529,6 +607,11 @@ void AABB::Transform(XMMATRIX transform)
 XMFLOAT3 AABB::GetCenter()
 {
 	return Center;
+}
+
+XMFLOAT3 AABB::GetExtents()
+{
+	return Extents;
 }
 
 CollisionInfo AABB::GetCollisionInfo(BoundingVolume* pOther)
@@ -700,6 +783,11 @@ CollisionInfo AABB::GetCollisionInfo(BoundingCylinder& rCylinder)
 	return return_info;
 }
 
+BoundingVolume* AABB::Copy()
+{
+	return new AABB(*this);
+}
+
 bool Cylinder::Intersects(BoundingVolume* pOther)
 {
 	// Check which bounding volume 'pOther' is and test.
@@ -735,6 +823,11 @@ void Cylinder::Transform(XMMATRIX transform)
 XMFLOAT3 Cylinder::GetCenter()
 {
 	return mCenter;
+}
+
+XMFLOAT3 Cylinder::GetExtents()
+{
+	return XMFLOAT3(mRadius, mExtentsY, mRadius);
 }
 
 CollisionInfo Cylinder::GetCollisionInfo(BoundingVolume* pOther)
@@ -907,4 +1000,9 @@ CollisionInfo Cylinder::GetCollisionInfo(BoundingCylinder& rCylinder)
 	}
 
 	return return_info;
+}
+
+BoundingVolume* Cylinder::Copy()
+{
+	return new Cylinder(*this);
 }

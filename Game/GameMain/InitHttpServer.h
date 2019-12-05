@@ -15,7 +15,7 @@ void InitHttpServer(ecs::EntityComponentSystem& rECS)
 	std::wstring_convert<std::codecvt<wchar_t, char, std::mbstate_t>> convert;
 	std::wstring text_wstr = convert.from_bytes(text_str);
 
-	text_wstr.insert(0, L"PRESS SPACE TO START \nwait for all players \nJoin at adress: ");
+	text_wstr.insert(0, L"Join at adress: ");
 	text.mStrText = text_wstr;
 
 	text.tag = UITAG::STARTTEXT;

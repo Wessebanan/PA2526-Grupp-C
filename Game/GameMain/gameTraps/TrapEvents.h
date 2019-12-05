@@ -24,20 +24,40 @@ namespace ecs
 			GAME_OBJECT_TYPES type; // The winner of the round 
 		};
 
-		// Trigger event for traps
+		// Generic trap trigger event for collision.
+		struct TriggerTrapEvent : public ecs::ECSEvent<TriggerTrapEvent>
+		{
+			GAME_OBJECT_TYPE trapType;
+
+			ID unitID;
+			ID tileID;
+			ID trapID;
+		};
+
+		// Specific trigger events for traps
 		struct TriggerFireTrapEvent : public ecs::ECSEvent<TriggerFireTrapEvent>
 		{
-			TypeID unitID;
+			ID unitID;
+			ID tileID;
+			ID trapID;
 		};
 		struct TriggerFreezeTrapEvent : public ecs::ECSEvent<TriggerFreezeTrapEvent>
 		{
-			TypeID unitID;
+			ID unitID;
+			ID tileID;
+			ID trapID;
 		};
 		struct TriggerSpringTrapEvent : public ecs::ECSEvent<TriggerSpringTrapEvent>
 		{
-			TypeID unitID;
-			TypeID tileID;
+			ID unitID;
+			ID tileID;
+			ID trapID;
 		};
-
+		struct TriggerSpikeTrapEvent : public ecs::ECSEvent<TriggerSpikeTrapEvent>
+		{
+			ID unitID;
+			ID tileID;
+			ID trapID;
+		};
 	}
 }
