@@ -13,7 +13,7 @@ namespace CameraDefines
 	constexpr DirectX::XMFLOAT4 originalForward = { 0.0f, 0.0f, 1.0f, 0.0f };
 	constexpr DirectX::XMFLOAT4 originalRight = { 1.0f, 0.0f, 0.0f, 0.0f };
 
-	constexpr float fovAngle = 90.f * 3.141592f / 180.f;
+	constexpr float fovAngle = 70.f * 3.141592f / 180.f;
 	constexpr float aspectRatio = 1280.0f / 720.0f;
 	constexpr float nearPlane = 1.0f;
 	constexpr float farPlane = 100.0f;

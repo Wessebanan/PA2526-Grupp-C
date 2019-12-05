@@ -45,6 +45,7 @@ namespace Audio
 			void SetFileAndReset(FileData* pFile);
 			Samples GetReadPointer();
 			void SetReadPointer(Samples readPointer);
+			void SetPlayRate(float playRate);
 			virtual Status Progress(Samples start, Samples sampleCount, int channelCount);
 			virtual Status Process(Samples start, Samples sampleCount, float* pData, int channelCount);
 		private:

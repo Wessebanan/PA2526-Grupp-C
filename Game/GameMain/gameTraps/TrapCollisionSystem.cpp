@@ -25,6 +25,7 @@ namespace ecs
 
 		void TrapCollisionSystem::updateEntity(FilteredEntity& trap, float delta)
 		{
+#pragma region old_shit
 			//components::TrapComponent* p_trap_comp = trap.getComponent<components::TrapComponent>();
 			//components::TransformComponent* p_transf_comp = trap.getComponent<components::TransformComponent>();
 
@@ -113,17 +114,12 @@ namespace ecs
 			////{
 			////	removeEntity(trap.entity->getID());
 			////}
-
+#pragma endregion
 			components::TrapComponent* p_trap_comp = trap.getComponent<components::TrapComponent>();
 			components::TransformComponent* p_transf_comp = trap.getComponent<components::TransformComponent>();
 
 			const GAME_OBJECT_TYPE TRAP_TYPE = p_trap_comp->mObjectType;
 			const XMVECTOR trap_position = XMLoadFloat3(&p_transf_comp->position) + XMLoadFloat3(&TRIGGER_POINT_OFFSET);
-
-			/*
-				Retrieve all existing units
-			*/
-
 
 			p_trap_comp->CurrentTimeInSeconds += delta;
 			if (p_trap_comp->ActivationRateInSeconds <= p_trap_comp->CurrentTimeInSeconds)
@@ -133,49 +129,12 @@ namespace ecs
 				/*
 					Trigger event
 				*/
-
-				switch (TRAP_TYPE)
-				{
-				case GAME_OBJECT_TYPE_TRAP_FIRE:
-					{
-						events::TriggerFireTrapEvent fire_event;
-						fire_event.unitID = 0;
-						fire_event.tileID = p_trap_comp->mTileID;
-						fire_event.trapID = trap.entity->getID();
-						createEvent(fire_event);
-
-					} break;
-
-				case GAME_OBJECT_TYPE_TRAP_FREEZE:
-					{
-						events::TriggerFreezeTrapEvent freeze_event;
-						freeze_event.unitID = 0;
-						freeze_event.tileID = p_trap_comp->mTileID;
-						freeze_event.trapID = trap.entity->getID();
-						createEvent(freeze_event);
-						
-					} break;
-
-				case GAME_OBJECT_TYPE_TRAP_SPRING:
-					{
-						events::TriggerSpringTrapEvent spring_event;
-						spring_event.unitID = 0;
-						spring_event.tileID = p_trap_comp->mTileID;
-						spring_event.trapID = trap.entity->getID();
-						createEvent(spring_event);
-						
-					} break;
-
-				case GAME_OBJECT_TYPE_TRAP_SPIKES:
-					{
-						events::TriggerSpikeTrapEvent spike_event;
-						spike_event.unitID = 0;
-						spike_event.tileID = p_trap_comp->mTileID;
-						spike_event.trapID = trap.entity->getID();
-						createEvent(spike_event);
-						
-					} break;
-				}
+				TriggerTrapEvent trigger_event;
+				trigger_event.unitID = 0;
+				trigger_event.tileID = p_trap_comp->mTileID;
+				trigger_event.trapID = trap.entity->getID();
+				trigger_event.trapType = p_trap_comp->mObjectType;
+				createEvent(trigger_event);
 			}
 		}
 	}

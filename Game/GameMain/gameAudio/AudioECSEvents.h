@@ -64,6 +64,15 @@ namespace ecs
 		{
 			float volume;
 		};
+		struct SetMusicSpeed : public ECSEvent<SetMusicSpeed>
+		{
+			float speed;
+		};
 
+
+		struct MusicSpeedGoal : public ECSEvent<MusicSpeedGoal>
+		{
+			float speed;
+		};
 	}
 }

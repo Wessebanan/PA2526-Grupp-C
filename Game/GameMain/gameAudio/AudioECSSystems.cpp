@@ -6,6 +6,8 @@
 
 #include "../gameAI/AIComponents.h"
 #include "../gameUtility/UtilityComponents.h"
+#include "../gameGameLoop/GameLoopEvents.h"
+#include "../gameGameLoop/GameLoopComponents.h"
 
 ecs::systems::SoundMessageSystem::SoundMessageSystem()
 {
@@ -102,6 +104,8 @@ bool ecs::systems::SoundMessageSystem::Init()
 		subscribeEventCreation(MusicSetVolume::typeID);
 		subscribeEventCreation(SecondaryMusicSetVolume::typeID);
 		subscribeEventCreation(SubMusicSetVolume::typeID);
+
+		subscribeEventCreation(SetMusicSpeed::typeID);
 	}
 
 	return true;
@@ -143,6 +147,9 @@ void ecs::systems::SoundMessageSystem::onEvent(TypeID _eventType, BaseEvent* _ev
 			ProcessSecondaryMusicSetVolume(static_cast<SecondaryMusicSetVolume*>(_event));
 		else if (SubMusicSetVolume::typeID == _eventType)
 			ProcessSubMusicSetVolume(static_cast<SubMusicSetVolume*>(_event));
+
+		else if (SetMusicSpeed::typeID == _eventType)
+			ProcessSetMusicSpeed(static_cast<SetMusicSpeed*>(_event));
 	}
 }
 
@@ -325,6 +332,15 @@ void ecs::systems::SoundMessageSystem::ProcessSubMusicSetVolume(ecs::events::Sub
 		});
 }
 
+void ecs::systems::SoundMessageSystem::ProcessSetMusicSpeed(ecs::events::SetMusicSpeed* pEvent)
+{
+	mSoundMixer->AddMusicMessage({
+		pEvent->speed,
+		Audio::Music::M_DATA_AS_PARAMETER |
+		Audio::Music::M_FUNC_SET_SPEED
+		});
+}
+
 ecs::systems::BattleMusicIntensitySystem::BattleMusicIntensitySystem()
 {
 	updateType = EntityUpdate;
@@ -418,4 +434,64 @@ void ecs::systems::SubTrackUpdateSystem::updateEntity(FilteredEntity& entity, fl
 	// Set the distance calculation to 0 for next frame
 	p_comp->totalDistance = 0.0f;
 	p_comp->totalCount = 0;
+}
+
+ecs::systems::MusicSpeedSystem::MusicSpeedSystem()
+{
+	updateType = Actor;
+	subscribeEventCreation(events::MusicSpeedGoal::typeID);
+
+	mGoal = mCurrent = 1.0f;
+}
+
+void ecs::systems::MusicSpeedSystem::onEvent(TypeID _eventType, BaseEvent* _event)
+{
+	events::MusicSpeedGoal* event = static_cast<events::MusicSpeedGoal*>(_event);
+	mGoal = event->speed;
+}
+
+void ecs::systems::MusicSpeedSystem::act(float _delta)
+{
+	if (mCurrent != mGoal)
+	{
+		const float ratio = 0.1f;
+		if (signbit(mCurrent - mGoal))
+		{
+			mCurrent += _delta * ratio;
+			if (mCurrent > mGoal)
+				mCurrent = mGoal;
+		}
+		else
+		{
+			mCurrent -= _delta * ratio;
+			if (mCurrent < mGoal)
+				mCurrent = mGoal;
+		}
+		events::SetMusicSpeed m_event;
+		m_event.speed = mCurrent;
+		createEvent(m_event);
+	}
+}
+
+ecs::systems::SpeedUpOnRoundEnd::SpeedUpOnRoundEnd()
+{
+	updateType = SystemUpdateType::EventListenerOnly;
+	subscribeEventCreation(events::RoundEndEvent::typeID);
+}
+
+void ecs::systems::SpeedUpOnRoundEnd::onEvent(TypeID _eventType, BaseEvent* _event)
+{
+	const float speed_up_factor = 0.05f;
+	components::GameLoopComponent* p_comp =
+		static_cast<components::GameLoopComponent*>(
+			getComponentsOfType<components::GameLoopComponent>().next());
+
+	int total = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		total += p_comp->mPlayerPoints[i];
+	}
+	events::MusicSpeedGoal m_event;
+	m_event.speed = 1.0f + speed_up_factor * total;
+	createEvent(m_event);
 }
