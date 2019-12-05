@@ -60,6 +60,12 @@ namespace ecs
 			float elapsedTime = 0.f;
 		};
 
+		struct GuideLinkerComponent : public ECSComponent<GuideLinkerComponent>
+		{
+			ID mPrev;
+			//ID mNext;
+		};
+
 		struct UIUnitReader : public ECSComponent<UIUnitReader>
 		{
 			enum UI_UNIT_PLACEMENT

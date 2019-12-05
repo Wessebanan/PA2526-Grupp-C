@@ -148,6 +148,20 @@ namespace ecs
 			int mExpand_size = 500;
 		};
 
+		class UIGuideSystem : public ECSSystem<UIGuideSystem> //system for drawing filled rects
+			//it needs 2 components Drawcolor and drawPos then the system draws
+			//that filled rect with that color at that position
+		{
+		public:
+			UIGuideSystem();
+			virtual ~UIGuideSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+			Direct2D* mpD2D;
+		private:
+			int mCounter = 7;
+			float mElapsedTime;
+		};
+
 		class UIOverlayInitSystem : public ECSSystem<UIOverlayInitSystem>
 		{
 		public:

@@ -236,8 +236,6 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 		//	}
 		//}
 #pragma endregion
-		const float trap_damage = 20.0f;
-
 		TriggerFireTrapEvent& fire_trap_event = static_cast<TriggerFireTrapEvent&>(event);
 		
 		if (fire_trap_event.tileID > 0)
@@ -258,6 +256,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 			unit_filter.addRequirement(components::UnitComponent::typeID);
 			unit_filter.addRequirement(components::TransformComponent::typeID);
 			unit_filter.addRequirement(components::ObjectCollisionComponent::typeID);
+			unit_filter.addRequirement(components::DynamicMovementComponent::typeID);
 			EntityIterator units = getEntitiesByFilter(unit_filter);
 			for (FilteredEntity& unit : units.entities)
 			{				
@@ -278,12 +277,12 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 					HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(unit_id);
 					if (p_hp_comp)
 					{
-						p_hp_comp->mHealth -= trap_damage;// mDamage* delta;
+						p_hp_comp->mHealth -= mDamage;
 
 						// Make the unit jump a litte, fire is hot and so am I
 						ForceImpulseEvent knockback;
 						knockback.mDirection = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
-						knockback.mForce = mKnockback;
+						knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit_id)->mWeight;
 						knockback.mEntityID = unit_id;
 						createEvent(knockback);
 
@@ -310,7 +309,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 			spawner.LifeDuration = 0.4f;
 
 			smoke.InitialVelocity = 12.0f;
-			smoke.SpawnCount = 500;
+			smoke.SpawnCount = 100;
 
 			createEntity(spawner, smoke);
 		}
@@ -467,7 +466,7 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 #pragma endregion
 	if (event.getTypeID() == ecs::events::TriggerSpringTrapEvent::typeID)
 	{
-		const float knockback_force = 100.0f;
+		
 
 		TriggerSpringTrapEvent& r_event = static_cast<TriggerSpringTrapEvent&>(event);
 
@@ -490,6 +489,7 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 		unit_filter.addRequirement(components::UnitComponent::typeID);
 		unit_filter.addRequirement(components::TransformComponent::typeID);
 		unit_filter.addRequirement(components::ObjectCollisionComponent::typeID);
+		unit_filter.addRequirement(components::DynamicMovementComponent::typeID);
 		EntityIterator units = getEntitiesByFilter(unit_filter);
 		for (FilteredEntity& unit : units.entities)
 		{
@@ -526,19 +526,17 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 
 				start_trans_comp->position.y += 1.5f;
 
-				XMFLOAT2 flight_direction;
+				XMFLOAT3 flight_direction;
 				flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
-				flight_direction.y = target_trans_comp->position.z - start_trans_comp->position.z;
+				flight_direction.y = 3.0f;
+				flight_direction.z = target_trans_comp->position.z - start_trans_comp->position.z;
 
-				float dist = sqrtf(flight_direction.x * flight_direction.x + flight_direction.y * flight_direction.y);
-
-				flight_direction.x /= dist;
-				flight_direction.y /= dist;  
+				XMStoreFloat3(&flight_direction, XMVector3Normalize(XMLoadFloat3(&flight_direction)));
 
 				// Make the unit jump a litte, fire is hot and so am I
 				ForceImpulseEvent knockback;
 				knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
-				knockback.mForce = knockback_force;
+				knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit.entity->getID())->mWeight;
 				knockback.mEntityID = unit.entity->getID();
 				createEvent(knockback);
 			}
@@ -575,9 +573,7 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 		return;
 	}
 
-	constexpr float trap_damage		= 20.0f;
 	constexpr float trap_offset_y	= 0.25f;
-	constexpr float trap_force		= 50.0f;
 
 	ecs::events::TriggerSpikeTrapEvent& r_event = static_cast<ecs::events::TriggerSpikeTrapEvent&>(event);
 	
@@ -634,7 +630,7 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 			HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(unit.entity->getID());
 			if (p_hp_comp)
 			{
-				p_hp_comp->mHealth -= trap_damage;
+				p_hp_comp->mHealth -= mDamage;
 
 				// Check if the unit died
 				if (p_hp_comp->mHealth <= 0.0f)
@@ -654,7 +650,7 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 					// Make the unit jump a litte because of sharp 
 					ForceImpulseEvent knockback;
 					knockback.mDirection = DirectX::XMFLOAT3(0, 1.0f, 0);
-					knockback.mForce = trap_force;
+					knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit.entity->getID())->mWeight;
 					knockback.mEntityID = unit.entity->getID();
 					createEvent(knockback);
 				}

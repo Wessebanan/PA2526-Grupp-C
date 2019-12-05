@@ -253,6 +253,80 @@ void ecs::systems::UICountDownSystem::onEvent(TypeID _eventType, BaseEvent* _eve
 	}
 }
 
+ecs::systems::UIGuideSystem::UIGuideSystem()
+{
+	updateType = SystemUpdateType::EntityUpdate;
+	typeFilter.addRequirement(components::UIBitmapComponent::typeID);
+	typeFilter.addRequirement(components::UIDrawPosComponent::typeID);
+	typeFilter.addRequirement(components::GuideLinkerComponent::typeID);
+
+	mElapsedTime = 0.0f;
+}
+
+ecs::systems::UIGuideSystem::~UIGuideSystem()
+{
+}
+
+void ecs::systems::UIGuideSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	components::UIBitmapComponent* p_UI_bitmap_comp = _entityInfo.getComponent<components::UIBitmapComponent>();
+	components::UIDrawPosComponent* p_UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
+	components::GuideLinkerComponent* p_guide_linker = _entityInfo.getComponent<components::GuideLinkerComponent>();
+
+	// Sanity check
+	if (!p_UI_bitmap_comp || !p_guide_linker || !p_UI_pos_comp) return;
+
+	// This function runs 8 times
+	mElapsedTime += _delta / 8.0f;
+
+	float per_image_time[8] = 
+	{
+		3.0f,
+		5.0f,
+		6.0f,
+		8.0f,
+
+		6.0f,
+		7.0f,
+		5.0f,
+		3.0f,
+	};
+
+	float time_sum = 0.0f;
+	for (size_t i = 0; i < 8; i++) 
+		time_sum += per_image_time[i];
+
+	//int curr_guide = ((int)(mElapsedTime / per_image_time));
+
+	float passed_image = 0.0f;
+	int i;
+	for (i = 0; passed_image < mElapsedTime && i < 8; i++)
+	{
+		passed_image += per_image_time[i];
+	}
+	int curr_guide = i - 1;
+	
+	// Safty check
+	if (curr_guide < 0)
+		curr_guide = 0;
+
+	if (p_UI_bitmap_comp->mName == string("guide" + to_string(curr_guide)))
+	{
+		p_UI_pos_comp->mDrawArea.bottom = 1000;
+
+		UIDrawPosComponent* p_prev_pos = getComponentFromKnownEntity<UIDrawPosComponent>(p_guide_linker->mPrev);
+		if (p_prev_pos)
+			p_prev_pos->mDrawArea.bottom = 200;
+
+		// When all images are done, remove the system
+		if (mElapsedTime > time_sum)
+		{
+			p_UI_pos_comp->mDrawArea.bottom = 200;
+			RemoveSystem<UIGuideSystem>();
+		}
+	}
+}
+
 ecs::systems::UIOverlayInitSystem::UIOverlayInitSystem()
 {
 	updateType = EventReader;
