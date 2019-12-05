@@ -39,6 +39,7 @@ namespace Audio
 			M_FUNC_SET_GAIN =			(2 << 6),
 			M_FUNC_FADE_IN =			(3 << 6),
 			M_FUNC_FADE_OUT =			(4 << 6),
+			M_FUNC_SET_SPEED =			(5 << 6),
 			M_FUNC_MASK =				(0b111 << 6)
 
 		};
@@ -91,6 +92,7 @@ namespace Audio
 			void SetGain(Message& rMessage, MusicVoiceData* pTarget);
 			void FadeIn(Message& rMessage, MusicVoiceData* pTarget);
 			void FadeOut(Message& rMessage, MusicVoiceData* pTarget);
+			void SetSpeed(Message& rMessage, MusicVoiceData* pTarget);
 
 			Ringbuffer<Music::Message, SOUND_MAX_MUSIC_MESSAGES> mMusicMessageBuffer;
 			//Voice mMusicVoices[SOUND_MAX_MUSIC_VOICES];

@@ -442,7 +442,7 @@
       <Filter>World</Filter>
     </ClInclude>
     <ClInclude Include="gameAudio\InitAudio.h">
-      <Filter>Init</Filter>
+      <Filter>Audio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
