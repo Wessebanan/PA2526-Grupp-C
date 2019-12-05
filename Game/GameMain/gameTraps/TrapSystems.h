@@ -60,7 +60,7 @@ namespace ecs
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
 
-			const float mDamage = 40.0f;
+			const float mDamage = 20.0f;
 			const float mKnockbackAcc = 3.0f;
 		};
 
@@ -96,7 +96,7 @@ namespace ecs
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
 			const float mKnockbackAcc = 2.0f;
-			const float mDamage = 40.0f;
+			const float mDamage = 20.0f;
 		};
 	}
 }

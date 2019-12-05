@@ -236,8 +236,6 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 		//	}
 		//}
 #pragma endregion
-		const float trap_damage = 20.0f;
-
 		TriggerFireTrapEvent& fire_trap_event = static_cast<TriggerFireTrapEvent&>(event);
 		
 		if (fire_trap_event.tileID > 0)
@@ -279,7 +277,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 					HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(unit_id);
 					if (p_hp_comp)
 					{
-						p_hp_comp->mHealth -= trap_damage;// mDamage* delta;
+						p_hp_comp->mHealth -= mDamage;
 
 						// Make the unit jump a litte, fire is hot and so am I
 						ForceImpulseEvent knockback;
@@ -575,7 +573,6 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 		return;
 	}
 
-	constexpr float trap_damage		= 20.0f;
 	constexpr float trap_offset_y	= 0.25f;
 
 	ecs::events::TriggerSpikeTrapEvent& r_event = static_cast<ecs::events::TriggerSpikeTrapEvent&>(event);
@@ -633,7 +630,7 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 			HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(unit.entity->getID());
 			if (p_hp_comp)
 			{
-				p_hp_comp->mHealth -= trap_damage;
+				p_hp_comp->mHealth -= mDamage;
 
 				// Check if the unit died
 				if (p_hp_comp->mHealth <= 0.0f)
