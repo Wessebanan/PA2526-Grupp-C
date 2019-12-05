@@ -36,6 +36,11 @@ namespace ecs
 		// new traps in between prep phase and battle phase.
 		struct TrapQueueInfoComponent : public ECSComponent<TrapQueueInfoComponent>
 		{
+			struct ParticleColor
+			{
+				char red, green, blue;
+			} particleColor;
+
 			components::TrapComponent trapCompInfo;
 			components::ColorComponent colorCompInfo;
 			components::TransformComponent transfCompInfo;

@@ -6,6 +6,8 @@
 #include "../gameGameLoop/GameLoopEvents.h"
 #include "../gameGraphics/ParticleECSComponents.h"
 
+#include "AIGlobals.h"
+
 using namespace DirectX;
 
 #include <iostream>
@@ -83,9 +85,10 @@ namespace ecs
 
 			trap_particle_spawner_comp.InitialVelocity = 10.f;
 			trap_particle_spawner_comp.SpawnCount = 100.f;
-			trap_particle_spawner_comp.red = 255;
-			trap_particle_spawner_comp.green = 255;
-			trap_particle_spawner_comp.blue = 255;
+			
+			trap_particle_spawner_comp.red = p_info->particleColor.red;
+			trap_particle_spawner_comp.green = p_info->particleColor.green;
+			trap_particle_spawner_comp.blue = p_info->particleColor.blue;
 
 			createEntity(particle_spawner_comp, trap_particle_spawner_comp);
 
@@ -240,6 +243,53 @@ namespace ecs
 			default:
 				queue_info.colorCompInfo = components::ColorComponent(); // Default constructor sets color to black.
 				break;
+			}
+
+			/*
+				Set color of trap spawn particles
+			*/
+
+			switch (queue_event.userID)
+			{
+			case 0: // Red
+			{
+				queue_info.particleColor.red	= PLAYER1_COLOR.r;
+				queue_info.particleColor.green	= PLAYER1_COLOR.g;
+				queue_info.particleColor.blue	= PLAYER1_COLOR.b;
+				break;
+			}
+
+			case 1: // Purple
+			{
+				queue_info.particleColor.red	= PLAYER2_COLOR.r;
+				queue_info.particleColor.green	= PLAYER2_COLOR.g;
+				queue_info.particleColor.blue	= PLAYER2_COLOR.b;
+				break;
+			}
+
+			case 2: // Blue
+			{
+				queue_info.particleColor.red	= PLAYER3_COLOR.r;
+				queue_info.particleColor.green	= PLAYER3_COLOR.g;
+				queue_info.particleColor.blue	= PLAYER3_COLOR.b;
+				break;
+			}
+
+			case 3: // Green
+			{
+				queue_info.particleColor.red	= PLAYER4_COLOR.r;
+				queue_info.particleColor.green	= PLAYER4_COLOR.g;
+				queue_info.particleColor.blue	= PLAYER4_COLOR.b;
+				break;
+			}
+
+			default:
+			{
+				queue_info.particleColor.red = 255;
+				queue_info.particleColor.green = 255;
+				queue_info.particleColor.blue = 255;
+				break;
+			}
 			}
 
 			/*
