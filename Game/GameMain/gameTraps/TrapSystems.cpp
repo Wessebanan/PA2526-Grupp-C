@@ -18,6 +18,37 @@
 ------------------------------------------------------------
 */
 
+ecs::systems::SpikeRootDurationSystem::SpikeRootDurationSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(ecs::components::SpikeTrapComponent::typeID);
+	typeFilter.addRequirement(ecs::components::DynamicMovementComponent::typeID);
+}
+
+ecs::systems::SpikeRootDurationSystem::~SpikeRootDurationSystem()
+{
+}
+
+void ecs::systems::SpikeRootDurationSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+}
+
+ecs::systems::BurningDurationSystem::BurningDurationSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(ecs::components::BurningComponent::typeID);
+	typeFilter.addRequirement(ecs::components::HealthComponent::typeID);
+	typeFilter.addRequirement(ecs::components::TransformComponent::typeID);
+}
+
+ecs::systems::BurningDurationSystem::~BurningDurationSystem()
+{
+}
+
+void ecs::systems::BurningDurationSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+}
+
 
 ecs::systems::FreezingDurationSystem::FreezingDurationSystem()
 {
@@ -583,10 +614,9 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 
 	ID trap_id = r_event.trapID;
 	ID tile_id = r_event.tileID;
-	ID unit_id = r_event.unitID;
 
 
-	if (trap_id < 1 || tile_id < 1 || unit_id < 1) return;
+	if (trap_id < 1 || tile_id < 1) return;
 
 	TransformComponent* p_tile_transform = getComponentFromKnownEntity<TransformComponent>(tile_id);
 	TransformComponent* p_trap_transform = getComponentFromKnownEntity<TransformComponent>(trap_id);
@@ -650,9 +680,9 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 					damage_flash.mTime = 0.05f;
 					createEvent(damage_flash);
 
-					ecs::components::SpikeTrapComponent burning_comp;
+					ecs::components::SpikeTrapComponent spike_comp;
 
-					ecs::ECSUser::createComponent(unit.entity->getID(), burning_comp);
+					ecs::ECSUser::createComponent(unit.entity->getID(), spike_comp);
 
 				}
 			}
