@@ -18,6 +18,7 @@
 
 #include "..//gameAnimation/AnimationEvents.h"
 #include "..//UI/UIComponents.h"
+#include "..//UI/UISystems.h"
 
 #include "..//gameUtility/CameraComponents.h"
 
@@ -109,7 +110,7 @@ void ecs::systems::WaitForStartupSystem::updateEntity(FilteredEntity& _entityInf
 	InputBackendComp* p_ib = _entityInfo.getComponent<InputBackendComp>();
 	if (p_ib)
 	{
-		if (p_ib->backend->checkReadyCheck())
+		if (p_ib->backend->checkReadyCheck() && !GetSystem<systems::UIGuideSystem>())
 		{
 			// Starts the first round, should be removed when prepphase is implemented
 			ecs::events::RoundStartEvent eve;
@@ -366,27 +367,6 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		}
 
 
-		itt = getComponentsOfType<components::UIBitmapComponent>();
-		UIBitmapComponent* bitmap_comp;
-
-		while (bitmap_comp = (UIBitmapComponent*)itt.next())
-		{
-			if (bitmap_comp->mName == "guide1")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 1000;
-			}
-			if (bitmap_comp->mName == "guide2")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 1000;
-			}
-		}
-
-
-
 		itt = getComponentsOfType<UITextComponent>();
 		UITextComponent* text_comp;
 		UIDrawPosComponent* draw_pos_comp;
@@ -510,18 +490,6 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
 
 				bitmap_pos_comp->mDrawArea.bottom = 150;
-			}
-			if (bitmap_comp->mName == "guide1")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 200;
-			}
-			if (bitmap_comp->mName == "guide2")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-				bitmap_pos_comp->mDrawArea.bottom = 200;
 			}
 		}
 
