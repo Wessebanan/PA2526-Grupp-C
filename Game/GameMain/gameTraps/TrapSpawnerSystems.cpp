@@ -5,6 +5,7 @@
 #include "../gameUtility/UtilityGraphics.h"
 #include "../gameGameLoop/GameLoopEvents.h"
 #include "../gameGraphics/ParticleECSComponents.h"
+#include "../gameAudio/AudioECSEvents.h"
 
 #include "AIGlobals.h"
 
@@ -91,6 +92,15 @@ namespace ecs
 			trap_particle_spawner_comp.blue = p_info->particleColor.blue;
 
 			createEntity(particle_spawner_comp, trap_particle_spawner_comp);
+
+			/*
+				Play spawn sound for trap
+			*/
+
+			events::PlaySound sound_event;
+			sound_event.audioName = AudioName::SOUND_trapspawn;
+			sound_event.soundFlags = SoundFlags::SF_RANDOM_PITCH;
+			createEvent(sound_event);
 
 			/*
 				Remove queue info entity
