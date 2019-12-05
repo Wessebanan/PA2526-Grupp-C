@@ -164,19 +164,6 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 					
 					// Takes the tilecomponent to make sure it isnt water
 					TileComponent* p_map_tile = getComponentFromKnownEntity<TileComponent>(p_gp->mGrid[tile_index_y][tile_index_x].Id);
-					
-					/// Loops over existing traps so they dont stack
-					//bool not_traped = true;
-					//itt = getComponentsOfType<TrapComponent>();
-					//TrapComponent* p_trap;
-					//while (p_trap = (TrapComponent*)itt.next())
-					//{
-					//	if (p_trap->mTileID == p_gp->mGrid[tile_index_y][tile_index_x].Id)
-					//	{
-					//		not_traped = false;
-					//		break;
-					//	}
-					//}
 
 					int loops = 0;
 					// Loop until we its a tile the units can go on
@@ -191,24 +178,11 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 						p_map_tile = getComponentFromKnownEntity<TileComponent>(p_gp->mGrid[tile_index_y][tile_index_x].Id);
 
-
-						// Check for existing traps
-						//not_traped = true;
-						//itt = getComponentsOfType<TrapComponent>();
-						////p_trap;
-						//while (p_trap = (TrapComponent*)itt.next())
-						//{
-						//	if (p_trap->mTileID == p_gp->mGrid[tile_index_y][tile_index_x].Id)
-						//	{
-						//		not_traped = false;
-						//		break;
-						//	}
-						//}
-
 						loops++;
 					}
 
-					if (!p_map_tile)
+					// Sanity check. Last stored tile could have trap and isnt checked in loop
+					if (!p_map_tile || p_map_tile->hasTrap)
 					{
 						return;
 					}
