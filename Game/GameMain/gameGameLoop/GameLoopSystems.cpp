@@ -18,6 +18,7 @@
 
 #include "..//gameAnimation/AnimationEvents.h"
 #include "..//UI/UIComponents.h"
+#include "..//UI/UISystems.h"
 
 #include "..//gameUtility/CameraComponents.h"
 
@@ -59,32 +60,35 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 {
 	UITextComponent* p_text = _entityInfo.getComponent<components::UITextComponent>();
 	
-	static float total_time;
-	static int total_frames;
-	
-	total_time += _delta;
-	total_frames++;
-	static float framerate_to_print = 0.0f;
-	static float frametime_to_print = 0.0f;
-	if (total_frames % 100 == 0)
+	if(p_text->tag == DEBUGUI)
 	{
-		framerate_to_print = (float)total_frames / total_time;
-		frametime_to_print = total_time / (float)total_frames;
-		total_frames = 0;
-		total_time = 0.0f;
-	}
-	
-	if (p_text->tag != UITAG::STARTTEXT)
-	{
-		// To be sent to the UI
-		wstring ss = L"";
-	
-		ss.append(L"\nFRAMERATE: ");
-		ss.append(to_wstring(framerate_to_print));
-		ss.append(L"\nFRAMETIME: ");
-		ss.append(to_wstring(frametime_to_print));
-	
-		p_text->mStrText = ss;
+		static float total_time;
+		static int total_frames;
+		
+		total_time += _delta;
+		total_frames++;
+		static float framerate_to_print = 0.0f;
+		static float frametime_to_print = 0.0f;
+		if (total_frames % 100 == 0)
+		{
+			framerate_to_print = (float)total_frames / total_time;
+			frametime_to_print = total_time / (float)total_frames;
+			total_frames = 0;
+			total_time = 0.0f;
+		}
+		
+		if (p_text->tag != UITAG::STARTTEXT)
+		{
+			// To be sent to the UI
+			wstring ss = L"\n";
+		
+			ss.append(L"\nFRAMERATE: ");
+			ss.append(to_wstring(framerate_to_print));
+			ss.append(L"\nFRAMETIME: ");
+			ss.append(to_wstring(frametime_to_print));
+		
+			p_text->mStrText = ss;
+		}
 	}
 }
 
@@ -107,7 +111,7 @@ void ecs::systems::WaitForStartupSystem::updateEntity(FilteredEntity& _entityInf
 	InputBackendComp* p_ib = _entityInfo.getComponent<InputBackendComp>();
 	if (p_ib)
 	{
-		if (p_ib->backend->checkReadyCheck())
+		if (p_ib->backend->checkReadyCheck() && !GetSystem<systems::UIGuideSystem>())
 		{
 			// Starts the first round, should be removed when prepphase is implemented
 			ecs::events::RoundStartEvent eve;
@@ -195,11 +199,15 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 		if (p_inputbackend->backend->mpPlayerIsConnected[p_army_comp->playerID] == true)
 		{
 			ECSUser::removeComponent(p_army_comp->getEntityID(), AiBrainComponent::typeID);
+			getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = wstring(p_inputbackend->backend->mpUserNames[p_army_comp->playerID].begin(), p_inputbackend->backend->mpUserNames[p_army_comp->playerID].end());
 		}	
 		else
 		{
 			if (!ECSUser::getEntity(p_army_comp->getEntityID())->hasComponentOfType<AiBrainComponent>())
 			{
+				getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = L"CPU";
+
+
 				AiBrainComponent ai_brain;
 				ai_brain.mPlayer = p_army_comp->playerID;
 				ai_brain.mTimer = ai_brain.mPlayer;
@@ -542,6 +550,8 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 	ecs::components::UnitComponent unit;
 	ecs::components::IdleStateComponent idle_state;
 	ecs::components::ColorComponent color_comp;
+	ecs::components::UIBitmapComponent bitmap_comp;
+	ecs::components::UIDrawPosComponent draw_pos_comp;
 	//Temporary entity pointer so that we can fetch the units IDs so that we can store
 	//them in the army component.
 	ecs::Entity* temp_entity;
@@ -590,6 +600,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 				transform.position.x = p_transform->position.x - (float(TILE_RADIUS) / divider);
 				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
+
 			}
 			else
 			{
@@ -648,6 +659,8 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 
 	}
 
+	ecs::events::ResetUIComponents reset_ui_event;
+	createEvent(reset_ui_event);
 
 	// INIT ANIMATIONS
 

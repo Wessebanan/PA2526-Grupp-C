@@ -6,7 +6,7 @@
 #include "..//GameGlobals.h"
 #include "..//UI/UIEvents.h"
 
-#define ROUNDS_TO_WIN 2
+#define ROUNDS_TO_WIN 3
 
 namespace ecs
 {
