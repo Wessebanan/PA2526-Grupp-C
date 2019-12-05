@@ -27,6 +27,9 @@ namespace ecs
 			float mCycleDuration;
 
 			EntityIterator mOceanTiles;
+
+			float* mWaveArray;
+			float mFlatternOutFactor;
 		};
 	}
 }
