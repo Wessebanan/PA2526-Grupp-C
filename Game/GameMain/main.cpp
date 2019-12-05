@@ -268,31 +268,60 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 	//	count++;
 	//}
 
-	events::SpawnWeaponEvent spawn_event;
-	TypeFilter tile_filter;
-	tile_filter.addRequirement(ecs::components::TileComponent::typeID);
-	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+	//events::SpawnWeaponEvent spawn_event;
+	//TypeFilter tile_filter;
+	//tile_filter.addRequirement(ecs::components::TileComponent::typeID);
+	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
 
-	GAME_OBJECT_TYPES traps[] =
-	{
-		GAME_OBJECT_TYPE_WEAPON_BOMB,
-		GAME_OBJECT_TYPE_WEAPON_SWORD,
-		GAME_OBJECT_TYPE_WEAPON_HAMMER,
-	};
+	//GAME_OBJECT_TYPES traps[] =
+	//{
+	//	GAME_OBJECT_TYPE_WEAPON_BOMB,
+	//	GAME_OBJECT_TYPE_WEAPON_SWORD,
+	//	GAME_OBJECT_TYPE_WEAPON_HAMMER,
+	//};
 
-	int count = 0;
-	for (FilteredEntity tile : tiles.entities)
+	//int count = 0;
+	//for (FilteredEntity tile : tiles.entities)
+	//{
+	//	components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
+	//	if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
+	//	{
+	//		spawn_event.weaponType = traps[rand() % (sizeof(traps) / sizeof(GAME_OBJECT_TYPES))];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
+	//		spawn_event.spawnTileId = p_tile->getEntityID();
+	//		rECS.createEvent(spawn_event);
+	//	}
+
+	//	count++;
+	//}
+
+	// FOR WEAPON BALANCING, GIVES A FULL SET OF EACH WEAPON TO EACH PLAYER.
+	SpawnWeaponEvent spawn;
+	TypeFilter islet_tile_filter;
+	islet_tile_filter.addRequirement(IsletComponent::typeID);
+	islet_tile_filter.addRequirement(TileComponent::typeID);
+	EntityIterator islet_tiles = rECS.getEntititesByFilter(islet_tile_filter);
+
+	for (FilteredEntity islet_tile : islet_tiles.entities)
 	{
-		components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
-		if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
+		IsletComponent* p_islet = islet_tile.getComponent<IsletComponent>();
+		TileComponent* p_tile = islet_tile.getComponent<TileComponent>();
+		spawn.spawnTileId = islet_tile.entity->getID();
+
+		switch (p_islet->playerId)
 		{
-			spawn_event.weaponType = traps[rand() % (sizeof(traps) / sizeof(GAME_OBJECT_TYPES))];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
-			spawn_event.spawnTileId = p_tile->getEntityID();
-			rECS.createEvent(spawn_event);
+		case PLAYER1:
+			spawn.weaponType = GAME_OBJECT_TYPE_WEAPON_SWORD;
+			break;
+		case PLAYER2:
+			spawn.weaponType = GAME_OBJECT_TYPE_WEAPON_HAMMER;
+			break;
+		case PLAYER3:
+			spawn.weaponType = GAME_OBJECT_TYPE_WEAPON_BOMB;
+			break;
 		}
+		rECS.createEvent(spawn);
+	}	
 
-		count++;
-	}
 #pragma endregion
 }
 
@@ -372,5 +401,5 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
 	
-	//DebuggFunctions(rECS);
+	DebuggFunctions(rECS);
 }
