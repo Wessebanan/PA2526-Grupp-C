@@ -28,8 +28,8 @@ constexpr float DEFAULT_WEIGHT			= 50.0f;
 constexpr float DEFAULT_GRAVITY			= 9.82f;
 constexpr float DEFAULT_HEALTH			= 100.0f;
 
-constexpr float BASE_SWORD_DAMAGE		= 5.0f;
-constexpr float BASE_HAMMER_DAMAGE		= 2.5f;
+constexpr float BASE_SWORD_DAMAGE		= 6.0f;
+constexpr float BASE_HAMMER_DAMAGE		= 2.0f;
 constexpr float BASE_FIST_DAMAGE		= 1.0f;
 constexpr float BASE_BOMB_DAMAGE		= 30.0f;
 
