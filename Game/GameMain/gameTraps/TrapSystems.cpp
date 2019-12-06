@@ -56,6 +56,12 @@ void ecs::systems::BurningDurationSystem::updateEntity(FilteredEntity& _entityIn
 	// deal damage to the burnign unit
 	p_hp_comp->mHealth -= p_burning_comp->mDamagePerSecond * _delta;
 
+	if (p_hp_comp->mHealth < 0.0f)
+	{
+		DeadComponent dead;
+		createComponent<DeadComponent>(_entityInfo.entity->getID(), dead);
+	}
+
 	// Check if it has finnished burning
 	p_burning_comp->mElapsedTime += _delta;
 	if (p_burning_comp->mElapsedTime > p_burning_comp->mDuration)
