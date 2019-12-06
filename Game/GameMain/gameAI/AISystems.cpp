@@ -838,7 +838,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 			y_distance = p_goal->position.y - p_transform->position.y;
 		}
 
-		if (y_distance > 0.3f && p_dyn_move->mOnGround && y_distance < 5.f)
+		if (y_distance > 0.3f && p_dyn_move->mOnGround && y_distance < 3.f)
 		{
 			length = PhysicsHelpers::CalculateDistance(XMFLOAT3(p_goal->position.x, 0.0f, p_goal->position.z), XMFLOAT3(p_transform->position.x, 0.0f, p_transform->position.z));//Length from unit to goal center
 			length_of_vector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
@@ -1297,6 +1297,19 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 			sound.audioName = SOUND_sploosh;
 			sound.soundFlags = SF_NONE;
 			ecs::ECSUser::createEvent(sound);
+			EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
+			Entity* p_weapon_entity = ECSUser::getEntity(p_equipment_comp->mEquippedWeapon);
+			WeaponComponent* p_weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(p_equipment_comp->mEquippedWeapon);
+			//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
+			if (p_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+			{
+				ECSUser::removeEntity(p_weapon_entity->getID());
+			}
+			else
+			{
+				ECSUser::removeEntity(p_weapon_entity->getID());
+				//weapon_comp->mOwnerEntity = 0;
+			}
 			ECSUser::removeEntity(entity.entity->getID());
 		}
 		// saved fo future use
@@ -1320,7 +1333,19 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 			}
 		}
 		//Fetch the units weapon data.
-		
+		EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
+		Entity* p_weapon_entity = ECSUser::getEntity(p_equipment_comp->mEquippedWeapon);
+		WeaponComponent* p_weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(p_equipment_comp->mEquippedWeapon);
+		//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
+		if (p_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+		{
+			ECSUser::removeEntity(p_weapon_entity->getID());
+		}
+		else
+		{
+			ECSUser::removeEntity(p_weapon_entity->getID());
+			//weapon_comp->mOwnerEntity = 0;
+		}
 		// Check if the killer is legal and exists 
 		if (getEntity(killer_id))
 		{
@@ -1354,7 +1379,9 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 					ECSUser::removeComponent(entity.entity->getID(), PoiComponent::typeID);
 					ECSUser::removeComponent(entity.entity->getID(), DynamicMovementComponent::typeID);
 					ECSUser::removeComponent(entity.entity->getID(), MoveStateComponent::typeID);
+					ECSUser::removeComponent(entity.entity->getID(), AttackStateComponent::typeID);
 					ECSUser::removeComponent(entity.entity->getID(), ObjectCollisionComponent::typeID);
+
 					p_unit->hasDiedBefore = true;
 	}
 
@@ -1372,19 +1399,6 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 	//Remove the dead unit
 	if (unit_transform->position.y >= 20.f)
 	{
-		EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
-		Entity* p_weapon_entity = ECSUser::getEntity(p_equipment_comp->mEquippedWeapon);
-		WeaponComponent* p_weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(p_equipment_comp->mEquippedWeapon);
-		//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
-		if (p_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
-		{
-			ECSUser::removeEntity(p_weapon_entity->getID());
-		}
-		else
-		{
-			ECSUser::removeEntity(p_weapon_entity->getID());
-			//weapon_comp->mOwnerEntity = 0;
-		}
 		ECSUser::removeEntity(entity.entity->getID());
 	}
 }

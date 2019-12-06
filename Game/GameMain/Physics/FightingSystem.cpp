@@ -202,6 +202,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 	filter.addRequirement(HealthComponent::typeID);
 	filter.addRequirement(ObjectCollisionComponent::typeID);
 	filter.addRequirement(TransformComponent::typeID);
+	filter.addRequirement(UnitComponent::typeID);
+	filter.addRequirement(DynamicMovementComponent::typeID);
 	EntityIterator units = getEntitiesByFilter(filter);
 
 	// Check collision against entities that could take damage.
@@ -227,7 +229,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		}
 
 		// Don't do anything with a unit that is invincible.
-		if (units.entities.at(i).entity->hasComponentOfType<InvincilibityTimer>() || units.entities.at(i).entity->hasComponentOfType<DeadComponent>())
+		if (units.entities.at(i).entity->hasComponentOfType<InvincilibityTimer>() || units.entities.at(i).entity->hasComponentOfType<DeadComponent>() || units.entities.at(i).getComponent<UnitComponent>()->hasDiedBefore)
 		{
 			continue;
 		}
@@ -343,7 +345,11 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		// KNOCKBACK
 		ForceImpulseEvent knockback;
-		knockback.mDirection = getComponentFromKnownEntity<DynamicMovementComponent>(unit_entity->getID())->mDirection;
+		if(getComponentFromKnownEntity<DynamicMovementComponent>(unit_entity->getID()))
+		{ 
+			knockback.mDirection = getComponentFromKnownEntity<DynamicMovementComponent>(unit_entity->getID())->mDirection;
+		}
+
 
 		// Small y boost in knockback to send units FLYING.
 		knockback.mDirection.y += 0.3f;
