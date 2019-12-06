@@ -30,6 +30,8 @@ namespace ecs
 
 			float* mWaveArray;
 			float mFlatternOutFactor;
+
+			float mUpdateIntervall;
 		};
 	}
 }

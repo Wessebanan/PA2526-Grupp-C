@@ -73,6 +73,8 @@ namespace ecs
 			mWaveArray[0] = 20.0f;
 
 			mFlatternOutFactor = 0.9f;
+			mUpdateIntervall = 0.01f;
+			mTimeElapsed = 0.0f;
 
 
 			return true;
@@ -126,22 +128,39 @@ namespace ecs
 				}
 			}
 
-			// Moves the waves forward
-			mWaveArray[0] *= mFlatternOutFactor/* / _delta*/;
-			for (size_t i = WAVESCOUNT - 2; i >= 2; i--)
+
+			// Have the update depend on delta
+			if (mTimeElapsed > mUpdateIntervall)
 			{
-				float height = 0.0f;
-				height += mWaveArray[i - 2];
-				height += mWaveArray[i - 1];
-				height += mWaveArray[i];
-				height += mWaveArray[i + 1];
+				// To make sure they arnt the same
+				mTimeElapsed += 0.01f;
 
-				height /= 4;
 
-				mWaveArray[i] = height;
+				// To make sure it will keep up
+				for (size_t j = 0; j < (int)((mTimeElapsed/mUpdateIntervall) - 1); j++)
+				{
+					// Moves the waves forward
+					mWaveArray[0] *= mFlatternOutFactor/* / _delta*/;
+					for (size_t i = WAVESCOUNT - 2; i >= 2; i--)
+					{
+						float height = 0.0f;
+						height += mWaveArray[i - 2];
+						height += mWaveArray[i - 1];
+						height += mWaveArray[i];
+						height += mWaveArray[i + 1];
 
-				//mWaveArray[i] = mWaveArray[i - 1];
+						height /= 4;
+
+						mWaveArray[i] = height;
+
+						//mWaveArray[i] = mWaveArray[i - 1];
+					}
+				}
+				
+				// reset time
+				mTimeElapsed = 0.0f;
 			}
+			
 		}
 	}
 }

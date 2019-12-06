@@ -190,6 +190,7 @@ int main()
 			*/
 			ecs.update(timer.GetFrameTime());
 
+
 			graphics::Present(0);
 		}
 	}
