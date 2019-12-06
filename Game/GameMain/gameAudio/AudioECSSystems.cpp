@@ -187,9 +187,9 @@ void ecs::systems::SoundMessageSystem::act(float _delta)
 		// For every skeleton, take the head and apply our matrix on it
 		while (temp_comp = static_cast<components::SkeletonComponent*>(c_it.next()))
 		{
-			DirectX::XMMATRIX hello2 = DirectX::XMLoadFloat4x4(&temp_comp->skeletonData.frameData[2]);
-			hello2 = DirectX::XMMatrixMultiply(hello2, transform_matrix);
-			DirectX::XMStoreFloat4x4(&temp_comp->skeletonData.frameData[2], hello2);
+			DirectX::XMMATRIX temp_matrix = DirectX::XMLoadFloat4x4(&temp_comp->skeletonData.frameData[2]);
+			temp_matrix = DirectX::XMMatrixMultiply(temp_matrix, transform_matrix);
+			DirectX::XMStoreFloat4x4(&temp_comp->skeletonData.frameData[2], temp_matrix);
 		}
 		// Progress animation
 		mBeatTime += _delta * 3.f;
