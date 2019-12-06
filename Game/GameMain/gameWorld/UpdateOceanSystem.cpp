@@ -68,12 +68,12 @@ namespace ecs
 
 			mWaveArray = new float[WAVESCOUNT];
 			for (size_t i = 0; i < WAVESCOUNT; i++)
-				mWaveArray[i] = -1.0f;
+				mWaveArray[i] = 0.0f;
 			
 			mWaveArray[0] = 20.0f;
 
-			mFlatternOutFactor = 0.9f;
-			mUpdateIntervall = 0.01f;
+			mFlatternOutFactor = 0.8f;
+			mUpdateIntervall = 0.005f;
 			mTimeElapsed = 0.0f;
 
 			// Create a entity with one component pointing at the first element in mWaveArray
@@ -88,40 +88,31 @@ namespace ecs
 		{
 			mTimeElapsed += _delta;
 
-			//while (mTimeElapsed > mCycleDuration)
-			//{
-			//	mTimeElapsed -= mCycleDuration;
-			//}
-
 			XMFLOAT3 position;
 			float distance_to_center;
 			components::TransformComponent* p_transform;
 			for (FilteredEntity& tile : mOceanTiles.entities)
 			{
-				//components::ColorComponent* p_color = tile.getComponent<
-
-
-
 				p_transform = tile.getComponent<components::TransformComponent>();
 
 				position = p_transform->position;
 				position.y = 0.f;
+				mOceanCenter.y = 0.f;
 
 				distance_to_center = XMVectorGetX(XMVector3Length(XMLoadFloat3(&position) - XMLoadFloat3(&mOceanCenter)));
 
 				const float MAXDIST = OCEAN_RADIUS + 10.0f;
 
-				//unsigned int index_to_pick = rand() % WAVESCOUNT;
 				unsigned int index_to_pick = (unsigned int)(WAVESCOUNT * distance_to_center / MAXDIST);
 
 				if (index_to_pick >= WAVESCOUNT)
 					index_to_pick = WAVESCOUNT - 1;
 
-				p_transform->position.y = mWaveArray[index_to_pick];
-
 				
-				//Globeish
-				//p_transform->position.y = (mWaveArray[index_to_pick] * ((distance_to_center * (distance_to_center / 2.0f)) / MAXDIST)) + 0.2f;
+				p_transform->position.y = (mWaveArray[index_to_pick] * ((distance_to_center/* * (distance_to_center*0.1f)*/) / MAXDIST) * 1.7f);
+
+				// Lower the water level
+				p_transform->position.y -= 0.5f;
 			}
 
 			// to be change to music waves
@@ -136,25 +127,23 @@ namespace ecs
 					components::WaveCenterComponent* p_wave;
 					if (p_wave = (components::WaveCenterComponent*)itt.next())
 					{
-						*p_wave->mpFistElement = 20.0f;
+						*p_wave->mpFistElement = 5.0f;
 					};
 				}
 			}
-			
-			
 
 			// Have the update depend on delta
 			if (mTimeElapsed > mUpdateIntervall)
 			{
 				// To make sure they arnt the same
-				mTimeElapsed += 0.01f;
+				mTimeElapsed += 0.0001f;
 
 				// To make sure it will keep up
 				for (size_t j = 0; j < (int)((mTimeElapsed/mUpdateIntervall) - 1); j++)
 				{
 					// Moves the waves forward
 					mWaveArray[0] *= mFlatternOutFactor/* / _delta*/;
-					for (size_t i = WAVESCOUNT- 2; i >= 2; i--)
+					for (size_t i = WAVESCOUNT- 2; i >= 1; i--)
 					{
 						float height = 0.0f;
 						height += mWaveArray[i - 2];
