@@ -60,32 +60,33 @@ float2 GetRandom(const float2 uv)
 
 float CalculateOcclusion(
 	const float2 pos_ndc,
-	const float2 uv,
+	const float2 offset,
 	const float3 pos_view,
 	const float3 normal_view)
 {
-	const float scale = 0.1f;
-	const float bias = 0.2f;
-	const float intensity = 2.0f;
+	const float scale		= 1.0f;
+	const float bias		= 0.2f;
+	const float intensity	= 1.0f;
 
-	const float3 occlusion_position = GetViewPos(pos_ndc + uv);
+	const float3 diff	= GetViewPos(pos_ndc + offset) - pos_view;
 
-	const float3 diff = occlusion_position - pos_view;
-	const float3 v = normalize(diff);
-	const float d = length(diff) * scale;
+	const float3 v		= normalize(diff);			// Direction
+	const float d		= length(diff) * scale;		// Length
 
-	return
-		max(0.0f, dot(normal_view, v) - bias)
-		* (1.0f / (1.0f + d)) * intensity;
+	return saturate(dot(normal_view, v) - bias) * intensity / (1.0f + d);
 }
 
-float CalculateSSAO(float3 normal_view, float3 pos_view, float2 pos_ndc)
+float CalculateSSAO(
+	const float3 normal_view, 
+	const float3 pos_view, 
+	const float3 pos_ndc)
 {
 	const float sample_radius = 0.1f;
 
 	float occlusion = 0.0f;
 
-	const float2 vec[4] = {
+	const uint iterations = 4;
+	const float2 vec[iterations] = {
 		float2( 1,   1),
 		float2(-1,   1),
 		float2( 1,  -1),
@@ -95,7 +96,6 @@ float CalculateSSAO(float3 normal_view, float3 pos_view, float2 pos_ndc)
 	float2 random = GetRandom(pos_ndc);
 	float radius = sample_radius / pos_view.z;
 
-	const uint iterations = 4;
 	for (uint i = 0; i < iterations; i++)
 	{
 		float2 coord1 = reflect(vec[i], random) * radius;
@@ -103,15 +103,15 @@ float CalculateSSAO(float3 normal_view, float3 pos_view, float2 pos_ndc)
 			coord1.x * 0.707f - coord1.y * 0.707f,
 			coord1.x * 0.707f + coord1.y * 0.707f);
 
-		occlusion += CalculateOcclusion(pos_ndc, coord1 * 0.25f, pos_view, normal_view);
-		occlusion += CalculateOcclusion(pos_ndc, coord2 * 0.50f, pos_view, normal_view);
-		occlusion += CalculateOcclusion(pos_ndc, coord1 * 0.75f, pos_view, normal_view);
-		occlusion += CalculateOcclusion(pos_ndc, coord2 * 1.00f, pos_view, normal_view);
+		occlusion += CalculateOcclusion(pos_ndc.xy, coord1 * 0.25f, pos_view, normal_view);
+		occlusion += CalculateOcclusion(pos_ndc.xy, coord2 * 0.50f, pos_view, normal_view);
+		occlusion += CalculateOcclusion(pos_ndc.xy, coord1 * 0.75f, pos_view, normal_view);
+		occlusion += CalculateOcclusion(pos_ndc.xy, coord2 * 1.00f, pos_view, normal_view);
 	}
 
 	occlusion /= (float)iterations * 4.0f;
 
-	return pow(saturate(1.0f - occlusion), 2.0f);
+	return pow(saturate(1.0f - occlusion), 1.0f);
 }
 
 struct PSIN
@@ -146,12 +146,20 @@ PSOUT main(PSIN input)
 	float ssao = CalculateSSAO(
 		normalize(input.normalViewSpace.xyz),
 		input.positionViewSpace.xyz,
-		input.pos_ndc.xy);
+		input.pos_ndc.xyz);
 
 	float3 ambient = finalColor.xyz * 0.1f;
 	float3 diffuse = finalColor.xyz * illu * in_shadow;
 
-	output.BackBuffer = float4((ambient + diffuse) * ssao.xxx, 1.0f);
+	float sample_occlusion = CalculateOcclusion(
+		input.pos_ndc.xy,
+		float2(0.0f, 0.0f) * float2(1.0f / 1920.0f, 1.0f / 1080.0f),
+		input.positionViewSpace.xyz,
+		normalize(input.normalViewSpace.xyz));
+
+	//output.BackBuffer = float4(sample_occlusion.xxx, 1.0f);
+	//output.BackBuffer = float4(input.positionViewSpace.xyz, 1.0f);
+	output.BackBuffer = float4(ssao.xxx, 1.0f);
 	
 	return output;
 }

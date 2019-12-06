@@ -271,46 +271,49 @@ namespace graphics
 			pDevice4->CreateBuffer(&desc, NULL, &mpMatrixBuffers[0]);
 		}
 
-		// Color Render Target
-		{
-			ID3D11Texture2D* pTexture = NULL;
-			{
-				D3D11_TEXTURE2D_DESC desc = { 0 };
-				desc.Width = pDesc->ClientWidth;
-				desc.Height = pDesc->ClientHeight;
-				desc.ArraySize = 1;
-				desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-				desc.CPUAccessFlags = 0;
-				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-				desc.MipLevels = 1;
-				desc.MiscFlags = 0;
-				desc.SampleDesc = { 1, 0 };
-				desc.Usage = D3D11_USAGE_DEFAULT;
+		//// Color Render Target
+		//{
+		//	ID3D11Texture2D* pTexture = NULL;
+		//	{
+		//		D3D11_TEXTURE2D_DESC desc = { 0 };
+		//		desc.Width = pDesc->ClientWidth;
+		//		desc.Height = pDesc->ClientHeight;
+		//		desc.ArraySize = 1;
+		//		desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+		//		desc.CPUAccessFlags = 0;
+		//		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		//		desc.MipLevels = 1;
+		//		desc.MiscFlags = 0;
+		//		desc.SampleDesc = { 1, 0 };
+		//		desc.Usage = D3D11_USAGE_DEFAULT;
 
-				pDevice4->CreateTexture2D(&desc, NULL, &pTexture);
-			}
-			{
-				D3D11_RENDER_TARGET_VIEW_DESC desc = {};
-				desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-				desc.Texture2D.MipSlice = 0;
+		//		pDevice4->CreateTexture2D(&desc, NULL, &pTexture);
+		//	}
+		//	{
+		//		D3D11_RENDER_TARGET_VIEW_DESC desc = {};
+		//		desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+		//		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		//		desc.Texture2D.MipSlice = 0;
 
-				pDevice4->CreateRenderTargetView(pTexture, &desc, &mpRenderTarget);
-			}
-			{
-				D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
-				desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-				desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-				desc.Texture2D.MipLevels = 1;
-				desc.Texture2D.MostDetailedMip = 0;
+		//		pDevice4->CreateRenderTargetView(pTexture, &desc, &mpRenderTarget);
+		//	}
+		//	{
+		//		D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
+		//		desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+		//		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		//		desc.Texture2D.MipLevels = 1;
+		//		desc.Texture2D.MostDetailedMip = 0;
 
-				pDevice4->CreateShaderResourceView(
-					pTexture,
-					&desc,
-					&mpShaderResource);
-			}
-			pTexture->Release();
-		}
+		//		pDevice4->CreateShaderResourceView(
+		//			pTexture,
+		//			&desc,
+		//			&mpShaderResource);
+		//	}
+		//	pTexture->Release();
+		//}
+
+
+		internal::GetBackBuffer(&mpRenderTarget);
 
 		{
 			D3D11_SAMPLER_DESC desc = {};
@@ -495,12 +498,12 @@ namespace graphics
 
 	void ForwardRenderingPipeline::End(ID3D11DeviceContext4* pContext4)
 	{
-		ID3D11RenderTargetView* pNULLView[2] = { NULL };
-		pContext4->OMSetRenderTargets(2, pNULLView, NULL);
+		//ID3D11RenderTargetView* pNULLView[2] = { NULL };
+		//pContext4->OMSetRenderTargets(2, pNULLView, NULL);
 
-		pContext4->PSSetConstantBuffers(0, 1, &mpMatrixBuffers[2]);
+		//pContext4->PSSetConstantBuffers(0, 1, &mpMatrixBuffers[2]);
 
-		pContext4->PSSetShaderResources(1, 1, &mpShaderResource);
+		//pContext4->PSSetShaderResources(1, 1, &mpShaderResource);
 	}
 
 	void ForwardRenderingPipeline::Destroy()
@@ -510,7 +513,7 @@ namespace graphics
 
 		mpRenderTarget->Release();
 
-		mpShaderResource->Release();
+		//mpShaderResource->Release();
 
 		mpMatrixBuffers[0]->Release();
 		mpMatrixBuffers[1]->Release();

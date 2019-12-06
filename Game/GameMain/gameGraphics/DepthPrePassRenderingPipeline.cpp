@@ -63,8 +63,6 @@ namespace graphics
 
 	void DepthPrePassPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
-		ID3D11ShaderResourceView* p_null_view = NULL;
-		pContext4->PSSetShaderResources(5, 1, &p_null_view);
 		graphics::SetViewport(pContext4, 0, 0, mClientWidth, mClientHeight);
 		pContext4->OMSetRenderTargets(0, NULL, mpDepthBuffer);
 
@@ -82,7 +80,6 @@ namespace graphics
 
 	void DepthPrePassPipeline::End(ID3D11DeviceContext4* pContext4)
 	{
-		pContext4->OMSetRenderTargets(0, NULL, NULL);
 		pContext4->CopyResource(mpDepthTextureCopy, mpDepthTexture);
 		pContext4->PSSetShaderResources(5, 1, &mpDepthBufferCopySRV);
 		pContext4->PSSetConstantBuffers(0, 1, &mpBuffers[2]);

@@ -327,36 +327,36 @@ namespace ecs
 			EntityIterator mSceneObjects;
 		};
 
-		class SSAORenderSystem : public ECSSystem<SSAORenderSystem>
-		{
-		public:
+		//class SSAORenderSystem : public ECSSystem<SSAORenderSystem>
+		//{
+		//public:
 
-			SSAORenderSystem();
-			virtual ~SSAORenderSystem();
+		//	SSAORenderSystem();
+		//	virtual ~SSAORenderSystem();
 
-			void act(float _delta) override;
+		//	void act(float _delta) override;
 
-			void Initialize(
-				const UINT clientWidth,
-				const UINT clientHeight);
+		//	void Initialize(
+		//		const UINT clientWidth,
+		//		const UINT clientHeight);
 
-		private:
+		//private:
 
-			UINT mPipelineSSAO,
-				mPipelineBlur,
-				mPipelineCombine;
+		//	UINT mPipelineSSAO,
+		//		mPipelineBlur,
+		//		mPipelineCombine;
 
-			UINT mShaderSSAO,
-				mShaderBlur,
-				mShaderBlur_v,
-				mShaderCombine;
+		//	UINT mShaderSSAO,
+		//		mShaderBlur,
+		//		mShaderBlur_v,
+		//		mShaderCombine;
 
-			graphics::RenderManager mRenderMgr;
-			graphics::ShaderModelLayout mInstanceLayout;
+		//	graphics::RenderManager mRenderMgr;
+		//	graphics::ShaderModelLayout mInstanceLayout;
 
-			UINT mObjectCount;
-			graphics::MeshRegion mScreenSpaceTriangle;
-		};
+		//	UINT mObjectCount;
+		//	graphics::MeshRegion mScreenSpaceTriangle;
+		//};
 
 		class WorldSceneRenderSystem : public ECSSystem<WorldSceneRenderSystem>
 		{
