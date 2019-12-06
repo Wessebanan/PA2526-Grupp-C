@@ -250,9 +250,9 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 
 	//GAME_OBJECT_TYPES traps[] =
 	//{
-	//	GAME_OBJECT_TYPE_TRAP_SPIKES,
-	//	GAME_OBJECT_TYPE_TRAP_FIRE,
-	//	GAME_OBJECT_TYPE_TRAP_SPRING,
+	//	GAME_OBJECT_TYPE_WEAPON_BOMB,
+	//	GAME_OBJECT_TYPE_WEAPON_SWORD,
+	//	GAME_OBJECT_TYPE_WEAPON_HAMMER,
 	//};
 
 	//int count = 0;
@@ -261,8 +261,8 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 	//	components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
 	//	if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
 	//	{
-	//		spawn_event.type = traps[rand() % (sizeof(traps) / sizeof(GAME_OBJECT_TYPES))];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
-	//		spawn_event.tileID = p_tile->getEntityID();
+	//		spawn_event.weaponType = traps[rand() % (sizeof(traps) / sizeof(GAME_OBJECT_TYPES))];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
+	//		spawn_event.spawnTileId = p_tile->getEntityID();
 	//		rECS.createEvent(spawn_event);
 	//	}
 

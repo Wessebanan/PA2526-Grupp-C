@@ -610,7 +610,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			color_comp.green = army_colors[i].g;
 			color_comp.blue = army_colors[i].b;
 			color_comp.alpha = army_colors[i].a;
-
+			unit.lastPos = p_transform->position;
 			// Create and init skeleton comp
 
 			ecs::components::SkeletonComponent skele_comp;

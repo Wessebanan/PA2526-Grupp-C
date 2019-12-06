@@ -441,7 +441,7 @@ ecs::systems::UIEndOfRoundSystem::~UIEndOfRoundSystem()
 
 void ecs::systems::UIEndOfRoundSystem::readEvent(BaseEvent& _event, float _delta)
 {
-	if (_event.getTypeID() != events::RoundEndEvent::typeID) //change 0 to my event id
+	if (_event.getTypeID() != events::RoundEndEvent::typeID)
 	{
 		return;
 	}
@@ -463,5 +463,35 @@ void ecs::systems::UIEndOfRoundSystem::readEvent(BaseEvent& _event, float _delta
 		{
 			this->mpD2D->SetBitmapTint(army_bitmaps->mpBitmap, army_bitmaps->mpTintedBitmap, 255, 255, 0);//change the bitmap color to yellow 
 		}
+	}
+}
+
+ecs::systems::UIGameRestartSystem::UIGameRestartSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(events::GameReStartEvent::typeID);
+}
+
+ecs::systems::UIGameRestartSystem::~UIGameRestartSystem()
+{
+}
+
+void ecs::systems::UIGameRestartSystem::readEvent(BaseEvent& _event, float _delta)
+{
+	if (_event.getTypeID() != events::GameReStartEvent::typeID)
+	{
+		return;
+	}
+	UIBitmapComponent* army_bitmaps;
+	TypeFilter ui_army_filter;
+	ui_army_filter.addRequirement(UIBitmapComponent::typeID);
+	ui_army_filter.addRequirement(UIDrawPosComponent::typeID);
+	ui_army_filter.addRequirement(UIArmyReader::typeID);
+	EntityIterator ui_armies = getEntitiesByFilter(ui_army_filter);
+
+	for (FilteredEntity ui_armies : ui_armies.entities)
+	{
+		army_bitmaps = ui_armies.getComponent<UIBitmapComponent>();
+		this->mpD2D->SetBitmapTint(army_bitmaps->mpBitmap, army_bitmaps->mpTintedBitmap, 255, 255, 255);
 	}
 }
