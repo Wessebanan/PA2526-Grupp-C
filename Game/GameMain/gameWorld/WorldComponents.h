@@ -12,6 +12,11 @@ namespace ecs
 
 		};
 
+		struct WaveCenterComponent : public ECSComponent<OceanTileComponent>
+		{
+			float* mpFistElement;
+		};
+
 		struct IsletComponent : public ECSComponent<IsletComponent>
 		{
 			ID playerId;

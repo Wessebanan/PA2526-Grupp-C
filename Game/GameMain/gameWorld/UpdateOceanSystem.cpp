@@ -27,7 +27,7 @@ namespace ecs
 
 		UpdateOceanSystem::~UpdateOceanSystem()
 		{
-			//
+			delete mWaveArray;
 		}
 
 		bool UpdateOceanSystem::Initialize(float cycleDuration)
@@ -77,6 +77,11 @@ namespace ecs
 			mTimeElapsed = 0.0f;
 
 
+			components::WaveCenterComponent wave;
+			wave.mpFistElement = mWaveArray;
+
+			createEntity(wave);
+
 			return true;
 		}
 
@@ -125,9 +130,18 @@ namespace ecs
 				if (p_key_comp->R)
 				{
 					mWaveArray[0] = 20.0f;
+					
+					
+					
 				}
 			}
-
+			itt = getComponentsOfType<components::WaveCenterComponent>();
+			components::WaveCenterComponent* p_wave;
+			if (p_wave = (components::WaveCenterComponent*)itt.next())
+			{
+				p_wave->mpFistElement[0] = 10.0f;
+			}
+			
 
 			// Have the update depend on delta
 			if (mTimeElapsed > mUpdateIntervall)
