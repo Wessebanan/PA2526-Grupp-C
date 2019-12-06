@@ -76,10 +76,9 @@ namespace ecs
 			mUpdateIntervall = 0.01f;
 			mTimeElapsed = 0.0f;
 
-
+			// Create a entity with one component pointing at the first element in mWaveArray
 			components::WaveCenterComponent wave;
-			wave.mpFistElement = mWaveArray;
-
+			wave.mpFistElement = &mWaveArray[0];
 			createEntity(wave);
 
 			return true;
@@ -110,37 +109,38 @@ namespace ecs
 
 				distance_to_center = XMVectorGetX(XMVector3Length(XMLoadFloat3(&position) - XMLoadFloat3(&mOceanCenter)));
 
+				const float MAXDIST = OCEAN_RADIUS + 10.0f;
 
 				//unsigned int index_to_pick = rand() % WAVESCOUNT;
-				unsigned int index_to_pick = (unsigned int)(WAVESCOUNT * distance_to_center / OCEAN_RADIUS);
+				unsigned int index_to_pick = (unsigned int)(WAVESCOUNT * distance_to_center / MAXDIST);
 
-				if (index_to_pick > WAVESCOUNT) 
+				if (index_to_pick >= WAVESCOUNT)
 					index_to_pick = WAVESCOUNT - 1;
 
-				p_transform->position.y = (mWaveArray[index_to_pick] /** ((distance_to_center * 2.0f) / OCEAN_RADIUS)*/) - 1.1f;
-				//p_transform->position.y = sin(mTimeElapsed * distance_to_center * 0.2f) * 0.1f - 0.8f;
+				p_transform->position.y = mWaveArray[index_to_pick];
+
+				
+				//Globeish
+				//p_transform->position.y = (mWaveArray[index_to_pick] * ((distance_to_center * (distance_to_center / 2.0f)) / MAXDIST)) + 0.2f;
 			}
 
 			// to be change to music waves
-
 			ComponentIterator itt = getComponentsOfType<components::KeyboardComponent>();
 			components::KeyboardComponent* p_key_comp;
 			if (p_key_comp = (components::KeyboardComponent*)itt.next())
 			{
 				if (p_key_comp->R)
 				{
-					mWaveArray[0] = 20.0f;
-					
-					
-					
+					//mWaveArray[0] = 20.0f
+					itt = getComponentsOfType<components::WaveCenterComponent>();
+					components::WaveCenterComponent* p_wave;
+					if (p_wave = (components::WaveCenterComponent*)itt.next())
+					{
+						*p_wave->mpFistElement = 20.0f;
+					};
 				}
 			}
-			itt = getComponentsOfType<components::WaveCenterComponent>();
-			components::WaveCenterComponent* p_wave;
-			if (p_wave = (components::WaveCenterComponent*)itt.next())
-			{
-				p_wave->mpFistElement[0] = 10.0f;
-			}
+			
 			
 
 			// Have the update depend on delta
@@ -149,13 +149,12 @@ namespace ecs
 				// To make sure they arnt the same
 				mTimeElapsed += 0.01f;
 
-
 				// To make sure it will keep up
 				for (size_t j = 0; j < (int)((mTimeElapsed/mUpdateIntervall) - 1); j++)
 				{
 					// Moves the waves forward
 					mWaveArray[0] *= mFlatternOutFactor/* / _delta*/;
-					for (size_t i = WAVESCOUNT - 2; i >= 2; i--)
+					for (size_t i = WAVESCOUNT- 2; i >= 2; i--)
 					{
 						float height = 0.0f;
 						height += mWaveArray[i - 2];
@@ -166,8 +165,6 @@ namespace ecs
 						height /= 4;
 
 						mWaveArray[i] = height;
-
-						//mWaveArray[i] = mWaveArray[i - 1];
 					}
 				}
 				

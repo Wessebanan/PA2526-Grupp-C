@@ -12,7 +12,7 @@ namespace ecs
 
 		};
 
-		struct WaveCenterComponent : public ECSComponent<OceanTileComponent>
+		struct WaveCenterComponent : public ECSComponent<WaveCenterComponent>
 		{
 			float* mpFistElement;
 		};
