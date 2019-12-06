@@ -50,6 +50,8 @@ struct VSOut
 
 	float3 normalViewSpace		: NORMAL1;
 	float3 positionViewSpace	: POSITION2;
+
+	float3 pos_ndc			: POSITION3;
 };
 
 VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
@@ -78,6 +80,8 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 
 	output.normalViewSpace		= mul((float3x3)gView, output.normal).xyz;
 	output.positionViewSpace	= view_pos.xyz;
+
+	output.pos_ndc = (output.pos.xyz / output.pos.w);
 
 	return output;
 }
