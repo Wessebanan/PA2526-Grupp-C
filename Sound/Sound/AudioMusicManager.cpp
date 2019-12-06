@@ -164,6 +164,11 @@ void Audio::Music::Manager::Fill(Samples start, Samples sampleCount, float* pDat
 	}
 }
 
+Audio::Samples Audio::Music::Manager::GetCurrentSampleFromMainMusic()
+{
+	return mMainData.Sampler.GetReadPointer();
+}
+
 Audio::Music::Manager::Manager()
 {
 	mMainData.Gain.SetNextPointer(&mMainData.Sampler, true);
