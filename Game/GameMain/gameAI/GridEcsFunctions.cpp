@@ -66,22 +66,6 @@ namespace GridEcsFunctions
 					p_gp->mGrid[i][j].isPassable = false;
 					p_gp->mGrid[i][j].biome = -1;
 				}
-				/*else if (transform.position.y >= 3)
-				{
-					tile.tileType = GAME_FIELD;
-					tile.impassable = false;
-					tile.goal = false;
-					p_gp->mGrid[i][j].isPassable = true;
-					p_gp->mGrid[i][j].biome = -1;
-				}
-				else if (transform.position.y == -2)
-				{
-					tile.tileType = WATER;
-					tile.impassable = true;
-					tile.goal = false;
-					p_gp->mGrid[i][j].isPassable = false;
-					p_gp->mGrid[i][j].biome = -1;
-				}*/
 				else
 				{
 					tile.tileType = GAME_FIELD;
@@ -89,7 +73,6 @@ namespace GridEcsFunctions
 					tile.goal = false;
 					p_gp->mGrid[i][j].isPassable = true;
 					p_gp->mGrid[i][j].biome = -1;
-					transform.position.y = 1.0f;
 				}
 
 

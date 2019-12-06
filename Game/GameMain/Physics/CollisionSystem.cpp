@@ -124,13 +124,13 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 				XMMATRIX resolution_translation = XMMatrixTranslation(resolution_movement.x, resolution_movement.y, resolution_movement.z);
 				p_bv_copy->Transform(resolution_translation);
 
-				// If collided object has movement, give it half of colliding units velocity.
+				// If collided object has movement, give it some of colliding units velocity.
 				DynamicMovementComponent* p_current_movement = getComponentFromKnownEntity<DynamicMovementComponent>(current_entity_id);
 				if (p_current_movement)
 				{
-					p_current_movement->mVelocity.x += 0.5f * p_movement->mVelocity.x;
-					p_current_movement->mVelocity.y += 0.5f * p_movement->mVelocity.y;
-					p_current_movement->mVelocity.z += 0.5f * p_movement->mVelocity.z;
+					p_current_movement->mVelocity.x += 0.2f * p_movement->mVelocity.x;
+					p_current_movement->mVelocity.y += 0.2f * p_movement->mVelocity.y;
+					p_current_movement->mVelocity.z += 0.2f * p_movement->mVelocity.z;
 				}
 				
 				// Find largest component of collision normal and set velocity in that direction to -0.5 of current (BOUNCE).
