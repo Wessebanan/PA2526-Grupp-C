@@ -8,6 +8,8 @@
 #include "../gameAI/AIComponents.h" // TileComponent
 #include "../gameAudio/AudioECSEvents.h"
 
+#include "../gameGameLoop/GameLoopEvents.h"
+
 #include "GridProp.h"
 
 using namespace DirectX;
@@ -175,6 +177,7 @@ namespace ecs
 
 		MasterWeaponSpawner::~MasterWeaponSpawner()
 		{
+			//
 		}
 
 		void MasterWeaponSpawner::act(float _delta)
@@ -355,6 +358,249 @@ namespace ecs
 				//Rotate carepackage, might want it later.
 				//p_carepackage_transform->rotation.x += 0.2f;
 			}
+		}
+
+		WeaponSequenceSpawnerSystem::WeaponSequenceSpawnerSystem()
+		{
+			updateType = Actor;
+			subscribeEventCreation(StartWeaponSequenceEvent::typeID);
+		}
+
+		WeaponSequenceSpawnerSystem::~WeaponSequenceSpawnerSystem()
+		{
+			//
+		}
+
+		void WeaponSequenceSpawnerSystem::Initialize()
+		{
+			/*
+				We want weapons to spawn on the inner-island; not not the islets. To do this, we find and
+				store all the tiles we are interested in for spawning.
+
+				Since tiles never change, we can store the interesting tiles early so we don't have to fetch
+				all tiles every update.
+			*/
+
+			/*
+				Fetch center tile position
+			*/
+
+			XMVECTOR center;
+
+			{
+				int2 grid_size = GridProp::GetInstance()->GetSize();
+				ID center_tile_id = GridProp::GetInstance()->mGrid[(int)(floor(grid_size.y / 2.f))][(int)(floor(grid_size.x / 2.f))].Id;
+				center = XMLoadFloat3(&getComponentFromKnownEntity<TransformComponent>(center_tile_id)->position);
+				XMVectorSetY(center, 0.f);
+			}
+
+			/*
+				Calculate center for all spawn areas
+			*/
+
+			XMVECTOR area_centers[SPAWN_AREA_COUNT];
+
+			area_centers[0] = 
+
+			/*
+				Iterate all tiles and store all valid ones (not water and within radius).
+			*/
+
+			TypeFilter tile_filter;
+			tile_filter.addRequirement(components::TileComponent::typeID);
+			tile_filter.addRequirement(components::TransformComponent::typeID);
+			EntityIterator tiles = getEntitiesByFilter(tile_filter);
+
+
+			int tiles_left_per_area[SPAWN_AREA_COUNT] = { TILES_PER_AREA };
+			XMVECTOR tile_position;
+			components::TileComponent* p_tile_comp;
+			for (FilteredEntity& tile : tiles.entities)
+			{
+				p_tile_comp = tile.getComponent<components::TileComponent>();
+
+				/*
+					Skip water tiles
+				*/
+
+				if (p_tile_comp->tileType == WATER || p_tile_comp->impassable || p_tile_comp->tileType == UNDEFINED)
+				{
+					continue;
+				}
+
+				tile_position = XMLoadFloat3(&tile.getComponent<components::TransformComponent>()->position);
+				XMVectorSetY(tile_position, 0.f);
+
+
+				/*
+					Check each spawn area
+				*/
+
+				for (int i = 0; i < SPAWN_AREA_COUNT; i++)
+				{
+
+				}
+
+				float distance_from_center = XMVectorGetX(XMVector3Length(center - tile_position));
+				if (distance_from_center >= SPAWN_INNER_RADIUS &&
+					distance_from_center <= SPAWN_OUTER_RADIUS)
+				{
+					mPossibleTileIds.push_back(tile.entity->getID());
+				}
+			}
+
+			//XMVECTOR tile_position;
+			//components::TileComponent* p_tile_comp;
+			//for (FilteredEntity& tile : tiles.entities)
+			//{
+			//	p_tile_comp = tile.getComponent<components::TileComponent>();
+
+			//	/*
+			//		Skip water tiles
+			//	*/
+
+			//	if (p_tile_comp->tileType == WATER || p_tile_comp->impassable || p_tile_comp->tileType == UNDEFINED)
+			//	{
+			//		continue;
+			//	}
+
+			//	tile_position = XMLoadFloat3(&tile.getComponent<components::TransformComponent>()->position);
+			//	XMVectorSetY(tile_position, 0.f);
+
+			//	float distance_from_center = XMVectorGetX(XMVector3Length(center - tile_position));
+			//	if (distance_from_center >= SPAWN_INNER_RADIUS &&
+			//		distance_from_center <= SPAWN_OUTER_RADIUS)
+			//	{
+			//		mPossibleTileIds.push_back(tile.entity->getID());
+			//	}
+			//}
+		}
+
+		void WeaponSequenceSpawnerSystem::act(float delta)
+		{
+			if (mIsTimingForRoundStart)
+			{
+				mRoundStartCountdown -= delta;
+
+				if (mRoundStartCountdown <= 0.f)
+				{
+					events::RoundStartEvent round_start_event;
+					createEvent(round_start_event);
+
+					mIsTimingForRoundStart = false;
+					mCreateRoundStartEventWhenFinished = false;
+				}
+			}
+
+			/*
+				If there are no more weapons to spawn,
+				remove this system.
+			*/
+			if (!mSpawnCount)
+			{
+				if (mCreateRoundStartEventWhenFinished)
+				{
+					mIsTimingForRoundStart = true;
+				}
+				return;
+			}
+
+			mTimeSinceLastSpawn += delta;
+
+			if (mTimeSinceLastSpawn >= mHaltDuration)
+			{
+				// Reset counter
+				mTimeSinceLastSpawn -= mHaltDuration;
+
+				// Call for a new weapon spawn
+				events::SpawnWeaponEvent spawn_event;
+				spawn_event.weaponType = GetRandomWeaponType();
+				spawn_event.spawnTileId = FindSpawnTile();
+				createEvent(spawn_event);
+
+				// Decrease count to spawn.
+				mSpawnCount--;
+			}
+		}
+
+		void WeaponSequenceSpawnerSystem::onEvent(TypeID eventType, BaseEvent* pEvent)
+		{
+			// Sanity check
+			if (eventType != events::StartWeaponSequenceEvent::typeID)
+			{
+				return;
+			}
+
+			events::StartWeaponSequenceEvent* p_start_event = static_cast<events::StartWeaponSequenceEvent*>(pEvent);
+
+			/*
+				No need to check further if no weapon are to spawn
+			*/
+			if (p_start_event->spawnCount <= 0)
+			{
+				return;
+			}
+
+			mSpawnCount = p_start_event->spawnCount; // Changing this to anying above 0 will start spawning weapons
+			mLifeTime = p_start_event->lifetime;
+
+			/*
+				Spawn first weapon directly for a more 'responsive' sequence start
+			*/
+
+			events::SpawnWeaponEvent spawn_event;
+			spawn_event.weaponType = GetRandomWeaponType();
+			spawn_event.spawnTileId = FindSpawnTile();
+			createEvent(spawn_event);
+
+			mSpawnCount -= 1;
+
+			/*
+				Calculate timing for the rest of the weapon spawns
+			*/
+
+			if (mSpawnCount)
+			{
+				mHaltDuration = mLifeTime / (float)mSpawnCount;
+			}
+
+			if (p_start_event->createRoundStartEventWhenFinished)
+			{
+				mIsTimingForRoundStart = false;
+				mCreateRoundStartEventWhenFinished = p_start_event->createRoundStartEventWhenFinished;
+				mRoundStartCountdown = WAIT_TIME_BETWEEN_LAST_SPAWN_AND_ROUND_START;
+			}
+		}
+
+		ID WeaponSequenceSpawnerSystem::FindSpawnTile()
+		{
+			bool tile_found = false;
+			int random_index;
+			GridProp* p_gp = GridProp::GetInstance();
+			int tries = 0;
+			while (!tile_found && tries < 20)
+			{
+				random_index = rand() % (int)mPossibleTileIds.size();
+				tile_found = true;
+				for (int i = 0; i < p_gp->mLootTiles.size(); i++)
+				{
+					if (p_gp->mLootTiles[i] == mPossibleTileIds[random_index])
+					{
+						tile_found = false;
+						tries++;
+					}
+				}
+			}
+			return mPossibleTileIds[random_index];
+		}
+
+		GAME_OBJECT_TYPE WeaponSequenceSpawnerSystem::GetRandomWeaponType()
+		{
+			/*
+				Randomizes a weapon type from GAME_OBJECT_TYPE_WEAPON list.
+			*/
+
+			return (GAME_OBJECT_TYPE_WEAPON_OFFSET_TAG + 1) + rand() % WEAPON_TYPE_COUNT;
 		}
 	}
 }
