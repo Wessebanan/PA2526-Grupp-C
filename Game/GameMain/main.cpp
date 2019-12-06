@@ -217,6 +217,7 @@ int main()
 }
 void DebuggFunctions(EntityComponentSystem& rECS)
 {
+#pragma region FOR_DEBUGGING_DO_NOT_REMOVE
 	// FOR DEBBUGING TRAPS: SPAWNS TRAPS OVER THE WHOLE MAP
 	//events::PlaceTrapEvent place_event;
 	//place_event.type = GAME_OBJECT_TYPE_TRAP_SPRING;
@@ -241,16 +242,42 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 	//	}
 	//}
 
-	events::PlaceTrapEvent spawn_event;
+	//events::PlaceTrapEvent spawn_event;
+	//TypeFilter tile_filter;
+	//tile_filter.addRequirement(ecs::components::TileComponent::typeID);
+	//EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
+
+	//GAME_OBJECT_TYPES traps[] =
+	//{
+	//	GAME_OBJECT_TYPE_TRAP_SPIKES,
+	//	GAME_OBJECT_TYPE_TRAP_FIRE,
+	//	GAME_OBJECT_TYPE_TRAP_SPRING,
+	//};
+
+	//int count = 0;
+	//for (FilteredEntity tile : tiles.entities)
+	//{
+	//	components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
+	//	if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
+	//	{
+	//		spawn_event.type = traps[rand() % (sizeof(traps) / sizeof(GAME_OBJECT_TYPES))];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
+	//		spawn_event.tileID = p_tile->getEntityID();
+	//		rECS.createEvent(spawn_event);
+	//	}
+
+	//	count++;
+	//}
+
+	events::SpawnWeaponEvent spawn_event;
 	TypeFilter tile_filter;
 	tile_filter.addRequirement(ecs::components::TileComponent::typeID);
 	EntityIterator tiles = rECS.getEntititesByFilter(tile_filter);
 
 	GAME_OBJECT_TYPES traps[] =
 	{
-		GAME_OBJECT_TYPE_TRAP_SPIKES,
-		GAME_OBJECT_TYPE_TRAP_FIRE,
-		GAME_OBJECT_TYPE_TRAP_SPRING,
+		GAME_OBJECT_TYPE_WEAPON_BOMB,
+		GAME_OBJECT_TYPE_WEAPON_SWORD,
+		GAME_OBJECT_TYPE_WEAPON_HAMMER,
 	};
 
 	int count = 0;
@@ -259,13 +286,14 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 		components::TileComponent* p_tile = tile.getComponent<components::TileComponent>();
 		if (p_tile->tileType != WATER /*&& (count % ((rand() % 4) + 8)) == 0*/)
 		{
-			spawn_event.type = traps[rand() % (sizeof(traps) / sizeof(GAME_OBJECT_TYPES))];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
-			spawn_event.tileID = p_tile->getEntityID();
+			spawn_event.weaponType = traps[rand() % (sizeof(traps) / sizeof(GAME_OBJECT_TYPES))];// GAME_OBJECT_TYPES((rand() % TRAP_TYPE_COUNT) + (GAME_OBJECT_TYPE_TRAP_OFFSET_TAG + 1));
+			spawn_event.spawnTileId = p_tile->getEntityID();
 			rECS.createEvent(spawn_event);
 		}
 
 		count++;
 	}
+#pragma endregion
 }
 
 void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT clientHeight)
@@ -341,9 +369,8 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitHttpServer(rECS);
 
-
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
-
+	
 	//DebuggFunctions(rECS);
 }
