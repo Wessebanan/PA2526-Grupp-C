@@ -395,14 +395,6 @@ namespace ecs
 			}
 
 			/*
-				Calculate center for all spawn areas
-			*/
-
-			XMVECTOR area_centers[SPAWN_AREA_COUNT];
-
-			area_centers[0] = 
-
-			/*
 				Iterate all tiles and store all valid ones (not water and within radius).
 			*/
 
@@ -411,8 +403,6 @@ namespace ecs
 			tile_filter.addRequirement(components::TransformComponent::typeID);
 			EntityIterator tiles = getEntitiesByFilter(tile_filter);
 
-
-			int tiles_left_per_area[SPAWN_AREA_COUNT] = { TILES_PER_AREA };
 			XMVECTOR tile_position;
 			components::TileComponent* p_tile_comp;
 			for (FilteredEntity& tile : tiles.entities)
@@ -431,16 +421,6 @@ namespace ecs
 				tile_position = XMLoadFloat3(&tile.getComponent<components::TransformComponent>()->position);
 				XMVectorSetY(tile_position, 0.f);
 
-
-				/*
-					Check each spawn area
-				*/
-
-				for (int i = 0; i < SPAWN_AREA_COUNT; i++)
-				{
-
-				}
-
 				float distance_from_center = XMVectorGetX(XMVector3Length(center - tile_position));
 				if (distance_from_center >= SPAWN_INNER_RADIUS &&
 					distance_from_center <= SPAWN_OUTER_RADIUS)
@@ -448,32 +428,6 @@ namespace ecs
 					mPossibleTileIds.push_back(tile.entity->getID());
 				}
 			}
-
-			//XMVECTOR tile_position;
-			//components::TileComponent* p_tile_comp;
-			//for (FilteredEntity& tile : tiles.entities)
-			//{
-			//	p_tile_comp = tile.getComponent<components::TileComponent>();
-
-			//	/*
-			//		Skip water tiles
-			//	*/
-
-			//	if (p_tile_comp->tileType == WATER || p_tile_comp->impassable || p_tile_comp->tileType == UNDEFINED)
-			//	{
-			//		continue;
-			//	}
-
-			//	tile_position = XMLoadFloat3(&tile.getComponent<components::TransformComponent>()->position);
-			//	XMVectorSetY(tile_position, 0.f);
-
-			//	float distance_from_center = XMVectorGetX(XMVector3Length(center - tile_position));
-			//	if (distance_from_center >= SPAWN_INNER_RADIUS &&
-			//		distance_from_center <= SPAWN_OUTER_RADIUS)
-			//	{
-			//		mPossibleTileIds.push_back(tile.entity->getID());
-			//	}
-			//}
 		}
 
 		void WeaponSequenceSpawnerSystem::act(float delta)

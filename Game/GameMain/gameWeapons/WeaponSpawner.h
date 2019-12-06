@@ -90,25 +90,12 @@ namespace ecs
 		private:
 
 			// Used to make spawns fairly distributed
-			ID playerIDs[4];
-
-			/*
-				[player count + center][possible tiles per player 'area']
-
-				mPossibleTilesIds index table:
-					0-3 = player
-					4	= map center
-			*/
-			static const int SPAWN_AREA_COUNT = 5;
-			static const int TILES_PER_AREA = 5;
-			ID mPossibleTilesIds[4 + 1][TILES_PER_AREA];
-
-			/*std::vector<ID> mPossibleTileIds;*/
+			std::vector<ID> mPossibleTileIds;
 
 			const float PLAYER_AREA_CENTER_OFFSET_FROM_MAP_CENTER = 8.f;
 
-			//const float SPAWN_OUTER_RADIUS = 8.f;
-			//const float SPAWN_INNER_RADIUS = 5.f;
+			const float SPAWN_OUTER_RADIUS = 8.f;
+			const float SPAWN_INNER_RADIUS = 5.f;
 
 			int mSpawnCount = 0;
 			float mLifeTime = 0.f;
