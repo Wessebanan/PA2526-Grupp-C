@@ -36,6 +36,7 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	rSystemPointers.UICountDown = rECS.createSystem<ecs::systems::UICountDownSystem>(9);
 	rSystemPointers.UIpostSys = rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
 	rECS.createSystem<ecs::systems::UIEndOfRoundSystem>(9)->mpD2D = my_d2d;
+	rECS.createSystem<ecs::systems::UIGameRestartSystem>(9)->mpD2D = my_d2d;
 
 	ID3D11Texture2D* p_backbuffer;
 	IDXGISwapChain1* p_swapchain;
