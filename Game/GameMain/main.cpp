@@ -192,7 +192,7 @@ int main()
 				Update all ECS systems, and give them the delta time.
 			*/
 
-			ecs.update(timer.GetFrameTime() * 2.f);
+			ecs.update(timer.GetFrameTime());
 
 			TypeFilter comp_type_filter = ecs.getInitializedComponentTypes();
 			std::vector<TypeID> all_types = comp_type_filter.getRequirements();			
