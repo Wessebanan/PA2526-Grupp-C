@@ -211,7 +211,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WORLD_SCENE_SHARK, "../meshes/shark_fin.fbx");
 
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh10.fbx");
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_SWORD, "../meshes/sword.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_HAMMER, "../meshes/weapon_maul.fbx");

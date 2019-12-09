@@ -17,7 +17,7 @@ ModelLoader::Mesh** InitMesh(ecs::EntityComponentSystem& rECS, graphics::MeshMan
 	//ModelLoader::Mesh tile("../hexagon_tile.fbx");
 	//ModelLoader::Mesh tile2("../hexagon_tile2.fbx");
 	ModelLoader::Mesh tile3("../hexagon.fbx");
-	ModelLoader::Mesh dude("../DudeMesh3.fbx");
+	ModelLoader::Mesh dude("../DudeMesh10.fbx");
 
 	ecs::components::ModelComponent mod_comp;
 
