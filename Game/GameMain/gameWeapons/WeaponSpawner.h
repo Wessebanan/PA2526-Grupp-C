@@ -89,10 +89,7 @@ namespace ecs
 
 		private:
 
-			// Used to make spawns fairly distributed
 			std::vector<ID> mPossibleTileIds;
-
-			const float PLAYER_AREA_CENTER_OFFSET_FROM_MAP_CENTER = 8.f;
 
 			const float SPAWN_OUTER_RADIUS = 8.f;
 			const float SPAWN_INNER_RADIUS = 5.f;

@@ -159,6 +159,10 @@ namespace ecs
 			list.componentCount = 5;
 				
 			createEntity(list);
+
+			GridProp* p_gp = GridProp::GetInstance();
+
+			p_gp->mLootTiles.push_back(r_spawn_event.spawnTileId);
 		}
 
 
@@ -320,7 +324,7 @@ namespace ecs
 			if (p_weapon_transform->position.y < p_falling_weapon->mPosY + p_falling_weapon->mPosYOffset)
 			{
 				//Set the tile to a loot tile so that units can loot the weapon
-				GridProp::GetInstance()->mLootTiles.push_back(p_falling_weapon->mTileId);
+				//GridProp::GetInstance()->mLootTiles.push_back(p_falling_weapon->mTileId);
 				//Set the y-position and the rotation of the weapon so that it sticks to the ground.
 				p_weapon_transform->position.y = p_falling_weapon->mPosY + p_falling_weapon->mPosYOffset;
 				p_weapon_transform->rotation = p_falling_weapon->rotation;
@@ -518,10 +522,10 @@ namespace ecs
 				mHaltDuration = mLifeTime / (float)mSpawnCount;
 			}
 
-			if (p_start_event->createRoundStartEventWhenFinished)
+			mCreateRoundStartEventWhenFinished = p_start_event->createRoundStartEventWhenFinished;
+			if (mCreateRoundStartEventWhenFinished)
 			{
 				mIsTimingForRoundStart = false;
-				mCreateRoundStartEventWhenFinished = p_start_event->createRoundStartEventWhenFinished;
 				mRoundStartCountdown = WAIT_TIME_BETWEEN_LAST_SPAWN_AND_ROUND_START;
 			}
 		}

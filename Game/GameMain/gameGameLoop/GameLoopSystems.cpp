@@ -117,10 +117,7 @@ void ecs::systems::WaitForStartupSystem::updateEntity(FilteredEntity& _entityInf
 	{
 		if (p_ib->backend->checkReadyCheck() && !GetSystem<systems::UIGuideSystem>())
 		{
-			// Starts the first round, should be removed when prepphase is implemented
-			//ecs::events::RoundStartEvent eve;
-			//createEvent(eve);
-
+			// WeaponSequenceSystem creates a RoundStartEvent when finished spawning weapons
 			ecs::events::StartWeaponSequenceEvent weapon_sequence_event;
 			weapon_sequence_event.spawnCount = 3;
 			weapon_sequence_event.lifetime = 0.5;
@@ -177,6 +174,7 @@ void ecs::systems::PrepPhaseSystem::updateEntity(FilteredEntity& _entityInfo, fl
 			ecs::events::StartWeaponSequenceEvent start_weapon_seq_event;
 			start_weapon_seq_event.lifetime = SEQUENCE_DURATION;
 			start_weapon_seq_event.spawnCount = 3;
+			start_weapon_seq_event.createRoundStartEventWhenFinished = true;
 			createEvent(start_weapon_seq_event);
 
 			// Remove itself

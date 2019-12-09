@@ -117,8 +117,8 @@ namespace ecs
 
 			if (!mQueue.size())
 			{
-				ecs::events::RoundStartEvent eve;
-				createEvent(eve);
+				//ecs::events::RoundStartEvent eve;
+				//createEvent(eve);
 
 				RemoveSystem<TrapSpawnerSystem>();
 			}
