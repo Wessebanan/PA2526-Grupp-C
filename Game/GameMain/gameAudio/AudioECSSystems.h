@@ -60,6 +60,8 @@ namespace ecs
 			bool Init();
 
 			void onEvent(TypeID _eventType, BaseEvent* _event) override;
+
+			void act(float _delta) override;
 		private:
 			bool SetupEngine();
 			bool SetupBank();
@@ -90,6 +92,9 @@ namespace ecs
 			bool mEngineInit;
 			std::chrono::time_point<std::chrono::steady_clock>
 				mSoundCooldownClock[AudioName::SOUND_COUNT];
+
+			int mCurrentBeat;
+			float mBeatTime;
 		};
 
 		//class SoundCooldownClearSystem : public ECSSystem<SoundCooldownClearSystem>
