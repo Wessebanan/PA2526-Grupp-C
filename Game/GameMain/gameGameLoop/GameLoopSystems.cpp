@@ -28,6 +28,7 @@
 
 #include "../gameWeapons/WeaponSpawner.h"
 #include "../gameTraps/TrapComponents.h"
+#include "../gameTraps/TrapEvents.h"
 
 #include "HttpServer.h"
 
@@ -142,9 +143,22 @@ void ecs::systems::PrepPhaseSystem::updateEntity(FilteredEntity& _entityInfo, fl
 	{
 		if (p_ib->backend->checkReadyCheck())
 		{
-			// Starts the first round, should be removed when prepphase is implemented
-			ecs::events::RoundStartEvent eve;
-			createEvent(eve);
+			/*
+				Disable map overlay
+			*/
+
+			events::SetUIVisibilityEvent ui_vis_event(GAME_UI_TYPE_OVERLAY, false);
+			createEvent(ui_vis_event);
+
+			/*
+				Initialize trap spawn sequence
+				Trap spawn system will later create a RoundStartEvent
+				when its finished.
+			*/
+
+			ecs::events::StartTrapSpawnSequenceEvent start_trap_seq_event;
+			start_trap_seq_event.totalSpawnDuration = 3.5f;
+			createEvent(start_trap_seq_event);
 
 			// Remove itself
 			RemoveSystem(PrepPhaseSystem::typeID);
@@ -366,6 +380,8 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 			p_ib->backend->changeGamestate(WEBGAMESTATE::WAITING);
 		}
 
+		events::SetUIVisibilityEvent ui_vis_event(GAME_UI_TYPE_GUIDES, true);
+		createEvent(ui_vis_event);
 
 		itt = getComponentsOfType<UITextComponent>();
 		UITextComponent* text_comp;
@@ -479,19 +495,12 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 
 			createEntity(new_transf_comp, new_cam_comp);
 		}
-		
-		itt = getComponentsOfType<components::UIBitmapComponent>();
-		UIBitmapComponent* bitmap_comp;
 
-		while (bitmap_comp = (UIBitmapComponent*)itt.next())
-		{
-			if (bitmap_comp->mName == "areaOverlay")
-			{
-				ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
+		events::SetUIVisibilityEvent ui_vis_event(GAME_UI_TYPE_OVERLAY, false);
+		createEvent(ui_vis_event);
+		ui_vis_event.uiType = GAME_UI_TYPE_GUIDES;
+		createEvent(ui_vis_event);
 
-				bitmap_pos_comp->mDrawArea.bottom = 150;
-			}
-		}
 
 		{
 			void* p_spawn_system;
@@ -923,18 +932,9 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			this->mRoundOverDuration = 0.0f;
 
 			// Enlarge the overlay
-			itt = getComponentsOfType<components::UIBitmapComponent>();
-			UIBitmapComponent* bitmap_comp;
+			events::SetUIVisibilityEvent ui_vis_event(GAME_UI_TYPE_OVERLAY, true);
+			createEvent(ui_vis_event);
 
-			while (bitmap_comp = (UIBitmapComponent*)itt.next())
-			{
-				if (bitmap_comp->mName == "areaOverlay")
-				{
-					ecs::components::UIDrawPosComponent* bitmap_pos_comp = getComponentFromKnownEntity<UIDrawPosComponent>(bitmap_comp->getEntityID());
-
-					bitmap_pos_comp->mDrawArea.bottom = 800;
-				}
-			}
 			//Loop for every player.
 			itt = getComponentsOfType(ecs::components::ArmyComponent::typeID);
 			ecs::components::ArmyComponent* p_army;
@@ -952,6 +952,110 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 				}
 				p_army->unitIDs.clear();
 			}
+		}
+	}
+}
+
+ecs::systems::UIVisibilitySystem::UIVisibilitySystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(events::SetUIVisibilityEvent::typeID);
+}
+
+ecs::systems::UIVisibilitySystem::~UIVisibilitySystem()
+{
+	//
+}
+
+void ecs::systems::UIVisibilitySystem::readEvent(BaseEvent& event, float delta)
+{
+	// Sanity check event type
+	if (event.getTypeID() != events::SetUIVisibilityEvent::typeID)
+	{
+		return;
+	}
+
+	/*
+		Cast event in order to read its information
+	*/
+
+	SetUIVisibilityEvent& vis_event = static_cast<SetUIVisibilityEvent&>(event);
+
+	// Store IDs in a vector as the guide is two entities
+	std::vector<ID> ui_entity_ids;
+	{
+		/*
+			Fetch all affected ui elements
+		*/
+
+		TypeFilter ui_filter;
+		ui_filter.addRequirement(UIDrawPosComponent::typeID);
+		ui_filter.addRequirement(UIBitmapComponent::typeID);
+		EntityIterator ui_entities = getEntitiesByFilter(ui_filter);
+
+		UIBitmapComponent* p_bitmap;
+		for (FilteredEntity& entity : ui_entities.entities)
+		{
+			p_bitmap = entity.getComponent<UIBitmapComponent>();
+			if (vis_event.uiType == GAME_UI_TYPE_OVERLAY &&
+					p_bitmap->mName == "areaOverlay"
+
+				|| vis_event.uiType == GAME_UI_TYPE_GUIDES &&
+					(p_bitmap->mName == "guide1" ||
+					 p_bitmap->mName == "guide2"))
+
+
+			{
+				ui_entity_ids.push_back(entity.entity->getID());
+			}
+		}
+	}
+
+	/*
+		Iterate all affected entitites and update their visibility
+	*/
+
+	UIDrawPosComponent* p_ui_pos = nullptr;
+	for (ID entity_id : ui_entity_ids)
+	{
+		p_ui_pos = getComponentFromKnownEntity<UIDrawPosComponent>(entity_id);
+
+		/*
+			This switch case checks type of ui, and sets the ui element
+			visible or not depending on event settings.
+
+			This switch will be changed later when Micke pushes bitmap
+			visibility flags to master.
+		*/
+		switch (vis_event.uiType)
+		{
+		case GAME_UI_TYPE_OVERLAY:
+		{
+			if (vis_event.visible)
+			{
+				p_ui_pos->mDrawArea.bottom = 800;
+			}
+			else
+			{
+				p_ui_pos->mDrawArea.bottom = 150;
+			}
+
+			break;
+		}
+
+		case GAME_UI_TYPE_GUIDES:
+		{
+			if (vis_event.visible)
+			{
+				p_ui_pos->mDrawArea.bottom = 1000;
+			}
+			else
+			{
+				p_ui_pos->mDrawArea.bottom = 200;
+			}
+
+			break;
+		}
 		}
 	}
 }

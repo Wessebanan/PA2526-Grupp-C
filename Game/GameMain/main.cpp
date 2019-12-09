@@ -109,13 +109,16 @@ int main()
 	TempUISystemPtrs my_UI_systems;
 
 	constexpr UINT RESERVED_COMPONENTS = 50000;
+	constexpr UINT LES_RESERVED_COMPONENTS = 500;
 	ecs.reserveComponentCount<ecs::components::TransformComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::ColorComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::TileComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::OceanTileComponent>(RESERVED_COMPONENTS);
-	ecs.reserveComponentCount<ecs::components::TrapComponent>(RESERVED_COMPONENTS);
 	ecs.reserveComponentCount<ecs::components::ObjectCollisionComponent>(RESERVED_COMPONENTS);
-	ecs.reserveComponentCount<ecs::components::SpringRetractionComponent>(RESERVED_COMPONENTS);
+
+	ecs.reserveComponentCount<ecs::components::TrapComponent>(LES_RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::SpringRetractionComponent>(LES_RESERVED_COMPONENTS);
+	ecs.reserveComponentCount<ecs::components::TrapQueueInfoComponent>(LES_RESERVED_COMPONENTS);
 
 	/*
 		InitAll is a list of ecs system Init-functions.
@@ -188,7 +191,11 @@ int main()
 			/*
 				Update all ECS systems, and give them the delta time.
 			*/
+
 			ecs.update(timer.GetFrameTime());
+
+			TypeFilter comp_type_filter = ecs.getInitializedComponentTypes();
+			std::vector<TypeID> all_types = comp_type_filter.getRequirements();			
 
 			graphics::Present(0);
 		}
@@ -307,7 +314,6 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 		after all ecs systems has been updated.
 	*/
 	
-	TempUISystemPtrs ui_systems;
 	InitGraphicsComponents(rECS, g_RENDER_BUFFER_SIZE, clientWidth, clientHeight);
 	InitMeshes(rECS);
 	InitGraphicsPreRenderSystems(rECS);
@@ -358,7 +364,7 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
-	InitUI(rECS, ui_systems);
+	InitUI(rECS);
 
 	InitWeapons(rECS);
 
