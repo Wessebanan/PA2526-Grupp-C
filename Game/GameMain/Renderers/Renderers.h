@@ -404,7 +404,8 @@ namespace ecs
 			void Initialize(
 				const UINT clientWidth,
 				const UINT clientHeight,
-				const UINT unitRenderProgram,
+				const UINT unitRenderProgram0,
+				const UINT unitRenderProgram1,
 				graphics::RenderManager* unitRenderManager);
 
 			UINT mRenderProgram;
@@ -420,6 +421,7 @@ namespace ecs
 			graphics::RenderManager* mRenderMgr;
 
 			UINT unitRenderProgram;
+			UINT weaponRenderProgram;
 
 
 		};
@@ -437,6 +439,8 @@ namespace ecs
 
 			static uint32_t GetPerInstanceSize();
 
+			UINT mRenderProgram;
+
 		private:
 
 			struct InputLayout
@@ -446,7 +450,6 @@ namespace ecs
 
 			InputLayout* mpBuffer;
 
-			UINT mRenderProgram;
 			graphics::RenderManager* mpRenderMgr;
 			graphics::ShaderModelLayout mInstanceLayout;
 

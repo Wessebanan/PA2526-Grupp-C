@@ -130,16 +130,19 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	// Make sure no render system is created before UnitRenderSystem if they use the same constant buffer
 	// That will cause outlines to break suuuper hard
 	// No touch >:(
+
+	rEcs.createSystem<systems::WeaponRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);
+
 	rEcs.createSystem<systems::UnitRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
+
 
 	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 
 	rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
 
-	rEcs.createSystem<systems::WeaponRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_render_buffer);
 
 	rEcs.createSystem<MapRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_state_mgr, 
@@ -182,9 +185,12 @@ void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
 	
 	UnitRenderSystem* p_unit_system = (UnitRenderSystem*)rEcs.getSystem<UnitRenderSystem>();
+	WeaponRenderSystem* p_weapon_system = (WeaponRenderSystem*)rEcs.getSystem<WeaponRenderSystem>();
 
 	rEcs.createSystem<systems::OutlineRenderSystem>(9)
-		->Initialize(graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y, p_unit_system->mRenderProgram, &static_cast<components::RenderManagerComponent*>(rEcs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr);
+		->Initialize(graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y
+			, p_unit_system->mRenderProgram, p_weapon_system->mRenderProgram,
+			&static_cast<components::RenderManagerComponent*>(rEcs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr);
 }
 
 void InitMeshes(EntityComponentSystem& rEcs)
