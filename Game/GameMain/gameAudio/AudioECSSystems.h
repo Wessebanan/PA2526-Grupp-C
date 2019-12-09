@@ -7,6 +7,27 @@ namespace ecs
 {
 	namespace systems
 	{
+		class SpeedUpOnRoundEnd : public ECSSystem<SpeedUpOnRoundEnd>
+		{
+		public:
+			SpeedUpOnRoundEnd();
+			virtual ~SpeedUpOnRoundEnd() {};
+			void onEvent(TypeID _eventType, BaseEvent* _event) override;
+		};
+		class MusicSpeedSystem : public ECSSystem<MusicSpeedSystem>
+		{
+		public:
+			MusicSpeedSystem();
+			virtual ~MusicSpeedSystem() {};
+
+			void onEvent(TypeID _eventType, BaseEvent* _event) override;
+			void act(float _delta) override;
+
+		private:
+			float mGoal;
+			float mCurrent;
+		};
+
 		class BattleMusicIntensitySystem : public ECSSystem<BattleMusicIntensitySystem>
 		{
 		public:
@@ -39,6 +60,8 @@ namespace ecs
 			bool Init();
 
 			void onEvent(TypeID _eventType, BaseEvent* _event) override;
+
+			void act(float _delta) override;
 		private:
 			bool SetupEngine();
 			bool SetupBank();
@@ -59,7 +82,8 @@ namespace ecs
 
 			void ProcessMusicSetVolume(ecs::events::MusicSetVolume* pEvent);
 			void ProcessSecondaryMusicSetVolume(ecs::events::SecondaryMusicSetVolume* pEvent);
-			void ProcessSubMusicSetVolume(ecs::events::SubMusicSetVolume* pEvent);
+			void ProcessSubMusicSetVolume(ecs::events::SubMusicSetVolume* pEvent); 
+			void ProcessSetMusicSpeed(ecs::events::SetMusicSpeed* pEvent);
 
 			Audio::PaHandler* mSoundPaHandler;
 			Audio::Engine* mSoundEngine;
@@ -68,6 +92,9 @@ namespace ecs
 			bool mEngineInit;
 			std::chrono::time_point<std::chrono::steady_clock>
 				mSoundCooldownClock[AudioName::SOUND_COUNT];
+
+			int mCurrentBeat;
+			float mBeatTime;
 		};
 
 		//class SoundCooldownClearSystem : public ECSSystem<SoundCooldownClearSystem>

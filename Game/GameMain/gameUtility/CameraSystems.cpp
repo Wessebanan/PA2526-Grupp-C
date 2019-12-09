@@ -147,7 +147,7 @@ void ecs::systems::UpdateDynamicCameraSystem::updateEntity(FilteredEntity& entit
 
 void ecs::systems::UpdateDynamicCameraSystem::GetTargetPosition(DirectX::XMVECTOR& rTarget, DirectX::XMVECTOR& rLookAt)
 {
-	const float FOV = (90.f / 2.0f) * PI / 180.f;
+	const float FOV = CameraDefines::fovAngle / 2.0f; //(90.f / 2.0f) * PI / 180.f;
 	// Zero rTarget
 	rTarget = DirectX::XMVectorZero();
 

@@ -226,13 +226,5 @@ void ecs::systems::DynamicMovementInitSystem::onEvent(TypeID _typeID, ecs::BaseE
 	ID entity_id = create_component_event->entityID;
 	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(entity_id);
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity_id);
-
-	// Assumes uniform scale.
-	float scale = transform_component->scale.x;
-	
-	movement_component->mMaxVelocity	*= scale;   
-	movement_component->mMovementForce	*= scale;
-	movement_component->mDeceleration	*= scale;
-	movement_component->mWeight			*= scale;
 }
 #pragma endregion

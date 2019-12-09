@@ -848,8 +848,8 @@ namespace ecs
 			mScreenSpaceTriangle = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
 			mRenderMgr.Initialize(0);
 
-			const UINT width = clientWidth;
-			const UINT height = clientHeight;
+			const UINT width = clientWidth / 2.0f;
+			const UINT height = clientHeight / 2.0f;
 
 			{
 				graphics::SSAO_PIPELINE_DESC desc = { };

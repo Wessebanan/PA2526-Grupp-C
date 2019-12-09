@@ -160,29 +160,8 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		}
 	}
 	
-	
-
-	// FILL OUT WITH OTHER WEAPONS LATER
 	// Making a copy of the bounding volume for weapon.
-	BoundingVolume* weapon_bv = nullptr;
-	switch (weapon_component->mType)
-	{
-	case GAME_OBJECT_TYPE_WEAPON_SWORD:
-	case GAME_OBJECT_TYPE_WEAPON_HAMMER:
-	{
-		OBB* obb = static_cast<OBB*>(weapon_component->mBoundingVolume);
-		weapon_bv = new OBB(*obb);
-		break;
-	}
-	case GAME_OBJECT_TYPE_WEAPON_FIST:
-	case GAME_OBJECT_TYPE_WEAPON_BOMB:
-	{
-		Sphere* sphere = static_cast<Sphere*>(weapon_component->mBoundingVolume);
-		weapon_bv = new Sphere(*sphere);
-	}
-	default:
-		break;
-	}
+	BoundingVolume* weapon_bv = weapon_component->mBoundingVolume->Copy();
 
 	// Army component for checking friendly fire.
 	UnitComponent* owner_unit_component = nullptr;
@@ -258,59 +237,14 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		
 		XMMATRIX current_world_transform = UtilityEcsFunctions::GetWorldMatrix(*p_current_transform);
 
-		switch (p_current_collision->mBvType)
+		BoundingVolume* p_current_copy = p_current_collision->mBV->Copy();
+		p_current_copy->Transform(current_world_transform);
+		intersect = weapon_bv->Intersects(p_current_copy);
+		if (intersect)
 		{
-		case COLLISION_AABB:
-		{
-			AABB aabb;
-			aabb.Center = p_current_collision->mBV->GetCenter();
-			aabb.Extents = p_current_collision->mBV->GetExtents();// *static_cast<AABB*>(p_current_collision->mBV);
-			aabb.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			intersect = weapon_bv->Intersects(&aabb);
-			if (intersect)
-			{
-				collided_unit = current_unit;
-			}
-			break;
+			collided_unit = current_unit;
 		}
-		case COLLISION_OBB:
-		{
-			OBB obb = *static_cast<OBB*>(p_current_collision->mBV);
-			obb.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			intersect = weapon_bv->Intersects(&obb);
-			if (intersect)
-			{
-				collided_unit = current_unit;
-			}
-			break;
-		}
-		case COLLISION_SPHERE:
-		{
-			Sphere sphere = *static_cast<Sphere*>(p_current_collision->mBV);
-			sphere.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			intersect = weapon_bv->Intersects(&sphere);
-			if (intersect)
-			{
-				collided_unit = current_unit;
-			}
-			break;
-		}
-		case COLLISION_CYLINDER:
-		{
-			Cylinder cylinder = *static_cast<Cylinder*>(p_current_collision->mBV);
-			cylinder.Transform(current_world_transform);
-			// Testing intersection and saving collision info if collision.
-			intersect = weapon_bv->Intersects(&cylinder);
-			if (intersect)
-			{
-				collided_unit = current_unit;
-			}
-			break;
-		}
-		}
+		delete p_current_copy;
 	}
 
 	// If a unit collides with an unowned weapon, set colliding unit to weapon owner
@@ -374,7 +308,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		hit_event.Position		= weapon_transform_component->position;
 		hit_event.Range			= BOMB_BLAST_RADIUS;
 		hit_event.Damage		= weapon_component->mBaseDamage;
-		hit_event.Knockback		= weapon_component->mKnockback;
+		hit_event.Knockback		= weapon_component->mKnockback * BASE_KNOCKBACK;
 		hit_event.WeaponID		= weapon_component->getEntityID();
 		hit_event.OwnerUnitID	= weapon_component->mOwnerEntity;
 
@@ -484,9 +418,9 @@ void ecs::systems::UnitColorSwitchSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	ColorComponent* p_unit_color = getComponentFromKnownEntity<ColorComponent>(p_color_switch->mEntityID);
 	
 	Color color = p_color_switch->mColor;
-	p_unit_color->red	= color.r;
-	p_unit_color->green = color.g;
-	p_unit_color->blue	= color.b;
+	p_unit_color->red	= (std::min)(255, p_unit_color->red + BRIGHT_FACTOR);
+	p_unit_color->green = (std::min)(255, p_unit_color->green + BRIGHT_FACTOR);
+	p_unit_color->blue	= (std::min)(255, p_unit_color->blue + BRIGHT_FACTOR);
 
 	// Inserting given time by event into [ID] in unordered_map.
 	mTimers[p_color_switch->mEntityID] = p_color_switch->mTime;
@@ -584,20 +518,28 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 
 	const WeaponOnHitEvent& hit_event = static_cast<WeaponOnHitEvent&>(_event);
 	const XMVECTOR weapon_position = XMLoadFloat3(&hit_event.Position);
-
-	// Grabbing and storing all ocean tiles.
-	TypeFilter unit_filter;
-	unit_filter.addRequirement(components::UnitComponent::typeID);
-	unit_filter.addRequirement(components::TransformComponent::typeID);
-	unit_filter.addRequirement(components::HealthComponent::typeID);
-
-	EntityIterator iter = getEntitiesByFilter(unit_filter);
-
+	
 	// If type is a bomb
 	if (hit_event.Type == GAME_OBJECT_TYPE_WEAPON_BOMB)
 	{
+		// Grabbing and storing all units.
+		TypeFilter unit_filter;
+		unit_filter.addRequirement(components::UnitComponent::typeID);
+		unit_filter.addRequirement(components::TransformComponent::typeID);
+		unit_filter.addRequirement(components::HealthComponent::typeID);
+
+		EntityIterator iter = getEntitiesByFilter(unit_filter);
+		const ID hitter_id = hit_event.OwnerUnitID;
+		const ID hitter_team = getComponentFromKnownEntity<UnitComponent>(hitter_id)->playerID;
+
 		for (FilteredEntity& unit : iter.entities)
 		{
+			// No friendly hits on bomb.
+			if (unit.getComponent<UnitComponent>()->playerID == hitter_team)
+			{
+				continue;
+			}
+
 			const TransformComponent* p_unit_transform = unit.getComponent<TransformComponent>();
 			const XMVECTOR unit_position = XMLoadFloat3(&p_unit_transform->position);
 			const XMVECTOR unit_weapon_v = unit_position - weapon_position;
@@ -618,18 +560,17 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 			if (impact >= 0.0f)
 			{
 				// Calculating damage by multiplying weapon velocity and the base damage.
-				const float damage = hit_event.Damage;
+				const float damage = hit_event.Damage * impact;
 				HealthComponent* p_collided_constitution = unit.getComponent<HealthComponent>();
 				p_collided_constitution->mHealth -= damage;
 
 				// KNOCKBACK
 				ForceImpulseEvent knockback;
 				XMStoreFloat3(&knockback.mDirection, unit_weapon_v);
-				knockback.mDirection.y = (std::max)(knockback.mDirection.y, 0.0f);
-				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 
 				// Small y boost in knockback to send units FLYING.
-				knockback.mDirection.y += 2.f;
+				knockback.mDirection.y += 0.5f;
+				knockback.mDirection.y = (std::max)(knockback.mDirection.y, 0.0f);
 
 				// Normalize knockback direction so it's not CRAZY.
 				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
