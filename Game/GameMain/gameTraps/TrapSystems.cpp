@@ -45,7 +45,12 @@ void ecs::systems::RootDurationSystem::updateEntity(FilteredEntity& _entityInfo,
 		if (p_spike_comp->mElapsedTime > p_spike_comp->mDuration * p_spike_comp->mImuneFactor)
 			removeComponent(p_spike_comp->getEntityID(), p_spike_comp->getTypeID());
 		else
+		{
 			p_dyn_move_comp->mMaxVelocity = DEFAULT_MAX_VELOCITY;
+
+			AnimationSpeedComponent* p_anim_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(p_spike_comp->getEntityID());
+			p_anim_comp->factor = 1.0f;
+		}
 	}
 	else
 		p_dyn_move_comp->mMaxVelocity = 0.0f;
@@ -752,6 +757,9 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 					damage_flash.mTime = spike_comp.mDuration;
 					createEvent(damage_flash);
 
+
+					AnimationSpeedComponent* p_anim_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(unit.entity->getID());
+					p_anim_comp->factor = 0.0001f;
 				}
 			}
 		}
