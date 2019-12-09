@@ -31,6 +31,24 @@ ecs::systems::SpikeRootDurationSystem::~SpikeRootDurationSystem()
 
 void ecs::systems::SpikeRootDurationSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
+	SpikeTrapComponent* p_spike_comp = _entityInfo.getComponent<components::SpikeTrapComponent>();
+	DynamicMovementComponent* p_dyn_move_comp = _entityInfo.getComponent<components::DynamicMovementComponent>();
+
+	if (!p_spike_comp || !p_dyn_move_comp) return;
+
+	p_spike_comp->mElapsedTime += _delta;
+
+	if (p_spike_comp->mElapsedTime > p_spike_comp->mDuration)
+	{
+		// Be imune to root for the same time as the unit was rooted
+		if (p_spike_comp->mElapsedTime > p_spike_comp->mDuration * p_spike_comp->mImuneFactor)
+			removeComponent(p_spike_comp->getEntityID(), p_spike_comp->getTypeID());
+
+		p_dyn_move_comp->mMaxVelocity = DEFAULT_MAX_VELOCITY;
+	}
+	else
+		p_dyn_move_comp->mMaxVelocity = 0.0f;
+
 }
 
 ecs::systems::BurningDurationSystem::BurningDurationSystem()
@@ -726,6 +744,9 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 					createEvent(damage_flash);
 
 					ecs::components::SpikeTrapComponent spike_comp;
+
+					spike_comp.mDuration = 2.0f;
+					spike_comp.mImuneFactor = 2.0f;
 
 					ecs::ECSUser::createComponent(unit.entity->getID(), spike_comp);
 
