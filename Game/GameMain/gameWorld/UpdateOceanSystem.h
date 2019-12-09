@@ -7,6 +7,8 @@ namespace ecs
 {
 	namespace systems
 	{
+		constexpr int WAVESCOUNT = 100;
+
 		class UpdateOceanSystem : public ECSSystem<UpdateOceanSystem>
 		{
 		public:
@@ -28,7 +30,7 @@ namespace ecs
 
 			EntityIterator mOceanTiles;
 
-			float* mWaveArray;
+			float mWaveArray[WAVESCOUNT];
 			float mFlatternOutFactor;
 			float mUpdateIntervall;
 		};

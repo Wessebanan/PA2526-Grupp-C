@@ -9,12 +9,13 @@ namespace ecs
 	{
 		struct OceanTileComponent : public ECSComponent<OceanTileComponent>
 		{
-
+			unsigned int mWaveIndex = 999999;
+			float mWaveAmplifier = 0.0f;
 		};
 
 		struct WaveCenterComponent : public ECSComponent<WaveCenterComponent>
 		{
-			float* mpFistElement;
+			float* mpFirstElement;
 		};
 
 		struct IsletComponent : public ECSComponent<IsletComponent>

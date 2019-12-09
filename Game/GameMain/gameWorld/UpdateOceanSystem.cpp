@@ -14,7 +14,6 @@ namespace ecs
 {
 	namespace systems
 	{
-		constexpr int WAVESCOUNT = 100;
 
 		UpdateOceanSystem::UpdateOceanSystem()
 		{
@@ -27,7 +26,7 @@ namespace ecs
 
 		UpdateOceanSystem::~UpdateOceanSystem()
 		{
-			delete mWaveArray;
+			//
 		}
 
 		bool UpdateOceanSystem::Initialize(float cycleDuration)
@@ -65,8 +64,6 @@ namespace ecs
 			mCycleDuration = cycleDuration;
 
 
-
-			mWaveArray = new float[WAVESCOUNT];
 			for (size_t i = 0; i < WAVESCOUNT; i++)
 				mWaveArray[i] = 0.0f;
 			
@@ -78,7 +75,7 @@ namespace ecs
 
 			// Create a entity with one component pointing at the first element in mWaveArray
 			components::WaveCenterComponent wave;
-			wave.mpFistElement = &mWaveArray[0];
+			wave.mpFirstElement = &mWaveArray[0];
 			createEntity(wave);
 
 			return true;
@@ -91,25 +88,32 @@ namespace ecs
 			XMFLOAT3 position;
 			float distance_to_center;
 			components::TransformComponent* p_transform;
+			components::OceanTileComponent* p_ocean;
 			for (FilteredEntity& tile : mOceanTiles.entities)
 			{
 				p_transform = tile.getComponent<components::TransformComponent>();
+				p_ocean = tile.getComponent<components::OceanTileComponent>();
 
-				position = p_transform->position;
-				position.y = 0.f;
-				mOceanCenter.y = 0.f;
+				if (p_ocean->mWaveIndex > WAVESCOUNT)
+				{
+					position = p_transform->position;
+					position.y = 0.f;
+					mOceanCenter.y = 0.f;
 
-				distance_to_center = XMVectorGetX(XMVector3Length(XMLoadFloat3(&position) - XMLoadFloat3(&mOceanCenter)));
+					distance_to_center = XMVectorGetX(XMVector3Length(XMLoadFloat3(&position) - XMLoadFloat3(&mOceanCenter)));
 
-				const float MAXDIST = OCEAN_RADIUS + 10.0f;
+					const float MAXDIST = OCEAN_RADIUS + 10.0f;
 
-				unsigned int index_to_pick = (unsigned int)(WAVESCOUNT * distance_to_center / MAXDIST);
+					unsigned int index_to_pick = (unsigned int)(WAVESCOUNT * distance_to_center / MAXDIST);
 
-				if (index_to_pick >= WAVESCOUNT)
-					index_to_pick = WAVESCOUNT - 1;
+					if (index_to_pick >= WAVESCOUNT)
+						index_to_pick = WAVESCOUNT - 1;
 
+					p_ocean->mWaveIndex = index_to_pick;
+					p_ocean->mWaveAmplifier = ((distance_to_center/* * (distance_to_center*0.1f)*/) / MAXDIST) * 1.7f;
+				}
 				
-				p_transform->position.y = (mWaveArray[index_to_pick] * ((distance_to_center/* * (distance_to_center*0.1f)*/) / MAXDIST) * 1.7f);
+				p_transform->position.y = (mWaveArray[p_ocean->mWaveIndex] * p_ocean->mWaveAmplifier);
 
 				// Lower the water level
 				p_transform->position.y -= 0.5f;
@@ -127,7 +131,7 @@ namespace ecs
 					components::WaveCenterComponent* p_wave;
 					if (p_wave = (components::WaveCenterComponent*)itt.next())
 					{
-						*p_wave->mpFistElement = 5.0f;
+						*p_wave->mpFirstElement = 5.0f;
 					};
 				}
 			}
