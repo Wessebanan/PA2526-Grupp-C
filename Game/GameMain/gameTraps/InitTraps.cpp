@@ -15,7 +15,7 @@ void InitTraps(ecs::EntityComponentSystem& rEcs)
 	rEcs.createSystem<ecs::systems::BurningDurationSystem>(5);
 	//rEcs.createSystem<ecs::systems::FreezeTrapEventSystem>(6);
 	rEcs.createSystem<ecs::systems::SpikeTrapEventSystem>(6);
-	rEcs.createSystem<ecs::systems::SpikeRootDurationSystem>(5);
+	rEcs.createSystem<ecs::systems::RootDurationSystem>(5);
 	rEcs.createSystem<ecs::systems::SpringTrapEventSystem>(6);
 	rEcs.createSystem<ecs::systems::SpringRetractionSystem>(6);
 }

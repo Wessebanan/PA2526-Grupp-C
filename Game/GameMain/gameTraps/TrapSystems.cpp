@@ -18,22 +18,23 @@
 ------------------------------------------------------------
 */
 
-ecs::systems::SpikeRootDurationSystem::SpikeRootDurationSystem()
+ecs::systems::RootDurationSystem::RootDurationSystem()
 {
 	updateType = ecs::EntityUpdate;
-	typeFilter.addRequirement(ecs::components::SpikeTrapComponent::typeID);
+	typeFilter.addRequirement(ecs::components::RootComponent::typeID);
 	typeFilter.addRequirement(ecs::components::DynamicMovementComponent::typeID);
 }
 
-ecs::systems::SpikeRootDurationSystem::~SpikeRootDurationSystem()
+ecs::systems::RootDurationSystem::~RootDurationSystem()
 {
 }
 
-void ecs::systems::SpikeRootDurationSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+void ecs::systems::RootDurationSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	SpikeTrapComponent* p_spike_comp = _entityInfo.getComponent<components::SpikeTrapComponent>();
+	RootComponent* p_spike_comp = _entityInfo.getComponent<components::RootComponent>();
 	DynamicMovementComponent* p_dyn_move_comp = _entityInfo.getComponent<components::DynamicMovementComponent>();
 
+	// Sanity check
 	if (!p_spike_comp || !p_dyn_move_comp) return;
 
 	p_spike_comp->mElapsedTime += _delta;
@@ -43,8 +44,8 @@ void ecs::systems::SpikeRootDurationSystem::updateEntity(FilteredEntity& _entity
 		// Be imune to root for the same time as the unit was rooted
 		if (p_spike_comp->mElapsedTime > p_spike_comp->mDuration * p_spike_comp->mImuneFactor)
 			removeComponent(p_spike_comp->getEntityID(), p_spike_comp->getTypeID());
-
-		p_dyn_move_comp->mMaxVelocity = DEFAULT_MAX_VELOCITY;
+		else
+			p_dyn_move_comp->mMaxVelocity = DEFAULT_MAX_VELOCITY;
 	}
 	else
 		p_dyn_move_comp->mMaxVelocity = 0.0f;
@@ -736,19 +737,20 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 				}
 				else
 				{
-					// VISUAL
-					ColorSwitchEvent damage_flash;
-					damage_flash.mColor = WHITE;
-					damage_flash.mEntityID = unit.entity->getID();
-					damage_flash.mTime = 0.05f;
-					createEvent(damage_flash);
-
-					ecs::components::SpikeTrapComponent spike_comp;
+					// Add the root component
+					ecs::components::RootComponent spike_comp;
 
 					spike_comp.mDuration = 2.0f;
 					spike_comp.mImuneFactor = 2.0f;
 
 					ecs::ECSUser::createComponent(unit.entity->getID(), spike_comp);
+
+					// VISUAL
+					ColorSwitchEvent damage_flash;
+					damage_flash.mColor = Color(230,230,0);
+					damage_flash.mEntityID = unit.entity->getID();
+					damage_flash.mTime = spike_comp.mDuration;
+					createEvent(damage_flash);
 
 				}
 			}

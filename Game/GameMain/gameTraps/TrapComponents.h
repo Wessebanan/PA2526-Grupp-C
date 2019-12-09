@@ -62,7 +62,7 @@ namespace ecs
 			float mPulseCounter;
 		};
 
-		struct SpikeTrapComponent : public ecs::ECSComponent<SpikeTrapComponent>
+		struct RootComponent : public ecs::ECSComponent<RootComponent>
 		{
 			// Root duration
 			float mDuration;
