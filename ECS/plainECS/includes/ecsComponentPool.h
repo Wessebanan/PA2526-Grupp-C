@@ -30,10 +30,13 @@ namespace ecs
 
 		// Calls for a custom allocation in ECS memory and creates a component with given initial data,
 		// then returns a base pointer to the new component.
-		BaseComponent* create(BaseComponent& _component);
+		BaseComponent* create(BaseComponent& _component, bool _makeVisible = true);
 
 		// Frees given component in ECS memory.
 		void remove(ID _id);
+
+		// Makes given component invisible from getters
+		void makeInvisible(ID _id);
 
 		// Returns number of components in the component pool.
 		size_t getAllocations();
@@ -47,6 +50,7 @@ namespace ecs
 
 		void flagRemoval(ID _componentID);
 		void removeAllFlagged();
+		void removeInvisibility();
 
 		inline bool isInitialized()
 		{
@@ -70,5 +74,6 @@ namespace ecs
 		size_t componentSize;
 
 		std::vector<ID> toRemove;
+		std::vector<ID> invisibles;
 	};
 }

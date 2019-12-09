@@ -6,6 +6,7 @@ EntityComponentSystem::EntityComponentSystem()
 {
 	layerCount = 0;
 	systemLayers = nullptr;
+	makeAllVisible = true;
 }
 
 EntityComponentSystem::~EntityComponentSystem()
@@ -46,6 +47,11 @@ bool ecs::EntityComponentSystem::initialize(ECSDesc& _desc)
 	}
 
 	return true;
+}
+
+void ecs::EntityComponentSystem::setReadyForUpdates()
+{
+	makeAllVisible = false;
 }
 
 Entity* EntityComponentSystem::createEntity(BaseComponent& _comp)
@@ -281,6 +287,7 @@ void EntityComponentSystem::update(float _delta)
 	*	Event's lifetime is only until the end of an ECS update.
 	*/
 
+	componentMgr.removeAllInvisibility();
 	componentMgr.removeAllFlagged();
 	entityMgr.removeAllFlagged();
 	eventMgr.clearAllEvents();
@@ -600,7 +607,7 @@ BaseComponent* EntityComponentSystem::createComponentInternal(ID _entityID, Base
 
 	// Create component
 	_componentInfo.entityID = _entityID;
-	BaseComponent* component = componentMgr.createComponent(_componentInfo);
+	BaseComponent* component = componentMgr.createComponent(_componentInfo, makeAllVisible);
 
 	// Sanity check component creation
 	if (!component)

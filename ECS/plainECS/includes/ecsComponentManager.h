@@ -29,7 +29,7 @@ namespace ecs
 			in the correct memory pool for that component's type, and then returns a
 			base pointer to the new component.
 		*/
-		BaseComponent* createComponent(BaseComponent& _initInfo);
+		BaseComponent* createComponent(BaseComponent& _initInfo, bool _makeVisible = true);
 		BaseComponent* getComponent(TypeID _typeID, ID _id);
 		void removeComponent(TypeID _typeID, ID _id);
 
@@ -47,6 +47,9 @@ namespace ecs
 		// Function that actually clears all components from memory that have been flagged
 		// for removal.
 		void removeAllFlagged();
+
+		// Makes all newly created components visible for getters.
+		void removeAllInvisibility();
 
 		/*
 			Getters

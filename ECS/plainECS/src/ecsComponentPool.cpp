@@ -24,7 +24,7 @@ ECSComponentPool::~ECSComponentPool()
 	}
 }
 
-BaseComponent* ECSComponentPool::create(BaseComponent& _component)
+BaseComponent* ECSComponentPool::create(BaseComponent& _component, bool _makeVisible)
 {
 	this->componentName = _component.getName(); // TODO: remove this
 	void* p = allocator.allocate();
@@ -43,8 +43,19 @@ BaseComponent* ECSComponentPool::create(BaseComponent& _component)
 		return nullptr;
 	}
 
-	lookUpList[_component.getID()] = (BaseComponent*)p;
-	return (BaseComponent*)p;
+	BaseComponent* p_base = (BaseComponent*)p;
+	lookUpList[_component.getID()] = p_base;
+
+	if (!_makeVisible)
+	{
+		invisibles.push_back(p_base->getID());
+	}
+	else
+	{
+		p_base->flags = p_base->flags | STATE_FLAG_VISIBLE;
+	}
+
+	return p_base;
 }
 
 void ECSComponentPool::remove(ID _id)
@@ -59,9 +70,21 @@ void ECSComponentPool::remove(ID _id)
 	lookUpList.erase(_id);
 }
 
+void ecs::ECSComponentPool::makeInvisible(ID _id)
+{
+	if (lookUpList.count(_id) == 0)
+	{
+		return;
+	}
+
+	BaseComponent* p = lookUpList[_id];
+	p->flags = p->flags & ~STATE_FLAG_VISIBLE;
+	invisibles.push_back(_id);
+}
+
 size_t ECSComponentPool::getAllocations()
 {
-	return allocator.getAllocations();
+	return allocator.getAllocations() - toRemove.size();
 }
 
 BaseComponent* ECSComponentPool::getComponent(ID _id)
@@ -97,7 +120,7 @@ void ECSComponentPool::initialize(size_t _startCap, size_t _componentSize)
 
 void ecs::ECSComponentPool::flagRemoval(ID _componentID)
 {
-	lookUpList[_componentID]->alive = false;
+	lookUpList[_componentID]->flags = 0; // Make component not alive nor visible
 	toRemove.push_back(_componentID);
 }
 
@@ -118,6 +141,20 @@ void ecs::ECSComponentPool::removeAllFlagged()
 			lookUpList.erase(id);
 			allocator.free((void*)p_component);
 			toRemove.pop_back();
+		}
+	}
+}
+
+void ecs::ECSComponentPool::removeInvisibility()
+{
+	BaseComponent* p;
+	for (ID id : invisibles)
+	{
+		p = lookUpList[id];
+
+		if (p)
+		{
+			p->flags = p->flags | STATE_FLAG_VISIBLE;
 		}
 	}
 }
@@ -156,7 +193,8 @@ BaseComponent* ComponentIterator::next()
 		pComponent = (BaseComponent*)current;
 		current = (void*)((char*)current + objectSize);
 		iterationSize += objectSize;
-	} while (!pComponent->alive);
+	} while (!(pComponent->flags & STATE_FLAG_ALIVE));
+	//} while (!(pComponent->flags & STATE_FLAG_VISIBLE));
 
 	return pComponent;
 }

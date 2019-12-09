@@ -19,7 +19,7 @@ namespace ecs
 	{
 		struct TestComponent : public ecs::ECSComponent<TestComponent>
 		{
-			TestComponent(int initData = -1) : data(initData) {};
+			TestComponent(int initData = -1) : data(initData) { flags = STATE_FLAG_VISIBLE; };
 			int data;
 
 			virtual ~TestComponent() { data = 0; }
@@ -27,7 +27,7 @@ namespace ecs
 
 		struct OtherTestComponent : public ecs::ECSComponent<OtherTestComponent>
 		{
-			OtherTestComponent(int _data) : data(_data) {}
+			OtherTestComponent(int _data) : data(_data) { flags = STATE_FLAG_VISIBLE; }
 			int data;
 
 			virtual ~OtherTestComponent() { data = 0; }

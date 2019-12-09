@@ -27,7 +27,7 @@ void ECSComponentManager::initPoolType(TypeID _typeID, size_t _componentSize, si
 	//componentPools[_typeID]->initialize(_count, _componentSize);
 }
 
-BaseComponent* ECSComponentManager::createComponent(BaseComponent& _initInfo)
+BaseComponent* ECSComponentManager::createComponent(BaseComponent& _initInfo, bool _makeVisible)
 {
 	TypeID typeID = _initInfo.getTypeID();
 
@@ -39,7 +39,7 @@ BaseComponent* ECSComponentManager::createComponent(BaseComponent& _initInfo)
 		//componentPools[typeID]->initialize(DEFAULT_COMPONENT_POOL_SIZE_COUNT, _initInfo.getSize());
 	}
 	
-	return componentPools[typeID]->create(_initInfo);
+	return componentPools[typeID]->create(_initInfo, _makeVisible);
 }
 
 void ECSComponentManager::removeComponent(TypeID _typeID, ID _id)
@@ -89,6 +89,14 @@ void ECSComponentManager::removeAllFlagged()
 	for (PoolPair poolPair : componentPools)
 	{
 		poolPair.second->removeAllFlagged();
+	}
+}
+
+void ecs::ECSComponentManager::removeAllInvisibility()
+{
+	for (PoolPair poolPair : componentPools)
+	{
+		poolPair.second->removeInvisibility();
 	}
 }
 

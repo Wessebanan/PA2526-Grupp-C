@@ -60,6 +60,9 @@ namespace ecs
 		//			- This will also happen if a component type is not specified in the ECSDesc.
 		bool initialize(ECSDesc &_desc);
 
+		// Make ECS know all pre-initialization component and entity creations are done.
+		void setReadyForUpdates();
+
 		template <typename T>
 		void reserveComponentCount(unsigned int _count);
 
@@ -180,6 +183,9 @@ namespace ecs
 		TypeFilter getInitializedComponentTypes();
 
 	private:
+
+		// Used to make components visible during initialization phase
+		bool makeAllVisible;
 
 		ECSEventManager eventMgr;
 		ECSEntityManager entityMgr;
