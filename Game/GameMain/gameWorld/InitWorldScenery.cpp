@@ -1,6 +1,7 @@
 #include "InitWorldScenery.h"
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameWorld/WorldComponents.h"
+#include "../gameWorld/WorldSettings.h"
 #include "../Physics/PhysicsComponents.h"
 #include "../gameWorld/WorldScenerySystems.h"
 #include <DirectXMath.h>
@@ -48,6 +49,7 @@ void InitWorldScenery(ecs::EntityComponentSystem& rECS)
 	trans_comp.scale.y *= 5;
 	trans_comp.scale.z *= 5;
 	
+	shark_comp.mWaveIndex = 22.5f / OCEAN_RADIUS;
 
 	rECS.createEntity(trans_comp, color_comp, shark_comp);
 	trans_comp.position = map_center;
