@@ -23,9 +23,10 @@ namespace ecs
 			  It will be expanded on when pathfinding and other systems is implemented.
 			*/
 			TileType tileType = TileTypes::UNDEFINED;
-			bool impassable = true;
 			float niceness = 0.f;
+			bool impassable = true;
 			bool goal = false;
+			bool hasTrap = false;
 			unsigned int neighboursIDArray[6] = { 0 };
 			PotentialFieldCharges charges;
 
@@ -46,8 +47,9 @@ namespace ecs
 		{
 			STATE activeCommand = STATE::IDLE;
 			unsigned int goalID;
-			float time = 0.0f; 
+			float time = 0.0f;
 			std::vector<unsigned int> path;
+			
 		};
 
 		struct FleeStateComponent : public ECSComponent<FleeStateComponent>
@@ -74,6 +76,9 @@ namespace ecs
 		struct UnitComponent : public ECSComponent<UnitComponent>
 		{
 			PLAYER playerID; //Holds an enum to know which player the unit belongs to.
+			float length = 0;
+			float timeSinceStuck = 0.0f;
+			DirectX::XMFLOAT3 lastPos;
 		};
 
 		struct ArmyComponent : public ECSComponent<ArmyComponent>

@@ -1,7 +1,8 @@
 #pragma once
 
+#include <vector>
 #include "ecsSystemIncludes.h"
-
+#include "TrapEvents.h"
 
 /*
 	-- HOW TO ADD A NEW TRAP --																						See file:
@@ -25,9 +26,30 @@ namespace ecs
 			TrapSpawnerSystem();
 			virtual ~TrapSpawnerSystem();
 
+			void act(float delta) override;
+
+			void Initialize(float totalSpawnDuration);
+
+		private:
+
+			std::vector<ID> mQueue;
+			float mDurationBetweenSpawns;
+			float mDurationSinceLastSpawn;
+		};
+
+		class TrapQueueSystem : public ECSSystem<TrapQueueSystem>
+		{
+		public:
+
+			TrapQueueSystem();
+			virtual ~TrapQueueSystem();
+
 			void readEvent(BaseEvent& _event, float _delta) override;
 
 		private:
+
+			void HandleQueueUp(events::PlaceTrapEvent& queue_event);
+			void HandleSpawnSequence(events::StartTrapSpawnSequenceEvent& start_event);
 		};
 	}
 }

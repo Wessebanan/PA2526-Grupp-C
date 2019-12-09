@@ -738,6 +738,7 @@ ecs::systems::MoveStateSystem::MoveStateSystem()
 	typeFilter.addRequirement(DynamicMovementComponent::typeID);
 	typeFilter.addRequirement(EquipmentComponent::typeID);
 	typeFilter.addRequirement(ObjectCollisionComponent::typeID);
+	typeFilter.addRequirement(UnitComponent::typeID);
 }
 
 ecs::systems::MoveStateSystem::~MoveStateSystem()
@@ -767,6 +768,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 	ObjectCollisionComponent* p_collision_comp = entity.getComponent<ObjectCollisionComponent>();
 	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
 	TransformComponent* p_goal = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_move_comp->goalID);
+	UnitComponent* p_unit = entity.getComponent<UnitComponent>();
 	float distance = 1000.0f;
 	if (p_goal != nullptr)
 	{
@@ -839,8 +841,9 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 		if (y_distance > 0.3f && p_dyn_move->mOnGround)
 		{
-			length = PhysicsHelpers::CalculateDistance(XMFLOAT3(p_goal->position.x, 0.0f, p_goal->position.z), XMFLOAT3(p_transform->position.x, 0.0f, p_transform->position.z));//Length from unit to goal center
 			length_of_vector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
+			length = PhysicsHelpers::CalculateDistance(XMFLOAT3(p_goal->position.x, 0.0f, p_goal->position.z), XMFLOAT3(p_transform->position.x, 0.0f, p_transform->position.z));//Length from unit to goal center
+			
 			angle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
 			(XMLoadFloat3(&p_dyn_move->mVelocity)), XMVector3Normalize(XMLoadFloat3(&p_dyn_move->mDirection))));//Get angle between velocity and direction vector
 			//if their velocity vector is same or larger then the vector between their position and the edge of a tile
@@ -854,7 +857,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 				ForceImpulseEvent jump;
 				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&jump_vector)));//normalize the jump vector so that we just get direction
-				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.5f;
+				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.2f;
 				jump.mEntityID = entity.entity->getID();
 				if (length_of_vector < 0.25f)//if they are very slow and need to jump they get a boost
 				{
@@ -866,11 +869,40 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 				createEvent(jump);
 			}
 		}
+		if(p_unit->timeSinceStuck >= 1.0f)//check if they have moved a certain distance during one sec
+		{
+			p_unit->timeSinceStuck = 0.f;
+			if(p_unit->length < 0.1f && p_dyn_move->mOnGround)
+			{
+				//get where they want to go 
+				jump_vector.x = p_goal->position.x - p_transform->position.x;
+				jump_vector.y = p_goal->position.y - p_dyn_move->mLastTileY;
+				jump_vector.z = p_goal->position.z - p_transform->position.z;
+				//reverse that shit
+				jump_vector.x *= -1.f / 4.f;
+				jump_vector.y *= 3.f;
+				jump_vector.z *= -1.f / 4.f;
+				//add the power
+				ForceImpulseEvent jump;
+				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&jump_vector)));//normalize the jump vector so that we just get direction
+				jump.mForce = p_dyn_move->mWeight * 4.f ;
+				jump.mEntityID = entity.entity->getID();
+				//yeet
+				createEvent(jump);
+				
+			}
+			p_unit->length = 0.f;
+		}
+
 		MovementInputEvent move;
 		move.mInput = FORWARD;
 		move.mEntityID = entity.entity->getID();
 		createEvent(move);//creates an event to physics to move character
-	}	
+		p_unit->length += XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_unit->lastPos) - XMLoadFloat3(&p_transform->position)));
+		p_unit->lastPos = p_transform->position;
+	}
+	
+	p_unit->timeSinceStuck += delta;
 }
 
 STATE ecs::systems::MoveStateSystem::CheckIfGoalIsMet(FilteredEntity& entity, float delta)
@@ -1251,6 +1283,8 @@ ecs::systems::RemoveDeadUnitsSystem::RemoveDeadUnitsSystem()
 	updateType = EntityUpdate;
 	typeFilter.addRequirement(DeadComponent::typeID);
 	typeFilter.addRequirement(UnitComponent::typeID);
+	typeFilter.addRequirement(HealthComponent::typeID);
+	typeFilter.addRequirement(EquipmentComponent::typeID);
 }
 
 ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
@@ -1261,9 +1295,14 @@ ecs::systems::RemoveDeadUnitsSystem::~RemoveDeadUnitsSystem()
 void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, float delta)
 {
 	// The killers ID
-	unsigned int killer_id = getComponentFromKnownEntity<HealthComponent>(entity.entity->getID())->mHitBy;
-	// DEATH EFFECTS	
-	DeadComponent* p_dead = getComponentFromKnownEntity<DeadComponent>(entity.entity->getID());
+	unsigned int killer_id = 0;
+	HealthComponent* p_unit_health = entity.getComponent<HealthComponent>();
+	if (p_unit_health)
+	{
+		killer_id = p_unit_health->mHitBy;
+	}
+	// DEATH EFFECTS
+	DeadComponent* p_dead = entity.getComponent<DeadComponent>();
 	if (p_dead->cause == DeadComponent::CAUSE_DROWNING)
 	{
 		// Splash Emitter - When drowned, spawn a water splash	
@@ -1288,7 +1327,7 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 	}
 	// saved fo future use
 				//std::cout << "Unit killed: " << entity.entity->getID() << std::endl;
-	UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(entity.entity->getID());
+	UnitComponent* p_unit = entity.getComponent<UnitComponent>();
 	ComponentIterator itt = getComponentsOfType<ArmyComponent>();
 	ArmyComponent* p_army;
 	while (p_army = (ArmyComponent*)itt.next())
@@ -1307,50 +1346,50 @@ void ecs::systems::RemoveDeadUnitsSystem::updateEntity(FilteredEntity& entity, f
 		}
 	}
 	//Fetch the units weapon data.
-	EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
-	Entity* weapon_entity = ECSUser::getEntity(equipment_comp->mEquippedWeapon);
-	WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
+	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
+	Entity* p_weapon_entity = ECSUser::getEntity(p_equipment_comp->mEquippedWeapon);
+	WeaponComponent* p_weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(p_equipment_comp->mEquippedWeapon);
 	//Remove the weapon entity if the weapon is a FIST else set the owner of the weapon to 0 so that another unit can pick it up.
-	if (weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
+	if (p_weapon_comp->mType == GAME_OBJECT_TYPE_WEAPON_FIST)
 	{
-		ECSUser::removeEntity(weapon_entity->getID());
+		ECSUser::removeEntity(p_weapon_entity->getID());
 	}
 	else
 	{
-		ECSUser::removeEntity(weapon_entity->getID());
+		ECSUser::removeEntity(p_weapon_entity->getID());
 		//weapon_comp->mOwnerEntity = 0;
 	}
 	// Check if the killer is legal and exists 
 	if (getEntity(killer_id))
 	{
-		HealthComponent* killer_health = getComponentFromKnownEntity<HealthComponent>(killer_id);
-		EquipmentComponent* killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
-		UnitScalePercent* killer_add_scale = getComponentFromKnownEntity<UnitScalePercent>(killer_id);
-		if (killer_health && killer_equipment && killer_add_scale)
+		HealthComponent* p_killer_health = getComponentFromKnownEntity<HealthComponent>(killer_id);
+		EquipmentComponent* p_killer_equipment = getComponentFromKnownEntity<EquipmentComponent>(killer_id);
+		UnitScalePercent* p_killer_add_scale = getComponentFromKnownEntity<UnitScalePercent>(killer_id);
+		if (p_killer_health && p_killer_equipment && p_killer_add_scale)
 		{
-			killer_health->mHealth += killer_health->mBaseHealth * HEALTH_REWARD;
-			if (killer_health->mHealth > 100.f)
-				killer_health->mHealth = 100.f;
-			killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
-			killer_equipment->mAttackRange		*= SIZE_REWARD;
-			killer_equipment->mMeleeRange		*= SIZE_REWARD;
-			TransformComponent* killer_scale = getComponentFromKnownEntity<TransformComponent>(killer_id);
-			if (killer_scale)
+			p_killer_health->mHealth += p_killer_health->mBaseHealth * HEALTH_REWARD;
+			if (p_killer_health->mHealth > 100.f)
+				p_killer_health->mHealth = 100.f;
+			p_killer_equipment->mAttackMultiplier *= ATTACK_REWARD;
+			p_killer_equipment->mAttackRange *= SIZE_REWARD;
+			p_killer_equipment->mMeleeRange *= SIZE_REWARD;
+			TransformComponent* p_killer_scale = getComponentFromKnownEntity<TransformComponent>(killer_id);
+			if (p_killer_scale)
 			{
-				float scale_offset_y = killer_scale->scale.y;
+				float scale_offset_y = p_killer_scale->scale.y;
 
-				killer_scale->scale.x		*= SIZE_REWARD;
-				killer_scale->scale.y		*= SIZE_REWARD;
-				killer_scale->scale.z		*= SIZE_REWARD;
-				killer_add_scale->UnitScale *= SIZE_REWARD;
+				p_killer_scale->scale.x *= SIZE_REWARD;
+				p_killer_scale->scale.y *= SIZE_REWARD;
+				p_killer_scale->scale.z *= SIZE_REWARD;
+				p_killer_add_scale->UnitScale *= SIZE_REWARD;
 
-				scale_offset_y = fabsf(killer_scale->scale.y - killer_add_scale->UnitScale);
+				scale_offset_y = fabsf(p_killer_scale->scale.y - p_killer_add_scale->UnitScale);
 
-				killer_scale->position.y += killer_scale->scale.y * scale_offset_y;
+				p_killer_scale->position.y += p_killer_scale->scale.y * scale_offset_y;
 			}
 		}
 	}
-	
+
 
 	//Remove the dead unit
 	ECSUser::removeEntity(entity.entity->getID());

@@ -18,6 +18,82 @@
 ------------------------------------------------------------
 */
 
+ecs::systems::SpikeRootDurationSystem::SpikeRootDurationSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(ecs::components::SpikeTrapComponent::typeID);
+	typeFilter.addRequirement(ecs::components::DynamicMovementComponent::typeID);
+}
+
+ecs::systems::SpikeRootDurationSystem::~SpikeRootDurationSystem()
+{
+}
+
+void ecs::systems::SpikeRootDurationSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+}
+
+ecs::systems::BurningDurationSystem::BurningDurationSystem()
+{
+	updateType = ecs::EntityUpdate;
+	typeFilter.addRequirement(ecs::components::BurningComponent::typeID);
+	typeFilter.addRequirement(ecs::components::HealthComponent::typeID);
+	typeFilter.addRequirement(ecs::components::TransformComponent::typeID);
+}
+
+ecs::systems::BurningDurationSystem::~BurningDurationSystem()
+{
+}
+
+void ecs::systems::BurningDurationSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+{
+	BurningComponent* p_burning_comp = _entityInfo.getComponent<components::BurningComponent>();
+	HealthComponent* p_hp_comp = _entityInfo.getComponent<components::HealthComponent>();
+	TransformComponent* p_transform_comp = _entityInfo.getComponent<components::TransformComponent>();
+
+	if (!p_burning_comp || !p_hp_comp || !p_transform_comp) return;
+
+	// deal damage to the burnign unit
+	p_hp_comp->mHealth -= p_burning_comp->mDamagePerSecond * _delta;
+
+	if (p_hp_comp->mHealth < 0.0f)
+	{
+		DeadComponent dead;
+		createComponent<DeadComponent>(_entityInfo.entity->getID(), dead);
+	}
+
+	// Check if it has finnished burning
+	p_burning_comp->mElapsedTime += _delta;
+	if (p_burning_comp->mElapsedTime > p_burning_comp->mDuration)
+	{
+		removeComponent(p_burning_comp->getEntityID(), p_burning_comp->getTypeID());
+		
+		return;
+	}
+
+	// check if a pulse should spawn
+	p_burning_comp->mPulseCounter += _delta;
+	if (p_burning_comp->mPulseCounter > p_burning_comp->mPulseInterval)
+	{
+		/* Spawn Smoke Emitter At Sword Spawn */
+		components::ParticleSpawnerComponent spawner;
+		components::FireSpawnerComponent fire;
+
+		spawner.StartPosition = p_transform_comp->position;
+		//spawner.StartPosition.y += 1.0f;
+		spawner.SpawnFrequency = 0.003f;
+		spawner.TimerSinceLastSpawn = 0.0f;
+		spawner.LifeDuration = 0.4f;
+
+		fire.InitialVelocity = 10.0f;
+		fire.SpawnCount = 10;
+
+		createEntity(spawner, fire);
+
+		p_burning_comp->mPulseCounter = 0.0f;
+	}
+}
+
 
 ecs::systems::FreezingDurationSystem::FreezingDurationSystem()
 {
@@ -236,8 +312,6 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 		//	}
 		//}
 #pragma endregion
-		const float trap_damage = 20.0f;
-
 		TriggerFireTrapEvent& fire_trap_event = static_cast<TriggerFireTrapEvent&>(event);
 		
 		if (fire_trap_event.tileID > 0)
@@ -258,6 +332,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 			unit_filter.addRequirement(components::UnitComponent::typeID);
 			unit_filter.addRequirement(components::TransformComponent::typeID);
 			unit_filter.addRequirement(components::ObjectCollisionComponent::typeID);
+			unit_filter.addRequirement(components::DynamicMovementComponent::typeID);
 			EntityIterator units = getEntitiesByFilter(unit_filter);
 			for (FilteredEntity& unit : units.entities)
 			{				
@@ -278,22 +353,24 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 					HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(unit_id);
 					if (p_hp_comp)
 					{
-						p_hp_comp->mHealth -= trap_damage;// mDamage* delta;
+
+						// Add the burning effect on the units
+						ecs::components::BurningComponent burning_comp;
+						burning_comp.mDamagePerSecond = 10.0f;
+						burning_comp.mDuration = 4.0f;
+						burning_comp.mElapsedTime = 0.0f;
+						burning_comp.mPulseCounter = 0.0f;
+						burning_comp.mPulseInterval = 0.3f;
+						
+						ecs::ECSUser::createComponent(unit_id, burning_comp);
+						
 
 						// Make the unit jump a litte, fire is hot and so am I
 						ForceImpulseEvent knockback;
 						knockback.mDirection = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
-						knockback.mForce = mKnockback;
+						knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit_id)->mWeight;
 						knockback.mEntityID = unit_id;
 						createEvent(knockback);
-
-
-						// Check if the unit died
-						if (p_hp_comp->mHealth <= 0.0f)
-						{
-							ecs::components::DeadComponent dead_comp;
-							ecs::ECSUser::createComponent(unit_id, dead_comp);
-						}
 					}
 				}
 				delete p_bv_copy;
@@ -310,7 +387,7 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 			spawner.LifeDuration = 0.4f;
 
 			smoke.InitialVelocity = 12.0f;
-			smoke.SpawnCount = 500;
+			smoke.SpawnCount = 100;
 
 			createEntity(spawner, smoke);
 		}
@@ -467,7 +544,7 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 #pragma endregion
 	if (event.getTypeID() == ecs::events::TriggerSpringTrapEvent::typeID)
 	{
-		const float knockback_force = 100.0f;
+		
 
 		TriggerSpringTrapEvent& r_event = static_cast<TriggerSpringTrapEvent&>(event);
 
@@ -490,6 +567,7 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 		unit_filter.addRequirement(components::UnitComponent::typeID);
 		unit_filter.addRequirement(components::TransformComponent::typeID);
 		unit_filter.addRequirement(components::ObjectCollisionComponent::typeID);
+		unit_filter.addRequirement(components::DynamicMovementComponent::typeID);
 		EntityIterator units = getEntitiesByFilter(unit_filter);
 		for (FilteredEntity& unit : units.entities)
 		{
@@ -526,19 +604,17 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 
 				start_trans_comp->position.y += 1.5f;
 
-				XMFLOAT2 flight_direction;
+				XMFLOAT3 flight_direction;
 				flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
-				flight_direction.y = target_trans_comp->position.z - start_trans_comp->position.z;
+				flight_direction.y = 3.0f;
+				flight_direction.z = target_trans_comp->position.z - start_trans_comp->position.z;
 
-				float dist = sqrtf(flight_direction.x * flight_direction.x + flight_direction.y * flight_direction.y);
-
-				flight_direction.x /= dist;
-				flight_direction.y /= dist;  
+				XMStoreFloat3(&flight_direction, XMVector3Normalize(XMLoadFloat3(&flight_direction)));
 
 				// Make the unit jump a litte, fire is hot and so am I
 				ForceImpulseEvent knockback;
 				knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
-				knockback.mForce = knockback_force;
+				knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit.entity->getID())->mWeight;
 				knockback.mEntityID = unit.entity->getID();
 				createEvent(knockback);
 			}
@@ -575,9 +651,7 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 		return;
 	}
 
-	constexpr float trap_damage		= 20.0f;
 	constexpr float trap_offset_y	= 0.25f;
-	constexpr float trap_force		= 50.0f;
 
 	ecs::events::TriggerSpikeTrapEvent& r_event = static_cast<ecs::events::TriggerSpikeTrapEvent&>(event);
 	
@@ -634,7 +708,7 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 			HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(unit.entity->getID());
 			if (p_hp_comp)
 			{
-				p_hp_comp->mHealth -= trap_damage;
+				p_hp_comp->mHealth -= mDamage;
 
 				// Check if the unit died
 				if (p_hp_comp->mHealth <= 0.0f)
@@ -651,12 +725,10 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 					damage_flash.mTime = 0.05f;
 					createEvent(damage_flash);
 
-					// Make the unit jump a litte because of sharp 
-					ForceImpulseEvent knockback;
-					knockback.mDirection = DirectX::XMFLOAT3(0, 1.0f, 0);
-					knockback.mForce = trap_force;
-					knockback.mEntityID = unit.entity->getID();
-					createEvent(knockback);
+					ecs::components::SpikeTrapComponent spike_comp;
+
+					ecs::ECSUser::createComponent(unit.entity->getID(), spike_comp);
+
 				}
 			}
 		}
