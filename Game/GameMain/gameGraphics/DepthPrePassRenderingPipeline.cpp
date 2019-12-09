@@ -13,22 +13,22 @@ namespace graphics
 
 	HRESULT DepthPrePassPipeline::Initialize(ID3D11Device4* pDevice4, const void* pDescription)
 	{
-		DEPTH_PRE_PASS_PIPELINE_DESC* pDesc = (DEPTH_PRE_PASS_PIPELINE_DESC*)pDescription;
+		DEPTH_PRE_PASS_PIPELINE_DESC* p_desc = (DEPTH_PRE_PASS_PIPELINE_DESC*)pDescription;
 
-		mClientWidth = pDesc->ClientWidth;
-		mClientHeight = pDesc->ClientHeight;
+		mClientWidth = p_desc->ClientWidth;
+		mClientHeight = p_desc->ClientHeight;
 
-		mpDepthBuffer = pDesc->pDepthBuffer;
-		mpBuffers[0] = pDesc->pViewMatrixBuffer;
-		mpBuffers[1] = pDesc->pProjMatrixBuffer;
-		mpBuffers[2] = pDesc->pInvProjMatrixBuffer;
+		mpDepthBuffer = p_desc->pDepthBuffer;
+		mpBuffers[0] = p_desc->pViewMatrixBuffer;
+		mpBuffers[1] = p_desc->pProjMatrixBuffer;
+		mpBuffers[2] = p_desc->pInvProjMatrixBuffer;
 
 		mpDepthBuffer->GetResource((ID3D11Resource**)&mpDepthTexture);
 
 		{
 			D3D11_TEXTURE2D_DESC texture_desc = { 0 };
-			texture_desc.Width = pDesc->ClientWidth;
-			texture_desc.Height = pDesc->ClientHeight;
+			texture_desc.Width = p_desc->ClientWidth;
+			texture_desc.Height = p_desc->ClientHeight;
 			texture_desc.ArraySize = 1;
 			texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 			texture_desc.CPUAccessFlags = 0;
@@ -87,5 +87,8 @@ namespace graphics
 
 	void DepthPrePassPipeline::Destroy()
 	{
+		mpDepthTextureCopy->Release();
+		mpDepthBufferCopySRV->Release();
+		mpDepthTexture->Release();
 	}
 }
