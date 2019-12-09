@@ -190,8 +190,7 @@ void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::PipelineShadowMapSystem>(9);
 	rEcs.createSystem<systems::PipelineForwardSystem>(9);
 	rEcs.createSystem<systems::ExecuteGPURenderSystem>(9);
-	//rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
-	
+
 	UnitRenderSystem* p_unit_system = (UnitRenderSystem*)rEcs.getSystem<UnitRenderSystem>();
 
 	rEcs.createSystem<systems::OutlineRenderSystem>(9)

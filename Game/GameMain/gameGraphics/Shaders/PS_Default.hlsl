@@ -1,21 +1,13 @@
-uint4 unpack(const uint packedData)
-{
-	uint4 unpacked_data;
-
-	unpacked_data.x = (packedData) >> 24;
-	unpacked_data.y = (packedData & 0x00ff0000) >> 16;
-	unpacked_data.z = (packedData & 0x0000ff00) >> 8;
-	unpacked_data.w = (packedData & 0x000000ff);
-
-	return unpacked_data;
-}
-
+// Shadow Mapping
 Texture2D<float> gShadowMap			: register (t0);
 SamplerComparisonState gSmpCmp		: register (s0);
 
+// Screen-Space Ambient Occlusion
 Texture2D<float4> gRandomMap		: register (t4);
 Texture2D<float> gDepthMap			: register (t5);
 SamplerState gSampler				: register (s1);
+
+// ---
 
 cbuffer gPer : register (b0)
 {
@@ -35,16 +27,20 @@ float shadow(const float2 pos, const float depth)
 		depth - 0.003f);
 }
 
-float3 GetViewPos(const float2 xy)
+float3 GetViewPos(const float2 ndc_xy)
 {
-	float2 uv = (xy + float2(1.0f, -1.0f)) * float2(0.5f, -0.5f);
+	float2 screen_space_position = ndc_xy;
+	screen_space_position += float2(1.0f, -1.0f);
+	screen_space_position /= float2(2.0f, -2.0f);
+	screen_space_position *= float2(1920,  1081);
 
-	float4 pos_ndc = float4(xy, gDepthMap.Sample(gSampler, uv).r, 1.0f);
+	float z = gDepthMap.Load(int3(screen_space_position.xy, 0)).r;
 
-	float4 pos_view = mul(gInvPerspective, pos_ndc);
-	pos_view /= pos_view.w;
+	float4 clip_space_position = float4(ndc_xy, z, 1.0f);
 
-	return pos_view.xyz;
+	float4 view_space_position = mul(gInvPerspective, clip_space_position);
+
+	return view_space_position.xyz /= view_space_position.w;
 }
 
 float2 GetRandom(const float2 uv)
@@ -65,21 +61,21 @@ float CalculateOcclusion(
 	const float3 normal_view)
 {
 	const float scale		= 1.0f;
-	const float bias		= 0.2f;
+	const float bias		= 0.1f;
 	const float intensity	= 1.0f;
 
-	const float3 diff	= GetViewPos(pos_ndc + offset) - pos_view;
+	const float3 diff = GetViewPos(pos_ndc + offset) - pos_view;
 
 	const float3 v		= normalize(diff);			// Direction
 	const float d		= length(diff) * scale;		// Length
 
-	return saturate(dot(normal_view, v) - bias) * intensity / (1.0f + d);
+	return max(0.0f, dot(normal_view, v) - bias) * intensity / (1.0f + d);
 }
 
 float CalculateSSAO(
 	const float3 normal_view, 
 	const float3 pos_view, 
-	const float3 pos_ndc)
+	const float2 pos_ndc)
 {
 	const float sample_radius = 0.1f;
 
@@ -91,6 +87,11 @@ float CalculateSSAO(
 		float2(-1,   1),
 		float2( 1,  -1),
 		float2(-1,  -1),
+
+		/*float2( 1, 0),
+		float2(-1, 0),
+		float2(0, -1),
+		float2(0,  1),*/
 	};
 
 	float2 random = GetRandom(pos_ndc);
@@ -103,15 +104,15 @@ float CalculateSSAO(
 			coord1.x * 0.707f - coord1.y * 0.707f,
 			coord1.x * 0.707f + coord1.y * 0.707f);
 
-		occlusion += CalculateOcclusion(pos_ndc.xy, coord1 * 0.25f, pos_view, normal_view);
-		occlusion += CalculateOcclusion(pos_ndc.xy, coord2 * 0.50f, pos_view, normal_view);
-		occlusion += CalculateOcclusion(pos_ndc.xy, coord1 * 0.75f, pos_view, normal_view);
-		occlusion += CalculateOcclusion(pos_ndc.xy, coord2 * 1.00f, pos_view, normal_view);
+		occlusion += CalculateOcclusion(pos_ndc, coord1 * 0.25f, pos_view, normal_view);
+		occlusion += CalculateOcclusion(pos_ndc, coord2 * 0.50f, pos_view, normal_view);
+		occlusion += CalculateOcclusion(pos_ndc, coord1 * 0.75f, pos_view, normal_view);
+		occlusion += CalculateOcclusion(pos_ndc, coord2 * 1.00f, pos_view, normal_view);
 	}
 
 	occlusion /= (float)iterations * 4.0f;
 
-	return pow(saturate(1.0f - occlusion), 1.0f);
+	return pow(1.0f - saturate(occlusion), 2.0f);
 }
 
 struct PSIN
@@ -124,8 +125,6 @@ struct PSIN
 
 	float3 normalViewSpace		: NORMAL1;
 	float3 positionViewSpace	: POSITION2;
-
-	float3 pos_ndc				: POSITION3;
 };
 
 struct PSOUT
@@ -137,29 +136,27 @@ PSOUT main(PSIN input)
 {
 	PSOUT output = (PSOUT)0;
 
-	const float3 cam_dir = -float3(0.5f, -1.0f, 0.5f);
-	float illu = saturate(dot(normalize(cam_dir), normalize(input.normal)));
+	float2 pos_ndc_xy = input.pos.xy / float2(1920, 1081);
+	pos_ndc_xy *= float2(2.0f, -2.0f);
+	pos_ndc_xy -= float2(1.0f, -1.0f);
 
-	float in_shadow		= shadow(input.sunPos.xy, input.sunPos.z);
-	float3 finalColor	= input.color;
+	const float3 cam_dir = -float3(0.5f, -1.0f, 0.5f);
 
 	float ssao = CalculateSSAO(
 		normalize(input.normalViewSpace.xyz),
 		input.positionViewSpace.xyz,
-		input.pos_ndc.xyz);
+		pos_ndc_xy);
 
-	float3 ambient = finalColor.xyz * 0.1f;
-	float3 diffuse = finalColor.xyz * illu * in_shadow;
+	float illumination = 1.0f;
 
-	float sample_occlusion = CalculateOcclusion(
-		input.pos_ndc.xy,
-		float2(0.0f, 0.0f) * float2(1.0f / 1920.0f, 1.0f / 1080.0f),
-		input.positionViewSpace.xyz,
-		normalize(input.normalViewSpace.xyz));
+	// Diffuse and shadow mapping
+	illumination *= saturate(dot(normalize(cam_dir), normalize(input.normal)));
+	illumination *= shadow(input.sunPos.xy, input.sunPos.z);
 
-	//output.BackBuffer = float4(sample_occlusion.xxx, 1.0f);
-	//output.BackBuffer = float4(input.positionViewSpace.xyz, 1.0f);
-	output.BackBuffer = float4(ssao.xxx, 1.0f);
+	float3 ambient = input.color.xyz * 0.1f;
+	float3 diffuse = input.color.xyz * illumination;
+
+	output.BackBuffer = float4((ambient + diffuse) * ssao, 1.0f);
 	
 	return output;
 }
