@@ -372,5 +372,5 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
 	
-	DebuggFunctions(rECS);
+	//DebuggFunctions(rECS);
 }
