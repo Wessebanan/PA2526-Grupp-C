@@ -127,15 +127,8 @@ struct PSIN
 	float3 positionViewSpace	: POSITION2;
 };
 
-struct PSOUT
+float4 main(PSIN input) : SV_TARGET0
 {
-	float4 BackBuffer		: SV_TARGET0;
-};
-
-PSOUT main(PSIN input)
-{
-	PSOUT output = (PSOUT)0;
-
 	float2 pos_ndc_xy = input.pos.xy / float2(1920, 1081);
 	pos_ndc_xy *= float2(2.0f, -2.0f);
 	pos_ndc_xy -= float2(1.0f, -1.0f);
@@ -155,8 +148,6 @@ PSOUT main(PSIN input)
 
 	float3 ambient = input.color.xyz * 0.1f;
 	float3 diffuse = input.color.xyz * illumination;
-
-	output.BackBuffer = float4((ambient + diffuse) * ssao, 1.0f);
 	
-	return output;
+	return float4((ambient + diffuse) * ssao, 1.0f);
 }
