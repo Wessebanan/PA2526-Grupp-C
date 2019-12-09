@@ -21,7 +21,7 @@ namespace ecs
 		ID entityID = 0;
 
 	public:
-		bool alive = true;
+		STATE_FLAGS flags;
 
 		ID getID() { return id; }
 		ID getEntityID() { return entityID; }
