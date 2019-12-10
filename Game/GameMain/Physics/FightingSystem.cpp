@@ -334,12 +334,6 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 
 		collided_constitution->mHealth -= damage;
 		collided_constitution->mHitBy = unit_entity->getID();
-		
-		// INVINCIBILITY
-		// (based on damage dealt)
-		InvincilibityTimer timer;
-		timer.mTime = log2f(damage) * BASE_INVINCIBILITY_TIME;
-		createComponent<InvincilibityTimer>(collided_unit, timer);
 
 		// KNOCKBACK
 		ForceImpulseEvent knockback;
@@ -644,6 +638,14 @@ void ecs::systems::HealthCheckSystem::updateEntity(FilteredEntity& _entity, floa
 	// DAMAGED
 	else if (mHealths[_entity.entity->getID()] > p_health->mHealth)
 	{
+		// Revert damage if unit is invincible and skip the rest.
+		if (_entity.entity->hasComponentOfType<InvincilibityTimer>())
+		{
+			p_health->mHealth = mHealths[_entity.entity->getID()];
+			return;
+		}
+
+		// SOUND
 		ecs::events::PlaySound damage_sound_event;
 		damage_sound_event.soundFlags = SF_RANDOM_PITCH;
 		float choose_hurt_sound = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -654,10 +656,19 @@ void ecs::systems::HealthCheckSystem::updateEntity(FilteredEntity& _entity, floa
 		damage_sound_event.invokerEntityId = _entity.entity->getID();
 		createEvent(damage_sound_event); // Play damage sound
 
+		float damage = mHealths[_entity.entity->getID()] - p_health->mHealth;
+		float time = log2f(damage) * BASE_INVINCIBILITY_TIME;
+		
+		// INVINCIBILITY
+		InvincilibityTimer timer;
+		timer.mTime = time;
+		createComponent<InvincilibityTimer>(_entity.entity->getID(), timer);
+
+		// COLOR FLASH
 		ColorSwitchEvent damage_flash;
 		damage_flash.mColor = WHITE;
 		damage_flash.mEntityID = _entity.entity->getID();
-		damage_flash.mTime = 0.05f;
+		damage_flash.mTime = time;
 		createEvent(damage_flash);
 	}
 	mHealths[_entity.entity->getID()] = p_health->mHealth;

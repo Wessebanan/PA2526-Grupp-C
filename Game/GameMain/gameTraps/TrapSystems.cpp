@@ -53,9 +53,6 @@ void ecs::systems::BurningDurationSystem::updateEntity(FilteredEntity& _entityIn
 
 	if (!p_burning_comp || !p_hp_comp || !p_transform_comp) return;
 
-	// deal damage to the burnign unit
-	p_hp_comp->mHealth -= p_burning_comp->mDamagePerSecond * _delta;
-
 	// Check if it has finnished burning
 	p_burning_comp->mElapsedTime += _delta;
 	if (p_burning_comp->mElapsedTime > p_burning_comp->mDuration)
@@ -69,12 +66,14 @@ void ecs::systems::BurningDurationSystem::updateEntity(FilteredEntity& _entityIn
 	p_burning_comp->mPulseCounter += _delta;
 	if (p_burning_comp->mPulseCounter > p_burning_comp->mPulseInterval)
 	{
+		/* Does damage each pulse. */
+		p_hp_comp->mHealth -= p_burning_comp->mPulseInterval * p_burning_comp->mDamagePerSecond;
+
 		/* Spawn Smoke Emitter At Sword Spawn */
 		components::ParticleSpawnerComponent spawner;
 		components::FireSpawnerComponent fire;
 
 		spawner.StartPosition = p_transform_comp->position;
-		//spawner.StartPosition.y += 1.0f;
 		spawner.SpawnFrequency = 0.003f;
 		spawner.TimerSinceLastSpawn = 0.0f;
 		spawner.LifeDuration = 0.4f;
