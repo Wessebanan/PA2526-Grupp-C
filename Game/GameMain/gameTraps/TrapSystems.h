@@ -23,11 +23,11 @@ namespace ecs
 		// ----------- UPDATE SYSTEMS ---------------
 
 		// Updates the timer on frozzen durations
-		class SpikeRootDurationSystem : public ecs::ECSSystem<SpikeRootDurationSystem>
+		class RootDurationSystem : public ecs::ECSSystem<RootDurationSystem>
 		{
 		public:
-			SpikeRootDurationSystem();
-			~SpikeRootDurationSystem();
+			RootDurationSystem();
+			~RootDurationSystem();
 			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
 		private:
 		};
@@ -116,7 +116,7 @@ namespace ecs
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
 			const float mKnockbackAcc = 2.0f;
-			const float mDamage = 20.0f;
+			const float mDamage = 10.0f;
 		};
 	}
 }
