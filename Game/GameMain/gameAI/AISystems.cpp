@@ -867,6 +867,8 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 				}
 				createEvent(jump);
+				JumpComponent jump_comp;
+				ECSUser::createComponent(entity.entity->getID(), jump_comp);
 			}
 		}
 		if(p_unit->timeSinceStuck >= 1.0f)//check if they have moved a certain distance during one sec
