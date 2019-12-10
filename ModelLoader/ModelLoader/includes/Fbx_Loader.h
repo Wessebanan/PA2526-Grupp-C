@@ -12,7 +12,7 @@
 #include <locale>
 
 #define MAX_NUM_WEIGHTS_PER_VERTEX 4
-#define ANIMATION_CROSSFADE_DURATION 1.0f
+#define ANIMATION_CROSSFADE_DURATION 0.3f
 
 namespace ModelLoader
 {
