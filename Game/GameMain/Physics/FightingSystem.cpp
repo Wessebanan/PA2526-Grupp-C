@@ -568,8 +568,8 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 				ForceImpulseEvent knockback;
 				XMStoreFloat3(&knockback.mDirection, unit_weapon_v);
 
-				// Small y boost in knockback to send units FLYING.
-				knockback.mDirection.y += 0.5f;
+				// Big y boost in knockback to send units FLYING.
+				knockback.mDirection.y += 1.0f;
 				knockback.mDirection.y = (std::max)(knockback.mDirection.y, 0.0f);
 
 				// Normalize knockback direction so it's not CRAZY.
