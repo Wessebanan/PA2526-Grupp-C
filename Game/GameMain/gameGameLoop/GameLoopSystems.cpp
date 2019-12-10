@@ -27,13 +27,17 @@
 #include "..//gameAudio/AudioECSEvents.h"
 
 #include "../gameWeapons/WeaponSpawner.h"
+#include "../gameWeapons/WeaponEvents.h"
 #include "../gameTraps/TrapComponents.h"
 #include "../gameTraps/TrapEvents.h"
+
 
 #include "HttpServer.h"
 
 using namespace ecs;
 using namespace ecs::components;
+
+const float SEQUENCE_DURATION = 3.5f;
 
 
 /*
@@ -113,9 +117,12 @@ void ecs::systems::WaitForStartupSystem::updateEntity(FilteredEntity& _entityInf
 	{
 		if (p_ib->backend->checkReadyCheck() && !GetSystem<systems::UIGuideSystem>())
 		{
-			// Starts the first round, should be removed when prepphase is implemented
-			ecs::events::RoundStartEvent eve;
-			createEvent(eve);
+			// WeaponSequenceSystem creates a RoundStartEvent when finished spawning weapons
+			ecs::events::StartWeaponSequenceEvent weapon_sequence_event;
+			weapon_sequence_event.spawnCount = 3;
+			weapon_sequence_event.lifetime = 0.5;
+			weapon_sequence_event.createRoundStartEventWhenFinished = true;
+			createEvent(weapon_sequence_event);
 
 			// Remove itself
 			RemoveSystem(WaitForStartupSystem::typeID);
@@ -157,8 +164,18 @@ void ecs::systems::PrepPhaseSystem::updateEntity(FilteredEntity& _entityInfo, fl
 			*/
 
 			ecs::events::StartTrapSpawnSequenceEvent start_trap_seq_event;
-			start_trap_seq_event.totalSpawnDuration = 3.5f;
+			start_trap_seq_event.totalSpawnDuration = SEQUENCE_DURATION;
 			createEvent(start_trap_seq_event);
+
+			/*
+				Spawn some weapons before battle begin
+			*/
+
+			ecs::events::StartWeaponSequenceEvent start_weapon_seq_event;
+			start_weapon_seq_event.lifetime = SEQUENCE_DURATION;
+			start_weapon_seq_event.spawnCount = 3;
+			start_weapon_seq_event.createRoundStartEventWhenFinished = true;
+			createEvent(start_weapon_seq_event);
 
 			// Remove itself
 			RemoveSystem(PrepPhaseSystem::typeID);
@@ -523,9 +540,6 @@ void ecs::systems::RoundStartSystem::readEvent(BaseEvent& event, float delta)
 		//createEvent(e);
 		//e.playerId = PLAYER4;
 		//createEvent(e);
-
-
-
 	}
 
 
@@ -578,7 +592,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 		p_army->unitIDs.clear();
 
 
-		////Fetch the index of the starting tile for this player.
+		//Fetch the index of the starting tile for this player.
 		starting_tile_index = GridFunctions::FindStartingTile(p_army->playerID, size.x, size.y, MAPINITSETTING::HOLMES);
 		temp_id = p_gp->mGrid[starting_tile_index.x][starting_tile_index.y].Id;
 		p_transform = getComponentFromKnownEntity<ecs::components::TransformComponent>(temp_id);

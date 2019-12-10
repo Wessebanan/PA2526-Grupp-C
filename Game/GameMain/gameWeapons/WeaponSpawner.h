@@ -71,5 +71,41 @@ namespace ecs
 			//were created.
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
+
+		/*
+			A system with a limited life duration that spawn a sequence of weapons during its lifetime.
+			Used in between prep phase and battle phase.
+		*/
+		class WeaponSequenceSpawnerSystem : public ECSSystem<WeaponSequenceSpawnerSystem>
+		{
+		public:
+			WeaponSequenceSpawnerSystem();
+			virtual ~WeaponSequenceSpawnerSystem();
+
+			void Initialize();
+
+			void act(float delta) override;
+			void onEvent(TypeID _eventType, BaseEvent* _event) override;
+
+		private:
+
+			std::vector<ID> mPossibleTileIds;
+
+			const float SPAWN_OUTER_RADIUS = 8.f;
+			const float SPAWN_INNER_RADIUS = 5.f;
+
+			int mSpawnCount = 0;
+			float mLifeTime = 0.f;
+			float mHaltDuration = 0.f;
+			float mTimeSinceLastSpawn = 0.f;
+
+			float mRoundStartCountdown = 0.f;
+			bool mIsTimingForRoundStart = false;
+			bool mCreateRoundStartEventWhenFinished = false;
+			const float WAIT_TIME_BETWEEN_LAST_SPAWN_AND_ROUND_START = 2.5f;
+
+			ID FindSpawnTile();
+			GAME_OBJECT_TYPE GetRandomWeaponType();
+		};
 	}
 }
