@@ -357,40 +357,6 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		knockback.mForce = BASE_KNOCKBACK * velocity * weapon_component->mKnockback;
 		knockback.mEntityID = collided_unit;
 		createEvent(knockback);
-
-		// SOUND
-		if (collided_constitution->mHealth <= 0.0f && !ECSUser::getEntity(collided_unit)->hasComponentOfType(DeadComponent::typeID))
-		{
-			ecs::components::DeadComponent dead_comp;
-			ecs::ECSUser::createComponent(collided_constitution->getEntityID(), dead_comp);
-			ecs::events::PlaySound death_sound_event;
-			death_sound_event.soundFlags = SF_RANDOM_PITCH;
-			death_sound_event.audioName = AudioName::SOUND_scream;
-			death_sound_event.invokerEntityId = collided_unit;
-			createEvent(death_sound_event); // Play death sound
-
-			// If we only want to give kill reward on killing blows put that code here
-
-		}
-		else
-		{
-			ecs::events::PlaySound damage_sound_event;
-			damage_sound_event.soundFlags = SF_RANDOM_PITCH;
-			float choose_hurt_sound = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-			if(choose_hurt_sound <= 0.85f)
-				damage_sound_event.audioName = AudioName::SOUND_grunt1;
-			else
-				damage_sound_event.audioName = AudioName::SOUND_grunt2;
-			damage_sound_event.invokerEntityId = collided_unit;
-			createEvent(damage_sound_event); // Play damage sound
-		}
-
-		// VISUAL
-		ColorSwitchEvent damage_flash;
-		damage_flash.mColor = WHITE;
-		damage_flash.mEntityID = collided_unit;
-		damage_flash.mTime = 0.05f;
-		createEvent(damage_flash);
 	}
 	
 	weapon_component->mPreviousPos = weapon_bv->GetCenter();
@@ -417,10 +383,29 @@ void ecs::systems::UnitColorSwitchSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	
 	ColorComponent* p_unit_color = getComponentFromKnownEntity<ColorComponent>(p_color_switch->mEntityID);
 	
-	Color color = p_color_switch->mColor;
-	p_unit_color->red	= (std::min)(255, p_unit_color->red + BRIGHT_FACTOR);
-	p_unit_color->green = (std::min)(255, p_unit_color->green + BRIGHT_FACTOR);
-	p_unit_color->blue	= (std::min)(255, p_unit_color->blue + BRIGHT_FACTOR);
+	UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(p_color_switch->mEntityID);
+	ColorComponent* p_color = getComponentFromKnownEntity<ColorComponent>(p_color_switch->mEntityID);
+
+	Color color = Color(0, 0, 0);
+	switch (p_unit->playerID)
+	{
+	case PLAYER1:
+		color = PLAYER1_COLOR;
+		break;
+	case PLAYER2:
+		color = PLAYER2_COLOR;
+		break;
+	case PLAYER3:
+		color = PLAYER3_COLOR;
+		break;
+	case PLAYER4:
+		color = PLAYER4_COLOR;
+		break;
+	}
+
+	p_color->red	= (std::min)(255, color.r + BRIGHT_FACTOR);
+	p_color->green	= (std::min)(255, color.g + BRIGHT_FACTOR);
+	p_color->blue	= (std::min)(255, color.b + BRIGHT_FACTOR);
 
 	// Inserting given time by event into [ID] in unordered_map.
 	mTimers[p_color_switch->mEntityID] = p_color_switch->mTime;
@@ -578,40 +563,6 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 				knockback.mForce = hit_event.Knockback * impact;
 				knockback.mEntityID = unit.entity->getID();
 				createEvent(knockback);
-
-				// SOUND
-				if (p_collided_constitution->mHealth <= 0.0f && !unit.entity->hasComponentOfType(DeadComponent::typeID))
-				{
-					ecs::components::DeadComponent dead_comp;
-					ecs::ECSUser::createComponent(p_collided_constitution->getEntityID(), dead_comp);
-					ecs::events::PlaySound death_sound_event;
-					death_sound_event.soundFlags = SF_RANDOM_PITCH;
-					death_sound_event.audioName = AudioName::SOUND_scream;
-					death_sound_event.invokerEntityId = unit.entity->getID();
-					createEvent(death_sound_event); // Play death sound
-
-					// If we only want to give kill reward on killing blows put that code here
-
-				}
-				else
-				{
-					ecs::events::PlaySound damage_sound_event;
-					damage_sound_event.soundFlags = SF_RANDOM_PITCH;
-					float choose_hurt_sound = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-					if (choose_hurt_sound <= 0.85f)
-						damage_sound_event.audioName = AudioName::SOUND_grunt1;
-					else
-						damage_sound_event.audioName = AudioName::SOUND_grunt2;
-					damage_sound_event.invokerEntityId = unit.entity->getID();
-					createEvent(damage_sound_event); // Play damage sound
-				}
-
-				// VISUAL
-				ColorSwitchEvent damage_flash;
-				damage_flash.mColor = WHITE;
-				damage_flash.mEntityID = unit.entity->getID();
-				damage_flash.mTime = 0.05f;
-				createEvent(damage_flash);
 			}
 		}
 
@@ -660,4 +611,55 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 	}
 }
 
+#pragma endregion
+#pragma region HealthCheckSystem
+ecs::systems::HealthCheckSystem::HealthCheckSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(HealthComponent::typeID);
+}
+ecs::systems::HealthCheckSystem::~HealthCheckSystem()
+{
+
+}
+
+void ecs::systems::HealthCheckSystem::updateEntity(FilteredEntity& _entity, float _delta)
+{
+	if (_entity.entity->hasComponentOfType<DeadComponent>())
+	{
+		return;
+	}
+	HealthComponent* p_health = _entity.getComponent<HealthComponent>();
+	// DEAD
+	if (p_health->mHealth < 0.0f)
+	{
+		DeadComponent dead_comp;
+		createComponent(_entity.entity->getID(), dead_comp); // Mark as dead.
+		PlaySound death_sound_event;
+		death_sound_event.soundFlags = SF_RANDOM_PITCH;
+		death_sound_event.audioName = AudioName::SOUND_scream;
+		death_sound_event.invokerEntityId = _entity.entity->getID();
+		createEvent(death_sound_event); // Play death sound.
+	}
+	// DAMAGED
+	else if (mHealths[_entity.entity->getID()] > p_health->mHealth)
+	{
+		ecs::events::PlaySound damage_sound_event;
+		damage_sound_event.soundFlags = SF_RANDOM_PITCH;
+		float choose_hurt_sound = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+		if (choose_hurt_sound <= 0.85f)
+			damage_sound_event.audioName = AudioName::SOUND_grunt1;
+		else
+			damage_sound_event.audioName = AudioName::SOUND_grunt2;
+		damage_sound_event.invokerEntityId = _entity.entity->getID();
+		createEvent(damage_sound_event); // Play damage sound
+
+		ColorSwitchEvent damage_flash;
+		damage_flash.mColor = WHITE;
+		damage_flash.mEntityID = _entity.entity->getID();
+		damage_flash.mTime = 0.05f;
+		createEvent(damage_flash);
+	}
+	mHealths[_entity.entity->getID()] = p_health->mHealth;
+}
 #pragma endregion

@@ -73,5 +73,16 @@ namespace ecs
 
 			void readEvent(BaseEvent & _event, float _delta) override;
 		};
+
+		SYSTEM(HealthCheckSystem)
+		{
+			HealthCheckSystem();
+			~HealthCheckSystem();
+
+			void updateEntity(FilteredEntity& _entity, float _delta) override;
+
+		private:
+			unordered_map<ID, float> mHealths;
+		};
 	} // systems
 } // ecs
