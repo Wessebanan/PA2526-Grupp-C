@@ -114,6 +114,7 @@ namespace ecs
 			typeFilter.addRequirement(components::MeshManagerComponent::typeID);
 
 			typeFilter.addRequirement(components::PipelineShadowMapComponent::typeID);
+			typeFilter.addRequirement(components::PipelineDepthPrePassComponent::typeID);
 			typeFilter.addRequirement(components::PipelineForwardComponent::typeID);
 		}
 
@@ -123,9 +124,11 @@ namespace ecs
 			components::RenderManagerComponent* p_render_mgr = entity.getComponent<components::RenderManagerComponent>();
 
 			components::PipelineShadowMapComponent* p_pipeline_shadow_map = entity.getComponent<components::PipelineShadowMapComponent>();
+			components::PipelineDepthPrePassComponent* p_pipeline_depth_pre_pass = entity.getComponent<components::PipelineDepthPrePassComponent>();
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
 			p_render_mgr->mgr.ClearPipeline(p_pipeline_shadow_map->pipeline);
+			p_render_mgr->mgr.ClearPipeline(p_pipeline_depth_pre_pass->pipeline);
 			p_render_mgr->mgr.ClearPipeline(p_pipeline_forward->pipeline);
 		}
 
@@ -137,6 +140,7 @@ namespace ecs
 			typeFilter.addRequirement(components::MeshManagerComponent::typeID);
 
 			typeFilter.addRequirement(components::PipelineShadowMapComponent::typeID);
+			typeFilter.addRequirement(components::PipelineDepthPrePassComponent::typeID);
 			typeFilter.addRequirement(components::PipelineForwardComponent::typeID);
 		}
 
@@ -146,6 +150,7 @@ namespace ecs
 			components::RenderManagerComponent* p_render_mgr = entity.getComponent<components::RenderManagerComponent>();
 
 			components::PipelineShadowMapComponent* p_pipeline_shadow_map = entity.getComponent<components::PipelineShadowMapComponent>();
+			components::PipelineDepthPrePassComponent* p_pipeline_depth_pre_pass = entity.getComponent<components::PipelineDepthPrePassComponent>();
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
 			systems::OceanRenderSystem* p_ocean_renderer = (systems::OceanRenderSystem*)GetSystem<systems::OceanRenderSystem>();
@@ -168,12 +173,14 @@ namespace ecs
 #endif // !_DEBUG
 
 			// Render To Color Buffer
+			//p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline, 0, 0);
+
+			// Render To Depth Buffer (Depth Pre Pass)
+			p_render_mgr->mgr.ExecutePipeline(p_pipeline_depth_pre_pass->pipeline);
+
+			// Render To Color Buffer
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
 			
-
-
 		}
-
-
-}
+	}
 }

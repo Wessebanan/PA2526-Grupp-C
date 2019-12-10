@@ -40,15 +40,23 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 		for (size_t i = 0; i < 4; i++)
 		{
 			// CURRENTLY HIJACKED AS THE "PING" bBUTTON
-			if (ucComp->userCommands[i].mCommand == "move" && p_player_state_comp->mCurrentStates[i] != STATE::MOVE)
+			if (ucComp->userCommands[i].mCommand == "taunt"/* && p_player_state_comp->mCurrentStates[i] != STATE::TAUNT*/)
 			{
 				// change state component
 				events::PingEvent ping_event;
 				ping_event.playerId = (PLAYER)i;
 
-				p_player_state_comp->mCurrentStates[i] = STATE::MOVE;
+				//p_player_state_comp->mCurrentStates[i] = STATE::TAUNT;
 
 				createEvent(ping_event);
+
+
+				// set the units to idel
+				events::ChangeUserStateEvent eve;
+				eve.newState = STATE::IDLE;
+				eve.playerId = (PLAYER)i;
+				createEvent(eve);
+
 			}
 			else if (ucComp->userCommands[i].mCommand == "regroup" )
 			{

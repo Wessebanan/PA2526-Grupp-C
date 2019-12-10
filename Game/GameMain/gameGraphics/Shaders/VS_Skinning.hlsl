@@ -58,6 +58,7 @@ struct VSOut
 
 	uint   fakeStencilValue		: FAKESTENCIL;
 
+	float3 pos_ndc			: POSITION3;
 };
 
 VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
@@ -125,6 +126,8 @@ VSOut main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 	}
 
 	output.fakeStencilValue = fakeStencil;
+
+	output.pos_ndc = (output.pos.xyz / output.pos.w);
 
 	return output;
 }
