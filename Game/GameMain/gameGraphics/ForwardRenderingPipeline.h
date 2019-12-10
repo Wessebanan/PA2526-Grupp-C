@@ -51,11 +51,9 @@ namespace graphics
 		ID3D11Buffer* mpMatrixBuffers[3];
 
 		ID3D11RenderTargetView* mpRenderTarget;
-		ID3D11ShaderResourceView* mpShaderResource;
 
 		ID3D11Texture2D* mpDepthTexture;
 		ID3D11DepthStencilView* mpDepthBuffer;
-		//ID3D11ShaderResourceView* mpDepthResource;
 		ID3D11DepthStencilState* mpDepthStencilState;
 
 		ID3D11SamplerState* mpSamplerState;
