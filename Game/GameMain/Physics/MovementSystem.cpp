@@ -228,3 +228,57 @@ void ecs::systems::DynamicMovementInitSystem::onEvent(TypeID _typeID, ecs::BaseE
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(entity_id);
 }
 #pragma endregion
+
+#pragma region ThrowEventSystem
+ecs::systems::ThrowEventSystem::ThrowEventSystem()
+{
+	updateType = EventListenerOnly;
+	subscribeEventCreation(events::ThrowUnitEvent::typeID);
+}
+ecs::systems::ThrowEventSystem::~ThrowEventSystem()
+{
+
+}
+void ecs::systems::ThrowEventSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
+{
+	if (_event->getTypeID() != ThrowUnitEvent::typeID)	return;
+	
+
+	ThrowUnitEvent* p_event = dynamic_cast<ThrowUnitEvent*>(_event);
+
+	ID unit_id = p_event->mUnitID;
+	ID tile_id = p_event->mTileID;
+	//DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(unit_id);
+	UnitComponent* unit_component = getComponentFromKnownEntity<UnitComponent>(unit_id);
+	TransformComponent* unit_transform_component = getComponentFromKnownEntity<TransformComponent>(unit_id);
+	TransformComponent* tile_transform_component = getComponentFromKnownEntity<TransformComponent>(tile_id);
+
+	events::ForceImpulseEvent force_eve;
+	force_eve.mEntityID = unit_id;
+	//unit_transform_component->position.y += 1.5f;
+
+	XMFLOAT3 flight_direction;
+	XMFLOAT3 flight_direction_norm;
+	flight_direction.x = tile_transform_component->position.x - unit_transform_component->position.x;
+	flight_direction.y = 0.0f;
+	flight_direction.z = tile_transform_component->position.z - unit_transform_component->position.z;
+
+	// normalize the direction
+	XMStoreFloat3(&flight_direction_norm, XMVector3Normalize(XMLoadFloat3(&flight_direction)));
+	flight_direction_norm.y = 1.0f;
+	force_eve.mDirection = flight_direction_norm;
+
+	// get the distance of the flight
+	float dist = sqrtf((flight_direction.x * flight_direction.x) + (flight_direction.z * flight_direction.z));
+	float s = dist;
+	float t = 2.0f;
+	float v = s / t;
+
+	float weight = DEFAULT_WEIGHT;
+	force_eve.mForce = v * weight;
+	force_eve.mDirection.y = (9.82f * weight) / (force_eve.mForce);
+
+
+	createEvent(force_eve);
+}
+#pragma endregion
