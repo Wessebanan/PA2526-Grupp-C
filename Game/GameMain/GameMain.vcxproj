@@ -108,6 +108,7 @@
     <ClCompile Include="gameGameLoop\GameLoopSystems.cpp" />
     <ClCompile Include="gameGraphics\BlurPipeline.cpp" />
     <ClCompile Include="gameGraphics\CombineSSAOPipeline.cpp" />
+    <ClCompile Include="gameGraphics\DepthPrePassRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\FakeStencilPipeline.cpp" />
     <ClCompile Include="gameGraphics\ForwardRenderingPipeline.cpp" />
     <ClCompile Include="gameGraphics\GraphicsECSSystems.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="gameGameLoop\GameLoopEvents.h" />
     <ClInclude Include="gameGameLoop\GameLoopSystems.h" />
     <ClInclude Include="gameGameLoop\InitGameLoop.h" />
+    <ClInclude Include="gameGraphics\DepthPrePassRenderingPipeline.h" />
     <ClInclude Include="gameGraphics\FakeStencilPipeline.h" />
     <ClInclude Include="gameGraphics\ForwardRenderingPipeline.h" />
     <ClInclude Include="gameGraphics\GraphicsECSComponents.h" />

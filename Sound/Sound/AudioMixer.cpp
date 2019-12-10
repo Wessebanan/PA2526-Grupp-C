@@ -57,6 +57,11 @@ void Audio::Mixer::ProcessMessages()
 	mMusicManager.ProcessMusicMessages();
 }
 
+Audio::Samples Audio::Mixer::GetCurrentSampleFromMainMusic()
+{
+	return mMusicManager.GetCurrentSampleFromMainMusic();
+}
+
 void Audio::Mixer::ProcessSoundMessages()
 {
 	Sound::Message temp_message;

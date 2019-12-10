@@ -79,6 +79,7 @@ namespace Audio
 			void AddMusicMessage(Music::Message message);
 			void ProcessMusicMessages();
 			void Fill(Samples start, Samples sampleCount, float* pData, int channelCount, float* pVoiceData);
+			Samples GetCurrentSampleFromMainMusic();
 		private:
 			struct MusicVoiceData
 			{
@@ -113,6 +114,8 @@ namespace Audio
 
 		// Processing sound and music messages
 		void ProcessMessages();
+		// Get current sample of the main music playing
+		Samples GetCurrentSampleFromMainMusic();
 	private:
 		void ProcessSoundMessages();
 		//void ProcessMusicMessages();
