@@ -7,9 +7,16 @@ namespace graphics
 {
 	struct FORWARD_RENDERING_PIPELINE_DESC
 	{
+		// __ In __
 		UINT ClientWidth, ClientHeight;
 		float Fov, NearPlane, FarPlane;
 		float ClearColor[3];
+
+		// __ Out __
+		ID3D11DepthStencilView* pDepthBuffer;
+		ID3D11Buffer* pViewMatrixBuffer;
+		ID3D11Buffer* pProjMatrixBuffer;
+		ID3D11Buffer* pInvProjMatrixBuffer;
 	};
 
 	struct FORWARD_RENDERING_PIPELINE_DATA
@@ -43,16 +50,16 @@ namespace graphics
 
 		ID3D11Buffer* mpMatrixBuffers[3];
 
-		ID3D11RenderTargetView* mpRenderTargets[2];
-		ID3D11ShaderResourceView* mpShaderResources[2];
+		ID3D11RenderTargetView* mpRenderTarget;
 
 		ID3D11Texture2D* mpDepthTexture;
 		ID3D11DepthStencilView* mpDepthBuffer;
-		ID3D11ShaderResourceView* mpDepthResource;
 		ID3D11DepthStencilState* mpDepthStencilState;
 
 		ID3D11SamplerState* mpSamplerState;
 
 		float mClearColor[3];
+
+		ID3D11ShaderResourceView* mpRandomNormals;
 	};
 }

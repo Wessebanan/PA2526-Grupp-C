@@ -8,6 +8,7 @@
 #include "ShadowMapPipeline.h"
 #include "ForwardRenderingPipeline.h"
 #include "FakeStencilPipeline.h"
+#include "DepthPrePassRenderingPipeline.h"
 
 namespace ecs
 {
@@ -46,6 +47,13 @@ namespace ecs
 			graphics::SHADOW_MAP_PIPELINE_DATA data;
 			UINT pipeline;
 		};
+
+		struct PipelineDepthPrePassComponent : public ECSComponent<PipelineDepthPrePassComponent>
+		{
+			graphics::DEPTH_PRE_PASS_PIPELINE_DESC pipelineDesc;
+			UINT pipeline;
+		};
+
 
 		struct PipelineForwardComponent : public ECSComponent<PipelineForwardComponent>
 		{
