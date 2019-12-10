@@ -76,12 +76,13 @@ namespace ecs
 			// Make shark be at wave heigh
 			
 			ComponentIterator itt;
-			//itt = getComponentCountOfType<components::WaveComponent>();
-			//WaveArray* arr;
-			float* wave_arr;
-			if (wave_arr = (float*)itt.next())
+			itt = getComponentsOfType<components::WaveCenterComponent>();
+			WaveCenterComponent* wave_arr;
+			if (wave_arr = (WaveCenterComponent*)itt.next())
 			{
-				p_transform->position.y = wave_arr[p_world_scenery->mWaveIndex];
+				p_transform->position.y = wave_arr->mpFirstElement[p_world_scenery->mWaveIndex];
+				p_transform->position.y -= 1.8f;
+				//p_transform->position.y = wave_arr[p_world_scenery->mWaveIndex];
 			}
 		}
 	}

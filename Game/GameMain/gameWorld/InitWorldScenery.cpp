@@ -49,7 +49,7 @@ void InitWorldScenery(ecs::EntityComponentSystem& rECS)
 	trans_comp.scale.y *= 5;
 	trans_comp.scale.z *= 5;
 	
-	shark_comp.mWaveIndex = 22.5f / OCEAN_RADIUS;
+	shark_comp.mWaveIndex = 42;
 
 	rECS.createEntity(trans_comp, color_comp, shark_comp);
 	trans_comp.position = map_center;
