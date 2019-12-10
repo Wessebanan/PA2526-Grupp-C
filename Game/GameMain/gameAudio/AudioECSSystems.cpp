@@ -8,10 +8,12 @@
 #include "../gameUtility/UtilityComponents.h"
 #include "../gameGameLoop/GameLoopEvents.h"
 #include "../gameGameLoop/GameLoopComponents.h"
+#include "../gameAnimation/AnimationComponents.h"
+#undef PlaySound
 
 ecs::systems::SoundMessageSystem::SoundMessageSystem()
 {
-	updateType = EventListenerOnly;
+	updateType = Actor;
 	mEngineInit = false;
 	mSoundPaHandler = nullptr;
 	mSoundEngine = nullptr;
@@ -21,6 +23,8 @@ ecs::systems::SoundMessageSystem::SoundMessageSystem()
 	{
 		mSoundCooldownClock[i] = std::chrono::steady_clock::now();
 	}
+	mCurrentBeat = 0;
+	mBeatTime = 1.0f;
 }
 
 ecs::systems::SoundMessageSystem::~SoundMessageSystem()
@@ -150,6 +154,45 @@ void ecs::systems::SoundMessageSystem::onEvent(TypeID _eventType, BaseEvent* _ev
 
 		else if (SetMusicSpeed::typeID == _eventType)
 			ProcessSetMusicSpeed(static_cast<SetMusicSpeed*>(_event));
+	}
+}
+
+void ecs::systems::SoundMessageSystem::act(float _delta)
+{
+	// How many samples a beat represents
+	static const float SAMPLES_TO_BEAT = 44100.f * (60.f / 65.f);
+
+	// Check how many beats we're currently at
+	int temp = (int)((float)mSoundMixer->GetCurrentSampleFromMainMusic() / SAMPLES_TO_BEAT);
+	
+	// If there's a difference since last time...
+	if (temp != mCurrentBeat)
+	{
+		// Reset the bobble timer to play the animation
+		mCurrentBeat = temp;
+		mBeatTime = 0.0f;
+	}
+
+	// While the time is not up, play the animation
+	if (mBeatTime < 1.0f)
+	{
+		// The head extention are calculated using a bezier curve approach
+		float reverse = (1.0f - mBeatTime);
+		float extend = ((3.0f * mBeatTime * 2.0f) + (3.0f * reverse * -4.0f) + (reverse * reverse * -1.0f)) * mBeatTime * reverse;
+		// Pre-compute a translation matrix
+		DirectX::XMMATRIX transform_matrix = DirectX::XMMatrixTranspose(DirectX::XMMatrixTranslation(0.f, 0.f, extend));
+		// Fetch all skeleton data
+		ecs::ComponentIterator c_it = ecs::ECSUser::getComponentsOfType<components::SkeletonComponent>();
+		components::SkeletonComponent* temp_comp;
+		// For every skeleton, take the head and apply our matrix on it
+		while (temp_comp = static_cast<components::SkeletonComponent*>(c_it.next()))
+		{
+			DirectX::XMMATRIX temp_matrix = DirectX::XMLoadFloat4x4(&temp_comp->skeletonData.frameData[2]);
+			temp_matrix = DirectX::XMMatrixMultiply(temp_matrix, transform_matrix);
+			DirectX::XMStoreFloat4x4(&temp_comp->skeletonData.frameData[2], temp_matrix);
+		}
+		// Progress animation
+		mBeatTime += _delta * 3.f;
 	}
 }
 

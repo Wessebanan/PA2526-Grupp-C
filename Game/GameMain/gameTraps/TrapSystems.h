@@ -23,6 +23,26 @@ namespace ecs
 		// ----------- UPDATE SYSTEMS ---------------
 
 		// Updates the timer on frozzen durations
+		class SpikeRootDurationSystem : public ecs::ECSSystem<SpikeRootDurationSystem>
+		{
+		public:
+			SpikeRootDurationSystem();
+			~SpikeRootDurationSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		private:
+		};
+		
+		// Updates the timer on frozzen durations
+		class BurningDurationSystem : public ecs::ECSSystem<BurningDurationSystem>
+		{
+		public:
+			BurningDurationSystem();
+			~BurningDurationSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		private:
+		};
+		
+		// Updates the timer on frozzen durations
 		class FreezingDurationSystem : public ecs::ECSSystem<FreezingDurationSystem>
 		{
 		public:
