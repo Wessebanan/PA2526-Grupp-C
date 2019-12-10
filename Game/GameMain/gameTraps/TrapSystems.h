@@ -23,6 +23,26 @@ namespace ecs
 		// ----------- UPDATE SYSTEMS ---------------
 
 		// Updates the timer on frozzen durations
+		class SpikeRootDurationSystem : public ecs::ECSSystem<SpikeRootDurationSystem>
+		{
+		public:
+			SpikeRootDurationSystem();
+			~SpikeRootDurationSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		private:
+		};
+		
+		// Updates the timer on frozzen durations
+		class BurningDurationSystem : public ecs::ECSSystem<BurningDurationSystem>
+		{
+		public:
+			BurningDurationSystem();
+			~BurningDurationSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		private:
+		};
+		
+		// Updates the timer on frozzen durations
 		class FreezingDurationSystem : public ecs::ECSSystem<FreezingDurationSystem>
 		{
 		public:
@@ -60,8 +80,8 @@ namespace ecs
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
 
-			const float mDamage = 40.0f;
-			const float mKnockback = 80.0f;
+			const float mDamage = 20.0f;
+			const float mKnockbackAcc = 3.0f;
 		};
 
 		class FreezeTrapEventSystem : public ecs::ECSSystem<FreezeTrapEventSystem>
@@ -85,7 +105,7 @@ namespace ecs
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
 
-			const float mKnockback = 10.0f;
+			const float mKnockbackAcc = 5.0f;
 		};
 
 		class SpikeTrapEventSystem : public ecs::ECSSystem<SpikeTrapEventSystem>
@@ -95,8 +115,8 @@ namespace ecs
 			~SpikeTrapEventSystem();
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
-
-			const float mDamage = 40.0f;
+			const float mKnockbackAcc = 2.0f;
+			const float mDamage = 20.0f;
 		};
 	}
 }

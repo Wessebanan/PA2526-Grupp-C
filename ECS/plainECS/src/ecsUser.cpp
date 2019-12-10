@@ -122,6 +122,11 @@ void ecs::ECSUser::RemoveSystem(TypeID _typeID)
 	ecsUserHandler->onRemoveSystem(_typeID);
 }
 
+int ecs::ECSUser::getComponentCountOfType(TypeID _typeID)
+{
+	return ecsUserHandler->onGetComponentCountOfType(_typeID);
+}
+
 void ECSUser::createEvent(BaseEvent& _event)
 {
 	ecsUserHandler->onCreateEvent(_event);

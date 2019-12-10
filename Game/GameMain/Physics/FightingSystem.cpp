@@ -63,7 +63,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 		weapon_component->mBaseDamage = BASE_SWORD_DAMAGE;
 
-		weapon_component->mKnockback = SWORD_KNOCKBACK;
+		weapon_component->mKnockback = SWORD_KNOCKBACK_MULTIPLIER;
 		break;
 	}
 
@@ -86,7 +86,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 		weapon_component->mBaseDamage = BASE_HAMMER_DAMAGE;
 
-		weapon_component->mKnockback = HAMMER_KNOCKBACK;
+		weapon_component->mKnockback = HAMMER_KNOCKBACK_MULTIPLIER;
 		break;
 	}
 
@@ -103,7 +103,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 		weapon_component->mBaseDamage = BASE_FIST_DAMAGE;
 
-		weapon_component->mKnockback = FIST_KNOCKBACK;
+		weapon_component->mKnockback = FIST_KNOCKBACK_MULTIPLIER;
 		break;
 	}
 	case GAME_OBJECT_TYPE_WEAPON_BOMB:
@@ -119,7 +119,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 		weapon_component->mBaseDamage = BASE_BOMB_DAMAGE;
 
-		weapon_component->mKnockback = BOMB_KNOCKBACK;
+		weapon_component->mKnockback = BOMB_KNOCKBACK_MULTIPLIER;
 		break;
 	}
 	default:
@@ -308,7 +308,7 @@ void ecs::systems::DamageSystem::updateEntity(FilteredEntity& _entityInfo, float
 		hit_event.Position		= weapon_transform_component->position;
 		hit_event.Range			= BOMB_BLAST_RADIUS;
 		hit_event.Damage		= weapon_component->mBaseDamage;
-		hit_event.Knockback		= weapon_component->mKnockback;
+		hit_event.Knockback		= weapon_component->mKnockback * BASE_KNOCKBACK;
 		hit_event.WeaponID		= weapon_component->getEntityID();
 		hit_event.OwnerUnitID	= weapon_component->mOwnerEntity;
 
@@ -518,20 +518,28 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 
 	const WeaponOnHitEvent& hit_event = static_cast<WeaponOnHitEvent&>(_event);
 	const XMVECTOR weapon_position = XMLoadFloat3(&hit_event.Position);
-
-	// Grabbing and storing all ocean tiles.
-	TypeFilter unit_filter;
-	unit_filter.addRequirement(components::UnitComponent::typeID);
-	unit_filter.addRequirement(components::TransformComponent::typeID);
-	unit_filter.addRequirement(components::HealthComponent::typeID);
-
-	EntityIterator iter = getEntitiesByFilter(unit_filter);
-
+	
 	// If type is a bomb
 	if (hit_event.Type == GAME_OBJECT_TYPE_WEAPON_BOMB)
 	{
+		// Grabbing and storing all units.
+		TypeFilter unit_filter;
+		unit_filter.addRequirement(components::UnitComponent::typeID);
+		unit_filter.addRequirement(components::TransformComponent::typeID);
+		unit_filter.addRequirement(components::HealthComponent::typeID);
+
+		EntityIterator iter = getEntitiesByFilter(unit_filter);
+		const ID hitter_id = hit_event.OwnerUnitID;
+		const ID hitter_team = getComponentFromKnownEntity<UnitComponent>(hitter_id)->playerID;
+
 		for (FilteredEntity& unit : iter.entities)
 		{
+			// No friendly hits on bomb.
+			if (unit.getComponent<UnitComponent>()->playerID == hitter_team)
+			{
+				continue;
+			}
+
 			const TransformComponent* p_unit_transform = unit.getComponent<TransformComponent>();
 			const XMVECTOR unit_position = XMLoadFloat3(&p_unit_transform->position);
 			const XMVECTOR unit_weapon_v = unit_position - weapon_position;
@@ -552,23 +560,22 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 			if (impact >= 0.0f)
 			{
 				// Calculating damage by multiplying weapon velocity and the base damage.
-				const float damage = hit_event.Damage;
+				const float damage = hit_event.Damage * impact;
 				HealthComponent* p_collided_constitution = unit.getComponent<HealthComponent>();
 				p_collided_constitution->mHealth -= damage;
 
 				// KNOCKBACK
 				ForceImpulseEvent knockback;
 				XMStoreFloat3(&knockback.mDirection, unit_weapon_v);
-				knockback.mDirection.y = (std::max)(knockback.mDirection.y, 0.0f);
-				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 
 				// Small y boost in knockback to send units FLYING.
-				knockback.mDirection.y += 2.f;
+				knockback.mDirection.y += 0.5f;
+				knockback.mDirection.y = (std::max)(knockback.mDirection.y, 0.0f);
 
 				// Normalize knockback direction so it's not CRAZY.
 				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 
-				knockback.mForce = hit_event.Knockback;
+				knockback.mForce = hit_event.Knockback * impact;
 				knockback.mEntityID = unit.entity->getID();
 				createEvent(knockback);
 

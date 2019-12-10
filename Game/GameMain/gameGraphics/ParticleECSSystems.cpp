@@ -440,5 +440,125 @@ namespace ecs
 		}
 #pragma endregion BombParticleRegion
 
-	}
+#pragma region ParticleTrapSpawnerSystem
+		ParticleTrapSpawnerSystem::ParticleTrapSpawnerSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::ParticleSpawnerComponent::typeID);
+			typeFilter.addRequirement(components::TrapParticleSpawnComponent::typeID);
+		}
+
+		void ParticleTrapSpawnerSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
+			components::ParticleSpawnerComponent* p_spawner_component =
+				entity.getComponent<components::ParticleSpawnerComponent>();
+
+			components::TrapParticleSpawnComponent* p_trap_spawn_component =
+				entity.getComponent<components::TrapParticleSpawnComponent>();
+
+			p_spawner_component->TimerSinceLastSpawn += delta;
+
+			// As long as there are particles to spawn (lag can result in particles not being spawned)
+			for (;
+				p_spawner_component->TimerSinceLastSpawn > p_spawner_component->SpawnFrequency;
+				p_spawner_component->TimerSinceLastSpawn -= p_spawner_component->SpawnFrequency)
+			{
+				/* Set Initial Values For Particle */
+				components::ParticleComponent particle;
+				components::TrapParticleComponent trap_particle;
+
+				DirectX::XMVECTOR start_pos;
+				DirectX::XMLoadFloat3(&p_spawner_component->StartPosition);				
+				DirectX::XMFLOAT3 offset;
+				
+				DirectX::XMStoreFloat3(&offset,
+					DirectX::XMVector3Transform(
+						{ 0.8f, 0.f, 0.f, 0.f },
+						DirectX::XMMatrixRotationAxis(
+							{ 0.f, 1.f, 0.f, 0.f },
+							(float)(rand() % 360) * (3.14159f / 180.f))));
+
+				// Set Position
+				particle.Position = p_spawner_component->StartPosition;
+				particle.Position.x += offset.x;
+				particle.Position.y += offset.y;
+				particle.Position.z += offset.z;
+
+				//particle.Position = p_spawner_component->StartPosition;
+
+				// Set Life Expectancy
+				trap_particle.TotalLifeDuration = p_spawner_component->LifeDuration;
+				trap_particle.CurrentLifeDuration = trap_particle.TotalLifeDuration;
+
+				// Set Color
+				particle.Red = p_trap_spawn_component->red;
+				particle.Green = p_trap_spawn_component->green;
+				particle.Blue = p_trap_spawn_component->blue;
+
+				// Set Scale
+				particle.Scale = 40;
+
+				// Randomize x and y direction and speed
+				float x = ((float)rand() / (float)RAND_MAX) - 0.5f;
+				float z = ((float)rand() / (float)RAND_MAX) - 0.5f;
+				trap_particle.Velocity = ((float)rand() / (float)RAND_MAX * 0.6f + 0.4f) * p_trap_spawn_component->InitialVelocity;
+
+				// Create Particle
+				createEntity(particle, trap_particle);
+
+				// Remove spawner component if they have spawned the specified amount
+				if (--p_trap_spawn_component->SpawnCount <= 0)
+				{
+					removeEntity(entity.entity->getID());
+					break;
+				}
+			}
+		}
+#pragma endregion ParticleTrapSpawnerSystem
+
+#pragma region ParticleTrapUpdateSystem
+		ParticleTrapUpdateSystem::ParticleTrapUpdateSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::ParticleComponent::typeID);
+			typeFilter.addRequirement(components::TrapParticleComponent::typeID);
+		}
+
+		void ParticleTrapUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
+			const float gravity = 4.0f; // Gravity for particle
+
+			components::ParticleComponent* p_particle_component =
+				entity.getComponent<components::ParticleComponent>();
+
+			components::TrapParticleComponent* p_trap_component =
+				entity.getComponent<components::TrapParticleComponent>();
+
+			// Decrease their life and terminate if life expectancy has reached
+			p_trap_component->CurrentLifeDuration -= delta;
+			if (p_trap_component->CurrentLifeDuration <= 0.0f)
+			{
+				removeEntity(entity.entity->getID());
+			}
+
+			// Decrease scale with proptional to how long they have lived [1;0]
+			const int scale = 30.f * p_trap_component->CurrentLifeDuration / p_trap_component->TotalLifeDuration;
+			p_particle_component->Scale = scale >= 0 ? scale : 0;
+
+			const DirectX::XMFLOAT3 UP_DIRECTION = { 0.f, 1.f * p_trap_component->Velocity, 0.f };
+
+			// Get position and direction
+			DirectX::XMVECTOR position = DirectX::XMLoadFloat3(&p_particle_component->Position);
+			DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&UP_DIRECTION);
+
+			// Transform particle
+			position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(direction, delta * p_trap_component->CurrentLifeDuration / p_trap_component->TotalLifeDuration));
+			direction = DirectX::XMVectorAdd(direction, DirectX::XMVectorSet(0.0f, -gravity * delta, 0.0f, 0.0f));
+
+			// Store position and direction
+			DirectX::XMStoreFloat3(&p_particle_component->Position, position);
+			p_trap_component->Velocity -= gravity * delta;
+		}
+#pragma endregion ParticleTrapUpdateSystem
+}
 }
