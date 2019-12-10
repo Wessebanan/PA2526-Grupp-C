@@ -32,7 +32,7 @@ void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float de
 				switch (p_weapon->mType)
 				{
 				case GAME_OBJECT_TYPE_WEAPON_HAMMER:
-					pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK2);
+					pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
 					break;
 				case GAME_OBJECT_TYPE_WEAPON_SWORD:
 					pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
@@ -49,7 +49,14 @@ void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float de
 	}
 	else if (getComponentFromKnownEntity<ecs::components::MoveStateComponent>(pSkeleton->getEntityID()))
 	{
-		pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::MOVE);
+		if (entity.entity->hasComponentOfType<JumpComponent>())
+		{
+			pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::JUMP);
+		}
+		else
+		{
+			pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::MOVE);
+		}
 	}
 	else
 	{ 

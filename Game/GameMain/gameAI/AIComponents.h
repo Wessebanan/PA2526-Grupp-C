@@ -110,5 +110,10 @@ namespace ecs
 			PLAYER mPlayer;
 			float mTimer = 0.0f;
 		};
+		
+		struct JumpComponent : public ECSComponent<JumpComponent>
+		{
+
+		};
 	}
 }

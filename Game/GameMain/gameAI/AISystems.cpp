@@ -864,6 +864,8 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 				}
 				createEvent(jump);
+				JumpComponent jump_comp;
+				ECSUser::createComponent(entity.entity->getID(), jump_comp);
 			}
 		}
 		MovementInputEvent move;
