@@ -43,6 +43,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 
 	components::RenderBufferComponent rbDummy;
 	components::PipelineShadowMapComponent psmDummy;
+	components::PipelineDepthPrePassComponent pdppDummy;
 	components::PipelineForwardComponent pfDummy;
 
 	BaseComponent* graphics_components[] =
@@ -53,12 +54,13 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 
 		&rbDummy,
 		&psmDummy,
+		&pdppDummy,
 		&pfDummy
 	};
 
 	ComponentList list;
 	list.initialInfo = graphics_components;
-	list.componentCount = 6;
+	list.componentCount = sizeof(graphics_components) / sizeof(BaseComponent*);
 
 	/*
 		Fetch id of the graphics entity. All graphic components used by renderer systems
@@ -81,6 +83,7 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 
 	components::PipelineShadowMapComponent* p_psmComp = rEcs.getComponentFromEntity<components::PipelineShadowMapComponent>(graphics_entity_id);
 	components::PipelineForwardComponent* p_pfComp = rEcs.getComponentFromEntity<components::PipelineForwardComponent>(graphics_entity_id);
+	components::PipelineDepthPrePassComponent* p_pdppComp = rEcs.getComponentFromEntity<components::PipelineDepthPrePassComponent>(graphics_entity_id);
 
 	p_psmComp->pipelineDesc.PixelsWidth = 2048;
 	p_psmComp->pipelineDesc.Width = 90.0f;
@@ -103,6 +106,14 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	//p_pfComp->pipelineDesc.ClearColor[2] = 80.f / 255.f;
 
 	p_pfComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ForwardRenderingPipeline, &p_pfComp->pipelineDesc);
+
+	p_pdppComp->pipelineDesc.ClientWidth = clientWidth;
+	p_pdppComp->pipelineDesc.ClientHeight = clientHeight;
+	p_pdppComp->pipelineDesc.pDepthBuffer = p_pfComp->pipelineDesc.pDepthBuffer;
+	p_pdppComp->pipelineDesc.pViewMatrixBuffer = p_pfComp->pipelineDesc.pViewMatrixBuffer;
+	p_pdppComp->pipelineDesc.pProjMatrixBuffer = p_pfComp->pipelineDesc.pProjMatrixBuffer;
+	p_pdppComp->pipelineDesc.pInvProjMatrixBuffer = p_pfComp->pipelineDesc.pInvProjMatrixBuffer;
+	p_pdppComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::DepthPrePassPipeline, &p_pdppComp->pipelineDesc);
 
 	components::RenderBufferComponent* p_render_buffer = static_cast<components::RenderBufferComponent*>(rEcs.getAllComponentsOfType(components::RenderBufferComponent::typeID).next());
 	p_render_buffer->buffer.Initialize(renderBufferSize, 256);
@@ -179,8 +190,7 @@ void InitGraphicsPostRenderSystems(EntityComponentSystem& rEcs)
 	rEcs.createSystem<systems::PipelineShadowMapSystem>(9);
 	rEcs.createSystem<systems::PipelineForwardSystem>(9);
 	rEcs.createSystem<systems::ExecuteGPURenderSystem>(9);
-	rEcs.createSystem<systems::SSAORenderSystem>(9)->Initialize(graphics::GetDisplayResolution().x, graphics::GetDisplayResolution().y);
-	
+
 	UnitRenderSystem* p_unit_system = (UnitRenderSystem*)rEcs.getSystem<UnitRenderSystem>();
 
 	rEcs.createSystem<systems::OutlineRenderSystem>(9)
@@ -211,7 +221,7 @@ void InitMeshes(EntityComponentSystem& rEcs)
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WINTERTREE, "../meshes/WinterTree.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WORLD_SCENE_SHARK, "../meshes/shark_fin.fbx");
 
-	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh3.fbx");
+	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_UNIT, "../DudeMesh11.fbx");
 
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_SWORD, "../meshes/sword.fbx");
 	MeshContainer::LoadMesh(GAME_OBJECT_TYPE_WEAPON_HAMMER, "../meshes/weapon_maul.fbx");
