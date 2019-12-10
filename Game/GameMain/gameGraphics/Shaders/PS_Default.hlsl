@@ -25,7 +25,7 @@ float shadow(const float2 pos, const float depth)
 
 	const float shadow_bias = 0.0028f;
 
-	const float middle_weight = 0.4f;
+	const float middle_weight = 0.2f;
 	const float side_weight_total = 1.0f - middle_weight;
 	const float side_weight = side_weight_total / 8.0f;
 
@@ -48,7 +48,12 @@ float shadow(const float2 pos, const float depth)
 		}
 	}
 
-	//return  saturate(illumination);
+	//return gShadowMap.SampleCmp(
+	//	gSmpCmp,
+	//	shadowMapUV,
+	//	depth - shadow_bias);
+
+	//return  saturate(pow(illumination, 4.0f));
 	return  saturate(2.f * illumination - 1.f);
 }
 
@@ -76,16 +81,17 @@ PSOUT main(PSIN input)
 
 	const float3 cam_dir = -float3(0.5f, -1.0f, 0.5f);
 	float illu = saturate(dot(normalize(cam_dir), normalize(input.normal)));
-
 	float in_shadow = shadow(input.sunPos.xy, input.sunPos.z);
+	in_shadow = illu <= 0.15f ? 0.15f : in_shadow;
+	//illu = saturate(illu);
+
 	float3 finalColor = input.color;
 
-	in_shadow = illu <= 0.2f ? 0.2f : in_shadow;
 
 	float3 ambient = finalColor.xyz * 0.1f;
 	float3 diffuse = finalColor.xyz * illu * in_shadow;
 
-	output.BackBuffer = float4(ambient + diffuse, 1.0f);
+	output.BackBuffer = float4(in_shadow.xxx * illu, 1.0f);
 	output.NormalBuffer = float4(normalize(input.normalViewSpace), input.positionViewSpace.z);
 
 	return output;
