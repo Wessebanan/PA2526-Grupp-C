@@ -392,13 +392,17 @@ int2 ecs::systems::PathfindingStateSystem::GetClosestTile(TransformComponent& tr
 			{
 				if (i >= 0 && i < p_gp->GetSize().y && j >= 0 && j < p_gp->GetSize().x)
 				{
-					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[tile_index.y][tile_index.x].Id);
-					distance = PhysicsHelpers::CalculateDistance(p_curr_tile_transform->position, transform.position);
+					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[j][i].Id);
+					XMFLOAT3 temp_pos = p_curr_tile_transform->position;
+					temp_pos.y = 0.0f;
+					XMFLOAT3 temp_pos2 = transform.position;
+					temp_pos2.y = 0.0f;
+					distance = PhysicsHelpers::CalculateDistance(temp_pos, temp_pos2);
 					if (distance < best_distance)
 					{
 						best_distance = distance;
-						return_index.x = tile_index.x;
-						return_index.y = tile_index.y;
+						return_index.x = i;
+						return_index.y = j;
 					}
 				}
 			}
@@ -1023,18 +1027,74 @@ ID ecs::systems::MoveStateSystem::GetClosestTileId(TransformComponent& transform
 			{
 				if (i >= 0 && i < p_gp->GetSize().y && j >= 0 && j < p_gp->GetSize().x)
 				{
-					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[tile_index.y][tile_index.x].Id);
-					distance = PhysicsHelpers::CalculateDistance(p_curr_tile_transform->position, transform.position);
+					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[j][i].Id);
+					XMFLOAT3 temp_pos = p_curr_tile_transform->position;
+					temp_pos.y = 0.0f;
+					XMFLOAT3 temp_pos2 = transform.position;
+					temp_pos2.y = 0.0f;
+					distance = PhysicsHelpers::CalculateDistance(temp_pos, temp_pos2);
 					if (distance < best_distance)
 					{
 						best_distance = distance;
-						return_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
+						return_id = p_gp->mGrid[j][i].Id;
 					}
 				}
 			}
 		}
 	}
+
+	//Used to debugg pathfinding.
+	//ID real_id = this->realClosestTile(transform);
+	//if (real_id != return_id)
+	//{
+	//	std::cout << "Closest Tile MissMatch: REAL: " << real_id << "   WRONG: " << return_id << std::endl;
+	//}
 	
+	//Return the index position of the closest tile in mGrid in the GridProp class or 0 if something went wrong.
+	return return_id;
+}
+
+ID ecs::systems::MoveStateSystem::RealClosestTile(TransformComponent& transform)
+{
+	//Initialize components and variables that we will need.
+	int2 tile_index;
+	GridProp* p_gp = GridProp::GetInstance();
+	ecs::BaseComponent* p_base_component;
+	ecs::components::TransformComponent* p_curr_tile_transform;
+	ecs::components::TileComponent* p_curr_tile;
+	ecs::Entity* p_curr_entity;
+	float dist = 1000.0f;
+	float temp_dist = 0.0f;
+	ID return_id = 0;
+	if (p_gp != nullptr) //Sanity Check
+	{
+		//Loop through every tile in the grid.
+		for (int x = 0; x < p_gp->GetSize().x; x++)
+		{
+			for (int y = 0; y < p_gp->GetSize().y; y++)
+			{
+				//Check if the tile is a tile we can walk on.
+				if (p_gp->mGrid[y][x].isPassable)
+				{
+					p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
+					XMFLOAT3 temp_pos = p_curr_tile_transform->position;
+					temp_pos.y = 0.0f;
+					XMFLOAT3 temp_pos2 = transform.position;
+					temp_pos2.y = 0.0f;
+					temp_dist = PhysicsHelpers::CalculateDistance(temp_pos, temp_pos2);
+					//If the tile is closer than the previously closest tile we've found we store the new info.
+					if (temp_dist < dist)
+					{
+						dist = temp_dist;
+						tile_index.x = x;
+						tile_index.y = y;
+					}
+				}
+			}
+		}
+		return_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
+	}
+
 	//Return the index position of the closest tile in mGrid in the GridProp class or 0 if something went wrong.
 	return return_id;
 }
