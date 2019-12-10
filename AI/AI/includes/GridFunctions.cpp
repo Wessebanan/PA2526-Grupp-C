@@ -48,7 +48,7 @@ namespace GridFunctions
 			top_x += 4;
 			top_y += 4;
 			float top_height = 1.2f * height_power;
-			float slope = 0.85f;
+			float slope = 0.7f;
 
 
 			// top
