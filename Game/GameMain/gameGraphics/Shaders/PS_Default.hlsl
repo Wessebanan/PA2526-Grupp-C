@@ -164,7 +164,8 @@ float4 main(PSIN input) : SV_TARGET0
 	pos_ndc_xy *= float2(2.0f, -2.0f);
 	pos_ndc_xy -= float2(1.0f, -1.0f);
 
-	const float3 cam_dir = -float3(0.5f, -1.0f, 0.5f);
+	const float3 sun_dir = -float3(0.5f, -1.0f, 0.5f);
+	const float diffuse_shading = saturate(dot(normalize(sun_dir), normalize(input.normal)));
 
 	float ssao = CalculateSSAO(
 		normalize(input.normalViewSpace.xyz),
@@ -174,8 +175,8 @@ float4 main(PSIN input) : SV_TARGET0
 	float illumination = 1.0f;
 
 	// Diffuse and shadow mapping
-	illumination *= saturate(dot(normalize(cam_dir), normalize(input.normal)));
-	illumination *= shadow(input.sunPos.xy, input.sunPos.z);
+	illumination *= diffuse_shading;
+	illumination *= diffuse_shading <= 0.15f ? 0.1f * shadow(input.sunPos.xy, input.sunPos.z) : shadow(input.sunPos.xy, input.sunPos.z);
 
 	float3 ambient = input.color.xyz * 0.1f;
 	float3 diffuse = input.color.xyz * illumination;

@@ -78,7 +78,7 @@ namespace ecs
 
 			SetViewMatrix(
 				p_pipeline->data.ViewMatrix,
-				0.0f, 10.0f, 4.0f,
+				6.0f, 10.0f, 8.0f,
 				0.5f, -1.0f, 0.5f);
 
 			p_mgr->mgr.UpdatePipeline(p_pipeline->pipeline, &p_pipeline->data);
@@ -172,11 +172,11 @@ namespace ecs
 				p_ocean_renderer->mRenderProgram - 1);
 #endif // !_DEBUG
 
-			// Render To Color Buffer
-			//p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline, 0, 0);
-
 			// Render To Depth Buffer (Depth Pre Pass)
-			p_render_mgr->mgr.ExecutePipeline(p_pipeline_depth_pre_pass->pipeline);
+			p_render_mgr->mgr.ExecutePipeline(
+				p_pipeline_depth_pre_pass->pipeline,
+				0,
+				p_ocean_renderer->mRenderProgram - 1);
 
 			// Render To Color Buffer
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);

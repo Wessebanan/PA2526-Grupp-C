@@ -18,14 +18,14 @@ float shadow(const float2 pos, const float depth)
 	float2 shadowMapUV = float2(
 		(1.0f + pos.x) * 0.5f,
 		(1.0f - pos.y) * 0.5f
-	);
+		);
 
-	float offset = 1.0f / (1024.0f * 2.0f);
+	float offset = 1.0f / (2048.0f);
 	float illumination = 0.0f;
 
 	const float shadow_bias = 0.0028f;
 
-	const float middle_weight = 0.6f;
+	const float middle_weight = 0.2f;
 	const float side_weight_total = 1.0f - middle_weight;
 	const float side_weight = side_weight_total / 8.0f;
 
@@ -48,6 +48,12 @@ float shadow(const float2 pos, const float depth)
 		}
 	}
 
+	//return gShadowMap.SampleCmp(
+	//	gSmpCmp,
+	//	shadowMapUV,
+	//	depth - shadow_bias);
+
+	//return  saturate(pow(illumination, 4.0f));
 	return  saturate(2.f * illumination - 1.f);
 }
 
