@@ -698,53 +698,9 @@ CollisionInfo AABB::GetCollisionInfo(BoundingBox& rAabb)
 
 CollisionInfo AABB::GetCollisionInfo(BoundingOrientedBox& rObb)
 {
-	// Transform standard axes by orientation
-	// Project center-to-center on each axis, largest result in size wins.
-	//XMVECTOR x, y, z;
-	//x = XMVectorSetX(XMVectorZero(), 1.0f);
-	//y = XMVectorSetY(XMVectorZero(), 1.0f);
-	//z = XMVectorSetZ(XMVectorZero(), 1.0f);
-
-	//XMMATRIX orientation = XMMatrixRotationQuaternion(XMLoadFloat4(&rObb.Orientation));
-	//
-	//XMVECTOR xt, yt, zt;
-	//xt = XMVector3TransformNormal(x, orientation);
-	//yt = XMVector3TransformNormal(y, orientation);
-	//zt = XMVector3TransformNormal(z, orientation);
-
-	//XMVECTOR obb_to_aabb_center = XMVectorSubtract(XMLoadFloat3(&this->Center), XMLoadFloat3(&rObb.Center));
-	//
-	//// Projected center to center components.
-	//float proj_xt = XMVectorGetX(XMVector3Dot(xt, obb_to_aabb_center));
-	//float proj_yt = XMVectorGetX(XMVector3Dot(xt, obb_to_aabb_center));
-	//float proj_zt = XMVectorGetX(XMVector3Dot(xt, obb_to_aabb_center));
-
-	//float length_xt = fabsf(proj_xt);
-	//float length_yt = fabsf(proj_yt);
-	//float length_zt = fabsf(proj_zt);
-
-	// NOTE: this is a temp solution that works but just uses the flipped normal 
-	// instead of the obb's collision normal, looks jank but this shit is taking too much time.
-	// Problem is calculating the collision overlap in the obb's collision normal direction.
+	// This one is gonna be a lil' weird.
 	CollisionInfo return_info = ((OBB*)&rObb)->GetCollisionInfo(*this);
 	XMStoreFloat3(&return_info.mNormal, -XMLoadFloat3(&return_info.mNormal));
-
-
-	//if (length_xt > length_yt && length_xt > length_zt)
-	//{
-	//	XMStoreFloat3(&return_info.mNormal, Sign(proj_xt) * xt);
-	//}
-	//else if (length_yt > length_xt && length_yt > length_zt)
-	//{
-	//	XMStoreFloat3(&return_info.mNormal, Sign(proj_yt) * yt);
-	//}
-	//else
-	//{
-	//	XMStoreFloat3(&return_info.mNormal, Sign(proj_zt) * t);
-	//}
-
-	// Finding overlap in the normal direction.
-
 
 	return return_info;
 }

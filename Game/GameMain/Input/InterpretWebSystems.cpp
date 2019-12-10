@@ -184,7 +184,7 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 					int loops = 0;
 					// Loop until we its a tile the units can go on
 					//while ((p_map_tile->tileType == TileTypes::WATER || !not_traped) && loops < 256 || p_map_tile->impassable)
-					while ((p_map_tile->tileType == TileTypes::WATER) && loops < 256 || p_map_tile->impassable || p_map_tile->hasTrap)
+					while (((p_map_tile->tileType == TileTypes::WATER) || p_map_tile->impassable || p_map_tile->hasTrap) && loops < 256)
 					{
 						// Roll new tile
 						tile_index_x = (p_tile_comp->userTiles[i].mCordX * partion_x) + (rand() % partion_x);
