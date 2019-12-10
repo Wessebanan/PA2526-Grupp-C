@@ -174,9 +174,9 @@ namespace graphics
 		const UINT shader_count = (UINT)m_shaders.size();
 
 		const UINT start	= max(programStartIndex, 0);
-		const UINT end		= min(programEndIndex + 1, shader_count);
+		const UINT end		= min(programEndIndex, shader_count - 1);
 
-		for (UINT i = start; i < end; i++)
+		for (UINT i = 0; i < shader_count; i++)
 		{
 			ShaderModelLayout& layout	= m_shaders[i].Layout;
 			RenderProgram& program		= m_shaders[i].Program;
@@ -197,26 +197,36 @@ namespace graphics
 				switch(program.PerObjectByteWidth)
 				{
 				case 0:
-					graphics::DrawMeshes(
-						m_pContext4,
-						layout.MeshCount,
-						layout.pMeshes,
-						layout.pInstanceCountPerMesh);
-					break;
+					{
+						if (start <= i && i <= end)
+						{
+							graphics::DrawMeshes(
+								m_pContext4,
+								layout.MeshCount,
+								layout.pMeshes,
+								layout.pInstanceCountPerMesh);
+						}
+					} break;
 
 				default:
-					graphics::DrawMeshes(
-						m_pContext4,
-						m_pPerObjectBuffer,
-						data_location,
-						program.PerObjectByteWidth,
-						layout.MeshCount,
-						layout.pMeshes,
-						layout.pInstanceCountPerMesh);
+					{
+						if (start <= i && i <= end)
+						{
+							graphics::DrawMeshes(
+								m_pContext4,
+								m_pPerObjectBuffer,
+								data_location,
+								program.PerObjectByteWidth,
+								layout.MeshCount,
+								layout.pMeshes,
+								layout.pInstanceCountPerMesh);
+						}
 
-					data_location += total_models * program.PerObjectByteWidth;
-					data_location = (UINT)(ceil(data_location / 256.f) * 256);
-					break;
+
+						data_location += total_models * program.PerObjectByteWidth;
+						data_location = (UINT)(ceil(data_location / 256.f) * 256);
+
+					} break;
 				}
 			}
 		}
