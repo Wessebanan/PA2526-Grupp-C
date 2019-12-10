@@ -393,11 +393,12 @@ int2 ecs::systems::PathfindingStateSystem::GetClosestTile(TransformComponent& tr
 				if (i >= 0 && i < p_gp->GetSize().y && j >= 0 && j < p_gp->GetSize().x)
 				{
 					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[j][i].Id);
-					XMFLOAT3 temp_pos = p_curr_tile_transform->position;
-					temp_pos.y = 0.0f;
-					XMFLOAT3 temp_pos2 = transform.position;
-					temp_pos2.y = 0.0f;
-					distance = PhysicsHelpers::CalculateDistance(temp_pos, temp_pos2);
+					//Set y to zero since we want to find the closest tile in x- and z-axis. We don't want y to affect the outcome.
+					XMFLOAT3 tile_pos_without_y = p_curr_tile_transform->position;
+					tile_pos_without_y.y = 0.0f;
+					XMFLOAT3 unit_pos_without_y = transform.position;
+					unit_pos_without_y.y = 0.0f;
+					distance = PhysicsHelpers::CalculateDistance(tile_pos_without_y, unit_pos_without_y);
 					if (distance < best_distance)
 					{
 						best_distance = distance;
@@ -1060,11 +1061,12 @@ ID ecs::systems::MoveStateSystem::GetClosestTileId(TransformComponent& transform
 				if (i >= 0 && i < p_gp->GetSize().y && j >= 0 && j < p_gp->GetSize().x)
 				{
 					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[j][i].Id);
-					XMFLOAT3 temp_pos = p_curr_tile_transform->position;
-					temp_pos.y = 0.0f;
-					XMFLOAT3 temp_pos2 = transform.position;
-					temp_pos2.y = 0.0f;
-					distance = PhysicsHelpers::CalculateDistance(temp_pos, temp_pos2);
+					//Set y to zero since we want to find the closest tile in x- and z-axis. We don't want y to affect the outcome.
+					XMFLOAT3 tile_pos_without_y = p_curr_tile_transform->position;
+					tile_pos_without_y.y = 0.0f;
+					XMFLOAT3 unit_pos_without_y = transform.position;
+					unit_pos_without_y.y = 0.0f;
+					distance = PhysicsHelpers::CalculateDistance(tile_pos_without_y, unit_pos_without_y);
 					if (distance < best_distance)
 					{
 						best_distance = distance;
@@ -1109,11 +1111,12 @@ ID ecs::systems::MoveStateSystem::RealClosestTile(TransformComponent& transform)
 				if (p_gp->mGrid[y][x].isPassable)
 				{
 					p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
-					XMFLOAT3 temp_pos = p_curr_tile_transform->position;
-					temp_pos.y = 0.0f;
-					XMFLOAT3 temp_pos2 = transform.position;
-					temp_pos2.y = 0.0f;
-					temp_dist = PhysicsHelpers::CalculateDistance(temp_pos, temp_pos2);
+					//Set y to zero since we want to find the closest tile in x- and z-axis. We don't want y to affect the outcome.
+					XMFLOAT3 tile_pos_without_y = p_curr_tile_transform->position;
+					tile_pos_without_y.y = 0.0f;
+					XMFLOAT3 unit_pos_without_y = transform.position;
+					unit_pos_without_y.y = 0.0f;
+					temp_dist = PhysicsHelpers::CalculateDistance(tile_pos_without_y, unit_pos_without_y);
 					//If the tile is closer than the previously closest tile we've found we store the new info.
 					if (temp_dist < dist)
 					{
