@@ -15,6 +15,7 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 	rECS.createSystem<ecs::systems::GameReStartSystem>(9);
 	rECS.createSystem<ecs::systems::RoundOverSystem>(2);
 	rECS.createSystem<ecs::systems::RoundStartSystem>(3);
+	rECS.createSystem<ecs::systems::UIVisibilitySystem>(8);
 
 	// COMPONENTS
 	ecs::components::GameLoopComponent gameloop_comp;

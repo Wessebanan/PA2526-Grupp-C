@@ -2,6 +2,8 @@
 
 #include "ecsComponentIncludes.h"
 #include "../GameGlobals.h"
+#include "../gameUtility/UtilityComponents.h"
+
 #include "../Physics/PhysicsComponents.h"
 #include <DirectXMath.h>
 
@@ -28,6 +30,20 @@ namespace ecs
 			AABB mAABB;
 			GAME_OBJECT_TYPE mObjectType;
 			ID mTileID;
+		};
+
+		// The component pool for this component type will act as a queue for spawning
+		// new traps in between prep phase and battle phase.
+		struct TrapQueueInfoComponent : public ECSComponent<TrapQueueInfoComponent>
+		{
+			struct ParticleColor
+			{
+				char red, green, blue;
+			} particleColor;
+
+			components::TrapComponent trapCompInfo;
+			components::ColorComponent colorCompInfo;
+			components::TransformComponent transfCompInfo;
 		};
 
 		// Holds the time of how long the unit has been frozzen and the max time

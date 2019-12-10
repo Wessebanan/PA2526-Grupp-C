@@ -23,9 +23,10 @@ namespace ecs
 			  It will be expanded on when pathfinding and other systems is implemented.
 			*/
 			TileType tileType = TileTypes::UNDEFINED;
-			bool impassable = true;
 			float niceness = 0.f;
+			bool impassable = true;
 			bool goal = false;
+			bool hasTrap = false;
 			unsigned int neighboursIDArray[6] = { 0 };
 			PotentialFieldCharges charges;
 
@@ -113,6 +114,11 @@ namespace ecs
 		{
 			PLAYER mPlayer;
 			float mTimer = 0.0f;
+		};
+		
+		struct JumpComponent : public ECSComponent<JumpComponent>
+		{
+
 		};
 	}
 }
