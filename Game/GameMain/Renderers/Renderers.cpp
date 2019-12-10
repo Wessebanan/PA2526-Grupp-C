@@ -927,8 +927,8 @@ namespace ecs
 		void OutlineRenderSystem::act(float _delta)
 		{
 
-			//mRenderMgr->ExecutePipeline(mPipelineFakeStencil, this->unitRenderProgram);
-			mRenderMgr->ExecutePipeline(mPipelineFakeStencil, this->weaponRenderProgram);
+			mRenderMgr->ExecutePipeline(mPipelineFakeStencil, this->weaponRenderProgram, this->unitRenderProgram);
+			//mRenderMgr->ExecutePipeline(mPipelineFakeStencil, );
 		}
 		void OutlineRenderSystem::Initialize(const UINT clientWidth, const UINT clientHeight,
 			const UINT RenderProgram0, const UINT RenderProgram1, graphics::RenderManager* unitRenderManager)

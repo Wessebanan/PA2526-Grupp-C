@@ -142,11 +142,13 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	// That will cause outlines to break suuuper hard
 	// No touch >:(
 
+	/* !!NOTE!!: 'Unit Render System' must always be second to 'Weapon Render System' */
 	rEcs.createSystem<systems::WeaponRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
 
 	rEcs.createSystem<systems::UnitRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
+	/* !!NOTE!!:'Unit Render System' must always be second to 'Weapon Render System' */
 
 
 	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
