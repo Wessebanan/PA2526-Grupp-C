@@ -674,13 +674,12 @@ void EntityComponentSystem::removeComponentInternal(ID _entityID, TypeID _compon
 	rve.componentTypeID = _componentTypeID;
 	eventMgr.createEvent(rve);
 
-	notifyCompRemovalInterests(_componentTypeID, entity);
-
 	// Erasing component ID from entity must happen after event is created,
 	// in case some systems need to act to event.
 	entity->componentIDs.erase(_componentTypeID);
 	componentMgr.flagRemoval(_componentTypeID, componentID);
 
+	notifyCompRemovalInterests(_componentTypeID, entity);
 
 	// If the entity only had one component, and is now down to zero components,
 	// remove the entity.
@@ -751,6 +750,11 @@ void EntityComponentSystem::fillEntityIteratorInternal(TypeFilter& _componentFil
 {
 	// Reset iterator from junk
 	_iterator.entities.clear();
+
+	if (!_componentFilter.requirements.size())
+	{
+		return;
+	}
 
 	// Get component pool with the least amount of allocations
 	TypeID minTypeID = 0;
@@ -873,8 +877,9 @@ void EntityComponentSystem::notifyEntityRemovalInterests(Entity* _entityPtr)
 			while (entityInfo != updater->entityIterator.entities.end())
 			{
 				if (entityInfo->entity->getID() == entityID &&
-					updater->isEntityValid(_entityPtr))
+					!updater->isEntityValid(_entityPtr))
 				{
+					std::cout << "Removing entity " << entityID << " from " << (*updaterIt)->systemPtr->getName() << ". (entity remove)\n";
 					entityInfo = updater->entityIterator.entities.erase(entityInfo);
 				}
 				else
@@ -932,10 +937,26 @@ void EntityComponentSystem::notifyCompRemovalInterests(TypeID _typeID, Entity* _
 		std::vector<FilteredEntity>::iterator entityInfo = updater->entityIterator.entities.begin();
 		while (entityInfo != updater->entityIterator.entities.end())
 		{
-			if (entityInfo->entity->getID() == entityID &&
-				updater->isEntityValid(_entityPtr))
+			if (entityInfo->entity->getID() == entityID)
 			{
-				entityInfo = updater->entityIterator.entities.erase(entityInfo);
+				if (entityInfo->components.count(_typeID))
+				{
+					std::cout << "Removing component " << entityInfo->components[_typeID]->getName() << " from entity " << entityID << " in system " << updater->systemPtr->getName() << ".\n";
+					
+					std::cout << "-- Comp size before:\t" << entityInfo->components.size() << "\n";
+					entityInfo->components.erase(_typeID);
+					std::cout << "-- Comp size after:\t" << entityInfo->components.size() << "\n";
+				}
+
+				if (!updater->isEntityValid(entityInfo->entity) || !entityInfo->components.size())
+				{
+					std::cout << "Removing entity " << entityID << " from " << updater->systemPtr->getName() << ". (component remove)\n";
+					entityInfo = updater->entityIterator.entities.erase(entityInfo);
+				}
+				else
+				{
+					entityInfo++;
+				}
 			}
 			else
 			{

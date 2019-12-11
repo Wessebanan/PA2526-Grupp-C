@@ -97,7 +97,8 @@ void ECSComponentPool::initialize(size_t _startCap, size_t _componentSize)
 
 void ecs::ECSComponentPool::flagRemoval(ID _componentID)
 {
-	lookUpList[_componentID]->alive = false;
+	//lookUpList[_componentID]->alive = false;
+	lookUpList[_componentID]->flags = (lookUpList[_componentID]->flags & ~STATE_FLAG_ALIVE);
 	toRemove.push_back(_componentID);
 }
 
@@ -111,12 +112,18 @@ void ecs::ECSComponentPool::removeAllFlagged()
 		{
 			BaseComponent* p_component = (BaseComponent*)lookUpList[id];
 
+
 			// Fetch free function, which will call the components own destructor
 			ComponentFreeFunction ff = p_component->getFreeFunction();
 			ff(p_component);
 
+
 			lookUpList.erase(id);
+
 			allocator.free((void*)p_component);
+
+			//p_component->flags = STATE_FLAG_REMOVED;
+
 			toRemove.pop_back();
 		}
 	}
@@ -156,7 +163,7 @@ BaseComponent* ComponentIterator::next()
 		pComponent = (BaseComponent*)current;
 		current = (void*)((char*)current + objectSize);
 		iterationSize += objectSize;
-	} while (!pComponent->alive);
+	} while (!(pComponent->flags & STATE_FLAG_USES_MEMORY));
 
 	return pComponent;
 }
