@@ -62,6 +62,11 @@ Audio::Samples Audio::Mixer::GetCurrentSampleFromMainMusic()
 	return mMusicManager.GetCurrentSampleFromMainMusic();
 }
 
+Audio::Music::Manager* Audio::Mixer::GetMusicManager()
+{
+	return &mMusicManager;
+}
+
 void Audio::Mixer::ProcessSoundMessages()
 {
 	Sound::Message temp_message;

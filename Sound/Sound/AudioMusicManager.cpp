@@ -1,4 +1,7 @@
 #include "AudioMixer.h"
+#include <cmath>
+#include <complex>
+#include <valarray>
 
 void Audio::Music::Manager::ReplaceMusic(Message& rMessage, MusicVoiceData* pTarget)
 {
@@ -162,11 +165,85 @@ void Audio::Music::Manager::Fill(Samples start, Samples sampleCount, float* pDat
 	{
 		pData[j] += pVoiceData[j];
 	}
+	// Save 256 samples for the fourier transform
+	long long temp = (long long)sampleCount - (long long)mPreviousSamples.writeAvailable();
+	if(temp > 0)
+		mPreviousSamples.progressTail(temp);
+	float temp_float;
+	for (j = 0; j < sampleCount; j++)
+	{
+		temp_float = (pData[j * 2] + pData[j * 2 + 1]) / 2.0f;
+		mPreviousSamples.insert(&temp_float);
+	}
 }
 
 Audio::Samples Audio::Music::Manager::GetCurrentSampleFromMainMusic()
 {
 	return mMainData.Sampler.GetReadPointer();
+}
+
+void Audio::Music::Manager::GetFrequencies(float* freqArray)
+{
+	typedef std::complex<float> Complex;
+	typedef std::valarray<Complex> CArray;
+
+	// Fetch previous samples
+	mPreviousSamples.peakBuff(freqArray, 256);
+	// Convert into a complex array
+	Complex* test = new Complex[256];
+	for (int i = 0; i < 256; i++)
+	{
+		test[i] = freqArray[i];
+	}
+	CArray data(test, 256);	// This part can be improved
+
+	// DFT (FFT Cooley-Tukey)
+	unsigned int N = data.size(), k = N, n;
+	float thetaT = M_PI / N;
+	Complex phiT = Complex(cos(thetaT), -sin(thetaT)), T;
+	while (k > 1)
+	{
+		n = k;
+		k >>= 1;
+		phiT = phiT * phiT;
+		T = 1.0L;
+		for (unsigned int l = 0; l < k; l++)
+		{
+			for (unsigned int a = l; a < N; a += n)
+			{
+				unsigned int b = a + k;
+				Complex t = data[a] - data[b];
+				data[a] += data[b];
+				data[b] = t * T;
+			}
+			T *= phiT;
+		}
+	}
+	// Decimate (Reorder)
+	unsigned int m = (unsigned int)log2(N);
+	for (unsigned int a = 0; a < N; a++)
+	{
+		unsigned int b = a;
+		// Reverse bits
+		b = (((b & 0xaaaaaaaa) >> 1) | ((b & 0x55555555) << 1));
+		b = (((b & 0xcccccccc) >> 2) | ((b & 0x33333333) << 2));
+		b = (((b & 0xf0f0f0f0) >> 4) | ((b & 0x0f0f0f0f) << 4));
+		b = (((b & 0xff00ff00) >> 8) | ((b & 0x00ff00ff) << 8));
+		b = ((b >> 16) | (b << 16)) >> (32 - m);
+		if (b > a)
+		{
+			Complex t = data[a];
+			data[a] = data[b];
+			data[b] = t;
+		}
+	}
+
+	// Normalize and return results
+	for (int i = 0; i < 256; i++)
+	{
+		freqArray[i] = std::abs(data[i]) / 256.f;
+	}
+	delete[] test;
 }
 
 Audio::Music::Manager::Manager()
