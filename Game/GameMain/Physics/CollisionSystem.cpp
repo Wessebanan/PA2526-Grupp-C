@@ -164,6 +164,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 				{
 					p_movement->mLastTileY = p_current_transform->position.y;
 					on_ground = true;
+					ECSUser::removeComponent(p_event->mEntityID, JumpComponent::typeID);
 				}
 			}
 			

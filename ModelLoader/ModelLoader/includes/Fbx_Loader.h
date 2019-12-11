@@ -75,6 +75,10 @@ namespace ModelLoader
 		IDLE,
 		MOVE,
 		ATTACK,
+		ATTACK2,
+		ATTACK3,
+		JUMP,
+		TBORK,
 		ANIMATION_COUNT
 	};
 

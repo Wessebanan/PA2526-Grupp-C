@@ -14,6 +14,8 @@
 
 #include "..//UI/UISystems.h"
 
+#include "..//Physics/PhysicsEvents.h"
+
 using namespace ecs;
 using namespace ecs::components;
 
@@ -115,16 +117,17 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				createEvent(cus_event);
 
-				// USED FOR TESTING DEBUGGING
-				//events::TriggerFireTrapEvent trap_event;
+				//// USED FOR TESTING DEBUGGING
+				//events::ThrowUnitEvent trap_event;
+				//trap_event.mTileID = (ID)(GridProp::GetInstance()->mGrid[9][16].Id);
 
 				//ComponentIterator itt;
 				//itt = getComponentsOfType<UnitComponent>();
-				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//trap_event.mUnitID = (ID)(UnitComponent*)itt.next()->getEntityID();
 				//createEvent(trap_event);
-				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//trap_event.mUnitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
 				//createEvent(trap_event);
-				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//trap_event.mUnitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
 				//createEvent(trap_event);
 			}
 			else if (ucComp->userCommands[i].mCommand == "tutorial")//&& p_player_state_comp->mCurrentStates[i] != STATE::FLEE)
