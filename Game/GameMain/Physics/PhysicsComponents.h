@@ -49,7 +49,7 @@ constexpr float BOMB_ATTACK_RANGE	= 1.0f;	// Activation Range
 constexpr float BOMB_BLAST_RADIUS	= 8.0f;	// Blast Radius
 constexpr float BOMB_PICKUP_RADIUS	= 1.0f;	// Pick-up Radius
 
-constexpr float BASE_INVINCIBILITY_TIME = 0.2f;
+constexpr float BASE_INVINCIBILITY_TIME = 0.1f;
 
 // Specifically hard-coded for current dude mesh lmao.
 #define ORIGIN_TO_HAND XMFLOAT3(-4.99f, 2.55f, -0.329f)
