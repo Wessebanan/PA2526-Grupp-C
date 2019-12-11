@@ -141,6 +141,7 @@ namespace ecs
 
 			typeFilter.addRequirement(components::PipelineShadowMapComponent::typeID);
 			typeFilter.addRequirement(components::PipelineDepthPrePassComponent::typeID);
+			typeFilter.addRequirement(components::PipelineOutlineComponent::typeID);
 			typeFilter.addRequirement(components::PipelineForwardComponent::typeID);
 		}
 
@@ -151,36 +152,56 @@ namespace ecs
 
 			components::PipelineShadowMapComponent* p_pipeline_shadow_map = entity.getComponent<components::PipelineShadowMapComponent>();
 			components::PipelineDepthPrePassComponent* p_pipeline_depth_pre_pass = entity.getComponent<components::PipelineDepthPrePassComponent>();
+			components::PipelineOutlineComponent* p_pipeline_outline = entity.getComponent<components::PipelineOutlineComponent>();
 			components::PipelineForwardComponent* p_pipeline_forward = entity.getComponent<components::PipelineForwardComponent>();
 
+			// Get ocean render system to make it the first renderer in order to not cast shadow
 			systems::OceanRenderSystem* p_ocean_renderer = (systems::OceanRenderSystem*)GetSystem<systems::OceanRenderSystem>();
+
+			// Set all to cast shadows
+			UINT first_shader_program_index_to_not_cast_shadow = UINT_MAX;
+			if (p_ocean_renderer)
+			{
+				// if ocean renderer exists, then make ocean the first program to not cast shadow
+				first_shader_program_index_to_not_cast_shadow = p_ocean_renderer->mRenderProgram - 1;
+			}
+
+			// Get unit and weapon renderer to make sure in between them outlines are made for them
+			systems::WeaponRenderSystem* p_weapon_renderer = (systems::WeaponRenderSystem*)GetSystem<systems::WeaponRenderSystem>();
+			systems::UnitRenderSystem* p_unit_renderer = (systems::UnitRenderSystem*)GetSystem<systems::UnitRenderSystem>();
+
+
+			UINT first_shader_program_index_to_draw_outline = UINT_MAX;
+			UINT last_shader_program_index_to_draw_outline = UINT_MAX;
+
+			if (p_weapon_renderer && p_unit_renderer)
+			{
+				first_shader_program_index_to_draw_outline = p_weapon_renderer->mRenderProgram;
+				last_shader_program_index_to_draw_outline = p_unit_renderer->mRenderProgram;
+			}
+			
+
 
 			// Enable Standard Vertex Buffers
 			p_mesh_mgr->mgr.SetVertexBuffers();
 
-#ifdef _DEBUG
-			// Don't render shadow map if in debug (but execute the begin and end for the pipeline)
-			p_render_mgr->mgr.ExecutePipeline(
-				p_pipeline_shadow_map->pipeline,
-				0,
-				0);
-#else
 			// Render To Shadow Map
 			p_render_mgr->mgr.ExecutePipeline(
 				p_pipeline_shadow_map->pipeline,
 				0,
-				p_ocean_renderer->mRenderProgram - 1);
-#endif // !_DEBUG
+				first_shader_program_index_to_not_cast_shadow);
 
-			// Render To Color Buffer
-			//p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline, 0, 0);
-
-			// Render To Depth Buffer (Depth Pre Pass)
+			// Render Depth Buffer (Depth Pre Pass)
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_depth_pre_pass->pipeline);
 
-			// Render To Color Buffer
+			// Render Scene
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
-			
+
+			// Render Outline
+			p_render_mgr->mgr.ExecutePipeline(
+				p_pipeline_outline->pipeline,
+				first_shader_program_index_to_draw_outline,
+				last_shader_program_index_to_draw_outline);
 		}
 	}
 }

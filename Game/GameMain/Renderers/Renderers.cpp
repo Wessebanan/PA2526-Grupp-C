@@ -950,8 +950,6 @@ namespace ecs
 					&fake_stencil_desc);
 
 			}
-
-			
 		}
 #pragma endregion OutlineRenderSystem
 
