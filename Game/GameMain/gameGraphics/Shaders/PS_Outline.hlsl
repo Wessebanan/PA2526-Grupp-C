@@ -14,7 +14,7 @@ struct PSOut
 Texture2D<float4> StencilTexture : register(t6);
 //Texture2D<uint> StencilTexture : register(t6);
 
-#define OUTLINE_THICKNESS 2.0f // Pixel Offset
+#define OUTLINE_THICKNESS 1.0f // Pixel Offset
 
 float4 PS(VSOUT input) : SV_Target0
 {
@@ -64,7 +64,13 @@ float4 PS(VSOUT input) : SV_Target0
 
 	// Is there any color here?
 	const float4 current_stencil_color = StencilTexture.Load(int3(input.Pos.xy, 0));
-	if (length(current_stencil_color) == 0) discard;
+
+	// If no color then discard and return
+	if (length(current_stencil_color) == 0)
+	{
+		discard;
+		return (float4)0.0f;
+	}
 
 	/*
 		Load color data around current pixel 
@@ -76,21 +82,29 @@ float4 PS(VSOUT input) : SV_Target0
 
 		If their accumulated subtraction is not equal to current color multipled by 4 then we got an edge
 	*/
-	float4 neightbor_stencil_color[4];
-	neightbor_stencil_color[0] = StencilTexture.Load(int3(int2(input.Pos.x + OUTLINE_THICKNESS, input.Pos.y + 0.0f), 0));
-	neightbor_stencil_color[1] = StencilTexture.Load(int3(int2(input.Pos.x + 0.0f, input.Pos.y + OUTLINE_THICKNESS), 0));
-	neightbor_stencil_color[2] = StencilTexture.Load(int3(int2(input.Pos.x - OUTLINE_THICKNESS, input.Pos.y + 0.0f), 0));
-	neightbor_stencil_color[3] = StencilTexture.Load(int3(int2(input.Pos.x + 0.0f, input.Pos.y - OUTLINE_THICKNESS), 0));
 
+	float4 neighbor_stencil_color[4];
+	neighbor_stencil_color[0] = StencilTexture.Load(int3(int2(input.Pos.x + OUTLINE_THICKNESS, input.Pos.y + 0.0f), 0));
+	neighbor_stencil_color[1] = StencilTexture.Load(int3(int2(input.Pos.x + 0.0f, input.Pos.y + OUTLINE_THICKNESS), 0));
+	neighbor_stencil_color[2] = StencilTexture.Load(int3(int2(input.Pos.x - OUTLINE_THICKNESS, input.Pos.y + 0.0f), 0));
+	neighbor_stencil_color[3] = StencilTexture.Load(int3(int2(input.Pos.x + 0.0f, input.Pos.y - OUTLINE_THICKNESS), 0));
+
+	// Remove neighboring color from a multiple of current pixel's color
+	// if resulting color is 0 then there's no edge
 	float4 current_stencil_color_multiple = current_stencil_color * 4.0f;
-	current_stencil_color_multiple -= neightbor_stencil_color[0];
-	current_stencil_color_multiple -= neightbor_stencil_color[1];
-	current_stencil_color_multiple -= neightbor_stencil_color[2];
-	current_stencil_color_multiple -= neightbor_stencil_color[3];
+	current_stencil_color_multiple -= neighbor_stencil_color[0];
+	current_stencil_color_multiple -= neighbor_stencil_color[1];
+	current_stencil_color_multiple -= neighbor_stencil_color[2];
+	current_stencil_color_multiple -= neighbor_stencil_color[3];
 	
+	// If no edge detected then discard and return
+	if (abs(length(current_stencil_color_multiple)) <= 0.0001f)
+	{
+		discard;
+		return (float4)0.0f;
+	}
 
-	if (abs(length(current_stencil_color_multiple)) <= 0.0001f) discard;
-
-
-	return current_stencil_color;
+	// Edge detected and normalize color (units get less color with hp, so this will alleviate it)
+	float3 final_color = normalize(current_stencil_color.xyz);
+	return float4(final_color, 1.0f);
 }
