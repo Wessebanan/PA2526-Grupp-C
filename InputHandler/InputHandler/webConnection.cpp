@@ -526,6 +526,11 @@ bool WebConnection::SetGamestate(WEBGAMESTATE gamestate)
 			if (mPlayerSockets[i] >= 0)
 			{
 				this->SendMsg(mUserSockets[mPlayerSockets[i]], gamestate_msg, iSendResult);
+
+				// Set all users to not ready
+				mUsers[i].ready = false;
+				this->SendMsg(mUserSockets[mPlayerSockets[i]], (char*)"r0", iSendResult);
+				
 			}
 		}
 
@@ -552,14 +557,16 @@ bool WebConnection::ReadyCheck()
 				ret_val = false;
 	}
 
+	
 	if(ret_val)
 		for (size_t i = 0; i < 4; i++)
 		{
+			// Reset the check
 			mUsers[i].ready = false;
 
-			// Send the reset to the users
-			if (mPlayerSockets[i] != -1)
-				this->SendMsg(mUserSockets[mPlayerSockets[i]], (char*)"r0", iSendResult);
+			//// Send the reset to the users
+			//if (mPlayerSockets[i] != -1)
+			//	this->SendMsg(mUserSockets[mPlayerSockets[i]], (char*)"r0", iSendResult);
 		}
 
 	return ret_val;
