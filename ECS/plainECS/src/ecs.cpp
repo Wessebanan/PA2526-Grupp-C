@@ -14,17 +14,19 @@ EntityComponentSystem::~EntityComponentSystem()
 	for (size_t i = 0; i < layerCount; i++)
 	{
 		// Loop through all systems in layer
-		for (BaseSystem* s : systemLayers[i])
+		for (SystemUpdateInfo* info : systemLayers[i])
 		{
 			// Fetch free function. This function uses the real destructor of the system.
 			// This is the same as if the system has a virtual destructor, but just in case
 			// the user hasn't set the system's destructor as virtual.
-			if (s)
+			if (info->systemPtr)
 			{
 				/*SystemFreeFunction ff = s->getFreeFunction();
 				ff(s);*/
-				delete s;
+				delete info->systemPtr;
 			}
+
+			delete (info);
 		}
 		systemLayers[i].clear();
 	}
@@ -181,7 +183,7 @@ void EntityComponentSystem::update(float _delta)
 	*	Iterate all layers
 	*/
 
-	EntityIterator entities;
+	//EntityIterator entities;
 	EventTypeIterator events;
 	for (size_t i = 0; i < layerCount; i++)
 	{
@@ -199,7 +201,7 @@ void EntityComponentSystem::update(float _delta)
 		//	}
 		//#endif
 
-		for (BaseSystem* s : layer)
+		for (SystemUpdateInfo* updateInfo : layer)
 		{
 			//#ifdef _DEBUG
 			//	// Print system
@@ -210,32 +212,32 @@ void EntityComponentSystem::update(float _delta)
 			*	Fetch the system's update behaviour and act accordingly.
 			*/
 
-			switch (s->updateType)
+			switch (updateInfo->updateType)
 			{
 			case EntityUpdate:
 				// Fill list with entities that own all of the system's
 				// required component types.
-				fillEntityIteratorInternal(s->typeFilter, entities);
+				//fillEntityIteratorInternal(updateInfo->systemPtr->typeFilter, entities);
 
 				// Iterate through all the entites of interest and update the system.
-				for (FilteredEntity e : entities.entities)
+				for (FilteredEntity e : updateInfo->entityIterator.entities)
 				{
-					s->updateEntity(e, _delta);
+					updateInfo->systemPtr->updateEntity(e, _delta);
 				}
 				break;
 
 			case MultiEntityUpdate:
 				// Fill list with entities that own all of the system's
 				// required component types.
-				fillEntityIteratorInternal(s->typeFilter, entities);
+				//fillEntityIteratorInternal(updateInfo->systemPtr->typeFilter, entities);
 
 				// Update the system with the list of all entities of interest.
-				s->updateMultipleEntities(entities, _delta);
+				updateInfo->systemPtr->updateMultipleEntities(updateInfo->entityIterator, _delta);
 				break;
 
 			case EventReader:
 				// Fill list with events of the system's interest
-				fillEventIteratorInternal(s->typeFilter, events);
+				fillEventIteratorInternal(updateInfo->systemPtr->typeFilter, events);
 
 				// Iterator through all event types
 				for (EventTypeIterator::TypePair list : events.eventTypes)
@@ -243,12 +245,12 @@ void EntityComponentSystem::update(float _delta)
 					// Iterates through all events of current type
 					for (BaseEvent* e : list.second)
 					{
-						s->readEvent(*e, _delta);
+						updateInfo->systemPtr->readEvent(*e, _delta);
 					}
 				}
 				break;
 			case Actor:
-				s->act(_delta);
+				updateInfo->systemPtr->act(_delta);
 				break;
 
 		//#ifdef _DEBUG
@@ -454,11 +456,11 @@ void* ecs::EntityComponentSystem::onGetSystem(TypeID _typeID)
 
 	unsigned int layer = typeIDToLayerMap[_typeID];
 
-	for (BaseSystem* s : systemLayers[layer])
+	for (SystemUpdateInfo* updateInfo : systemLayers[layer])
 	{
-		if (s->getTypeID() == _typeID)
+		if (updateInfo->systemPtr->getTypeID() == _typeID)
 		{
-			return (void*)s;
+			return (void*)updateInfo->systemPtr;
 		}
 	}
 
@@ -509,34 +511,26 @@ void* ecs::EntityComponentSystem::onCreateSystem(void* _tempSystem, unsigned int
 	// Set system in hashed list for easy access
 	typeIDToLayerMap[pTempSystemInfo->getTypeID()] = _layer;
 
+	// Initialize the system's update info
+	SystemUpdateInfo* updateInfo = new SystemUpdateInfo;
+	updateInfo->systemPtr = newSystem;
+	updateInfo->updateType = newSystem->updateType;
+
+	for (TypeID typeID : updateInfo->systemPtr->typeFilter.requirements)
+	{
+		componentInterests[typeID].push_back(updateInfo);
+	}
+
+	fillEntityIteratorInternal(updateInfo->systemPtr->typeFilter, updateInfo->entityIterator);
+
 	// Push back system in wanted layer for later update
-	systemLayers[_layer].push_back(newSystem);
+	systemLayers[_layer].push_back(updateInfo);
 	return (void*)newSystem;
 }
 
 void ecs::EntityComponentSystem::onRemoveSystem(TypeID _typeID)
 {
-	if (!typeIDToLayerMap.count(_typeID))
-	{
-		return;
-	}
-	SystemList& layer = systemLayers[typeIDToLayerMap[_typeID]];
-
-	BaseSystem* systemPtr = nullptr;
-	for (size_t i = 0; i < layer.size(); i++)
-	{
-		systemPtr = layer[i];	// Store system pointer
-
-		if (systemPtr->getTypeID() == _typeID)
-		{
-
-			layer.erase(layer.begin() + i);	 // Remove system from layer
-			delete systemPtr;				 
-			typeIDToLayerMap.erase(_typeID); // Erase from hash map
-
-			return;
-		}
-	}
+	removeSystemInternal(_typeID);
 }
 
 int ecs::EntityComponentSystem::onGetComponentCountOfType(TypeID _typeID)
@@ -576,7 +570,7 @@ Entity* EntityComponentSystem::createEntityInternal(ComponentList _components)
 		}
 
 		// Make entity know of component
-		entity->componentIDs[component->getTypeID()] = component->getID();
+		//entity->componentIDs[component->getTypeID()] = component->getID();
 	}
 
 	// Create event
@@ -598,6 +592,7 @@ BaseComponent* EntityComponentSystem::createComponentInternal(ID _entityID, Base
 		return nullptr;
 	}
 
+
 	// Create component
 	_componentInfo.entityID = _entityID;
 	BaseComponent* component = componentMgr.createComponent(_componentInfo);
@@ -608,14 +603,17 @@ BaseComponent* EntityComponentSystem::createComponentInternal(ID _entityID, Base
 		return nullptr;
 	}
 
-	entity->componentIDs[component->getTypeID()] = component->getID();
+	const TypeID compTypeID = _componentInfo.getTypeID();
+	entity->componentIDs[compTypeID] = component->getID();
 
 	// Create event
 	events::CreateComponentEvent e;
 	e.entityID = entity->getID();
 	e.componentID = component->getID();
-	e.componentTypeID = component->getTypeID();
+	e.componentTypeID = compTypeID;
 	BaseEvent* pEvent = eventMgr.createEvent(e);
+
+	notifyCompCreationInterests(compTypeID, entity);
 
 	return component;
 }
@@ -634,6 +632,8 @@ void EntityComponentSystem::removeEntityInternal(ID _entityID)
 	{
 		return;
 	}
+
+	notifyEntityRemovalInterests(entity);
 
 	std::map<TypeID, ID>::iterator it;
 	for (std::pair<TypeID, ID> c : entity->componentIDs)
@@ -674,16 +674,76 @@ void EntityComponentSystem::removeComponentInternal(ID _entityID, TypeID _compon
 	rve.componentTypeID = _componentTypeID;
 	eventMgr.createEvent(rve);
 
+	notifyCompRemovalInterests(_componentTypeID, entity);
+
 	// Erasing component ID from entity must happen after event is created,
 	// in case some systems need to act to event.
 	entity->componentIDs.erase(_componentTypeID);
 	componentMgr.flagRemoval(_componentTypeID, componentID);
+
 
 	// If the entity only had one component, and is now down to zero components,
 	// remove the entity.
 	if (!entity->componentIDs.size())
 	{
 		removeEntityInternal(_entityID);
+	}
+}
+
+void EntityComponentSystem::removeSystemInternal(TypeID _typeID)
+{
+	// Check if system exist
+	if (typeIDToLayerMap.count(_typeID) == 0)
+	{
+		return;
+	}
+
+	// Retrieve the system's layer
+	SystemList& layer = systemLayers[typeIDToLayerMap[_typeID]];
+
+	// Iterate in layer until system is found
+	SystemList::iterator updater = layer.begin();
+	//for (size_t i = 0; i < layer.size(); i++)
+	while (updater != layer.end())
+	{
+		SystemUpdateInfo* updateInfo = (*updater);
+
+		// Check if wanted system
+		if (updateInfo->systemPtr->getTypeID() == _typeID)
+		{
+			BaseSystem* sys = updateInfo->systemPtr;		// Store system pointer
+
+			// Remove all component interests
+			for (TypeID compTypeID : sys->typeFilter.requirements)
+			{
+				std::vector<SystemUpdateInfo*>::iterator uit = componentInterests[compTypeID].begin();
+				while (uit != componentInterests[compTypeID].end())
+				{
+					if (updateInfo == (*uit))
+					{
+						uit = componentInterests[compTypeID].erase(uit);
+					}
+					else
+					{
+						uit++;
+					}
+				}
+			}
+
+
+			updater = layer.erase(updater);					// Remove system from layer
+			//SystemFreeFunction ff = sys->getFreeFunction(); /* Fetch free function, in case user hasn't
+			//												   written its destructor as virtual */
+			//ff(sys);										// Call free function
+			delete updateInfo;
+			delete sys;
+			typeIDToLayerMap.erase(_typeID);				// Erase from hash map
+			return;
+		}
+		else
+		{
+			updater++;
+		}
 	}
 }
 
@@ -763,5 +823,126 @@ void EntityComponentSystem::fillEventIteratorInternal(TypeFilter& _eventFilter, 
 	for (TypeID typeID : _eventFilter.requirements)
 	{
 		_iterator.eventTypes[typeID] = eventMgr.getEventIterator(typeID);
+	}
+}
+
+void EntityComponentSystem::notifyEntityCreationInterests(Entity* _entityPtr)
+{
+	for (std::pair<TypeID, ID> compInfo : _entityPtr->componentIDs)
+	{
+		for (SystemUpdateInfo* updater : componentInterests[compInfo.first])
+		{
+			if (updater->isEntityValid(_entityPtr))
+			{
+				FilteredEntity info;
+				info.entity = _entityPtr;
+
+				for (TypeID typeID : updater->systemPtr->typeFilter.requirements)
+				{
+					info.components[typeID] = componentMgr.getComponent(typeID, _entityPtr->getComponentID(typeID));
+				}
+
+				// Store entity info
+				updater->entityIterator.entities.push_back(info);
+			}
+		}
+	}
+}
+
+void EntityComponentSystem::notifyEntityRemovalInterests(Entity* _entityPtr)
+{
+	const ID entityID = _entityPtr->getID();
+	for (std::pair<TypeID, ID> c : _entityPtr->componentIDs)
+	{
+		//for (SystemUpdateInfo* updater : componentInterests[c.first])
+		//{
+		//	if (updater->hasEntity(entityID))
+		//	{
+		//		int index = updater->entityIndex[entityID];
+		//		updater->entityIndex.erase(entityID);
+		//		updater->entityIterator.entities.erase(updater->entityIterator.entities.begin() + index);
+		//	}
+		//}
+
+		std::vector<SystemUpdateInfo*>::iterator updaterIt = componentInterests[c.first].begin();
+		while (updaterIt != componentInterests[c.first].end())
+		{
+			SystemUpdateInfo* updater = (*updaterIt);
+
+			std::vector<FilteredEntity>::iterator entityInfo = updater->entityIterator.entities.begin();
+			while (entityInfo != updater->entityIterator.entities.end())
+			{
+				if (entityInfo->entity->getID() == entityID &&
+					updater->isEntityValid(_entityPtr))
+				{
+					entityInfo = updater->entityIterator.entities.erase(entityInfo);
+				}
+				else
+				{
+					entityInfo++;
+				}
+			}
+
+			updaterIt++;
+		}
+	}
+}
+
+void EntityComponentSystem::notifyCompCreationInterests(TypeID _typeID, Entity* _entityPtr)
+{
+	for (SystemUpdateInfo* updater : componentInterests[_typeID])
+	{
+	   	// Check if updater cares about the entity
+		if (updater->isEntityValid(_entityPtr))
+		{
+			FilteredEntity info;
+			info.entity = _entityPtr;
+
+			for (TypeID typeID : updater->systemPtr->typeFilter.requirements)
+			{
+				info.components[typeID] = componentMgr.getComponent(typeID, _entityPtr->getComponentID(typeID));
+			}
+
+			// Store entity info
+			updater->entityIterator.entities.push_back(info);
+		}
+	}
+}
+
+void EntityComponentSystem::notifyCompRemovalInterests(TypeID _typeID, Entity* _entityPtr)
+{
+	const ID entityID = _entityPtr->getID();
+
+	std::vector<SystemUpdateInfo*>::iterator updaterIt = componentInterests[_typeID].begin();
+	while (updaterIt != componentInterests[_typeID].end())
+	{
+		SystemUpdateInfo* updater = (*updaterIt);
+		
+
+		// Check if updater has entity and if is not interesting anymore
+		/*if (updater->hasEntity(_entityPtr->getID()) &&
+			!updater->isEntityValid(_entityPtr))
+		{
+			int index = updater->entityIndex[entityID];
+
+			updater->entityIndex.erase(entityID);
+			updater->entityIterator.entities.erase(updater->entityIterator.entities.begin() + index);
+		}*/
+
+		std::vector<FilteredEntity>::iterator entityInfo = updater->entityIterator.entities.begin();
+		while (entityInfo != updater->entityIterator.entities.end())
+		{
+			if (entityInfo->entity->getID() == entityID &&
+				updater->isEntityValid(_entityPtr))
+			{
+				entityInfo = updater->entityIterator.entities.erase(entityInfo);
+			}
+			else
+			{
+				entityInfo++;
+			}
+		}
+
+		updaterIt++;
 	}
 }

@@ -315,8 +315,12 @@ namespace ecs
 
 		void FallingWeaponSystem::updateEntity(FilteredEntity& entity, float delta)
 		{
-			TransformComponent* p_weapon_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(entity.entity->getID());
-			FallingWeaponComponent* p_falling_weapon = ECSUser::getComponentFromKnownEntity<FallingWeaponComponent>(entity.entity->getID());
+			//TransformComponent* p_weapon_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(entity.entity->getID());
+			//FallingWeaponComponent* p_falling_weapon = ECSUser::getComponentFromKnownEntity<FallingWeaponComponent>(entity.entity->getID());
+
+			TransformComponent* p_weapon_transform = entity.getComponent<TransformComponent>();
+			FallingWeaponComponent* p_falling_weapon = entity.getComponent<FallingWeaponComponent>();
+
 			//Carepackage stuff.
 			//TransformComponent* p_carepackage_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_falling_weapon->mCarepackageId);
 

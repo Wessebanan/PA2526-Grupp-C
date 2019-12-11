@@ -18,9 +18,12 @@ ecs::systems::DynamicMovementSystem::~DynamicMovementSystem()
 
 void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _entityInfo, float _delta)
 {
-	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(_entityInfo.entity->getID());
+	/*DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(_entityInfo.entity->getID());
 	TransformComponent* transform_component = getComponentFromKnownEntity<TransformComponent>(_entityInfo.entity->getID());
-	UnitScalePercent* unit_scale = getComponentFromKnownEntity<UnitScalePercent>(_entityInfo.entity->getID());
+	UnitScalePercent* unit_scale = getComponentFromKnownEntity<UnitScalePercent>(_entityInfo.entity->getID());*/
+
+	DynamicMovementComponent* movement_component = _entityInfo.getComponent<DynamicMovementComponent>();
+	TransformComponent* transform_component = _entityInfo.getComponent<TransformComponent>();
 
 	// WALKING
 
@@ -104,6 +107,8 @@ void ecs::systems::DynamicMovementSystem::updateEntity(ecs::FilteredEntity& _ent
 	transform_component->position.y += movement_component->mVelocity.y * _delta;
 	transform_component->position.z += movement_component->mVelocity.z * _delta;
 
+
+	UnitScalePercent* unit_scale = getComponentFromKnownEntity<UnitScalePercent>(_entityInfo.entity->getID());
 	//If the unit is bellow -0.9 in y we know that the unit is on a water tile. Kill the unit.
 	if (unit_scale != nullptr && transform_component->position.y - transform_component->scale.y * unit_scale->UnitScale <= -1.0f && _entityInfo.entity->hasComponentOfType<UnitComponent>())
 	{

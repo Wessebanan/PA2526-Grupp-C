@@ -26,7 +26,7 @@
 namespace ecs
 {
 	struct CompTypeMemDesc
-	{	
+	{
 		TypeID typeID;
 		size_t componentSize;
 		size_t memoryCount;
@@ -58,7 +58,7 @@ namespace ecs
 		//		- All component pools will have a size of 100 components (of that type). The pools will happen when a component of an
 		//		 uninitialized component pool is encountered during runtime.
 		//			- This will also happen if a component type is not specified in the ECSDesc.
-		bool initialize(ECSDesc &_desc);
+		bool initialize(ECSDesc& _desc);
 
 		template <typename T>
 		void reserveComponentCount(unsigned int _count);
@@ -142,7 +142,7 @@ namespace ecs
 
 		// Returns a base pointer to the component of given TypeID that belongs given entity.
 		BaseComponent* getComponentFromEntity(TypeID _typeID, ID _entityID);
-		
+
 		// Returns a casted pointer to the component of given type and ID.
 		template <typename T> T* getComponent(ID _id);
 
@@ -167,7 +167,7 @@ namespace ecs
 
 		// Returns the number of components of given type in the ECS.
 		size_t getComponentCountOfType(TypeID _typeID);
-		
+
 		// Returns an EntityIterator that only contains entities that have all components
 		// in given component type filter.
 		EntityIterator getEntititesByFilter(TypeFilter _componentFilter);
@@ -181,15 +181,42 @@ namespace ecs
 
 	private:
 
+		struct SystemUpdateInfo
+		{
+			SystemUpdateType updateType;
+			//std::unordered_map<ID, int> entityIndex;
+			EntityIterator entityIterator;
+			BaseSystem* systemPtr;
+
+			inline bool isEntityValid(Entity* _entity)
+			{
+				if (!systemPtr->typeFilter.requirements.size())
+				{
+					return false;
+				}
+
+				for (TypeID typeID : systemPtr->typeFilter.requirements)
+				{
+					if (!_entity->hasComponentOfType(typeID))
+					{
+						return false;
+					}
+				}
+				return true;
+			}
+		};
+
 		ECSEventManager eventMgr;
 		ECSEntityManager entityMgr;
 		ECSComponentManager componentMgr;
 
-		using SystemList = std::vector<BaseSystem*>;
+		std::unordered_map<TypeID, std::vector<SystemUpdateInfo*>> componentInterests;
+
+		using SystemList = std::vector<SystemUpdateInfo*>;
 		size_t layerCount;
 
 		// Dynamic list of all system layers.
-		SystemList *systemLayers;
+		SystemList* systemLayers;
 
 		// Map containing one entry per system in the ECS.
 		// Can be used to find which layer a system is in for quick access.
@@ -234,10 +261,14 @@ namespace ecs
 		void createEventInternal(BaseEvent& _event);
 		void removeEntityInternal(ID _entityID);
 		void removeComponentInternal(ID _entityID, TypeID _componentTypeID);
+		void removeSystemInternal(TypeID _typeID);
 		void fillEntityIteratorInternal(TypeFilter& _componentFilter, EntityIterator& _iterator);
 		void fillEventIteratorInternal(TypeFilter& _eventFilter, EventTypeIterator& _iterator);
 
-		//std::unordered_map<TypeID, > systemCreateFunctions;
+		void notifyEntityCreationInterests(Entity* _entityPtr);
+		void notifyEntityRemovalInterests(Entity* _entityPtr);
+		void notifyCompCreationInterests(TypeID _typeID, Entity* _entityPtr);
+		void notifyCompRemovalInterests(TypeID _typeID, Entity* _entityPtr);
 	};
 
 	/*
@@ -298,39 +329,27 @@ namespace ecs
 		// Set system in hashed list for easy access
 		typeIDToLayerMap[T::typeID] = layer;
 
+		// Initialize the system's update info
+		SystemUpdateInfo* updateInfo = new SystemUpdateInfo;
+		updateInfo->systemPtr = newSystem;
+		updateInfo->updateType = newSystem->updateType;
+
+		for (TypeID typeID : updateInfo->systemPtr->typeFilter.requirements)
+		{
+			componentInterests[typeID].push_back(updateInfo);
+		}
+
+		fillEntityIteratorInternal(updateInfo->systemPtr->typeFilter, updateInfo->entityIterator);
+
 		// Push back system in wanted layer for later update
-		systemLayers[layer].push_back(newSystem);
+		systemLayers[layer].push_back(updateInfo);
 		return newSystem;
 	}
 
 	template<typename T>
 	inline void EntityComponentSystem::removeSystem()
 	{
-		// Check if system exist
-		if (typeIDToLayerMap.count(T::typeID) == 0)
-		{
-			return;
-		}
-
-		// Retrieve the system's layer
-		SystemList& layer = systemLayers[typeIDToLayerMap[T::typeID]];
-
-		// Iterate in layer until system is found
-		for (size_t i = 0; i < layer.size(); i++)
-		{
-			// Check if wanted system
-			if (layer[i]->getTypeID() == T::typeID)
-			{
-				BaseSystem* sys = layer[i];						// Store system pointer
-				layer.erase(layer.begin() + i);					// Remove system from layer
-				//SystemFreeFunction ff = sys->getFreeFunction(); /* Fetch free function, in case user hasn't
-				//												   written its destructor as virtual */
-				//ff(sys);										// Call free function
-				delete sys;
-				typeIDToLayerMap.erase(T::typeID);				// Erase from hash map
-				return;
-			}
-		}
+		removeSystemInternal(T::typeID);
 	}
 
 	template<typename T>
