@@ -37,36 +37,6 @@ namespace ecs
 			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
 		};
 
-		/** GroundCollisionComponentInitSystem:
-		* Creates the OBB that is used for ground
-		* collision whenever a ground collision
-		* component is created.
-		*/
-		SYSTEM(GroundCollisionComponentInitSystem)
-		{
-			GroundCollisionComponentInitSystem();
-			~GroundCollisionComponentInitSystem();
-			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
-		};
-
-		/** GroundCollisionSystem:
-		* Each update this system checks each
-		* entity with a ground collision component
-		* against the tile it is on (nearest center
-		* position right now).
-		*/
-		SYSTEM(GroundCollisionSystem)
-		{
-			GroundCollisionSystem();
-			~GroundCollisionSystem();
-			void updateEntity(FilteredEntity & _entityInfo, float _delta) override;
-		private:
-			EntityIterator mTiles;
-			TransformComponent** mppTileTransforms = nullptr;
-			unsigned int mTileCount = 0;
-			bool mInit = false;
-		};
-
 		/** FillQuadTreeSystem:
 		* Each update this system fills the quadtree with QuadTreeObjects containing
 		* information needed to check for collisions. The tree needs to be manually cleared
