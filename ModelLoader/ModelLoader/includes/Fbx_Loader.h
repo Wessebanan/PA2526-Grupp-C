@@ -78,6 +78,7 @@ namespace ModelLoader
 		ATTACK2,
 		ATTACK3,
 		JUMP,
+		TBORK,
 		ANIMATION_COUNT
 	};
 

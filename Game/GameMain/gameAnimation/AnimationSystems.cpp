@@ -16,7 +16,11 @@ void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float de
 {
 	components::SkeletonComponent* pSkeleton = entity.getComponent<components::SkeletonComponent>();
 	components::AnimationSpeedComponent* pAnimation = entity.getComponent<components::AnimationSpeedComponent>();
-	if (pSkeleton->pingTimeElapsed >= 0.0f && pSkeleton->pingTimeElapsed <= 1.0f)
+	if (getComponentFromKnownEntity<ecs::components::DeadComponent>(pSkeleton->getEntityID()))
+	{
+		pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::PING);
+	}
+	else if (pSkeleton->pingTimeElapsed >= 0.0f && pSkeleton->pingTimeElapsed <= 1.0f)
 	{
 		pSkeleton->pingTimeElapsed += delta;
 		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
