@@ -591,11 +591,12 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 
 				int rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
 				int rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
-				while (!p_gp->mGrid[rand_x][rand_y].isPassable)
-				{
-					rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
-					rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
-				}
+				////Saved if we want the spring to be safer
+				//while (!p_gp->mGrid[rand_x][rand_y].isPassable)
+				//{
+				//	rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
+				//	rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
+				//}
 
 
 				events::ThrowUnitEvent throw_eve;

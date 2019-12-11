@@ -248,14 +248,21 @@ void ecs::systems::ThrowEventSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 	ID unit_id = p_event->mUnitID;
 	ID tile_id = p_event->mTileID;
-	//DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(unit_id);
+	
+	DynamicMovementComponent* movement_component = getComponentFromKnownEntity<DynamicMovementComponent>(unit_id);
+
 	UnitComponent* unit_component = getComponentFromKnownEntity<UnitComponent>(unit_id);
 	TransformComponent* unit_transform_component = getComponentFromKnownEntity<TransformComponent>(unit_id);
 	TransformComponent* tile_transform_component = getComponentFromKnownEntity<TransformComponent>(tile_id);
+	
+	// stop thier movment so they dont go off the course
+	movement_component->mVelocity = { 0.0f ,0.0f ,0.0f };
+
+	// Move up to prevent instantly failing
+	unit_transform_component->position.y += 1.5f;
 
 	events::ForceImpulseEvent force_eve;
 	force_eve.mEntityID = unit_id;
-	//unit_transform_component->position.y += 1.5f;
 
 	XMFLOAT3 flight_direction;
 	XMFLOAT3 flight_direction_norm;
