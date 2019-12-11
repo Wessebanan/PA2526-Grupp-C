@@ -14,6 +14,8 @@
 
 #include "..//UI/UISystems.h"
 
+#include "..//Physics/PhysicsEvents.h"
+
 using namespace ecs;
 using namespace ecs::components;
 
@@ -40,15 +42,23 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 		for (size_t i = 0; i < 4; i++)
 		{
 			// CURRENTLY HIJACKED AS THE "PING" bBUTTON
-			if (ucComp->userCommands[i].mCommand == "move" && p_player_state_comp->mCurrentStates[i] != STATE::MOVE)
+			if (ucComp->userCommands[i].mCommand == "taunt"/* && p_player_state_comp->mCurrentStates[i] != STATE::TAUNT*/)
 			{
 				// change state component
 				events::PingEvent ping_event;
 				ping_event.playerId = (PLAYER)i;
 
-				p_player_state_comp->mCurrentStates[i] = STATE::MOVE;
+				//p_player_state_comp->mCurrentStates[i] = STATE::TAUNT;
 
 				createEvent(ping_event);
+
+
+				// set the units to idel
+				events::ChangeUserStateEvent eve;
+				eve.newState = STATE::IDLE;
+				eve.playerId = (PLAYER)i;
+				createEvent(eve);
+
 			}
 			else if (ucComp->userCommands[i].mCommand == "regroup" )
 			{
@@ -107,16 +117,17 @@ void ecs::systems::ChangeFSMSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 				createEvent(cus_event);
 
-				// USED FOR TESTING DEBUGGING
-				//events::TriggerFireTrapEvent trap_event;
+				//// USED FOR TESTING DEBUGGING
+				//events::ThrowUnitEvent trap_event;
+				//trap_event.mTileID = (ID)(GridProp::GetInstance()->mGrid[9][16].Id);
 
 				//ComponentIterator itt;
 				//itt = getComponentsOfType<UnitComponent>();
-				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//trap_event.mUnitID = (ID)(UnitComponent*)itt.next()->getEntityID();
 				//createEvent(trap_event);
-				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//trap_event.mUnitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
 				//createEvent(trap_event);
-				//trap_event.unitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
+				//trap_event.mUnitID = (TypeID)(UnitComponent*)itt.next()->getEntityID();
 				//createEvent(trap_event);
 			}
 			else if (ucComp->userCommands[i].mCommand == "tutorial")//&& p_player_state_comp->mCurrentStates[i] != STATE::FLEE)
@@ -172,23 +183,11 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 					
 					// Takes the tilecomponent to make sure it isnt water
 					TileComponent* p_map_tile = getComponentFromKnownEntity<TileComponent>(p_gp->mGrid[tile_index_y][tile_index_x].Id);
-					
-					/// Loops over existing traps so they dont stack
-					bool not_traped = true;
-					itt = getComponentsOfType<TrapComponent>();
-					TrapComponent* p_trap;
-					while (p_trap = (TrapComponent*)itt.next())
-					{
-						if (p_trap->mTileID == p_gp->mGrid[tile_index_y][tile_index_x].Id)
-						{
-							not_traped = false;
-							break;
-						}
-					}
 
 					int loops = 0;
 					// Loop until we its a tile the units can go on
-					while ((p_map_tile->tileType == TileTypes::WATER || !not_traped) && loops < 256 || p_map_tile->impassable)
+					//while ((p_map_tile->tileType == TileTypes::WATER || !not_traped) && loops < 256 || p_map_tile->impassable)
+					while ((p_map_tile->tileType == TileTypes::WATER) && loops < 256 || p_map_tile->impassable || p_map_tile->hasTrap)
 					{
 						// Roll new tile
 						tile_index_x = (p_tile_comp->userTiles[i].mCordX * partion_x) + (rand() % partion_x);
@@ -198,30 +197,23 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 
 						p_map_tile = getComponentFromKnownEntity<TileComponent>(p_gp->mGrid[tile_index_y][tile_index_x].Id);
 
-
-						// Check for existing traps
-						not_traped = true;
-						itt = getComponentsOfType<TrapComponent>();
-						p_trap;
-						while (p_trap = (TrapComponent*)itt.next())
-						{
-							if (p_trap->mTileID == p_gp->mGrid[tile_index_y][tile_index_x].Id)
-							{
-								not_traped = false;
-								break;
-							}
-						}
-
 						loops++;
 					}
 
+					// Sanity check. Last stored tile could have trap and isnt checked in loop
+					if (!p_map_tile || p_map_tile->hasTrap)
+					{
+						return;
+					}
 					
 					TypeID tile_ID = p_gp->mGrid[tile_index_y][tile_index_x].Id;
-					
+
+					p_map_tile->hasTrap = true;
 
 					ecs::events::PlaceTrapEvent eve;
 						
 					eve.tileID = tile_ID;
+					eve.userID = i;
 
 					// Last part is falesafe if something would go wrong from the website
 					// The 1 is to work around the index of GAME_OBJECT_TYPE_TRAP

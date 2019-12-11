@@ -48,6 +48,7 @@ namespace ecs
 		void WorldSceneryUpdateSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 		{
 			components::TransformComponent* p_transform = _entityInfo.getComponent<components::TransformComponent>();
+			components::WorldSceneryComponent* p_world_scenery = _entityInfo.getComponent<components::WorldSceneryComponent>();
 
 			XMVECTOR center_pos = XMLoadFloat3(&this->mCenter);
 			XMVECTOR shark_pos = XMLoadFloat3(&p_transform->position);
@@ -71,6 +72,18 @@ namespace ecs
 			p_transform->rotation.y = Sign(XMVectorGetX(post_forward_vector)) * acosf(XMVectorGetX(XMVector3Dot(post_forward_vector, { 0.f, 0.f, 1.f, 0.f }))); // Rotate the shark
 			p_transform->rotation.y -= 3.14f / 2.f; //turn the shark 90 degrees 
 
+
+			// Make shark be at wave heigh
+			
+			ComponentIterator itt;
+			itt = getComponentsOfType<components::WaveCenterComponent>();
+			WaveCenterComponent* wave_arr;
+			if (wave_arr = (WaveCenterComponent*)itt.next())
+			{
+				p_transform->position.y = wave_arr->mpFirstElement[p_world_scenery->mWaveIndex];
+				p_transform->position.y -= 1.8f;
+				//p_transform->position.y = wave_arr[p_world_scenery->mWaveIndex];
+			}
 		}
 	}
 }

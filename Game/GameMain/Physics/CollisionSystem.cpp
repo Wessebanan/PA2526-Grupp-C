@@ -57,11 +57,13 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	{
 		ID current_entity_id = collision_list.at(i).pTransform->getEntityID();
 		QuadTreeObject current_qt_object = collision_list.at(i);
+		
 		// Skip yourself.
 		if (current_entity_id == entity_id)
 		{
 			continue;
 		}
+		
 		// Grabbing the collision and transform component from the current entity.
 		ObjectCollisionComponent* p_current_collision	= current_qt_object.pBoundingBox;
 		TransformComponent* p_current_transform			= current_qt_object.pTransform;
@@ -122,21 +124,30 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 				XMMATRIX resolution_translation = XMMatrixTranslation(resolution_movement.x, resolution_movement.y, resolution_movement.z);
 				p_bv_copy->Transform(resolution_translation);
 
-				// Find largest component of collision normal and set velocity in that direction to 0.
+				// If collided object has movement, give it some of colliding units velocity.
+				DynamicMovementComponent* p_current_movement = getComponentFromKnownEntity<DynamicMovementComponent>(current_entity_id);
+				if (p_current_movement)
+				{
+					p_current_movement->mVelocity.x += 0.2f * p_movement->mVelocity.x;
+					p_current_movement->mVelocity.y += 0.2f * p_movement->mVelocity.y;
+					p_current_movement->mVelocity.z += 0.2f * p_movement->mVelocity.z;
+				}
+				
+				// Find largest component of collision normal and set velocity in that direction to -0.5 of current (BOUNCE).
 				XMFLOAT3 abs_normal;
 				XMStoreFloat3(&abs_normal, XMVectorAbs(XMLoadFloat3(&info.mNormal)));
 
 				if (abs_normal.x > abs_normal.y && abs_normal.x > abs_normal.z)
 				{
-					p_movement->mVelocity.x = 0.0f;
+					p_movement->mVelocity.x *= -0.5f;
 				}
 				else if (abs_normal.y > abs_normal.z)
 				{
-					p_movement->mVelocity.y = 0.0f;
+					p_movement->mVelocity.y *= -0.5f;
 				}
 				else
 				{
-					p_movement->mVelocity.z = 0.0f;
+					p_movement->mVelocity.z *= -0.5f;
 				}
 			}
 
@@ -153,6 +164,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 				{
 					p_movement->mLastTileY = p_current_transform->position.y;
 					on_ground = true;
+					ECSUser::removeComponent(p_event->mEntityID, JumpComponent::typeID);
 				}
 			}
 			

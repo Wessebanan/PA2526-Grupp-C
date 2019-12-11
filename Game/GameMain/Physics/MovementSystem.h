@@ -37,6 +37,13 @@ namespace ecs
 			~DynamicMovementInitSystem();
 			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
 		};
+		
+		SYSTEM(ThrowEventSystem)
+		{
+			ThrowEventSystem();
+			~ThrowEventSystem();
+			void onEvent(TypeID _typeID, ecs::BaseEvent * _event) override;
+		};
 
 	} // systems
 } // ecs

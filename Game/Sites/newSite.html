@@ -672,9 +672,9 @@
             }
         };
 
-        function sendPing()
+        function sendTaunt()
         {
-            socket.send("0004ping");
+            socket.send("0004taunt");
         }
     </script>
 </head>
@@ -743,7 +743,7 @@
 
     <div id='commandField' style='display:none;'>
         <div id='CommandContainer'>
-            <div id="PingButton" onclick="sendPing()"><h3>PING</h3></div>
+            <div id="PingButton" onclick="sendTaunt()"><h3>TAUNT</h3></div>
 
             </br>
 

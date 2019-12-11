@@ -47,19 +47,20 @@ UIBitmapSystem::~UIBitmapSystem()
 
 void UIBitmapSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
-	components::UIDrawPosComponent* UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
 	components::UIBitmapComponent* p_UI_bitmap_comp = _entityInfo.getComponent<components::UIBitmapComponent>();
-
-	if(p_UI_bitmap_comp->to_draw)
+	if (!p_UI_bitmap_comp->to_draw)
 	{
-		if (p_UI_bitmap_comp->mpTintedBitmap)
-		{
-			mpD2D->DrawBitmap(p_UI_bitmap_comp->mpTintedBitmap, UI_pos_comp->mDrawArea);
-		}
-		else
-		{
-			mpD2D->DrawBitmap(p_UI_bitmap_comp->mpBitmap, UI_pos_comp->mDrawArea);
-		}
+		return;
+	}
+
+	components::UIDrawPosComponent* UI_pos_comp = _entityInfo.getComponent<components::UIDrawPosComponent>();
+	if (p_UI_bitmap_comp->mpTintedBitmap)
+	{
+		mpD2D->DrawBitmap(p_UI_bitmap_comp->mpTintedBitmap, UI_pos_comp->mDrawArea);
+	}
+	else
+	{
+		mpD2D->DrawBitmap(p_UI_bitmap_comp->mpBitmap, UI_pos_comp->mDrawArea);
 	}
 }
 
@@ -357,6 +358,7 @@ void ecs::systems::UIOverlayInitSystem::readEvent(BaseEvent& _event, float _delt
 
 	UIUnitReader* p_unit_reader_comp;
 	ArmyComponent* p_army_comp;
+	UIBitmapComponent* p_bitmap_comp;
 	ComponentIterator itt = getComponentsOfType(components::UserNameComponent::typeID);
 	components::UserNameComponent* p_name_comp = (components::UserNameComponent*)itt.next();
 	for (FilteredEntity ui_unit : ui_units.entities)
@@ -370,15 +372,20 @@ void ecs::systems::UIOverlayInitSystem::readEvent(BaseEvent& _event, float _delt
 			ArmyComponent* p_army = army.getComponent<ArmyComponent>();
 			if (p_unit_reader_comp->playerID == p_army->playerID)
 			{
+				p_bitmap_comp = ui_unit.getComponent<UIBitmapComponent>();
+
 				std::string player_name = p_name_comp->names[(int)p_army->playerID];
 				getComponentFromKnownEntity<UITextComponent>(p_army->getEntityID())->mStrText = std::wstring(player_name.begin(), player_name.begin()+10);
 				p_army_comp = p_army;
+
+				p_unit_reader_comp->armyID = p_army_comp->getEntityID();
+				p_unit_reader_comp->unitID = p_army_comp->unitIDs.at((int)p_unit_reader_comp->unitPlacement);
+				
+				p_bitmap_comp->to_draw = true;
+
 				break;
 			}
 		}
-
-		p_unit_reader_comp->armyID = p_army_comp->getEntityID();
-		p_unit_reader_comp->unitID = p_army_comp->unitIDs.at((int)p_unit_reader_comp->unitPlacement);
 	}
 }
 
@@ -398,9 +405,18 @@ void ecs::systems::UIUnitColorUpdateSystem::updateEntity(FilteredEntity& uiUnit,
 {
 	UIUnitReader* p_unit_reader_comp = uiUnit.getComponent<UIUnitReader>();
 	UIBitmapComponent* p_bitmap_comp = uiUnit.getComponent<UIBitmapComponent>();
+
+	Entity* p_unit_entity = getEntity(p_unit_reader_comp->unitID);
+	if (!p_unit_entity || p_unit_entity->hasComponentOfType<DeadComponent>())
+	{
+		p_bitmap_comp->to_draw = false;
+		return;
+	}
+
 	ColorComponent* p_color_comp = getComponentFromKnownEntity<ColorComponent>(p_unit_reader_comp->unitID);
 	HealthComponent* p_health_comp = getComponentFromKnownEntity<HealthComponent>(p_unit_reader_comp->unitID);
 	int player_ID = p_unit_reader_comp->playerID;
+
 	/*
 		Check if unit exist, else set default color.
 	*/
@@ -413,7 +429,6 @@ void ecs::systems::UIUnitColorUpdateSystem::updateEntity(FilteredEntity& uiUnit,
 	};
 	if (p_color_comp)
 	{
-		p_bitmap_comp->to_draw = true;
 		//without flashes
 		/*mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap,
 			std::floorf((float)army_colors[player_ID].r * p_health_comp->mHealth / p_health_comp->mBaseHealth),
@@ -421,10 +436,6 @@ void ecs::systems::UIUnitColorUpdateSystem::updateEntity(FilteredEntity& uiUnit,
 			std::floorf((float)army_colors[player_ID].b * p_health_comp->mHealth / p_health_comp->mBaseHealth));*/
 
 		mpD2D->SetBitmapTint(p_bitmap_comp->mpBitmap, p_bitmap_comp->mpTintedBitmap, p_color_comp->red, p_color_comp->green, p_color_comp->blue); //with flashes
-	}
-	else
-	{
-		p_bitmap_comp->to_draw = false;
 	}
 }
 
@@ -441,7 +452,7 @@ ecs::systems::UIEndOfRoundSystem::~UIEndOfRoundSystem()
 
 void ecs::systems::UIEndOfRoundSystem::readEvent(BaseEvent& _event, float _delta)
 {
-	if (_event.getTypeID() != events::RoundEndEvent::typeID) //change 0 to my event id
+	if (_event.getTypeID() != events::RoundEndEvent::typeID)
 	{
 		return;
 	}
@@ -463,5 +474,35 @@ void ecs::systems::UIEndOfRoundSystem::readEvent(BaseEvent& _event, float _delta
 		{
 			this->mpD2D->SetBitmapTint(army_bitmaps->mpBitmap, army_bitmaps->mpTintedBitmap, 255, 255, 0);//change the bitmap color to yellow 
 		}
+	}
+}
+
+ecs::systems::UIGameRestartSystem::UIGameRestartSystem()
+{
+	updateType = EventReader;
+	typeFilter.addRequirement(events::GameReStartEvent::typeID);
+}
+
+ecs::systems::UIGameRestartSystem::~UIGameRestartSystem()
+{
+}
+
+void ecs::systems::UIGameRestartSystem::readEvent(BaseEvent& _event, float _delta)
+{
+	if (_event.getTypeID() != events::GameReStartEvent::typeID)
+	{
+		return;
+	}
+	UIBitmapComponent* army_bitmaps;
+	TypeFilter ui_army_filter;
+	ui_army_filter.addRequirement(UIBitmapComponent::typeID);
+	ui_army_filter.addRequirement(UIDrawPosComponent::typeID);
+	ui_army_filter.addRequirement(UIArmyReader::typeID);
+	EntityIterator ui_armies = getEntitiesByFilter(ui_army_filter);
+
+	for (FilteredEntity ui_armies : ui_armies.entities)
+	{
+		army_bitmaps = ui_armies.getComponent<UIBitmapComponent>();
+		this->mpD2D->SetBitmapTint(army_bitmaps->mpBitmap, army_bitmaps->mpTintedBitmap, 255, 255, 255);
 	}
 }

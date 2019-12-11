@@ -144,6 +144,9 @@
     <ClCompile Include="gameWorld\InitWorldScenery.cpp">
       <Filter>Init</Filter>
     </ClCompile>
+    <ClCompile Include="gameGraphics\DepthPrePassRenderingPipeline.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -443,6 +446,9 @@
     </ClInclude>
     <ClInclude Include="gameAudio\InitAudio.h">
       <Filter>Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="gameGraphics\DepthPrePassRenderingPipeline.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

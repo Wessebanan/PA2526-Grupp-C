@@ -20,8 +20,9 @@ namespace ecs
 	{
 		struct PlaceTrapEvent : public ecs::ECSEvent<PlaceTrapEvent>
 		{
+			ID userID = 0;
 			TypeID tileID;
-			GAME_OBJECT_TYPES type; // The winner of the round 
+			GAME_OBJECT_TYPES type; // The winner of the round
 		};
 
 		// Generic trap trigger event for collision.
@@ -35,6 +36,12 @@ namespace ecs
 		};
 
 		// Specific trigger events for traps
+		struct StartTrapSpawnSequenceEvent : public ECSEvent<StartTrapSpawnSequenceEvent>
+		{
+			float totalSpawnDuration;
+		};
+
+		// Trigger event for traps
 		struct TriggerFireTrapEvent : public ecs::ECSEvent<TriggerFireTrapEvent>
 		{
 			ID unitID;

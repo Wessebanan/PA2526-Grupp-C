@@ -23,6 +23,26 @@ namespace ecs
 		// ----------- UPDATE SYSTEMS ---------------
 
 		// Updates the timer on frozzen durations
+		class RootDurationSystem : public ecs::ECSSystem<RootDurationSystem>
+		{
+		public:
+			RootDurationSystem();
+			~RootDurationSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		private:
+		};
+		
+		// Updates the timer on frozzen durations
+		class BurningDurationSystem : public ecs::ECSSystem<BurningDurationSystem>
+		{
+		public:
+			BurningDurationSystem();
+			~BurningDurationSystem();
+			void updateEntity(FilteredEntity& _entityInfo, float _delta) override;
+		private:
+		};
+		
+		// Updates the timer on frozzen durations
 		class FreezingDurationSystem : public ecs::ECSSystem<FreezingDurationSystem>
 		{
 		public:
@@ -96,7 +116,7 @@ namespace ecs
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
 			const float mKnockbackAcc = 2.0f;
-			const float mDamage = 20.0f;
+			const float mDamage = 10.0f;
 		};
 	}
 }
