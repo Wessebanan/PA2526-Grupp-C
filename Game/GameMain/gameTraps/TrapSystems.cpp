@@ -18,19 +18,43 @@
 ------------------------------------------------------------
 */
 
-ecs::systems::SpikeRootDurationSystem::SpikeRootDurationSystem()
+ecs::systems::RootDurationSystem::RootDurationSystem()
 {
 	updateType = ecs::EntityUpdate;
-	typeFilter.addRequirement(ecs::components::SpikeTrapComponent::typeID);
+	typeFilter.addRequirement(ecs::components::RootComponent::typeID);
 	typeFilter.addRequirement(ecs::components::DynamicMovementComponent::typeID);
 }
 
-ecs::systems::SpikeRootDurationSystem::~SpikeRootDurationSystem()
+ecs::systems::RootDurationSystem::~RootDurationSystem()
 {
 }
 
-void ecs::systems::SpikeRootDurationSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
+void ecs::systems::RootDurationSystem::updateEntity(FilteredEntity& _entityInfo, float _delta)
 {
+	RootComponent* p_spike_comp = _entityInfo.getComponent<components::RootComponent>();
+	DynamicMovementComponent* p_dyn_move_comp = _entityInfo.getComponent<components::DynamicMovementComponent>();
+
+	// Sanity check
+	if (!p_spike_comp || !p_dyn_move_comp) return;
+
+	p_spike_comp->mElapsedTime += _delta;
+
+	if (p_spike_comp->mElapsedTime > p_spike_comp->mDuration)
+	{
+		// Be imune to root for the same time as the unit was rooted
+		if (p_spike_comp->mElapsedTime > p_spike_comp->mDuration * p_spike_comp->mImuneFactor)
+			removeComponent(p_spike_comp->getEntityID(), p_spike_comp->getTypeID());
+		else
+		{
+			p_dyn_move_comp->mMaxVelocity = DEFAULT_MAX_VELOCITY;
+
+			AnimationSpeedComponent* p_anim_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(p_spike_comp->getEntityID());
+			p_anim_comp->factor = 1.0f;
+		}
+	}
+	else
+		p_dyn_move_comp->mMaxVelocity = 0.0f;
+
 }
 
 ecs::systems::BurningDurationSystem::BurningDurationSystem()
@@ -591,32 +615,40 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 
 				int rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
 				int rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
-				while (!p_gp->mGrid[rand_x][rand_y].isPassable)
-				{
-					rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
-					rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
-				}
+				////Saved if we want the spring to be safer
+				//while (!p_gp->mGrid[rand_x][rand_y].isPassable)
+				//{
+				//	rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
+				//	rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
+				//}
 
-				target_trans_comp = getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[rand_x][rand_y].Id);
 
-				// units transformcomponent
-				start_trans_comp = unit.getComponent<TransformComponent>();
+				events::ThrowUnitEvent throw_eve;
+				throw_eve.mTileID = (p_gp->mGrid[rand_x][rand_y].Id);
+				throw_eve.mUnitID = unit.entity->getID();
+				createEvent(throw_eve);
 
-				start_trans_comp->position.y += 1.5f;
+				//OLD FUNCTION 
+				//target_trans_comp = getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[rand_x][rand_y].Id);
 
-				XMFLOAT3 flight_direction;
-				flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
-				flight_direction.y = 3.0f;
-				flight_direction.z = target_trans_comp->position.z - start_trans_comp->position.z;
+				//// units transformcomponent
+				//start_trans_comp = unit.getComponent<TransformComponent>();
 
-				XMStoreFloat3(&flight_direction, XMVector3Normalize(XMLoadFloat3(&flight_direction)));
+				//start_trans_comp->position.y += 1.5f;
 
-				// Make the unit jump a litte, fire is hot and so am I
-				ForceImpulseEvent knockback;
-				knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
-				knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit.entity->getID())->mWeight;
-				knockback.mEntityID = unit.entity->getID();
-				createEvent(knockback);
+				//XMFLOAT3 flight_direction;
+				//flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
+				//flight_direction.y = 3.0f;
+				//flight_direction.z = target_trans_comp->position.z - start_trans_comp->position.z;
+
+				//XMStoreFloat3(&flight_direction, XMVector3Normalize(XMLoadFloat3(&flight_direction)));
+
+				//// Make the unit jump a litte, fire is hot and so am I
+				//ForceImpulseEvent knockback;
+				//knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
+				//knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit.entity->getID())->mWeight;
+				//knockback.mEntityID = unit.entity->getID();
+				//createEvent(knockback);
 			}
 			delete p_bv_copy;
 		}
@@ -718,17 +750,24 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 				}
 				else
 				{
-					// VISUAL
-					ColorSwitchEvent damage_flash;
-					damage_flash.mColor = WHITE;
-					damage_flash.mEntityID = unit.entity->getID();
-					damage_flash.mTime = 0.05f;
-					createEvent(damage_flash);
+					// Add the root component
+					ecs::components::RootComponent spike_comp;
 
-					ecs::components::SpikeTrapComponent spike_comp;
+					spike_comp.mDuration = 2.0f;
+					spike_comp.mImuneFactor = 2.0f;
 
 					ecs::ECSUser::createComponent(unit.entity->getID(), spike_comp);
 
+					// VISUAL
+					ColorSwitchEvent damage_flash;
+					damage_flash.mColor = Color(230,230,0);
+					damage_flash.mEntityID = unit.entity->getID();
+					damage_flash.mTime = spike_comp.mDuration;
+					createEvent(damage_flash);
+
+
+					AnimationSpeedComponent* p_anim_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(unit.entity->getID());
+					p_anim_comp->factor = 0.0001f;
 				}
 			}
 		}
