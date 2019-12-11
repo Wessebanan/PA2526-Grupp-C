@@ -185,9 +185,8 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 					TileComponent* p_map_tile = getComponentFromKnownEntity<TileComponent>(p_gp->mGrid[tile_index_y][tile_index_x].Id);
 
 					int loops = 0;
-					// Loop until we its a tile the units can go on
-					//while ((p_map_tile->tileType == TileTypes::WATER || !not_traped) && loops < 256 || p_map_tile->impassable)
-					while ((p_map_tile->tileType == TileTypes::WATER) && loops < 256 || p_map_tile->impassable || p_map_tile->hasTrap)
+					// Loop until we its a tile the units can go on, or 256 tries are made.
+					while (((p_map_tile->tileType == TileTypes::WATER) || p_map_tile->impassable || p_map_tile->hasTrap) && loops < 256)
 					{
 						// Roll new tile
 						tile_index_x = (p_tile_comp->userTiles[i].mCordX * partion_x) + (rand() % partion_x);
@@ -200,8 +199,8 @@ void ecs::systems::TrapEventSystem::updateEntity(FilteredEntity& _entityInfo, fl
 						loops++;
 					}
 
-					// Sanity check. Last stored tile could have trap and isnt checked in loop
-					if (!p_map_tile || p_map_tile->hasTrap)
+					// If the tile is not valid OR not suitable for trap after 256 tries, skip.
+					if (!p_map_tile || loops == 256)
 					{
 						return;
 					}
