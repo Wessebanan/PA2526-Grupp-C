@@ -806,12 +806,12 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			ComponentIterator itt = ecs::ECSUser::getComponentsOfType(ecs::components::GameLoopComponent::typeID);
 			GameLoopComponent* p_gl;
 			while (p_gl = (GameLoopComponent*)itt.next())
-			{
-				
+			{				
+				p_gl->mPlayerPoints[winner]++;
+
 				// Check if the winner will sin the game now or not
-				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN - 1)
+				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN)
 				{
-					p_gl->mPlayerPoints[winner]++;
 
 					cout << "The round winner is Player " << winner << endl;
 					// Can be reworked to start prep phase
