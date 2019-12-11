@@ -615,32 +615,40 @@ void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delt
 
 				int rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
 				int rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
-				while (!p_gp->mGrid[rand_x][rand_y].isPassable)
-				{
-					rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
-					rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
-				}
+				////Saved if we want the spring to be safer
+				//while (!p_gp->mGrid[rand_x][rand_y].isPassable)
+				//{
+				//	rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
+				//	rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
+				//}
 
-				target_trans_comp = getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[rand_x][rand_y].Id);
 
-				// units transformcomponent
-				start_trans_comp = unit.getComponent<TransformComponent>();
+				events::ThrowUnitEvent throw_eve;
+				throw_eve.mTileID = (p_gp->mGrid[rand_x][rand_y].Id);
+				throw_eve.mUnitID = unit.entity->getID();
+				createEvent(throw_eve);
 
-				start_trans_comp->position.y += 1.5f;
+				//OLD FUNCTION 
+				//target_trans_comp = getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[rand_x][rand_y].Id);
 
-				XMFLOAT3 flight_direction;
-				flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
-				flight_direction.y = 3.0f;
-				flight_direction.z = target_trans_comp->position.z - start_trans_comp->position.z;
+				//// units transformcomponent
+				//start_trans_comp = unit.getComponent<TransformComponent>();
 
-				XMStoreFloat3(&flight_direction, XMVector3Normalize(XMLoadFloat3(&flight_direction)));
+				//start_trans_comp->position.y += 1.5f;
 
-				// Make the unit jump a litte, fire is hot and so am I
-				ForceImpulseEvent knockback;
-				knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
-				knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit.entity->getID())->mWeight;
-				knockback.mEntityID = unit.entity->getID();
-				createEvent(knockback);
+				//XMFLOAT3 flight_direction;
+				//flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
+				//flight_direction.y = 3.0f;
+				//flight_direction.z = target_trans_comp->position.z - start_trans_comp->position.z;
+
+				//XMStoreFloat3(&flight_direction, XMVector3Normalize(XMLoadFloat3(&flight_direction)));
+
+				//// Make the unit jump a litte, fire is hot and so am I
+				//ForceImpulseEvent knockback;
+				//knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
+				//knockback.mForce = mKnockbackAcc * getComponentFromKnownEntity<DynamicMovementComponent>(unit.entity->getID())->mWeight;
+				//knockback.mEntityID = unit.entity->getID();
+				//createEvent(knockback);
 			}
 			delete p_bv_copy;
 		}
