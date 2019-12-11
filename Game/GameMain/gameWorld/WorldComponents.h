@@ -26,6 +26,7 @@ namespace ecs
 		struct WorldSceneryComponent : public ECSComponent<WorldSceneryComponent>
 		{
 			GAME_OBJECT_TYPE sceneryType;
+			unsigned int mWaveIndex;
 		};
 	}
 }
