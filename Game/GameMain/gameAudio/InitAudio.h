@@ -12,7 +12,7 @@ bool InitSound(ecs::EntityComponentSystem& rECS)
 
 
 	ecs::systems::SoundMessageSystem* system_handler =
-		rECS.createSystem<ecs::systems::SoundMessageSystem>(9);
+		rECS.createSystem<ecs::systems::SoundMessageSystem>(5);
 
 	if (!system_handler->Init())
 	{

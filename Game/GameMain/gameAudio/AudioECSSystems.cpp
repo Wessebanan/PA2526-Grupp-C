@@ -9,6 +9,7 @@
 #include "../gameGameLoop/GameLoopEvents.h"
 #include "../gameGameLoop/GameLoopComponents.h"
 #include "../gameAnimation/AnimationComponents.h"
+#include "../gameWorld/WorldComponents.h"
 #undef PlaySound
 
 ecs::systems::SoundMessageSystem::SoundMessageSystem()
@@ -194,6 +195,24 @@ void ecs::systems::SoundMessageSystem::act(float _delta)
 		// Progress animation
 		mBeatTime += _delta * 3.f;
 	}
+
+	float freq_array[256];
+	mSoundMixer->GetMusicManager()->GetFrequencies(freq_array);
+	components::WaveCenterComponent* wave_comp = 
+		static_cast<components::WaveCenterComponent*>(ecs::ECSUser::getComponentsOfType<components::WaveCenterComponent>().next());
+	static unsigned char freq = 0;
+	if (GetAsyncKeyState('K'))
+	{
+		freq++;
+		std::cout << (int)freq << std::endl;
+	}
+	else if (GetAsyncKeyState('J'))
+	{
+		freq--;
+		std::cout << (int)freq << std::endl;
+	}
+
+	*wave_comp->mpFirstElement = freq_array[freq] * 20.f;
 }
 
 bool ecs::systems::SoundMessageSystem::SetupEngine()

@@ -109,14 +109,14 @@ namespace ecs
 					if (index_to_pick >= WAVESCOUNT)
 						index_to_pick = WAVESCOUNT - 1;
 
-					p_ocean->mWaveIndex = index_to_pick;
+					p_ocean->mWaveIndex = index_to_pick-10;
 					p_ocean->mWaveAmplifier = ((distance_to_center/* * (distance_to_center*0.1f)*/) / MAXDIST) * 1.7f;
 				}
 				
 				p_transform->position.y = (mWaveArray[p_ocean->mWaveIndex] * p_ocean->mWaveAmplifier);
 
 				// Lower the water level
-				p_transform->position.y -= 0.5f;
+				p_transform->position.y -= 1.5f;
 			}
 
 			// to be change to music waves
