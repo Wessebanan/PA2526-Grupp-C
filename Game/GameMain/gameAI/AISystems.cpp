@@ -168,7 +168,7 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 		{
 			move_comp.goalID = goal_enemy_id;
 		}
-		else if (move_comp.activeCommand == LOOT && already_have_weapon)
+		else if (move_comp.activeCommand == LOOT && already_have_weapon) //If we want to loot and the unit already have a weapon we move to our closest ally instead.
 		{
 			move_comp.goalID = goal_friend_id;
 		}
@@ -361,6 +361,8 @@ int2 ecs::systems::PathfindingStateSystem::GetClosestTile(TransformComponent& tr
 	float distance;
 	float best_distance = 1000.0f;
 
+	//We try to predict which tile is the closest one by translating the world pos into a quad tile system.
+	//This makes it so that we don't have to loop over every tile in the world and only need to look at the predicted tile and eight tiles sourounding it in the grid.
 	//Calculate x index
 	tile_index.x = world_pos_x / (TILE_RADIUS * 1.5f);
 	if (tile_index.x >= p_gp->GetSize().x)
@@ -384,19 +386,25 @@ int2 ecs::systems::PathfindingStateSystem::GetClosestTile(TransformComponent& tr
 
 	if (p_gp != nullptr) //Sanity Check
 	{
+		//Check the neighboring tiles of the predicted tile to check that the one we found actually is the closest one. 
 		for (int i = tile_index.x - 1; i <= tile_index.x + 1; i++)
 		{
 			for (int j = tile_index.y - 1; j <= tile_index.y + 1; j++)
 			{
 				if (i >= 0 && i < p_gp->GetSize().y && j >= 0 && j < p_gp->GetSize().x)
 				{
-					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[tile_index.y][tile_index.x].Id);
-					distance = PhysicsHelpers::CalculateDistance(p_curr_tile_transform->position, transform.position);
+					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[j][i].Id);
+					//Set y to zero since we want to find the closest tile in x- and z-axis. We don't want y to affect the outcome.
+					XMFLOAT3 tile_pos_without_y = p_curr_tile_transform->position;
+					tile_pos_without_y.y = 0.0f;
+					XMFLOAT3 unit_pos_without_y = transform.position;
+					unit_pos_without_y.y = 0.0f;
+					distance = PhysicsHelpers::CalculateDistance(tile_pos_without_y, unit_pos_without_y);
 					if (distance < best_distance)
 					{
 						best_distance = distance;
-						return_index.x = tile_index.x;
-						return_index.y = tile_index.y;
+						return_index.x = i;
+						return_index.y = j;
 					}
 				}
 			}
@@ -585,32 +593,32 @@ unsigned int ecs::systems::PathfindingStateSystem::FindSafeTile(Entity* current_
 	float safest = 1000.0f;
 	for (int i = 0; i < 6; i++)
 	{
-		if (p_current_tile->neighboursIDArray[i] != 0)
+		if (p_current_tile->neighboursIDArray[i] != 0) //Check if there exists a neighbour in this direction or not.
 		{
 			p_current_neighbour = ECSUser::getComponentFromKnownEntity<TileComponent>(p_current_tile->neighboursIDArray[i]);
 			if (p_current_neighbour != nullptr) //Sanity Check
 			{
-				if (!p_current_tile->impassable)
+				if (!p_current_tile->impassable) //Check if we can walk over the neighbouring tile.
 				{
-					for (int a = 0; a < 4; a++)
+					for (int a = 0; a < 4; a++) //Calculate the risk of us walking over this neighbour.
 					{
 						if (a != p_current_unit_comp->playerID)
 						{
 							current_safe += p_current_neighbour->charges.armyCharges[a];
 						}
 					}
-					//current_safe += p_current_neighbour->charges.hazardCharge;
-					if (current_safe < safest)
+					current_safe += p_current_neighbour->charges.hazardCharge;
+					if (current_safe < safest) //Check if it is the safest neighbour we have found so far. If so we save it.
 					{
 						safest = current_safe;
 						goal_tile_id = p_current_tile->neighboursIDArray[i];
 					}
-					current_safe = 0.0f;
+					current_safe = 0.0f; //Reset the risk before the next iteration.
 				}
 			}
 		}
 	}
-	return goal_tile_id;
+	return goal_tile_id; //Return the id of the safest neighbour we found.
 }
 
 unsigned int ecs::systems::PathfindingStateSystem::FindClosestLootTile(Entity* current_unit)
@@ -635,12 +643,12 @@ unsigned int ecs::systems::PathfindingStateSystem::FindClosestLootTile(Entity* c
 			loot_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mLootTiles[i]);
 			loot_tile = ECSUser::getComponentFromKnownEntity<TileComponent>(p_gp->mLootTiles[i]);
 							
-				temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
-				if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
-				{
-					dist = temp_dist;
-					loot_id = p_gp->mLootTiles[i];
-				}
+			temp_dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_transform->position);
+			if (temp_dist < dist && !loot_tile->impassable) //update if new closest has been found and it is not impassable
+			{
+				dist = temp_dist;
+				loot_id = p_gp->mLootTiles[i];
+			}
 			
 		}
 	}
@@ -739,6 +747,7 @@ ecs::systems::MoveStateSystem::MoveStateSystem()
 	typeFilter.addRequirement(DynamicMovementComponent::typeID);
 	typeFilter.addRequirement(EquipmentComponent::typeID);
 	typeFilter.addRequirement(ObjectCollisionComponent::typeID);
+	typeFilter.addRequirement(UnitComponent::typeID);
 }
 
 ecs::systems::MoveStateSystem::~MoveStateSystem()
@@ -768,6 +777,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 	ObjectCollisionComponent* p_collision_comp = entity.getComponent<ObjectCollisionComponent>();
 	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
 	TransformComponent* p_goal = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_move_comp->goalID);
+	UnitComponent* p_unit = entity.getComponent<UnitComponent>();
 	float distance = 1000.0f;
 	if (p_goal != nullptr)
 	{
@@ -840,8 +850,9 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 		if (y_distance > 0.3f && p_dyn_move->mOnGround && y_distance < 3.f)
 		{
-			length = PhysicsHelpers::CalculateDistance(XMFLOAT3(p_goal->position.x, 0.0f, p_goal->position.z), XMFLOAT3(p_transform->position.x, 0.0f, p_transform->position.z));//Length from unit to goal center
 			length_of_vector = XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_dyn_move->mVelocity)));//Length of velocity vector
+			length = PhysicsHelpers::CalculateDistance(XMFLOAT3(p_goal->position.x, 0.0f, p_goal->position.z), XMFLOAT3(p_transform->position.x, 0.0f, p_transform->position.z));//Length from unit to goal center
+			
 			angle = XMVectorGetX(XMVector3Dot(XMVector3Normalize
 			(XMLoadFloat3(&p_dyn_move->mVelocity)), XMVector3Normalize(XMLoadFloat3(&p_dyn_move->mDirection))));//Get angle between velocity and direction vector
 			//if their velocity vector is same or larger then the vector between their position and the edge of a tile
@@ -855,7 +866,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 				ForceImpulseEvent jump;
 				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&jump_vector)));//normalize the jump vector so that we just get direction
-				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.5f;
+				jump.mForce = ((sqrtf(2.f * y_distance * p_dyn_move->mGravity)) * p_dyn_move->mWeight) * 1.2f;
 				jump.mEntityID = entity.entity->getID();
 				if (length_of_vector < 0.25f)//if they are very slow and need to jump they get a boost
 				{
@@ -865,13 +876,44 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 
 				}
 				createEvent(jump);
+				JumpComponent jump_comp;
+				ECSUser::createComponent(entity.entity->getID(), jump_comp);
 			}
 		}
+		if(p_unit->timeSinceStuck >= 1.0f)//check if they have moved a certain distance during one sec
+		{
+			p_unit->timeSinceStuck = 0.f;
+			if(p_unit->length < 0.1f && p_dyn_move->mOnGround)
+			{
+				//get where they want to go 
+				jump_vector.x = p_goal->position.x - p_transform->position.x;
+				jump_vector.y = p_goal->position.y - p_dyn_move->mLastTileY;
+				jump_vector.z = p_goal->position.z - p_transform->position.z;
+				//reverse that shit
+				jump_vector.x *= -1.f / 4.f;
+				jump_vector.y *= 3.f;
+				jump_vector.z *= -1.f / 4.f;
+				//add the power
+				ForceImpulseEvent jump;
+				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&jump_vector)));//normalize the jump vector so that we just get direction
+				jump.mForce = p_dyn_move->mWeight * 4.f ;
+				jump.mEntityID = entity.entity->getID();
+				//yeet
+				createEvent(jump);
+				
+			}
+			p_unit->length = 0.f;
+		}
+
 		MovementInputEvent move;
 		move.mInput = FORWARD;
 		move.mEntityID = entity.entity->getID();
 		createEvent(move);//creates an event to physics to move character
-	}	
+		p_unit->length += XMVectorGetX(XMVector3Length(XMLoadFloat3(&p_unit->lastPos) - XMLoadFloat3(&p_transform->position)));
+		p_unit->lastPos = p_transform->position;
+	}
+	
+	p_unit->timeSinceStuck += delta;
 }
 
 STATE ecs::systems::MoveStateSystem::CheckIfGoalIsMet(FilteredEntity& entity, float delta)
@@ -989,6 +1031,8 @@ ID ecs::systems::MoveStateSystem::GetClosestTileId(TransformComponent& transform
 	float distance;
 	float best_distance = 1000.0f;
 
+	//We try to predict which tile is the closest one by translating the world pos into a quad tile system.
+	//This makes it so that we don't have to loop over every tile in the world and only need to look at the predicted tile and eight tiles sourounding it in the grid.
 	//Calculate x index
 	tile_index.x = world_pos_x / (TILE_RADIUS * 1.5f);
 	if (tile_index.x >= p_gp->GetSize().x)
@@ -1012,24 +1056,83 @@ ID ecs::systems::MoveStateSystem::GetClosestTileId(TransformComponent& transform
 
 	if (p_gp != nullptr) //Sanity Check
 	{
+		//Check the neighboring tiles of the predicted tile to check that the one we found actually is the closest one. 
 		for (int i = tile_index.x - 1; i <= tile_index.x + 1; i++)
 		{
 			for (int j = tile_index.y - 1; j <= tile_index.y + 1; j++)
 			{
 				if (i >= 0 && i < p_gp->GetSize().y && j >= 0 && j < p_gp->GetSize().x)
 				{
-					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[tile_index.y][tile_index.x].Id);
-					distance = PhysicsHelpers::CalculateDistance(p_curr_tile_transform->position, transform.position);
+					p_curr_tile_transform = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[j][i].Id);
+					//Set y to zero since we want to find the closest tile in x- and z-axis. We don't want y to affect the outcome.
+					XMFLOAT3 tile_pos_without_y = p_curr_tile_transform->position;
+					tile_pos_without_y.y = 0.0f;
+					XMFLOAT3 unit_pos_without_y = transform.position;
+					unit_pos_without_y.y = 0.0f;
+					distance = PhysicsHelpers::CalculateDistance(tile_pos_without_y, unit_pos_without_y);
 					if (distance < best_distance)
 					{
 						best_distance = distance;
-						return_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
+						return_id = p_gp->mGrid[j][i].Id;
 					}
 				}
 			}
 		}
 	}
+
+	//Used to debugg pathfinding.
+	//ID real_id = this->realClosestTile(transform);
+	//if (real_id != return_id)
+	//{
+	//	std::cout << "Closest Tile MissMatch: REAL: " << real_id << "   WRONG: " << return_id << std::endl;
+	//}
 	
+	//Return the index position of the closest tile in mGrid in the GridProp class or 0 if something went wrong.
+	return return_id;
+}
+
+ID ecs::systems::MoveStateSystem::RealClosestTile(TransformComponent& transform)
+{
+	//Initialize components and variables that we will need.
+	int2 tile_index;
+	GridProp* p_gp = GridProp::GetInstance();
+	ecs::BaseComponent* p_base_component;
+	ecs::components::TransformComponent* p_curr_tile_transform;
+	ecs::components::TileComponent* p_curr_tile;
+	ecs::Entity* p_curr_entity;
+	float dist = 1000.0f;
+	float temp_dist = 0.0f;
+	ID return_id = 0;
+	if (p_gp != nullptr) //Sanity Check
+	{
+		//Loop through every tile in the grid.
+		for (int x = 0; x < p_gp->GetSize().x; x++)
+		{
+			for (int y = 0; y < p_gp->GetSize().y; y++)
+			{
+				//Check if the tile is a tile we can walk on.
+				if (p_gp->mGrid[y][x].isPassable)
+				{
+					p_curr_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(p_gp->mGrid[y][x].Id);
+					//Set y to zero since we want to find the closest tile in x- and z-axis. We don't want y to affect the outcome.
+					XMFLOAT3 tile_pos_without_y = p_curr_tile_transform->position;
+					tile_pos_without_y.y = 0.0f;
+					XMFLOAT3 unit_pos_without_y = transform.position;
+					unit_pos_without_y.y = 0.0f;
+					temp_dist = PhysicsHelpers::CalculateDistance(tile_pos_without_y, unit_pos_without_y);
+					//If the tile is closer than the previously closest tile we've found we store the new info.
+					if (temp_dist < dist)
+					{
+						dist = temp_dist;
+						tile_index.x = x;
+						tile_index.y = y;
+					}
+				}
+			}
+		}
+		return_id = p_gp->mGrid[tile_index.y][tile_index.x].Id;
+	}
+
 	//Return the index position of the closest tile in mGrid in the GridProp class or 0 if something went wrong.
 	return return_id;
 }
@@ -1083,7 +1186,7 @@ void ecs::systems::FleeStateSystem::updateEntity(FilteredEntity& entity, float d
 	}
 	if (switch_state)
 	{
-		//If the enemy is within attack range switch to a AttackStateComponent
+		//If there is no enemy within range switch to IdleStateComponent
 		IdleStateComponent idle_comp;
 		idle_comp.activeCommand = FLEE;
 		ECSUser::removeComponent(p_current_unit->getEntityID(), FleeStateComponent::typeID);
@@ -1114,41 +1217,7 @@ ecs::systems::LootStateSystem::~LootStateSystem()
 
 void ecs::systems::LootStateSystem::updateEntity(FilteredEntity& entity, float delta)
 {
-	//ecs::components::TransformComponent* unit_transform = entity.getComponent<ecs::components::TransformComponent>();
-	//ecs::components::LootStateComponent* unit_loot_comp = entity.getComponent<ecs::components::LootStateComponent>();
-	//ecs::components::DynamicMovementComponent* dynamic_move_comp = entity.getComponent<ecs::components::DynamicMovementComponent>();
-
-	//ecs::components::TransformComponent* loot_tile_transform = ecs::ECSUser::getComponentFromKnownEntity<ecs::components::TransformComponent>(unit_loot_comp->goalID);
-
-	//float dist = PhysicsHelpers::CalculateDistance(unit_transform->position, loot_tile_transform->position);
-	//XMFLOAT3 direction;
-	//float length;
-
-	//if (dist > 0.1f)
-	//{
-	//	//Calculate the direction of the enemy and normalize the vector.
-	//	direction.x = loot_tile_transform->position.x - unit_transform->position.x;
-	//	direction.y = loot_tile_transform->position.y - unit_transform->position.y;
-	//	direction.z = loot_tile_transform->position.z - unit_transform->position.z;
-	//	length = sqrt(direction.x * direction.x + direction.y * direction.y + direction.z * direction.z);
-	//	direction.x /= length;
-	//	direction.y /= length;
-	//	direction.z /= length;
-	//	//Set the direction.
-	//	dynamic_move_comp->mForward = direction;
-	//	//Create an event to move the unit towards the enemy.
-	//	MovementInputEvent move_event;
-	//	move_event.mInput = FORWARD;
-	//	move_event.mEntityID = entity.entity->getID();
-	//	createEvent(move_event);
-	//}
-	//else
-	//{
-	//	ecs::components::PathfindingStateComponent path_comp;
-	//	path_comp.activeCommand == LOOT;
-	//	ecs::ECSUser::removeComponent(entity.entity->getID(), ecs::components::LootStateComponent::typeID);
-	//	ecs::ECSUser::createComponent(entity.entity->getID(), path_comp);
-	//}
+	/*COULD BE USED TO PLAY A SOUND EFFECT WHEN PICKING UP A WEAPON OR TO START A LOOTING ANIMATION*/
 }
 
 /************************************************/
@@ -1442,29 +1511,6 @@ void ecs::systems::SwitchStateSystem::readEvent(BaseEvent& event, float delta)
 		// Chagne the command on the UI
 		BaseComponent* p_base_comp = getComponentFromKnownEntity<UITextComponent>(p_army->getEntityID());
 
-		/*UITextComponent* p_text_comp = static_cast<UITextComponent*>(p_base_comp);
-
-		switch (state)
-		{
-		case STATE::IDLE:
-			p_text_comp->mStrText = L"IDLE";
-			break;
-		case STATE::LOOT:
-			p_text_comp->mStrText = L"LOOT";
-			break;
-		case STATE::ATTACK:
-			p_text_comp->mStrText = L"ATTACK";
-			break;
-		case STATE::FLEE:
-			p_text_comp->mStrText = L"FLEE";
-			break;
-		default:
-			p_text_comp->mStrText = L"no case for state";
-			break;
-		}
-*/
-
-
 		it = getComponentsOfType<components::InputBackendComp>();
 		InputBackendComp* ib_comp = (InputBackendComp*)(it.next());
 		if (ib_comp)
@@ -1729,7 +1775,7 @@ void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float de
 	ArmyComponent* p_army = ECSUser::getComponentFromKnownEntity<ArmyComponent>(entity.entity->getID());
 	int number_of_weapons = 0;
 	bool loot_exists = false;
-	STATE new_state = ATTACK;
+	STATE new_state = ATTACK; //We predict that we want to send the ATTACK command.
 	int number_of_units_left;
 	float distance = 0.0f;
 	int units_needs_to_rally = 0;
@@ -1737,12 +1783,13 @@ void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float de
 	EquipmentComponent* p_equipment;
 	WeaponComponent* p_weapon;
 
-
+	//If 1.5 seconds have passed since our last command we send a new command.
 	if (p_aibrain->mTimer >= 1.5f)
 	{
 		number_of_units_left = p_army->unitIDs.size();
-		if (number_of_units_left > 0)
+		if (number_of_units_left > 0) //Make sure that we still have units to command
 		{
+			//Check if our army is spread out to much. If so we want to rally our troops.
 			for (int i = 0; i < number_of_units_left; i++)
 			{
 				distance = PhysicsHelpers::CalculateDistance(ECSUser::getComponentFromKnownEntity<TransformComponent>(p_army->unitIDs[0])->position,
@@ -1756,7 +1803,7 @@ void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float de
 			{
 				new_state = RALLY;
 			}
-			else
+			else //If our army didn't need to rally we make sure that we have weapons for our units. If we don't have enough weapons we want to LOOT.
 			{
 				for (int u = 0; u < number_of_units_left; u++)
 				{
@@ -1775,21 +1822,22 @@ void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float de
 				}
 			}
 		}
-		if (number_of_weapons < 2 && number_of_units_left > 1)
+		if (number_of_weapons < 2 && number_of_units_left > 1) //If we didn't have enough weapons and it exists weapons for us to loot we send a loot command
 		{
 			if (GridProp::GetInstance()->mLootTiles.size() > 0)
 			{
 				new_state = LOOT;
 			}
 		}
-		
+
+		//Create the event and send the command we decided to send this time.
 		ChangeUserStateEvent e;
 		e.playerId = p_aibrain->mPlayer;
 		e.newState = new_state;
 		ECSUser::createEvent(e);
 		p_aibrain->mTimer = 0.0f;
 	}
-	else
+	else //If not enough time has passed since the last command we just add the frame time to our timer.
 	{
 		p_aibrain->mTimer += delta;
 	}

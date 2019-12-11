@@ -63,7 +63,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 		weapon_component->mBaseDamage = BASE_SWORD_DAMAGE;
 
-		weapon_component->mKnockback = SWORD_KNOCKBACK;
+		weapon_component->mKnockback = SWORD_KNOCKBACK_MULTIPLIER;
 		break;
 	}
 
@@ -86,7 +86,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 		weapon_component->mBaseDamage = BASE_HAMMER_DAMAGE;
 
-		weapon_component->mKnockback = HAMMER_KNOCKBACK;
+		weapon_component->mKnockback = HAMMER_KNOCKBACK_MULTIPLIER;
 		break;
 	}
 
@@ -103,7 +103,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 		weapon_component->mBaseDamage = BASE_FIST_DAMAGE;
 
-		weapon_component->mKnockback = FIST_KNOCKBACK;
+		weapon_component->mKnockback = FIST_KNOCKBACK_MULTIPLIER;
 		break;
 	}
 	case GAME_OBJECT_TYPE_WEAPON_BOMB:
@@ -119,7 +119,7 @@ void ecs::systems::WeaponInitSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _ev
 
 		weapon_component->mBaseDamage = BASE_BOMB_DAMAGE;
 
-		weapon_component->mKnockback = BOMB_KNOCKBACK;
+		weapon_component->mKnockback = BOMB_KNOCKBACK_MULTIPLIER;
 		break;
 	}
 	default:
@@ -581,7 +581,7 @@ void ecs::systems::WeaponOnHitSystem::readEvent(BaseEvent& _event, float _delta)
 				// Normalize knockback direction so it's not CRAZY.
 				XMStoreFloat3(&knockback.mDirection, XMVector3Normalize(XMLoadFloat3(&knockback.mDirection)));
 
-				knockback.mForce = hit_event.Knockback;
+				knockback.mForce = hit_event.Knockback * impact;
 				knockback.mEntityID = unit.entity->getID();
 				createEvent(knockback);
 

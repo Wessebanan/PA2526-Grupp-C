@@ -76,5 +76,23 @@ namespace ecs
 
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
+
+		class ParticleTrapSpawnerSystem : public ECSSystem<ParticleTrapSpawnerSystem>
+		{
+		public:
+			ParticleTrapSpawnerSystem();
+			virtual ~ParticleTrapSpawnerSystem() {}
+
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
+
+		class ParticleTrapUpdateSystem : public ECSSystem<ParticleTrapUpdateSystem>
+		{
+		public:
+			ParticleTrapUpdateSystem();
+			virtual ~ParticleTrapUpdateSystem() {}
+
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
 	}
 }

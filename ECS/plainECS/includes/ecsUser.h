@@ -34,6 +34,8 @@ namespace ecs
 		virtual void* onCreateSystem(void* tempSystem, unsigned int _layer) = 0;
 		virtual void onRemoveSystem(TypeID _typeID) = 0;
 
+		virtual int onGetComponentCountOfType(TypeID _typeID) = 0;
+
 		/*
 			Virtual functions are protected. EntityComponentSystem is inheriting from
 			ECSUserListener, so the protection makes sure no one outside of
@@ -114,6 +116,9 @@ namespace ecs
 		template <typename T>
 		void RemoveSystem();
 
+		// Returns the current count of a given component type
+		int getComponentCountOfType(TypeID _typeID);
+
 		/*
 			Templated functions
 		*/
@@ -135,12 +140,17 @@ namespace ecs
 		// Returns a type casted pointer to a requested component that belongs to given entity.
 		template <typename T> T* getComponentFromKnownEntity(ID _entityID);
 
+		// Returns the current count of a given component type
+		template <typename T> int getComponentCountOfType();
+
+
 		// Creates a new ECS event that is pushed to event queue.
 		// Notifies all event listeners listening on that event type.
 		void createEvent(BaseEvent& _event);
 
 		void removeEntity(ID _entityID);
 		void removeComponent(ID _entityID, TypeID _componentTypeID);
+
 
 	private:
 
@@ -213,5 +223,10 @@ namespace ecs
 		}
 
 		return (T*)ecsUserHandler->onGetComponent(T::typeID, e->getComponentID(T::typeID));
+	}
+	template<typename T>
+	inline int ECSUser::getComponentCountOfType()
+	{
+		return ecsUserHandler->onGetComponentCountOfType(T::typeID);
 	}
 }

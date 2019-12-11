@@ -1,5 +1,6 @@
 #include "AnimationSystems.h"
 #include "../gameAI/AIComponents.h"
+#include "..//Physics/PhysicsComponents.h"
 ecs::systems::SkeletonSystem::SkeletonSystem()
 {
 	updateType = EntityUpdate;
@@ -26,11 +27,40 @@ void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float de
 	}
 	else if (getComponentFromKnownEntity<ecs::components::AttackStateComponent>(pSkeleton->getEntityID()))
 	{
-	pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+		components::EquipmentComponent* p_equipment = getComponentFromKnownEntity<components::EquipmentComponent>(pSkeleton->getEntityID());
+		if (p_equipment)
+		{
+			components::WeaponComponent* p_weapon = getComponentFromKnownEntity<components::WeaponComponent>(p_equipment->mEquippedWeapon);
+			if (p_weapon)
+			{
+				switch (p_weapon->mType)
+				{
+				case GAME_OBJECT_TYPE_WEAPON_HAMMER:
+					pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+					break;
+				case GAME_OBJECT_TYPE_WEAPON_SWORD:
+					pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+					break;
+				case GAME_OBJECT_TYPE_WEAPON_BOMB:
+					pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+					break;
+				default:
+					pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+					break;
+				}
+			}
+		}
 	}
 	else if (getComponentFromKnownEntity<ecs::components::MoveStateComponent>(pSkeleton->getEntityID()))
 	{
-		pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::MOVE);
+		if (entity.entity->hasComponentOfType<JumpComponent>())
+		{
+			pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::JUMP);
+		}
+		else
+		{
+			pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::MOVE);
+		}
 	}
 	else
 	{ 

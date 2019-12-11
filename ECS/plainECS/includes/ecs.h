@@ -214,6 +214,8 @@ namespace ecs
 		void* onCreateSystem(void* _tempSystem, unsigned int _layer) override;
 		void onRemoveSystem(TypeID _typeID) override;
 
+		int onGetComponentCountOfType(TypeID _typeID) override;
+
 		/*
 		*	ECSEventListenerListener (yes, double Listener) overriden functions
 		*/

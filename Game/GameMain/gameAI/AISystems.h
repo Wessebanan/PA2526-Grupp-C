@@ -96,6 +96,8 @@ namespace ecs
 			//Switch to the next units next state
 			void SwitchState(FilteredEntity& entity, STATE newState);
 			ID GetClosestTileId(TransformComponent& transform);
+			//Function used for debugging pathfinding
+			ID RealClosestTile(TransformComponent& transform); 
 		};
 
 		/*

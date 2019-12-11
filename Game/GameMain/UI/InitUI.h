@@ -23,19 +23,19 @@ void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture);
 void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d);
 
 
-void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
+void InitUI(ecs::EntityComponentSystem& rECS)
 {
 	Direct2D* my_d2d = new Direct2D;
-	//my_d2d = new Direct2D;
-	rSystemPointers.UIpreSys = rECS.createSystem<ecs::systems::UIPreRenderSystem>(8);
-	rSystemPointers.UISolid = rECS.createSystem<ecs::systems::UISolidRectSystem>(9);
-	rSystemPointers.UIBitmapSys = rECS.createSystem<ecs::systems::UIBitmapSystem>(9);
-	rSystemPointers.UITextSys = rECS.createSystem<ecs::systems::UITextSystem>(9);
-	rSystemPointers.UIrectSys = rECS.createSystem<ecs::systems::UIRectSystem>(9);
-	rSystemPointers.UIDebugSys = rECS.createSystem<ecs::systems::UIDebugSystem>(9);
-	rSystemPointers.UICountDown = rECS.createSystem<ecs::systems::UICountDownSystem>(9);
-	rSystemPointers.UIpostSys = rECS.createSystem<ecs::systems::UIPostRenderSystem>(9);
+	rECS.createSystem<ecs::systems::UIPreRenderSystem>(8)->mpD2D = my_d2d;
+	rECS.createSystem<ecs::systems::UISolidRectSystem>(9)->mpD2D = my_d2d;
+	rECS.createSystem<ecs::systems::UIBitmapSystem>(9)->mpD2D = my_d2d;
+	rECS.createSystem<ecs::systems::UITextSystem>(9)->mpD2D = my_d2d;
+	rECS.createSystem<ecs::systems::UIRectSystem>(9)->mpD2D = my_d2d;
+	rECS.createSystem<ecs::systems::UIDebugSystem>(9)->mpD2D = my_d2d;
+	rECS.createSystem<ecs::systems::UICountDownSystem>(9)->mpD2D = my_d2d;
+	rECS.createSystem<ecs::systems::UIPostRenderSystem>(9)->mpD2D = my_d2d;
 	rECS.createSystem<ecs::systems::UIEndOfRoundSystem>(9)->mpD2D = my_d2d;
+	rECS.createSystem<ecs::systems::UIGameRestartSystem>(9)->mpD2D = my_d2d;
 
 	ID3D11Texture2D* p_backbuffer;
 	IDXGISwapChain1* p_swapchain;
@@ -50,17 +50,6 @@ void InitUI(ecs::EntityComponentSystem& rECS, TempUISystemPtrs& rSystemPointers)
 	p_swapchain->Release();
 	BindTextureToBitmap(my_d2d, p_backbuffer);//Turn the texture to a surface then bind that surface to a Direct2D bitmap then draw things on that bitmap which is the backbuffer
 	p_backbuffer->Release();
-	rSystemPointers.UIpreSys->mpD2D =
-		rSystemPointers.UISolid->mpD2D =
-		rSystemPointers.UITextSys->mpD2D =
-		rSystemPointers.UIpostSys->mpD2D =
-		rSystemPointers.UIrectSys->mpD2D =
-		rSystemPointers.UIDebugSys->mpD2D =
-		rSystemPointers.UICountDown->mpD2D =
-		rSystemPointers.UIBitmapSys->mpD2D = my_d2d;
-
-
-
 
 	ecs::components::UIBitmapComponent bitmap_comp;
 	ecs::components::UIDrawPosComponent bitmap_pos_comp;
@@ -197,6 +186,7 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/LeftMan.png", "LeftMan");
 	bitmap_comp.mpTintedBitmap = d2d->CreateBitmapTarget(bitmap_comp.mpBitmap->GetSize().width, bitmap_comp.mpBitmap->GetSize().height);
+	bitmap_comp.to_draw = false;
 	d2d->SetBitmapTint(bitmap_comp.mpBitmap, bitmap_comp.mpTintedBitmap, 255, 0, 0);
 	pos_comp.mDrawArea.left = 0;
 	pos_comp.mDrawArea.top = 0;
@@ -328,6 +318,7 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d)
 	rECS.createEntity(bitmap_comp, pos_comp, unit_reader_comp);//bottom right
 
 	bitmap_comp.mpBitmap = d2d->LoadImageToBitmap("../../UI/Resource/Nametag.png", "Nametag");
+	bitmap_comp.to_draw = true;
 	bitmap_comp.mpTintedBitmap = nullptr;
 	d2d->SetBitmapTint(bitmap_comp.mpBitmap, NULL, 200, 200, 200);
 	pos_comp.mDrawArea.left = 20;
