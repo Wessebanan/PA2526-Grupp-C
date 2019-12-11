@@ -812,10 +812,11 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 		// Failsafe if the evetn wasnt created correct, -1 is also a draw
 		if (winner >= 0)
 		{
+			p_gl->mPlayerPoints[winner]++;	
+
 			// Check if the winner will sin the game now or not
-			if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN - 1)
+			if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN)
 			{
-				p_gl->mPlayerPoints[winner]++;		
 		
 				switch (winner)
 				{
