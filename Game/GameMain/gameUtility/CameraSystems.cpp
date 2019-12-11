@@ -45,26 +45,28 @@ void ecs::systems::UpdateCameraSystem::updateEntity(FilteredEntity& entity, floa
 	//If the Mouse- and KeyboardComponent exists in the ECS we update the cameras position. 
 	if (p_mouse && p_keyboard)
 	{
-		if (p_keyboard->R) //If camera should be reset run this.
-		{
-			//Reset position, rotation and scale.
-			p_tc->position = CameraDefines::originalPosition;
-			p_tc->rotation = CameraDefines::originalRotation;
-			p_tc->scale = CameraDefines::originalScale;
-			//Reset the cameras target, up, forward and right.
-			p_cam->target = CameraDefines::originalTarget;
-			p_cam->up = CameraDefines::originalUp;
-			p_cam->forward = CameraDefines::originalForward;
-			p_cam->right = CameraDefines::originalRight;
-			//Update the cameras view matrix.
-			position = XMLoadFloat3(&p_tc->position);
-			target = XMLoadFloat4(&p_cam->target);
-			up = XMLoadFloat4(&p_cam->up);
-			view = XMMatrixLookAtLH(position, target, up);
-			//Store the matrix in the camera component.
-			XMStoreFloat4x4(&p_cam->viewMatrix, view);
-		}
-		else //If the camers is not supposed to be reset run this.
+		//// Saved if we need to be able to reset the camera on R again
+
+		//if (p_keyboard->R) //If camera should be reset run this.
+		//{
+		//	//Reset position, rotation and scale.
+		//	p_tc->position = CameraDefines::originalPosition;
+		//	p_tc->rotation = CameraDefines::originalRotation;
+		//	p_tc->scale = CameraDefines::originalScale;
+		//	//Reset the cameras target, up, forward and right.
+		//	p_cam->target = CameraDefines::originalTarget;
+		//	p_cam->up = CameraDefines::originalUp;
+		//	p_cam->forward = CameraDefines::originalForward;
+		//	p_cam->right = CameraDefines::originalRight;
+		//	//Update the cameras view matrix.
+		//	position = XMLoadFloat3(&p_tc->position);
+		//	target = XMLoadFloat4(&p_cam->target);
+		//	up = XMLoadFloat4(&p_cam->up);
+		//	view = XMMatrixLookAtLH(position, target, up);
+		//	//Store the matrix in the camera component.
+		//	XMStoreFloat4x4(&p_cam->viewMatrix, view);
+		//}
+		//else //If the camers is not supposed to be reset run this.
 		{
 			rotation = XMLoadFloat4x4(&p_cam->rotationMatrix);
 			//Update the cameras rotation vector and matrix with the mouse input.
