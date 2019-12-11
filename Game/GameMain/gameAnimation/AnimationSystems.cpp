@@ -15,25 +15,34 @@ void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float de
 {
 	components::SkeletonComponent* pSkeleton = entity.getComponent<components::SkeletonComponent>();
 	components::AnimationSpeedComponent* pAnimation = entity.getComponent<components::AnimationSpeedComponent>();
-	if (pSkeleton->pingTimeElapsed >= 0.0f && pSkeleton->pingTimeElapsed <= 1.0f)
+	if (!pSkeleton->ragdollEnabled)
 	{
-		pSkeleton->pingTimeElapsed += delta;
-		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
-	}
-	else if (getComponentFromKnownEntity<ecs::components::AttackStateComponent>(pSkeleton->getEntityID()))
-	{
-	pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
-	}
-	else if (getComponentFromKnownEntity<ecs::components::MoveStateComponent>(pSkeleton->getEntityID()))
-	{
-		pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::MOVE);
+		if (pSkeleton->pingTimeElapsed >= 0.0f && pSkeleton->pingTimeElapsed <= 1.0f)
+		{
+			pSkeleton->pingTimeElapsed += delta;
+			pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
+		}
+		else if (getComponentFromKnownEntity<ecs::components::AttackStateComponent>(pSkeleton->getEntityID()))
+		{
+			pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+		}
+		else if (getComponentFromKnownEntity<ecs::components::MoveStateComponent>(pSkeleton->getEntityID()))
+		{
+			pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::MOVE);
+		}
+		else
+		{
+			pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::IDLE);
+			// Uncomment the line below to test the ping animation as the "idle" animation
+			//pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
+		}
 	}
 	else
-	{ 
-		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::IDLE);
-		// Uncomment the line below to test the ping animation as the "idle" animation
-		//pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
+	{
+		pSkeleton->ragdoll.Resolve(delta);
+		pSkeleton->ragdoll.RebuildHierarchy();
 	}
+
 }
 
 void ecs::systems::PingListenerSystem::readEvent(BaseEvent& event, float delta)

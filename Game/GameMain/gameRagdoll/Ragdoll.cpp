@@ -311,7 +311,7 @@ void Ragdoll::Integrate(DWORD boneNum, float dt)
 	XMStoreFloat3(&state->mVecAngularVelocity,
 		Transform(&XMLoadFloat3(&state->mVecAngularMomentum), &XMLoadFloat4x4(&state->mMatInvWorldInertiaMatrix)));
 }
-// NYI
+
 bool Ragdoll::ProcessCollisions(DWORD boneNum, Collision* pCollision)
 {
 	// If there are no objects to check against.
@@ -556,9 +556,29 @@ void Ragdoll::Resolve(float dt, float linearDamping, float angularDamping, Direc
 		}
 	}
 }
-// NYI
+
 void Ragdoll::RebuildHierarchy()
 {
+	if (!this->mpSkeleton || !this->mBones)
+		return;
+
+	// Apply bones' rotation matrices to the actual bones
+	for (DWORD i = 0; i < this->mNumBones; ++i)
+	{
+		// Transform the joint offset in order to position bone
+		XMVECTOR vec_pos = XMVector3TransformCoord(XMLoadFloat3(&this->mBones[i].mVecJointOffset), XMLoadFloat4x4(&this->mBones[i].mState.mMatOrientation));
+
+		// Add bone's position
+		vec_pos += XMLoadFloat3(&mBones[i].mState.mVecPosition);
+
+		XMFLOAT3 vec_pos_flt;
+		XMStoreFloat3(&vec_pos_flt, vec_pos);
+		// Orient and position frame
+		this->mpUniqueSkeletonData->frameData[i] = this->mBones[i].mState.mMatOrientation;
+		this->mpUniqueSkeletonData->frameData[i]._41 = vec_pos_flt.x;
+		this->mpUniqueSkeletonData->frameData[i]._42 = vec_pos_flt.y;
+		this->mpUniqueSkeletonData->frameData[i]._43 = vec_pos_flt.z;
+	}
 }
 
 DWORD Ragdoll::GetNumBones()

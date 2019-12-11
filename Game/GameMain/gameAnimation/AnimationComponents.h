@@ -11,6 +11,8 @@ namespace ecs {
 		{
 			ModelLoader::UniqueSkeletonData skeletonData;
 			Ragdoll ragdoll;
+			bool ragdollEnabled = true;
+			Collision* ragdollCollisionObject = nullptr;
 			float pingTimeElapsed = -1;
 		};
 

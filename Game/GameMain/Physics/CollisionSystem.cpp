@@ -33,6 +33,7 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	ObjectCollisionComponent*	p_collision	= getComponentFromKnownEntity<ObjectCollisionComponent>(entity_id);
 	TransformComponent*			p_transform	= getComponentFromKnownEntity<TransformComponent>(entity_id);
 	DynamicMovementComponent*	p_movement	= getComponentFromKnownEntity<DynamicMovementComponent>(entity_id);
+	SkeletonComponent*			p_skeleton	= getComponentFromKnownEntity<SkeletonComponent>(entity_id);
 
 	// Grabbing a copy of moving object's bounding volume.
 	
@@ -47,6 +48,24 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	QuadTree *quad_tree = static_cast<QuadTree*>(p_quad_tree_component->pTree);
 
 	quad_tree->RetrieveCollisions(collision_list, this_object);
+
+	if (p_skeleton)
+	{
+		if (p_skeleton->ragdollEnabled)
+		{
+			if (p_skeleton->ragdollCollisionObject)
+			{
+				// Remove the object from the previous frame
+				delete p_skeleton->ragdollCollisionObject;
+			}
+			p_skeleton->ragdollCollisionObject = new Collision();
+			for (auto a : collision_list)
+			{
+				p_skeleton->ragdollCollisionObject->AddBoundingVolume(a.pBoundingBox->mBV);
+			}
+
+		}
+	}
 
 	bool intersect = false;
 	bool on_ground = false;

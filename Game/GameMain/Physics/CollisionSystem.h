@@ -14,6 +14,8 @@
 #include "GridFunctions.h"
 #include "GridProp.h"
 
+#include "../gameAnimation/AnimationComponents.h"
+
 #define SYSTEM(name) struct name : public ecs::ECSSystem<name>
 
 namespace ecs
