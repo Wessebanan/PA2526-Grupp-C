@@ -380,13 +380,11 @@ ecs::systems::UnitColorSwitchSystem::~UnitColorSwitchSystem()
 void ecs::systems::UnitColorSwitchSystem::onEvent(TypeID _typeID, ecs::BaseEvent* _event)
 {
 	ColorSwitchEvent* p_color_switch = static_cast<ColorSwitchEvent*>(_event);
-	
-	ColorComponent* p_unit_color = getComponentFromKnownEntity<ColorComponent>(p_color_switch->mEntityID);
-	
+
 	UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(p_color_switch->mEntityID);
 	ColorComponent* p_color = getComponentFromKnownEntity<ColorComponent>(p_color_switch->mEntityID);
 
-	Color color = Color(0, 0, 0);
+	Color color;
 	switch (p_unit->playerID)
 	{
 	case PLAYER1:
@@ -400,6 +398,9 @@ void ecs::systems::UnitColorSwitchSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 		break;
 	case PLAYER4:
 		color = PLAYER4_COLOR;
+		break;
+	default:
+		color = WHITE;
 		break;
 	}
 
@@ -428,11 +429,11 @@ void ecs::systems::UnitColorSwitchSystem::updateEntity(FilteredEntity& _entity, 
 			return;
 		}
 
-		UnitComponent* p_unit = getComponentFromKnownEntity<UnitComponent>(current);
-		ColorComponent* p_color = getComponentFromKnownEntity<ColorComponent>(current);
-		HealthComponent* p_health = getComponentFromKnownEntity<HealthComponent>(current);
+		UnitComponent* p_unit		= _entity.getComponent<UnitComponent>();
+		ColorComponent* p_color		= _entity.getComponent<ColorComponent>();
+		HealthComponent* p_health	= _entity.getComponent<HealthComponent>();
 
-		Color color = Color(0, 0, 0);
+		Color color;
 		switch (p_unit->playerID)
 		{
 		case PLAYER1:		
@@ -446,6 +447,9 @@ void ecs::systems::UnitColorSwitchSystem::updateEntity(FilteredEntity& _entity, 
 			break;
 		case PLAYER4:
 			color = PLAYER4_COLOR;
+			break;
+		default:
+			color = WHITE;
 			break;
 		}
 
@@ -656,9 +660,13 @@ void ecs::systems::HealthCheckSystem::updateEntity(FilteredEntity& _entity, floa
 		damage_sound_event.soundFlags = SF_RANDOM_PITCH;
 		float choose_hurt_sound = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 		if (choose_hurt_sound <= 0.85f)
+		{
 			damage_sound_event.audioName = AudioName::SOUND_grunt1;
+		}
 		else
+		{
 			damage_sound_event.audioName = AudioName::SOUND_grunt2;
+		}
 		damage_sound_event.invokerEntityId = _entity.entity->getID();
 		createEvent(damage_sound_event); // Play damage sound
 

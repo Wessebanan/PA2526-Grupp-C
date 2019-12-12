@@ -23,6 +23,8 @@ void InitGameLoop(ecs::EntityComponentSystem& rECS)
 	gameloop_comp.mPlayerPoints[1] = 0;
 	gameloop_comp.mPlayerPoints[2] = 0;
 	gameloop_comp.mPlayerPoints[3] = 0;
+	gameloop_comp.mGameOver = false;
+
 	ecs::components::GameSettingsComponent gameloop_settings_comp;
 	gameloop_settings_comp.mMapSettings = 1; // Holme = 1
 

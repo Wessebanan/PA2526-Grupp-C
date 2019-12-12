@@ -66,7 +66,8 @@ enum ActionType
 	TILE,
 	BUTTON,
 	COMMAND,
-	PING
+	PING,
+	SENDBUTTON
 };
 // struct that holds the parsed info
 struct webMsgData
@@ -92,6 +93,8 @@ struct playerInfo
 	int tile[2] = { -1,-1 };
 	// current selected button
 	int button = -1;
+	// If the player wants the trap to be picked
+	bool sendTrap = false;
 	// current selected command
 	string command = "NO STATE";
 	// Bool to check if the ping was pressed and picked up by frpntend
@@ -181,6 +184,8 @@ private:
 	void SetTile(webMsgData wmd);
 	// Saves new button
 	void SetButton(webMsgData wmd);
+	// Saves new button
+	void ReadyToSend(webMsgData wmd);
 	// Saves new button
 	void SetCommand(webMsgData wmd);
 	// Saves the ping

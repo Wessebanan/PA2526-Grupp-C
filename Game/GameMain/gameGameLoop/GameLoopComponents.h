@@ -10,7 +10,7 @@ namespace ecs
 		struct GameLoopComponent : public ecs::ECSComponent<GameLoopComponent>
 		{
 			Timer mRoundTime;
-			
+			bool mGameOver;
 			int mPlayerPoints[4];
 
 		};

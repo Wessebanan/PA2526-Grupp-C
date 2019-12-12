@@ -103,6 +103,8 @@ namespace CameraEcsFunctions
 
 		initComponents(transform, camera);
 
+		camera.type = DYNAMIC;
+
 		transf_comp = transform;
 		cam_comp = camera;
 
@@ -134,6 +136,8 @@ namespace CameraEcsFunctions
 		
 
 		initComponents(transform, camera);
+
+		camera.type = OVERLOOK;
 
 		transf_comp = transform;
 		cam_comp = camera;

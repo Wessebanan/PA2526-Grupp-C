@@ -198,7 +198,7 @@ ecs::systems::BattlePhaseSystem::~BattlePhaseSystem()
 void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 {
 	int check_any_live = 0;
-	PLAYER alive_player;
+	int alive_player = -1;
 	ArmyComponent* p_army_comp;
 	ComponentIterator comp_it = ECSUser::getComponentsOfType<InputBackendComp>();
 	InputBackendComp* p_inputbackend;
@@ -213,7 +213,7 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 			check_any_live++;
 			alive_player = p_army_comp->playerID;
 		}
-		if (p_inputbackend->backend->mpPlayerIsConnected[p_army_comp->playerID] == true)
+		if (p_inputbackend->backend->mpPlayerIsConnected[p_army_comp->playerID])
 		{
 			ECSUser::removeComponent(p_army_comp->getEntityID(), AiBrainComponent::typeID);
 			getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = wstring(p_inputbackend->backend->mpUserNames[p_army_comp->playerID].begin(), p_inputbackend->backend->mpUserNames[p_army_comp->playerID].end());
@@ -224,7 +224,6 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 			{
 				getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = L"CPU";
 
-
 				AiBrainComponent ai_brain;
 				ai_brain.mPlayer = p_army_comp->playerID;
 				ai_brain.mTimer = ai_brain.mPlayer;
@@ -232,18 +231,32 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 			}
 		}
 	}
+	if (check_any_live <= 1)
+	{
+		if (!check_any_live)
+		{
+			//Change to overlook camera for the prep phase if dynamic.
+			CameraComponent* cam_comp = (CameraComponent*)getComponentsOfType<CameraComponent>().next();
+			if (cam_comp->type == DYNAMIC)
+			{
+				RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 
-	// There is one winner
-	if (check_any_live == 1)
-	{
-		events::RoundEndEvent eve;
-		eve.winner = alive_player;
-		createEvent(eve);
-	} // Draw
-	else if (check_any_live == 0)
-	{
-		events::RoundEndEvent eve;
-		eve.winner = -1;
+				if (cam_comp)
+				{
+					removeEntity(cam_comp->getEntityID());
+				}
+
+				TransformComponent new_transf_comp;
+				CameraComponent new_cam_comp;
+
+				CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
+
+				createEntity(new_transf_comp, new_cam_comp);
+			}
+		}
+		
+		events::RoundEndEvent eve;		
+		eve.winner = alive_player;		
 		createEvent(eve);
 	}
 }
@@ -327,7 +340,7 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
 			p_gl->mRoundTime.StartGame();
-
+			p_gl->mGameOver = false;
 			p_gl->mPlayerPoints[0] = 0;
 			p_gl->mPlayerPoints[1] = 0;
 			p_gl->mPlayerPoints[2] = 0;
@@ -688,7 +701,6 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	ObjectCollisionComponent object_collision;
 	object_collision.mBvType = COLLISION_AABB;
 	object_collision.mObjType = GAME_OBJECT_TYPE_UNIT;
-	//GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
 	HealthComponent health_component;
 	EquipmentComponent equipment_component;
@@ -770,6 +782,7 @@ ecs::systems::RoundOverSystem::RoundOverSystem()
 	typeFilter.addRequirement(ecs::events::RoundEndEvent::typeID);
 
 	this->mRoundOver = false;
+
 	this->mRoundOverDuration = 0.0f;
 }
 
@@ -785,11 +798,12 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 	}
 
 	InputBackendComp* p_ib = (InputBackendComp*)getComponentsOfType(ecs::components::InputBackendComp::typeID).next();
+	GameLoopComponent* p_gl = (GameLoopComponent*)getComponentsOfType<GameLoopComponent>().next();
+	
 	if(!this->mRoundOver)
 	{
 		int winner = dynamic_cast<ecs::events::RoundEndEvent*>(&event)->winner;
 
-		GameLoopComponent* p_gl = (GameLoopComponent*)getComponentsOfType<GameLoopComponent>().next();
 
 		UITextComponent* text_comp;
 		ComponentIterator text_comp_iterator = getComponentsOfType<UITextComponent>();
@@ -812,10 +826,11 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 		// Failsafe if the evetn wasnt created correct, -1 is also a draw
 		if (winner >= 0)
 		{
+			p_gl->mPlayerPoints[winner]++;	
+
 			// Check if the winner will sin the game now or not
-			if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN - 1)
+			if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN)
 			{
-				p_gl->mPlayerPoints[winner]++;		
 		
 				switch (winner)
 				{
@@ -838,6 +853,8 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			}
 			else
 			{
+				p_gl->mGameOver = true;
+
 				switch (winner)
 				{
 				case PLAYER1:
@@ -863,8 +880,11 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			text_comp->mStrText = L"It's a draw!";
 		}
 	}
-
-	if (this->mRoundOver)
+	else if (p_gl->mGameOver)
+	{
+		return;
+	}
+	else
 	{
 		this->mRoundOverDuration += delta;
 
@@ -874,7 +894,6 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			
 			// Remove battlephase and start prephase
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
-			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 			RemoveSystem(systems::MasterWeaponSpawner::typeID);
 			RemoveSystem(systems::SwitchStateSystem::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
@@ -897,19 +916,23 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			}
 
 
-			//Change to overlook camera for the prephase
+			//Change to overlook camera for the prep phase if not already overlook.
 			CameraComponent* cam_comp = (CameraComponent*)getComponentsOfType<CameraComponent>().next();
-			if (cam_comp)
+			if (cam_comp->type == DYNAMIC)
 			{
-				removeEntity(cam_comp->getEntityID());
+				RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
+				if (cam_comp)
+				{
+					removeEntity(cam_comp->getEntityID());
+				}
+
+				TransformComponent new_transf_comp;
+				CameraComponent new_cam_comp;
+
+				CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
+
+				createEntity(new_transf_comp, new_cam_comp);
 			}
-
-			TransformComponent new_transf_comp;
-			CameraComponent new_cam_comp;
-
-			CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
-
-			createEntity(new_transf_comp, new_cam_comp);
 
 			this->mRoundOver = false;
 			this->mRoundOverDuration = 0.0f;
