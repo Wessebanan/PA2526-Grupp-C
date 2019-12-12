@@ -126,12 +126,13 @@ bool InputBackend::updateMouse()
 {
 	bool ret_val = false;
 
+	POINT temp;
+
+	GetCursorPos(&temp);
+
 	//if (mpMouseLKey->key.pressed)
 	if (GetAsyncKeyState(VK_LSHIFT))
 	{
-		POINT temp;
-
-		GetCursorPos(&temp);
 
 		// checks if it any of the cords was changed
 		if (mpMouse->mOldPos.x != temp.x || mpMouse->mOldPos.y != temp.y)
@@ -152,6 +153,8 @@ bool InputBackend::updateMouse()
 	}
 	else
 	{
+		mpMouse->mOldPos.x = temp.x;
+		mpMouse->mOldPos.y = temp.y;
 		mpMouse->mDiffFloat2.x = 0.0f;
 		mpMouse->mDiffFloat2.y = 0.0f;
 		mpMouse->mDiffLength = 0.0f;
