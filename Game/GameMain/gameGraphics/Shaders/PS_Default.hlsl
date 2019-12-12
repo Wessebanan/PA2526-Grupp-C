@@ -176,7 +176,7 @@ float4 main(PSIN input) : SV_TARGET0
 
 	// Diffuse and shadow mapping
 	illumination *= diffuse_shading;
-	illumination *= diffuse_shading <= 0.15f ? 0.1f * shadow(input.sunPos.xy, input.sunPos.z) : shadow(input.sunPos.xy, input.sunPos.z);
+	illumination *= diffuse_shading <= 0.05f ? 0.05f * shadow(input.sunPos.xy, input.sunPos.z) : shadow(input.sunPos.xy, input.sunPos.z);
 
 	float3 ambient = input.color.xyz * 0.1f;
 	float3 diffuse = input.color.xyz * illumination;
