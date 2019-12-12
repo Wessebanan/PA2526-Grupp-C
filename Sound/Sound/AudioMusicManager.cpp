@@ -198,28 +198,50 @@ void Audio::Music::Manager::GetFrequencies(float* freqArray)
 	CArray data(test, 256);	// This part can be improved
 
 	// DFT (FFT Cooley-Tukey)
-	unsigned int N = data.size(), k = N, n;
+	// The algorithm is based on the DFT formula:
+	///// X[k] = SUM<n=0:N-1>(x[n]*exp(-i*2*PI*k*n/N))
+	///// X[k] = SUM<n=0:N-1>(x[n]*(cos(2*PI/N)-i*sin(2*PI/N))^(k*n))
+	///// X[k] = SUM<n=0:N-1>(x[n]*Twi_N^(k*n))
+
+	// This algorithm speeds up the DFT formula with a
+	// divide-and-conquer approach using a "butterfly"
+	// summing technique. The technique sorts even and odd
+	// buckets which needs to be sorted back using a
+	// reverse bit ordering.
+
+	// Variables -----------------
+	unsigned int N = data.size();	// Total amount of samples
+	unsigned int k = N;				// Help varialbes for the loops
+	unsigned int n;					// to achieve the butterfly technique
+
+	// T for Twiddle. This calculates the twiddle constant that will be used
 	float thetaT = M_PI / N;
-	Complex phiT = Complex(cos(thetaT), -sin(thetaT)), T;
+	Complex phiT = Complex(cos(thetaT), -sin(thetaT));
+	Complex T;	// Current twiddle
+
+	// FFT calculations
 	while (k > 1)
 	{
 		n = k;
 		k >>= 1;
-		phiT = phiT * phiT;
+		phiT = phiT * phiT;	// (Twid_N)^k (k*=2)
 		T = 1.0L;
 		for (unsigned int l = 0; l < k; l++)
 		{
 			for (unsigned int a = l; a < N; a += n)
 			{
+				// a and b gets indexes generating the
+				// butterfly addition effect
 				unsigned int b = a + k;
 				Complex t = data[a] - data[b];
 				data[a] += data[b];
 				data[b] = t * T;
 			}
-			T *= phiT;
+			T *= phiT;		// (Twid_N)^n (n++)
 		}
 	}
-	// Decimate (Reorder)
+
+	// Decimate (Reorder using bit reversal)
 	unsigned int m = (unsigned int)log2(N);
 	for (unsigned int a = 0; a < N; a++)
 	{

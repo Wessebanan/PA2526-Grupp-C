@@ -212,18 +212,6 @@ void Audio::Engine::WorkerThreadUpdateMethod()
 	// Progress the last sample count by the amount
 	// of samples filled this iteration
 	mProducerLastSampleCount += samples_to_fill;
-	
-	// FOURIER TRANSFORM ---------------------------------
-	//if (mBuffer.readAvailable() >= 256)
-	//{
-	//	std::complex<float> temp_array[256];
-	//	for (int i = 0; i < 256; i++)
-	//	{
-	//		temp_array[i] = 
-	//	}
-	//	std::valarray<std::complex<float>> complex_array
-
-	//}
 }
 
 void Audio::Engine::WorkerThreadUpdate(void* pData)
