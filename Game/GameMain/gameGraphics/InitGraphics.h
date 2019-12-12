@@ -152,10 +152,10 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	rEcs.createSystem<systems::WeaponRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
 
-	rEcs.createSystem<MapRenderSystem>(9)
+	/*rEcs.createSystem<MapRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_state_mgr, 
 			rMapMeshData.pMesh, 
-			rMapMeshData.vertexCount);
+			rMapMeshData.vertexCount);*/
 
 	rEcs.createSystem<DefaultRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
@@ -179,7 +179,7 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 		These stay outcommented, so we can easily compare performance boost between instance and single mesh rendering
 	*/
 
-	//rEcs.createSystem<systems::TileInstanceRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
+	rEcs.createSystem<systems::TileInstanceRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 	//systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<systems::OceanRenderSystem>(9);
 	//p_ocean_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 }

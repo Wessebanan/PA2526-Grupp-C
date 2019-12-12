@@ -1722,7 +1722,7 @@ void ecs::systems::PotentialArmyHazardSystem::updateEntity(FilteredEntity& entit
 		//DEBUG CODE//
 		//LETS THE DEVELOPER SEE THE POTENTIAL FIELD AS RED COLOR ON THE TILES.
 		//THE DARKER THE TILE THE BETTER THAT TILE IS FOR THE RED ARMY TO FLEE TO!
-		/*
+		
 		ecs::components::ColorComponent* p_color_comp = ecs::ECSUser::getComponentFromKnownEntity<components::ColorComponent>(entity.entity->getID());
 		p_color_comp->blue = 0.0f;
 		p_color_comp->green = 0.0f;
@@ -1736,7 +1736,7 @@ void ecs::systems::PotentialArmyHazardSystem::updateEntity(FilteredEntity& entit
 			charge *= 255.0f;
 		}
 		p_color_comp->red = charge;
-		*/
+		
 		//END OF DEBUG CODE//
 	}
 	else
