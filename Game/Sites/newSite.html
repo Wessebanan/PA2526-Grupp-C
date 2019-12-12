@@ -601,6 +601,7 @@
 
             console.log("Saved tileMsg: " + msg);
             window.selectedTileMsg = msg;
+            socket.send(msg);
 
             x -= 100;
             y -= 100;
@@ -635,6 +636,7 @@
             document.getElementById(id).style.backgroundColor = "#DDD";
 
             window.selectedButtonID = id;
+            socket.send(msg)
         }
 
 
@@ -654,7 +656,7 @@
 
         function sendTrapAndTile()
         {
-            if (window.selectedButtonID > 0 && window.selectedTileMsg > 0)
+            //if (window.selectedButtonID > 0 && window.selectedTileMsg > 0)
             {
                 document.getElementById(window.selectedButtonID).style.display = "none";
 
@@ -664,8 +666,11 @@
                 resetTrapColors();
                 resetAreaColors();
 
-                socket.send(trap);
-                socket.send(area);
+                //socket.send(trap);
+                //socket.send(area);
+                
+                // Send that the user is ready for thier buttons to be cleaned
+                socket.send("0005");
 
                 window.selectedTrapMsg = -1;
                 window.selectedTileMsg = -1;
