@@ -104,7 +104,7 @@ namespace ecs
 			DefaultParticleUpdateSystem();
 			virtual ~DefaultParticleUpdateSystem() {}
 
-			void updateEntity(FilteredEntity& entity, float delta) override;
+			void updateMultipleEntities(EntityIterator& _entities, float _delta) override;
 
 			graphics::ComputeManager mComputeManager;
 		};

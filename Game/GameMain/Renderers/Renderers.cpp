@@ -223,7 +223,7 @@ namespace ecs
 
 		void ParticleRenderSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
-			mParticleCount = (UINT)_entities.entities.size();
+			mParticleCount = max((UINT)_entities.entities.size(), 0);
 
 			// Fetch pointer to write data to in RenderBuffer
 			mpBuffer = (InputLayout*)mpRenderBuffer->GetBufferAddress(mParticleCount * GetPerInstanceSize());
@@ -247,6 +247,9 @@ namespace ecs
 				index++;
 			}
 
+			mParticleMeshRegion.VertexRegion.Size = mParticleCount * 3;
+			mParticleCount = mParticleCount > 0;
+			
 			mpRenderMgr->SetShaderModelLayout(mRenderProgram, mInstanceLayout);
 		}
 
@@ -259,7 +262,11 @@ namespace ecs
 			mpStateMgr		= pStateMgr;
 			mpRenderBuffer	= pRenderBuffer;
 
-			mParticleMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
+			//mParticleMeshRegion = MeshContainer::GetMeshGPU(GAME_OBJECT_TYPE_QUAD);
+
+			mParticleMeshRegion.IndexRegion.Size		= 0;
+			mParticleMeshRegion.IndexRegion.Location	= 0;
+			mParticleMeshRegion.VertexRegion.Location	= 0;
 
 			mInstanceLayout.MeshCount = 1;
 			mInstanceLayout.pMeshes = &mParticleMeshRegion;

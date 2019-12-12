@@ -571,39 +571,42 @@ namespace ecs
 
 		DefaultParticleUpdateSystem::DefaultParticleUpdateSystem()
 		{
-			updateType = EntityUpdate;
+			updateType = MultiEntityUpdate;
 			typeFilter.addRequirement(components::ParticleComponent::typeID);
 		}
 
-		void DefaultParticleUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
+		void DefaultParticleUpdateSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 		{
-			components::ParticleComponent* p_particle_component =
-				entity.getComponent<components::ParticleComponent>();
-
-			// Decrease their life and terminate if life expectancy has reached
-			p_particle_component->CurrentLifeDuration -= delta;
-			if (p_particle_component->CurrentLifeDuration <= 0.0f)
+			for (FilteredEntity particle : _entities.entities)
 			{
-				removeEntity(entity.entity->getID());
+				components::ParticleComponent* p_particle_component =
+					particle.getComponent<components::ParticleComponent>();
+
+				// Decrease their life and terminate if life expectancy has reached
+				p_particle_component->CurrentLifeDuration -= _delta;
+				if (p_particle_component->CurrentLifeDuration <= 0.0f)
+				{
+					removeEntity(particle.entity->getID());
+				}
+
+				// Life Left in Percentage
+				const float life_left_p = p_particle_component->CurrentLifeDuration / p_particle_component->TotalLifeDuration;
+
+				// Decrease scale with proptional to how long they have lived [1;0]
+				p_particle_component->Scale = p_particle_component->MaxScale * life_left_p;
+
+				// Get position and direction
+				DirectX::XMVECTOR position = DirectX::XMLoadFloat3(&p_particle_component->Position);
+				DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&p_particle_component->Direction);
+
+				// Transform particle
+				position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(direction, _delta * p_particle_component->CurrentLifeDuration / p_particle_component->TotalLifeDuration));
+				direction = DirectX::XMVectorAdd(direction, DirectX::XMVectorSet(0.0f, -p_particle_component->Gravity * _delta, 0.0f, 0.0f));
+
+				// Store position and direction
+				DirectX::XMStoreFloat3(&p_particle_component->Position, position);
+				DirectX::XMStoreFloat3(&p_particle_component->Direction, direction);
 			}
-
-			// Life Left in Percentage
-			const float life_left_p = p_particle_component->CurrentLifeDuration / p_particle_component->TotalLifeDuration;
-
-			// Decrease scale with proptional to how long they have lived [1;0]
-			p_particle_component->Scale = p_particle_component->MaxScale * life_left_p;
-
-			// Get position and direction
-			DirectX::XMVECTOR position	= DirectX::XMLoadFloat3(&p_particle_component->Position);
-			DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&p_particle_component->Direction);
-
-			// Transform particle
-			position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(direction, delta * p_particle_component->CurrentLifeDuration / p_particle_component->TotalLifeDuration));
-			direction = DirectX::XMVectorAdd(direction, DirectX::XMVectorSet(0.0f, -p_particle_component->Gravity * delta, 0.0f, 0.0f));
-
-			// Store position and direction
-			DirectX::XMStoreFloat3(&p_particle_component->Position, position);
-			DirectX::XMStoreFloat3(&p_particle_component->Direction, direction);
 		}
 	}
 }

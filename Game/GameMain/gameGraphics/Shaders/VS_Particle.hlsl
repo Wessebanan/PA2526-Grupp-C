@@ -53,15 +53,20 @@ struct VSOUT
 
 VSOUT main(uint VertexID : VertexStart, uint InstanceID : InstanceStart)
 {
-	VSOUT output;
-	output.color = unpack(gMesh[InstanceID].color) / 255.0f;
+	uint instance_id	= VertexID / 3;
+	uint vertex_id		= VertexID % 3;
 
-	float4 world_pos	= float4(gMesh[InstanceID].pos.xyz, 1.0f);
+	VSOUT output;
+	output.color		= unpack(gMesh[instance_id].color) / 255.0f;
+
+	float4 world_pos	= float4(gMesh[instance_id].pos.xyz, 1.0f);
 	float4 view_pos		= mul(gView, world_pos);
 
-	view_pos += float4(gVertexPositions[VertexID].xyz, 0.0f) * output.color.a;
+	float2 texcoord  = float2((vertex_id << 1) & 2, vertex_id & 2);
+	float3 position  = float3(texcoord * float2(2, -2) + float2(-1, 1), 0);
+	view_pos		+= float4(position, 0.0f) * output.color.a;
 
-	output.pos		= mul(gPerspective, view_pos);
+	output.pos		 = mul(gPerspective, view_pos);
 
 	return output;
 }
