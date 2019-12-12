@@ -2,6 +2,11 @@
 #include "ecsComponentIncludes.h"
 #include <directXMath.h>
 
+enum CAMERA_TYPE
+{
+	OVERLOOK, DYNAMIC
+};
+
 namespace ecs
 {
 	namespace components
@@ -16,6 +21,8 @@ namespace ecs
 			DirectX::XMFLOAT4X4 rotationMatrix;
 			DirectX::XMFLOAT4X4 projectionMatrix;
 			DirectX::XMFLOAT4X4 viewMatrix;
+
+			CAMERA_TYPE type;
 		};
 
 		struct PoiComponent : public ECSComponent<PoiComponent>

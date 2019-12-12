@@ -92,6 +92,10 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 		
 		EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
 		WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
+		if (!weapon_comp)
+		{
+			break;
+		}
 		//Check if the unit have a weapon already. If so find a friendly unit without a weapon and follow that unit.
 		if (weapon_comp->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
 		{
@@ -883,6 +887,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 		if(p_unit->timeSinceStuck >= 1.0f)//check if they have moved a certain distance during one sec
 		{
 			p_unit->timeSinceStuck = 0.f;
+
 			if(p_unit->length < 0.1f && p_dyn_move->mOnGround)
 			{
 				//get where they want to go 
@@ -890,9 +895,9 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 				jump_vector.y = p_goal->position.y - p_dyn_move->mLastTileY;
 				jump_vector.z = p_goal->position.z - p_transform->position.z;
 				//reverse that shit
-				jump_vector.x *= -1.f / 4.f;
+				jump_vector.x *= -.25f;
 				jump_vector.y *= 3.f;
-				jump_vector.z *= -1.f / 4.f;
+				jump_vector.z *= -.25f;
 				//add the power
 				ForceImpulseEvent jump;
 				XMStoreFloat3(&jump.mDirection, XMVector3Normalize(XMLoadFloat3(&jump_vector)));//normalize the jump vector so that we just get direction
