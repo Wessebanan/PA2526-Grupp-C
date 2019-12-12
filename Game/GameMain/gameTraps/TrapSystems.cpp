@@ -77,15 +77,6 @@ void ecs::systems::BurningDurationSystem::updateEntity(FilteredEntity& _entityIn
 
 	if (!p_burning_comp || !p_hp_comp || !p_transform_comp) return;
 
-	// deal damage to the burnign unit
-	p_hp_comp->mHealth -= p_burning_comp->mDamagePerSecond * _delta;
-
-	if (p_hp_comp->mHealth < 0.0f)
-	{
-		DeadComponent dead;
-		createComponent<DeadComponent>(_entityInfo.entity->getID(), dead);
-	}
-
 	// Check if it has finnished burning
 	p_burning_comp->mElapsedTime += _delta;
 	if (p_burning_comp->mElapsedTime > p_burning_comp->mDuration)
@@ -99,12 +90,14 @@ void ecs::systems::BurningDurationSystem::updateEntity(FilteredEntity& _entityIn
 	p_burning_comp->mPulseCounter += _delta;
 	if (p_burning_comp->mPulseCounter > p_burning_comp->mPulseInterval)
 	{
+		/* Does damage each pulse. */
+		p_hp_comp->mHealth -= p_burning_comp->mPulseInterval * p_burning_comp->mDamagePerSecond;
+
 		/* Spawn Smoke Emitter At Sword Spawn */
 		components::ParticleSpawnerComponent spawner;
 		components::FireSpawnerComponent fire;
 
 		spawner.StartPosition = p_transform_comp->position;
-		//spawner.StartPosition.y += 1.0f;
 		spawner.SpawnFrequency = 0.003f;
 		spawner.TimerSinceLastSpawn = 0.0f;
 		spawner.LifeDuration = 0.4f;
@@ -180,26 +173,6 @@ void ecs::systems::SpringRetractionSystem::updateEntity(FilteredEntity& _entityI
 	SpringRetractionComponent* p_sr_comp = _entityInfo.getComponent<components::SpringRetractionComponent>();
 	TransformComponent* p_transf_comp = _entityInfo.getComponent<components::TransformComponent>();
 
-	//if (p_sr_comp)
-	//{
-	//	p_sr_comp->mElapsedTime += _delta;
-
-	//	if (p_sr_comp->mElapsedTime >= p_sr_comp->mDuration)
-	//	{
-	//		removeComponent(p_sr_comp->getEntityID(), p_sr_comp->getTypeID());	
-	//	}
-	//	else
-	//	{
-	//		TransformComponent* p_transf_comp = _entityInfo.getComponent<components::TransformComponent>();
-
-	//		if (p_transf_comp)
-	//		{
-	//			float retraction_dist = (_delta / p_sr_comp->mDuration) * 3.0f;
-	//			p_transf_comp->position.y -= retraction_dist;
-	//		}
-	//	}
-	//}
-
 	if (p_sr_comp)
 	{
 		const float distance = p_transf_comp->position.y - p_sr_comp->TargetOffsetY;
@@ -215,14 +188,6 @@ void ecs::systems::SpringRetractionSystem::updateEntity(FilteredEntity& _entityI
 			p_transf_comp->position.y	-= speed;
 			p_sr_comp->mDuration		-= _delta;
 		}
-
-		/*p_transf_comp->position.y -= 1.f * _delta;
-
-		if (p_transf_comp->position.y < p_sr_comp->TargetOffsetY)
-		{
-			p_transf_comp->position.y = p_sr_comp->TargetOffsetY;
-			removeComponent(_entityInfo.entity->getID(), SpringRetractionComponent::typeID);
-		}*/
 	}
 }
 
@@ -307,35 +272,6 @@ void ecs::systems::FireTrapEventSystem::readEvent(BaseEvent& event, float delta)
 {
 	if (event.getTypeID() == ecs::events::TriggerFireTrapEvent::typeID)
 	{
-#pragma region old_shit
-		//TypeID id = dynamic_cast<TriggerFireTrapEvent*>(&event)->unitID;
-
-		//if (id > 0)
-		//{
-
-		//	// Make the unit take damage
-		//	HealthComponent* p_hp_comp = getComponentFromKnownEntity<HealthComponent>(id);
-		//	if (p_hp_comp)
-		//	{
-		//		p_hp_comp->mHealth -= mDamage * delta;
-
-		//		// Make the unit jump a litte, fire is hot and so am I
-		//		ForceImpulseEvent knockback;
-		//		knockback.mDirection = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
-		//		knockback.mForce = mKnockback;
-		//		knockback.mEntityID = id;
-		//		createEvent(knockback);
-
-
-		//		// Check if the unit died
-		//		if (p_hp_comp->mHealth <= 0.0f)
-		//		{
-		//			ecs::components::DeadComponent dead_comp;
-		//			ecs::ECSUser::createComponent(id, dead_comp);
-		//		}
-		//	}
-		//}
-#pragma endregion
 		TriggerFireTrapEvent& fire_trap_event = static_cast<TriggerFireTrapEvent&>(event);
 		
 		if (fire_trap_event.tileID > 0)
@@ -441,52 +377,43 @@ void ecs::systems::FreezeTrapEventSystem::readEvent(BaseEvent& event, float delt
 			{
 				p_hp_comp->mHealth -= mDamage;
 
-				// Check if the unit died
-				if (p_hp_comp->mHealth <= 0.0f)
+				components::UnitComponent* p_unit_comp = getComponentFromKnownEntity<UnitComponent>(id);
+				components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
+				components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
+
+				p_move_comp->mMaxVelocity *= mPower;
+				p_ani_speed_comp->factor = mPower;
+
+				// Add component 
+				FreezingTimerComponent f_comp;
+				f_comp.mDuration = 3.0f;
+				f_comp.mElapsedTime = 0.0f;
+
+				createComponent(id, f_comp);
+
+				// Make them brigther for the duration
+				events::ColorSwitchEvent eve;
+				eve.mEntityID = id;
+				eve.mTime = f_comp.mDuration;
+				Color color = Color(0, 0, 0);
+				switch (p_unit_comp->playerID)
 				{
-					ecs::components::DeadComponent dead_comp;
-					ecs::ECSUser::createComponent(id, dead_comp);
+				case PLAYER1:
+					color = BRIGHT_RED;
+					break;
+				case PLAYER2:
+					color = BRIGHT_PURPLE;
+					break;
+				case PLAYER3:
+					color = BRIGHT_BLUE;
+					break;
+				case PLAYER4:
+					color = BRIGHT_GREEN;
+					break;
 				}
-				else
-				{
-					components::UnitComponent* p_unit_comp = getComponentFromKnownEntity<UnitComponent>(id);
-					components::DynamicMovementComponent* p_move_comp = getComponentFromKnownEntity<DynamicMovementComponent>(id);
-					components::AnimationSpeedComponent* p_ani_speed_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(id);
+				eve.mColor = color;
 
-					p_move_comp->mMaxVelocity *= mPower;
-					p_ani_speed_comp->factor = mPower;
-
-					// Add component 
-					FreezingTimerComponent f_comp;
-					f_comp.mDuration = 3.0f;
-					f_comp.mElapsedTime = 0.0f;
-
-					createComponent(id, f_comp);
-
-					// Make them brigther for the duration
-					events::ColorSwitchEvent eve;
-					eve.mEntityID = id;
-					eve.mTime = f_comp.mDuration;
-					Color color = Color(0, 0, 0);
-					switch (p_unit_comp->playerID)
-					{
-					case PLAYER1:
-						color = BRIGHT_RED;
-						break;
-					case PLAYER2:
-						color = BRIGHT_PURPLE;
-						break;
-					case PLAYER3:
-						color = BRIGHT_BLUE;
-						break;
-					case PLAYER4:
-						color = BRIGHT_GREEN;
-						break;
-					}
-					eve.mColor = color;
-
-					createEvent(eve);
-				}
+				createEvent(eve);				
 			}
 		}
 	}
@@ -504,68 +431,6 @@ ecs::systems::SpringTrapEventSystem::~SpringTrapEventSystem()
 
 void ecs::systems::SpringTrapEventSystem::readEvent(BaseEvent& event, float delta)
 {
-#pragma region old_shit
-	//if (event.getTypeID() == ecs::events::TriggerSpringTrapEvent::typeID)
-	//{
-	//	TypeID id = dynamic_cast<TriggerSpringTrapEvent*>(&event)->unitID;
-
-	//	if (id > 0)
-	//	{
-	//		GridProp* p_gp = GridProp::GetInstance();
-
-	//		// Loop over random tiles until a valid spot is found
-	//		TransformComponent* start_trans_comp;
-	//		TransformComponent* target_trans_comp;
-	//		int2 area_size = p_gp->GetSize();
-
-	//		int rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
-	//		int rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
-	//		while (!p_gp->mGrid[rand_x][rand_y].isPassable)
-	//		{
-	//			rand_x = (rand() % (area_size.x / 2)) + (area_size.x / 4);
-	//			rand_y = (rand() % (area_size.y / 2)) + (area_size.y / 4);
-	//		}
-
-	//		target_trans_comp = getComponentFromKnownEntity<TransformComponent>(p_gp->mGrid[rand_x][rand_y].Id);
-
-	//		// units transformcomponent
-	//		start_trans_comp = getComponentFromKnownEntity<TransformComponent>(id);
-
-	//		start_trans_comp->position.y += 3.0f;
-
-	//		XMFLOAT2 flight_direction;
-	//		flight_direction.x = target_trans_comp->position.x - start_trans_comp->position.x;
-	//		flight_direction.y = target_trans_comp->position.z - start_trans_comp->position.z;
-
-	//		float dist = sqrtf(flight_direction.x * flight_direction.x + flight_direction.y * flight_direction.y);
-
-	//		flight_direction.x /= dist;
-	//		flight_direction.y /= dist;
-
-	//		// Make the unit jump a litte, fire is hot and so am I
-	//		ForceImpulseEvent knockback;
-	//		knockback.mDirection = DirectX::XMFLOAT3(flight_direction.x, 3.0f, flight_direction.y);
-	//		knockback.mForce = 150;
-	//		knockback.mEntityID = id;
-	//		createEvent(knockback);
-
-
-	//		// Send the tile up
-
-	//		TypeID tileID = dynamic_cast<TriggerSpringTrapEvent*>(&event)->tileID;
-	//			
-	//		TransformComponent* p_tile_transf = getComponentFromKnownEntity<TransformComponent>(tileID);
-
-	//		p_tile_transf->position.y += 2.95f;
-
-	//		// Create a component to have the tile get lowered to the original space
-	//		SpringRetractionComponent p_sr_comp;
-	//		p_sr_comp.mDuration = 3.0f;
-
-	//		createComponent(tileID,p_sr_comp);
-	//	}
-	//}
-#pragma endregion
 	if (event.getTypeID() == ecs::events::TriggerSpringTrapEvent::typeID)
 	{
 		
@@ -742,13 +607,8 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 			{
 				p_hp_comp->mHealth -= mDamage;
 
-				// Check if the unit died
-				if (p_hp_comp->mHealth <= 0.0f)
-				{
-					ecs::components::DeadComponent dead_comp;
-					ecs::ECSUser::createComponent(unit.entity->getID(), dead_comp);
-				}
-				else
+				
+				if(p_hp_comp->mHealth > 0.0f)
 				{
 					// Add the root component
 					ecs::components::RootComponent spike_comp;
@@ -757,14 +617,6 @@ void ecs::systems::SpikeTrapEventSystem::readEvent(BaseEvent& event, float delta
 					spike_comp.mImuneFactor = 2.0f;
 
 					ecs::ECSUser::createComponent(unit.entity->getID(), spike_comp);
-
-					// VISUAL
-					ColorSwitchEvent damage_flash;
-					damage_flash.mColor = Color(230,230,0);
-					damage_flash.mEntityID = unit.entity->getID();
-					damage_flash.mTime = spike_comp.mDuration;
-					createEvent(damage_flash);
-
 
 					AnimationSpeedComponent* p_anim_comp = getComponentFromKnownEntity<AnimationSpeedComponent>(unit.entity->getID());
 					p_anim_comp->factor = 0.0001f;

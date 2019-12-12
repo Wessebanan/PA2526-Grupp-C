@@ -79,6 +79,7 @@ namespace ecs
 			float length = 0;
 			float timeSinceStuck = 0.0f;
 			DirectX::XMFLOAT3 lastPos;
+			bool hasDiedBefore = false;
 		};
 
 		struct ArmyComponent : public ECSComponent<ArmyComponent>
