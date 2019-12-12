@@ -777,6 +777,7 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 	ObjectCollisionComponent* p_collision_comp = entity.getComponent<ObjectCollisionComponent>();
 	EquipmentComponent* p_equipment_comp = entity.getComponent<EquipmentComponent>();
 	TransformComponent* p_goal = ECSUser::getComponentFromKnownEntity<TransformComponent>(p_move_comp->goalID);
+	TileComponent* p_temp_tile;
 	UnitComponent* p_unit = entity.getComponent<UnitComponent>();
 	float distance = 1000.0f;
 	if (p_goal != nullptr)
@@ -791,6 +792,14 @@ void ecs::systems::MoveStateSystem::updateEntity(FilteredEntity& entity, float d
 			p_goal = getComponentFromKnownEntity<TransformComponent>(p_move_comp->path.back());
 			if (p_goal != nullptr)
 			{
+				if(entity.getComponent<UnitComponent>()->toBeDraw)
+				{
+					for (size_t i = 0; i < p_move_comp->path.size(); i++)
+					{
+						p_temp_tile = ECSUser::getComponentFromKnownEntity<TileComponent>(p_move_comp->path.at(i));
+						p_temp_tile->tileType = UNDEFINED;
+					}
+				}
 				ID unit_tile = this->GetClosestTileId(*p_transform);
 				if (unit_tile == p_move_comp->path.back())
 				{
@@ -1846,3 +1855,24 @@ void ecs::systems::AIPlayerSystem::updateEntity(FilteredEntity& entity, float de
 /************************************************/
 /*************  AIPLAYERSYSTEM END  ************/
 /**********************************************/
+
+ecs::systems::PathPrintSystem::PathPrintSystem()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(components::TileComponent::typeID);
+}
+
+ecs::systems::PathPrintSystem::~PathPrintSystem()
+{
+	//
+}
+
+void ecs::systems::PathPrintSystem::updateEntity(FilteredEntity& entity, float delta)
+{
+	TileComponent* p_tile = entity.getComponent<TileComponent>();
+
+	if (p_tile->tileType == TileTypes::UNDEFINED)
+	{
+		p_tile->tileType = TileTypes::GAME_FIELD;
+	}
+}

@@ -43,6 +43,17 @@ namespace ecs
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
+		class PathPrintSystem : public ECSSystem<PathPrintSystem>
+		{
+		public:
+			PathPrintSystem();
+			virtual ~PathPrintSystem();
+
+			//Update function that prints the center position of every tile in the order they 
+			//were created.
+			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
+
 		/*
 			A system that calculates the path for a unit.
 		*/

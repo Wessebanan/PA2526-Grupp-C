@@ -166,9 +166,10 @@ namespace ecs
 					break;
 				case TileTypes::WATER:
 					mpBuffer[index].color = PACK(0, 0, 200 + color_offset, 0);
+					mpBuffer[index].y = -10000.f;
 					break;
 				case TileTypes::UNDEFINED:
-					mpBuffer[index].color = PACK(0, 0, 0, 255);
+					mpBuffer[index].color = PACK(255, 0, 0, 255);
 					break;
 				default:
 					mpBuffer[index].color = PACK(255, 255, 255, 255);

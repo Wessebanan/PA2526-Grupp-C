@@ -160,39 +160,39 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 		->Initialize(&r_render_mgr, &r_render_buffer);
 	/* !!NOTE!!: Everything between 'WeaponRenderSystem' and 'UnitRenderSystem' will receive outline */
 
-	rEcs.createSystem<ParticleRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_render_buffer, &r_state_mgr);
+	//rEcs.createSystem<ParticleRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_render_buffer, &r_state_mgr);
 
-	rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
+	//rEcs.createSystem<TrapRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 
-	rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_render_buffer);
+	//rEcs.createSystem<systems::SceneObjectRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_render_buffer);
 
-	rEcs.createSystem<MapRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_state_mgr, 
-			rMapMeshData.pMesh, 
-			rMapMeshData.vertexCount);
+	//rEcs.createSystem<MapRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_state_mgr, 
+	//		rMapMeshData.pMesh, 
+	//		rMapMeshData.vertexCount);
+	rEcs.createSystem<systems::TileInstanceRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 
 	rEcs.createSystem<DefaultRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
 
-	rEcs.createSystem<PowerupLootRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_render_buffer);
+	//rEcs.createSystem<PowerupLootRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_render_buffer);
 
-	rEcs.createSystem<OceanRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_state_mgr, 
-			rOceanMeshData.pMesh,
-			rOceanMeshData.vertexCount);
+	//rEcs.createSystem<OceanRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_state_mgr, 
+	//		rOceanMeshData.pMesh,
+	//		rOceanMeshData.vertexCount);
 
-	rEcs.createSystem<WorldSceneRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_render_buffer);
+	//rEcs.createSystem<WorldSceneRenderSystem>(9)
+	//	->Initialize(&r_render_mgr, &r_render_buffer);
 
 
 	/*
 		These stay outcommented, so we can easily compare performance boost between instance and single mesh rendering
 	*/
 
-	//rEcs.createSystem<systems::TileInstanceRenderSystem>(9)->Initialize(&r_render_mgr, &r_render_buffer);
 	//systems::OceanRenderSystem* p_ocean_renderer = rEcs.createSystem<systems::OceanRenderSystem>(9);
 	//p_ocean_renderer->Initialize(&r_render_mgr, &r_render_buffer);
 }

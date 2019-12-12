@@ -570,6 +570,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 	ecs::ComponentIterator itt = getComponentsOfType(ecs::components::ArmyComponent::typeID);
 	ecs::components::ArmyComponent* p_army;
 	int i = 0;
+	int counter = 0;
 	while (p_army = (ecs::components::ArmyComponent*)itt.next())
 	{
 		// Clear it out if there was an
@@ -600,6 +601,11 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 				transform.position.x = p_transform->position.x + (float(TILE_RADIUS) / divider);
 				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
+				if(counter == 0)
+				{
+					unit.toBeDraw = true;
+					counter++;
+				}
 			}
 			else if (u == 1)
 			{
@@ -607,12 +613,14 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
 
+				unit.toBeDraw = false;
 			}
 			else
 			{
 				transform.position.x = p_transform->position.x;
 				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z - (float(TILE_RADIUS) / divider);
+				unit.toBeDraw = false;
 			}
 
 			// set scale to fit on tile
@@ -657,7 +665,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			p_army->unitIDs.push_back(temp_entity->getID());
 		}
 		i++;
-
+		counter++;
 
 	}
 
