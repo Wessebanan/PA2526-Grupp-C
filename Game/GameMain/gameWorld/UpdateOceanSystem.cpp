@@ -69,7 +69,7 @@ namespace ecs
 			
 			mWaveArray[0] = 20.0f;
 
-			mFlatternOutFactor = 0.8f;
+			mFlatternOutFactor = 0.999f;
 			mUpdateIntervall = 0.005f;
 			mTimeElapsed = 0.0f;
 
@@ -106,17 +106,22 @@ namespace ecs
 
 					unsigned int index_to_pick = (unsigned int)(WAVESCOUNT * distance_to_center / MAXDIST);
 
+					unsigned int offset = 15;
+
 					if (index_to_pick >= WAVESCOUNT)
 						index_to_pick = WAVESCOUNT - 1;
+					else if (index_to_pick < offset)
+						index_to_pick = offset;
 
-					p_ocean->mWaveIndex = index_to_pick;
+					p_ocean->mWaveIndex = index_to_pick - offset;
+					
 					p_ocean->mWaveAmplifier = ((distance_to_center/* * (distance_to_center*0.1f)*/) / MAXDIST) * 1.7f;
 				}
 				
 				p_transform->position.y = (mWaveArray[p_ocean->mWaveIndex] * p_ocean->mWaveAmplifier);
 
 				// Lower the water level
-				p_transform->position.y -= 0.5f;
+				p_transform->position.y -= 1.5f;
 			}
 
 			// to be change to music waves
@@ -147,7 +152,7 @@ namespace ecs
 				{
 					// Moves the waves forward
 					mWaveArray[0] *= mFlatternOutFactor/* / _delta*/;
-					for (size_t i = WAVESCOUNT- 2; i >= 1; i--)
+					for (size_t i = WAVESCOUNT- 2; i >= 2; i--)
 					{
 						float height = 0.0f;
 						height += mWaveArray[i - 2];

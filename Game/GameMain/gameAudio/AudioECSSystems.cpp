@@ -9,6 +9,7 @@
 #include "../gameGameLoop/GameLoopEvents.h"
 #include "../gameGameLoop/GameLoopComponents.h"
 #include "../gameAnimation/AnimationComponents.h"
+#include "../gameWorld/WorldComponents.h"
 #undef PlaySound
 
 ecs::systems::SoundMessageSystem::SoundMessageSystem()
@@ -194,6 +195,33 @@ void ecs::systems::SoundMessageSystem::act(float _delta)
 		// Progress animation
 		mBeatTime += _delta * 3.f;
 	}
+
+	// FOURIER TRANSFORM WAVES -----------------
+	// This fetches the frequency buckets from the music mixer
+	// and makes ocean waves out of it.
+	// The buckets from 0 to 255 represents freqencies from
+	// 1Hz to 22050Hz and contains the magnitude for that area
+	// of frequencies
+	float freq_array[256];
+	mSoundMixer->GetMusicManager()->GetFrequencies(freq_array);
+	components::WaveCenterComponent* wave_comp = 
+		static_cast<components::WaveCenterComponent*>(ecs::ECSUser::getComponentsOfType<components::WaveCenterComponent>().next());
+	static const unsigned char freq = 0;
+
+	// This is for testing and debugging frequency ranges
+	//if (GetAsyncKeyState('K'))
+	//{
+	//	freq++;
+	//	std::cout << (int)freq << std::endl;
+	//}
+	//else if (GetAsyncKeyState('J'))
+	//{
+	//	freq--;
+	//	std::cout << (int)freq << std::endl;
+	//}
+
+	if(freq_array[freq] < 1.0f && freq_array[freq] > 0.0f)	// Safety check
+		*wave_comp->mpFirstElement = freq_array[freq] * 40.f;
 }
 
 bool ecs::systems::SoundMessageSystem::SetupEngine()

@@ -1,6 +1,8 @@
 #pragma once
 #include "AudioPlugin.h"
 #include "AudioVoice.h"
+#include <complex>
+#include <valarray>
 namespace Audio
 {
 	namespace Sound
@@ -80,6 +82,7 @@ namespace Audio
 			void ProcessMusicMessages();
 			void Fill(Samples start, Samples sampleCount, float* pData, int channelCount, float* pVoiceData);
 			Samples GetCurrentSampleFromMainMusic();
+			void GetFrequencies(float* freqArray);
 		private:
 			struct MusicVoiceData
 			{
@@ -95,7 +98,9 @@ namespace Audio
 			void FadeOut(Message& rMessage, MusicVoiceData* pTarget);
 			void SetSpeed(Message& rMessage, MusicVoiceData* pTarget);
 
+
 			Ringbuffer<Music::Message, SOUND_MAX_MUSIC_MESSAGES> mMusicMessageBuffer;
+			Ringbuffer<float, 256> mPreviousSamples;
 			//Voice mMusicVoices[SOUND_MAX_MUSIC_VOICES];
 			MusicVoiceData mMainData;
 			MusicVoiceData mSecondaryData;
@@ -116,6 +121,8 @@ namespace Audio
 		void ProcessMessages();
 		// Get current sample of the main music playing
 		Samples GetCurrentSampleFromMainMusic();
+
+		Music::Manager* GetMusicManager();
 	private:
 		void ProcessSoundMessages();
 		//void ProcessMusicMessages();

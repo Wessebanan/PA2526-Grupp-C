@@ -102,6 +102,18 @@ public:
 		return buffer_size - (head - tail);
 	}
 
+	index_t progressTail(index_t amount) {
+		index_t temp = head - tail;
+		if (amount > temp)
+			amount = temp;
+		if (wmo_multi_core)
+			std::atomic_thread_fence(std::memory_order_release);
+		else
+			std::atomic_signal_fence(std::memory_order_release);
+		tail += amount;
+		return amount;
+	}
+
 	/*!
 	 * \brief Inserts data into internal buffer, without blocking
 	 * \param data element to be inserted into internal buffer
@@ -300,6 +312,8 @@ public:
 	 */
 	size_t readBuff(T* buff, size_t count);
 
+	size_t peakBuff(T* buff, size_t count);
+
 	/*!
 	 * \brief load multiple elements from internal buffer without blocking
 	 *
@@ -444,6 +458,38 @@ size_t Ringbuffer<T, buffer_size, wmo_multi_core, cacheline_size, index_t>::read
 		std::atomic_signal_fence(std::memory_order_release);
 
 	tail = tmp_tail;
+
+	if (wmo_multi_core)
+		std::atomic_thread_fence(std::memory_order_release);
+
+	return to_read;
+}
+
+template<typename T, size_t buffer_size, bool wmo_multi_core, size_t cacheline_size, typename index_t>
+size_t Ringbuffer<T, buffer_size, wmo_multi_core, cacheline_size, index_t>::peakBuff(T* buff, size_t count)
+{
+	index_t available = 0;
+	index_t tmp_tail = tail;
+	size_t to_read = count;
+
+	if (wmo_multi_core)
+		std::atomic_thread_fence(std::memory_order_acquire);
+
+	available = head - tmp_tail;
+
+	if (available < count) // do not read more than we can
+		to_read = available;
+
+	// maybe divide it into 2 separate reads
+	for (size_t i = 0; i < to_read; i++)
+		buff[i] = data_buff[tmp_tail++ & buffer_mask];
+
+	if (wmo_multi_core)
+		std::atomic_thread_fence(std::memory_order_release);
+	else
+		std::atomic_signal_fence(std::memory_order_release);
+
+	//tail = tmp_tail;
 
 	if (wmo_multi_core)
 		std::atomic_thread_fence(std::memory_order_release);
