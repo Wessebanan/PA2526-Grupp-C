@@ -654,20 +654,21 @@
 
         function sendTrapAndTile()
         {
-            if (window.selectedButtonID != 0 && window.selectedTileMsg != 0)
+            if (window.selectedButtonID > 0 && window.selectedTileMsg > 0)
             {
                 document.getElementById(window.selectedButtonID).style.display = "none";
 
                 var trap = window.selectedTrapMsg;
+                var area = window.selectedTileMsg;
 
                 resetTrapColors();
                 resetAreaColors();
 
                 socket.send(trap);
-                socket.send(window.selectedTileMsg);
+                socket.send(area);
 
-                window.selectedTrapMsg = 0;
-                window.selectedTileMsg = 0;
+                window.selectedTrapMsg = -1;
+                window.selectedTileMsg = -1;
                 window.selectedButtonID = 0;
             }
         };
