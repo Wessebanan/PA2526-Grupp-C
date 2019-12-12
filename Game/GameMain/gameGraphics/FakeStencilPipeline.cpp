@@ -25,7 +25,7 @@ namespace graphics {
 		desc_outline_base.Height = p_desc->ClientHeight;
 		desc_outline_base.MipLevels = 1;
 		desc_outline_base.ArraySize = 1;
-		desc_outline_base.Format = DXGI_FORMAT_R32_TYPELESS;
+		desc_outline_base.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		desc_outline_base.SampleDesc.Count = 1;
 		desc_outline_base.SampleDesc.Quality = 0;
 		desc_outline_base.Usage = D3D11_USAGE_DEFAULT;
@@ -44,7 +44,7 @@ namespace graphics {
 		ZeroMemory(&tex_2d_rtv, sizeof(D3D11_TEX2D_RTV));
 		tex_2d_rtv.MipSlice = 0;
 		outline_RTV_desc.Texture2D = tex_2d_rtv;
-		outline_RTV_desc.Format = DXGI_FORMAT_R32_UINT;
+		outline_RTV_desc.Format = desc_outline_base.Format;
 		outline_RTV_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
 		hr = pDevice4->CreateRenderTargetView(this->mpFakeStencilTexture, &outline_RTV_desc, &mpRenderTarget);
@@ -59,7 +59,7 @@ namespace graphics {
 		tex2d_outline_srv.MostDetailedMip = 0;
 		tex2d_outline_srv.MipLevels = 1;
 		outline_base_srv_desc.Texture2D = tex2d_outline_srv;
-		outline_base_srv_desc.Format = DXGI_FORMAT_R32_UINT;
+		outline_base_srv_desc.Format = desc_outline_base.Format;
 		outline_base_srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		hr = pDevice4->CreateShaderResourceView(
 			mpFakeStencilTexture,

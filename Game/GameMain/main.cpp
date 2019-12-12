@@ -177,8 +177,8 @@ int main()
 				ecs.removeSystem<ecs::systems::UpdateCameraSystem>();
 				ecs.createSystem<ecs::systems::UpdateDynamicCameraSystem>(0);
 			}
-			// RESTART THE GAME WITH O
-			if (GetAsyncKeyState('C'))
+			// RESTART THE GAME WITH M
+			if (GetAsyncKeyState('M'))
 			{
 				events::GameReStartEvent eve;
 				ecs.createEvent(eve);

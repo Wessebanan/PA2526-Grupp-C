@@ -927,16 +927,18 @@ namespace ecs
 		void OutlineRenderSystem::act(float _delta)
 		{
 
-			mRenderMgr->ExecutePipeline(mPipelineFakeStencil, this->unitRenderProgram);
+			mRenderMgr->ExecutePipeline(mPipelineFakeStencil, this->weaponRenderProgram, this->unitRenderProgram);
+			//mRenderMgr->ExecutePipeline(mPipelineFakeStencil, );
 		}
 		void OutlineRenderSystem::Initialize(const UINT clientWidth, const UINT clientHeight,
-			const UINT unitRenderProgram, graphics::RenderManager* unitRenderManager)
+			const UINT RenderProgram0, const UINT RenderProgram1, graphics::RenderManager* unitRenderManager)
 		{
 			// This render system uses the render manager of the regular Unit render system but with
 			// different shaders
 
 
-			this->unitRenderProgram = unitRenderProgram;
+			this->unitRenderProgram = RenderProgram0;
+			this->weaponRenderProgram = RenderProgram1;
 			this->mRenderMgr = unitRenderManager;
 			{
 				graphics::FAKE_STENCIL_PIPELINE_DESC fake_stencil_desc = { };
@@ -948,8 +950,6 @@ namespace ecs
 					&fake_stencil_desc);
 
 			}
-
-			
 		}
 #pragma endregion OutlineRenderSystem
 
