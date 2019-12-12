@@ -200,19 +200,20 @@ void ecs::systems::SoundMessageSystem::act(float _delta)
 	mSoundMixer->GetMusicManager()->GetFrequencies(freq_array);
 	components::WaveCenterComponent* wave_comp = 
 		static_cast<components::WaveCenterComponent*>(ecs::ECSUser::getComponentsOfType<components::WaveCenterComponent>().next());
-	static unsigned char freq = 0;
-	if (GetAsyncKeyState('K'))
-	{
-		freq++;
-		std::cout << (int)freq << std::endl;
-	}
-	else if (GetAsyncKeyState('J'))
-	{
-		freq--;
-		std::cout << (int)freq << std::endl;
-	}
-
-	*wave_comp->mpFirstElement = freq_array[freq] * 20.f;
+	static const unsigned char freq = 0;
+	// This is for testing and debugging frequency ranges
+	//if (GetAsyncKeyState('K'))
+	//{
+	//	freq++;
+	//	std::cout << (int)freq << std::endl;
+	//}
+	//else if (GetAsyncKeyState('J'))
+	//{
+	//	freq--;
+	//	std::cout << (int)freq << std::endl;
+	//}
+	if(freq_array[freq] < 1.0f && freq_array[freq] > 0.0f)
+		*wave_comp->mpFirstElement = freq_array[freq] * 40.f;
 }
 
 bool ecs::systems::SoundMessageSystem::SetupEngine()

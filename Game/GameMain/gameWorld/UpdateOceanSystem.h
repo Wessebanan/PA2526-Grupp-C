@@ -7,7 +7,7 @@ namespace ecs
 {
 	namespace systems
 	{
-		constexpr int WAVESCOUNT = 100;
+		constexpr int WAVESCOUNT = 200;
 
 		class UpdateOceanSystem : public ECSSystem<UpdateOceanSystem>
 		{

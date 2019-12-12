@@ -69,7 +69,7 @@ namespace ecs
 			
 			mWaveArray[0] = 20.0f;
 
-			mFlatternOutFactor = 0.8f;
+			mFlatternOutFactor = 0.999f;
 			mUpdateIntervall = 0.005f;
 			mTimeElapsed = 0.0f;
 
@@ -106,10 +106,15 @@ namespace ecs
 
 					unsigned int index_to_pick = (unsigned int)(WAVESCOUNT * distance_to_center / MAXDIST);
 
+					unsigned int offset = 15;
+
 					if (index_to_pick >= WAVESCOUNT)
 						index_to_pick = WAVESCOUNT - 1;
+					else if (index_to_pick < offset)
+						index_to_pick = offset;
 
-					p_ocean->mWaveIndex = index_to_pick-10;
+					p_ocean->mWaveIndex = index_to_pick - offset;
+					
 					p_ocean->mWaveAmplifier = ((distance_to_center/* * (distance_to_center*0.1f)*/) / MAXDIST) * 1.7f;
 				}
 				
@@ -147,7 +152,7 @@ namespace ecs
 				{
 					// Moves the waves forward
 					mWaveArray[0] *= mFlatternOutFactor/* / _delta*/;
-					for (size_t i = WAVESCOUNT- 2; i >= 1; i--)
+					for (size_t i = WAVESCOUNT- 2; i >= 2; i--)
 					{
 						float height = 0.0f;
 						height += mWaveArray[i - 2];
