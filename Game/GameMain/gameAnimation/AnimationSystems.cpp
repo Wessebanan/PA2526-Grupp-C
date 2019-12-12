@@ -16,58 +16,100 @@ void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float de
 {
 	components::SkeletonComponent* pSkeleton = entity.getComponent<components::SkeletonComponent>();
 	components::AnimationSpeedComponent* pAnimation = entity.getComponent<components::AnimationSpeedComponent>();
-	if (getComponentFromKnownEntity<ecs::components::DeadComponent>(pSkeleton->getEntityID()))
+	if (GetAsyncKeyState(VK_F9))
 	{
-		pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::PING);
+		this->animationSelect = 1;
 	}
-	else if (pSkeleton->pingTimeElapsed >= 0.0f && pSkeleton->pingTimeElapsed <= 1.0f)
+	if (GetAsyncKeyState(VK_F10))
 	{
-		pSkeleton->pingTimeElapsed += delta;
-		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
+		this->animationSelect = 2;
 	}
-	else if (getComponentFromKnownEntity<ecs::components::AttackStateComponent>(pSkeleton->getEntityID()))
+	if (GetAsyncKeyState(VK_F11))
 	{
-		components::EquipmentComponent* p_equipment = getComponentFromKnownEntity<components::EquipmentComponent>(pSkeleton->getEntityID());
-		if (p_equipment)
+		this->animationSelect = 3;
+	}
+	if (GetAsyncKeyState(VK_F12))
+	{
+		this->animationSelect = 4;
+	}
+
+	if (this->animationSelect > 0)
+	{
+		if (this->animationSelect == 1)
 		{
-			components::WeaponComponent* p_weapon = getComponentFromKnownEntity<components::WeaponComponent>(p_equipment->mEquippedWeapon);
-			if (p_weapon)
-			{
-				switch (p_weapon->mType)
-				{
-				case GAME_OBJECT_TYPE_WEAPON_HAMMER:
-					pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
-					break;
-				case GAME_OBJECT_TYPE_WEAPON_SWORD:
-					pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
-					break;
-				case GAME_OBJECT_TYPE_WEAPON_BOMB:
-					pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
-					break;
-				default:
-					pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
-					break;
-				}
-			}
+			pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::IDLE);
 		}
-	}
-	else if (getComponentFromKnownEntity<ecs::components::MoveStateComponent>(pSkeleton->getEntityID()))
-	{
-		if (entity.entity->hasComponentOfType<JumpComponent>())
+		else if (this->animationSelect == 2)
 		{
-			pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::JUMP);
+			pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::MOVE);
 		}
-		else
+		else if (this->animationSelect == 3)
 		{
-			pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::MOVE);
+			pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+		}
+		else if (this->animationSelect == 4)
+		{
+			pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
 		}
 	}
 	else
-	{ 
-		pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::IDLE);
-		// Uncomment the line below to test the ping animation as the "idle" animation
-		//pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
+	{
+
+		if (getComponentFromKnownEntity<ecs::components::DeadComponent>(pSkeleton->getEntityID()))
+		{
+			pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::PING);
+		}
+		else if (pSkeleton->pingTimeElapsed >= 0.0f && pSkeleton->pingTimeElapsed <= 1.0f)
+		{
+			pSkeleton->pingTimeElapsed += delta;
+			pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
+		}
+		else if (getComponentFromKnownEntity<ecs::components::AttackStateComponent>(pSkeleton->getEntityID()))
+		{
+			components::EquipmentComponent* p_equipment = getComponentFromKnownEntity<components::EquipmentComponent>(pSkeleton->getEntityID());
+			if (p_equipment)
+			{
+				components::WeaponComponent* p_weapon = getComponentFromKnownEntity<components::WeaponComponent>(p_equipment->mEquippedWeapon);
+				if (p_weapon)
+				{
+					switch (p_weapon->mType)
+					{
+					case GAME_OBJECT_TYPE_WEAPON_HAMMER:
+						pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+						break;
+					case GAME_OBJECT_TYPE_WEAPON_SWORD:
+						pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+						break;
+					case GAME_OBJECT_TYPE_WEAPON_BOMB:
+						pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+						break;
+					default:
+						pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::ATTACK);
+						break;
+					}
+				}
+			}
+		}
+		else if (getComponentFromKnownEntity<ecs::components::MoveStateComponent>(pSkeleton->getEntityID()))
+		{
+			if (entity.entity->hasComponentOfType<JumpComponent>())
+			{
+				pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::JUMP);
+			}
+			else
+			{
+				pSkeleton->skeletonData.UpdateAnimation(delta * pAnimation->factor, ModelLoader::ANIMATION_TYPE::MOVE);
+			}
+		}
+		else
+		{
+			pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::IDLE);
+			// Uncomment the line below to test the ping animation as the "idle" animation
+			//pSkeleton->skeletonData.UpdateAnimation(delta, ModelLoader::ANIMATION_TYPE::PING);
+		}
 	}
+
+
 }
 
 void ecs::systems::PingListenerSystem::readEvent(BaseEvent& event, float delta)

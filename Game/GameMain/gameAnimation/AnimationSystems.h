@@ -11,6 +11,8 @@ namespace ecs {
 			SkeletonSystem();
 			virtual ~SkeletonSystem();
 
+			UINT animationSelect = 0;
+
 			void updateEntity(FilteredEntity& entity, float delta) override;
 		};
 
