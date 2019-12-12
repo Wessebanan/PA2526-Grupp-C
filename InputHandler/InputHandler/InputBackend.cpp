@@ -150,6 +150,12 @@ bool InputBackend::updateMouse()
 			mpMouse->mDiffLength = 0.0f;
 		}
 	}
+	else
+	{
+		mpMouse->mDiffFloat2.x = 0.0f;
+		mpMouse->mDiffFloat2.y = 0.0f;
+		mpMouse->mDiffLength = 0.0f;
+	}
 	
 	return ret_val;
 }
