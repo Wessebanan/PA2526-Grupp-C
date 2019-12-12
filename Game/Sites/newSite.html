@@ -576,11 +576,9 @@
             var name = document.getElementById('nameInput').value;
             
             if (name < " ")
-            {
                 name = "PLAYER";
-            } 
             
-            console.log(name);
+            console.log("Sending name: " + name);
             setName(name);
             window.navigator.vibrate(200);
         }
@@ -648,7 +646,7 @@
             var msg = player.concat(action.concat(Button));
         
 
-            console.log(msg);
+            console.log("Sending command: " + msg);
             socket.send(msg);
         }
 

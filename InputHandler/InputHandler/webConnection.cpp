@@ -293,11 +293,14 @@ void WebConnection::PlayersJoin()
 					// if the socket is the listener in the array
 					else
 					{
-						BroadcastMsg("Recived mesages: " + to_string(nrMsg++));
+						//BroadcastMsg("Recived mesages: " + to_string(nrMsg++));
 						
 						char* user_msg = ReciveMsg(sock, recvbuf, iSendResult);
 
-						cout << "user_msg: "<< user_msg << endl;
+						//cout << "user_msg: "<< user_msg << endl;
+
+						cout << "-From User " << this->IdUserSocket(sock) << endl
+							<< "	" << user_msg << endl;
 
 						string str1 = user_msg;
 
@@ -365,8 +368,10 @@ void WebConnection::PlayersJoin()
 							{
 								wmd.player = IdPlayerSocket(sock);
 
+								/*
 								cout << "-From player " << wmd.player << endl
-									<< user_msg << endl;
+									<< "	" << user_msg << endl;
+								*/
 
 								ExecuteUserAction(wmd);
 							}
