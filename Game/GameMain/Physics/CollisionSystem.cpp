@@ -53,17 +53,13 @@ void ecs::systems::ObjectCollisionSystem::onEvent(TypeID _typeID, ecs::BaseEvent
 	{
 		if (p_skeleton->ragdollEnabled)
 		{
-			if (p_skeleton->ragdollCollisionObject)
+			p_skeleton->ragdollCollisionObject->Free();
+			for (QuadTreeObject qt : collision_list)
 			{
-				// Remove the object from the previous frame
-				delete p_skeleton->ragdollCollisionObject;
+				BoundingVolume* bv_copy = qt.pBoundingBox->mBV->Copy();
+				bv_copy->Transform(UtilityEcsFunctions::GetWorldMatrix(*qt.pTransform));				
+				p_skeleton->ragdollCollisionObject->AddBoundingVolume(bv_copy);
 			}
-			p_skeleton->ragdollCollisionObject = new Collision();
-			for (auto a : collision_list)
-			{
-				p_skeleton->ragdollCollisionObject->AddBoundingVolume(a.pBoundingBox->mBV);
-			}
-
 		}
 	}
 

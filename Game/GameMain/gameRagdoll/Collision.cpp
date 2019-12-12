@@ -13,8 +13,11 @@ Collision::~Collision()
 
 void Collision::Free()
 {
-	delete mObjects;
-	mObjects = nullptr;
+	if (mObjects)
+	{
+		delete mObjects;
+		mObjects = nullptr;
+	}
 	mNumObjects = 0;
 }
 
