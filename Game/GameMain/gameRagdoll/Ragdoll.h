@@ -64,7 +64,7 @@ public:
 	void Resolve(float dt,
 		float linearDamping = -0.04f,
 		float angularDamping = -0.01f,
-		DirectX::XMFLOAT3 pVecGravity = DirectX::XMFLOAT3(0.0f, -9.8f, 0.0f),
+		DirectX::XMFLOAT3 pVecGravity = DirectX::XMFLOAT3(0.0f, 9.8f, 0.0f),
 		Collision* pCollision = nullptr,
 		DirectX::XMMATRIX* pMatCollision = nullptr);
 

@@ -430,7 +430,8 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
-	InitUI(rECS);
+	// Commented for debugging purposes, if you see this in a review please yell at me
+	//InitUI(rECS);
 
 	InitWeapons(rECS);
 
