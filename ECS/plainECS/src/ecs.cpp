@@ -222,6 +222,15 @@ void EntityComponentSystem::update(float _delta)
 				// Iterate through all the entites of interest and update the system.
 				for (FilteredEntity e : updateInfo->entityIterator.entities)
 				{
+					if (!e.components.size())
+					{
+						std::cout << "\nupdate() | EntityUpdate | is giving empty entity to system!\n" <<
+							"\tSystem:\t" << updateInfo->systemPtr->getName() <<
+							"\tEntity:\t" << e.entity->getID() << "\n";
+
+						CHECK_ALL_FILTERED_ENTITITES("update");
+					}
+
 					updateInfo->systemPtr->updateEntity(e, _delta);
 				}
 				break;
@@ -264,6 +273,7 @@ void EntityComponentSystem::update(float _delta)
 			//#ifdef _DEBUG
 			//	debugPrint += ", ";
 			//#endif
+
 		}
 
 		//#ifdef _DEBUG
@@ -525,6 +535,7 @@ void* ecs::EntityComponentSystem::onCreateSystem(void* _tempSystem, unsigned int
 
 	// Push back system in wanted layer for later update
 	systemLayers[_layer].push_back(updateInfo);
+
 	return (void*)newSystem;
 }
 
@@ -851,6 +862,8 @@ void EntityComponentSystem::notifyEntityCreationInterests(Entity* _entityPtr)
 			}
 		}
 	}
+
+	//CHECK_ALL_FILTERED_ENTITITES("notifyEntityCreationInterests");
 }
 
 void EntityComponentSystem::notifyEntityRemovalInterests(Entity* _entityPtr)
@@ -891,6 +904,8 @@ void EntityComponentSystem::notifyEntityRemovalInterests(Entity* _entityPtr)
 			updaterIt++;
 		}
 	}
+
+	//CHECK_ALL_FILTERED_ENTITITES("notifyEntityRemovalInterests");
 }
 
 void EntityComponentSystem::notifyCompCreationInterests(TypeID _typeID, Entity* _entityPtr)
@@ -912,10 +927,16 @@ void EntityComponentSystem::notifyCompCreationInterests(TypeID _typeID, Entity* 
 			updater->entityIterator.entities.push_back(info);
 		}
 	}
+
+	//CHECK_ALL_FILTERED_ENTITITES("notifyCompCreationInterests");
 }
 
 void EntityComponentSystem::notifyCompRemovalInterests(TypeID _typeID, Entity* _entityPtr)
 {
+	{
+		std::cout << "\n-- REMOVING (tid=" << _typeID << ") FROM ENTITY (id=" << _entityPtr->getID() << ")\n";
+	}
+
 	const ID entityID = _entityPtr->getID();
 
 	std::vector<SystemUpdateInfo*>::iterator updaterIt = componentInterests[_typeID].begin();
@@ -941,17 +962,25 @@ void EntityComponentSystem::notifyCompRemovalInterests(TypeID _typeID, Entity* _
 			{
 				if (entityInfo->components.count(_typeID))
 				{
-					std::cout << "Removing component " << entityInfo->components[_typeID]->getName() << " from entity " << entityID << " in system " << updater->systemPtr->getName() << ".\n";
-					
-					std::cout << "-- Comp size before:\t" << entityInfo->components.size() << "\n";
+					std::cout << "Removing component " << entityInfo->components[_typeID]->getName() << " from entity " << entityID << " in system " << updater->systemPtr->getName() << ".\n";			
 					entityInfo->components.erase(_typeID);
-					std::cout << "-- Comp size after:\t" << entityInfo->components.size() << "\n";
 				}
 
 				if (!updater->isEntityValid(entityInfo->entity) || !entityInfo->components.size())
 				{
 					std::cout << "Removing entity " << entityID << " from " << updater->systemPtr->getName() << ". (component remove)\n";
+
+					std::cout << "\tBefore remove: entity id=" << entityInfo->entity->getID() << " filtered comp count=" << entityInfo->components.size() << "\n";
 					entityInfo = updater->entityIterator.entities.erase(entityInfo);
+
+					if (entityInfo != updater->entityIterator.entities.end())
+					{
+						std::cout << "\t\After remove: entity id=" << entityInfo->entity->getID() << " filtered comp count=" << entityInfo->components.size() << "\n";
+					}
+					else
+					{
+						std::cout << "\t\tAfter remove: empty\n";
+					}
 				}
 				else
 				{
@@ -966,4 +995,6 @@ void EntityComponentSystem::notifyCompRemovalInterests(TypeID _typeID, Entity* _
 
 		updaterIt++;
 	}
+
+	//CHECK_ALL_FILTERED_ENTITITES("notifyCompRemovalInterests");
 }

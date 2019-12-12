@@ -269,6 +269,45 @@ namespace ecs
 		void notifyEntityRemovalInterests(Entity* _entityPtr);
 		void notifyCompCreationInterests(TypeID _typeID, Entity* _entityPtr);
 		void notifyCompRemovalInterests(TypeID _typeID, Entity* _entityPtr);
+
+		inline void CHECK_ALL_FILTERED_ENTITITES(std::string functionProvoker)
+		{
+			if (!systemLayers)
+			{
+				return;
+			}
+
+			std::string outputString = "";
+
+			outputString += "\n\nCHECKING ALL UPDATERS:\n";
+
+			for (int i = 0; i < 10; i++)
+			{
+				SystemList& layer = systemLayers[i];
+
+				outputString += "\tLayer " + to_string(i) + "\n";
+
+				for (SystemUpdateInfo* updater : layer)
+				{
+					outputString += "\t\t" + updater->systemPtr->getName() + "\n";
+
+					for (FilteredEntity info : updater->entityIterator.entities)
+					{
+						outputString += "\t\t\tEntity " + to_string(info.entity->getID()) + "\t with " + to_string(info.components.size()) + " components\n";
+
+						if (!info.components.size())
+						{
+							/*std::cout << "\n-- [" << functionProvoker << "] Found filtered entity with zero components! Belongs to " <<
+								updater->systemPtr->getName() << ", Entity=" << info.entity->getID() << "\n";*/
+
+							outputString += "\t\t\t--- WARNING NO COMPONENTS\n";
+						}
+					}
+				}
+			}
+
+			std::cout << outputString;
+		}
 	};
 
 	/*
@@ -343,6 +382,7 @@ namespace ecs
 
 		// Push back system in wanted layer for later update
 		systemLayers[layer].push_back(updateInfo);
+
 		return newSystem;
 	}
 
