@@ -125,26 +125,41 @@ void InputBackend::modyfiByMouse()
 bool InputBackend::updateMouse()
 {
 	bool ret_val = false;
+
 	POINT temp;
 
 	GetCursorPos(&temp);
 
-	// checks if it any of the cords was changed
-	if (mpMouse->mOldPos.x != temp.x || mpMouse->mOldPos.y != temp.y)
+	//if (mpMouseLKey->key.pressed)
+	if (GetAsyncKeyState(VK_LSHIFT))
 	{
-		// saves and updates members
-		ret_val = true;
-		mpMouse->mNewPos.x = temp.x;
-		mpMouse->mNewPos.y = temp.y;
 
-		this->modyfiByMouse();
+		// checks if it any of the cords was changed
+		if (mpMouse->mOldPos.x != temp.x || mpMouse->mOldPos.y != temp.y)
+		{
+			// saves and updates members
+			ret_val = true;
+			mpMouse->mNewPos.x = temp.x;
+			mpMouse->mNewPos.y = temp.y;
+
+			this->modyfiByMouse();
+		}
+		else // else resets 
+		{
+			mpMouse->mDiffFloat2.x = 0.0f;
+			mpMouse->mDiffFloat2.y = 0.0f;
+			mpMouse->mDiffLength = 0.0f;
+		}
 	}
-	else // else resets 
+	else
 	{
+		mpMouse->mOldPos.x = temp.x;
+		mpMouse->mOldPos.y = temp.y;
 		mpMouse->mDiffFloat2.x = 0.0f;
 		mpMouse->mDiffFloat2.y = 0.0f;
 		mpMouse->mDiffLength = 0.0f;
 	}
+	
 	return ret_val;
 }
 
