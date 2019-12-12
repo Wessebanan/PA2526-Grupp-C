@@ -16,13 +16,8 @@
 
 #define BITMAP_NAME_LENGTH 16
 #define COLOR_BRUSHES 8
-#define NR_OF_FORMATS 3
-//struct BitmapInfo
-//{
-//	ID2D1Bitmap* bitmap = nullptr;
-//	//std::string name = "";
-//	D2D1_RECT_F drawArea = { 0,0,0,0 };
-//};
+#define NR_OF_FORMATS 4
+
 enum brushColors
 {
 	Black	= 0,
@@ -132,8 +127,8 @@ private:
 	ID2D1DeviceContext* mpContext;
 
 	RECT* mpRect;
-	int mWidth;
-	int mHeight;
+	float mWidth;
+	float mHeight;
 	std::wstring mfont;
 	unsigned int mfontSize;
 	bool mFailBitMapLoaded = false;

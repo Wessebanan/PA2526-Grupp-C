@@ -118,8 +118,8 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, RECT* rect) //Creates a re
 		this->mpColorText->AddRef();
 		this->mpColorDraw->AddRef();
 		this->mpRect = rect;
-		this->mWidth = rect->right;
-		this->mHeight = rect->bottom;
+		this->mWidth = (float)rect->right;
+		this->mHeight = (float)rect->bottom;
 	};
 	
 	return hr;
@@ -146,8 +146,8 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, int width, int height)
 		this->LoadImageToBitmap("fail.png");
 		this->mpColorText->AddRef();
 		this->mpColorDraw->AddRef();
-		this->mWidth = width;
-		this->mHeight = height;
+		this->mWidth = (float)width;
+		this->mHeight = (float)height;
 	};
 
 	return hr;
@@ -156,10 +156,10 @@ HRESULT Direct2D::CreateHwndRenderTarget(HWND window, int width, int height)
 void Direct2D::InitDeviceAndContext(IDXGIDevice* dxgiDevice) //takes DXGIdevice from Dx11
 {
 	HRESULT hr = E_FAIL;
-	if (SUCCEEDED(this->mpFactory->CreateDevice(dxgiDevice, &this->mpDevice)));
+	if (SUCCEEDED(this->mpFactory->CreateDevice(dxgiDevice, &this->mpDevice)))
 		if (SUCCEEDED(this->mpDevice->CreateDeviceContext(
 			D2D1_DEVICE_CONTEXT_OPTIONS_NONE,
-			&this->mpContext)));
+			&this->mpContext)))
 		{
 			this->mpContext->SetTarget(this->mpBackbufferBitmap);
 			this->mDeviceContextCreated = true;
@@ -244,7 +244,7 @@ ID2D1Bitmap1* Direct2D::CreateBitmapTarget(float width, float height)
 			D2D1_BITMAP_OPTIONS_TARGET,
 			D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
 		);
-	this->mpContext->CreateBitmap(D2D1::SizeU(width, height), 0, 0, bitmapProperties, &p_target);
+	this->mpContext->CreateBitmap(D2D1::SizeU((UINT32)width, (UINT32)height), 0, 0, bitmapProperties, &p_target);
 
 	return p_target;
 }
@@ -292,7 +292,7 @@ void Direct2D::SetBitmapTint(ID2D1Bitmap1* bitmapInput, ID2D1Bitmap1* bitmapOutp
 				D2D1_BITMAP_OPTIONS_TARGET,
 				D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
 			);
-		this->mpContext->CreateBitmap(D2D1::SizeU(bitmapInput->GetSize().width, bitmapInput->GetSize().height), 0, 0, bitmapProperties, &p_target);
+		this->mpContext->CreateBitmap(D2D1::SizeU((UINT32)bitmapInput->GetSize().width, (UINT32)bitmapInput->GetSize().height), 0, 0, bitmapProperties, &p_target);
 	}
 	else
 	{
@@ -312,9 +312,9 @@ void Direct2D::SetBitmapTint(ID2D1Bitmap1* bitmapInput, ID2D1Bitmap1* bitmapOutp
 	p.x = 0;
 	p.y = 0;
 	D2D1_RECT_U not_p;
-	not_p.bottom = p_target->GetSize().height;
+	not_p.bottom = (UINT32)p_target->GetSize().height;
 	not_p.left = 0;
-	not_p.right = p_target->GetSize().width;
+	not_p.right = (UINT32)p_target->GetSize().width;
 	not_p.top = 0;
 
 	if (!bitmapOutput)
@@ -363,22 +363,22 @@ bool Direct2D::DrawBitmap(ID2D1Bitmap* bitmap, D2D1_RECT_F rect)
 bool Direct2D::PrintText(std::wstring text, RECT rect) //draws text with format, draw area and color
 {
 
-	D2D1_RECT_F layoutRect = D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom);
+	D2D1_RECT_F layoutRect = D2D1::RectF((float)rect.left, (float)rect.top, (float)rect.right, (float)rect.bottom);
 	if (this->mDeviceContextCreated)
 	{
-		this->mpContext->DrawTextA(text.c_str(), wcslen(text.c_str()), this->mpTextFormats[2], layoutRect, this->mpColorText);
+		this->mpContext->DrawTextA(text.c_str(), (UINT32)wcslen(text.c_str()), this->mpTextFormats[2], layoutRect, this->mpColorText);
 	}
 	return this->mDeviceContextCreated;
 }
 
 bool Direct2D::PrintDebug(std::wstring text)
 {
-	D2D1_RECT_F rect = D2D1::RectF(this->mWidth - (this->mWidth / 4), 0, this->mWidth, this->mHeight - (2*this->mHeight / 3)); // probably will need adjustment later on 
+	D2D1_RECT_F rect = D2D1::RectF(this->mWidth - (this->mWidth / 4.f), 0.f, this->mWidth, this->mHeight - (2.f*this->mHeight / 3.f)); // probably will need adjustment later on 
 	
 	if (this->mDeviceContextCreated)
 	{
 		this->mpContext->FillRectangle(rect, this->mpColorDraw);
-		this->mpContext->DrawTextA(text.c_str(), wcslen(text.c_str()), this->mpDebugTextFormat, rect, this->mColorBrushes[Red]);
+		this->mpContext->DrawTextA(text.c_str(), (UINT32)wcslen(text.c_str()), this->mpDebugTextFormat, rect, this->mColorBrushes[Red]);
 	}
 	return this->mDeviceContextCreated;
 }
@@ -387,7 +387,7 @@ bool Direct2D::PrintText(std::wstring text, D2D1_RECT_F rect, brushColors color,
 {
 	if (this->mDeviceContextCreated)
 	{
-		this->mpContext->DrawTextA(text.c_str(), wcslen(text.c_str()), this->mpTextFormats[size], rect, this->mColorBrushes[color]);
+		this->mpContext->DrawTextA(text.c_str(), (UINT32)wcslen(text.c_str()), this->mpTextFormats[size], rect, this->mColorBrushes[color]);
 	}
 	return this->mHwndRenderTargetCreated;
 }
@@ -395,10 +395,10 @@ bool Direct2D::PrintText(std::wstring text, D2D1_RECT_F rect, brushColors color,
 bool Direct2D::PrintText(std::wstring text, int left, int top, int right, int bottom)//draws text with format, draw area and color
 {
 
-	D2D1_RECT_F layoutRect = D2D1::RectF(left, top, right, bottom);
+	D2D1_RECT_F layoutRect = D2D1::RectF((float)left, (float)top, (float)right, (float)bottom);
 	if (this->mDeviceContextCreated)
 	{
-		this->mpContext->DrawTextA(text.c_str(), wcslen(text.c_str()), this->mpTextFormats[2], layoutRect, this->mpColorText);
+		this->mpContext->DrawTextA(text.c_str(), (UINT32)wcslen(text.c_str()), this->mpTextFormats[2], layoutRect, this->mpColorText);
 	}
 	return this->mDeviceContextCreated;
 }
@@ -463,7 +463,7 @@ bool Direct2D::DrawRect(D2D1_RECT_F rect, int thickness, brushColors color) //dr
 		this->mpContext->DrawRectangle(
 			D2D1::RectF(rect.left, rect.top, rect.right, rect.bottom),
 			this->mColorBrushes[color],
-			thickness);
+			(float)thickness);
 	}
 	return this->mDeviceContextCreated;
 }
@@ -530,7 +530,7 @@ HRESULT Direct2D::mCreateTextFormat(std::wstring font, int size, IDWriteTextForm
 		DWRITE_FONT_WEIGHT_NORMAL,
 		DWRITE_FONT_STYLE_NORMAL,
 		DWRITE_FONT_STRETCH_NORMAL,
-		size,
+		(float)size,
 		L"en-US",
 		format);
 	(*format)->SetTrimming(&this->mTrimmer, NULL);
