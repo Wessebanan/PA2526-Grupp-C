@@ -506,3 +506,182 @@ void ecs::systems::UIGameRestartSystem::readEvent(BaseEvent& _event, float _delt
 		this->mpD2D->SetBitmapTint(army_bitmaps->mpBitmap, army_bitmaps->mpTintedBitmap, 255, 255, 255);
 	}
 }
+
+ecs::systems::UnitComponentPrinter::UnitComponentPrinter()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(UIDrawPosComponent::typeID);
+	typeFilter.addRequirement(UITextComponent::typeID);
+	typeFilter.addRequirement(UIDrawColorComponent::typeID);
+	typeFilter.addRequirement(UIECSText::typeID);
+}
+
+ecs::systems::UnitComponentPrinter::~UnitComponentPrinter()
+{
+	//
+}
+
+void ecs::systems::UnitComponentPrinter::updateEntity(FilteredEntity& unit, float delta)
+{
+	UITextComponent* p_text = unit.getComponent<UITextComponent>();
+	UIECSText* p_ecs = unit.getComponent<UIECSText>();
+
+	p_text->mStrText = L"ENTITY " + std::to_wstring(unit.entity->getID());
+
+	Entity* e = getEntity(p_ecs->unitEntityID);
+
+	BaseComponent* p;
+	for (std::pair<TypeID, ID> compInfo : e->componentIDs)
+	{
+		p = getComponent(compInfo.first, compInfo.second);
+		std::string name = p->getName();
+
+		std::wstring printName = L"";
+		for (int i = 0; i < name.size(); i++)
+		{
+			const char c = name[i];
+			if (c == 'C' && (i+2 < name.size()) && name[i+1] == 'o' && name[i+2] == 'm')
+				break;
+			printName.push_back(c);
+		}
+
+		p_text->mStrText += L"\n" + printName;
+	}
+}
+
+ecs::systems::UnitComponentCreator::UnitComponentCreator()
+{
+	updateType = EventListenerOnly;
+	subscribeEventCreation(events::CreateComponentEvent::typeID);
+	subscribeEventCreation(events::RemoveComponentEvent::typeID);
+}
+
+ecs::systems::UnitComponentCreator::~UnitComponentCreator()
+{
+	//
+}
+
+void ecs::systems::UnitComponentCreator::onEvent(TypeID _eventType, BaseEvent* _event)
+{
+	if (_eventType == events::CreateComponentEvent::typeID)
+	{
+		events::CreateComponentEvent* e = static_cast<events::CreateComponentEvent*>(_event);
+
+		if (e->componentTypeID != UnitComponent::typeID)
+		{
+			return;
+		}
+
+		UnitComponent* p_comp = (UnitComponent*)getComponent(e->componentTypeID, e->componentID);
+
+		UITextComponent text_comp;
+		UIDrawPosComponent pos_comp;
+		UIDrawColorComponent color_comp;
+		UIECSText ecs_comp;
+
+		const int units = getComponentCountOfType(UnitComponent::typeID);
+		//const int units = 0;
+
+		const int textWidth = 180.f;
+		const int leftStartX = 300.f;
+		const int rightStartX = 1100.f;
+
+		switch (p_comp->playerID)
+		{
+		case 0:
+		{
+			color_comp.mColor = brushColors::Red;
+			pos_comp.mDrawArea.left = leftStartX + unitsPerPlayer[p_comp->playerID] * textWidth;
+			pos_comp.mDrawArea.right = pos_comp.mDrawArea.left + textWidth;
+			pos_comp.mDrawArea.top = 10.f;
+			pos_comp.mDrawArea.bottom = 100.f;
+			break;
+		}
+
+		case 1:
+		{
+			color_comp.mColor = brushColors::Purple;
+			pos_comp.mDrawArea.left = rightStartX + unitsPerPlayer[p_comp->playerID] * textWidth;
+			pos_comp.mDrawArea.right = pos_comp.mDrawArea.left + textWidth;
+			pos_comp.mDrawArea.top = 10.f;
+			pos_comp.mDrawArea.bottom = 100.f;
+			break;
+		}
+
+		case 2:
+		{
+			color_comp.mColor = brushColors::Blue;
+			pos_comp.mDrawArea.left = leftStartX + unitsPerPlayer[p_comp->playerID] * textWidth;
+			pos_comp.mDrawArea.right = pos_comp.mDrawArea.left + textWidth;
+			pos_comp.mDrawArea.top = 700.f;
+			pos_comp.mDrawArea.bottom = 1000.f;
+			break;
+		}
+
+		case 3:
+		{
+			color_comp.mColor = brushColors::Green;
+			pos_comp.mDrawArea.left = rightStartX + unitsPerPlayer[p_comp->playerID] * textWidth;
+			pos_comp.mDrawArea.right = pos_comp.mDrawArea.left + textWidth;
+			pos_comp.mDrawArea.top = 700.f;
+			pos_comp.mDrawArea.bottom = 1000.f;
+			break;
+		}
+		}
+
+		unitsPerPlayer[p_comp->playerID]++;
+
+		text_comp.mStrText = L"INITIAL TEXT";
+		text_comp.text_size = 0;
+		ecs_comp.unitEntityID = e->entityID;
+
+		createEntity(text_comp, pos_comp, color_comp, ecs_comp);
+		return;
+	}
+
+	else if (_eventType == events::RemoveComponentEvent::typeID)
+	{
+		events::RemoveComponentEvent* e = static_cast<events::RemoveComponentEvent*>(_event);
+
+		if (e->componentTypeID != UnitComponent::typeID)
+		{
+			return;
+		}
+
+		ComponentIterator comps = getComponentsOfType<UIECSText>();
+
+		UIECSText* p;
+		while (p = (UIECSText*)comps.next())
+		{
+			if (p->unitEntityID == e->entityID)
+			{
+				removeEntity(p->getEntityID());
+				return;
+			}
+		}
+	}
+}
+
+ecs::systems::LayerPrinter::LayerPrinter()
+{
+	updateType = EntityUpdate;
+	typeFilter.addRequirement(UIDrawPosComponent::typeID);
+	typeFilter.addRequirement(UITextComponent::typeID);
+	typeFilter.addRequirement(UIDrawColorComponent::typeID);
+	typeFilter.addRequirement(UIECSLayerText::typeID);
+}
+
+ecs::systems::LayerPrinter::~LayerPrinter()
+{
+	//
+}
+
+void ecs::systems::LayerPrinter::updateEntity(FilteredEntity& entity, float delta)
+{
+	UITextComponent* p_text = entity.getComponent<UITextComponent>();
+	UIECSLayerText* p_ecs = entity.getComponent<UIECSLayerText>();
+
+	const int layer = p_ecs->layer;
+
+	p_text->mStrText = getLayerString(layer);
+}

@@ -37,9 +37,9 @@ namespace ecs
 		// (Entity*)->hasComponentOfType<components::HealthComponent>();
 		template <typename T> bool hasComponentOfType();
 
+		std::map<TypeID, ID> componentIDs;
 	private:
 		ID id;
-		std::map<TypeID, ID> componentIDs;
 
 		friend class ECSEntityManager;
 		friend class EntityComponentSystem;

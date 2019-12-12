@@ -16,6 +16,16 @@ namespace ecs
 {
 	namespace components
 	{
+		struct UIECSText : public ECSComponent<UIECSText>
+		{
+			ID unitEntityID;
+		};
+
+		struct UIECSLayerText : public ECSComponent<UIECSLayerText>
+		{
+			int layer;
+		};
+
 		struct UITextComponent : public ECSComponent<UITextComponent>
 		{
 			//char text[30];

@@ -26,6 +26,11 @@ void InitGameOverlay(ecs::EntityComponentSystem& rECS, Direct2D* d2d);
 void InitUI(ecs::EntityComponentSystem& rECS)
 {
 	Direct2D* my_d2d = new Direct2D;
+
+	rECS.createSystem<ecs::systems::UnitComponentCreator>(0);
+	rECS.createSystem<ecs::systems::UnitComponentPrinter>(0);
+	rECS.createSystem<ecs::systems::LayerPrinter>(0);
+
 	rECS.createSystem<ecs::systems::UIPreRenderSystem>(8)->mpD2D = my_d2d;
 	rECS.createSystem<ecs::systems::UISolidRectSystem>(9)->mpD2D = my_d2d;
 	rECS.createSystem<ecs::systems::UIBitmapSystem>(9)->mpD2D = my_d2d;
@@ -114,7 +119,30 @@ void InitUI(ecs::EntityComponentSystem& rECS)
 	text_pos.mDrawArea.bottom = 210;
 	rECS.createEntity(text, text_pos, text_color);
 
+	{
+		const int startX = 10.f;
+		const int startY = 400.f;
+		const int width = 200.f;
 
+		UIECSLayerText layer;
+
+		text.text_size = 0;
+		text.tag = UITAG::NOTAG;
+		text_color.mColor = White;
+
+		text_pos.mDrawArea.top = 400.f;
+		text_pos.mDrawArea.bottom = 800.f;
+
+		for (int i = 0; i < 10; i++)
+		{
+			text.mStrText = L"INIT TEXT";
+			layer.layer = i;
+			text_pos.mDrawArea.left = startX + i * width;
+			text_pos.mDrawArea.right = text_pos.mDrawArea.left + width;
+
+			rECS.createEntity(text, text_color, text_pos, layer);
+		}
+	}
 }
 void BindTextureToBitmap(Direct2D* d2d, ID3D11Texture2D* texture)
 {

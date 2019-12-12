@@ -206,6 +206,7 @@ namespace ecs
 		BaseComponent* onCreateComponent(ID _entityID, BaseComponent& _componentInfo) override;
 		EntityIterator onGetEntitiesByFilter(TypeFilter _componentFilter) override;
 		ComponentIterator onGetComponentsOfType(TypeID _typeID) override;
+		std::wstring onGetLayerString(int layer) override;
 		void onCreateEvent(BaseEvent& _event) override;
 		void onRemoveEntity(ID _entityID) override;
 		void onRemoveComponent(ID _entityID, TypeID _componentTypeID) override;

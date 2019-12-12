@@ -430,6 +430,37 @@ ComponentIterator EntityComponentSystem::onGetComponentsOfType(TypeID _typeID)
 	return componentMgr.getComponentIterator(_typeID);
 }
 
+std::wstring ecs::EntityComponentSystem::onGetLayerString(int layer)
+{
+	if (!systemLayers)
+	{
+		return L"";
+	}
+
+	std::wstring str = L"LAYER " + to_wstring(layer);
+
+	std::string name;
+	std::wstring wName;
+	for (BaseSystem* sys : systemLayers[layer])
+	{
+		wName = L"\n";
+		name = sys->getName();
+
+		for (int i = 0; i < name.size(); i++)
+		{
+			const char c = name[i];
+
+			if (c == 'S' && (i + 2 < name.size()) && name[i + 1] == 'y' && name[i + 2] == 's')
+				break;
+			wName.push_back(c);
+		}
+
+		str += wName;
+	}
+
+	return str;
+}
+
 void EntityComponentSystem::onCreateEvent(BaseEvent& _event)
 {
 	createEventInternal(_event);

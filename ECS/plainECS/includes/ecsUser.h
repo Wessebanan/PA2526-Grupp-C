@@ -36,6 +36,8 @@ namespace ecs
 
 		virtual int onGetComponentCountOfType(TypeID _typeID) = 0;
 
+		virtual std::wstring onGetLayerString(int layer) = 0;
+
 		/*
 			Virtual functions are protected. EntityComponentSystem is inheriting from
 			ECSUserListener, so the protection makes sure no one outside of
@@ -151,6 +153,7 @@ namespace ecs
 		void removeEntity(ID _entityID);
 		void removeComponent(ID _entityID, TypeID _componentTypeID);
 
+		std::wstring getLayerString(int layer);
 
 	private:
 

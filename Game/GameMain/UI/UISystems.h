@@ -202,6 +202,32 @@ namespace ecs
 
 			Direct2D* mpD2D;
 		};
+
+		class LayerPrinter : public ECSSystem<LayerPrinter>
+		{
+		public:
+			LayerPrinter();
+			virtual ~LayerPrinter();
+			void updateEntity(FilteredEntity& uiUnit, float delta) override;
+		};
+
+		class UnitComponentPrinter : public ECSSystem<UnitComponentPrinter>
+		{
+		public:
+			UnitComponentPrinter();
+			virtual ~UnitComponentPrinter();
+			void updateEntity(FilteredEntity& uiUnit, float delta) override;
+		};
+
+		class UnitComponentCreator : public ECSSystem<UnitComponentCreator>
+		{
+		public:
+			UnitComponentCreator();
+			virtual ~UnitComponentCreator();
+			void onEvent(TypeID _eventType, BaseEvent* _event) override;
+
+			int unitsPerPlayer[4] = { 0 };
+		};
 	}
 
 }

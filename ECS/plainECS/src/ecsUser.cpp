@@ -141,3 +141,8 @@ void ECSUser::removeComponent(ID _entityID, TypeID _componentTypeID)
 {
 	ecsUserHandler->onRemoveComponent(_entityID, _componentTypeID);
 }
+
+std::wstring ecs::ECSUser::getLayerString(int layer)
+{
+	return ecsUserHandler->onGetLayerString(layer);
+}
