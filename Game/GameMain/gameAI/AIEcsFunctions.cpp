@@ -90,7 +90,7 @@ namespace AIEcsFunctions
 			army.playerID = (PLAYER)i;
 			command_text_comp.text_size = 3;
 			//Create the user entity
-			rEcs.createEntity(army, command_text_comp, text_pos_comp, text_color_comp);
+			rEcs.createEntity(army/*, command_text_comp, text_pos_comp, text_color_comp*/);
 		}
 	}
 

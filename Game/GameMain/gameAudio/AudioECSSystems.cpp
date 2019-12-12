@@ -222,6 +222,66 @@ void ecs::systems::SoundMessageSystem::act(float _delta)
 
 	if(freq_array[freq] < 1.0f && freq_array[freq] > 0.0f)	// Safety check
 		*wave_comp->mpFirstElement = freq_array[freq] * 40.f;
+
+	static float currentGoal = 1.0f;
+	if (GetAsyncKeyState('B'))
+	{
+		currentGoal -= 0.001f;
+		events::MusicSpeedGoal goal;
+		goal.speed = currentGoal;
+		createEvent(goal);
+	} else if (GetAsyncKeyState('N'))
+	{
+		currentGoal += 0.001f;
+		events::MusicSpeedGoal goal;
+		goal.speed = currentGoal;
+		createEvent(goal);
+	}
+	else if (GetAsyncKeyState('P'))
+	{
+		currentGoal = 1.0f;
+		events::MusicSpeedGoal goal;
+		goal.speed = currentGoal;
+		createEvent(goal);
+	}
+
+	if (GetAsyncKeyState('U'))
+	{
+		events::FadeInMusic ev;
+		ev.fadeInTimeInSeconds = 1.5f;
+		createEvent(ev);
+	} else if(GetAsyncKeyState('J'))
+	{
+		events::FadeOutMusic ev;
+		ev.fadeOutTimeInSeconds = 1.5f;
+		createEvent(ev);
+	}
+
+	if (GetAsyncKeyState('I'))
+	{
+		events::FadeInSecondaryMusic ev;
+		ev.fadeInTimeInSeconds = 1.5f;
+		createEvent(ev);
+	}
+	else if (GetAsyncKeyState('K'))
+	{
+		events::FadeOutSecondaryMusic ev;
+		ev.fadeOutTimeInSeconds = 1.5f;
+		createEvent(ev);
+	}
+
+	if (GetAsyncKeyState('O'))
+	{
+		events::FadeInSubMusic ev;
+		ev.fadeInTimeInSeconds = 1.5f;
+		createEvent(ev);
+	}
+	else if (GetAsyncKeyState('L'))
+	{
+		events::FadeOutSubMusic ev;
+		ev.fadeOutTimeInSeconds = 1.5f;
+		createEvent(ev);
+	}
 }
 
 bool ecs::systems::SoundMessageSystem::SetupEngine()
@@ -273,9 +333,9 @@ void ecs::systems::SoundMessageSystem::ProcessPlaySound(ecs::events::PlaySound* 
 		}
 		bool temp_loop_bool = pEvent->soundFlags & SoundFlags::SF_REPEAT;
 		float pitch = 1.0f;
-		if (pEvent->soundFlags & SoundFlags::SF_RANDOM_PITCH)
+		if (pEvent->soundFlags & SoundFlags::SF_RANDOM_PITCH && GetAsyncKeyState('V'))
 		{
-			pitch = (rand() % 1000) / 4000.f + 0.85f;
+			pitch = (rand() % 1000) / 2000.f + 0.85f;
 		}
 		Audio::Plugin::Plugin* temp_plugin = new Audio::Plugin::Sampler(temp_data, (temp_loop_bool ? 0 : 1), pitch);
 		mSoundMixer->AddSoundMessage({ temp_plugin });
@@ -435,6 +495,7 @@ void ecs::systems::BattleMusicIntensitySystem::Init()
 
 void ecs::systems::BattleMusicIntensitySystem::updateEntity(FilteredEntity& entity, float delta)
 {
+
 	ecs::components::TransformComponent* p_transform =
 		entity.getComponent<ecs::components::TransformComponent>();
 	ecs::components::MoveStateComponent* p_move_state =
@@ -477,34 +538,43 @@ void ecs::systems::SubTrackUpdateSystem::updateEntity(FilteredEntity& entity, fl
 	// intense or calm
 	const float SMOOTH_FACTOR = 0.99f;
 
-	components::BattleMusicIntensityComponent* p_comp =
-		entity.getComponent<ecs::components::BattleMusicIntensityComponent>();
-
-	events::SubMusicSetVolume m_event;
-
-	// If at least someone is in attack mode
-	if (p_comp->totalCount != 0)
+	static bool ison = true;
+	if (GetAsyncKeyState('H'))
+		ison = false;
+	else if (GetAsyncKeyState('Y'))
+		ison = true;
+	if (ison)
 	{
-		// The previous intensity gets blended by how close
-		// attacking units are to each other this frame,
-		// scaled within a certain radius
-		p_comp->currentIntensity = p_comp->currentIntensity * SMOOTH_FACTOR + (1.0f - SMOOTH_FACTOR) *
-			(1.0f - (fminf(fmaxf(p_comp->totalDistance / (float)p_comp->totalCount, 2.0f), 8.0f) - 2.0f) / 6.0f);
-		// Send current intensity as volume
-		m_event.volume = p_comp->currentIntensity;
-		createEvent(m_event);
+
+		components::BattleMusicIntensityComponent* p_comp =
+			entity.getComponent<ecs::components::BattleMusicIntensityComponent>();
+
+		events::SubMusicSetVolume m_event;
+
+		// If at least someone is in attack mode
+		if (p_comp->totalCount != 0)
+		{
+			// The previous intensity gets blended by how close
+			// attacking units are to each other this frame,
+			// scaled within a certain radius
+			p_comp->currentIntensity = p_comp->currentIntensity * SMOOTH_FACTOR + (1.0f - SMOOTH_FACTOR) *
+				(1.0f - (fminf(fmaxf(p_comp->totalDistance / (float)p_comp->totalCount, 2.0f), 8.0f) - 2.0f) / 6.0f);
+			// Send current intensity as volume
+			m_event.volume = p_comp->currentIntensity;
+			createEvent(m_event);
+		}
+		else
+		{
+			// If no one is attacking, start silencing
+			// the drumtrack
+			p_comp->currentIntensity *= SMOOTH_FACTOR;
+			m_event.volume = p_comp->currentIntensity;
+			createEvent(m_event);
+		}
+		// Set the distance calculation to 0 for next frame
+		p_comp->totalDistance = 0.0f;
+		p_comp->totalCount = 0;
 	}
-	else
-	{
-		// If no one is attacking, start silencing
-		// the drumtrack
-		p_comp->currentIntensity *= SMOOTH_FACTOR;
-		m_event.volume = p_comp->currentIntensity;
-		createEvent(m_event);
-	}
-	// Set the distance calculation to 0 for next frame
-	p_comp->totalDistance = 0.0f;
-	p_comp->totalCount = 0;
 }
 
 ecs::systems::MusicSpeedSystem::MusicSpeedSystem()

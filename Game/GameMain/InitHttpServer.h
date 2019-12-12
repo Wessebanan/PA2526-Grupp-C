@@ -26,7 +26,7 @@ void InitHttpServer(ecs::EntityComponentSystem& rECS)
 	pos.mDrawArea.right = (float)graphics::GetDisplayResolution().x;
 	UIDrawColorComponent color;
 	color.mColor = White;
-	rECS.createEntity(text, pos, color); // Delete this later pls
+	//rECS.createEntity(text, pos, color); // Delete this later pls
 }
 
 void StopHttpServer()

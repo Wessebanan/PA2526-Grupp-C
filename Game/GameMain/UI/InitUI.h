@@ -71,7 +71,7 @@ void InitUI(ecs::EntityComponentSystem& rECS)
 
 	rECS.createEntity(bitmap_comp, bitmap_pos_comp);
 
-	InitGameOverlay(rECS, my_d2d);
+	//InitGameOverlay(rECS, my_d2d);
 
 
 	// GUIDE
