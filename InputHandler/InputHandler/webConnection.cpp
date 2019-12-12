@@ -151,6 +151,9 @@ bool WebConnection::ExecuteUserAction(webMsgData wmd)
 		case ActionType::PING:
 			this->SetPing(wmd);
 			break;
+		case ActionType::SENDBUTTON:
+			this->ReadyToSend(wmd);
+			break;
 		default:
 			cout << "-Parsing error: Not a action" << endl;
 			return false;
@@ -216,6 +219,11 @@ void WebConnection::SetButton(webMsgData wmd)
 	int one = (int)wmd.data[2] - 48;
 
 	mUsers[wmd.player].button = hun + ten + one;
+}
+
+void WebConnection::ReadyToSend(webMsgData wmd)
+{
+	mUsers[wmd.player].sendTrap = true;
 }
 
 void WebConnection::SetCommand(webMsgData wmd)
@@ -429,7 +437,10 @@ void WebConnection::BroadcastMsgJoined()
 
 int WebConnection::GetUserButton(int player)
 {
-	return mUsers[player].button;
+	if (mUsers[player].sendTrap)
+		return mUsers[player].button;
+	else
+		return -1;
 }
 
 std::string WebConnection::GetUserName(int player)
@@ -444,11 +455,15 @@ bool WebConnection::IsUserConnected(int player)
 
 int WebConnection::GetUserTile(int player, int axis)
 {
-	return mUsers[player].tile[axis];
+	if (mUsers[player].sendTrap)
+		return mUsers[player].tile[axis];
+	else
+		return -1;
 }
 
 void WebConnection::resetUserTrap(int player)
 {
+	mUsers[player].sendTrap = false;
 
 	mUsers[player].button = -1;
 
