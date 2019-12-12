@@ -35,7 +35,8 @@ namespace ecs
 				components::SmokeParticleComponent smoke;
 
 				// Set Position
-				particle.Position			= p_spawner_component->StartPosition;
+				particle.Position				= p_spawner_component->StartPosition;
+				particle.CurrentLifeDuration	= particle.TotalLifeDuration = p_spawner_component->LifeDuration;
 
 				// Set Life Expectancy
 				smoke.TotalLifeDuration		= p_spawner_component->LifeDuration;
@@ -47,8 +48,8 @@ namespace ecs
 				particle.Blue				= 100 + rand() % 155;
 
 				// Set Scale
-				particle.Scale				= 40;
-				smoke.MaxScale				= particle.Scale;
+				particle.Scale						= 40;
+				particle.MaxScale = smoke.MaxScale = particle.Scale;
 
 				// Randomize x and y direction and speed
 				float x = ((float)rand() / (float)RAND_MAX) - 0.5f;
@@ -62,6 +63,7 @@ namespace ecs
 
 				// Store direction
 				DirectX::XMStoreFloat3(&smoke.Direction, direction);
+				DirectX::XMStoreFloat3(&particle.Direction, direction);
 
 				// Create Particle
 				createEntity(particle, smoke);
@@ -78,8 +80,8 @@ namespace ecs
 		SmokeUpdateSystem::SmokeUpdateSystem()
 		{
 			updateType = EntityUpdate;
-			typeFilter.addRequirement(components::ParticleComponent::typeID);
-			typeFilter.addRequirement(components::SmokeParticleComponent::typeID);
+			/*typeFilter.addRequirement(components::ParticleComponent::typeID);
+			typeFilter.addRequirement(components::SmokeParticleComponent::typeID);*/
 		}
 
 		void SmokeUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
@@ -145,6 +147,7 @@ namespace ecs
 
 				// Set Position
 				particle.Position = p_spawner_component->StartPosition;
+				particle.CurrentLifeDuration = particle.TotalLifeDuration = p_spawner_component->LifeDuration;
 				// Set Life Expectancy
 				splash.TotalLifeDuration = p_spawner_component->LifeDuration;
 				splash.CurrentLifeDuration = splash.TotalLifeDuration;
@@ -153,7 +156,7 @@ namespace ecs
 				particle.Red = particle.Green = rand() % 155;
 				particle.Blue = 200 + rand() % 55;
 				particle.Scale = 40;
-				splash.MaxScale = particle.Scale;
+				particle.MaxScale = splash.MaxScale = particle.Scale;
 
 				// Randomize x and y direction
 
@@ -167,7 +170,7 @@ namespace ecs
 				direction = DirectX::XMVectorScale(direction, speed);
 				
 				// Store direction
-				DirectX::XMStoreFloat3(&splash.Direction, direction);
+				DirectX::XMStoreFloat3(&particle.Direction, direction);
 
 				// Create Particle
 				createEntity(particle, splash);
@@ -184,8 +187,8 @@ namespace ecs
 		SplashUpdateSystem::SplashUpdateSystem()
 		{
 			updateType = EntityUpdate;
-			typeFilter.addRequirement(components::ParticleComponent::typeID);
-			typeFilter.addRequirement(components::SplashParticleComponent::typeID);
+		/*	typeFilter.addRequirement(components::ParticleComponent::typeID);
+			typeFilter.addRequirement(components::SplashParticleComponent::typeID);*/
 		}
 
 		void SplashUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
@@ -251,6 +254,7 @@ namespace ecs
 
 				// Set Position
 				particle.Position = p_spawner_component->StartPosition;
+				particle.CurrentLifeDuration = particle.TotalLifeDuration = p_spawner_component->LifeDuration;
 				// Set Life Expectancy
 				splash.TotalLifeDuration = p_spawner_component->LifeDuration;
 				splash.CurrentLifeDuration = splash.TotalLifeDuration;
@@ -260,7 +264,7 @@ namespace ecs
 				particle.Green = 100 + rand() % 55;
 				particle.Blue = 60;
 				particle.Scale = 60;
-				splash.MaxScale = particle.Scale;
+				particle.MaxScale = particle.Scale;
 
 				// Randomize x and y direction
 
@@ -274,7 +278,7 @@ namespace ecs
 				direction = DirectX::XMVectorScale(direction, speed);
 
 				// Store direction
-				DirectX::XMStoreFloat3(&splash.Direction, direction);
+				DirectX::XMStoreFloat3(&particle.Direction, direction);
 
 				// Create Particle
 				createEntity(particle, splash);
@@ -291,8 +295,8 @@ namespace ecs
 		FireUpdateSystem::FireUpdateSystem()
 		{
 			updateType = EntityUpdate;
-			typeFilter.addRequirement(components::ParticleComponent::typeID);
-			typeFilter.addRequirement(components::FireParticleComponent::typeID);
+		/*	typeFilter.addRequirement(components::ParticleComponent::typeID);
+			typeFilter.addRequirement(components::FireParticleComponent::typeID);*/
 		}
 
 		void FireUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
@@ -357,6 +361,7 @@ namespace ecs
 
 				// Set Position
 				particle.Position = p_spawner_component->StartPosition;
+				particle.CurrentLifeDuration = particle.TotalLifeDuration = p_spawner_component->LifeDuration;
 
 				// Set Life Expectancy
 				bomb.TotalLifeDuration = p_spawner_component->LifeDuration;
@@ -368,7 +373,7 @@ namespace ecs
 				bomb.MaxBlue	= particle.Blue		= 0;
 
 				// Set Scale
-				bomb.MaxScale = particle.Scale = 40;
+				particle.MaxScale = particle.Scale = 40;
 
 				
 
@@ -384,7 +389,7 @@ namespace ecs
 				direction = DirectX::XMVectorScale(direction, speed);
 
 				// Store direction
-				DirectX::XMStoreFloat3(&bomb.Direction, direction);
+				DirectX::XMStoreFloat3(&particle.Direction, direction);
 
 				// Create Particle
 				createEntity(particle, bomb);
@@ -396,8 +401,8 @@ namespace ecs
 		BombUpdateSystem::BombUpdateSystem()
 		{
 			updateType = EntityUpdate;
-			typeFilter.addRequirement(components::ParticleComponent::typeID);
-			typeFilter.addRequirement(components::BombParticleComponent::typeID);
+		/*	typeFilter.addRequirement(components::ParticleComponent::typeID);
+			typeFilter.addRequirement(components::BombParticleComponent::typeID);*/
 		}
 
 		void BombUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
@@ -479,6 +484,7 @@ namespace ecs
 							(float)(rand() % 360) * (3.14159f / 180.f))));
 
 				// Set Position
+				particle.CurrentLifeDuration = particle.TotalLifeDuration = p_spawner_component->LifeDuration;
 				particle.Position = p_spawner_component->StartPosition;
 				particle.Position.x += offset.x;
 				particle.Position.y += offset.y;
@@ -503,6 +509,8 @@ namespace ecs
 				float z = ((float)rand() / (float)RAND_MAX) - 0.5f;
 				trap_particle.Velocity = ((float)rand() / (float)RAND_MAX * 0.6f + 0.4f) * p_trap_spawn_component->InitialVelocity;
 
+				particle.Direction = DirectX::XMFLOAT3(0.0f, 1.0f, 0.0f);
+
 				// Create Particle
 				createEntity(particle, trap_particle);
 
@@ -520,8 +528,8 @@ namespace ecs
 		ParticleTrapUpdateSystem::ParticleTrapUpdateSystem()
 		{
 			updateType = EntityUpdate;
-			typeFilter.addRequirement(components::ParticleComponent::typeID);
-			typeFilter.addRequirement(components::TrapParticleComponent::typeID);
+		/*	typeFilter.addRequirement(components::ParticleComponent::typeID);
+			typeFilter.addRequirement(components::TrapParticleComponent::typeID);*/
 		}
 
 		void ParticleTrapUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
@@ -560,5 +568,42 @@ namespace ecs
 			p_trap_component->Velocity -= gravity * delta;
 		}
 #pragma endregion ParticleTrapUpdateSystem
-}
+
+		DefaultParticleUpdateSystem::DefaultParticleUpdateSystem()
+		{
+			updateType = EntityUpdate;
+			typeFilter.addRequirement(components::ParticleComponent::typeID);
+		}
+
+		void DefaultParticleUpdateSystem::updateEntity(FilteredEntity& entity, float delta)
+		{
+			components::ParticleComponent* p_particle_component =
+				entity.getComponent<components::ParticleComponent>();
+
+			// Decrease their life and terminate if life expectancy has reached
+			p_particle_component->CurrentLifeDuration -= delta;
+			if (p_particle_component->CurrentLifeDuration <= 0.0f)
+			{
+				removeEntity(entity.entity->getID());
+			}
+
+			// Life Left in Percentage
+			const float life_left_p = p_particle_component->CurrentLifeDuration / p_particle_component->TotalLifeDuration;
+
+			// Decrease scale with proptional to how long they have lived [1;0]
+			p_particle_component->Scale = p_particle_component->MaxScale * life_left_p;
+
+			// Get position and direction
+			DirectX::XMVECTOR position	= DirectX::XMLoadFloat3(&p_particle_component->Position);
+			DirectX::XMVECTOR direction = DirectX::XMLoadFloat3(&p_particle_component->Direction);
+
+			// Transform particle
+			position = DirectX::XMVectorAdd(position, DirectX::XMVectorScale(direction, delta * p_particle_component->CurrentLifeDuration / p_particle_component->TotalLifeDuration));
+			direction = DirectX::XMVectorAdd(direction, DirectX::XMVectorSet(0.0f, -p_particle_component->Gravity * delta, 0.0f, 0.0f));
+
+			// Store position and direction
+			DirectX::XMStoreFloat3(&p_particle_component->Position, position);
+			DirectX::XMStoreFloat3(&p_particle_component->Direction, direction);
+		}
+	}
 }

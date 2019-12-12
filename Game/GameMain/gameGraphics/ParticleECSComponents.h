@@ -11,6 +11,12 @@ namespace ecs
 		{
 			DirectX::XMFLOAT3 Position;
 			uint8_t Red, Green, Blue, Scale;
+
+			DirectX::XMFLOAT3 Direction;
+			float CurrentLifeDuration;
+			float TotalLifeDuration;
+			float Gravity = 1.0f;
+			uint8_t MaxScale;
 		};
 
 		struct ParticleSpawnerComponent : public ECSComponent<ParticleSpawnerComponent>
@@ -87,7 +93,7 @@ namespace ecs
 		{
 			float InitialVelocity;
 			float SpawnCount;
-			char red, green, blue;
+			unsigned char red, green, blue;
 		};
 
 		struct TrapParticleComponent : public ECSComponent<TrapParticleComponent>

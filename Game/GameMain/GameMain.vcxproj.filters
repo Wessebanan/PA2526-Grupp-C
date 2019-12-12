@@ -592,6 +592,9 @@
     <FxCompile Include="gameGraphics\Shaders\VS_Trap.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="gameGraphics\Shaders\CS_Particle.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Sites\mobileSite.html" />

@@ -1,6 +1,9 @@
 #pragma once
 #include "ecsSystemIncludes.h"
 //#include "ParticleECSComponents.h"
+
+#include "../../Graphics/includes/ComputeManager.h"
+
 namespace ecs
 {
 	namespace systems
@@ -93,6 +96,17 @@ namespace ecs
 			virtual ~ParticleTrapUpdateSystem() {}
 
 			void updateEntity(FilteredEntity& entity, float delta) override;
+		};
+
+		class DefaultParticleUpdateSystem : public ECSSystem<DefaultParticleUpdateSystem>
+		{
+		public:
+			DefaultParticleUpdateSystem();
+			virtual ~DefaultParticleUpdateSystem() {}
+
+			void updateEntity(FilteredEntity& entity, float delta) override;
+
+			graphics::ComputeManager mComputeManager;
 		};
 	}
 }

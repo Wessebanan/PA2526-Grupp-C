@@ -13,16 +13,15 @@
 */
 constexpr uint32_t ECS_MAXIMUM_PARTICLE_SYSTEMS_PER_TYPE = 4; // Change this if adding or removing system
 
-constexpr uint32_t ECS_MAXIMUM_PARTICLES_PER_TYPE = 4000;
+constexpr uint32_t ECS_MAXIMUM_PARTICLES_PER_TYPE = 10000;
 constexpr uint32_t ECS_MAXIMUM_PARTICLES = ECS_MAXIMUM_PARTICLES_PER_TYPE * ECS_MAXIMUM_PARTICLE_SYSTEMS_PER_TYPE;
 
 
-template<class SpawnerSystem, class UpdateSystem, class ParticleComponent>
+template<class SpawnerSystem, class ParticleComponent>
 void CreateParticleType(ecs::EntityComponentSystem& rECS)
 {
 	rECS.reserveComponentCount<ParticleComponent>(ECS_MAXIMUM_PARTICLES_PER_TYPE);
 	rECS.createSystem<SpawnerSystem>(7);
-	rECS.createSystem<UpdateSystem>(8);
 }
 
 void InitParticles(ecs::EntityComponentSystem& rECS)
@@ -48,9 +47,11 @@ void InitParticles(ecs::EntityComponentSystem& rECS)
 			'ParticleECSSystems.cpp'
 	*/
 
-	CreateParticleType<SmokeSpawnerSystem, SmokeUpdateSystem, SmokeParticleComponent>(rECS);
-	CreateParticleType<SplashSpawnerSystem, SplashUpdateSystem, SplashParticleComponent>(rECS);
-	CreateParticleType<FireSpawnerSystem, FireUpdateSystem, FireParticleComponent>(rECS);
-	CreateParticleType<BombSpawnerSystem, BombUpdateSystem, BombParticleComponent>(rECS);
-	CreateParticleType<ParticleTrapSpawnerSystem, ParticleTrapUpdateSystem, TrapParticleComponent>(rECS);
+	CreateParticleType<SmokeSpawnerSystem, SmokeParticleComponent>(rECS);
+	CreateParticleType<SplashSpawnerSystem, SplashParticleComponent>(rECS);
+	CreateParticleType<FireSpawnerSystem, FireParticleComponent>(rECS);
+	CreateParticleType<BombSpawnerSystem, BombParticleComponent>(rECS);
+	CreateParticleType<ParticleTrapSpawnerSystem, TrapParticleComponent>(rECS);
+
+	rECS.createSystem<DefaultParticleUpdateSystem>();
 }

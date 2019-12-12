@@ -257,7 +257,8 @@ void DebuggFunctions(EntityComponentSystem& rECS)
 
 	GAME_OBJECT_TYPES traps[] =
 	{
-		GAME_OBJECT_TYPE_TRAP_SPRING,
+		GAME_OBJECT_TYPE_TRAP_FIRE,
+		//GAME_OBJECT_TYPE_TRAP_SPRING,
 		//GAME_OBJECT_TYPE_WEAPON_SWORD,
 		//GAME_OBJECT_TYPE_WEAPON_HAMMER,
 	};
@@ -448,5 +449,5 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
 	
-	//DebuggFunctions(rECS);
+	DebuggFunctions(rECS);
 }
