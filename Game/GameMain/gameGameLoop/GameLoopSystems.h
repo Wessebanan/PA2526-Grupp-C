@@ -102,6 +102,7 @@ namespace ecs
 			void readEvent(BaseEvent& event, float delta) override;
 		private:
 			bool mRoundOver;
+			
 			float mRoundOverDuration;
 		};
 

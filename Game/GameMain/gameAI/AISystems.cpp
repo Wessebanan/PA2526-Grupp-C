@@ -92,6 +92,10 @@ void ecs::systems::PathfindingStateSystem::updateEntity(FilteredEntity& entity, 
 		
 		EquipmentComponent* equipment_comp = ECSUser::getComponentFromKnownEntity<EquipmentComponent>(entity.entity->getID());
 		WeaponComponent* weapon_comp = ECSUser::getComponentFromKnownEntity<WeaponComponent>(equipment_comp->mEquippedWeapon);
+		if (!weapon_comp)
+		{
+			break;
+		}
 		//Check if the unit have a weapon already. If so find a friendly unit without a weapon and follow that unit.
 		if (weapon_comp->mType != GAME_OBJECT_TYPE_WEAPON_FIST)
 		{
