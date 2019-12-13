@@ -587,4 +587,16 @@ namespace graphics
 	{
 		internal::gpSwapChain4->Present(syncInterval, 0);
 	}
+
+	DXGI_QUERY_VIDEO_MEMORY_INFO QueryVideoMemoryUsageLocal()
+	{
+		DXGI_QUERY_VIDEO_MEMORY_INFO info;
+
+		internal::gpAdapter4->QueryVideoMemoryInfo(
+			0,
+			DXGI_MEMORY_SEGMENT_GROUP_LOCAL,
+			&info);
+
+		return info; 
+	}
 }

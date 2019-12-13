@@ -72,6 +72,31 @@ const UINT g_RENDER_BUFFER_SIZE = PAD(pow(10, 6), 256);
 
 #include "gameWeapons/WeaponSpawner.h"
 
+#include <Psapi.h>
+
+struct ProcessMemoryUsage
+{
+	UINT64 VideoMemoryUsageInBytes;		// VRAM (GPU)
+	UINT64 MemoryUsageInBytes;			// RAM  (CPU)
+};
+
+ProcessMemoryUsage QueryProcessMemoryUsage()
+{
+	ProcessMemoryUsage pmu;
+
+	// Query VRAM Usage
+	DXGI_QUERY_VIDEO_MEMORY_INFO mem_info_local = graphics::QueryVideoMemoryUsageLocal();
+
+	// Query RAM Usage
+	PROCESS_MEMORY_COUNTERS_EX pmc;
+	GetProcessMemoryInfo(GetCurrentProcess(), (PPROCESS_MEMORY_COUNTERS)&pmc, sizeof(pmc));
+
+	pmu.VideoMemoryUsageInBytes = mem_info_local.CurrentUsage / 1024.0f / 1024.0f;
+	pmu.MemoryUsageInBytes		= (pmc.PagefileUsage / 1024.0f / 1024.0f) - pmu.VideoMemoryUsageInBytes;
+
+	return pmu;
+}
+
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -199,6 +224,12 @@ int main()
 			std::vector<TypeID> all_types = comp_type_filter.getRequirements();			
 
 			graphics::Present(0);
+
+			ProcessMemoryUsage pmu = QueryProcessMemoryUsage();
+
+			std::cout << "New Frame: \n"; 
+			std::cout << "VRAM Usage (MiB): " << pmu.VideoMemoryUsageInBytes << "\n";
+			std::cout << "RAM Usage (MiB):  " << pmu.MemoryUsageInBytes << "\n";
 		}
 	}
 

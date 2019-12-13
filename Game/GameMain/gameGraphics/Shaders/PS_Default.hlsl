@@ -148,6 +148,11 @@ float4 main(PSIN input) : SV_TARGET0
 
 	float3 ambient = input.color.xyz * 0.1f;
 	float3 diffuse = input.color.xyz * illumination;
+
+	if ((pos_ndc_xy.x - pos_ndc_xy.y / 2.0f) > 0.0f)
+	{
+		return float4(ssao.xxx, 1.0f);
+	}
 	
 	return float4((ambient + diffuse) * ssao, 1.0f);
 }

@@ -198,10 +198,10 @@ namespace ecs
 			p_render_mgr->mgr.ExecutePipeline(p_pipeline_forward->pipeline);
 
 			// Render Outline
-			p_render_mgr->mgr.ExecutePipeline(
+			/*p_render_mgr->mgr.ExecutePipeline(
 				p_pipeline_outline->pipeline,
 				first_shader_program_index_to_draw_outline,
-				last_shader_program_index_to_draw_outline);
+				last_shader_program_index_to_draw_outline);*/
 		}
 	}
 }
