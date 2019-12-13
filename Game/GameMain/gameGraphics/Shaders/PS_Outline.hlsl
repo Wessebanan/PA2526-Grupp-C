@@ -63,14 +63,14 @@ float4 PS(VSOUT input) : SV_Target0
 
 
 	// Is there any color here?
-	const float4 current_stencil_color = StencilTexture.Load(int3(input.Pos.xy, 0));
+	float4 current_stencil_color = StencilTexture.Load(int3(input.Pos.xy, 0));
 
-	// If no color then discard and return
-	if (length(current_stencil_color) == 0)
-	{
-		discard;
-		return (float4)0.0f;
-	}
+	//// If no color then discard and return
+	//if (length(current_stencil_color) == 0)
+	//{
+	//	discard;
+	//	return (float4)0.0f;
+	//}
 
 	/*
 		Load color data around current pixel 
@@ -96,14 +96,14 @@ float4 PS(VSOUT input) : SV_Target0
 	current_stencil_color_multiple -= neighbor_stencil_color[1];
 	current_stencil_color_multiple -= neighbor_stencil_color[2];
 	current_stencil_color_multiple -= neighbor_stencil_color[3];
-	
+
 	// If no edge detected then discard and return
 	if (abs(length(current_stencil_color_multiple)) <= 0.0001f)
 	{
-		discard;
-		return (float4)0.0f;
+		return float4(0.0f, 0.0f, 0.0f, 1.0f);
 	}
-
+	current_stencil_color.a = 1.0f;
+	return current_stencil_color;
 	// Edge detected and normalize color (units get less color with hp, so this will alleviate it)
 	float3 final_color = normalize(current_stencil_color.xyz);
 	return float4(final_color, 1.0f);

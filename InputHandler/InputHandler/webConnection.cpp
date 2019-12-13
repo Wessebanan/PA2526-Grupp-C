@@ -68,7 +68,7 @@ WebConnection::WebConnection() : mMaxmPlayerSockets(4), mMaxmUserSockets(30)
 
 	for (size_t i = 0; i < 4; i++)
 	{
-		this->mUsers[i].name = "PLAYER";
+		this->mUsers[i].name = "";
 	}
 
 	this->InitThread();

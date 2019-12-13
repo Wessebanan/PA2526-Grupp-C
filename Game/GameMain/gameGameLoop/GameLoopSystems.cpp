@@ -216,13 +216,13 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 		if (p_inputbackend->backend->mpPlayerIsConnected[p_army_comp->playerID])
 		{
 			ECSUser::removeComponent(p_army_comp->getEntityID(), AiBrainComponent::typeID);
-			getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = wstring(p_inputbackend->backend->mpUserNames[p_army_comp->playerID].begin(), p_inputbackend->backend->mpUserNames[p_army_comp->playerID].end());
+			//getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = wstring(p_inputbackend->backend->mpUserNames[p_army_comp->playerID].begin(), p_inputbackend->backend->mpUserNames[p_army_comp->playerID].end());
 		}	
 		else
 		{
 			if (!ECSUser::getEntity(p_army_comp->getEntityID())->hasComponentOfType<AiBrainComponent>())
 			{
-				getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = L"CPU";
+				//getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = L"CPU";
 
 				AiBrainComponent ai_brain;
 				ai_brain.mPlayer = p_army_comp->playerID;
@@ -608,13 +608,13 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 		{
 			//Set the starting position of the unit depending on the center position of the units starting tile. Needs to
 			//be updated if the number of units is increased beyond 3.
-			if (u == 0)
+			if (u%3 == 0)
 			{
 				transform.position.x = p_transform->position.x + (float(TILE_RADIUS) / divider);
 				transform.position.y = p_transform->position.y + 10.1f;
 				transform.position.z = p_transform->position.z + (float(TILE_RADIUS) / divider);
 			}
-			else if (u == 1)
+			else if (u%3 == 1)
 			{
 				transform.position.x = p_transform->position.x - (float(TILE_RADIUS) / divider);
 				transform.position.y = p_transform->position.y + 10.1f;

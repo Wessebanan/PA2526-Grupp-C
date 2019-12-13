@@ -16,19 +16,19 @@ void ecs::systems::SkeletonSystem::updateEntity(FilteredEntity& entity, float de
 {
 	components::SkeletonComponent* pSkeleton = entity.getComponent<components::SkeletonComponent>();
 	components::AnimationSpeedComponent* pAnimation = entity.getComponent<components::AnimationSpeedComponent>();
-	if (GetAsyncKeyState(VK_F9))
+	if (GetAsyncKeyState(VK_NUMPAD1))
 	{
 		this->animationSelect = 1;
 	}
-	if (GetAsyncKeyState(VK_F10))
+	if (GetAsyncKeyState(VK_NUMPAD2))
 	{
 		this->animationSelect = 2;
 	}
-	if (GetAsyncKeyState(VK_F11))
+	if (GetAsyncKeyState(VK_NUMPAD3))
 	{
 		this->animationSelect = 3;
 	}
-	if (GetAsyncKeyState(VK_F12))
+	if (GetAsyncKeyState(VK_NUMPAD4))
 	{
 		this->animationSelect = 4;
 	}

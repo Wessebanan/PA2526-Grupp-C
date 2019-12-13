@@ -137,7 +137,7 @@ void ecs::systems::HandleWebSystem::updateEntity(FilteredEntity& _entityInfo, fl
 		{
 			// Updates the ECS names
 			if (!p_backend_comp->backend->mpPlayerIsConnected[i])
-				p_name_comp->names[i] = "CPU";
+				p_name_comp->names[i] = "";
 			else
 				p_name_comp->names[i] = p_backend_comp->backend->mpUserNames[i];
 		}
