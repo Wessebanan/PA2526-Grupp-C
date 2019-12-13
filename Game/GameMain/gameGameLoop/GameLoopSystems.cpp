@@ -86,10 +86,10 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 			// To be sent to the UI
 			wstring ss = L"\n";
 		
-			ss.append(L"\nFRAMERATE: ");
-			ss.append(to_wstring(framerate_to_print));
-			ss.append(L"\nFRAMETIME: ");
-			ss.append(to_wstring(frametime_to_print));
+			//ss.append(L"\nFRAMERATE: ");
+			//ss.append(to_wstring(framerate_to_print));
+			//ss.append(L"\nFRAMETIME: ");
+			//ss.append(to_wstring(frametime_to_print));
 		
 			p_text->mStrText = ss;
 		}
