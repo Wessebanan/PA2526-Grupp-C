@@ -66,33 +66,35 @@ void ecs::systems::GameLoopSystem::updateEntity(FilteredEntity& _entityInfo, flo
 	
 	if(p_text->tag == DEBUGUI)
 	{
-		static float total_time;
-		static int total_frames;
-		
-		total_time += _delta;
-		total_frames++;
-		static float framerate_to_print = 0.0f;
-		static float frametime_to_print = 0.0f;
-		if (total_frames % 100 == 0)
-		{
-			framerate_to_print = (float)total_frames / total_time;
-			frametime_to_print = total_time / (float)total_frames;
-			total_frames = 0;
-			total_time = 0.0f;
-		}
-		
-		if (p_text->tag != UITAG::STARTTEXT)
-		{
-			// To be sent to the UI
-			wstring ss = L"\n";
-		
-			ss.append(L"\nFRAMERATE: ");
-			ss.append(to_wstring(framerate_to_print));
-			ss.append(L"\nFRAMETIME: ");
-			ss.append(to_wstring(frametime_to_print));
-		
-			p_text->mStrText = ss;
-		}
+		p_text->mStrText = L"";
+
+		//static float total_time;
+		//static int total_frames;
+		//
+		//total_time += _delta;
+		//total_frames++;
+		//static float framerate_to_print = 0.0f;
+		//static float frametime_to_print = 0.0f;
+		//if (total_frames % 100 == 0)
+		//{
+		//	framerate_to_print = (float)total_frames / total_time;
+		//	frametime_to_print = total_time / (float)total_frames;
+		//	total_frames = 0;
+		//	total_time = 0.0f;
+		//}
+		//
+		//if (p_text->tag != UITAG::STARTTEXT)
+		//{
+		//	// To be sent to the UI
+		//	wstring ss = L"\n";
+		//
+		//	ss.append(L"\nFRAMERATE: ");
+		//	ss.append(to_wstring(framerate_to_print));
+		//	ss.append(L"\nFRAMETIME: ");
+		//	ss.append(to_wstring(frametime_to_print));
+		//
+		//	p_text->mStrText = ss;
+		//}
 	}
 }
 
