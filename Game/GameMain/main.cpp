@@ -198,7 +198,7 @@ int main()
 			TypeFilter comp_type_filter = ecs.getInitializedComponentTypes();
 			std::vector<TypeID> all_types = comp_type_filter.getRequirements();			
 
-			graphics::Present(0);
+			graphics::Present(1);
 		}
 	}
 
