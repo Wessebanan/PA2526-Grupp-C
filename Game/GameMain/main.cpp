@@ -193,19 +193,55 @@ int main()
 				Update all ECS systems, and give them the delta time.
 			*/
 
-			ecs.update(timer.GetFrameTime());
 
-			TypeFilter comp_type_filter = ecs.getInitializedComponentTypes();
-			std::vector<TypeID> all_types = comp_type_filter.getRequirements();			
 
-			graphics::Present(0);
+
+
+
+
+
+
+
+			/*
+				##################################################################
+				##################################################################
+				##################################################################
+				##################################################################
+				##################################################################
+				##################################################################
+			*/
+
+			const float A_SPEEDY_BOY = 200.f; // ÖKA FÖR SÖLIGARE SNURR - SÄNK FÖR SNABBARE SNURR
+
+			ecs.update(1.f / A_SPEEDY_BOY);
+
+			/*
+				##################################################################
+				##################################################################
+				##################################################################
+				##################################################################
+				##################################################################
+				##################################################################
+			*/
+
+
+
+
+
+
+
+
+
+
+
+			graphics::Present(1);
 		}
 	}
 
 	/*
 	-- Cleanup Memory --
 	*/
-	StopHttpServer();
+	//StopHttpServer();
 
 	graphics::RenderManager& render_manager = static_cast<components::RenderManagerComponent*>(ecs.getAllComponentsOfType(components::RenderManagerComponent::typeID).next())->mgr;
 	graphics::MeshManager& mesh_manager = static_cast<components::MeshManagerComponent*>(ecs.getAllComponentsOfType(components::MeshManagerComponent::typeID).next())->mgr;
@@ -394,27 +430,27 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 	InitSound(rECS);
 	InitSong(rECS);
 
-	InitInput(rECS);
-	InitInterpreter(rECS);
+	//InitInput(rECS);
+	//InitInterpreter(rECS);
 
 	InitPhysics(rECS);
 	InitGrid(rECS);
-	InitArmy(rECS);
+	//InitArmy(rECS);
 	InitSceneObjects(rECS);
 
 	CreateCollisionForTiles(rECS);
 	CreateCollisionForSceneObjects(rECS);
 
-	InitIslands(rECS);
+	//InitIslands(rECS);
 
 	InitOceanEntities(rECS);
 	InitOceanUpdateSystem(rECS);
 
 	InitCamera(rECS);
 
-	InitAnimation(rECS);
+	//InitAnimation(rECS);
 
-	InitGameLoop(rECS);
+	//InitGameLoop(rECS);
 
 	WorldMeshData mapMeshData;
 	WorldMeshData oceanMeshData;
@@ -434,16 +470,16 @@ void InitAll(EntityComponentSystem& rECS, const UINT clientWidth, const UINT cli
 
 	InitGraphicsRenderSystems(rECS, mapMeshData, oceanMeshData, clientWidth, clientHeight);
 	InitGraphicsPostRenderSystems(rECS);
-	InitUI(rECS);
+	//InitUI(rECS);
 
-	InitWeapons(rECS);
+	//InitWeapons(rECS);
 
-	InitTraps(rECS);
-	InitPowerups(rECS);
+	//InitTraps(rECS);
+	//InitPowerups(rECS);
 
-	InitWorldScenery(rECS);
+	//InitWorldScenery(rECS);
 
-	InitHttpServer(rECS);
+	//InitHttpServer(rECS);
 
 	ecs::events::GameStartEvent eve;
 	rECS.createEvent(eve);
