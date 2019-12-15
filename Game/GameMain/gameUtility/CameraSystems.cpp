@@ -22,7 +22,7 @@ void ecs::systems::UpdateCameraSystem::updateEntity(FilteredEntity& entity, floa
 {
 	const XMFLOAT3 center = getComponentFromKnownEntity<components::TransformComponent>(GridProp::GetInstance()->mGrid[9][9].Id)->position;
 
-	const float ROTATION_SPEED = 1.0f;
+	const float ROTATION_SPEED = 0.2f;
 
 	components::CameraComponent* p_camera_comp = entity.getComponent<components::CameraComponent>();
 	components::TransformComponent* p_transform_comp = entity.getComponent<components::TransformComponent>();

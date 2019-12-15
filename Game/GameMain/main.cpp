@@ -211,7 +211,7 @@ int main()
 				##################################################################
 			*/
 
-			const float A_SPEEDY_BOY = 200.f; // ÖKA FÖR SÖLIGARE SNURR - SÄNK FÖR SNABBARE SNURR
+			const float A_SPEEDY_BOY = 60.f; // ÖKA FÖR SÖLIGARE SNURR - SÄNK FÖR SNABBARE SNURR
 
 			ecs.update(1.f / A_SPEEDY_BOY);
 
