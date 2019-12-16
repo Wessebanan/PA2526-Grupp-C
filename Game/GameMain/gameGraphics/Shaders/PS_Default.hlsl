@@ -81,22 +81,22 @@ float CalculateSSAO(
 
 	float occlusion = 0.0f;
 
-	const uint iterations = 4;
-	const float2 vec[iterations] = {
+	const float2 vec[8] = {
 		float2( 1,   1),
 		float2(-1,   1),
 		float2( 1,  -1),
 		float2(-1,  -1),
 
-		/*float2( 1, 0),
+		float2( 1, 0),
 		float2(-1, 0),
 		float2(0, -1),
-		float2(0,  1),*/
+		float2(0,  1),
 	};
 
 	float2 random = GetRandom(pos_ndc);
 	float radius = sample_radius / pos_view.z;
 
+	const uint iterations = 4;
 	for (uint i = 0; i < iterations; i++)
 	{
 		float2 coord1 = reflect(vec[i], random) * radius;
@@ -139,6 +139,8 @@ float4 main(PSIN input) : SV_TARGET0
 		normalize(input.normalViewSpace.xyz),
 		input.positionViewSpace.xyz,
 		pos_ndc_xy);
+
+	//float ssao = 1.0f;
 
 	float illumination = 1.0f;
 
