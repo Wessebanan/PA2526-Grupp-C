@@ -39,6 +39,7 @@ float shadow(const float2 pos, const float depth)
 	[unroll]
 	for (int x = -1; x <= 1; x++)
 	{
+		[unroll]
 		for (int y = -1; y <= 1; y++)
 		{
 			illumination += gShadowMap.SampleCmp(
@@ -48,12 +49,6 @@ float shadow(const float2 pos, const float depth)
 		}
 	}
 
-	//return gShadowMap.SampleCmp(
-	//	gSmpCmp,
-	//	shadowMapUV,
-	//	depth - shadow_bias);
-
-	//return  saturate(pow(illumination, 4.0f));
 	return  saturate(2.f * illumination - 1.f);
 }
 
