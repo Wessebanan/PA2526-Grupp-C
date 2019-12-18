@@ -140,8 +140,6 @@ float4 main(PSIN input) : SV_TARGET0
 		input.positionViewSpace.xyz,
 		pos_ndc_xy);
 
-	//float ssao = 1.0f;
-
 	float illumination = 1.0f;
 
 	// Diffuse and shadow mapping
