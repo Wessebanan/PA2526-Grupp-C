@@ -18,26 +18,15 @@ namespace graphics
 		mClientWidth = p_desc->ClientWidth;
 		mClientHeight = p_desc->ClientHeight;
 
-		mpDepthBuffer = p_desc->pDepthBuffer;
+		//mpDepthBuffer = p_desc->pDepthBuffer;
 		mpBuffers[0] = p_desc->pViewMatrixBuffer;
 		mpBuffers[1] = p_desc->pProjMatrixBuffer;
 		mpBuffers[2] = p_desc->pInvProjMatrixBuffer;
 
-		mpDepthBuffer->GetResource((ID3D11Resource**)&mpDepthTexture);
+		p_desc->pDepthBuffer->GetResource((ID3D11Resource**)&mpDepthTexture);
 
 		{
-			D3D11_TEXTURE2D_DESC texture_desc = { 0 };
-			texture_desc.Width = p_desc->ClientWidth;
-			texture_desc.Height = p_desc->ClientHeight;
-			texture_desc.ArraySize = 1;
-			texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-			texture_desc.CPUAccessFlags = 0;
-			texture_desc.Format = DXGI_FORMAT_R32_FLOAT;
-			texture_desc.SampleDesc = { 1, 0 };
-			texture_desc.Usage = D3D11_USAGE_DEFAULT;
-
-			pDevice4->CreateTexture2D(&texture_desc, NULL, &mpDepthTextureCopy);
-
+			// Sample depth for SSAO
 			D3D11_SHADER_RESOURCE_VIEW_DESC shader_desc = {};
 			shader_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 			shader_desc.Format = DXGI_FORMAT_R32_FLOAT;
@@ -45,9 +34,21 @@ namespace graphics
 			shader_desc.Texture2D.MostDetailedMip = 0;
 
 			pDevice4->CreateShaderResourceView(
-				mpDepthTextureCopy,
+				mpDepthTexture,
 				&shader_desc,
 				&mpDepthBufferCopySRV);
+
+			// To create depth buffer to later be used for read only
+			D3D11_DEPTH_STENCIL_VIEW_DESC depth_desc = {};
+			depth_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+			depth_desc.Format = DXGI_FORMAT_D32_FLOAT;
+			depth_desc.Texture2D.MipSlice = 0;
+			depth_desc.Flags = 0;
+
+			pDevice4->CreateDepthStencilView(
+				mpDepthTexture, 
+				&depth_desc,
+				&mpDepthBuffer);
 		}
 
 		return S_OK;
@@ -63,6 +64,11 @@ namespace graphics
 
 	void DepthPrePassPipeline::Begin(ID3D11DeviceContext4* pContext4)
 	{
+		pContext4->ClearDepthStencilView(mpDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+		ID3D11ShaderResourceView* p_null_view = NULL;
+		pContext4->PSSetShaderResources(5, 1, &p_null_view);
+
 		graphics::SetViewport(pContext4, 0, 0, mClientWidth, mClientHeight);
 		pContext4->OMSetRenderTargets(0, NULL, mpDepthBuffer);
 
@@ -80,14 +86,15 @@ namespace graphics
 
 	void DepthPrePassPipeline::End(ID3D11DeviceContext4* pContext4)
 	{
-		pContext4->CopyResource(mpDepthTextureCopy, mpDepthTexture);
+		//pContext4->CopyResource(mpDepthTextureCopy, mpDepthTexture);
+		pContext4->OMSetRenderTargets(0, NULL, NULL);
 		pContext4->PSSetShaderResources(5, 1, &mpDepthBufferCopySRV);
 		pContext4->PSSetConstantBuffers(0, 1, &mpBuffers[2]);
 	}
 
 	void DepthPrePassPipeline::Destroy()
 	{
-		mpDepthTextureCopy->Release();
+		//mpDepthTextureCopy->Release();
 		mpDepthBufferCopySRV->Release();
 		mpDepthTexture->Release();
 	}

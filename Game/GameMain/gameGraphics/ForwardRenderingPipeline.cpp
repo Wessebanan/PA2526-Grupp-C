@@ -193,10 +193,12 @@ namespace graphics
 
 			pDevice4->CreateTexture2D(&texture_desc, NULL, &mpDepthTexture);
 
+			// Read only DSV to use in combination with SRV
 			D3D11_DEPTH_STENCIL_VIEW_DESC depth_desc = {};
 			depth_desc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 			depth_desc.Format = DXGI_FORMAT_D32_FLOAT;
 			depth_desc.Texture2D.MipSlice = 0;
+			depth_desc.Flags = D3D11_DSV_READ_ONLY_DEPTH;
 
 			pDevice4->CreateDepthStencilView(mpDepthTexture, &depth_desc, &mpDepthBuffer);
 		}
@@ -207,7 +209,7 @@ namespace graphics
 
 			// Depth test parameters
 			dsDesc.DepthEnable = true;
-			dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+			dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 			dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;  
 
 			// Stencil test parameters
@@ -450,6 +452,7 @@ namespace graphics
 
 	void ForwardRenderingPipeline::End(ID3D11DeviceContext4* pContext4)
 	{
+		pContext4->OMSetDepthStencilState(NULL, 0);
 	}
 
 	void ForwardRenderingPipeline::Destroy()
