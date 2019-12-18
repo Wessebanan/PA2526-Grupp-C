@@ -179,8 +179,9 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	rEcs.createSystem<PowerupLootRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
 
+	/* For some reason this doesn't work
 	rEcs.createSystem<PowerupLootRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_render_buffer);
+		->Initialize(&r_render_mgr, &r_render_buffer);*/
 
 	rEcs.createSystem<OceanRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_state_mgr,
