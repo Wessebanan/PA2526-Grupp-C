@@ -34,7 +34,7 @@ namespace AIEcsFunctions
 		{
 			ecs::components::ArmyComponent army;
 			ecs::components::UITextComponent command_text_comp;
-			command_text_comp.mStrText = L"“w”";
+			command_text_comp.mStrText = L"";
 			ecs::components::UIDrawPosComponent text_pos_comp;
 			ecs::components::UIDrawColorComponent text_color_comp;
 			

@@ -24,7 +24,7 @@ struct PSIN
 	uint   fakeStencilValue		: FAKESTENCIL;
 };
 
-uint main(PSIN input) : SV_TARGET0
+float4 main(PSIN input) : SV_TARGET0
 {
-	return input.fakeStencilValue;
+	return input.color;
 }

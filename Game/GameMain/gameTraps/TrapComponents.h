@@ -78,9 +78,12 @@ namespace ecs
 			float mPulseCounter;
 		};
 
-		struct SpikeTrapComponent : public ecs::ECSComponent<SpikeTrapComponent>
+		struct RootComponent : public ecs::ECSComponent<RootComponent>
 		{
+			// Root duration
 			float mDuration;
+			// Factor of how much longer they will be immune after getting rooted
+			float mImuneFactor;
 
 			float mElapsedTime = 0;
 

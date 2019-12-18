@@ -55,5 +55,11 @@ namespace ecs
 			float Damage;
 			float Knockback;
 		};
+
+		EVENT(ThrowUnitEvent)
+		{
+			ID mUnitID;
+			ID mTileID;
+		};
 	} // events
 } // ecs

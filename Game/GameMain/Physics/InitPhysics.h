@@ -46,6 +46,9 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 	rEcs.createSystem<ecs::systems::DynamicMovementInitSystem>();
 	rEcs.createSystem<ecs::systems::DynamicMovementSystem>(3);
 
+	// Throw
+	rEcs.createSystem<ecs::systems::ThrowEventSystem>(8);
+
 	// Collision
 	rEcs.createSystem<ecs::systems::ObjectBoundingVolumeInitSystem>();
 	//rEcs.createSystem<ecs::systems::GroundCollisionComponentInitSystem>();
@@ -56,6 +59,7 @@ inline void CreatePhysicsSystems(ecs::EntityComponentSystem& rEcs)
 	rEcs.createSystem<ecs::systems::WeaponInitSystem>();
 	rEcs.createSystem<ecs::systems::DamageSystem>();
 	rEcs.createSystem<ecs::systems::UnitInvincibilityTimerSystem>();
+	rEcs.createSystem<ecs::systems::HealthCheckSystem>();
 
 	// Color
 	rEcs.createSystem<ecs::systems::UnitColorSwitchSystem>();

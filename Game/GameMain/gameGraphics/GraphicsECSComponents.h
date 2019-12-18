@@ -54,6 +54,11 @@ namespace ecs
 			UINT pipeline;
 		};
 
+		struct PipelineOutlineComponent : public ECSComponent<PipelineOutlineComponent>
+		{
+			graphics::FAKE_STENCIL_PIPELINE_DESC pipelineDesc;
+			UINT pipeline;
+		};
 
 		struct PipelineForwardComponent : public ECSComponent<PipelineForwardComponent>
 		{

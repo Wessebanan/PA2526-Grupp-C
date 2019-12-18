@@ -198,7 +198,7 @@ ecs::systems::BattlePhaseSystem::~BattlePhaseSystem()
 void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _entities, float _delta)
 {
 	int check_any_live = 0;
-	PLAYER alive_player;
+	int alive_player = -1;
 	ArmyComponent* p_army_comp;
 	ComponentIterator comp_it = ECSUser::getComponentsOfType<InputBackendComp>();
 	InputBackendComp* p_inputbackend;
@@ -213,7 +213,7 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 			check_any_live++;
 			alive_player = p_army_comp->playerID;
 		}
-		if (p_inputbackend->backend->mpPlayerIsConnected[p_army_comp->playerID] == true)
+		if (p_inputbackend->backend->mpPlayerIsConnected[p_army_comp->playerID])
 		{
 			ECSUser::removeComponent(p_army_comp->getEntityID(), AiBrainComponent::typeID);
 			getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = wstring(p_inputbackend->backend->mpUserNames[p_army_comp->playerID].begin(), p_inputbackend->backend->mpUserNames[p_army_comp->playerID].end());
@@ -224,7 +224,6 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 			{
 				getComponentFromKnownEntity<UITextComponent>(p_army_comp->getEntityID())->mStrText = L"CPU";
 
-
 				AiBrainComponent ai_brain;
 				ai_brain.mPlayer = p_army_comp->playerID;
 				ai_brain.mTimer = ai_brain.mPlayer;
@@ -232,18 +231,32 @@ void ecs::systems::BattlePhaseSystem::updateMultipleEntities(EntityIterator& _en
 			}
 		}
 	}
+	if (check_any_live <= 1)
+	{
+		if (!check_any_live)
+		{
+			//Change to overlook camera for the prep phase if dynamic.
+			CameraComponent* cam_comp = (CameraComponent*)getComponentsOfType<CameraComponent>().next();
+			if (cam_comp->type == DYNAMIC)
+			{
+				RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 
-	// There is one winner
-	if (check_any_live == 1)
-	{
-		events::RoundEndEvent eve;
-		eve.winner = alive_player;
-		createEvent(eve);
-	} // Draw
-	else if (check_any_live == 0)
-	{
-		events::RoundEndEvent eve;
-		eve.winner = -1;
+				if (cam_comp)
+				{
+					removeEntity(cam_comp->getEntityID());
+				}
+
+				TransformComponent new_transf_comp;
+				CameraComponent new_cam_comp;
+
+				CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
+
+				createEntity(new_transf_comp, new_cam_comp);
+			}
+		}
+		
+		events::RoundEndEvent eve;		
+		eve.winner = alive_player;		
 		createEvent(eve);
 	}
 }
@@ -327,7 +340,7 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 		while (p_gl = (GameLoopComponent*)itt.next())
 		{
 			p_gl->mRoundTime.StartGame();
-
+			p_gl->mGameOver = false;
 			p_gl->mPlayerPoints[0] = 0;
 			p_gl->mPlayerPoints[1] = 0;
 			p_gl->mPlayerPoints[2] = 0;
@@ -356,14 +369,6 @@ void ecs::systems::GameReStartSystem::readEvent(BaseEvent& event, float delta)
 
 		// remove loot tiles
 		GridProp::GetInstance()->mLootTiles.clear();
-
-		// Broken because we need a killer?
-		//// remove units
-		//itt = getComponentsOfType<UnitComponent>();
-		//UnitComponent* p_unit;
-		//DeadComponent dead;
-		//while (p_unit = (UnitComponent*)itt.next())
-		//	createComponent(p_unit->getEntityID(), dead);
 
 		// Switch to waiting for ready
 		RemoveSystem(SwitchStateSystem::typeID);
@@ -641,10 +646,6 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			ecs::components::UnitScalePercent unit_scale_comp;
 			ani_speed_comp.factor = 1.0f;
 
-			//ModelLoader::UniqueSkeletonData* skeletonData = &s.getComponent<ecs::components::SkeletonComponent>()->skeletonData;
-			//skeletonData->Init(MeshContainer::GetMeshCPU(MESH_TYPE::MESH_TYPE_UNIT)->GetSkeleton());
-			//skeletonData->StartAnimation(ModelLoader::ANIMATION_TYPE::IDLE);
-
 			ecs::BaseComponent* components[] =
 			{
 				&transform, 
@@ -661,7 +662,7 @@ void ecs::systems::RoundStartSystem::CreateUnits()
 			list.initialInfo = components;
 			list.componentCount = 7;
 
-			//// ENTITIES
+			// ENTITIES
 			temp_entity = createEntity(list);
 
 			PoiComponent poi_comp;
@@ -700,7 +701,6 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 	ObjectCollisionComponent object_collision;
 	object_collision.mBvType = COLLISION_AABB;
 	object_collision.mObjType = GAME_OBJECT_TYPE_UNIT;
-	//GroundCollisionComponent ground_collision;
 	DynamicMovementComponent movement_component;
 	HealthComponent health_component;
 	EquipmentComponent equipment_component;
@@ -714,11 +714,6 @@ void ecs::systems::RoundStartSystem::CreateUnitPhysics()
 		{
 			createComponent<ObjectCollisionComponent>(current->getID(), object_collision);
 		}
-
-		//if (!current->hasComponentOfType<GroundCollisionComponent>())
-		//{
-		//	createComponent<GroundCollisionComponent>(current->getID(), ground_collision);
-		//}
 
 		if (!current->hasComponentOfType<DynamicMovementComponent>())
 		{
@@ -787,6 +782,7 @@ ecs::systems::RoundOverSystem::RoundOverSystem()
 	typeFilter.addRequirement(ecs::events::RoundEndEvent::typeID);
 
 	this->mRoundOver = false;
+
 	this->mRoundOverDuration = 0.0f;
 }
 
@@ -796,115 +792,108 @@ ecs::systems::RoundOverSystem::~RoundOverSystem()
 
 void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 {
-	if (event.getTypeID() == ecs::events::RoundEndEvent::typeID && !this->mRoundOver)
+	if (event.getTypeID() != ecs::events::RoundEndEvent::typeID)
+	{
+		return;
+	}
+
+	InputBackendComp* p_ib = (InputBackendComp*)getComponentsOfType(ecs::components::InputBackendComp::typeID).next();
+	GameLoopComponent* p_gl = (GameLoopComponent*)getComponentsOfType<GameLoopComponent>().next();
+	
+	if(!this->mRoundOver)
 	{
 		int winner = dynamic_cast<ecs::events::RoundEndEvent*>(&event)->winner;
+
+
+		UITextComponent* text_comp;
+		ComponentIterator text_comp_iterator = getComponentsOfType<UITextComponent>();
+		// Finding start text component.
+		while (text_comp = (UITextComponent*)text_comp_iterator.next())
+		{
+			if (text_comp->tag == UITAG::STARTTEXT)
+			{
+				break;
+			}
+		}
+
+		this->mRoundOver = true;
+
+		for (int i = 0; i < 4; i++)
+		{
+			p_ib->mPlacedTraps[i] = 0;
+		}
 
 		// Failsafe if the evetn wasnt created correct, -1 is also a draw
 		if (winner >= 0)
 		{
-			ComponentIterator itt = ecs::ECSUser::getComponentsOfType(ecs::components::GameLoopComponent::typeID);
-			GameLoopComponent* p_gl;
-			while (p_gl = (GameLoopComponent*)itt.next())
+			p_gl->mPlayerPoints[winner]++;	
+
+			// Check if the winner will sin the game now or not
+			if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN)
 			{
-				
-				// Check if the winner will sin the game now or not
-				if (p_gl->mPlayerPoints[winner] < ROUNDS_TO_WIN - 1)
+		
+				switch (winner)
 				{
-					p_gl->mPlayerPoints[winner]++;
-
-					cout << "The round winner is Player " << winner << endl;
-					// Can be reworked to start prep phase
-					this->mRoundOver = true;
-					itt = getComponentsOfType<UITextComponent>();
-					
-					
-					UITextComponent* text_comp;
-					while (text_comp = (UITextComponent*)itt.next())
-					{
-						if (text_comp->tag == UITAG::STARTTEXT)
-						{
-							switch (winner)
-							{
-							case PLAYER1:
-								text_comp->mStrText = L"RED won the round!";
-								break;
-							case PLAYER2:
-								text_comp->mStrText = L"PURPLE won the round!";
-								break;
-							case PLAYER3:
-								text_comp->mStrText = L"BLUE won the round!";
-								break;
-							case PLAYER4:
-								text_comp->mStrText = L"GREEN won the round!";
-								break;
-							default:
-								break;
-							}
-						}
-					}
-
-					itt = ecs::ECSUser::getComponentsOfType(ecs::components::InputBackendComp::typeID);
-					ecs::components::InputBackendComp* p_ib;
-					if (p_ib = static_cast<InputBackendComp*>(itt.next()))
-					{
-						for (int i = 0; i < 4; i++)
-						{
-							p_ib->mPlacedTraps[i] = 0;
-						}
-					}
+				case PLAYER1:
+					text_comp->mStrText = L"RED won the round!";
+					break;
+				case PLAYER2:
+					text_comp->mStrText = L"PURPLE won the round!";
+					break;
+				case PLAYER3:
+					text_comp->mStrText = L"BLUE won the round!";
+					break;
+				case PLAYER4:
+					text_comp->mStrText = L"GREEN won the round!";
+					break;
+				default:
+					break;
 				}
-				else
+				
+			}
+			else
+			{
+				p_gl->mGameOver = true;
+
+				switch (winner)
 				{
-					// What to do when a player has won
-					UITextComponent* text_comp;
-					itt = getComponentsOfType<UITextComponent>();
-					while (text_comp = (UITextComponent*)itt.next())
-					{
-						if (text_comp->tag == UITAG::STARTTEXT)
-						{
-							switch (winner)
-							{
-							case PLAYER1:
-								text_comp->mStrText = L"RED WON THE GAME!!!!";
-								break;
-							case PLAYER2:
-								text_comp->mStrText = L"PURPLE WON THE GAME!!!!";
-								break;
-							case PLAYER3:
-								text_comp->mStrText = L"BLUE WON THE GAME!!!!";
-								break;
-							case PLAYER4:
-								text_comp->mStrText = L"GREEN WON THE GAME!!!!";
-								break;
-							default:
-								break;
-							}
-						}
-					}
+				case PLAYER1:
+					text_comp->mStrText = L"RED WON THE GAME!!!!";
+					break;
+				case PLAYER2:
+					text_comp->mStrText = L"PURPLE WON THE GAME!!!!";
+					break;
+				case PLAYER3:
+					text_comp->mStrText = L"BLUE WON THE GAME!!!!";
+					break;
+				case PLAYER4:
+					text_comp->mStrText = L"GREEN WON THE GAME!!!!";
+					break;
+				default:
+					break;
 				}
 			}
+			
+		}
+		else
+		{
+			text_comp->mStrText = L"It's a draw!";
 		}
 	}
-
-	if (this->mRoundOver)
+	else if (p_gl->mGameOver)
+	{
+		return;
+	}
+	else
 	{
 		this->mRoundOverDuration += delta;
 
 		if (this->mRoundOverDuration > 3.0f)
-		{
-			ComponentIterator itt;
-			// Puts the players into waiting phase
-			itt = getComponentsOfType<InputBackendComp>();
-			InputBackendComp* p_ib;
-			while (p_ib = (InputBackendComp*)itt.next())
-			{
-				p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
-			}
-
+		{			
+			p_ib->backend->changeGamestate(WEBGAMESTATE::PREPPHASE);
+			
 			// Remove battlephase and start prephase
 			RemoveSystem(systems::BattlePhaseSystem::typeID);
-			RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
 			RemoveSystem(systems::MasterWeaponSpawner::typeID);
 			RemoveSystem(systems::SwitchStateSystem::typeID);
 			CreateSystem<systems::PrepPhaseSystem>(1);
@@ -927,20 +916,23 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			}
 
 
-			//Change to overlook camera for the prephase
-			itt = getComponentsOfType<CameraComponent>();
-			CameraComponent* cam_comp = (CameraComponent*)itt.next();
-			if (cam_comp)
+			//Change to overlook camera for the prep phase if not already overlook.
+			CameraComponent* cam_comp = (CameraComponent*)getComponentsOfType<CameraComponent>().next();
+			if (cam_comp->type == DYNAMIC)
 			{
-				removeEntity(cam_comp->getEntityID());
+				RemoveSystem(systems::UpdateDynamicCameraSystem::typeID);
+				if (cam_comp)
+				{
+					removeEntity(cam_comp->getEntityID());
+				}
+
+				TransformComponent new_transf_comp;
+				CameraComponent new_cam_comp;
+
+				CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
+
+				createEntity(new_transf_comp, new_cam_comp);
 			}
-
-			TransformComponent new_transf_comp;
-			CameraComponent new_cam_comp;
-
-			CameraEcsFunctions::CreateOverlookCamera(new_transf_comp, new_cam_comp);
-
-			createEntity(new_transf_comp, new_cam_comp);
 
 			this->mRoundOver = false;
 			this->mRoundOverDuration = 0.0f;
@@ -950,7 +942,7 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 			createEvent(ui_vis_event);
 
 			//Loop for every player.
-			itt = getComponentsOfType(ecs::components::ArmyComponent::typeID);
+			ComponentIterator itt = getComponentsOfType(ecs::components::ArmyComponent::typeID);
 			ecs::components::ArmyComponent* p_army;
 			int i = 0;
 			while (p_army = (ecs::components::ArmyComponent*)itt.next())
@@ -958,7 +950,6 @@ void ecs::systems::RoundOverSystem::readEvent(BaseEvent& event, float delta)
 				// Clear it out if there was an
 				for (size_t kk = 0; kk < p_army->unitIDs.size(); kk++)
 				{
-
 					ecs::components::EquipmentComponent* p_eq = getComponentFromKnownEntity<ecs::components::EquipmentComponent>(p_army->unitIDs[kk]);
 
 					removeEntity(p_eq->mEquippedWeapon);
