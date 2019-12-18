@@ -1,5 +1,7 @@
 #include "ShadowMapPipeline.h"
 
+#define DEPTH_BIAS_D32_FLOAT(d) (d/(1.0f/pow(2, 23)))
+
 namespace graphics
 {
 	static void SetOrtographicsMatrix(
@@ -96,11 +98,10 @@ namespace graphics
 		{
 			D3D11_SAMPLER_DESC desc = {};
 
-			desc.Filter = D3D11_FILTER_COMPARISON_ANISOTROPIC;
+			desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
 			desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
 			desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
 			desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-			desc.MaxAnisotropy = 2;
 			desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 			desc.BorderColor[0] = 1.0f;
 			desc.BorderColor[1] = 1.0f;

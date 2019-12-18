@@ -19,12 +19,38 @@ float shadow(const float2 pos, const float depth)
 	float2 shadowMapUV = float2(
 		(1.0f + pos.x) * 0.5f,
 		(1.0f - pos.y) * 0.5f
-		);
+	);
 
-	return gShadowMap.SampleCmpLevelZero(
-		gSmpCmp,
-		shadowMapUV,
-		depth - 0.003f);
+	float offset = 1.0f / (2048.0f);
+	float illumination = 0.0f;
+
+	const float shadow_bias = 0.0028f;
+
+	const float middle_weight = 0.2f;
+	const float side_weight_total = 1.0f - middle_weight;
+	const float side_weight = side_weight_total / 8.0f;
+
+	const float weigth[3][3] =
+	{
+		{side_weight, side_weight, side_weight},
+		{side_weight, middle_weight, side_weight},
+		{side_weight, side_weight, side_weight},
+	};
+
+	[unroll]
+	for (int x = -1; x <= 1; x++)
+	{
+		[unroll]
+		for (int y = -1; y <= 1; y++)
+		{
+			illumination += gShadowMap.SampleCmp(
+				gSmpCmp,
+				shadowMapUV + float2(x, y) * offset,
+				depth - shadow_bias) * weigth[x + 1][y + 1];
+		}
+	}
+
+	return  saturate(2.f * illumination - 1.f);
 }
 
 float3 GetViewPos(const float2 ndc_xy)
@@ -119,7 +145,7 @@ struct PSIN
 {
 	float4 pos			: SV_POSITION;
 	float4 sunPos		: POSITION1;
-	
+
 	float3 color		: COLOR0;
 	float3 normal		: NORMAL0;
 
@@ -133,7 +159,8 @@ float4 main(PSIN input) : SV_TARGET0
 	pos_ndc_xy *= float2(2.0f, -2.0f);
 	pos_ndc_xy -= float2(1.0f, -1.0f);
 
-	const float3 cam_dir = -float3(0.5f, -1.0f, 0.5f);
+	const float3 sun_dir = -float3(0.5f, -1.0f, 0.5f);
+	const float diffuse_shading = saturate(dot(normalize(sun_dir), normalize(input.normal)));
 
 	float ssao = CalculateSSAO(
 		normalize(input.normalViewSpace.xyz),
@@ -143,8 +170,8 @@ float4 main(PSIN input) : SV_TARGET0
 	float illumination = 1.0f;
 
 	// Diffuse and shadow mapping
-	illumination *= saturate(dot(normalize(cam_dir), normalize(input.normal)));
-	illumination *= shadow(input.sunPos.xy, input.sunPos.z);
+	illumination *= diffuse_shading;
+	illumination *= diffuse_shading <= 0.05f ? 0.05f * shadow(input.sunPos.xy, input.sunPos.z) : shadow(input.sunPos.xy, input.sunPos.z);
 
 	float3 ambient = input.color.xyz * 0.1f;
 	float3 diffuse = input.color.xyz * illumination;

@@ -89,10 +89,10 @@ void InitGraphicsComponents(EntityComponentSystem& rEcs, UINT renderBufferSize, 
 	components::PipelineOutlineComponent* p_poComp = rEcs.getComponentFromEntity<components::PipelineOutlineComponent>(graphics_entity_id);
 
 	p_psmComp->pipelineDesc.PixelsWidth = 2048;
-	p_psmComp->pipelineDesc.Width = 90.0f;
-	p_psmComp->pipelineDesc.Height = 60.0f;
+	p_psmComp->pipelineDesc.Width = 30.0f;
+	p_psmComp->pipelineDesc.Height = 30.0f;
 	p_psmComp->pipelineDesc.NearPlane = 1.0f;
-	p_psmComp->pipelineDesc.FarPlane = 70.0f;
+	p_psmComp->pipelineDesc.FarPlane = 48.0f;
 	p_psmComp->pipeline = r_renderer_mgr.CreatePipeline(new graphics::ShadowMapPipeline, &p_psmComp->pipelineDesc);
 
 	p_pfComp->pipelineDesc.ClientWidth = clientWidth;
@@ -179,8 +179,12 @@ void InitGraphicsRenderSystems(EntityComponentSystem& rEcs, WorldMeshData& rMapM
 	rEcs.createSystem<PowerupLootRenderSystem>(9)
 		->Initialize(&r_render_mgr, &r_render_buffer);
 
+	/* For some reason this doesn't work
+	rEcs.createSystem<PowerupLootRenderSystem>(9)
+		->Initialize(&r_render_mgr, &r_render_buffer);*/
+
 	rEcs.createSystem<OceanRenderSystem>(9)
-		->Initialize(&r_render_mgr, &r_state_mgr, 
+		->Initialize(&r_render_mgr, &r_state_mgr,
 			rOceanMeshData.pMesh,
 			rOceanMeshData.vertexCount);
 
