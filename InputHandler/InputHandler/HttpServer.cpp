@@ -151,6 +151,7 @@ void HttpServerThread()
 		{
 			std::string ip;
 			HttpServer::GetLocalIp4(ip);
+			ip = "192.168.1.244";
 			buf.insert(0, "<script>var ip_address=\"" + ip + "\";</script>\n");
 			rResponse.set_content(buf, "text/html");
 		}
