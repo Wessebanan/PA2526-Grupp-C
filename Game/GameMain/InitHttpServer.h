@@ -1,6 +1,6 @@
 #pragma once
 #include "ecs.h"
-#include "HttpServer.h"
+#include "../../InputHandler/includes/HttpServer.h"
 #include "UI/UIComponents.h"
 #include <locale>
 #include "../../Graphics/includes/window.h"
@@ -12,7 +12,7 @@ void InitHttpServer(ecs::EntityComponentSystem& rECS)
 	std::string text_str;
 	if(!HttpServer::GetLocalIp4(text_str))
 	{
-		MessageBoxA(NULL, "Failed", "Failed", 0);
+		MessageBoxA(NULL, "Failed to retrieve an IP-address", "Http Server : Error", 0);
 	}
 	std::wstring_convert<std::codecvt<wchar_t, char, std::mbstate_t>> convert;
 	//std::wstring text_wstr = convert.from_bytes(text_str);
