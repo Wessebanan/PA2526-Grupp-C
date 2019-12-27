@@ -24,6 +24,6 @@ TEST(HttpServer, HostServer)
 	std::string ip;
 	HttpServer::GetLocalIp4(ip);
 	std::cout << "Server open for 20 sec at adress: " << ip << std::endl;
-	Sleep(60000);
+	Sleep(6000);
 	HttpServer::StopHttpServer();
 }

@@ -45,8 +45,27 @@ bool HttpServer::GetLocalIp4(std::string& rStringToFill)
 			<< ret_val << std::endl;
 		return false;
 	}
+
+	// Loop through available adapters and compare their address to 
+	// "0.0.0.0" until it doesn't match anymore 
+	// because then we hopefully have a 192.168 address,
+	// expect failure or a correct ipv4 address when loop is finished
+	std::string cmp_string = "0.0.0.0";
+	PIP_ADAPTER_INFO p_ip_address_to_use = p_adapter_info;
+	while (cmp_string.compare(p_ip_address_to_use->IpAddressList.IpAddress.String) == 0)
+	{
+		p_ip_address_to_use = p_ip_address_to_use->Next;
+
+		// if failed to find a usable adapter
+		if (!p_ip_address_to_use)
+		{
+			std::cout << "Error when fetching IP: Error finding a compatible adapter (Third call)!\n";
+			return false;
+		}
+	}
+
 	// Fill the string with the IP adress
-	rStringToFill.assign(p_adapter_info->IpAddressList.IpAddress.String);
+	rStringToFill.assign(p_ip_address_to_use->IpAddressList.IpAddress.String);
 
 	// Free memory
 	if (p_adapter_info)
