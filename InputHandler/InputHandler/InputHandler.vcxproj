@@ -147,7 +147,9 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="HttpServer.cpp" />
+    <ClCompile Include="HttpServer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="includes\sha1.cpp" />
     <ClCompile Include="InputBackend.cpp" />
     <ClCompile Include="PingingWebsite.cpp">
