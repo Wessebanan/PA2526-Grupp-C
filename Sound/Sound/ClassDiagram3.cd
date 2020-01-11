@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="Audio::Engine">
+    <Position X="0.5" Y="0.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AgAFAIAwAgQAAAKECAVAAEAAAABQAgAABAQAgAAAAAA=</HashCode>
+      <FileName>includes\AudioEngine.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="mpMixer" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Audio::PaHandler">
+    <Position X="1.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAiBAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>includes\AudioEngine.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Audio::Music::Manager">
+    <Position X="5.5" Y="4" Width="5.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="Audio::Music::Manager::MusicVoiceData">
+        <TypeIdentifier>
+          <NewMemberFileName>includes\AudioMixer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AACAAsAAAACAAAIhACAIABAAAABADAAAAAAEAAAAABA=</HashCode>
+      <FileName>includes\AudioMixer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Audio::Mixer">
+    <Position X="5.5" Y="0.5" Width="5.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAAAAEABAAAIYEAAAAAECAAAAAACAAAAAAE=</HashCode>
+      <FileName>includes\AudioMixer.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="mMusicManager" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Ringbuffer&lt;T, buffer_size, wmo_multi_core, cacheline_size, index_t&gt;">
+    <Position X="11.25" Y="2.75" Width="4.5" />
+    <TypeIdentifier>
+      <HashCode>AACIAAAAgABAAAAESAAQACAAEAAAAEABABAACgAQwgA=</HashCode>
+      <FileName>includes\RingBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -81,10 +81,10 @@ namespace Audio
 
 
 		std::thread* mpWorkerThread;
-		TimePoint mWorkThreadStartTime;
+		std::chrono::steady_clock::time_point mWorkThreadStartTime;
 		std::atomic_bool mWorkerThreadRun;
 
-		FrameBuffer mBuffer;
+		Ringbuffer<Frame, SOUND_BUFFER_SIZE> mBuffer;
 		Samples mProducerLastSampleCount;
 
 		Mixer* mpMixer;

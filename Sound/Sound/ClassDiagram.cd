@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="Audio::Bank">
+    <Position X="14.75" Y="0.5" Width="2.25" />
+    <AssociationLine Name="mpFiles" Type="Audio::FileData" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="17" Y="1.532" />
+        <Point X="17.625" Y="1.532" />
+        <Point X="17.625" Y="5.5" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAAAACAAAEACAAAAIAGAAAAAAA=</HashCode>
+      <FileName>includes\AudioBank.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="mpFiles" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Audio::Engine">
+    <Position X="0.5" Y="0.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AgAFAIAwAgQAAAKECAVAAEAAAABQAgAABAQAgAAAAAA=</HashCode>
+      <FileName>includes\AudioEngine.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="mpMixer" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Audio::PaHandler">
+    <Position X="4.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAAAAAAAAAAAiBAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>includes\AudioEngine.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Audio::FileData">
+    <Position X="15.5" Y="5.5" Width="2.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="Audio::FileData::WavHeader" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>includes\AudioFile.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AgEAAACAAAAQABAAQAAIAAAAAAAAARgAAAAAAAAABQE=</HashCode>
+      <FileName>includes\AudioFile.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Audio::Music::Manager">
+    <Position X="6" Y="4" Width="5.25" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Struct Name="Audio::Music::Manager::MusicVoiceData">
+        <TypeIdentifier>
+          <NewMemberFileName>includes\AudioMixer.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AACAAsAAAACAAAIhACAIABAAAABADAAAAAAEAAAAABA=</HashCode>
+      <FileName>includes\AudioMixer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Audio::Mixer">
+    <Position X="6" Y="0.5" Width="5.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAACAAAAEABAAAIYEAAAAAECAAAAAACAAAAAAE=</HashCode>
+      <FileName>includes\AudioMixer.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="mMusicManager" />
+      <Field Name="mSoundVoices" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Audio::Plugin::Plugin">
+    <Position X="12.25" Y="4" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAABAAEAAAAAgAEAAAAAAAAAAAAAAAIAACAAAA=</HashCode>
+      <FileName>includes\AudioPlugin.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Audio::Plugin::Sampler">
+    <Position X="12" Y="7.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEAIAiAQAAAAgAAQAABAAAAAAAQAAAAAAiACAA=</HashCode>
+      <FileName>includes\AudioPlugin.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="mpFile" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Audio::Plugin::Gain">
+    <Position X="15.25" Y="2.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAICgAAAAAAAEABAAAAAAAAAAAIABA=</HashCode>
+      <FileName>includes\AudioPlugin.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Audio::Voice">
+    <Position X="12.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAEQCAAEAAAAEAAAAEACAAAAAAAAAAAAAg=</HashCode>
+      <FileName>includes\AudioVoice.h</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="mpEntryPlugin" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Ringbuffer&lt;T, buffer_size, wmo_multi_core, cacheline_size, index_t&gt;">
+    <Position X="0.5" Y="6" Width="4.5" />
+    <TypeIdentifier>
+      <HashCode>AACIAAAAgABAAAAESAAQACAAEAAAAEABABAACgAQwgA=</HashCode>
+      <FileName>includes\RingBuffer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="Audio::Frame">
+    <Position X="3.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>includes\AudioHelpers.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Audio::Sound::Message">
+    <Position X="10.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>includes\AudioMixer.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Audio::Music::Message">
+    <Position X="9.75" Y="5.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAQ=</HashCode>
+      <FileName>includes\AudioMixer.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="Audio::Plugin::Status">
+    <Position X="13.75" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAAAAAAAAAAAAAEAAAAAAAAAAAAAA=</HashCode>
+      <FileName>includes\AudioPlugin.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Audio::Music::MessageFlags" Collapsed="true">
+    <Position X="9.75" Y="7.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>IwAIAAAAgAAAAAgAEAAAAAAAAEAASJIAABBQAAAASgA=</HashCode>
+      <FileName>includes\AudioMixer.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
